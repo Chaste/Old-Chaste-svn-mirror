@@ -65,7 +65,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         mAmMaster = true;
     }
     mDirectory = GetOutputDirectoryFullPath(rDirectory);
-    
+
     // Clean the output dir?
     if (rCleanOutputDirectory && mAmMaster &&
         rDirectory != "" && rDirectory.find("..") == std::string::npos)
@@ -99,10 +99,10 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
             directory_root = directory_root + "/";
         }
     }
-    
+
     return directory_root;
 }
-    
+
 
 std::string OutputFileHandler::GetOutputDirectoryFullPath(std::string directory)
 {
@@ -113,7 +113,7 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath(std::string directory)
     {
         system(("mkdir -p " + directory).c_str());
     }
-    
+
     // Add a trailing slash if not already there
     if (! ( *(directory.end()-1) == '/'))
     {
@@ -149,7 +149,7 @@ out_stream OutputFileHandler::OpenOutputFile(std::string fileName,
     std::stringstream string_stream;
     string_stream << fileName << number << fileFormat;
     return OpenOutputFile(string_stream.str(), mode);
-}                                              
+}
 
 bool OutputFileHandler::IsMaster()
 {

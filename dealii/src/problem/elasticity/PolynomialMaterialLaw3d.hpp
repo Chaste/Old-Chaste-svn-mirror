@@ -59,7 +59,7 @@ class PolynomialMaterialLaw3d : public AbstractIsotropicIncompressibleMaterialLa
 private :
     unsigned mN;
     std::vector< std::vector<double> > mAlpha;
-    
+
 public :
     double Get_dW_dI1(double I1, double I2)
     {
@@ -74,11 +74,11 @@ public :
                 ret += mAlpha[p][q] * p * pow(I1-3,p-1) * pow(I2-3,q);
             }
         }
-        
+
         return ret;
     }
-    
-    
+
+
     double Get_dW_dI2(double I1, double I2)
     {
         double ret = 0.0;
@@ -94,12 +94,12 @@ public :
         }
         return ret;
     }
-    
-    
+
+
     double Get_d2W_dI1(double I1, double I2)
     {
         double ret = 0.0;
-        
+
         // notes: use ints not unsigned as doing p-1
         // (except indexing from p=2 because multiplying by p(p-1), but
         // still safer to use ints)
@@ -112,12 +112,12 @@ public :
         }
         return ret;
     }
-    
-    
+
+
     double Get_d2W_dI2(double I1, double I2)
     {
         double ret = 0.0;
-        
+
         // notes: use ints not unsigned as doing q-1
         // (except indexing from q=2 because multiplying by q(q-1), but
         // still safer to use ints)
@@ -130,11 +130,11 @@ public :
         }
         return ret;
     }
-    
+
     double Get_d2W_dI1I2(double I1, double I2)
     {
         double ret = 0.0;
-        
+
         // notes: use ints not unsigned as doing p-1
         // (except indexing from p=1,q=1 because multiplying by pq, but
         // still safer to use ints)
@@ -147,15 +147,15 @@ public :
         }
         return ret;
     }
-    
+
     double GetAlpha(unsigned i, unsigned j)
     {
         assert(i+j > 0);
         assert(i+j <= mN);
-        
+
         return mAlpha[i][j];
     }
-    
+
 public :
     PolynomialMaterialLaw3d(unsigned N, std::vector<std::vector<double> > alpha)
     {
@@ -163,9 +163,9 @@ public :
         {
             EXCEPTION("N must be positive");
         }
-        
+
         mN = N;
-        
+
         // error checking: must have alpha[p][q]=0 if p+q>N
         for (unsigned p=0; p<=mN; p++)
         {
@@ -173,7 +173,7 @@ public :
             {
                 EXCEPTION("alpha not big enough");
             }
-            
+
             for (unsigned q=0; q<alpha[p].size(); q++)
             {
                 if ((p+q>mN) && (fabs(alpha[p][q]) > 1e-12))
@@ -184,14 +184,14 @@ public :
                 }
             }
         }
-        
+
         mAlpha = alpha;
     }
-    
+
     static std::vector<std::vector<double> > GetZeroedAlpha(unsigned N)
     {
         std::vector<std::vector<double> > alpha(N+1);
-        
+
         for (unsigned i=0; i<N+1; i++)
         {
             alpha[i].resize(N+1);
@@ -200,7 +200,7 @@ public :
                 alpha[i][j] = 0.0;
             }
         }
-        
+
         return alpha;
     }
 };

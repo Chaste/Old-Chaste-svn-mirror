@@ -43,13 +43,13 @@ void ReplicatableVector::RemovePetscContext()
         VecScatterDestroy(mToAll);
         mToAll=NULL;
     }
-    
+
     if (mReplicated != NULL)
     {
         VecDestroy(mReplicated);
         mReplicated=NULL;
     }
-    
+
     if (mDistributed != NULL)
     {
         VecDestroy(mDistributed);
@@ -71,7 +71,7 @@ ReplicatableVector::ReplicatableVector(Vec vec)
     mToAll=NULL;
     mReplicated=NULL;
     mDistributed=NULL;
-    
+
     ReplicatePetscVector(vec);
 }
 
@@ -119,7 +119,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
     {
         VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->size(), &mDistributed);
     }
-    
+
     double *p_distributed;
     VecGetArray(mDistributed, &p_distributed);
     for (unsigned global_index=lo; global_index<hi; global_index++)
@@ -128,7 +128,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
     }
     VecAssemblyBegin(mDistributed);
     VecAssemblyEnd(mDistributed);
-    
+
     //Now do the real replication
     ReplicatePetscVector(mDistributed);
 }
@@ -139,7 +139,7 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     PetscInt isize;
     VecGetSize(vec, &isize);
     unsigned size=isize;
-    
+
     if (this->size() != size)
     {
         resize(size);
@@ -149,11 +149,11 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
         //This creates mReplicated (the scatter context) and mReplicated (to store values)
         VecScatterCreateToAll(vec, &mToAll, &mReplicated);
     }
-    
+
     //Replicate the data
     VecScatterBegin(vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
     VecScatterEnd  (vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
-    
+
     //Information is now in mReplicated PETSc vector
     //Copy into mData
     double *p_replicated;

@@ -43,28 +43,28 @@ public:
     {
         return 0;
     }
-    
+
     double ComputeNonlinearSourceTerm(const ChastePoint<2>& p, double u)
     {
         double x = p[0], y = p[1];
         return -4*(u*cos(x)*cos(x) + sin(x)*sin(x)*cos(x)*cos(x) + y*y);
     }
-    
+
     c_matrix<double, 2, 2> ComputeDiffusionTerm(const ChastePoint<2>& , double u)
     {
         return identity_matrix<double>(2)*u;
     }
-    
+
     c_matrix<double, 2, 2> ComputeDiffusionTermPrime(const ChastePoint<2>& , double )
     {
         return identity_matrix<double>(2);
     }
-    
+
     double ComputeNonlinearSourceTermPrime(const ChastePoint<2>& p, double )
     {
         return -(cos(p[0])*cos(p[0]));
     }
-    
+
     virtual ~ExampleNasty2dNonlinearEllipticPde()
     {}
 };

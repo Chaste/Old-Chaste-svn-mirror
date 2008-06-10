@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /* todos:
- * 
+ *
  * think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
 
@@ -61,26 +61,26 @@ template<unsigned DIM>
 struct ElementAndWeights
 {
     unsigned ElementNum;
-    c_vector<double,DIM+1> Weights;  
+    c_vector<double,DIM+1> Weights;
 };
 
 
 
 /**
  *  AbstractCardiacElectroMechanicsProblem
- * 
+ *
  *  Main class for solved full electro-mechanical problems. Currently subclasses just
  *  define which meshes to use and which assembler to use.
- * 
- *  Solves a monodomain problem (diffusion plus cell models) on a (fine) electrics (chaste) 
+ *
+ *  Solves a monodomain problem (diffusion plus cell models) on a (fine) electrics (chaste)
  *  mesh,and a mechanics problem (finite elasticity plus NHS cell models) on a coarse (dealii)
  *  mesh. Variable timesteps to implemented soon. An explicit (unstable) or implicit (Jon
- *  Whiteley's algorithm) can be used. 
- * 
+ *  Whiteley's algorithm) can be used.
+ *
  *  The explicit algorithm:
- *  
+ *
  *  Store the position in the electrics mesh of each quad point in the mechanics mesh
- *  For every time: 
+ *  For every time:
  *    Solve the monodomain problem (ie integrate ODEs, solve PDE)
  *    Get intracellular [Ca] at each electrics node and interpolate on each mechanics quad point
  *    Set [Ca], current fibre stretch and stretch rate at each mechanics quad point
@@ -88,23 +88,23 @@ struct ElementAndWeights
  *    Get active tension at each quad point and set on the mechanics assembler
  *    Solve static finite elasticity (using active tension as a constant 'source')
  *  end
- * 
- *  TODO: alter monodomain equation for the deformation   
- * 
+ *
+ *  TODO: alter monodomain equation for the deformation
+ *
  *  The implicit algorithm:
- *  
+ *
  *  Store the position in the electrics mesh of each quad point in the mechanics mesh
- *  For every time: 
+ *  For every time:
  *    Solve the monodomain problem (ie integrate ODEs, solve PDE)
  *    Get intracellular [Ca] at each electrics node and interpolate on each mechanics quad point
- *    Set [Ca] on each NHS model (one for each point) 
+ *    Set [Ca] on each NHS model (one for each point)
  *    Solve static finite elasticity problem implicity
  *       - guess solution
  *       - this gives the fibre stretch and stretch rate to be set on NHS models
  *       - integrate NHS models implicity for active tension
  *       - use this active tension in computing the stress for that guess of the deformation
- *  end   
- */ 
+ *  end
+ */
 template<unsigned DIM>
 class AbstractCardiacElectroMechanicsProblem
 {
@@ -114,27 +114,27 @@ protected :
     /*< The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
     /*< The mechanics assembler */
-    AbstractCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;  
+    AbstractCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;
 
     /*< End time. The start time is assumed to be 0.0 */
     double mEndTime;
     /*< The electrics timestep. */
     double mElectricsTimeStep;
-    /*< The mechanics timestep. Needds to be a multiple of the electrics timestep */  
+    /*< The mechanics timestep. Needds to be a multiple of the electrics timestep */
     double mMechanicsTimeStep;
     /*< The number of electrics timesteps per mechanics timestep */
     unsigned mNumElecStepsPerMechStep;
     /*< Timestep to use when solving NHS models (for implicit version)*/
     double mNhsOdeTimeStep;
-    
+
     /*< A chaste mesh for the electrics */
     ConformingTetrahedralMesh<DIM,DIM>* mpElectricsMesh;
     /*<  A dealii mesh for the mechanics */
     Triangulation<DIM>*                 mpMechanicsMesh;
 
-    /** 
-     *  The (electrics-mesh) element numbers saying which element each 
-     *  (mechanics-mesh) gauss point is in, and the weight of that gauss point 
+    /**
+     *  The (electrics-mesh) element numbers saying which element each
+     *  (mechanics-mesh) gauss point is in, and the weight of that gauss point
      *  for that particular element.
      */
     std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
@@ -146,15 +146,15 @@ protected :
     bool mWriteOutput;
     /** Whether to not write out voltages */
     bool mNoElectricsOutput;
-    /*< when to write output */    
-    const static int WRITE_EVERY_NTH_TIME = 1; 
-    
-    /** 
+    /*< when to write output */
+    const static int WRITE_EVERY_NTH_TIME = 1;
+
+    /**
      *  Whether to use a direct solver when solving linear system. Should
      *  definitely be used if UMFPACK is installed.
      */
     bool mUseDirectLinearSolver;
-    
+
     /*< Whether any location has been set to be watched (lots of output for that location */
     bool mIsWatchedLocation;
     /*< The watched location if there is one */
@@ -166,24 +166,24 @@ protected :
     /*< File where watched location info is written */
     out_stream mpWatchedLocationFile;
 
-    
+
     /**
-     *  A pure method constructing the mechanics assembler 
+     *  A pure method constructing the mechanics assembler
      *  @param mechanicsOutputDir The output directory the assembler
      *  should be created with.
      *  */
     virtual void ConstructMechanicsAssembler(std::string mechanicsOutputDir)=0;
     /*< A pure method to be implemented in the concrete class constructing the meshes */
     virtual void ConstructMeshes()=0;
-    
+
     virtual void PostSolve(double currentTime)
     {
     }
-    
+
     void DetermineWatchedNodes()
     {
         assert(mIsWatchedLocation);
-    
+
         // find the nearest electrics mesh node
         double min_dist = DBL_MAX;
         unsigned node_index = UNSIGNED_UNSET;
@@ -204,7 +204,7 @@ protected :
         if(min_dist > 1e-8)
         {
             std::cout << "ERROR: Could not find an electrics node very close to requested watched location - "
-                      << "min distance was " << min_dist << " for node " << node_index 
+                      << "min distance was " << min_dist << " for node " << node_index
                       << " at location " << pos << std::flush;;
 
             //// the following causes a seg fault for some reason (!!???!!!)
@@ -221,7 +221,7 @@ protected :
         min_dist = DBL_MAX;
         node_index = UNSIGNED_UNSET;
         Point<DIM> pos_at_min;
-        
+
         TriangulationVertexIterator<DIM> vertex_iter(mpMechanicsMesh);
         while (!vertex_iter.ReachedEnd())
         {
@@ -237,18 +237,18 @@ protected :
             {
                 min_dist = dist;
                 node_index = vertex_iter.GetVertexGlobalIndex();
-                pos_at_min = position; 
+                pos_at_min = position;
             }
             vertex_iter.Next();
         }
-        
+
         // set up watched node, if close enough
-        assert(node_index != UNSIGNED_UNSET); // should def have found something 
+        assert(node_index != UNSIGNED_UNSET); // should def have found something
 
         if(min_dist > 1e-8)
         {
             std::cout << "ERROR: Could not find a mechanics node very close to requested watched location - "
-                      << "min distance was " << min_dist << " for node " << node_index 
+                      << "min distance was " << min_dist << " for node " << node_index
                       << " at location " << pos_at_min;
 
             //// the following causes a seg fault for some reason (!!???!!!)
@@ -264,23 +264,23 @@ protected :
         OutputFileHandler handler(mOutputDirectory + "/watched/");
         mpWatchedLocationFile = handler.OpenOutputFile("data_NBassumesLr91.txt");
     }
-    
-    
+
+
     void WriteWatchedLocationData(double time, Vec voltage)
     {
         assert(mIsWatchedLocation);
-        
+
         std::vector<Vector<double> >& deformed_position
           = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
-         
+
         ///\todo Rather inefficient
         ReplicatableVector voltage_replicated(voltage);
         double V=voltage_replicated[mWatchedElectricsNodeIndex];
-        
+
         ///\todo:
         // HARDCODED state variable index - assumes Lr91. Hierarchy not set up yet.
         double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->rGetStateVariables()[3];
-        
+
         *mpWatchedLocationFile << time << " ";
         for(unsigned i=0; i<DIM; i++)
         {
@@ -289,7 +289,7 @@ protected :
         *mpWatchedLocationFile << V <<  " " << Ca << "\n";
         mpWatchedLocationFile->flush();
     }
-    
+
 public :
     /**
      *  Constructor
@@ -311,7 +311,7 @@ public :
         assert(pCellFactory != NULL);
         mpMonodomainProblem = new MonodomainProblem<DIM>(pCellFactory);
 
-        // save time infomation        
+        // save time infomation
         assert(endTime > 0);
         mEndTime = endTime;
         mElectricsTimeStep = 0.01;
@@ -320,7 +320,7 @@ public :
         mMechanicsTimeStep = mElectricsTimeStep*mNumElecStepsPerMechStep;
         assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
         mNhsOdeTimeStep = nhsOdeTimeStep;
-                                
+
         // check whether output is required
         mWriteOutput = (outputDirectory!="");
         if(mWriteOutput)
@@ -335,13 +335,13 @@ public :
             mDeformationOutputDirectory = ""; // not really necessary but a bit safer, as passed in ConstructMechanicsAssembler
         }
         mNoElectricsOutput = false;
-       
+
         // initialise all the pointers
         mpElectricsMesh = NULL;
         mpMechanicsMesh = NULL;
         mpCardiacMechAssembler = NULL;
-                
-        // Create the Logfile (note we have to do this after the output dir has been 
+
+        // Create the Logfile (note we have to do this after the output dir has been
         // created, else the log file might get cleaned away
         std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
         LogFile::Instance()->Set(1, mOutputDirectory);
@@ -350,53 +350,53 @@ public :
         LOG(1, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
         LOG(1, "Nhs ode timestep " << mNhsOdeTimeStep);
         LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
-                
+
         // by default we don't use the direct solver, as not all machines are
         // set up to use UMFPACK yet. However, it is MUCH better than GMRES.
         mUseDirectLinearSolver = false;
-        
+
         mIsWatchedLocation = false;
         mWatchedElectricsNodeIndex = UNSIGNED_UNSET;
         mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
-    }   
-    
+    }
+
     virtual ~AbstractCardiacElectroMechanicsProblem()
     {
         delete mpMonodomainProblem;
         delete mpCardiacMechAssembler;
         delete mpElectricsMesh;
         delete mpMechanicsMesh;
-        
+
         if(mIsWatchedLocation)
         {
             mpWatchedLocationFile->close();
         }
-        
+
         LogFile::Close();
     }
-    
+
     /**
      *  Initialise the class. Calls ConstructMeshes() and ConstructMechanicsAssembler() on
-     *  the concrete classes. Initialises the MonodomainProblem and sets up the electrics 
+     *  the concrete classes. Initialises the MonodomainProblem and sets up the electrics
      *  mesh to mechanics mesh data.
      */
     void Initialise()
     {
         LOG(1, "Initialising meshes and cardiac mechanics assembler..");
-        
+
         assert(mpElectricsMesh==NULL);
         assert(mpMechanicsMesh==NULL);
         assert(mpCardiacMechAssembler==NULL);
-        
+
         // construct the two meshes
         ConstructMeshes();
-        
+
         if(mIsWatchedLocation)
         {
             DetermineWatchedNodes();
         }
-        
-        // initialise monodomain problem                        
+
+        // initialise monodomain problem
         mpMonodomainProblem->SetMesh(mpElectricsMesh);
         if(DIM==2)
         {
@@ -410,7 +410,7 @@ public :
 
         mpMonodomainProblem->Initialise();
 
-        // construct mechanics assembler 
+        // construct mechanics assembler
         ConstructMechanicsAssembler(mDeformationOutputDirectory);
         if(mUseDirectLinearSolver)
         {
@@ -436,14 +436,14 @@ public :
             {
                 point.rGetLocation()[j]=quad_point_posns[i][j];
             }
-            
+
             unsigned elem_index = mpElectricsMesh->GetContainingElementIndex(point);
             c_vector<double,DIM+1> weight = mpElectricsMesh->GetElement(elem_index)->CalculateInterpolationWeights(point);
-            
+
             mElementAndWeightsForQuadPoints[i].ElementNum = elem_index;
             mElementAndWeightsForQuadPoints[i].Weights = weight;
         }
-        
+
         if(mWriteOutput)
         {
             TrianglesMeshWriter<DIM,DIM> mesh_writer(mOutputDirectory,"electrics_mesh",false);
@@ -464,9 +464,9 @@ public :
 //        }
     }
 
-    /** 
+    /**
      *  Solve the electromechanincs problem
-     */    
+     */
     void Solve()
     {
         // initialise the meshes and mechanics assembler
@@ -474,18 +474,18 @@ public :
         {
             Initialise();
         }
-        
-        BoundaryConditionsContainer<DIM,DIM,1> bcc;       
+
+        BoundaryConditionsContainer<DIM,DIM,1> bcc;
         bcc.DefineZeroNeumannOnMeshBoundary(mpElectricsMesh, 0);
         mpMonodomainProblem->SetBoundaryConditionsContainer(&bcc);
 
         // get an electrics assembler from the problem. Note that we don't call
         // Solve() on the CardiacProblem class, we do the looping here.
-        AbstractDynamicAssemblerMixin<DIM,DIM,1>* p_electrics_assembler 
+        AbstractDynamicAssemblerMixin<DIM,DIM,1>* p_electrics_assembler
            = mpMonodomainProblem->CreateAssembler();
 
         // set up initial voltage etc
-        Vec voltage;        
+        Vec voltage;
         Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
         // Create stores of lambda, lambda_dot and old lambda
@@ -498,13 +498,13 @@ public :
         EulerIvpOdeSolver euler_solver;
 
         // this is the active tension if explicit and the calcium conc if implicit
-        std::vector<double> forcing_quantity(num_quad_points, 0.0);            
+        std::vector<double> forcing_quantity(num_quad_points, 0.0);
 
         // write the initial position
         // NOTE: small architecture issue here. All concrete assembler (at the moment) are
         // AbstractElasticityAssembler assemblers (naturally) as well as AbstractCardiacMech
         // assemblers, but the compiler doesn't know that here, hence the cast
-        
+
         unsigned counter = 0;
 
         TimeStepper stepper(0.0, mEndTime, mMechanicsTimeStep);
@@ -519,7 +519,7 @@ public :
                 mpMonodomainProblem->InitialiseWriter();
                 mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
             }
-            
+
             if(mIsWatchedLocation)
             {
                 WriteWatchedLocationData(stepper.GetTime(), initial_voltage);
@@ -530,7 +530,7 @@ public :
         {
             LOG(1, "\nCurrent time = " << stepper.GetTime());
             std::cout << "\n\n ** Current time = " << stepper.GetTime();
-            
+
             LOG(1, "  Solving electrics");
             for(unsigned i=0; i<mNumElecStepsPerMechStep; i++)
             {
@@ -540,9 +540,9 @@ public :
                 // solve the electrics
                 p_electrics_assembler->SetTimes(current_time, next_time, mElectricsTimeStep);
                 p_electrics_assembler->SetInitialCondition( initial_voltage );
-            
+
                 voltage = p_electrics_assembler->Solve();
-            
+
                 PetscReal min_voltage, max_voltage;
                 VecMax(voltage,PETSC_NULL,&max_voltage); //the second param is where the index would be returned
                 VecMin(voltage,PETSC_NULL,&min_voltage);
@@ -554,16 +554,16 @@ public :
                 {
                     LOG(1, "  ..");
                 }
-        
+
                 VecDestroy(initial_voltage);
                 initial_voltage = voltage;
             }
 
 
 //            p_electrics_assembler->SetMatrixIsNotAssembled();
-            
+
             // compute Ca_I at each quad point (by interpolation, using the info on which
-            // electrics element the quad point is in. Then: 
+            // electrics element the quad point is in. Then:
             //   Explicit: Set Ca_I on the nhs systems and solve them to get the active tension
             //   Implicit: Set Ca_I on the mechanics solver
 
@@ -583,12 +583,12 @@ public :
                 // implicit: forcing quantity on the assembler is the calcium concentration
                 forcing_quantity[i] = interpolated_Ca_I;
             }
-            
+
             LOG(1, "  Setting Ca_I. max value = " << Max(forcing_quantity));
 
             // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
             // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
-            
+
             // set the active tensions if explicit, or the [Ca] if implicit
             mpCardiacMechAssembler->SetForcingQuantity(forcing_quantity);
 
@@ -596,14 +596,14 @@ public :
             LOG(1, "  Solving mechanics ");
             //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
             mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
-            
+
             unsigned num_iters = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->GetNumNewtonIterations();
             LOG(1, "    Number of newton iterations = " << num_iters);
 
             PostSolve(stepper.GetTime());
-            
+
             //// TODO: Update the monodomain equations for the deformation
-            
+
             // update the current time
             stepper.AdvanceOneTimeStep();
             counter++;
@@ -612,7 +612,7 @@ public :
             if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
             {
                 LOG(1, "  Writing output");
-                // write deformed position                    
+                // write deformed position
                 mech_writer_counter++;
                 dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);
 
@@ -650,10 +650,10 @@ public :
                 std::string chaste_2_meshalyzer;
                 std::stringstream space_dim;
                 space_dim << DIM;
-                
+
                 std::string mesh_full_path =   OutputFileHandler::GetChasteTestOutputDirectory()
                                              + mOutputDirectory + "/electrics_mesh";
-                
+
                 chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
                                       + space_dim.str() + " "       // argument 1 is the dimension.
                                       + mesh_full_path + " "        // arg 2 is mesh prefix
@@ -661,7 +661,7 @@ public :
                                       + "voltage "                  // arg 3 is the results folder and prefix,
                                                                     // relative to the testoutput folder.
                                       + "last_simulation";          // arg 4 is the output prefix, relative to
-                                                                    // anim folder.                
+                                                                    // anim folder.
                 system(chaste_2_meshalyzer.c_str());
             }
 
@@ -670,43 +670,43 @@ public :
         }
 
         delete p_electrics_assembler;
-        
+
     }
-    
-    
-    
+
+
+
     // short helper function - the max of a std::vec. this is in the wrong place
     double Max(std::vector<double>& vec)
     {
-        double max = -1e200; 
+        double max = -1e200;
         for(unsigned i=0; i<vec.size(); i++)
         {
             if(vec[i]>max) max=vec[i];
         }
         return max;
     }
-    
+
     /** Call to not write out voltages */
     void SetNoElectricsOutput()
     {
         mNoElectricsOutput = true;
     }
-    
-    /** Use the direct solver when solving linear systems in the 
+
+    /** Use the direct solver when solving linear systems in the
      *  mechanics. DEFINITELY should be used in experimental work.
      */
     void UseDirectLinearSolver()
     {
         mUseDirectLinearSolver = true;
     }
-    
+
     /**
-     *  Set a location to be watched - for which lots of output 
+     *  Set a location to be watched - for which lots of output
      *  is given. Should correspond to nodes in both meshes.
-     * 
+     *
      *  The watched file will have rows that look like:
      *  time x_pos y_pos [z_pos] voltage Ca_i_conc.
-     */ 
+     */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation)
     {
         mIsWatchedLocation = true;

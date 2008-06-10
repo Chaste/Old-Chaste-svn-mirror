@@ -39,31 +39,31 @@ public:
     {
         Node<2> zero(0);
         SimplePoissonEquation<2> heat_equation;
-        
+
         TS_ASSERT_DELTA(heat_equation.ComputeConstantInUSourceTermAtNode(zero), 1.0, 1e-12);
     }
-    
+
     void TestSimplePoissonEquationMethod()
     {
         ChastePoint<1> zero1(0);
         ChastePoint<2> zero2(0,0);
         ChastePoint<3> zero3(0,0,0);
-        
+
         SimplePoissonEquation<1> heat_equation1;
         SimplePoissonEquation<2> heat_equation2;
         SimplePoissonEquation<3> heat_equation3;
-                
+
         // diffusion matrices should be equal to identity
         c_matrix<double,1,1> diff1 = heat_equation1.ComputeDiffusionTerm(zero1);
         c_matrix<double,2,2> diff2 = heat_equation2.ComputeDiffusionTerm(zero2);
         c_matrix<double,3,3> diff3 = heat_equation3.ComputeDiffusionTerm(zero3);
-        
+
         TS_ASSERT_DELTA(diff1(0,0),1,1e-12);
-        
+
         TS_ASSERT_DELTA(diff2(0,0),1,1e-12);
         TS_ASSERT_DELTA(diff2(1,1),1,1e-12);
         TS_ASSERT_DELTA(diff2(0,1),0,1e-12);
-        
+
         TS_ASSERT_DELTA(diff3(0,0),1,1e-12);
         TS_ASSERT_DELTA(diff3(1,1),1,1e-12);
         TS_ASSERT_DELTA(diff3(2,2),1,1e-12);

@@ -46,7 +46,7 @@ public:
         TS_ASSERT_EQUALS(PetscTools::GetMyRank(), my_rank);
         bool am_master = (my_rank == 0);
         TS_ASSERT_EQUALS( PetscTools::AmMaster(), am_master);
-        
+
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         TS_ASSERT_EQUALS( PetscTools::NumProcs(), (unsigned)num_procs);
@@ -58,7 +58,7 @@ public:
         ////////////////////////////////////////////////////
         Vec vec1 = PetscTools::CreateVec(10, 3.41);
         ReplicatableVector vec1_repl(vec1);
-        
+
         TS_ASSERT_EQUALS(vec1_repl.size(), 10u);
         for(unsigned i=0; i<10; i++)
         {
@@ -73,17 +73,17 @@ public:
         {
             data[i] = i+0.45;
         }
-        
+
         Vec vec2 = PetscTools::CreateVec(data);
-        
+
         ReplicatableVector vec2_repl(vec2);
-        
+
         TS_ASSERT_EQUALS(vec2_repl.size(), 10u);
         for(unsigned i=0; i<10; i++)
         {
             TS_ASSERT_DELTA(vec2_repl[i], i+0.45, 1e-12);
         }
-        
+
         ///////////////////////////////////////////////////
         // test SetupMatrix
         ///////////////////////////////////////////////////
@@ -93,7 +93,7 @@ public:
         MatGetSize(mat, &m, &n);
         TS_ASSERT_EQUALS(m, 10);
         TS_ASSERT_EQUALS(n, 11);
-        
+
         MatType type;
         MatGetType(mat,&type);
         //TS_ASSERT_EQUALS(type, MATMPIAIJ); // this does seem to work, but doesn't pass: it says "found (mpiaij != mpiaij)"
@@ -101,16 +101,16 @@ public:
         VecDestroy(vec1);
         VecDestroy(vec2);
         MatDestroy(mat);
-        
+
     }
-    
+
     void TestBarrier()
     {
         // Testing the barrier method is kind of tricky, since we really want
         // to also check if it works when PETSc isn't set up.  So see TestPetscTools2.hpp!
         PetscTools::Barrier();
     }
-    
+
     void TestReplicateError()
     {
         DistributedVector::SetProblemSize(1);

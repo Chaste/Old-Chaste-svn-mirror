@@ -32,7 +32,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
 {
     /**
      * State variables.
-     * 
+     *
      * 0. r = pRb
      * 1. e = E2F1 (This is the S-phase indicator)
      * 2. i = CycD (inactive)
@@ -41,17 +41,17 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
      * 5. c = APC (Active)
      * 6. b1 = Beta-Catenin (1st allele's copy)
      * 7. b2 = Beta-Catenin (2nd allele's copy)
-     * 8. WntLevel 
+     * 8. WntLevel
      */
-    
+
     Init(); // set up parameter values
-    
+
     double destruction_level = ma5d/(ma4d*WntLevel+ma5d);
     double beta_cat_level_1 = -1.0;
     double beta_cat_level_2 = -1.0;
-    
+
     mMutationState = rMutationState;
-    
+
     // These three lines set up a wnt signalling pathway in a steady state
     if (mMutationState == HEALTHY || mMutationState == LABELLED)    // healthy cells
     {
@@ -79,39 +79,39 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
         // can't get here until new mutation states are added to CellMutationState
         NEVER_REACHED;
     }
-    
+
     mVariableNames.push_back("pRb");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(7.357000000000000e-01);
-    
+
     mVariableNames.push_back("E2F1");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(1.713000000000000e-01);
-    
+
     mVariableNames.push_back("CycD_i");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(6.900000000000001e-02);
-    
+
     mVariableNames.push_back("CycD_a");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(3.333333333333334e-03);
-    
+
     mVariableNames.push_back("pRb_p");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(1.000000000000000e-04);
-    
+
     mVariableNames.push_back("APC");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(destruction_level);
-    
+
     mVariableNames.push_back("Beta_Cat1");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(beta_cat_level_1);
-    
+
     mVariableNames.push_back("Beta_Cat2");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(beta_cat_level_2);
-    
+
     mVariableNames.push_back("Wnt");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(WntLevel);
@@ -155,7 +155,7 @@ void WntCellCycleOdeSystem::Init()
     double phi_CycDi = 0.023;
     double phi_CycDa = 0.03;
     double phi_pRbp = 0.06;
-    
+
     // Mirams et al. parameter values
     double a1 = 0.423;
     double a2 = 2.57e-4;
@@ -163,12 +163,12 @@ void WntCellCycleOdeSystem::Init()
     double a4 = 10.0;
     double a5 = 0.5;
     double WntMax = 10.0;
-    
+
     /// todo change this value of mitogenic_factorF to 5.0e-5 without breaking the build
     double mitogenic_factorF = 6.0e-4;
-    
+
     double APC_Total = 0.02;
-    
+
     // Non-dimensionalise...
     mk2d = k2/(Km2*phi_E2F1);
     mk3d = k3*a1*mitogenic_factorF/(Km4*phi_E2F1*a2);
@@ -208,7 +208,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     double b1 = rY[6];
     double b2 = rY[7];
     double WntLevel = rY[8];
-    
+
     double dx1 = 0.0;
     double dx2 = 0.0;
     double dx3 = 0.0;
@@ -217,7 +217,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     double dx6 = 0.0;
     double dx7 = 0.0;
     double dx8 = 0.0;
-    
+
     /*
      * The variables are
      * 1. r = pRb
@@ -228,9 +228,9 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
      * 6. c = APC (Active)
      * 7. b = Beta-Catenin
     */
-    
+
     // Bit back-to-front, but work out the Wnt section first...
-    
+
     // Mutations take effect by altering the level of beta-catenin
     if (mMutationState==HEALTHY || mMutationState==LABELLED)    // HEALTHY CELL
     {
@@ -263,9 +263,9 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
         // Can't get here until new mutation states are added to CellMutationState
         NEVER_REACHED;
     }
-    
+
     // Now the cell cycle stuff...
-    
+
     // dr
     dx1 = e/(mKm1d+e)*mJ11d/(mJ11d+r)*mJ61d/(mJ61d+p) - mk16d*r*j+mk61d*p-mphi_r*r;
     // de
@@ -276,9 +276,9 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     dx4 = mk34d*i*j/(1+j) - (mk43d+mphi_j)*j;
     // dp
     dx5 = mk16d*r*j - mk61d*p - mphi_p*p;
-        
+
     double factor = mPhiE2F1*60.0;  // convert non-dimensional d/dt s to d/dt in hours
-    
+
     rDY[0] = dx1*factor;
     rDY[1] = dx2*factor;
     rDY[2] = dx3*factor;

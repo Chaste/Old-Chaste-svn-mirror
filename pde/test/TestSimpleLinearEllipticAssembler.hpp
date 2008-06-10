@@ -58,23 +58,23 @@ public:
         c_matrix<double, 2, 2> ael;
         c_vector<double, 2> bel;
         SimpleLinearEllipticAssembler<1,1> assembler(NULL,&pde,NULL);
-        
+
         // the two 'true' say assemble the vector and assemble the matrix
         assembler.AssembleOnElement(element, ael, bel, true, true);
-        
+
         TS_ASSERT_DELTA(ael(0,0),0.5, 1e-12);
         TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
-        
+
         TS_ASSERT_DELTA(bel(0),1, 1e-12);
         TS_ASSERT_DELTA(bel(1),1, 1e-12);
-        
+
         // Free memory for nodes
         delete nodes[0];
         delete nodes[1];
     }
-    
+
     void TestAssembleOnElement2DCanonical ( void )
     {
         SimplePoissonEquation<2> pde;
@@ -85,34 +85,34 @@ public:
         Element<2,2> element(INDEX_IS_NOT_USED, nodes);
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;
-        
+
         SimpleLinearEllipticAssembler<2,2> assembler(NULL,&pde,NULL);
-        
+
         // the two 'true' say assemble the vector and assemble the matrix
         assembler.AssembleOnElement(element, ael, bel, true, true);
-        
+
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
         TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(0,2),-0.5, 1e-12);
-        
+
         TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
-        
+
         TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
         TS_ASSERT_DELTA(ael(2,2),0.5, 1e-12);
-        
+
         TS_ASSERT_DELTA(bel(0),1.0/6.0, 1e-12);
         TS_ASSERT_DELTA(bel(1),1.0/6.0, 1e-12);
         TS_ASSERT_DELTA(bel(2),1.0/6.0, 1e-12);
-        
+
         // Free memory for nodes
         delete nodes[0];
         delete nodes[1];
         delete nodes[2];
     }
-    
+
     void TestAssembleOnElement2DGeneral ( void )
     {
         SimplePoissonEquation<2> pde;
@@ -123,44 +123,44 @@ public:
         Element<2,2> element(INDEX_IS_NOT_USED, nodes);
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;
-        
+
         SimpleLinearEllipticAssembler<2,2> assembler(NULL,&pde,NULL);
-        
+
         // the two 'true' say assemble the vector and assemble the matrix
         assembler.AssembleOnElement(element, ael, bel, true, true);
-        
+
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
         TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(0,2),-0.5, 1e-12);
-        
+
         TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
-        
+
         TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
         TS_ASSERT_DELTA(ael(2,2),0.5, 1e-12);
-        
+
         TS_ASSERT_DELTA(bel(0),5.0/6.0, 1e-12);
         TS_ASSERT_DELTA(bel(1),5.0/6.0, 1e-12);
         TS_ASSERT_DELTA(bel(2),5.0/6.0, 1e-12);
-        
+
         // Free memory for nodes
         delete nodes[0];
         delete nodes[1];
         delete nodes[2];
     }
-    
+
     void TestWithHeatEquationAndMeshReader()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/trivial_1d_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         SimplePoissonEquation<1> pde;
-        
+
         double value1 = pde.ComputeConstantInUSourceTermAtNode(*(mesh.GetNode(0)));
         double value2 = pde.ComputeConstantInUSourceTerm(mesh.GetNode(0)->GetPoint());
         TS_ASSERT_DELTA(value1, value2, 1e-10);
@@ -173,13 +173,13 @@ public:
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
-        
+
         // set the relative tolerance (for coverage)
         assembler.SetLinearSolverRelativeTolerance(1e-5);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -193,10 +193,10 @@ public:
 
         // create a new assembler where we set the absolute tolerance
         SimpleLinearEllipticAssembler<1,1> assembler_abs(&mesh,&pde,&bcc);
-        
+
         // set the absolute tolerance (for coverage)
-        assembler_abs.SetLinearSolverAbsoluteTolerance(1.2e-2); // very high tol - |r0| ~= 3e-2 
-        
+        assembler_abs.SetLinearSolverAbsoluteTolerance(1.2e-2); // very high tol - |r0| ~= 3e-2
+
         Vec result_abs = assembler_abs.Solve();
         ReplicatableVector result_abs_repl(result_abs);
 
@@ -213,31 +213,31 @@ public:
         VecDestroy(result);
         VecDestroy(result_abs);
     }
-    
+
     void TestWithHeatEquation2()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         SimplePoissonEquation<1> pde;
-        
+
         // Boundary conditions u(-1)=1, u'(-3)=0
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
-        
+
         ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         // Add Neumann condition to the left hand end
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.size(); i++)
@@ -249,34 +249,34 @@ public:
 
         VecDestroy(result);
     }
-    
-    
+
+
     void TestWithHeatEquationNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         SimplePoissonEquation<1> pde;
-        
+
         // Boundary conditions u(-1)=1 u'(-3)=1
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], -1, 1e-12);
-        
+
         // Note we pass -1 not 1; see comment for AddNeumannBoundaryCondition
         ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(-1.0);
         // Add Neumann condition to the left hand end
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.size(); i++)
@@ -288,17 +288,17 @@ public:
 
         VecDestroy(result);
     }
-    
+
     void Test2dHeatEquationOnUnitSquare()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         SimplePoissonEquation<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(0.0);
@@ -306,27 +306,27 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(2), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
         TS_ASSERT_DELTA(result_repl[4], 1.0/12.0, 0.001);
 
         VecDestroy(result);
     }
-    
+
     void TestHeatEquationWithNeumannOnUnitDisc( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         SimplePoissonEquation<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         // du/dn = -0.5 on r=1
@@ -341,10 +341,10 @@ public:
         // u = 2 at some point on the boundary, say node 1
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.size(); i++)
@@ -358,33 +358,33 @@ public:
 
         VecDestroy(result);
     }
-    
+
     void TestVaryingPdeAndMeshReader1D()
     {
         /// Create mesh from mesh reader \todo set to correct mesh file?
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_1_to_3");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         VaryingDiffusionAndSourceTermPde<1> pde;
-        
+
         // Boundary conditions u(1)=4
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_dirichlet_condition =
             new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_dirichlet_condition);
-        
+
         // Note we need to specify D * du/dx for the Neumann boundary condition
         ConstBoundaryCondition<1>* p_neumann_boundary_condition =
             new ConstBoundaryCondition<1>(7.0*9.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.size(); i++)
@@ -396,7 +396,7 @@ public:
 
         VecDestroy(result);
     }
-    
+
     /**
      * Test a simple PDE with nasty boundary conditions - du/dn has a discontinuity.
      * This test takes a little while to run, so is currently disabled.
@@ -406,9 +406,9 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         LinearPdeWithZeroSource<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         // u = 0 on r<=1, z=0
@@ -446,12 +446,12 @@ public:
             }
             iter1++;
         }
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
-        
+
         // Check result
         double *p_result;
         int lo, hi;
@@ -481,8 +481,8 @@ public:
         VecRestoreArray(result, &p_result);
         VecDestroy(result);
     }
-    
-    
+
+
     //Test 3d data
     void Test3dEllipticEquationDirichletCondition()
     {
@@ -490,28 +490,28 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         SimplePoissonEquation<3> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-        
+
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
             double z = (*iter)->GetPoint()[2];
-            
+
             ConstBoundaryCondition<3>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
             bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             iter++;
         }
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -527,7 +527,7 @@ public:
 
         VecDestroy(result);
     }
-    
+
     //Test 3d data
     void Test3dEllipticEquationNeumannCondition()
     {
@@ -535,20 +535,20 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         SimplePoissonEquation<3> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-        
+
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
             double z = (*iter)->GetPoint()[2];
-            
+
             if (fabs(1-x)>=0.01)
             {
                 //Dirichlet boundary condition
@@ -557,7 +557,7 @@ public:
             }
             iter++;
         }
-        
+
         ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<3>* p_neumann_boundary_condition = new ConstBoundaryCondition<3>(-1.0/3);
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
@@ -565,18 +565,18 @@ public:
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
             double x = mesh.GetNode(node)->GetPoint()[0];
             // double y = mesh.GetNode(node)->GetPoint()[1];
-            
+
             if (fabs(x - 1.0) < 0.01)
             {
                 bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             }
-            
+
             surf_iter++;
         }
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -592,8 +592,8 @@ public:
 
         VecDestroy(result);
     }
-    
-    
+
+
     // solve u_xx + 4*u = 0, u(0)=1, u(1)=2 => u = a sin(2x) + cos(2x), where a = (2-cos2)/sin2
     void TestWithLinearSourceTerm()
     {
@@ -601,10 +601,10 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         EllipticPdeWithLinearSource<1> pde(4,0);
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
@@ -613,10 +613,10 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(2.0);
         unsigned last_node = (unsigned)(mesh.GetNumNodes()-1);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(last_node), p_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -630,9 +630,9 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, u*0.001);
         }
 
-        VecDestroy(result);        
+        VecDestroy(result);
     }
-    
+
     // Picking the solution u=exp(xy), we solve the pde u_xx + u_yy = (x^2+y^2) u, with bcs
     // u = exp(xy) on the boundary
     void TestWithLinearSourceTerm2d()
@@ -641,10 +641,10 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         EllipticPdeWithRadialLinearSource pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         for(ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter =
@@ -658,13 +658,13 @@ public:
             ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(val);
             bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition);
         }
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-        
+
         Vec result = assembler.Solve();
-        ReplicatableVector result_repl(result);        
-        
+        ReplicatableVector result_repl(result);
+
         // Solution should be u = exp(xy)
         for (unsigned i=0; i<result_repl.size(); i++)
         {
@@ -677,7 +677,7 @@ public:
 
         VecDestroy(result);
     }
-    
+
     // Test that the assembler can read an ordering file and assign the correct number of
     // nodes to each processor.
     void TestOrdering() throw(Exception)
@@ -687,30 +687,30 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");
-        
+
         // Instantiate PDE and BCC object, though not used
         SimplePoissonEquation<2> pde;
         BoundaryConditionsContainer<2,2,1> bcc;
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-        
-        
+
+
         if (PetscTools::NumProcs() == 2)
         {
             // Hi and Lo set up in PrepareForSolve
             assembler.PrepareForSolve();
-            
+
             // test set up correctly
             PetscInt petsc_lo, petsc_hi;
             Vec vector = DistributedVector::CreateVec();
-            
+
             VecGetOwnershipRange(vector,&petsc_lo,&petsc_hi);
-            
+
             if(PetscTools::GetMyRank() == 0)
             {
                 TS_ASSERT_EQUALS(0, petsc_lo);
-                TS_ASSERT_EQUALS(2, petsc_hi);   
+                TS_ASSERT_EQUALS(2, petsc_hi);
             }
             else
             {

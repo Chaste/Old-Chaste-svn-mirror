@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Solve a full cardiac electro-mechanics problem in 2d or 3d.
- * 
+ *
  *  See documentation for AbstractCardiacElectroMechanicsProblem
  */
 template<unsigned DIM>
@@ -49,15 +49,15 @@ private:
     unsigned mNumElementsPerDimInMechanicsMesh;
 
 public:
-    /** 
+    /**
      *  Constructor
      *  @param pCellFactory cell factory for creating cells (see Monodomain tests)
      *  @endTime end time of the simulation. Start time is assumed to be 0.0
      *  @numElementsPerDimInMechanicsMesh number of elements in each direction
-     *  in the mechanics mesh  
+     *  in the mechanics mesh
      *  @useExplicit Whether to use an explicit or implicit mechanics solver
      *  @outputDirectory. Output directory. Omit if no output is required.
-     * 
+     *
      *  See documentation for AbstractCardiacElectroMechanicsProblem
      */
     CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
@@ -74,12 +74,12 @@ public:
     {
         mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
     }
-    
+
 
     void ConstructMeshes()
-    {        
+    {
         double width = 1.0;
-        
+
         // create electrics mesh
         this->mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
 
@@ -93,23 +93,23 @@ public:
         Point<2> opposite_corner;
         opposite_corner[0] = width;
         opposite_corner[1] = width;
-        
+
         std::vector<unsigned> repetitions;
         repetitions.push_back(mNumElementsPerDimInMechanicsMesh);
         repetitions.push_back(mNumElementsPerDimInMechanicsMesh);
-        
+
         GridGenerator::subdivided_hyper_rectangle(*(this->mpMechanicsMesh), repetitions, zero, opposite_corner);
-        
+
         LOG(1, "Width of meshes is " << width);
         LOG(1, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->n_vertices() << "\n");
     }
 
-    
+
     void ConstructMechanicsAssembler(std::string mechanicsOutputDir)
     {
         Point<DIM> zero;
-        FiniteElasticityTools<DIM>::SetFixedBoundary(*(this->mpMechanicsMesh), 0, 0.0); 
-               
+        FiniteElasticityTools<DIM>::SetFixedBoundary(*(this->mpMechanicsMesh), 0, 0.0);
+
         this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
     }
 };

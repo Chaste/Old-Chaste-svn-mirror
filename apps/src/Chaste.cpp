@@ -110,27 +110,27 @@ public:
     {
     }
 
-    
+
     AbstractCardiacCell* CreateCellWithIntracellularStimulus(AbstractStimulusFunction* intracellularStimulus, unsigned node)
     {
         switch(ionic_model)
         {
             case(ionic_model_type::LuoRudyIModel1991OdeSystem):
                 return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
-                break;   
-      
+                break;
+
             case(ionic_model_type::BackwardEulerLuoRudyIModel1991):
                 return new BackwardEulerLuoRudyIModel1991(mTimeStep, intracellularStimulus, mpZeroStimulus);
-                break;                
-            
+                break;
+
             case(ionic_model_type::BackwardEulerFoxModel2002Modified):
                 return new BackwardEulerFoxModel2002Modified(mTimeStep, intracellularStimulus, mpZeroStimulus);
                 break;
-    
+
             case(ionic_model_type::FaberRudy2000Version3):
                 {
                     FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
-                    
+
                     for (unsigned ht_index = 0;
                          ht_index < cell_heterogeneity_areas.size();
                          ++ht_index)
@@ -138,31 +138,31 @@ public:
                         if ( cell_heterogeneity_areas[ht_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
                         {
                             faber_rudy_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
-                            faber_rudy_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);     
-                        }            
+                            faber_rudy_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);
+                        }
                     }
-                    
+
                     return faber_rudy_instance;
                     break;
                 }
-                
+
             case(ionic_model_type::FaberRudy2000Version3Optimised):
                 return new FaberRudy2000Version3Optimised(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
                 break;
-                
+
             default:
                 EXCEPTION("Unknown ionic model!!!");
-        }   
-        
+        }
+
         return NULL;
     }
-    
-    
+
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {        
+    {
         // Memory leak, this pointers should freed somewhere
         MultiStimulus* node_specific_stimulus = new MultiStimulus();
-        
+
         // Check which of the defined stimuli contain the current node
         for (unsigned stimulus_index = 0;
              stimulus_index < stimuli_applied.size();
@@ -170,13 +170,13 @@ public:
         {
             if ( stimuled_areas[stimulus_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
             {
-                node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);     
-            }            
+                node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);
+            }
         }
-        
-        return CreateCellWithIntracellularStimulus(node_specific_stimulus, node);                
+
+        return CreateCellWithIntracellularStimulus(node_specific_stimulus, node);
     }
-    
+
     ~ChasteSlabCellFactory(void)
     {
     }
@@ -187,15 +187,15 @@ void ReadParametersFromFile()
     try
     {
         std::auto_ptr<chaste_parameters_type> p_params(ChasteParameters(parameter_file));
-        
+
         simulation_type simulation_params = p_params->Simulation();
         physiological_type physiological_params = p_params->Physiological();
-        
+
         simulation_duration = simulation_params.SimulationDuration().get();
-        
+
         create_slab = simulation_params.Mesh().get().Slab() != NULL;
-        load_mesh = simulation_params.Mesh().get().LoadMesh() != NULL; 
-        
+        load_mesh = simulation_params.Mesh().get().LoadMesh() != NULL;
+
         if (create_slab)
         {
             slab_x = simulation_params.Mesh().get().Slab()->SlabX();     // mm
@@ -208,34 +208,34 @@ void ReadParametersFromFile()
             mesh_file_prefix = simulation_params.Mesh().get().LoadMesh()->name();
             media = simulation_params.Mesh().get().LoadMesh()->media();
         }
-        
+
         intra_x_cond = physiological_params.IntracellularConductivities().get().longi();
         intra_y_cond = physiological_params.IntracellularConductivities().get().trans();
-        intra_z_cond = physiological_params.IntracellularConductivities().get().normal();                
+        intra_z_cond = physiological_params.IntracellularConductivities().get().normal();
         output_directory = simulation_params.OutputDirectory().get();
         mesh_output_directory = simulation_params.MeshOutputDirectory().get();
         domain = simulation_params.Domain().get();
         ionic_model = simulation_params.IonicModel().get();
-        
+
         // Read and store Stimuli
         simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
              stimuli = simulation_params.Stimuli().get().Stimulus();
         for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
              i != stimuli.end();
              ++i)
-        {                     
-            stimulus_type stimulus(*i);           
+        {
+            stimulus_type stimulus(*i);
             point_type point_a = stimulus.Location().CornerA();
             point_type point_b = stimulus.Location().CornerB();
-            
-            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(), 
+
+            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(),
                                            scale_factor* point_a.y(),
                                            scale_factor* point_a.z());
 
             ChastePoint<3> chaste_point_b (scale_factor* point_b.x(),
                                            scale_factor* point_b.y(),
                                            scale_factor* point_b.z());
-                        
+
             stimuli_applied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
             stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
@@ -246,26 +246,26 @@ void ReadParametersFromFile()
         for (simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::iterator i = hts.begin();
              i != hts.end();
              ++i)
-        {                     
-            cell_heterogeneity_type ht(*i);           
+        {
+            cell_heterogeneity_type ht(*i);
             point_type point_a = ht.Location().CornerA();
             point_type point_b = ht.Location().CornerB();
-            
+
             // method get() should be called for Y and Z since they have been defined optional in the schema
             // {Y,Z}.present() can be called to know if they have been defined
-            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(), 
+            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(),
                                            scale_factor* point_a.y(),
                                            scale_factor* point_a.z());
 
             ChastePoint<3> chaste_point_b (scale_factor* point_b.x(),
                                            scale_factor* point_b.y(),
                                            scale_factor* point_b.z());
-                        
+
             scale_factor_gks.push_back (ht.ScaleFactorGks());
-            scale_factor_ito.push_back (ht.ScaleFactorIto());                                    
+            scale_factor_ito.push_back (ht.ScaleFactorIto());
             cell_heterogeneity_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
-        
+
         // Read and store Conductivity Heterogeneities
 
     }
@@ -284,13 +284,13 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
     rProblem.SetOutputDirectory(output_directory+"/results");
     rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.SetCallChaste2Meshalyzer(false);
-    
+
     if (load_mesh)
     {
         std::string fibre_file = mesh_file_prefix + ".fibres";
         rProblem.SetFibreOrientation(fibre_file);
     }
-    
+
     rProblem.SetIntracellularConductivities(Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond));
 }
 
@@ -300,8 +300,8 @@ void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
     // construct mesh. Note that mesh is measured in cm
     unsigned slab_nodes_x = (unsigned)round(slab_x/inter_node_space);
     unsigned slab_nodes_y = (unsigned)round(slab_y/inter_node_space);
-    unsigned slab_nodes_z = (unsigned)round(slab_z/inter_node_space);        
-   
+    unsigned slab_nodes_z = (unsigned)round(slab_z/inter_node_space);
+
     pMesh->ConstructCuboid(slab_nodes_x,
                          slab_nodes_y,
                          slab_nodes_z,
@@ -327,14 +327,14 @@ void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
         // Triangles output format
         TrianglesMeshWriter<3,3> triangles_writer(output_directory+"/mesh", "Slab", false);
         triangles_writer.WriteFilesUsingMesh(*pMesh);
-        
+
         // copy input parameters file to results directory
         //system(("cp " + parameter_file + " " + output_dir_full_path).c_str());
-    }    
+    }
 }
 
 
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
     std::cout << "Copyright (C) University of Oxford, 2008 \n\n\
 \
@@ -354,92 +354,92 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
     try
     {
         PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
-        
+
         // solver and preconditioner options
         //PetscOptionsSetValue("-ksp_type", "cg");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-options_table", "");
-        
+
         if (argc<2)
         {
             std::cout  << "Usage: Chaste parameters_file\n";
             return -1;
         }
-        
+
         parameter_file = std::string(argv[1]);
         ReadParametersFromFile();
-                
-        ChasteSlabCellFactory cell_factory;       
+
+        ChasteSlabCellFactory cell_factory;
         ConformingTetrahedralMesh<3,3> mesh;
-        
+
         bool orthotropic = (media == anisotropic_type::Orthotropic);
-        
+
         switch(domain)
         {
             case domain_type::Mono :
-            {            
+            {
                 MonodomainProblem<3> mono_problem( &cell_factory, orthotropic );
 
                 SetupProblem(mono_problem);
-                                
+
                 if (create_slab)
                 {
-                    CreateSlab(&mesh);                               
-                    mono_problem.SetMesh(&mesh);     
+                    CreateSlab(&mesh);
+                    mono_problem.SetMesh(&mesh);
                 }
-                else // (load_mesh) 
+                else // (load_mesh)
                 {
                     mono_problem.SetMeshFilename(mesh_file_prefix);
                 }
-                
+
                 mono_problem.Initialise();
                 mono_problem.Solve();
-        
+
                 break;
             }
-            
+
             case domain_type::Bi :
             {
-                BidomainProblem<3> bi_problem( &cell_factory, orthotropic );                
+                BidomainProblem<3> bi_problem( &cell_factory, orthotropic );
 
                 SetupProblem(bi_problem);
                 bi_problem.SetExtracellularConductivities(Create_c_vector(6.2, 2.4, 2.4));
-                                
+
                 if (create_slab)
-                {   
-                    CreateSlab(&mesh);                            
-                    bi_problem.SetMesh(&mesh);     
+                {
+                    CreateSlab(&mesh);
+                    bi_problem.SetMesh(&mesh);
                 }
-                else // (load_mesh) 
+                else // (load_mesh)
                 {
                     bi_problem.SetMeshFilename(mesh_file_prefix);
                 }
-                
+
                 bi_problem.Initialise();
                 bi_problem.Solve();
 
                 break;
             }
-                
+
             default :
                 EXCEPTION("Unknown domain type!!!");
-        }        
-        
+        }
+
     }
     catch(Exception& e)
     {
         std::cerr << e.GetMessage() << "\n";
         return 1;
     }
-    
+
     Hdf5ToMeshalyzerConverter converter(output_directory+"/results", "Chaste");
-    
+
     EventHandler::Headings();
     EventHandler::Report();
 
     PetscFinalize();
 
-    return 0;    
-}    
+    return 0;
+}
 
 

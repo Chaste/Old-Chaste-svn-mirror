@@ -44,10 +44,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PerformanceTester.hpp"
 
 class TestPerformance : public CxxTest::TestSuite
-{   
+{
 public:
 
-    
+
     void TestPerf() throw(Exception)
     {
         // solver and preconditioner options
@@ -63,7 +63,7 @@ public:
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.MeshNum=0;
         tester.Run();
-        
+
         EventHandler::Report();
     }
 };

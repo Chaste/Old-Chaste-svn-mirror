@@ -44,7 +44,7 @@ public:
         PlaneStimulusCellFactory<3> cell_factory2(0.001, -100); // ode time step & stimulus voltage
         cell_factory1.SetMesh(&mesh);
         cell_factory2.SetMesh(&mesh);
-        
+
         for (unsigned node_num=0; node_num<mesh.GetNumNodes(); node_num++)
         {
             Node<3>* p_node=mesh.GetNode(node_num);
@@ -68,7 +68,7 @@ public:
             delete p_cell1;
             delete p_cell2;
         }
-        
+
     }
 
 };

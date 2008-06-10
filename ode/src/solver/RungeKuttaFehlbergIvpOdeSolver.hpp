@@ -40,23 +40,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 /**
- * Use this class to solve a system of ODEs using the 
- * Runge Kutta Fehlberg Adaptive timestep Initial Value Problem 
+ * Use this class to solve a system of ODEs using the
+ * Runge Kutta Fehlberg Adaptive timestep Initial Value Problem
  * Ordinary Differential Equation Solver (RKF45).
- * 
+ *
  * Good for problems where you need to be able to guarantee the accuracy of
  * the answer as it is specified via the tolerance parameter.
- * 
+ *
  * Should be reasonably fast too as it increases the timestep when the
  * solutions are changing slowly, whilst maintaining accuracy.
  */
 class RungeKuttaFehlbergIvpOdeSolver : public AbstractIvpOdeSolver
 {
-friend class TestRungeKuttaFehlbergIvpOdeSolver;    
-    
+friend class TestRungeKuttaFehlbergIvpOdeSolver;
+
 private:
     /*
-     * All these are here for more efficient memory allocation, rather than 
+     * All these are here for more efficient memory allocation, rather than
      * because they need to be member variables...
      */
     double m1932o2197;
@@ -88,11 +88,11 @@ private:
     std::vector<double> myk4;
     std::vector<double> myk5;
     std::vector<double> myk6;
-    
+
 protected:
     /**
      * Method that actually performs the solving on behalf of the public Solve methods.
-     * 
+     *
      * @param rSolution  an ode solution to input data into if requited
      * @param pAbstractOdeSystem  the system to solve
      * @param rCurrentYValues  the current (initial) state; results will also be returned in here
@@ -112,12 +112,12 @@ protected:
                                double minTimeStep,
                                double tolerance,
                                bool outputSolution);
-                               
+
     /**
      * Calculate the next time step, using rkf45 numerical routine
-     * 
+     *
      * Updates the mError vector with current error.
-     * 
+     *
      * @param pAbstractOdeSystem  the ode system to be solved
      * @param timeStep  the current timestep
      * @param time  the current time
@@ -129,20 +129,20 @@ protected:
                                      double time,
                                      std::vector<double>& currentYValues,
                                      std::vector<double>& nextYValues);
-    
+
     /**
-     * Uses the error approximation of the last CalculateNextYValue() call to 
+     * Uses the error approximation of the last CalculateNextYValue() call to
      * change the time step appropriately.
-     * 
+     *
      * @param rCurrentStepSize  The current step size being used (returns answer via this reference)
      * @param rError  The error in the approximation at this time step
      * @param rTolerance  The tolerance required
      * @param rMaxTimeStep  The maximum timestep to be used
      * @param rMinTimeStep  The minimum timestep to be used (to prevent huge loops)
-     */                                 
-    void AdjustStepSize(double& rCurrentStepSize, const double& rError, const double& rTolerance, 
-                                const double& rMaxTimeStep, const double& rMinTimeStep);                               
-                                     
+     */
+    void AdjustStepSize(double& rCurrentStepSize, const double& rError, const double& rTolerance,
+                                const double& rMaxTimeStep, const double& rMinTimeStep);
+
 public:
 
     OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
@@ -151,13 +151,13 @@ public:
                               double endTime,
                               double timeStep,
                               double ignoredSamplingTime);
-                              
+
     void Solve(AbstractOdeSystem* pAbstractOdeSystem,
                        std::vector<double>& rYValues,
                        double startTime,
                        double endTime,
-                       double timeStep);                       
-                       
+                       double timeStep);
+
     RungeKuttaFehlbergIvpOdeSolver()
       : m1932o2197(1932.0/2197.0),// you need the .0 s - caused me no end of trouble.
         m7200o2197(7200.0/2197.0),

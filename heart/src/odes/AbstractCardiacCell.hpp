@@ -48,10 +48,10 @@ protected:
     double mDt;
     AbstractStimulusFunction* mpIntracellularStimulus;
     AbstractStimulusFunction* mpExtracellularStimulus;
-    
+
     // flag set to true if ComputeExceptVoltage is called
     bool mSetVoltageDerivativeToZero;
-    
+
 public:
 
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
@@ -60,63 +60,63 @@ public:
                         double dt,
                         AbstractStimulusFunction* intracellularStimulus,
                         AbstractStimulusFunction* extracellularStimulus = NULL);
-                        
+
     virtual ~AbstractCardiacCell();
-    
+
     /**
      * Initialise the cell:
      *   set our state variables to the initial conditions,
      *   set model parameters to their default values.
      */
     virtual void Init();
-    
+
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep dt.
      */
     virtual OdeSolution Compute(double tStart, double tEnd);
-    
+
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep dt, but does not update the voltage.
      */
     virtual void ComputeExceptVoltage(double tStart, double tEnd);
-    
+
     /**
      * Computes the total current flowing through the cell membrane, using the current
      * values of the state variables.
-     * 
+     *
      * \todo does any cell model need to know the current time as well?
      */
     virtual double GetIIonic() = 0;
-    
+
     void SetVoltage(double voltage);
-    
+
     double GetVoltage();
-    
+
     unsigned GetVoltageIndex();
-    
+
     void SetStimulusFunction(AbstractStimulusFunction *stimulus);
-    
+
     double GetStimulus(double time);
-    
+
     void SetIntracellularStimulusFunction(AbstractStimulusFunction *stimulus);
-    
+
     double GetIntracellularStimulus(double time);
-    
+
     void SetExtracellularStimulusFunction(AbstractStimulusFunction *stimulus);
-    
+
     double GetExtracellularStimulus(double time);
-    
+
     bool HasExtracellularStimulus();
-    
+
     /**
      *  [Ca_i] is needed for mechanics, so we explcitly have a Get method (rather than
      *  use a get by name type method, to avoid inefficiency when using different cells
-     *  types of cells). This method by defaults throws an exception, so should be 
+     *  types of cells). This method by defaults throws an exception, so should be
      *  implemented in the concrete class if IntracellularCalciumConcentration is
      *  one of the state variables
-     */ 
+     */
     virtual double GetIntracellularCalciumConcentration();
 };
 

@@ -104,21 +104,21 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/practical1_1d_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         //Adding Dirichlet BC at node 0
         double DirichletBCValue = 5.0;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), pBoundaryCondition);
-        
+
         // adding von Neumann BC at the last node
         double VonNeumannBCValue = 9.0;
         ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--; // to be consistent with c++ :))), GetBoundaryElementIteratorEnd points to one element passed it
         bcc.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
-        
+
         // initialize 'solution' vector
         double initial_guess_value = 1.0;
         double h = 0.01;
@@ -126,10 +126,10 @@ public:
 
         NonlinearEquationPde<1> pde;
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        
+
         Vec residual;
         VecDuplicate(solution, &residual);
-        
+
         assembler.PrepareForSolve();
         assembler.AssembleResidual(solution, residual);
 
@@ -137,11 +137,11 @@ public:
         TS_ASSERT(fabs(residual_repl[0] + DirichletBCValue - initial_guess_value) < 0.001);
         TS_ASSERT(fabs(residual_repl[1] + h) < 0.001);
         TS_ASSERT(fabs(residual_repl[mesh.GetNumNodes()-1] + VonNeumannBCValue + h/2) < 0.001);
- 
+
         VecDestroy(residual);
         VecDestroy(solution);
     }
-    
+
     void TestNumericalAgainstAnalyticJacobian()
     {
         PetscInt n = 11;  // Mesh size
@@ -155,21 +155,21 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquationPde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
-        
-        
+
+
         // assembler
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         assembler.PrepareForSolve();
-        
+
         // cover VerifyJacobian
         TS_ASSERT( assembler.VerifyJacobian(1e-3,true) );
 
@@ -179,12 +179,12 @@ public:
         {
             init_guess[i] = -0.01*i*i;
         }
-        Vec initial_guess = PetscTools::CreateVec(init_guess);        
+        Vec initial_guess = PetscTools::CreateVec(init_guess);
 
-        
+
         int errcode = assembler.AssembleJacobianNumerically(initial_guess, &numerical_jacobian);
         TS_ASSERT_EQUALS(errcode, 0);
-        
+
         assembler.mUseAnalyticalJacobian = true; // can access the member variable as this class is a friend
         errcode = assembler.AssembleJacobian(initial_guess, &analytic_jacobian);
 
@@ -212,7 +212,7 @@ public:
         {
             col_ids[i] = i;
         }
-        
+
         // Check matrices are the same, to within numerical error tolerance
         MatGetValues(numerical_jacobian, hi-lo, row_ids, n, col_ids, numerical_array);
         MatGetValues(analytic_jacobian, hi-lo, row_ids, n, col_ids, analytic_array);
@@ -228,31 +228,31 @@ public:
         MatDestroy(numerical_jacobian);
         MatDestroy(analytic_jacobian);
     }
-    
+
     void TestWithHeatEquation1D()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquationPde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
-        
+
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial guess
         Vec initial_guess = PetscTools::CreateVec(mesh.GetNumNodes(),1.0);
 
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
@@ -264,17 +264,17 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestWithHeatEquation1DAndNeumannBCs()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquationPde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(0) = 0
@@ -285,20 +285,20 @@ public:
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
-        
+
         // Nonlinear assembler to use
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
 
         // Set no. of gauss points to use
         assembler.SetNumberOfQuadraturePointsPerDimension(3);
-        
+
         // Solve the PDE
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
@@ -310,37 +310,37 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestWithHeatEquation1D2()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquation2Pde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(exp(1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
-        
+
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         std::vector<double> init_guess(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             init_guess[i] = 1.0+0.01*i*i;
         }
-        Vec initial_guess = PetscTools::CreateVec(init_guess);        
+        Vec initial_guess = PetscTools::CreateVec(init_guess);
 
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
@@ -352,26 +352,26 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestWithHeatEquation1D3()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquation3Pde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(2.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
-        
+
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc,3);
-        
+
         // Set up initial Guess
         Vec initial_guess = PetscTools::CreateVec(mesh.GetNumNodes());
         for (unsigned global_index=0; global_index<mesh.GetNumNodes(); global_index++)
@@ -380,10 +380,10 @@ public:
         }
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
-        
+
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
@@ -391,21 +391,21 @@ public:
             double u = sqrt(2.0*(exp(-x)-x*exp(-1.0)));
             TS_ASSERT_DELTA(answer_repl[i], u, 0.001);
         }
-        
+
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestWithHeatEquation1D4()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquation4Pde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = exp(1.0)
@@ -415,9 +415,9 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
-        
+
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         std::vector<double> init_guess(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -425,11 +425,11 @@ public:
             double x1=0.1*(double)(i);
             init_guess[i] =  0.35*(1-x1*x1);
         }
-        Vec initial_guess = PetscTools::CreateVec(init_guess);        
-        
+        Vec initial_guess = PetscTools::CreateVec(init_guess);
+
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
@@ -441,17 +441,17 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestWithHeatEquation1D5()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquation5Pde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = exp(-1.0)
@@ -463,9 +463,9 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
-        
+
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         Vec initial_guess = PetscTools::CreateVec(mesh.GetNumNodes());
         double x1;
@@ -476,10 +476,10 @@ public:
         }
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
-        
+
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
@@ -491,17 +491,17 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestWithHeatEquation1DAndNeumannBCs2()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquationPde<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = sqrt(3)
@@ -513,13 +513,13 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(-2.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
-        
+
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        
+
         // cover the bad size exception
         Vec badly_sized_init_guess = PetscTools::CreateVec(1,1.0); // size=1
         TS_ASSERT_THROWS_ANYTHING( assembler.Solve(badly_sized_init_guess, true) );
-        
+
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
 
@@ -527,7 +527,7 @@ public:
         // choices failed to converge.
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
@@ -539,17 +539,17 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestHeatEquationWithNeumannOnUnitDisc( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearLinearEquation<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         // du/dn = -0.5 on r=1
@@ -564,15 +564,15 @@ public:
         // u = 2 at some point on the boundary, say node 1
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
-        
+
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
-        
+
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
-        
+
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
         {
@@ -586,17 +586,17 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestWithHeatEquation2DAndNeumannBCs()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         NonlinearEquationPde<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         // u(y=0) = 0
@@ -610,7 +610,7 @@ public:
             }
             node_iter++;
         }
-        
+
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         FunctionalBoundaryCondition<2>* one_boundary_condition = new FunctionalBoundaryCondition<2>(&one_bc);
         AbstractBoundaryCondition<2>* p_boundary_condition;
@@ -627,17 +627,17 @@ public:
                 // No flux across left & right
                 p_boundary_condition = zero_boundary_condition;
             }
-            
+
             bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
-            
+
             iter++;
         }
-        
+
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
-        
+
         // solve
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
@@ -653,17 +653,17 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void Test2dOnUnitSquare()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         Example2DNonlinearEllipticPde pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition;
@@ -687,7 +687,7 @@ public:
             {
                 bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
             }
-            
+
             node_iter++;
         }
         FunctionalBoundaryCondition<2>* p_functional_bc;
@@ -711,16 +711,16 @@ public:
             {
                 bcc.AddNeumannBoundaryCondition(*elt_iter, p_functional_bc);
             }
-            
+
             elt_iter++;
         }
-        
+
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
-        
-        
+
+
         // Numerical Jacobian
         Vec answer = assembler.Solve(initial_guess, false);
         ReplicatableVector answer_repl(answer);
@@ -735,10 +735,10 @@ public:
         }
 
         VecDestroy(answer);
-        
+
         // Analytical Jacobian
         answer=assembler.Solve(initial_guess, true);
-        ReplicatableVector answer_repl2(answer);        
+        ReplicatableVector answer_repl2(answer);
 
         // Check result
         for (unsigned i=0; i<answer_repl.size(); i++)
@@ -752,17 +752,17 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }
-    
+
     void TestNasty2dEquationOnUnitSquare()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         ExampleNasty2dNonlinearEllipticPde pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition;
@@ -786,7 +786,7 @@ public:
             {
                 bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
             }
-            
+
             node_iter++;
         }
         FunctionalBoundaryCondition<2>* p_functional_bc;
@@ -810,15 +810,15 @@ public:
             {
                 bcc.AddNeumannBoundaryCondition(*elt_iter, p_functional_bc);
             }
-            
+
             elt_iter++;
         }
-        
+
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
-        
+
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
-        
+
         // Numerical Jacobian
         Vec answer = assembler.Solve(initial_guess, false);
         ReplicatableVector answer_repl(answer);
@@ -833,7 +833,7 @@ public:
         }
 
         VecDestroy(answer);
-        
+
         // Analytical Jacobian
         answer=assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl2(answer);

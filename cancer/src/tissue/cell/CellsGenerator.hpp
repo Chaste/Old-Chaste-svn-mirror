@@ -61,21 +61,21 @@ class CellsGenerator
 {
 public :
     /**
-     * Fills a vector of cells with a Fixed cell cycle model, to match 
+     * Fills a vector of cells with a Fixed cell cycle model, to match
      * a given mesh. Gives them birth times of 0 for node 0,
      * -1 for node 1, -2 for node 2 etc...
-     * 
+     *
      * @param rCells  An empty vector of cells to fill up.
-     * @param rMesh  The mesh the cells should be associated with.  
+     * @param rMesh  The mesh the cells should be associated with.
      */
-    static void GenerateBasic(std::vector<TissueCell>& rCells, 
+    static void GenerateBasic(std::vector<TissueCell>& rCells,
                                ConformingTetrahedralMesh<DIM,DIM>& rMesh);
 
     /**
-     * Generates cells of a specified cell cycle type under the correct 
-     * crypt conditions and gives random ages if required, 
+     * Generates cells of a specified cell cycle type under the correct
+     * crypt conditions and gives random ages if required,
      * or gives them an age of 0.0 - creates least work for solver startup.
-     * 
+     *
      * @param rCells  An empty cells vector for this function to fill up
      * @param rMesh  The crypt mesh (can be cylindrical)
      * @param cycleType (As specified in the enumeration at the top of this file)
@@ -84,11 +84,11 @@ public :
      * @param y1  below this line cells are generation 1 (defaults to 2.0)
      * @param y2  below this line cells are generation 2 (defaults to 3.0)
      * @param y3  below this line cells are generation 3 (defaults to 4.0)
-     * 
+     *
      * \todo Only give generation information to relevant models (see #509)
      */
-    static void GenerateForCrypt(std::vector<TissueCell>& rCells, 
-                                 ConformingTetrahedralMesh<2,2>& rMesh, 
+    static void GenerateForCrypt(std::vector<TissueCell>& rCells,
+                                 ConformingTetrahedralMesh<2,2>& rMesh,
                                  CellCycleType cycleType,
                                  bool randomBirthTimes,
                                  double y0 = 0.3,
@@ -99,7 +99,7 @@ public :
 };
 
 template<unsigned DIM>
-void CellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells, 
+void CellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
                                ConformingTetrahedralMesh<DIM,DIM>& rMesh)
 {
     rCells.clear();
@@ -115,8 +115,8 @@ void CellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
 }
 
 template<unsigned DIM>
-void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells, 
-                                 ConformingTetrahedralMesh<2,2>& rMesh, 
+void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
+                                 ConformingTetrahedralMesh<2,2>& rMesh,
                                  CellCycleType cycleType,
                                  bool randomBirthTimes,
                                  double y0,
@@ -128,23 +128,23 @@ void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
     assert(DIM==2);
     RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
     unsigned num_cells = rMesh.GetNumNodes();
-    
+
     AbstractCellCycleModel* p_cell_cycle_model = NULL;
     double typical_transit_cycle_time;
     double typical_stem_cycle_time;
-    
+
     CancerParameters* p_params = CancerParameters::Instance();
-    
+
     rCells.clear();
     rCells.reserve(num_cells);
-    
+
     for (unsigned i=0; i<num_cells; i++)
     {
         CellType cell_type;
         unsigned generation;
 
         double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
-        
+
         switch(cycleType)
         {
             case(FIXED):
@@ -210,15 +210,15 @@ void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
                 break;
             }
             default:
-            { 
+            {
                 #define COVERAGE_IGNORE
                 EXCEPTION("Cell Cycle Type is not recognised");
-                #undef COVERAGE_IGNORE  
+                #undef COVERAGE_IGNORE
             }
         }
 
         double birth_time = 0.0;
-        
+
         if (y <= y0)
         {
             cell_type = STEM;
@@ -234,7 +234,7 @@ void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
             generation = 1;
             if (randomBirthTimes)
             {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
             }
         }
         else if (y < y2)
@@ -243,7 +243,7 @@ void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
             generation = 2;
             if (randomBirthTimes)
             {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
             }
         }
         else if (y < y3)
@@ -252,34 +252,34 @@ void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
             generation = 3;
             if (randomBirthTimes)
             {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
             }
         }
         else
         {
             if (randomBirthTimes)
             {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
             }
             if (cycleType!=FIXED && cycleType!=STOCHASTIC)
             {
                 // There are no fully differentiated cells!
-                cell_type = TRANSIT;                    
+                cell_type = TRANSIT;
             }
             else
             {
                 cell_type = DIFFERENTIATED;
-            }                
+            }
             generation = 4;
         }
-        
+
         p_cell_cycle_model->SetGeneration(generation);
         TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
         if (initialiseCells)
         {
             cell.InitialiseCellCycleModel();
         }
-        
+
         cell.SetNodeIndex(i);
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);

@@ -46,7 +46,7 @@ class FemlabMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
         std::vector<std::string> rawData);
-        
+
     std::vector<std::vector<unsigned> > TokenizeStringsToInts(
         std::vector<std::string> rawData,
         unsigned dimensionOfObject);
@@ -79,31 +79,31 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     //Open node file and store the lines as a vector of strings (minus the comments)
     nodeFileName = pathBaseName + nodeFileName;
     this->mNodeRawData = this->GetRawDataFromFile (nodeFileName);
-    
+
     // Read the node data using TokenizeStringsToDoubles method
     this->mNodeData = TokenizeStringsToDoubles (this->mNodeRawData);
-    
+
     //Initialise iterator for public GetNextNode method
     this->mpNodeIterator = this->mNodeData.begin ();
-    
-    
+
+
     //Open element file and store the lines as a vector of strings (minus the comments)
     elementFileName = pathBaseName + elementFileName;
     this->mElementRawData = this->GetRawDataFromFile (elementFileName);
-    
+
     // Read the rest of the element data using TokenizeStringsToInts method
     this->mElementData = TokenizeStringsToInts (this->mElementRawData, SPACE_DIM + 1);
     this->mpElementIterator = this->mElementData.begin ();
-    
-    
+
+
     /*Open edge file and store the lines as a vector of strings (minus the comments)
      * We store edges as "faces" but the superclass
      * provides a GetNextEdge method which queries this data.
      */
-    
+
     edgeFileName = pathBaseName + edgeFileName;
     this->mFaceRawData = this->GetRawDataFromFile (edgeFileName);
-    
+
     // Read the rest of the face/edge data using TokenizeStringsToInts method
     this->mFaceData = TokenizeStringsToInts (this->mFaceRawData, SPACE_DIM);
     this->mpFaceIterator = this->mFaceData.begin ();
@@ -124,7 +124,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
         rawData)
 {
     std::vector < std::vector < double > >tokenized_data;        // Output
-    
+
     //Iterate over the lines of input
     unsigned dimension_count = 0;
     std::vector < std::string >::iterator the_iterator;
@@ -133,14 +133,14 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
     {
         std::string line_of_data = *the_iterator;
         std::stringstream line_stream (line_of_data);
-        
+
         if (dimension_count == 0)
         {
             //First iteration, build the tokenized_data vector and push in x coordinates
             while (!line_stream.eof ())
             {
                 double item_coord;
-                
+
                 std::vector < double >x_coord;
                 line_stream >> item_coord;
                 x_coord.push_back (item_coord);
@@ -150,7 +150,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
         else
         {
             unsigned current_node = 0;
-            
+
             //Other iterations, push in coordinates other than x.
             while (!line_stream.eof ())
             {
@@ -162,9 +162,9 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
         }
         //dimension of mesh is the same as the line of rawData.
         dimension_count++;
-        
+
     }
-    
+
     if (SPACE_DIM != dimension_count)
     {
         EXCEPTION("SPACE_DIM  != dimension read from file");
@@ -190,20 +190,20 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
         unsigned dimensionOfObject)
 {
     std::vector < std::vector < unsigned > >tokenized_data;
-    
+
     /* There are dimensionOfObject lines to be read */
     for (unsigned i = 0; i < dimensionOfObject; i++)
     {
         std::string line_of_data = rawData[i];
         std::stringstream line_stream (line_of_data);
-        
+
         if (i == 0)
         {
             //First iteration, build the tokenized_data vector and push in x coordinates
             while (!line_stream.eof ())
             {
                 double item_index;
-                
+
                 std::vector < unsigned >first_index;
                 line_stream >> item_index;
                 first_index.push_back ((unsigned) (item_index - 0.5));       //item indices should be minus 1.
@@ -213,7 +213,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
         else
         {
             unsigned current_node = 0;
-            
+
             //Other iterations, push in coordinates other than x.
             while (!line_stream.eof ())
             {

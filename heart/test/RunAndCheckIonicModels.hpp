@@ -45,7 +45,7 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
                                 std::string filename,
                                 int stepPerRow=100,
                                 bool doComputeExceptVoltage=true);
-                  
+
 void CheckCellModelResults(std::string baseResultsFilename);
 
 void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance);

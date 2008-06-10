@@ -43,7 +43,7 @@ public:
     {
         RegisterWithNodes();
     }
-    
+
     /***
      * Copy constructor which allows a new index to be specified
      */
@@ -53,7 +53,7 @@ public:
         CommonConstructor(element);
         RegisterWithNodes();
     }
-    
+
     void RegisterWithNodes()
     {
         for (unsigned i=0; i<this->mNodes.size(); i++)
@@ -61,7 +61,7 @@ public:
             this->mNodes[i]->AddElement(this->mIndex);
         }
     }
-    
+
     void MarkAsDeleted()
     {
         this->mIsDeleted = true;
@@ -72,7 +72,7 @@ public:
             this->mNodes[i]->RemoveElement(this->mIndex);
         }
     }
-    
+
     /** Update node at the given index
      *  @param rIndex is an local index to which node to change
      *  @param pNode is a pointer to the replacement node
@@ -80,17 +80,17 @@ public:
     void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
     {
         assert(rIndex < this->mNodes.size());
-        
+
         // Remove it from the node at this location
         this->mNodes[rIndex]->RemoveElement(this->mIndex);
-        
+
         // Update the node at this location
         this->mNodes[rIndex] = pNode;
-        
+
         // Add element to this node
         this->mNodes[rIndex]->AddElement(this->mIndex);
     }
-    
+
     void ResetIndex(unsigned index)
     {
         //std::cout << "ResetIndex - removing nodes.\n" << std::flush;
@@ -103,7 +103,7 @@ public:
         this->mIndex=index;
         RegisterWithNodes();
     }
-    
+
     /*Returns a vector representing the circumsphere/circumcircle
      * @returns a vector containing x_centre, y_centre,...,radius^2
     */
@@ -115,11 +115,11 @@ public:
          * ( 2x2 2y2 2z2  ) (y)    (x2^2+y2^2+z2^2)
          * ( 2x3 2y3 2z3  ) (z)    (x3^2+y3^2+z3^2)
          * where (x,y,z) is the circumcentre
-         * 
+         *
          */
         assert (ELEMENT_DIM == SPACE_DIM);
         c_vector <double, ELEMENT_DIM> rhs;
-        
+
         for (unsigned j=0; j<ELEMENT_DIM; j++)
         {
             double squared_location=0.0;
@@ -130,7 +130,7 @@ public:
             }
             rhs[j]=squared_location/2.0;
         }
-        
+
         c_vector <double, ELEMENT_DIM> centre=prod(rhs, this->mInverseJacobian);
         c_vector <double, ELEMENT_DIM+1> circum;
         double squared_radius=0.0;
@@ -140,11 +140,11 @@ public:
             squared_radius += centre[i]*centre[i];
         }
         circum[SPACE_DIM]=squared_radius;
-        
+
         return circum;
-        
+
     }
-    
+
     double CalculateCircumsphereVolume()
     {
         c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
@@ -159,12 +159,12 @@ public:
         assert (SPACE_DIM == 3);
         return 4.0*M_PI*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM])/3.0; //4*Pi*r^3/3
     }
-    
+
     /* The quality of a triangle/tetrahedron is the ratio between the
      * volume of the shape and the volume of its circumsphere.
      * This is normalised by dividing through by the Platonic ratio.
      */
-    
+
     double CalculateQuality()
     {
         assert (SPACE_DIM == ELEMENT_DIM);
@@ -172,7 +172,7 @@ public:
         {
             return 1.0;
         }
-        
+
         c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
         if (SPACE_DIM == 2)
         {
@@ -185,7 +185,7 @@ public:
             {
             double x_diff_sqr = ((first_node[0] - second_node[0])*(first_node[0] - second_node[0]));
             double y_diff_sqr = ((first_node[1] - second_node[1])*(first_node[1] - second_node[1]));
-            
+
             return ((x_diff_sqr + y_diff_sqr) > first_node[2]);
             }3*sqrt(3)*r^2)
              */
@@ -199,21 +199,21 @@ public:
           *  Vol_Plat_CirS = 4*Pi*R^3/3
          * Q= 3*sqrt(3)*|Jacobian|/ (16*r^3)
           */
-        
+
         return (3.0*sqrt(3.0)*this->mJacobianDeterminant)
                /(16.0*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM]));
     }
-    
-    
+
+
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
-        
+
         c_vector<double, SPACE_DIM+1> weights;
-        
+
         c_vector<double, SPACE_DIM> psi=CalculatePsi(testPoint);
-        
+
         //Copy 3 weights and compute the fourth weight
         weights[0]=1.0;
         for (unsigned i=1; i<=SPACE_DIM; i++)
@@ -223,29 +223,29 @@ public:
         }
         return weights;
     }
-    
-    
+
+
     c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
-        
+
         //Find the location with respect to node 0
         c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
-        
+
         //Multiply by inverse Jacobian
         return prod(this->mInverseJacobian, test_location);
     }
-    
+
     bool IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict=false)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
-        
+
         c_vector<double, SPACE_DIM+1> weights=CalculateInterpolationWeights(testPoint);
-        
+
         //If the point is in the simplex then all the weights should be positive
-        
+
         for (unsigned i=0;i<=SPACE_DIM;i++)
         {
             if (strict)
@@ -267,8 +267,8 @@ public:
         }
         return true;
     }
-    
-    
+
+
 };
 
 

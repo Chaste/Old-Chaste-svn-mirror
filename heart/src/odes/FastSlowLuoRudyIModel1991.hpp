@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class sets up the FastSlowLuoRudyIModel1991 system of equations.
- * 
+ *
  * This has two modes:
  * FAST MODE: where the variables are (h, j, m, [Ca]_i, V, x) (in that order)
  * SLOW MODE: where the variables are (h, j, m, [Ca]_i, V, d, f, x)
@@ -81,24 +81,24 @@ public:
                                
     // Destructor
     ~FastSlowLuoRudyIModel1991();
-        
+
     // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
 
     double GetIIonic();
-    
+
     double GetIntracellularCalciumConcentration();
 
     /** Set the state of this model - either FAST or SLOW */
     void SetState(CellModelState state);
-    
-    /*< Set the slow variables (d,f). Only valid in fast mode) */ 
+
+    /*< Set the slow variables (d,f). Only valid in fast mode) */
     void SetSlowValues(const std::vector<double> &rSlowValues);
-    
+
     /* Get the slow variables (d,f). Only valid in slow mode. */
     void GetSlowValues(std::vector<double>& rSlowValues);
-    
-    /** 
+
+    /**
      *  Get number of slow variables in this model - NOT the same as whether in fast mode or not.
      */
     unsigned GetNumSlowValues()

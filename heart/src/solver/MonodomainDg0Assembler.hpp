@@ -64,25 +64,25 @@ public:
     static const unsigned P_DIM = 1u;
 private:
     double mSourceTerm;
-    
+
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;
 
     // Save typing
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType;
     typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, SelfType> BaseClassType;
-    
+
     /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1u, false, BaseClassType>;
-    
+
 protected:
 
     /**
      *  ComputeVectorTerm()
-     * 
+     *
      *  This method is called by AssembleOnElement() and tells the assembler
      *  the contribution to add to the element stiffness vector.
-     * 
-     *  Here, the SimpleDg0ParabolicAssembler version of this method is 
+     *
+     *  Here, the SimpleDg0ParabolicAssembler version of this method is
      *  overloaded using the interpolated source term
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
@@ -96,27 +96,27 @@ protected:
         return  rPhi * (mSourceTerm + this->mDtInverse *
                         mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * u(0));
     }
-    
-    
+
+
     void ResetInterpolatedQuantities( void )
     {
         mSourceTerm=0;
     }
-    
-    
+
+
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
     {
         mSourceTerm += phi_i * mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionOrGuessReplicated[ pNode->GetIndex() ] );
     }
-    
-    
+
+
     virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime)
     {
         mpMonodomainPde->SolveCellSystems(currentSolution, currentTime, currentTime+this->mDt);
     }
-    
-    
-    
+
+
+
 public:
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
@@ -129,14 +129,14 @@ public:
             BaseClassType(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
     {
         mpMonodomainPde = pPde;
-        
+
         this->mpBoundaryConditions = pBcc;
-        
+
         this->SetMesh(pMesh);
-        
+
         this->SetMatrixIsConstant();
     }
-    
+
     ~MonodomainDg0Assembler()
     {
     }

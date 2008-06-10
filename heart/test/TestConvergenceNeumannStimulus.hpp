@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 class TestConvergenceNeumannStimulus : public CxxTest::TestSuite
-{   
+{
 public:
 
     void TestConvergenceMonodomain1d()
@@ -78,25 +78,25 @@ public:
         tester.Stimulus=NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
     }
-    
+
     void TestSpaceConvergence2d()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
         tester.Stimulus=NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
     }
-    
+
     void TestSpaceConvergence2dBidomain()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus=NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
     }
 
 };

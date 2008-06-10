@@ -51,11 +51,11 @@ private :
         MPI_Barrier(PETSC_COMM_WORLD);
     }
 
-public :    
+public :
     void TestMonodomainConversion() throw(Exception)
     {
         OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
-        
+
         // firstly, copy ./heart/test/data/MonoDg01d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/Monodomain1d/MonodomainLR91_1d.h5",
@@ -63,10 +63,10 @@ public :
 
         // convert
         Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d");
-        
+
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/MonodomainLR91_1d_V.dat " 
+        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/MonodomainLR91_1d_V.dat "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
@@ -86,16 +86,16 @@ public :
 
         // compare the voltage file
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/bidomain_V.dat " 
+        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/bidomain_V.dat "
                                      + "heart/test/data/Bidomain1d/bidomain_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         // compare the Phi_e file
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/bidomain_Phi_e.dat " 
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/bidomain_Phi_e.dat "
                          + "heart/test/data/Bidomain1d/bidomain_Phi_e.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
-    
+
     void TestExceptions() throw(Exception)
     {
         OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");

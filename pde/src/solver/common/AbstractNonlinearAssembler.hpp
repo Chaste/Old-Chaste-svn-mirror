@@ -66,7 +66,7 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes,
         Vec currentGuess,
         Vec residualVector,
         void *pContext);
-        
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes,
         Vec currentGuess,
@@ -74,9 +74,9 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes,
         Mat *pPreconditioner,
         MatStructure *pMatStructure,
         void *pContext);
-        
-        
-        
+
+
+
 /**
  *  AbstractNonlinearAssembler
  */
@@ -89,9 +89,9 @@ private:
 protected:
     AbstractNonlinearSolver* mpSolver;
     bool mWeAllocatedSolverMemory;
-    
+
     bool mUseAnalyticalJacobian;
-    
+
     /**
      * Apply Dirichlet boundary conditions to either the residual or jacobian.
      */
@@ -100,7 +100,7 @@ protected:
         Vec& residual = this->mpLinearSystem->rGetRhsVector();
         Mat& jacobian = this->mpLinearSystem->rGetLhsMatrix();
         assert((jacobian && applyToMatrix) || (!jacobian && !applyToMatrix));
-        
+
         if (residual)
         {
             this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentGuess, residual);
@@ -110,7 +110,7 @@ protected:
             this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(jacobian);
         }
     }
-    
+
 public :
     /**
      * Compute the residual vector given the current solution guess.
@@ -118,8 +118,8 @@ public :
      * @param currentGuess The solution guess for the current iteration.
      * @param residualVector We fill this with the residual vector.
      * @return An error code if any PETSc routines fail.
-     * 
-     * NOTE: this method is called indirectly by the PETSc iterative 
+     *
+     * NOTE: this method is called indirectly by the PETSc iterative
      * solvers, so must be public.
      */
     PetscErrorCode AssembleResidual(const Vec currentGuess, Vec residualVector)
@@ -132,8 +132,8 @@ public :
         this->AssembleSystem(true, false, currentGuess, 0.0);
         return 0;
     }
-    
-    
+
+
     /**
      * Compute the Jacobian matrix given a current guess at the solution.
      * Choose whether to use a numerical or analytical method based on a flag
@@ -142,8 +142,8 @@ public :
      * @param currentGuess The solution guess for the current iteration.
      * @param pGlobalJacobian Pointer to object to fill with the jacobian matrix.
      * @return An error code if any PETSc routines fail.
-     * 
-     * NOTE: this method is called indirectly by the PETSc iterative 
+     *
+     * NOTE: this method is called indirectly by the PETSc iterative
      * solvers, so must be public.
      */
     PetscErrorCode AssembleJacobian(const Vec currentGuess, Mat *pGlobalJacobian)
@@ -162,7 +162,7 @@ public :
             return AssembleJacobianNumerically(currentGuess, pGlobalJacobian);
         }
     }
-    
+
 protected:
     /**
      * Computes the Jacobian numerically i.e. an approximation, using numerical
@@ -176,42 +176,42 @@ protected:
     PetscErrorCode AssembleJacobianNumerically(const Vec currentGuess, Mat *pJacobian)
     {
         unsigned num_nodes = PROBLEM_DIM*this->mpMesh->GetNumNodes();
-        
+
         // Set up working vectors
         Vec residual;
         Vec perturbed_residual;
         Vec result;
-        
+
         VecCreate(PETSC_COMM_WORLD, &residual);
         VecCreate(PETSC_COMM_WORLD, &result);
         VecCreate(PETSC_COMM_WORLD, &perturbed_residual);
-        
+
         VecSetSizes(residual,          PETSC_DECIDE,num_nodes);
         VecSetSizes(result,            PETSC_DECIDE,num_nodes);
         VecSetSizes(perturbed_residual,PETSC_DECIDE,num_nodes);
-        
+
         VecSetFromOptions(residual);
         VecSetFromOptions(result);
         VecSetFromOptions(perturbed_residual);
-        
+
         // Copy the currentGuess vector; we perturb the copy
         Vec current_guess_copy;
         PETSCEXCEPT( VecDuplicate(currentGuess, &current_guess_copy) );
         PETSCEXCEPT( VecCopy(currentGuess, current_guess_copy) );
-        
+
         // Compute the current residual
         AssembleResidual(currentGuess, residual);
-        
+
         // Amount to perturb each input element by
         double h = 0.00001;
         PetscScalar subtract = -1;
         PetscScalar one_over_h = 1.0/h;
-        
+
         PetscInt ilo, ihi;
         VecGetOwnershipRange(current_guess_copy, &ilo, &ihi);
         unsigned lo=ilo;
         unsigned hi=ihi;
-        
+
         // Iterate over entries in the input vector.
         for (unsigned global_index_outer = 0; global_index_outer < num_nodes; global_index_outer++)
         {
@@ -221,7 +221,7 @@ protected:
                 PETSCEXCEPT( VecSetValue(current_guess_copy, global_index_outer,h, ADD_VALUES) );
             }
             AssembleResidual(current_guess_copy, perturbed_residual);
-            
+
             // result = (perturbed_residual - residual) / h
 #if (PETSC_VERSION_MINOR == 2) //Old API
             PETSCEXCEPT( VecWAXPY(&subtract, residual, perturbed_residual, result) );
@@ -230,7 +230,7 @@ protected:
             PETSCEXCEPT( VecWAXPY(result, subtract, residual, perturbed_residual) );
             PETSCEXCEPT( VecScale(result, one_over_h) );
 #endif
-            
+
             double *p_result;
             PETSCEXCEPT( VecGetArray(result, &p_result) );
             for (unsigned global_index=lo; global_index < hi; global_index++)
@@ -240,24 +240,24 @@ protected:
                                          p_result[local_index], INSERT_VALUES) );
             }
             PETSCEXCEPT( VecRestoreArray(result, &p_result) );
-            
+
             if (lo<=global_index_outer && global_index_outer<hi)
             {
                 PETSCEXCEPT( VecSetValue(current_guess_copy, global_index_outer, -h, ADD_VALUES) );
             }
         }
-        
+
         VecDestroy(residual);
         VecDestroy(perturbed_residual);
         VecDestroy(result);
         VecDestroy(current_guess_copy);
-        
+
         MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
-        
+
         return 0; // No error
     }
-    
+
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentGuess=NULL, double currentTime=0.0)
     {
@@ -265,7 +265,7 @@ protected:
         assert( currentGuess );
         BaseClassType::AssembleSystem(assembleVector, assembleMatrix, currentGuess, currentTime);
     }
-    
+
     bool ProblemIsNonlinear()
     {
         return true;
@@ -289,12 +289,12 @@ protected:
             EXCEPTION(error_message.str());
         }
     }
-    
+
     /**
      * Perform the work of a single solve, but without any initialisation.
-     * 
+     *
      * @param currentSolutionOrGuess  either the current solution (dynamic problem) or
-     *     initial guess (static problem).  MUST be provided. 
+     *     initial guess (static problem).  MUST be provided.
      * @param currentTime  for a dynamic problem, the current time
      * @return the solution vector
      */
@@ -302,10 +302,10 @@ protected:
                     double currentTime=0.0,
                     bool assembleMatrix=true)
     {
-        assert(this->mpBoundaryConditions!=NULL); 
+        assert(this->mpBoundaryConditions!=NULL);
         assert(currentSolutionOrGuess!=NULL);
         assert(assembleMatrix); ///\todo do something sensible if assembleMatrix is false.
-        
+
         // run the solver, telling it which global functions to call in order to assemble
         // the residual or jacobian
         Vec answer = this->mpSolver->Solve(&AbstractNonlinearAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>,
@@ -314,7 +314,7 @@ protected:
                                            this);
         return answer;
     }
-    
+
 public:
     /**
      * Constructors just call the base class versions.
@@ -324,12 +324,12 @@ public:
     {
         mpSolver = new SimplePetscNonlinearSolver;
         mWeAllocatedSolverMemory = true;
-        
+
         mUseAnalyticalJacobian = false;
-        
+
         mInitialGuess = NULL;
     }
-    
+
     ~AbstractNonlinearAssembler()
     {
         if (mWeAllocatedSolverMemory)
@@ -337,20 +337,20 @@ public:
             delete mpSolver;
         }
     }
-        
+
     /**
      * Set whether to use an analytical jacobian.  This is provided for use when
      * solving dynamic nonlinear problems; when solving static problems there is
      * an argument to the Solve method which specifies this property, and overrides
      * any user call to this method.
-     * 
+     *
      * If this method is not called the default is false i.e. numerical jacobian.
      */
     void SetUseAnalyticalJacobian(bool useAnalyticalJacobian)
     {
         mUseAnalyticalJacobian = useAnalyticalJacobian;
     }
-    
+
     /**
       * Assemble and solve the system for a nonlinear elliptic PDE.
       *
@@ -363,13 +363,13 @@ public:
     {
         assert(initialGuess!=NULL);
         SetUseAnalyticalJacobian(useAnalyticalJacobian);
-        
+
         this->PrepareForSolve();
         InitialiseForSolve(initialGuess);
-        
+
         return StaticSolve(initialGuess);
     }
-    
+
     /**
      *  SetNonlinearSolver - by default a SimplePetscNonlinearSolver is created
      *  and used in this class, this method can be called to use a different
@@ -384,7 +384,7 @@ public:
         mpSolver = pNonlinearSolver;
         mWeAllocatedSolverMemory = false;
     }
-    
+
     /**
      *  A helpful method for creating an initial guess vector
      */
@@ -394,56 +394,56 @@ public:
         unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
         return PetscTools::CreateVec(size, value);
     }
-    
+
     /**
      *  VerifyJacobian
-     * 
+     *
      *  A helper method for use when writing concrete assemblers. Once the user has calculated
-     *  (on paper) the weak form and the form of the ComputeMatrixTerm method, they can check 
-     *  whether the analytic Jacobian matches the numerical Jacobian (which only calls 
+     *  (on paper) the weak form and the form of the ComputeMatrixTerm method, they can check
+     *  whether the analytic Jacobian matches the numerical Jacobian (which only calls
      *  ComputeVectorTerm and ComputeVectorSurfaceTerm) to verify the correctness of the code.
-     * 
+     *
      *  @param tol A tolerance which defaults to 1e-5
      *  @param print  Whether to print the different matrix J_numerical-J_analytical
-     *  @return true if the componentwise difference between the matrices is less than 
+     *  @return true if the componentwise difference between the matrices is less than
      *    the tolerance, false otherwise.
-     * 
-     *  This method should NOT be run in simulations - it is only to verify the correctness 
+     *
+     *  This method should NOT be run in simulations - it is only to verify the correctness
      *  of the concrete assembler code.
      */
     bool VerifyJacobian(double tol=1e-4, bool print=false)
     {
         unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-        
+
         Vec initial_guess;
         VecCreate(PETSC_COMM_WORLD, &initial_guess);
         VecSetSizes(initial_guess, PETSC_DECIDE, size);
         VecSetFromOptions(initial_guess);
-        
-        
+
+
         for (unsigned i=0; i<size; i++)
         {
             VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);
         }
-        
+
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
-        
-        
+
+
         Mat analytic_jacobian; //Jacobian Matrix
         Mat numerical_jacobian; //Jacobian Matrix
 
-        PetscTools::SetupMat(analytic_jacobian, size, size);        
-        PetscTools::SetupMat(numerical_jacobian, size, size);        
-        
+        PetscTools::SetupMat(analytic_jacobian, size, size);
+        PetscTools::SetupMat(numerical_jacobian, size, size);
+
         mUseAnalyticalJacobian = true;
         AssembleJacobian(initial_guess, &analytic_jacobian);
-        
+
         mUseAnalyticalJacobian = false;
         AssembleJacobian(initial_guess, &numerical_jacobian);
-        
+
         bool all_less_than_tol = true;
-        
+
         if (print)
         {
             std::cout << "Difference between numerical and analyical Jacobians:\n\n";
@@ -458,15 +458,15 @@ public:
                 PetscInt col[1];
                 row[0] = i;
                 col[0] = j;
-                
+
                 MatGetValues(numerical_jacobian,1,row,1,col,val_n);
                 MatGetValues(analytic_jacobian,1,row,1,col,val_a);
-                
+
                 if (print)
                 {
                     std::cout << val_n[0] - val_a[0]<< " ";
                 }
-                
+
                 if (fabs(val_n[0]-val_a[0]) > tol)
                 {
 #define COVERAGE_IGNORE // would have to write a bad concrete assembler class just to cover this line
@@ -480,11 +480,11 @@ public:
             }
         }
         std::cout << std::flush;
-        
+
         MatDestroy(numerical_jacobian);
         MatDestroy(analytic_jacobian);
         VecDestroy(initial_guess);
-        
+
         return all_less_than_tol;
     }
 
@@ -525,13 +525,13 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes, Vec curren
     // Extract an assembler from the void*
     AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE> *pAssembler =
         (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>*) pContext;
-        
+
     PetscErrorCode ierr = pAssembler->AssembleResidual(currentGuess, residualVector);
-    
+
     //double two_norm;
     //VecNorm(residualVector, NORM_2, &two_norm);
     //std::cout << "||residual|| = " << two_norm << "\n";
-    
+
     return ierr;
 }
 
@@ -558,14 +558,14 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes, Vec curren
         MatStructure *pMatStructure, void *pContext)
 {
     //std::cout << "begin assemble jacobian\n";
-    
+
     // Extract an assembler from the void*
     AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE> *pAssembler =
         (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>*) pContext;
-        
+
     PetscErrorCode ierr = pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
     //std::cout << "end assemble jacobian\n";
-    
+
     return ierr;
 }
 

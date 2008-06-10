@@ -39,7 +39,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
 
     /**
      * State variables are
-     *  
+     *
      *  0. r = pRb
      *  1. e = E2F1 (This is the S-phase indicator)
      *  2. i = CycD (inactive)
@@ -64,21 +64,21 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
      *  21. Wnt level
      */
     Init(); // set up parameter values
-    
+
     double d_d_hat = mDd + mXiD*wntLevel;
     double d_d_x_hat = mDdx + mXiDx*wntLevel;
     double d_x_hat = mDx + mXiX*wntLevel;
     double p_c_hat = mPc + mXiC*wntLevel;
-    
+
     double sigma_D = 0.0; // for healthy cells
     double sigma_B = 0.0; // for healthy cells
-    
+
     switch(mMutationState)
     {
         case HEALTHY:
         {
             break;
-        }   
+        }
         case LABELLED:
         {
             break;
@@ -91,7 +91,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
         case APC_TWO_HIT:
         {
             sigma_D = 1.0;
-            break;   
+            break;
         }
         case BETA_CATENIN_ONE_HIT:
         {
@@ -100,113 +100,113 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
         }
         default:
             // This can't happen if all mutation states are catered for
-            NEVER_REACHED;  
+            NEVER_REACHED;
     }
-    
+
     mVariableNames.push_back("pRb");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(7.357000000000000e-01);
-    
+
     mVariableNames.push_back("E2F1");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(1.713000000000000e-01);
-    
+
     mVariableNames.push_back("CycD_i");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(6.900000000000001e-02);
-    
+
     mVariableNames.push_back("CycD_a");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(3.333333333333334e-03);
-    
+
     mVariableNames.push_back("pRb_p");
     mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(1.000000000000000e-04);    
-    
+    mInitialConditions.push_back(1.000000000000000e-04);
+
     double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
-    
+
     mVariableNames.push_back("D");  // Destruction complex (APC/Axin/GSK3B)
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(steady_D);
-    
+
     double temp = (mSx*(d_d_hat+d_d_x_hat))/((1.0-sigma_D)*mSd*d_d_hat+d_x_hat*(d_d_hat+d_d_x_hat));
-    
+
     mVariableNames.push_back("X");  // Axin
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(temp);
-    
+
     double steady_Cf = ((mSc-mDc*mKd - mPu*steady_D)+sqrt(pow((mSc-mDc*mKd - mPu*steady_D),2) + (4.0*mSc*mDc*mKd)))/(2.0*mDc);
     temp = (mPu*steady_D*steady_Cf)/(mDu*(steady_Cf+mKd));
-    
+
     mVariableNames.push_back("Cu"); // beta-catenin to be ubiquitinated
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(temp);
-    
+
     double theta = mDc+ (mPu*steady_D)/(steady_Cf + mKd);
-    
+
     double steady_Co = ( mSc - p_c_hat - theta*mKc + sqrt(4.0*mSc*theta*mKc + pow((mSc - p_c_hat - theta*mKc),2)) )/(2.0*theta);
-    
+
     mVariableNames.push_back("Co"); // Open form beta-catenin
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(steady_Co);
-    
+
     double steady_Cc = steady_Cf - steady_Co;
-    
+
     if ((steady_Cc < 0) && (steady_Cc+100*DBL_EPSILON > 0) ) // stop protein values going -ve
     {
         steady_Cc = 0.0;
     }
-    
+
     mVariableNames.push_back("Cc"); // Closed form beta-catenin
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(steady_Cc);
-    
+
     mVariableNames.push_back("Mo"); // Open form mutant beta-catenin
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(0.0);
-    
+
     mVariableNames.push_back("Mc"); // Closed form mutant beta-catenin
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(0.0);
-    
+
     mVariableNames.push_back("A");  // 'Free' adhesion molecules
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(mSa/mDa);
-    
+
     mVariableNames.push_back("Ca"); // Co-A Adhesion complex
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(mSa*mSca*steady_Co/(mDa*mDca));
-    
+
     mVariableNames.push_back("Ma"); // Mo-A Mutant adhesion complex
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(0.0);
-    
+
     mVariableNames.push_back("T"); // `Free' transcription molecules (TCF)
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(mSt/mDt);
-    
+
     mVariableNames.push_back("Cot"); // Co-T open form beta-catenin/TCF
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(mSct*mSt*steady_Co/(mDt*mDct));
-    
+
     mVariableNames.push_back("Cct"); // Cc-T closed beta-catenin/TCF
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(mSct*mSt*steady_Cc/(mDt*mDct));
-    
+
     mVariableNames.push_back("Mot"); // Mo-T open form mutant beta-catenin/TCF
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(0.0);
-    
+
     mVariableNames.push_back("Mct"); // Mc-T closed form mutant beta-catenin/TCF
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(0.0);
-    
+
     temp = (mSct*mSt*mSy*steady_Cf)/(mDy*(mSct*mSt*steady_Cf + mDct*mDt*mKt));
-    
+
     mVariableNames.push_back("Y"); // Wnt target protein
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(temp);
-    
+
     mVariableNames.push_back("Sw"); // Wnt stimulus
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(wntLevel);
@@ -249,10 +249,10 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     double phi_CycDi = 0.023;
     double phi_CycDa = 0.03;
     double phi_pRbp = 0.06;
-    
+
     // Value of the mitogenic factor to make the van Leeuwen model influence cell cycle just the same
     double mitogenic_factorF = 1.0/25.0;
-    
+
     // Non-dimensionalise parameters
     mk2d = k2/(Km2*phi_E2F1);
     mk3d = k3*mitogenic_factorF/(Km4*phi_E2F1);
@@ -275,7 +275,7 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     mk16d = k16*Km4/phi_E2F1;
     mk61d = k61/phi_E2F1;
     mPhiE2F1 = phi_E2F1;
-    
+
     // Initialize van Leeuwen model parameters
     mSa = 20;   //  nM/h
     mSca = 250; //  (nMh)^-1
@@ -309,7 +309,7 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     }
     else
     {
-        mXiC = 5000.0;   //  h^-1 (FOR HYPOTHESIS TWO) 
+        mXiC = 5000.0;   //  h^-1 (FOR HYPOTHESIS TWO)
     }
 }
 
@@ -320,13 +320,13 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     double i = rY[2];
     double j = rY[3];
     double p = rY[4];
-            
+
     double dx1 = 0.0;
     double dx2 = 0.0;
     double dx3 = 0.0;
     double dx4 = 0.0;
     double dx5 = 0.0;
-    
+
     // Bit back-to-front, but work out the Wnt section first...
 
     // Variables
@@ -347,27 +347,27 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     double Mct = rY[19];
     double Y = rY[20];
     double stimulus_wnt = rY[21];
-    
+
     // Totals
     double Cf = Cc+Co;
     double Ct = Cct+Cot;
     double Mf = Mc+Mo;
     double Mt = Mct+Mot;
-    
+
     double d_d_hat = mDd + mXiD*stimulus_wnt;
     double d_d_x_hat = mDdx + mXiDx*stimulus_wnt;
     double d_x_hat = mDx + mXiX*stimulus_wnt;
     double p_c_hat = mPc + mXiC*stimulus_wnt;
-    
+
     double sigma_D = 0.0;   // for healthy cells
     double sigma_B = 0.0;   // for healthy cells
-    
+
     switch (mMutationState)
     {
         case HEALTHY:
         {
             break;
-        }   
+        }
         case LABELLED:
         {
             break;
@@ -380,7 +380,7 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
         case APC_TWO_HIT:
         {
             sigma_D = 1.0;
-            break;   
+            break;
         }
         case BETA_CATENIN_ONE_HIT:
         {
@@ -391,9 +391,9 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
             // This can't happen if all mutation states are catered for
             NEVER_REACHED;
     }
-    
+
     // Now the cell cycle stuff...
-    
+
     // dr
     dx1 = e/(mKm1d+e)*mJ11d/(mJ11d+r)*mJ61d/(mJ61d+p) - mk16d*r*j+mk61d*p-mphi_r*r;
     // de
@@ -404,16 +404,16 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     dx4 = mk34d*i*j/(1+j) - (mk43d+mphi_j)*j;
     // dp
     dx5 = mk16d*r*j - mk61d*p - mphi_p*p;
-    
+
     double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.
-    
+
     rDY[0] = dx1*factor;
     rDY[1] = dx2*factor;
     rDY[2] = dx3*factor;
     rDY[3] = dx4*factor;
     rDY[4] = dx5*factor;
-    
-    // The van Leeuwen ODE system 
+
+    // The van Leeuwen ODE system
     rDY[5] = (1.0-sigma_D)*mSd*X - (d_d_hat + d_d_x_hat)*D;
     rDY[6] = mSx - (1.0-sigma_D)*mSd*X - d_x_hat*X + d_d_x_hat*D;
     rDY[7] = (mPu*D*Cf)/(Cf+mKd) - mDu*Cu;
@@ -423,19 +423,19 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
 
     rDY[9] = (p_c_hat*Co)/(Co + Mo + mKc) + mDct*Cct - (mSct*T + mDc)*Cc
              - (mPu*D*Cc)/(Cf+mKd);
-             
+
     rDY[10] = sigma_B*mSc + mDca*Ma + mDct*Mot - (mSca*A + mSct*T + mDc)*Mo
              - (p_c_hat*Mo)/(Co + Mo + mKc);
-             
-    rDY[11] = (p_c_hat*Mo)/(Co + Mo + mKc) + mDct*Mct - (mSct*T + mDc)*Mc;    
+
+    rDY[11] = (p_c_hat*Mo)/(Co + Mo + mKc) + mDct*Mct - (mSct*T + mDc)*Mc;
     rDY[12] = mSa + mDca*(Ca+Ma) - (mSca*(Co+Mo) + mDa)*A;
-    rDY[13] = mSca*Co*A - mDca*Ca; 
-    rDY[14] = mSca*Mo*A - mDca*Ma; 
+    rDY[13] = mSca*Co*A - mDca*Ca;
+    rDY[14] = mSca*Mo*A - mDca*Ma;
     rDY[15] = mSt + mDct*(Ct+Mt) - mSct*(Cf+Mf)*T - mDt*T;
-    rDY[16] = mSct*Co*T - mDct*Cot; 
-    rDY[17] = mSct*Cc*T - mDct*Cct; 
-    rDY[18] = mSct*Mo*T - mDct*Mot; 
-    rDY[19] = mSct*Mc*T - mDct*Mct; 
+    rDY[16] = mSct*Co*T - mDct*Cot;
+    rDY[17] = mSct*Cc*T - mDct*Cct;
+    rDY[18] = mSct*Mo*T - mDct*Mot;
+    rDY[19] = mSct*Mc*T - mDct*Mct;
     rDY[20] = (mSy*(Ct+Mt))/(Ct + Mt + mKt) - mDy*Y;
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus
 }

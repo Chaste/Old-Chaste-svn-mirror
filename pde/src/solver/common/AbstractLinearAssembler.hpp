@@ -48,13 +48,13 @@ private:
     bool mUseLinearSolverAbsoluteTolerance;
 
 protected:
-    
+
     /** Hack for dynamic mixin */
     void SetMatrixIsConst(bool matrixIsConstant = true)
     {
          mMatrixIsConstant = matrixIsConstant;
     }
-    
+
     /**
      * Apply Dirichlet boundary conditions to the linear system.
      */
@@ -62,10 +62,10 @@ protected:
     {
         this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), applyToMatrix);
     }
-    
+
     /**
      * Create the linear system object if it hasn't been already.
-     * 
+     *
      * Can use an initial solution as PETSc template, or base it on the mesh size.
      */
     void InitialiseForSolve(Vec initialSolution)
@@ -74,14 +74,14 @@ protected:
         {
             if (initialSolution == NULL)
             {
-                // Static problem, create linear system 
+                // Static problem, create linear system
                 // The following ensures all the unknowns for a particular node
                 // are on the same processor
                 DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
                 Vec template_vec = DistributedVector::CreateVec(PROBLEM_DIM);
-                
+
                 this->mpLinearSystem = new LinearSystem(template_vec);
-                
+
                 VecDestroy(template_vec);
             }
             else
@@ -103,15 +103,15 @@ protected:
             }
         }
     }
-        
+
     bool ProblemIsNonlinear()
     {
         return false;
     }
-    
+
     /**
      * Solve a static pde, or a dynamic pde for 1 timestep.
-     * 
+     *
      * The mesh, pde and boundary conditions container must be set first.
      */
     virtual Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
@@ -137,10 +137,10 @@ protected:
             // so we can't use the current solution as an initial guess for the linear solver.
             return this->mpLinearSystem->Solve();
         }
-        
+
     }
-    
-    
+
+
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2) :
             AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints),
@@ -149,18 +149,18 @@ public:
             mUseLinearSolverAbsoluteTolerance(false)
     {
     }
-    
+
     /**
      *  Destructor: ensures that the linear solver is thrown away.
      */
     ~AbstractLinearAssembler()
     {
     }
-    
+
     /**
      *  Solve the static pde.
-     * 
-     *  The mesh, pde and boundary conditions container must be set before Solve() 
+     *
+     *  The mesh, pde and boundary conditions container must be set before Solve()
      *  is called.
      */
     virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
@@ -171,13 +171,13 @@ public:
         // have to comment this out because the flagged mesh assembler uses a different
         // bcc and so this is null.
         //assert(this->mpBoundaryConditions!=NULL);
-        
+
         this->PrepareForSolve();
         this->InitialiseForSolve(currentSolutionOrGuess);
         return this->StaticSolve(currentSolutionOrGuess, currentTime);
     }
-    
-    
+
+
     void SetLinearSolverRelativeTolerance(double relativeTolerance)
     {
         assert(this->mpLinearSystem==NULL);
@@ -191,7 +191,7 @@ public:
         mUseLinearSolverAbsoluteTolerance = true;
         mLinearSolverTolerance = absoluteTolerance;
     }
-    
+
     /*
     void DebugWithSolution(Vec sol)
     {
@@ -202,7 +202,7 @@ public:
         std::cout<<"\n\nWS: This is the solution:\n";
         VecView(sol, PETSC_VIEWER_STDOUT_WORLD);
     }
-    
+
     void Debug()
     {
         std::cout<<"\n\nThis is the matrix:\n";

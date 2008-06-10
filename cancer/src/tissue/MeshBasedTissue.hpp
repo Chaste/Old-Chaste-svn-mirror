@@ -41,60 +41,60 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A facade class encapsulating a mesh-based 'tissue'
- * 
+ *
  * Contains a group of cells and maintains the associations between cells and
  * nodes in the mesh.
- * 
+ *
  */
 template<unsigned DIM>
 class MeshBasedTissue : public AbstractTissue<DIM>
 {
 protected:
-    
+
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
-    
+
     VoronoiTessellation<DIM>* mpVoronoiTessellation;
-    
+
     /**
      * Whether to delete the mesh when we are destroyed.
      * Needed if this tissue has been de-serialized.
      */
     bool mDeleteMesh;
-        
+
     /**
      * Special springs that we want to keep track of for some reason.
      * Currently used to track cells in the process of dividing
      * (which are represented as two cells joined by a shorter spring).
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
-    
+
     /** Whether to print out cell area and perimeter info */
     bool mWriteVoronoiData;
-    
+
     /** Whether to follow only the logged cell if writing voronoi data */
     bool mFollowLoggedCell;
-    
+
     /** Whether to print out tissue areas */
     bool mWriteTissueAreas;
-    
+
     /** Results file for elements */
     out_stream mpElementFile;
-    
+
     /** Results file for Voronoi data */
     out_stream mpVoronoiFile;
-    
+
     /** Results file for tissue area data */
     out_stream mpTissueAreasFile;
-        
+
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
-        
+
     friend class boost::serialization::access;
     /**
      * Serialize the facade.
-     * 
+     *
      * Note that serialization of the mesh and cells is handled by load/save_construct_data.
-     * 
+     *
      * Note also that member data related to writers is not saved - output must
      * be set up again by the caller after a restart.
      */
@@ -102,21 +102,21 @@ protected:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
-  
+
         // The Voronoi stuff can't be archived yet
         //archive & mpVoronoiTessellation
         delete mpVoronoiTessellation;
         mpVoronoiTessellation = NULL;
-        
+
         archive & mMarkedSprings;
         archive & mWriteVoronoiData;
         archive & mFollowLoggedCell;
         archive & mWriteTissueAreas;
-        
+
         // In its present form, a call to MeshBasedTissue::Validate() here
-        // would result in a seg fault in the situation where we are actually loading 
+        // would result in a seg fault in the situation where we are actually loading
         // a MeshBasedTissueWithGhostNodes. Commenting out this call breaks no tests.
-           
+
         // Validate();
     }
 
@@ -127,21 +127,21 @@ public:
 
     /**
      * Create a new tissue facade from a mesh and collection of cells.
-     * 
+     *
      * There must be precisely 1 cell for each node of the mesh.
-     * 
+     *
      * @param rMesh a conforming tetrahedral mesh.
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
-    MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&, 
+    MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&,
                     const std::vector<TissueCell>&,
-                    bool deleteMesh=false, 
+                    bool deleteMesh=false,
                     bool validate=true);
 
     /**
      * Constructor for use by the de-serializer.
-     * 
+     *
      * @param rMesh a conforming tetrahedral mesh.
      */
     MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&);
@@ -160,24 +160,24 @@ public:
 
     void SetWriteTissueAreas(bool writeTissueAreas);
 
-    /** 
-     * Remove all cells labelled as dead. 
-     * 
-     * Note that this now calls 
-     * ConformingTetrahedralMesh::DeleteNodePriorToReMesh() 
+    /**
+     * Remove all cells labelled as dead.
+     *
+     * Note that this now calls
+     * ConformingTetrahedralMesh::DeleteNodePriorToReMesh()
      * and therefore a ReMesh(map) must be called before
      * any element information is used.
-     * 
+     *
      * Note also that after calling this method the tissue will be in an inconsistent state until a
      * ReMesh is performed!  So don't try iterating over cells or anything like that.
      * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
      *  between nodes and cells.
-     * 
+     *
      *  @return number of cells removed
      */
     unsigned RemoveDeadCells();
 
-    void CreateOutputFiles(const std::string &rDirectory, 
+    void CreateOutputFiles(const std::string &rDirectory,
                            bool rCleanOutputDirectory,
                            bool outputCellMutationStates,
                            bool outputCellTypes,
@@ -212,10 +212,10 @@ public:
 
     unsigned GetNumNodes();
 
-    /** 
+    /**
      * Sets the Ancestor index of all the cells at the bottom in order,
      * can be used to trace clonal populations.
-     */   
+     */
     void SetBottomCellAncestors();
 
     /**
@@ -224,8 +224,8 @@ public:
      */
     virtual void Validate();
 
-    void WriteResultsToFiles(bool outputCellMutationStates, 
-                             bool outputCellTypes, 
+    void WriteResultsToFiles(bool outputCellMutationStates,
+                             bool outputCellTypes,
                              bool outputCellVariables,
                              bool outputCellCyclePhases,
                              bool outputCellAncestors);
@@ -234,64 +234,64 @@ public:
 
     void WriteTissueAreaResultsToFile();
 
-    /** Get a reference to a Voronoi Tessellation of the mesh */                         
+    /** Get a reference to a Voronoi Tessellation of the mesh */
     void CreateVoronoiTessellation();
 
     VoronoiTessellation<DIM>& rGetVoronoiTessellation();
-    
+
     /**
      * Update mIsGhostNode if required by a remesh.
-     */ 
+     */
     virtual void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
 
     /**
      * Iterator over edges in the mesh, which correspond to springs between cells.
-     * 
+     *
      * This class takes care of the logic to make sure that you consider each edge exactly once.
      */
     class SpringIterator
     {
     public:
-    
+
         /**
          * Get a pointer to the node in the mesh at end A of the spring.
          */
         Node<DIM>* GetNodeA();
-        
+
         /**
          * Get a pointer to the node in the mesh at end B of the spring.
          */
         Node<DIM>* GetNodeB();
-        
+
         /**
          * Get a *reference* to the cell at end A of the spring.
          */
         TissueCell& rGetCellA();
-        
+
         /**
          * Get a *reference* to the cell at end B of the spring.
          */
         TissueCell& rGetCellB();
-        
+
         bool operator!=(const SpringIterator& other);
-        
+
         /**
          * Prefix increment operator.
          */
         SpringIterator& operator++();
-        
+
         /**
          * Constructor for a new iterator.
          */
         SpringIterator(MeshBasedTissue& rTissue, typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter);
-        
+
     private:
-    
+
         /** Keep track of what edges have been visited */
         std::set<std::set<unsigned> > mSpringsVisited;
-    
+
         MeshBasedTissue& mrTissue;
-        
+
         typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
 
@@ -299,25 +299,25 @@ public:
      * @return iterator pointing to the first spring in the tissue
      */
     SpringIterator SpringsBegin();
-    
+
     /**
      * @return iterator pointing to one past the last spring in the tissue
      */
     SpringIterator SpringsEnd();
-    
+
     // For debugging
     void CheckTissueCellPointers();
-    
+
     /**
      * Test whether the spring between 2 cells is marked.
      */
     bool IsMarkedSpring(TissueCell&, TissueCell&);
-    
+
     /**
      * Mark the spring between the given cells.
      */
     void MarkSpring(TissueCell&, TissueCell&);
-    
+
     /**
      * Stop marking the spring between the given cells.
      */
@@ -342,7 +342,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
     assert( this->mCells.size() <= mrMesh.GetNumNodes() );
 
     this->mTissueContainsMesh = true;
-    
+
     if (validate)
     {
         Validate();
@@ -372,20 +372,20 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::Validate()
 {
     std::vector<bool> validated_node = std::vector<bool>(this->GetNumNodes(), false);
-    
+
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = cell_iter->GetNodeIndex();
         validated_node[node_index] = true;
-    }    
-    
+    }
+
     for (unsigned i=0; i<validated_node.size(); i++)
     {
         if (!validated_node[i])
         {
             std::stringstream ss;
             ss << "Node " << i << " does not appear to have a cell associated with it";
-            EXCEPTION(ss.str()); 
+            EXCEPTION(ss.str());
         }
     }
 }
@@ -439,7 +439,7 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
             {
                 mMarkedSprings.erase(**pair_it);
             }
-            
+
             // Remove the node from the mesh
             num_removed++;
             mrMesh.DeleteNodePriorToReMesh(it->GetNodeIndex());
@@ -457,25 +457,25 @@ void MeshBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter,
     mrMesh.SetNode(index, rNewLocation, false);
 }
 
-template<unsigned DIM>  
+template<unsigned DIM>
 TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
     Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
-              
+
     unsigned new_node_index = mrMesh.AddNode(p_new_node);
 
     newCell.SetNodeIndex(new_node_index);
     this->mCells.push_back(newCell);
-    
+
     TissueCell *p_created_cell = &(this->mCells.back());
     this->mNodeCellMap[new_node_index] = p_created_cell;
-    
+
     return p_created_cell;
 }
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::ReMesh()
-{    
+{
     NodeMap map(mrMesh.GetNumAllNodes());
     if (DIM==2)
     {
@@ -489,7 +489,7 @@ void MeshBasedTissue<DIM>::ReMesh()
     if (!map.IsIdentityMap())
     {
         UpdateGhostNodesAfterReMesh(map);
-        
+
         // Fix up the mappings between cells and nodes
         this->mNodeCellMap.clear();
         for (std::list<TissueCell>::iterator it = this->mCells.begin();
@@ -497,7 +497,7 @@ void MeshBasedTissue<DIM>::ReMesh()
              ++it)
         {
             unsigned old_node_index = it->GetNodeIndex();
-            
+
             // This shouldn't ever happen, as the cell vector only contains living cells
             assert(!map.IsDeleted(old_node_index));
             unsigned new_node_index = map.GetNewIndex(old_node_index);
@@ -505,7 +505,7 @@ void MeshBasedTissue<DIM>::ReMesh()
             this->mNodeCellMap[new_node_index] = &(*it);
         }
     }
-    
+
     // Purge any marked springs that are no longer springs
     std::vector<const std::set<TissueCell*>*> springs_to_remove;
     for (std::set<std::set<TissueCell*> >::iterator spring_it = mMarkedSprings.begin();
@@ -518,9 +518,9 @@ void MeshBasedTissue<DIM>::ReMesh()
         TissueCell* p_cell_2 = *(++r_pair.begin());
         Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(*p_cell_1);
         Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(*p_cell_2);
-        
+
         bool joined = false;
-        
+
         // For each element containing node1, if it also contains node2 then the cells are joined
         std::set<unsigned> node2_elements = p_node_2->rGetContainingElementIndices();
         for (typename Node<DIM>::ContainingElementIterator elt_it = p_node_1->ContainingElementsBegin();
@@ -534,14 +534,14 @@ void MeshBasedTissue<DIM>::ReMesh()
                 break;
             }
         }
-        
+
         // If no longer joined, remove this spring from the set
         if (!joined)
         {
             springs_to_remove.push_back(&r_pair);
         }
     }
-    
+
     // Remove any springs necessary
     for (std::vector<const std::set<TissueCell*>* >::iterator spring_it = springs_to_remove.begin();
          spring_it != springs_to_remove.end();
@@ -549,7 +549,7 @@ void MeshBasedTissue<DIM>::ReMesh()
     {
         mMarkedSprings.erase(**spring_it);
     }
-    
+
     Validate();
 }
 
@@ -565,7 +565,7 @@ unsigned MeshBasedTissue<DIM>::GetNumNodes()
     return rGetMesh().GetNumAllNodes();
 }
 
-template<unsigned DIM> 
+template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetBottomCellAncestors()
 {
     unsigned index = 0;
@@ -578,7 +578,7 @@ void MeshBasedTissue<DIM>::SetBottomCellAncestors()
     }
 }
 
-template<unsigned DIM> 
+template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)
 {
     assert(DIM == 2);
@@ -586,7 +586,7 @@ void MeshBasedTissue<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool follo
     mFollowLoggedCell = followLoggedCell;
 }
 
-template<unsigned DIM> 
+template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 {
     assert(DIM == 2);
@@ -595,33 +595,33 @@ void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rMap)
-{    
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//                             Output methods                               // 
+//                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, 
-                                             bool rCleanOutputDirectory, 
+void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
+                                             bool rCleanOutputDirectory,
                                              bool outputCellMutationStates,
                                              bool outputCellTypes,
                                              bool outputCellVariables,
                                              bool outputCellCyclePhases,
                                              bool outputCellAncestors)
 {
-    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, 
-                                           rCleanOutputDirectory, 
+    AbstractTissue<DIM>::CreateOutputFiles(rDirectory,
+                                           rCleanOutputDirectory,
                                            outputCellMutationStates,
                                            outputCellTypes,
                                            outputCellVariables,
                                            outputCellCyclePhases,
                                            outputCellAncestors);
-                                           
+
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
-    
+
     if (mWriteVoronoiData)
     {
         mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
@@ -645,7 +645,7 @@ void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                           outputCellCyclePhases,
                                           outputCellAncestors);
     mpElementFile->close();
-    
+
     if (mWriteVoronoiData)
     {
         mpVoronoiFile->close();
@@ -659,32 +659,32 @@ void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
 template<unsigned DIM>
 bool MeshBasedTissue<DIM>::GetWriteVoronoiData()
 {
-    return mWriteVoronoiData;        
+    return mWriteVoronoiData;
 }
 
 template<unsigned DIM>
 bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
 {
-    return mWriteTissueAreas;        
+    return mWriteTissueAreas;
 }
 
-template<unsigned DIM>  
-void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, 
-                                               bool outputCellTypes, 
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
+                                               bool outputCellTypes,
                                                bool outputCellVariables,
                                                bool outputCellCyclePhases,
                                                bool outputCellAncestors)
 {
-    AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates, 
-                                             outputCellTypes, 
+    AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates,
+                                             outputCellTypes,
                                              outputCellVariables,
                                              outputCellCyclePhases,
                                              outputCellAncestors);
-    
+
     // Write element data to file
-    
+
     *mpElementFile <<  SimulationTime::Instance()->GetDimensionalisedTime() << "\t";
-    
+
     for (unsigned elem_index=0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
         if (!mrMesh.GetElement(elem_index)->IsDeleted())
@@ -695,17 +695,17 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
             }
         }
     }
-    
-    *mpElementFile << "\n";    
-    
+
+    *mpElementFile << "\n";
+
     if (mpVoronoiTessellation!=NULL)
     {
-        // Write Voronoi data to file if required    
+        // Write Voronoi data to file if required
         if (mWriteVoronoiData)
         {
             WriteVoronoiResultsToFile();
         }
-        
+
         // Write tissue area data to file if required
         if (mWriteTissueAreas)
         {
@@ -714,12 +714,12 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     }
 }
 
-template<unsigned DIM>  
+template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 {
     // Write time to file
     *mpVoronoiFile << SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-    
+
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
          ++cell_iter)
@@ -729,12 +729,12 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
             unsigned node_index = cell_iter.GetNode()->GetIndex();
             double x = cell_iter.rGetLocation()[0];
             double y = cell_iter.rGetLocation()[1];
-        
+
             double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
             double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);
-        
+
             *mpVoronoiFile << node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
-            
+
             if (mFollowLoggedCell)
             {
                 break;
@@ -744,18 +744,18 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
     *mpVoronoiFile << "\n";
 }
 
-template<unsigned DIM>  
+template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 {
     // Write time to file
     *mpTissueAreasFile << SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-        
+
     // Don't use the Voronoi tessellation to calculate the total area
     // because it gives huge areas for boundary cells
-    double total_area = rGetMesh().CalculateVolume();    
-        
+    double total_area = rGetMesh().CalculateVolume();
+
     double necrotic_area = 0.0;
-    
+
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
          ++cell_iter)
@@ -763,17 +763,17 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
         // Only bother calculating the cell area if it is necrotic
         if (cell_iter->GetCellType() == NECROTIC)
         {
-            unsigned node_index = cell_iter.GetNode()->GetIndex();                
+            unsigned node_index = cell_iter.GetNode()->GetIndex();
             double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
             necrotic_area += cell_area;
         }
-    }       
-    
+    }
+
     *mpTissueAreasFile << total_area << " " << necrotic_area << "\n";
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//                          Spring iterator class                           // 
+//                          Spring iterator class                           //
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
@@ -812,7 +812,7 @@ template<unsigned DIM>
 typename MeshBasedTissue<DIM>::SpringIterator& MeshBasedTissue<DIM>::SpringIterator::operator++()
 {
     bool edge_is_ghost = false;
-    
+
     do
     {
         ++mEdgeIter;
@@ -824,7 +824,7 @@ typename MeshBasedTissue<DIM>::SpringIterator& MeshBasedTissue<DIM>::SpringItera
             edge_is_ghost = (a_is_ghost || b_is_ghost);
         }
     }
-    while (*this!=mrTissue.SpringsEnd() && edge_is_ghost); 
+    while (*this!=mrTissue.SpringsEnd() && edge_is_ghost);
 
     return (*this);
 }
@@ -885,18 +885,18 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         assert(p_cell);
         AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
         assert(p_model);
-        
+
         // Check cell exists in tissue
         unsigned node_index = p_cell->GetNodeIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
         TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
-#define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions 
+#define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions
         if (&r_cell != p_cell)
         {
             std::cout << "  Mismatch with tissue" << std::endl << std::flush;
             res = false;
         }
-        
+
         // Check model links back to cell
         if (p_model->GetCell() != p_cell)
         {
@@ -905,8 +905,8 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         }
     }
     assert(res);
-#undef COVERAGE_IGNORE 
-    
+#undef COVERAGE_IGNORE
+
     res = true;
     for (std::set<std::set<TissueCell*> >::iterator it1 = mMarkedSprings.begin();
          it1 != mMarkedSprings.end();
@@ -924,15 +924,15 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
             assert(p_model);
             unsigned node_index = p_cell->GetNodeIndex();
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-            
-#define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions 
+
+#define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions
             // Check cell is alive
             if (p_cell->IsDead())
             {
                 std::cout << "  Cell is dead" << std::endl << std::flush;
                 res = false;
             }
-            
+
             // Check cell exists in tissue
             TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
             if (&r_cell != p_cell)
@@ -940,7 +940,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
                 std::cout << "  Mismatch with tissue" << std::endl << std::flush;
                 res = false;
             }
-            
+
             // Check model links back to cell
             if (p_model->GetCell() != p_cell)
             {
@@ -1018,12 +1018,12 @@ inline void load_construct_data(
     assert(MeshBasedTissue<DIM>::meshPathname.length() > 0);
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
-    
+
     // Re-initialise the mesh
     p_mesh->Clear();
     TrianglesMeshReader<DIM,DIM> mesh_reader(MeshBasedTissue<DIM>::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
-    
+
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
     if (DIM==2u)
@@ -1034,7 +1034,7 @@ inline void load_construct_data(
     {
         p_mesh->ReMesh(map);
     }
-    
+
     // Invoke inplace constructor to initialize instance
     ::new(t)MeshBasedTissue<DIM>(*p_mesh);
 }

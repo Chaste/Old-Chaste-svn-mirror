@@ -41,7 +41,7 @@ template<unsigned DIM>
 class MonodomainFastSlowProblem : public MonodomainProblem<DIM>
 {
 private:
-    /** 
+    /**
      *  The mixed mesh which is passed to the PDE. The fine one is
      *  used in the base class (i.e. the finite element solve).
      */
@@ -58,10 +58,10 @@ private:
 
 public:
 
-    /** 
+    /**
      *  Overloaded method which creates a MonodomainFastSlowPde, using the given
      *  mixed mesh, and returns a pointer to it back to the caller.
-     *  
+     *
      *  Note: this class has a             MonodomainFastSlowPde<DIM>*
      *        MonodomainPde has a          MonodomainPde<DIM>*
      *        AbstractCardiacProblem has a AbstractCardiacPde<DIM>*
@@ -72,16 +72,16 @@ public:
         assert(mpMonodomainFastSlowPde==NULL);
         mpMonodomainFastSlowPde = new MonodomainFastSlowPde<DIM>(this->mpCellFactory, mrMixedMesh, this->mStartTime, mSlowCellsTimeStep);
 
-        this->mpIntracellularConductivityTensors->Init();                
+        this->mpIntracellularConductivityTensors->Init();
         mpMonodomainFastSlowPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
-        
-        // since this method is now not called in MonodomainPde, we have to 
+
+        // since this method is now not called in MonodomainPde, we have to
         // manually set the PDE variable in MonodomainPde here, before returning.
         this->mpMonodomainPde = mpMonodomainFastSlowPde;
 
         return mpMonodomainFastSlowPde;
     }
-    
+
 
 public:
 
@@ -100,7 +100,7 @@ public:
     {
         SetMesh(mrMixedMesh.GetFineMesh());
     }
-    
+
     /**
      * Destructor
      */

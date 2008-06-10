@@ -51,30 +51,30 @@ private:
     {
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
     }
-    
+
     // no member variables yet - if any are added put them in archive function
     // and add default values in the default constructor.
-    
+
 protected:
 
     static RungeKutta4IvpOdeSolver msSolver;
 
-    AbstractWntOdeBasedCellCycleModel(double lastTime) 
+    AbstractWntOdeBasedCellCycleModel(double lastTime)
         : AbstractOdeBasedCellCycleModel(lastTime) {};
-        
+
     /**
      * Record when ODEs have been solved.
      */
     virtual double GetOdeStopTime();
-    
-   
-        
+
+
+
 public:
     /**
      * Just a default constructor (no member variables)
      */
     AbstractWntOdeBasedCellCycleModel() {};
-    
+
     /**
      * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
      * Cells are given a new birth time and cell cycle proteins are reset.
@@ -83,22 +83,22 @@ public:
      * Should only be called by the TissueCell::Divide() method.
      */
     void ResetForDivision();
-    
+
     /**
      * Updates the current cell type to reflect whether the
      * beta-catenin level has dropped low enough to make it stop dividing.
-     * This should only be called when the cell cycle model has been 
+     * This should only be called when the cell cycle model has been
      * evaluated to the current time, or it may give misleading results.
      */
     void UpdateCellType();
-    
+
     /**
      * This must be implemented by subclasses to change cell type to reflect
      * current levels of beta-catenin.
      */
     virtual void ChangeCellTypeDueToCurrentBetaCateninLevel() = 0;
-    
-           
+
+
 };
 
 BOOST_IS_ABSTRACT(AbstractWntOdeBasedCellCycleModel)

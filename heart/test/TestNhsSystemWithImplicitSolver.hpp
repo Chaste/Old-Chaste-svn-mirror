@@ -46,34 +46,34 @@ private:
         ZeroStimulus zero_stimulus;
         LuoRudyIModel1991OdeSystem lr91(&euler_solver, 0.01, &zero_stimulus);
         return lr91.rGetStateVariables()[lr91.GetStateVariableNumberByName("CaI")];
-    }        
+    }
 
 public:
     void TestSolverSingleTimestep()
     {
         NhsSystemWithImplicitSolver system_with_solver;
-        
+
         // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
         system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
         double Ca_I = GetSampleCaIValue();
         system_with_solver.SetIntracellularCalciumConcentration(Ca_I);
 
-        // solve system (but don't update state vars yet 
+        // solve system (but don't update state vars yet
         system_with_solver.SolveDoNotUpdate(0, 0.1, 0.1); // one timestep
-        
+
         NhsCellularMechanicsOdeSystem system_for_euler_solver;
-        
+
         unsigned num_vars = system_with_solver.GetNumberOfStateVariables();
         for(unsigned i=0; i<num_vars; i++)
         {
             // both should be the same (ie initial values)
-            TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],  
+            TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],
                             system_for_euler_solver.rGetStateVariables()[i],
                             1e-12);
-        }                             
+        }
 
         // solve system with euler
-        system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1); 
+        system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1);
         system_for_euler_solver.SetIntracellularCalciumConcentration(Ca_I);
         EulerIvpOdeSolver euler_solver;
         euler_solver.SolveAndUpdateStateVariable(&system_for_euler_solver, 0, 0.1, 0.1);  // one timestep
@@ -84,16 +84,16 @@ public:
         for(unsigned i=0; i<num_vars; i++)
         {
             //std::cout << system_with_solver.rGetStateVariables()[i] << " "
-            //          << system_for_euler_solver.rGetStateVariables()[i] << "\n"; 
-            
-            // we want these within 10% of each other. Note we expect the implicit 
-            // solver to be more accurate than the explicit solver, and the timestep 
+            //          << system_for_euler_solver.rGetStateVariables()[i] << "\n";
+
+            // we want these within 10% of each other. Note we expect the implicit
+            // solver to be more accurate than the explicit solver, and the timestep
             // is quite large (as we want non-zero solutions), so can't expect them
             // to be too close.
-            TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],  
+            TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],
                             system_for_euler_solver.rGetStateVariables()[i],
                             fabs(system_with_solver.rGetStateVariables()[i]*1e-1));
-        }     
+        }
     }
 
 
@@ -102,9 +102,9 @@ public:
         for(unsigned run=0; run<2; run++)
         {
             clock_t ck_start, ck_end;
-    
+
             NhsSystemWithImplicitSolver system_with_solver;
-    
+
             // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
             system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
             double Ca_I = GetSampleCaIValue();
@@ -117,51 +117,51 @@ public:
             {
                 system_with_solver.UseImplicitExplicitSolveForZ();
             }
-    
+
             // solve system and update
             ck_start = clock();
-            system_with_solver.SolveDoNotUpdate(0, 100, 0.01); 
+            system_with_solver.SolveDoNotUpdate(0, 100, 0.01);
             ck_end = clock();
             double implicit_solve_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
+
             system_with_solver.UpdateStateVariables();
 
             // GetActiveTensionAtNextTime should now be equal to baseclass::GetActiveTension(),
             // as the state vars have been updated
-            TS_ASSERT_DELTA(system_with_solver.GetActiveTensionAtNextTime(), 
-                            system_with_solver.GetActiveTension(), 
+            TS_ASSERT_DELTA(system_with_solver.GetActiveTensionAtNextTime(),
+                            system_with_solver.GetActiveTension(),
                             1e-12);
-    
+
             // solve system with euler
             NhsCellularMechanicsOdeSystem system_for_euler_solver;
-            system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1); 
+            system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1);
             system_for_euler_solver.SetIntracellularCalciumConcentration(10*Ca_I);
             EulerIvpOdeSolver euler_solver;
 
             ck_start = clock();
-            euler_solver.SolveAndUpdateStateVariable(&system_for_euler_solver, 0, 100, 0.01); 
+            euler_solver.SolveAndUpdateStateVariable(&system_for_euler_solver, 0, 100, 0.01);
             ck_end = clock();
             double explicit_solve_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-    
-            run==0 ? std::cout<<"\nImplicit vs Explicit\n" : std::cout<<"\nImplicitExplicit vs Explicit\n"; 
+
+            run==0 ? std::cout<<"\nImplicit vs Explicit\n" : std::cout<<"\nImplicitExplicit vs Explicit\n";
             unsigned num_vars = system_with_solver.GetNumberOfStateVariables();
             for(unsigned i=0; i<num_vars; i++)
             {
                 std::cout << system_with_solver.rGetStateVariables()[i] << " "
-                          << system_for_euler_solver.rGetStateVariables()[i] << "\n"; 
-                
+                          << system_for_euler_solver.rGetStateVariables()[i] << "\n";
+
                 // small timesteps, want these to be very close (1%). and they are
-                TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],  
+                TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],
                                 system_for_euler_solver.rGetStateVariables()[i],
                                 fabs(system_with_solver.rGetStateVariables()[i]*1e-2));
-            }     
+            }
             std::cout << "TIMES: " << implicit_solve_time << " " << explicit_solve_time << "\n\n";
 
             // for coverage
             system_with_solver.SetActiveTensionInitialGuess(system_with_solver.GetActiveTension());
         }
     }
-    
+
 //// test how large a timestep the implicit solver can get away with. needs more study
 //    void TestImplicitSolverWithLargeTimeSteps()
 //    {
@@ -169,63 +169,63 @@ public:
 //        system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
 //        system_with_solver.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
-//        system_with_solver.SolveDoNotUpdate(0, 100, 0.01); 
+//        system_with_solver.SolveDoNotUpdate(0, 100, 0.01);
 //        system_with_solver.UpdateStateVariables();
 //
 //        NhsSystemWithImplicitSolver system_with_solver2;
 //        system_with_solver2.SetLambdaAndDerivative(0.5, 0.1);
 //        system_with_solver2.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
-//        system_with_solver2.SolveDoNotUpdate(0, 100, 1); 
+//        system_with_solver2.SolveDoNotUpdate(0, 100, 1);
 //        system_with_solver2.UpdateStateVariables();
 //
 //        unsigned num_vars = system_with_solver.GetNumberOfStateVariables();
 //        for(unsigned i=0; i<num_vars; i++)
 //        {
 //            std::cout << system_with_solver.rGetStateVariables()[i] << " "
-//                      << system_with_solver2.rGetStateVariables()[i] << "\n"; 
-//            
-//            TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],  
+//                      << system_with_solver2.rGetStateVariables()[i] << "\n";
+//
+//            TS_ASSERT_DELTA(system_with_solver.rGetStateVariables()[i],
 //                            system_with_solver2.rGetStateVariables()[i],
 //                            fabs(system_with_solver.rGetStateVariables()[i]*1e-2));
 //        }
 //    }
-    
+
     // test that checks SolveDoNotUpdate does not do anything permanent on the class,
     // by checking by doing things repeatedly, and changing the order, makes no
     // difference
     void TestSolveDoesNotUpdate()
     {
         NhsSystemWithImplicitSolver system;
-        
+
         double Ca_I = GetSampleCaIValue();
         system.SetIntracellularCalciumConcentration(Ca_I);
-        
+
         // get initial active tension
         double init_Ta = system.GetActiveTension();
 
         system.SetLambdaAndDerivative(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01); 
+        system.SolveDoNotUpdate(0, 1, 0.01);
 
         double Ta1 = system.GetActiveTensionAtNextTime();
-        
+
         system.SetLambdaAndDerivative(0.6, 0.2);
-        system.SolveDoNotUpdate(0, 1, 0.01); 
+        system.SolveDoNotUpdate(0, 1, 0.01);
 
         double Ta2 = system.GetActiveTensionAtNextTime();
-        
+
         // note that lam/end time etc must be large enough for there
         // to be non-zero Ta at the next time
         TS_ASSERT_DIFFERS(init_Ta, Ta1);
         TS_ASSERT_DIFFERS(init_Ta, Ta2);
 
         system.SetLambdaAndDerivative(0.6, 0.2);
-        system.SolveDoNotUpdate(0, 1, 0.01); 
+        system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_be_Ta2 = system.GetActiveTensionAtNextTime();
-        
+
         system.SetLambdaAndDerivative(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01); 
+        system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_be_Ta1 = system.GetActiveTensionAtNextTime();
 
@@ -233,12 +233,12 @@ public:
         TS_ASSERT_EQUALS(Ta2, should_be_Ta2);
 
         system.SetLambdaAndDerivative(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01); 
+        system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_also_be_Ta1 = system.GetActiveTensionAtNextTime();
-        
+
         system.SetLambdaAndDerivative(0.6, 0.2);
-        system.SolveDoNotUpdate(0, 1, 0.01); 
+        system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_also_be_Ta2 = system.GetActiveTensionAtNextTime();
 
@@ -249,18 +249,18 @@ public:
     void TestGetActiveTension()
     {
         NhsSystemWithImplicitSolver system;
-        
+
         double Ca_I = GetSampleCaIValue();
         system.SetIntracellularCalciumConcentration(Ca_I);
         system.SetLambdaAndDerivative(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01); 
-        
+        system.SolveDoNotUpdate(0, 1, 0.01);
+
         double Ta_at_next_time_before_update = system.GetActiveTensionAtNextTime();
 
         system.UpdateStateVariables();
 
         double Ta = system.GetActiveTension();
-        
+
         TS_ASSERT_DELTA(Ta, Ta_at_next_time_before_update, 1e-12);
     }
 };

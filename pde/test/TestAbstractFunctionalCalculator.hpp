@@ -80,17 +80,17 @@ public:
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         VolumeCalculator<2> volume_calculator;
-        
+
         Vec vec = PetscTools::CreateVec(mesh.GetNumNodes(), 0.0);
-        
+
         double result = volume_calculator.Calculate(mesh,vec);
         TS_ASSERT_DELTA(result, mesh.CalculateVolume(), 1e-6);
-        
+
         Vec bad_vec = PetscTools::CreateVec(mesh.GetNumNodes()+1, 0.0);
         TS_ASSERT_THROWS_ANYTHING(volume_calculator.Calculate(mesh,bad_vec));
-        
+
         VecDestroy(vec);
         VecDestroy(bad_vec);
     }
@@ -100,12 +100,12 @@ public:
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         // Test interpolation of x and u
         // Integrate x^2 + 2y over the unit square
         // = 4/3
         ExampleFunctionalOne calculator;
-        
+
         DistributedVector::SetProblemSize(mesh.GetNumNodes());
         Vec petsc_vec = DistributedVector::CreateVec(2);
         DistributedVector vec1(petsc_vec);
@@ -120,10 +120,10 @@ public:
             v1[index] = 2.0;
         }
         vec1.Restore();
-        
+
         double result = calculator.Calculate(mesh, petsc_vec);
         TS_ASSERT_DELTA(result, 4.0/3.0, 1e-6);
-        
+
         // Test interpolation of grad_u
         // Integrate x^2 + y^2 + 1 over the unit square
         // = 5/3
@@ -141,10 +141,10 @@ public:
             v2[index] = p_node->rGetLocation()[1];
         }
         vec2.Restore();
-        
+
         result = other_calculator.Calculate(mesh, petsc_vec);
         TS_ASSERT_DELTA(result, 1 + 2.0/3.0, 1e-6);
-        
+
         VecDestroy(petsc_vec);
     }
 

@@ -86,8 +86,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Abstract assembler with common functionality for most assemblers.
- * 
- *  The concrete class needs to implement 
+ *
+ *  The concrete class needs to implement
  *  1. a constructor, which sets up an FE_Q or FESystem object, calls DistributeDofs
  *  and sets up mDofsPerElement
  *  2. have a method called DistributeDofs() which just calls
@@ -103,89 +103,89 @@ class AbstractDealiiAssembler
 protected:
     /*< The mesh to be solve on */
     Triangulation<DIM>*   mpMesh;
-    
+
     /*< Degrees of freedom handler */
     DoFHandler<DIM>       mDofHandler;
-    
+
     /*< A structure needed for handling hanging nodes */
     ConstraintMatrix      mHangingNodeConstraints;
-    
+
     /*< A structure needed for setting up a sparse matrix */
     SparsityPattern       mSparsityPattern;
-    
+
     /**
      *  The main system matrix. Eg, the global stiffness matrix in a static linear problem
      *  or the Jacobian in a nonlinear problem
      */
     SparseMatrix<double> mSystemMatrix;
-    
+
     /**
      *  The main rhs vector. Eg the global load vector in a static linear problem, or
      *  the residual in a nonlinear problem
      */
     Vector<double>       mRhsVector;
-    
+
     /**
      *  The current solution in a time-dependent problem, or current guess in a nonlinear
-     *  static problem (or both in a time-dependent nonlinear problem), or final solution 
+     *  static problem (or both in a time-dependent nonlinear problem), or final solution
      *  in a static linear problem
      */
     Vector<double>       mCurrentSolution;
-    
+
     /**
      *  The size of element stiffness vector. Depends on the FeSystem object (which
-     *  depends on the concrete class). Must be set up to the correct value in the 
+     *  depends on the concrete class). Must be set up to the correct value in the
      *  constructor of the concrete class
      */
     unsigned             mDofsPerElement;
-    
+
 
 //    /**
-//     *  The matrix M such that M^{-1} is the preconditioner, i.e. a matrix similar 
+//     *  The matrix M such that M^{-1} is the preconditioner, i.e. a matrix similar
 //     *  to the system matrix. Only used if InitialisePreconditionerMatrix()
 //     *  is called.
 //     */
-//    SparseMatrix<double> mInversePreconditioner; 
+//    SparseMatrix<double> mInversePreconditioner;
 //
-//    /** 
+//    /**
 //     *  A second element matrix for which can be used to set up a system inverse
 //     *  preconditioner matrix. Non-null if InitialisePreconditionerMatrix()
 //     *  is called.
 //     */
 //    FullMatrix<double>*   mpElementPreconditionMatrix;
-//    
+//
 //    /**
 //     *  Whether an inverse preconditioner matrix is being set up, in which case
-//     *  the ILU factorisation of it will be used in the GMRES solve(). Set to 
+//     *  the ILU factorisation of it will be used in the GMRES solve(). Set to
 //     *  true if InitialisePreconditionerMatrix() is called.
 //     */
 //    bool                  mUsingPreconditionerMatrix;
-    
-    /** 
-     *  The method RefineCoarsen in this class refines/coarsens the mesh according to whether 
+
+    /**
+     *  The method RefineCoarsen in this class refines/coarsens the mesh according to whether
      *  elements have been labelled for refinement/coarsening. It also interpolates the
-     *  current solution vector onto the new mesh. The user may want other data 
+     *  current solution vector onto the new mesh. The user may want other data
      *  interpolated, in which case they can pass in those vectors using
-     *  AddVectorForInterpolation(). Such vectors are stored here. They should be 
+     *  AddVectorForInterpolation(). Such vectors are stored here. They should be
      *  vertex-wise vectors, ie if x is the vector to be interpolated onto the new mesh
      *  x(i)=value for x at vertex i. It will be linearly interpolated
      */
     std::vector<Vector<double>*> mVectorsToInterpolate;
- 
-    
-    /** 
+
+
+    /**
      *  Use the direct SparseDirectUMFPACK solver for cardiac problems. See comments
      *  for UseDirectSolver().
      */
     bool mUseDirectSolver;
 
- 
+
     /**
      *  The main function to be implemented in the concrete class
-     * 
+     *
      *  Assemble of the element matrix and/or element vector for the given element. Called
      *  by AssembleSystem
-     * 
+     *
      *  @elementIter Iterator pointing at current element
      *  @elementRhs Small vector to be filled in. Should be of size AbstractDealiiAssembler::mDofsPerElement
      *  @elementMatrix Small matrix to be filled in. Should be of square, of size AbstractDealiiAssembler::mDofsPerElement
@@ -198,28 +198,28 @@ protected:
                                    bool                   assembleVector,
                                    bool                   assembleMatrix)=0;
 
-                                   
+
     /**
-     *  A pure method which needs to implemented in the concrete class which 
-     *  applies the dirichlet boundary conditions to the system matrix and 
+     *  A pure method which needs to implemented in the concrete class which
+     *  applies the dirichlet boundary conditions to the system matrix and
      *  system vector. Called at the end of AssembleSystem()
      */
     virtual void ApplyDirichletBoundaryConditions()=0;
-    
-    
+
+
     /**
      *  A pure method which needs to be implemented in the concrete class which
-     *  distributes the dofs using which fe object is being used in the concrete 
-     *  class. For example if the concrete class uses a simple FE_Q<DIM> object 
-     *  called mFe, this method should just be 
+     *  distributes the dofs using which fe object is being used in the concrete
+     *  class. For example if the concrete class uses a simple FE_Q<DIM> object
+     *  called mFe, this method should just be
      *  this->mDofHandler.distribute_dofs(mFe);
      */
     virtual void DistributeDofs()=0;
 
     /**
-     *  Initialise the system matrix, system rhs vector, current solution vector, and 
+     *  Initialise the system matrix, system rhs vector, current solution vector, and
      *  hanging nodes constraints objects
-     *  
+     *
      *  This should only be called when the DofHandler knows how big it should be, ie what
      *  the FE system is, ie after DistributeDofs() has been called
      */
@@ -232,19 +232,19 @@ protected:
         DoFTools::make_hanging_node_constraints(mDofHandler, mHangingNodeConstraints);
         // some postprocessing
         mHangingNodeConstraints.close();
-        
+
         // form sparsity pattern
         mSparsityPattern.reinit(mDofHandler.n_dofs(),
                                 mDofHandler.n_dofs(),
                                 mDofHandler.max_couplings_between_dofs());
-                                
+
         DoFTools::make_sparsity_pattern(mDofHandler, mSparsityPattern);
-        
+
         // see dealii tutorial 2
         mHangingNodeConstraints.condense(mSparsityPattern);
 
         mSparsityPattern.compress();
-        
+
         // initialise vectors and matrices
         mSystemMatrix.reinit(mSparsityPattern);
         mCurrentSolution.reinit(mDofHandler.n_dofs());
@@ -252,8 +252,8 @@ protected:
 
         mRhsVector.reinit(mDofHandler.n_dofs());
     }
-    
-//    /** 
+
+//    /**
 //     *  Call this if an inverse preconditioner matrix needs to be set up,
 //     *  then set up mpElementPreconditionMatrix in AssembleOnElement().
 //     *  It will be used to set up mInversePreconditioner, and the ILU
@@ -262,23 +262,23 @@ protected:
 //    void InitialisePreconditionerMatrix()
 //    {
 //        LOG_AND_COUT(1,"USING PRECONDITIONER\n");
-//        
+//
 //        // make sure InitialiseMatricesVectorsAndConstraints() has been called first
-//        assert(mRhsVector.size() > 0); 
+//        assert(mRhsVector.size() > 0);
 //        mInversePreconditioner.reinit(mSparsityPattern);
 //        mUsingPreconditionerMatrix = true;
 //        mpElementPreconditionMatrix = new FullMatrix<double>(mDofsPerElement, mDofsPerElement);
 //    }
-        
-    
+
+
     /**
      *  AssembleSystem
-     * 
-     *  Loops over the elements and assembles the system matrix (global stiffness matrix, 
+     *
+     *  Loops over the elements and assembles the system matrix (global stiffness matrix,
      *  or jacobian etc, depending on problem) and system vector. It calls the pure methods
-     *  AssembleOnElement() and ApplyDirichletBoundaryConditions() which need to be 
+     *  AssembleOnElement() and ApplyDirichletBoundaryConditions() which need to be
      *  implemented in the concrete class.
-     * 
+     *
      *  @param assembleVector A boolean saying whether to assemble the system vector
      *  @param assembleMatrix A boolean saying whether to assemble the system matrix
      */
@@ -289,7 +289,7 @@ protected:
         // something like
         // mDofsPerElement = mFeSystem.dofs_per_cell
         assert(mDofsPerElement>0);
-        
+
         // if this fails, InitialiseMatricesVectorsAndConstraints() probably
         // hasn't been called..
         assert(mRhsVector.size()!=0);
@@ -299,9 +299,9 @@ protected:
 
         // the dofs associated with the nodes of an element
         std::vector<unsigned> local_dof_indices(mDofsPerElement);
-        
+
         typename DoFHandler<DIM>::active_cell_iterator  element_iter = mDofHandler.begin_active();
-        
+
         if (assembleVector)
         {
             mRhsVector = 0;
@@ -311,26 +311,26 @@ protected:
         {
             mSystemMatrix = 0;
         }
-        
-                
+
+
         //unsigned elem_counter = 0;
-        
+
         // loop over elements
-        while (element_iter!=mDofHandler.end()) 
+        while (element_iter!=mDofHandler.end())
         {
             // zero the small matrix and vector
             element_matrix = 0;
             element_rhs = 0;
-            
+
             element_iter->get_dof_indices(local_dof_indices);
-            
+
             // assemble the small matrix and vector
             AssembleOnElement(element_iter,
                               element_rhs,
                               element_matrix,
                               assembleVector,
                               assembleMatrix);
-                    
+
             // add to the full matrix and vector
             for (unsigned i=0; i<mDofsPerElement; i++)
             {
@@ -346,13 +346,13 @@ protected:
 
                 if (assembleVector)
                 {
-                    mRhsVector(local_dof_indices[i]) += element_rhs(i);                    
+                    mRhsVector(local_dof_indices[i]) += element_rhs(i);
                 }
             }
-            
+
             element_iter++;
         }
-        
+
         // note this has to be done before applying dirichlet bcs
         if (assembleMatrix)
         {
@@ -364,39 +364,39 @@ protected:
         }
 
         ApplyDirichletBoundaryConditions();
-        
-        // stupid thing won't quit if variables become NaN (and says norm_rhs_vec=0 too!), 
+
+        // stupid thing won't quit if variables become NaN (and says norm_rhs_vec=0 too!),
         // so have to check here
         for(unsigned i=0; i<mRhsVector.size(); i++)
         {
             if( isnan(mRhsVector(i)))
             {
-                EXCEPTION("Component of the system rhs vector became NaN - check for division by zero."); 
+                EXCEPTION("Component of the system rhs vector became NaN - check for division by zero.");
             }
         }
     }
-    
+
     /**
      *  Compute the L2 norm of the current residual vector divided by it's length.
-     * 
+     *
      *  This method obviously only makes sense if the assembler is for a nonlinear
-     *  PDE, and assumes mRhsVector is the residual vector. 
-     *  
+     *  PDE, and assumes mRhsVector is the residual vector.
+     *
      */
     double CalculateResidualNorm()
     {
         return sqrt(mRhsVector.norm_sqr())/mDofHandler.n_dofs();
     }
-    
+
     /**
      *  Take one Newton step.
-     * 
+     *
      *  This method obviously only makes sense if the assembler is for a nonlinear
-     *  PDE, and assumes mSystemMatrix is the jacobian matrix and mRhsVector is the 
-     *  residual vector. It solves for the update vector, and determines best damping 
+     *  PDE, and assumes mSystemMatrix is the jacobian matrix and mRhsVector is the
+     *  residual vector. It solves for the update vector, and determines best damping
      *  value.
-     * 
-     *  NOTE: gmres, identity preconditioning, num iterations etc are all hardcoded 
+     *
+     *  NOTE: gmres, identity preconditioning, num iterations etc are all hardcoded
      *  in here at the moment.
      */
     void TakeNewtonStep()
@@ -415,7 +415,7 @@ protected:
             Timer::PrintAndReset("Precondition");
 
             // DEAL.II doesn't seem to allow you to set an relative tolerance,
-            // so we do so explicitly by working out what the corresponding 
+            // so we do so explicitly by working out what the corresponding
             // absolute tolerance for our chosen relative tol should be
             double rel_tol = 1e-4;
             double norm_rhs_vec = CalculateResidualNorm()*mDofHandler.n_dofs(); // have verified this is what deal.ii uses too
@@ -424,7 +424,7 @@ protected:
             // solve the linear system
             SolverControl  solver_control(200000, abs_tol, false, true);//false, true
             PrimitiveVectorMemory<> vector_memory;
-        
+
             SolverGMRES<>::AdditionalData gmres_additional_data(1000); //1000 is massive!! seems to be needed for cardiac
             SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
 
@@ -447,7 +447,7 @@ protected:
             //temp.add(-1.0, mRhsVector);
             //std::cout << "residual from direct solve = " << temp.l2_norm() << "\n";
         }
-        
+
 
 
 
@@ -455,7 +455,7 @@ protected:
 //        Mat J,Jp;
 //        PetscTools::SetupMat(J, mRhsVector.size(), mRhsVector.size(), MATSEQAIJ);
 //        PetscTools::SetupMat(Jp, mRhsVector.size(), mRhsVector.size(), MATSEQAIJ);
-//        
+//
 //        Vec rhs;
 //        VecCreateSeq(PETSC_COMM_SELF,mRhsVector.size(),&rhs);
 //
@@ -489,12 +489,12 @@ protected:
 //        VecAssemblyEnd(rhs);
 //
 //        Timer::PrintAndReset("Copy");
-//            
+//
 //        KSP solver;
 //        PC  prec;
 //        Vec X;
 //        VecDuplicate(rhs,&X);
-//        
+//
 //        KSPCreate(MPI_COMM_SELF,&solver);
 //        if(mUsingPreconditionerMatrix)
 //        {
@@ -506,10 +506,10 @@ protected:
 //        }
 //
 //        KSPSetTolerances(solver, rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
-//            
+//
 //        KSPSetType(solver,KSPGMRES);
 //        KSPGMRESSetRestart(solver,50);
-//    
+//
 //        if(!mUsingPreconditionerMatrix)
 //        {
 //            KSPGetPC(solver,&prec);
@@ -520,11 +520,11 @@ protected:
 //            KSPGetPC(solver,&prec);
 //            PCSetType(prec,PCLU);
 //        }
-//            
+//
 //
 //        KSPSetFromOptions(solver);
 //        KSPSetUp(solver);
-//    
+//
 //        KSPSolve(solver,rhs,X);
 //        Timer::PrintAndReset("Chaste LinearSystem solve");
 //
@@ -532,13 +532,13 @@ protected:
 
         // deal with hanging nodes - form a continuous solutions
         mHangingNodeConstraints.distribute(update);
-        
+
         // save the old current solution
         Vector<double> old_solution = mCurrentSolution;
-        
+
         double best_norm_resid = 1e10;
         double best_damping_value = 0.0;
-        
+
         std::vector<double> damping_values;
         damping_values.reserve(12);
         damping_values.push_back(0.0);
@@ -547,15 +547,15 @@ protected:
         {
             damping_values.push_back((double)i/10.0);
         }
-        
+
         for (unsigned i=0; i<damping_values.size(); i++)
         {
             mCurrentSolution.equ(1.0, old_solution, -damping_values[i], update);
-            
+
             // compute residual
             AssembleSystem(true, false);
             double norm_resid = CalculateResidualNorm();
-            
+
             std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
             if (norm_resid < best_norm_resid)
             {
@@ -563,7 +563,7 @@ protected:
                 best_damping_value = damping_values[i];
             }
         }
-        
+
         if (best_damping_value == 0.0)
         {
             #define COVERAGE_IGNORE
@@ -578,9 +578,9 @@ protected:
 
         // implement best update and recalculate residual
         mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
-    }    
-    
-    
+    }
+
+
 public :
     AbstractDealiiAssembler(Triangulation<DIM>* pMesh) :
             mDofHandler(*pMesh)  // associate the mesh with the dof handler
@@ -589,45 +589,45 @@ public :
         // pMesh==NULL
         assert(pMesh!=NULL);
         mpMesh = pMesh;
-               
+
         // initially set mDofsPerElement to be zero so can check it
         // has been set in AssembleSystem(). It should be set in the
         // constructor of a concrete class using something like
         // mDofsPerElement = mFeSystem.dofs_per_cell;
         mDofsPerElement = 0;
-        
+
         mUseDirectSolver = false;
     }
-    
-    
+
+
     /**
      *  Refine and coarsen a mesh, depending on whether the refine_flag and coarsen_flag
-     *  has been set on the elements of the mesh. This method calls 
+     *  has been set on the elements of the mesh. This method calls
      *  execute_coarsening_and_refinement() on the mesh in order to do the refinement
      *  and coarsening, but also handles interpolation as well. The current solution
-     *  vector is automatically interpolated onto the new mesh. The user can also add 
+     *  vector is automatically interpolated onto the new mesh. The user can also add
      *  extra vector to be interpolated as well, by calling AddVectorForInterpolation()
-     *  before this method. These vectors should have vertex-wise data (ie x(i) is the 
+     *  before this method. These vectors should have vertex-wise data (ie x(i) is the
      *  value of x at vertex i), and will be linearly interpolated onto the new mesh.
      *  The vector will be resized and it's values changed in this method
-     * 
+     *
      *  //\todo: possibly incredibly inefficient - make efficient
      */
     void RefineCoarsen()
     {
         // a linear fe object for linear interpolation of any extra vectors
         FE_Q<DIM> linear_fe(1);
-        
+
         // shouldn't use more than one SolutionTransfer (interpolation doesn't work
-        // if two or more soluation transfer objects are used on the same mesh), 
+        // if two or more soluation transfer objects are used on the same mesh),
         // but we have to (we want to use one solution transfer for the current solution,
         // with interpolation based on whatever basis functions are used in the concrete
-        // version of this class, and another with linear interpolation on the extra 
+        // version of this class, and another with linear interpolation on the extra
         // vectors. To get round this, we make a copy of the mesh(!)
         // TODO: make this efficient
         Triangulation<DIM> copy_of_mesh;
         copy_of_mesh.copy_triangulation(*mpMesh);
-        
+
         DoFHandler<DIM> linear_dof_handler(copy_of_mesh);
         linear_dof_handler.distribute_dofs(linear_fe);
 
@@ -638,8 +638,8 @@ public :
         // solution transfer for the current solution
         SolutionTransfer<DIM,double> transfer_for_cur_soln(mDofHandler);
         transfer_for_cur_soln.prepare_for_coarsening_and_refinement(mCurrentSolution);
-        
-        // if there are any other vecs to interpolate, prepare a 
+
+        // if there are any other vecs to interpolate, prepare a
         // solution transfer for them
         unsigned num_vecs_to_interpolate = mVectorsToInterpolate.size();
         SolutionTransfer<DIM,double> transfer_for_other_vecs(linear_dof_handler);
@@ -659,27 +659,27 @@ public :
                     unsigned index = dof_vertex_iter.GetVertexGlobalIndex();
                     unsigned dof = dof_vertex_iter.GetDof(0);
                     vecs_by_dofs[i](dof) = (*(mVectorsToInterpolate[i]))(index);
-                    
+
                     dof_vertex_iter.Next();
                 }
             }
-    
+
             transfer_for_other_vecs.prepare_for_coarsening_and_refinement(vecs_by_dofs);
         }
 
         // refine coarsen
         mpMesh->execute_coarsening_and_refinement();
         copy_of_mesh.execute_coarsening_and_refinement();
-    
+
         // redistribute dofs
         DistributeDofs();
         linear_dof_handler.distribute_dofs(linear_fe);
 
         // interpolate to get the new current solution
         Vector<double> new_current_soln(this->mDofHandler.n_dofs());
-        transfer_for_cur_soln.interpolate(mCurrentSolution, new_current_soln); 
+        transfer_for_cur_soln.interpolate(mCurrentSolution, new_current_soln);
 
-        // resize matrices, vectors etc, re-setup hanging node constraints... 
+        // resize matrices, vectors etc, re-setup hanging node constraints...
         InitialiseMatricesVectorsAndConstraints();
 
         mCurrentSolution = new_current_soln;
@@ -697,7 +697,7 @@ public :
 
             // interpolate and save in this new vectors
             transfer_for_other_vecs.interpolate(vecs_by_dofs, new_vecs_by_dofs);
-                        
+
             // convert from dof-wise data back to vertex-wise data and put back
             // in the original objects
             for(unsigned i=0; i<num_vecs_to_interpolate; i++)
@@ -711,15 +711,15 @@ public :
 
                     (*(mVectorsToInterpolate[i]))(index) = new_vecs_by_dofs[i](dof);
                     dof_vertex_iter.Next();
-                } 
+                }
             }
         }
 
         ApplyDirichletBoundaryConditions();
-        
+
         mVectorsToInterpolate.clear();
-    }    
-    
+    }
+
     /**
      *  Get a reference to the current solution vector. This is a dof-wise vector, is
      *  x(i) is the solution for degree of freedom i. GetSolutionAtVertices() will
@@ -728,10 +728,10 @@ public :
     Vector<double>& rGetCurrentSolution()
     {
         return mCurrentSolution;
-    }    
-    
+    }
+
     /**
-     *  Get a reference to dof handler. Won't generally be needed. 
+     *  Get a reference to dof handler. Won't generally be needed.
      */
     DoFHandler<DIM>& rGetDofHandler()
     {
@@ -745,10 +745,10 @@ public :
     {
         return mpMesh;
     }
-        
-    /** 
-     *  Get the solution (for a particular unknown) as a vertex-wise vector (ie 
-     *  call GetSolutionAtVertices(x, j) and then x(i) will be the solution at vertex 
+
+    /**
+     *  Get the solution (for a particular unknown) as a vertex-wise vector (ie
+     *  call GetSolutionAtVertices(x, j) and then x(i) will be the solution at vertex
      *  i, for unknown j
      */
     void GetSolutionAtVertices(Vector<double>& rSolutionAtVertices, unsigned unknown=0)
@@ -762,7 +762,7 @@ public :
             vertex_iter.Next();
         }
     }
-    
+
     /**
      *  Add a vector for interpolation when RefineCoarsen is called. See
      *  RefineCoarsen
@@ -771,14 +771,14 @@ public :
     {
         mVectorsToInterpolate.push_back(pVector);
     }
-    
+
     virtual ~AbstractDealiiAssembler()
     {}
-    
-    
-    /** 
+
+
+    /**
      *  Simple scaling of each row by it's max value
-     */ 
+     */
     void Precondition()
     {
         for(unsigned i=0;i<mSystemMatrix.m();i++)
@@ -791,7 +791,7 @@ public :
                     max_val = fabs(mSystemMatrix.el(i,j));
                 }
             }
-            
+
             if(fabs(max_val)<1e-10)
             {
                 EXCEPTION("Found wholly zero row");
@@ -802,10 +802,10 @@ public :
                 mSystemMatrix.set(i,j,mSystemMatrix.el(i,j)/max_val);
             }
             mRhsVector(i) /= max_val;
-        }  
+        }
     }
 
-    /** 
+    /**
      *  Use the direct SparseDirectUMFPACK solver for cardiac problems, instead
      *  of GMRES. Not used by default was UMFPACK not installed on all machines yet,
      *  (note UMFPACK has its own licence). Note that the direct solver is

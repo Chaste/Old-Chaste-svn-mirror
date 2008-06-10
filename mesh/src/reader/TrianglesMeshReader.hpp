@@ -48,13 +48,13 @@ class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
         std::vector<std::string> rawData);
-        
+
     /**
      *  Convert strings for vectors of unsigned
      *  @param rawData the raw data. Each string should look like: index value0 value1 .. valueN marker
      *  Here marker doesn't have to be present, it is ignored unless onlyMarked=true
      *  @dimensionOfObject The number of values
-     *  @onlyMarked Set this to true to look at the marker and ignore any strings 
+     *  @onlyMarked Set this to true to look at the marker and ignore any strings
      *  for which the marker is set to zero.
      */
     std::vector<std::vector<unsigned> > TokenizeStringsToInts(
@@ -64,10 +64,10 @@ private:
 
     void ReadFacesAsElements(std::string pathBaseName);
     void ReadEdgesAsFaces(std::string pathBaseName);
-    
+
 public:
     TrianglesMeshReader(std::string pathBaseName);
-    
+
     virtual ~TrianglesMeshReader();
 };
 
@@ -90,7 +90,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     //Open node file and store the lines as a vector of strings (minus the comments)
     std::string nodeFileName=pathBaseName+".node";
     this->mNodeRawData=this->GetRawDataFromFile(nodeFileName);
-    
+
     /* Read single line header as at:
      * http://tetgen.berlios.de/fformats.node.html
      * http://www-2.cs.cmu.edu/~quake/triangle.node.html
@@ -99,7 +99,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     unsigned num_nodes;
     unsigned dimension;
     node_header_stream >> num_nodes >> dimension >> this->mNumNodeAttributes >> this->mMaxNodeBdyMarker;
-    
+
     if (SPACE_DIM != dimension)
     {
         EXCEPTION("SPACE_DIM  != dimension read from file ");
@@ -108,7 +108,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
     //Initialise iterator for public GetNextNode method
     this->mpNodeIterator = this->mNodeData.begin();
-    
+
     //Check that the size of the data matches the information in the header
     if (num_nodes != this->mNodeData.size())
     {
@@ -118,7 +118,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
         EXCEPTION("Number of nodes does not match expected number declared in header");
 #undef COVERAGE_IGNORE
     }
-    
+
     if (ELEMENT_DIM < SPACE_DIM)
     {
         ReadFacesAsElements(pathBaseName);
@@ -126,11 +126,11 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
         return;
     }
     // the default is to read the element file
-    
+
     //Open element file and store the lines as a vector of strings (minus the comments)
     std::string elementFileName=pathBaseName+".ele";
     this->mElementRawData=this->GetRawDataFromFile(elementFileName);
-    
+
     /* Read single line header as at:
     * http://tetgen.berlios.de/fformats.ele.html
     * http://www-2.cs.cmu.edu/~quake/triangle.ele.html
@@ -138,7 +138,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     std::stringstream element_header_stream(this->mElementRawData[0]);
     unsigned num_elements;
     element_header_stream >> num_elements >> this->mNumElementNodes >> this->mNumElementAttributes;
-    
+
     //Only order 1 triangles or tetrahedra are currently supported
     if (this->mNumElementNodes != ELEMENT_DIM+1)
     {
@@ -148,12 +148,12 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
         EXCEPTION("Number of nodes per element is not supported");
 #undef COVERAGE_IGNORE
     }
-    
+
     assert(this->mMaxFaceBdyMarker == 0);
     // Read the rest of the element data using TokenizeStringsToInts method
     this->mElementData = TokenizeStringsToInts(this->mElementRawData,ELEMENT_DIM+1);
     this->mpElementIterator = this->mElementData.begin();
-    
+
     //Check that the size of the data matches the information in the header
     if (num_elements != this->mElementData.size())
     {
@@ -163,15 +163,15 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
         EXCEPTION("Number of elements does not match expected number declared in header");
 #undef COVERAGE_IGNORE
     }
-    
+
     /*Open face file and store the lines as a vector of strings (minus the comments)
      * Note that the Triangles equivalent of a face file is an edge file.
      * The two file formats are similar.  We store edges as "faces" but the superclass
      * provides a GetNextEdge method which queries this data.
      */
-    
+
     std::string face_file_name;
-    
+
     if (SPACE_DIM == 2)
     {
         face_file_name=pathBaseName+".edge";
@@ -194,9 +194,9 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
         this->mpFaceIterator = this->mFaceData.begin();
         return;
     }
-    
+
     this->mFaceRawData=this->GetRawDataFromFile(face_file_name);
-    
+
     /* Read single line header as at:
      * http://tetgen.berlios.de/fformats.face.html
      * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
@@ -205,14 +205,14 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     unsigned num_faces;
     face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
     assert(this->mMaxFaceBdyMarker==0 || this->mMaxFaceBdyMarker==1);
-    
+
     //mNumBoundaryFaces = mNumFaces; //temporary
-    
+
     // Read the rest of the face/edge data using TokenizeStringsToInts method
     bool only_marked = (this->mMaxFaceBdyMarker==1);
     this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,ELEMENT_DIM, only_marked);
     this->mpFaceIterator = this->mFaceData.begin();
-    
+
     //Check that the size of the data matches the information in the header
     if ((!only_marked) && (num_faces != this->mFaceData.size()) )
     {
@@ -237,29 +237,29 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
     std::vector<std::string> rawData)
 {
     std::vector<std::vector<double> > tokenized_data; // Output
-    
+
     //Iterate over the lines of input
     std::vector<std::string>::iterator the_iterator;
     for ( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
     {
         std::string line_of_data=*the_iterator;
         std::stringstream line_stream(line_of_data);
-        
+
         if (the_iterator!=rawData.begin()) //Ignore the header string
         {
             std::vector<double> current_coords;
             unsigned item_number;
-            
+
             //Read item index
             if (line_stream >> item_number)
             {
-            
+
                 //Watch for item zero (this will only happen at most once!)
                 if (item_number == 0)
                 {
                     this->mIndexFromZero = true;
                 }
-                
+
                 //Throw an error if the item numbers are out of order
                 if (this->mIndexFromZero == true)
                 {
@@ -284,7 +284,7 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
                         EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
                     }
                 }
-                
+
                 //Form the vector which represents the position of this item
                 for (unsigned i = 0; i < SPACE_DIM; i++)
                 {
@@ -292,14 +292,14 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
                     line_stream >> item_coord;
                     current_coords.push_back(item_coord);
                 }
-                
+
                 //Put item onto main output vector
                 tokenized_data.push_back(current_coords);
             }
         }
-        
+
     }
-    
+
     return tokenized_data;
 }
 
@@ -329,21 +329,21 @@ std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>:
     bool onlyMarked)
 {
     std::vector< std::vector<unsigned> > tokenized_data;
-    
+
     std::vector<std::string>::iterator the_iterator;
     for ( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
     {
         std::string line_of_data=*the_iterator;
         std::stringstream line_stream(line_of_data);
-        
+
         if (the_iterator!=rawData.begin())
         {
             std::vector<unsigned> current_indices;
             unsigned item_number;
-            
+
             if (line_stream >> item_number)
             {
-            
+
                 for (unsigned i = 0; i < dimensionOfObject; i++)
                 {
                     unsigned item_index;
@@ -369,14 +369,14 @@ std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>:
                         tokenized_data.push_back(current_indices);
                     }
                 }
-                else 
+                else
                 {
                     tokenized_data.push_back(current_indices);
                 }
             }
         }
     }
-    
+
     return tokenized_data;
 }
 
@@ -384,7 +384,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::string pathBaseName)
 {
     std::string face_file_name;
-    
+
     if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
     {
         face_file_name=pathBaseName+".edge";
@@ -397,18 +397,18 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
     {
         EXCEPTION("Can't have a zero-dimensional mesh in a one-dimensional space or a one-dimensional mesh in a three-dimensional space");
     }
-    
+
     this->mElementRawData=this->GetRawDataFromFile(face_file_name);
-    
+
     std::stringstream face_header_stream(this->mElementRawData[0]);
     unsigned num_elements;
     face_header_stream >> num_elements >> this->mMaxFaceBdyMarker;
-    
+
     // Read the rest of the element data using TokenizeStringsToInts method
     this->mElementData = TokenizeStringsToInts(this->mElementRawData,ELEMENT_DIM+1);
     this->mpElementIterator = this->mElementData.begin();
     //Check that the size of the data matches the information in the header
-    
+
     if (num_elements != this->mElementData.size())
     {
         // ignored from coverage because otherwise would have to create files
@@ -439,33 +439,33 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
             this->mFaceData.push_back(current_item);
         }
         this->mpFaceIterator = this->mFaceData.begin();
-        
+
         return;
     }
-    
+
     //Gcov is confused by this assertion
 #define COVERAGE_IGNORE
     assert(SPACE_DIM == 3 && ELEMENT_DIM == 2);
 #undef COVERAGE_IGNORE
-    
+
     std::string face_file_name;
     face_file_name=pathBaseName+".edge";
-    
+
     this->mFaceRawData=this->GetRawDataFromFile(face_file_name);
-    
+
     /* Read single line header as at:
      * http://tetgen.berlios.de/fformats.face.html
      * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
-     */    
+     */
     std::stringstream face_header_stream(this->mFaceRawData[0]);
     unsigned num_faces;
     face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
-    
+
     // Read the rest of the face/edge data using TokenizeStringsToInts method
     bool only_marked = (this->mMaxFaceBdyMarker==1);
     this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,ELEMENT_DIM,only_marked);
     this->mpFaceIterator = this->mFaceData.begin();
-    
+
     //Check that the size of the data matches the information in the header
     if (num_faces != this->mFaceData.size() && !only_marked)
     {

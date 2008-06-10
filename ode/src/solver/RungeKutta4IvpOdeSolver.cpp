@@ -60,7 +60,7 @@ void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
     // Apply Runge-Kutta 4th Order method for each timestep in AbstractOneStepIvpSolver.
     // Calculates a vector containing the next Y value from the current one for each
     // equation in the system.
-    
+
     const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
 
     if (num_equations != k1.size())
@@ -71,30 +71,30 @@ void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
         k4.resize(num_equations);
         yki.resize(num_equations);
     }
-    
+
     std::vector<double>& dy = nextYValues; // re-use memory
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
         k1[i]=timeStep*dy[i];
         yki[i] = currentYValues[i] + 0.5*k1[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep, yki, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
         k2[i]=timeStep*dy[i];
         yki[i] = currentYValues[i] + 0.5*k2[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep, yki, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
         k3[i]=timeStep*dy[i];
         yki[i] = currentYValues[i] + k3[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep, yki, dy);
     for (unsigned i=0;i<num_equations; i++)
     {

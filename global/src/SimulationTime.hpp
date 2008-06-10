@@ -67,7 +67,7 @@ private:
     double mEndTime;
     double mTimeAtEndOfLastRun;
     bool mStartTimeSet;
-    
+
     friend class boost::serialization::access;
     /**
      * Serialization of a SimulationTime object must be done with care.

@@ -80,13 +80,13 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
     std::vector<double> near_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNearNodeIndex);
     std::vector<double> far_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalFarNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    
+
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
-    
+
     double t_near = near_cell_props.GetTimeAtMaxUpstrokeVelocity();
     double t_far = far_cell_props.GetTimeAtMaxUpstrokeVelocity();
-    
+
     if (t_near < 0)
     {
         std::stringstream error;

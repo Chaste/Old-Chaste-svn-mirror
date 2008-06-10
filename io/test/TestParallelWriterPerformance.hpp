@@ -53,14 +53,14 @@ public:
             distributed_vector[index] =  -(double)(index.Local*index.Global);
         }
         distributed_vector.Restore();
-        
+
         // set up a parallel writer
         ParallelColumnDataWriter parallel_writer("TestParallelWriterPerformance","ParallelColumnWriter");
         unsigned time_var_id = parallel_writer.DefineUnlimitedDimension("Time","msecs");
         parallel_writer.DefineFixedDimension("Node","dimensionless", SIZE);
         unsigned var1_id = parallel_writer.DefineVariable("Var1","LightYears");
         parallel_writer.EndDefineMode();
-        
+
         // write multiple times
         for (unsigned i=0; i<REPETITIONS; i++)
         {
@@ -69,7 +69,7 @@ public:
             parallel_writer.PutVector(var1_id, petsc_vec);
             parallel_writer.AdvanceAlongUnlimitedDimension();
         }
-        
+
         VecDestroy(petsc_vec);
     }
 };

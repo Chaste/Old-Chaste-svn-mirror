@@ -52,56 +52,56 @@ public:
     {
         // pointer to TestOde1 class
         OdeWithJacobian1 ode_system;
-        
+
         std::vector<double>  solution_guess(1);
         solution_guess[0] = 2.0;
-        
+
         // Set up a Jacobian matrix for function to put values in
         double** jacobian;
-        
+
         jacobian = new double*[1];
         jacobian[0] = new double[1];
-        
+
         // This is the function we are testing...
         ode_system.AnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
-        
+
         TS_ASSERT_DELTA(jacobian[0][0], 0.96, tol);
-        
+
         delete[] jacobian[0];
         delete[] jacobian;
     }
-    
+
     void TestJacobianTwo(void)
     {
         // pointer to TestOde1 class
         OdeWithJacobian2 ode_system;
-        
+
         std::vector<double>  solution_guess(2);
         solution_guess[0] = 1.0;
         solution_guess[1] = 2.0;
-        
+
         // Set up a Jacobian matrix for function to put values in
         double** jacobian;
-        
+
         jacobian = new double* [2];
         jacobian[0] = new double[2];
         jacobian[1] = new double[2];
-        
+
         // This is the function we are testing...
         ode_system.AnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
-        
+
         TS_ASSERT_DELTA(jacobian[0][0], 0.98, tol);
         TS_ASSERT_DELTA(jacobian[0][1], -0.04, tol);
         TS_ASSERT_DELTA(jacobian[1][0], -0.02, tol);
         TS_ASSERT_DELTA(jacobian[1][1], 0.92, tol);
-        
+
         delete[] jacobian[0];
         delete[] jacobian[1];
         delete[] jacobian;
-        
-        
+
+
     }
-    
+
 };
 
 

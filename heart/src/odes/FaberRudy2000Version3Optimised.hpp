@@ -299,7 +299,7 @@ public:
         return y1 + (y2-y1)*factor;
     }
 
-    
+
 protected:
     FaberRudy2000Version3OptimisedLookupTables(const FaberRudy2000Version3OptimisedLookupTables&);
     FaberRudy2000Version3OptimisedLookupTables& operator= (const FaberRudy2000Version3OptimisedLookupTables&);
@@ -546,7 +546,7 @@ private:
     static FaberRudy2000Version3OptimisedLookupTables *mpInstance;
     // Lookup tables
     double _lookup_table_0[20001][39];
-    
+
 };
 
 FaberRudy2000Version3OptimisedLookupTables* FaberRudy2000Version3OptimisedLookupTables::mpInstance = NULL;
@@ -672,7 +672,7 @@ public:
     // Lookup table indices
     unsigned _table_index_0;
     double _factor_0;
-    
+
     void VerifyGatingVariables() {}
 
     double GetIIonic()
@@ -710,7 +710,7 @@ public:
         // Units: millimolar; Initial value: 9
         double var_ionic_concentrations__Ki = rY[24];
         // Units: millimolar; Initial value: 141.2
-        
+
         // Lookup table indexing
 #define COVERAGE_IGNORE
         if (var_membrane__V>99.9999 || var_membrane__V<-100.0001)
@@ -720,7 +720,7 @@ public:
         double _offset_0_over_table_step = _offset_0 * 100.0;
         unsigned _table_index_0 = (unsigned) floor(_offset_0_over_table_step);
         double _factor_0 = _offset_0_over_table_step - _table_index_0;
-        
+
         double var_fast_sodium_current__E_Na = 26.7123387055 * log(132.0 / var_ionic_concentrations__Nai);
         double var_fast_sodium_current__i_Na = 16.0 * pow(var_fast_sodium_current_m_gate__m, 3.0) * var_fast_sodium_current_h_gate__h * var_fast_sodium_current_j_gate__j * (var_membrane__V - var_fast_sodium_current__E_Na);
         double var_membrane__i_Na = var_fast_sodium_current__i_Na;
@@ -763,7 +763,7 @@ public:
         double var_non_specific_calcium_activated_current__i_ns_K = (((((0.0 * 1.0 * var_membrane__V * 9309355225.0) * 3.87996927064e-07) * ((0.75 * var_ionic_concentrations__Ki * FaberRudy2000Version3OptimisedLookupTables::Instance()->_lookup_33(_table_index_0, _factor_0)) - 3.375)) / FaberRudy2000Version3OptimisedLookupTables::Instance()->_lookup_34(_table_index_0, _factor_0)) * 1.0) / (1.0 + pow(0.0012 / var_calcium_dynamics__Cai, 3.0));
         double var_non_specific_calcium_activated_current__i_ns_Ca = var_non_specific_calcium_activated_current__i_ns_Na + var_non_specific_calcium_activated_current__i_ns_K;
         double var_membrane__i_ns_Ca = var_non_specific_calcium_activated_current__i_ns_Ca;
-        
+
         return var_membrane__i_Na+var_membrane__i_Ca_L+var_membrane__i_Ca_T+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_K_Na+var_membrane__i_K_ATP+var_membrane__i_to+var_membrane__i_NaCa+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_p_Ca+var_membrane__i_Na_b+var_membrane__i_Ca_b+var_membrane__i_NaK+var_membrane__i_ns_Ca;
     }
 
@@ -825,8 +825,8 @@ public:
         // Units: millimolar; Initial value: 9
         double var_ionic_concentrations__Ki = rY[24];
         // Units: millimolar; Initial value: 141.2
-        
-        
+
+
         // Lookup table indexing
 #define COVERAGE_IGNORE
         if (var_membrane__V>99.9999 || var_membrane__V<-100.0001)
@@ -836,7 +836,7 @@ public:
         double _offset_0_over_table_step = _offset_0 * 100.0;
         unsigned _table_index_0 = (unsigned) floor(_offset_0_over_table_step);
         double _factor_0 = _offset_0_over_table_step - _table_index_0;
-        
+
         // Mathematics
         double var_membrane__I_st = GetStimulus(var_environment__time*1000);
         double var_fast_sodium_current__E_Na = 26.7123387055 * log(132.0 / var_ionic_concentrations__Nai);
@@ -920,7 +920,7 @@ public:
         double d_dt_calcium_dynamics__Cai = (1.0 / (1.0 + (0.000119 / pow(0.00238 + var_calcium_dynamics__Cai, 2.0)) + (3.5e-05 / pow(0.0005 + var_calcium_dynamics__Cai, 2.0)))) * ((( -1.434e-07 * (((var_L_type_Ca_channel__i_CaCa + var_T_type_Ca_channel__i_Ca_T) - (2.0 * var_Na_Ca_exchanger__i_NaCa)) + var_sarcolemmal_calcium_pump__i_p_Ca + var_calcium_background_current__i_Ca_b)) * 200477.689034) + ((var_calcium_dynamics__i_rel * 1.8246370132e-13) * 38686179652.9) + (((var_calcium_dynamics__i_leak - var_calcium_dynamics__i_up) * 2.09833256519e-12) * 38686179652.9));
         double d_dt_ionic_concentrations__Nai = ((-(var_fast_sodium_current__i_Na + var_L_type_Ca_channel__i_CaNa + var_sodium_background_current__i_Na_b + var_non_specific_calcium_activated_current__i_ns_Na + (var_Na_Ca_exchanger__i_NaCa * 3.0) + (var_sodium_potassium_pump__i_NaK * 3.0))) * 1.434e-07) * 400955.378068;
         double d_dt_ionic_concentrations__Ki = ((-(var_L_type_Ca_channel__i_CaK + var_rapid_delayed_rectifier_potassium_current__i_Kr + var_slow_delayed_rectifier_potassium_current__i_Ks + var_time_independent_potassium_current__i_K1 + var_plateau_potassium_current__i_Kp + var_sodium_activated_potassium_current__i_K_Na + var_ATP_sensitive_potassium_current__i_K_ATP + var_transient_outward_current__i_to + var_non_specific_calcium_activated_current__i_ns_K + ((-var_sodium_potassium_pump__i_NaK) * 2.0))) * 1.434e-07) * 400955.378068;
-        
+
         rDY[0] = d_dt_membrane__V*1e-3;
         rDY[1] = d_dt_fast_sodium_current_m_gate__m*1e-3;
         rDY[2] = d_dt_fast_sodium_current_h_gate__h*1e-3;

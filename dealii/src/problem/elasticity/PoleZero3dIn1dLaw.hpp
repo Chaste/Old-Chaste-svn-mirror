@@ -35,15 +35,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PoleZero3dIn1dLaw
 {
     static const double TOL = 1e-8;
-    
+
     std::vector<double> mPStore;
     std::vector<double> mE22Store;
     std::vector<double> mE33Store;
     bool mUseStore;
-    
+
     double mLastE22;
     double mLastE33;
-    
+
     std::vector<double> k;
     std::vector<double> a;
     std::vector<double> b;
@@ -59,9 +59,9 @@ class PoleZero3dIn1dLaw
             EXCEPTION(ss.str());
             #undef COVERAGE_IGNORE
         }
-        
-        return   k[index] 
-               * Eii 
+
+        return   k[index]
+               * Eii
                * (2+b[index]*Eii/(a[index]-Eii))
                / pow(a[index]-Eii,b[index]);
     }
@@ -71,21 +71,21 @@ class PoleZero3dIn1dLaw
         assert(index>=0 && index<=3);
         assert(Eii < a[index]);
 
-        return    k[index] 
-                * pow(a[index]-Eii, -b[index]-2) 
+        return    k[index]
+                * pow(a[index]-Eii, -b[index]-2)
                 * (   2*(a[index]-Eii)*(a[index]-Eii)
                     + 4*b[index]*Eii*(a[index]-Eii)
                     + b[index]*(b[index]+1)*Eii*Eii  );
     }
 
-    
+
     void CalcResidual(Tensor<1,3>& resid, const double E, double p, double E22, double E33)
     {
         resid[0] = (2*E+1)*(2*E22+1)*(2*E33+1) - 1;
         resid[1] = dWdE(E22,1) - p/(2*E22+1);
         resid[2] = dWdE(E33,2) - p/(2*E33+1);
     }
-    
+
     double NormResidual(Tensor<1,3>& resid)
     {
         return sqrt( resid[0]*resid[0] + resid[1]*resid[1] + resid[2]*resid[2] );
@@ -107,17 +107,17 @@ class PoleZero3dIn1dLaw
         jac[2][2] = d2WdE2(E33,2) + 2*p/( (2*E33+1)*(2*E33+1) );
     }
 
-        
+
     double SolveSystem(const double E)
     {
         Tensor<1,3> resid;
         Tensor<2,3> jac;
-        
+
         double p = 0.0;
         double C22 = 1/sqrt(2*E+1);
-        double E22 = 0.5*(C22-1);   
+        double E22 = 0.5*(C22-1);
         double E33 = E22;
-        
+
         if(mUseStore && E>=-0.3)
         {
             unsigned index = (unsigned)floor( (E+0.3)*mPStore.size() );
@@ -126,7 +126,7 @@ class PoleZero3dIn1dLaw
             E22 = mE22Store[index];
             E33 = mE33Store[index];
         }
-        
+
         CalcResidual(resid, E, p, E22, E33);
         double norm = NormResidual(resid);
         unsigned counter = 0;
@@ -156,7 +156,7 @@ class PoleZero3dIn1dLaw
 //            {
 //                std::cout << i << " " << j << " " << num_jac[i][j]-jac[i][j] << ", " << num_jac[i][j] << " " << jac[i][j] << "\n";
 //            }
-//        }        
+//        }
 //assert(0);
 
 
@@ -164,7 +164,7 @@ class PoleZero3dIn1dLaw
         {
             CalcJacobian(jac, E, p, E22, E33);
             Tensor<2,3> invJac = invert(jac);
-            
+
             std::vector<double> update(3,0.0);
 
             for(unsigned i=0; i<3; i++)
@@ -173,14 +173,14 @@ class PoleZero3dIn1dLaw
                 {
                    update[i] += invJac[i][j]*resid[j];
                 }
-            }        
+            }
 
             double damping = ChooseBestUpdate(E, update, p, E22, E33);
 
             p  -= damping*update[0];
             E22 -= damping*update[1];
             E33 -= damping*update[2];
-            
+
             CalcResidual(resid, E, p, E22, E33);
             norm = NormResidual(resid);
             counter++;
@@ -210,34 +210,34 @@ class PoleZero3dIn1dLaw
             try_vars[0] = p   - damping*update[0];
             try_vars[1] = E22 - damping*update[1];
             try_vars[2] = E33 - damping*update[2];
-            
+
             CalcResidual(resid, E, try_vars[0], try_vars[1], try_vars[2]);
             double norm = NormResidual(resid);
-            
+
             if(norm < best_norm)
             {
                 best_norm = norm;
                 best_damping = damping;
             }
         }
-        
+
         if(best_damping == 0)
         {
             #define COVERAGE_IGNORE
             EXCEPTION("Newton step increased residual");
             #undef COVERAGE_IGNORE
         }
-        
+
         return best_damping;
     }
 
-public : 
+public :
     PoleZero3dIn1dLaw()
     {
         k.resize(3);
         a.resize(3);
         b.resize(3);
-        
+
         k[0] = 2;
         k[1] = 2;
         k[2] = 2;
@@ -247,32 +247,32 @@ public :
         b[0] = 1.5;
         b[1] = 1.5;
         b[2] = 0.442;
-        
+
         mUseStore = false;
     }
-    
+
     void SetUpStores()
     {
-        unsigned num = 1000; 
+        unsigned num = 1000;
         for(unsigned i=0; i<=num; i++)
         {
             double E =  -0.3 + i*0.3/num;
             double p = SolveSystem(E);
-            
+
             mPStore.push_back(p);
             mE22Store.push_back(mLastE22);
             mE33Store.push_back(mLastE33);
         }
-            
-        mUseStore = true;       
+
+        mUseStore = true;
     }
-        
+
 
     double GetT(const double E)
     {
         if(E>=0)
         {
-            return dWdE(E,0); 
+            return dWdE(E,0);
         }
         else
         {
@@ -280,7 +280,7 @@ public :
             return -p/(2*E+1);
         }
     }
-    
+
     double GetDTdE(const double E)
     {
         double h = 0.00001;

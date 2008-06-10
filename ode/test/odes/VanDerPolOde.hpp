@@ -41,21 +41,21 @@ public :
         mInitialConditions.push_back(10.0);
         mVariableNames.push_back("x");
         mVariableUnits.push_back("m");
-        
+
         mInitialConditions.push_back(10.0);
         mVariableNames.push_back("v");
         mVariableUnits.push_back("m/s");
 
         SetStateVariables(mInitialConditions);
     }
-    
+
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
         double mu = 1;
         rDY[0]= rY[1] + mu*(rY[0] - rY[0]*rY[0]*rY[0]);
         rDY[1] = -rY[0];
     }
-    
+
 };
 
 

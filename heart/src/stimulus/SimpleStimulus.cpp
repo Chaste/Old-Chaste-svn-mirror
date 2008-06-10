@@ -39,8 +39,8 @@ SimpleStimulus::SimpleStimulus(double magnitudeOfStimulus, double duration, doub
     mMagnitudeOfStimulus = magnitudeOfStimulus;
     mDuration = duration;
     mTimeOfStimulus = timeOfStimulus;
-    
-    mDuration += (mDuration+mTimeOfStimulus)*DBL_EPSILON; 
+
+    mDuration += (mDuration+mTimeOfStimulus)*DBL_EPSILON;
 }
 
 /**

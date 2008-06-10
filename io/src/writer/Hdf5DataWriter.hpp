@@ -50,28 +50,28 @@ private:
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
     std::string mUnlimitedDimensionName;
     std::string mUnlimitedDimensionUnit;
-    unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/ 
-    unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/    
+    unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/
+    unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/
     unsigned mLo, mHi; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
     unsigned mNumberOwned, mOffset; /**<  mNumberOwned=mHi-mLo;  mOffset=mLo; except with incomplete data*/
     bool mIsDataComplete;
     bool mNeedExtend; /**< Used so that the data set is only extended when data is written*/
-    std::vector<unsigned> mIncompleteNodeIndices;   
+    std::vector<unsigned> mIncompleteNodeIndices;
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
-    
+
     void CheckVariableName(std::string name); /**< Check variable name is allowed, i.e. contains only alphanumeric & _, and isn't blank */
     void CheckUnitsName(std::string name); /**< Check units name is allowed, i.e. contains only alphanumeric & _ */
 
     hid_t mFileId;
     hid_t mDatasetId;
     hid_t mTimeDatasetId;
-    
+
     long mCurrentTimeStep;
-    
+
     const static unsigned DATASET_DIMS=3;
-    hsize_t mDatasetDims[DATASET_DIMS]; 
-    
+    hsize_t mDatasetDims[DATASET_DIMS];
+
 public:
     Hdf5DataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
     virtual ~Hdf5DataWriter();
@@ -86,7 +86,7 @@ public:
     void PutVector(int variableID, Vec petscVector);
     void PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector);
     void PutUnlimitedVariable(double value);
-    
+
     void Close();
 };
 

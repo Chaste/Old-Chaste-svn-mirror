@@ -37,13 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 
-/** 
+/**
  *  FourthOrderTensor
- * 
+ *
  *  A class of fourth order tensors (ie tensors with four indices), over arbitrary dimension
- * 
- */ 
-template <int DIM> 
+ *
+ */
+template <int DIM>
 class FourthOrderTensor
 {
 private:
@@ -51,38 +51,38 @@ private:
     unsigned mDimSqd;
     unsigned mDimCubed;
     unsigned mDimToFour;
-    
+
 public:
     FourthOrderTensor()
     {
         // check dim>0 but <4
         assert(DIM>0);
         assert(DIM<4);
-        
+
         mDimSqd = DIM*DIM;
         mDimCubed = DIM*DIM*DIM;
         mDimToFour = DIM*DIM*DIM*DIM;
-        
+
         // allocate memory and zero entries
         mData.resize(mDimToFour, 0.0);
     }
-    
+
     /**
      *  Set to be the inner product of another fourth order tensor and a matrix
-     *  
+     *
      *  @param tensor A fourth order tensor
      *  @param matrix A Deal.II matrix
      *  @param component  The component in the fourth order tensor with which to sum
      *    (indexed from ZERO)
-     * 
-     *  ie. if component=0, X_{RM} T_{MNPQ} is returned  
+     *
+     *  ie. if component=0, X_{RM} T_{MNPQ} is returned
      *  ie. if component=2, X_{RQ} T_{MNPQ} is returned
-     * 
+     *
      */
     void SetAsProduct(FourthOrderTensor<DIM>& tensor, const Tensor<2,DIM>& matrix, unsigned component)
     {
         Zero();
-        
+
         // messy repeated code but not sure how to do this neatly and efficiently..
         switch (component)
         {
@@ -95,7 +95,7 @@ public:
                         for(unsigned P=0; P<DIM; P++)
                         {
                             for(unsigned Q=0; Q<DIM; Q++)
-                            {   
+                            {
                                 unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                                 for(unsigned s=0; s<DIM; s++)
                                 {
@@ -116,7 +116,7 @@ public:
                         for(unsigned P=0; P<DIM; P++)
                         {
                             for(unsigned Q=0; Q<DIM; Q++)
-                            {   
+                            {
                                 unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                                 for(unsigned s=0; s<DIM; s++)
                                 {
@@ -137,7 +137,7 @@ public:
                         for(unsigned P=0; P<DIM; P++)
                         {
                             for(unsigned Q=0; Q<DIM; Q++)
-                            {   
+                            {
                                 unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                                 for(unsigned s=0; s<DIM; s++)
                                 {
@@ -158,7 +158,7 @@ public:
                         for(unsigned P=0; P<DIM; P++)
                         {
                             for(unsigned Q=0; Q<DIM; Q++)
-                            {   
+                            {
                                 unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                                 for(unsigned s=0; s<DIM; s++)
                                 {
@@ -176,18 +176,18 @@ public:
             }
         }
     }
-    
-    double& operator()(unsigned M, unsigned N, unsigned P, unsigned Q) 
+
+    double& operator()(unsigned M, unsigned N, unsigned P, unsigned Q)
     {
         assert(M<DIM);
         assert(N<DIM);
         assert(P<DIM);
         assert(Q<DIM);
-        
+
         unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
         return mData[index];
     }
-    
+
     void Zero()
     {
         for(unsigned i=0; i<mDimToFour; i++)

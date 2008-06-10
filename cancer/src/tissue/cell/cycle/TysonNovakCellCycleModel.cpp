@@ -41,7 +41,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
-TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, 
+TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
                                                    double divideTime, unsigned generation)
  : AbstractOdeBasedCellCycleModel(divideTime)
 {
@@ -51,21 +51,21 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
 }
 
 void TysonNovakCellCycleModel::ResetForDivision()
-{    
+{
     AbstractOdeBasedCellCycleModel::ResetForDivision();
-    
+
     assert(mpOdeSystem!=NULL);
-    
+
     /**
      * This model needs the protein concentrations and phase resetting to G0/G1.
-     * 
-     * In theory, the solution to the Tyson-Novak equations should exhibit stable 
-     * oscillations, and we only need to halve the mass of the cell each period. 
-     * 
-     * However, the backward Euler solver used to solve the equations 
-     * currently returns a solution that diverges after long times (see #316), so 
+     *
+     * In theory, the solution to the Tyson-Novak equations should exhibit stable
+     * oscillations, and we only need to halve the mass of the cell each period.
+     *
+     * However, the backward Euler solver used to solve the equations
+     * currently returns a solution that diverges after long times (see #316), so
      * we must reset the initial conditions each period.
-     */ 
+     */
 
     /// \todo: Uncomment this line and comment the line after once #316 is fixed
     // mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
@@ -74,10 +74,10 @@ void TysonNovakCellCycleModel::ResetForDivision()
 }
 
 void TysonNovakCellCycleModel::InitialiseDaughterCell()
-{    
-    if (mpCell->GetCellType() == STEM) 
-    {    
-        mpCell->SetCellType(TRANSIT); 
+{
+    if (mpCell->GetCellType() == STEM)
+    {
+        mpCell->SetCellType(TRANSIT);
     }
 }
 
@@ -89,9 +89,9 @@ AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
 {
     double dt = 0.1/60.0;
-    
+
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem,mLastTime,currentTime,dt);
-    
+
     return msSolver.StoppingEventOccured();
 }
 
@@ -102,8 +102,8 @@ double TysonNovakCellCycleModel::GetOdeStopTime()
 }
 
 /**
- * Tyson & Novak pretends it is running ODEs in just G1, 
- * but they really represent the whole cell cycle so 
+ * Tyson & Novak pretends it is running ODEs in just G1,
+ * but they really represent the whole cell cycle so
  * we set the other phases to zero.
  */
 double TysonNovakCellCycleModel::GetSDuration()

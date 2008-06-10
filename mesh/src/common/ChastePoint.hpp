@@ -43,14 +43,14 @@ class ChastePoint
 {
 private:
     c_vector<double, DIM> mLocation;
-    
+
 public:
 
     /**
      * Create a Point object.
      * There are 3 optional arguments, which can be used to specify the values
      * of the first 3 dimensions, if present.
-     * 
+     *
      * Point now uses a ublas vector to store its location. The
      * rGetLocation method returns a reference to this vector.
      * Use of this method together with ublas operations
@@ -71,7 +71,7 @@ public:
             mLocation[2] = v3;
         }
     }
-    
+
     /**
      * Create a Point object.
      * This constructor takes a vector giving the coordinates of the point.
@@ -84,28 +84,28 @@ public:
             mLocation(i) = coords.at(i);
         }
     }
-    
+
     ChastePoint(c_vector<double, DIM> location)
     {
         mLocation = location;
     }
-    
+
     c_vector<double, DIM>& rGetLocation(void)
     {
         return mLocation;
     }
-    
+
     const c_vector<double, DIM>& rGetLocation(void) const
     {
         return mLocation;
     }
-    
+
     double operator[] (unsigned i) const
     {
         assert(i<DIM);
         return mLocation(i);
     }
-    
+
     void SetCoordinate(unsigned i, double value)
     {
         assert(i<DIM);
@@ -125,7 +125,7 @@ public:
     ChastePoint(double v1=0, double v2=0, double v3=0)
     {
     }
-    
+
     double operator[] (unsigned i) const
     {
         EXCEPTION("Zero-dimensional point has no data");

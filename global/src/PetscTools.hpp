@@ -102,7 +102,7 @@ public :
             PetscBarrier(PETSC_NULL);
         }
     }
- 
+
     /**
      *  Create a vector of the specified size. SetFromOptions is called.
      */
@@ -115,7 +115,7 @@ public :
         VecSetFromOptions(ret);
         return ret;
     }
-    
+
     /**
      *  Create a vector of the specified size with all values set to be the given
      *  constant. SetFromOptions is called.
@@ -124,19 +124,19 @@ public :
     {
         assert(size>0);
         Vec ret = CreateVec(size);
-        
+
         #if (PETSC_VERSION_MINOR == 2) //Old API
         VecSet(&value, ret);
         #else
         VecSet(ret, value);
         #endif
-        
+
         VecAssemblyBegin(ret);
         VecAssemblyEnd(ret);
         return ret;
     }
-    
-    /** 
+
+    /**
      *  Create a Vec from the given data.
      */
     static Vec CreateVec(std::vector<double> data)
@@ -148,7 +148,7 @@ public :
         VecGetArray(ret, &p_ret);
         int lo, hi;
         VecGetOwnershipRange(ret, &lo, &hi);
-        
+
         for (int global_index=lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
@@ -157,46 +157,46 @@ public :
         VecRestoreArray(ret, &p_ret);
         VecAssemblyBegin(ret);
         VecAssemblyEnd(ret);
-        
+
         return ret;
     }
-    
+
     /**
      *  Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The
      *  number of local rows and columns is by default PETSC_DECIDE. SetFromOptions is called.
-     * 
-     *  @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependend. An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem) should be big enough for any of the problems being solved. 
+     *
+     *  @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependend. An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem) should be big enough for any of the problems being solved.
      */
-    static void SetupMat(Mat& rMat, int numRows, int numColumns, 
-                         MatType matType=(MatType) MATMPIAIJ, 
-                         int numLocalRows=PETSC_DECIDE, 
+    static void SetupMat(Mat& rMat, int numRows, int numColumns,
+                         MatType matType=(MatType) MATMPIAIJ,
+                         int numLocalRows=PETSC_DECIDE,
                          int numLocalColumns=PETSC_DECIDE,
                          int maxColsPerRow=54)
     {
         assert(numRows>0);
         assert(numColumns>0);
-        
+
         #if (PETSC_VERSION_MINOR == 2) //Old API
         MatCreate(PETSC_COMM_WORLD,numLocalRows,numLocalColumns,numRows,numColumns,&rMat);
         #else //New API
         MatCreate(PETSC_COMM_WORLD,&rMat);
         MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
         #endif
-    
-        MatSetType(rMat, matType);        
-        
+
+        MatSetType(rMat, matType);
+
         if (strcmp(matType,MATMPIAIJ)==0)
         {
             MatMPIAIJSetPreallocation(rMat, maxColsPerRow, PETSC_NULL, (PetscInt) (maxColsPerRow*0.5), PETSC_NULL);
-        } 
-        
+        }
+
         MatSetFromOptions(rMat);
     }
-    
+
     /**
      * Ensure exceptions are handled cleanly in parallel code, by causing all processes to
      * throw if any one does.
-     * 
+     *
      * @param flag is set to true if this process has thrown.
      */
     static void ReplicateException(bool flag)
@@ -214,7 +214,7 @@ public :
             EXCEPTION("Another process threw an exception; bailing out.");
         }
     }
-    
+
     /**
      *  Another helper method to get a single value from a vector
      *  in 1 line than Petsc's usual 4 or 5. DOES NOT check that
@@ -224,19 +224,19 @@ public :
 /// the full weight of ReplicatableVector (broadcast single values to all processors).
 /// How do you know who has the value?
 
- 
+
 //    static double GetVecValue(Vec vec, unsigned index)
 //    {
 //        assert(vec);
 //        PetscInt size;
 //        VecGetSize(vec, &size);
 //        assert((int)index<size);
-//        
+//
 //        double* p_data;
 //        VecGetArray(vec, &p_data);
 //        double ret = p_data[(int)index];
 //        VecRestoreArray(vec, &p_data);
-//        
+//
 //        return ret;
 //    }
 };

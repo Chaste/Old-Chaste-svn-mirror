@@ -35,9 +35,9 @@ Exception::Exception(std::string message,
 {
     std::stringstream line_number;
     line_number << rLineNumber;
-    
+
     mMessage = std::string("\nChaste error: ") + filename + ":"  + line_number.str()  + ": " + message;
-    
+
     // no way of saying here whether this will be a fatal error, but write
     // it to the log file (if one exists) in case it is.
     std::string log_file_message = "Exception occurred (although possibly handled), error message:\n" + message;

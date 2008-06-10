@@ -45,9 +45,9 @@ public:
         try
         {
             auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/ChasteParametersFullFormat.xml"));
-            
+
             simulation_type simulation_params = params->Simulation();
-            
+
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
 
             TS_ASSERT(simulation_params.Mesh().present());
@@ -56,7 +56,7 @@ public:
 
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabX(), 4.0);
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabY(), 0.1);
-            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabZ(), 2.0);            
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabZ(), 2.0);
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->InterNodeSpace(), 0.1);
 
             physiological_type physiological_params = params->Physiological();
@@ -87,21 +87,21 @@ public:
         try
         {
             auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/ChasteParametersLoadMesh.xml"));
-            
+
             simulation_type simulation_params = params->Simulation();
-            
+
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
 
             TS_ASSERT(simulation_params.Mesh().present());
             TS_ASSERT(simulation_params.Mesh().get().LoadMesh() != NULL);
             TS_ASSERT(simulation_params.Mesh().get().Slab() == NULL);
-            
+
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->name(), "foo");
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->media(), "Orthotropic"); // Testing for the default value
-            
+
             physiological_type physiological_params = params->Physiological();
 
-            TS_ASSERT(physiological_params.IntracellularConductivities().present());            
+            TS_ASSERT(physiological_params.IntracellularConductivities().present());
             TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().longi(), 1.75);
             TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().trans(), 1.75);
             TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().normal(), 1.75);

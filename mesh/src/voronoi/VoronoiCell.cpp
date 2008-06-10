@@ -48,12 +48,12 @@ bool VoronoiCell::operator==(VoronoiCell& otherCell)
     {
         return false;
     }
-    
+
     std::vector< bool > other_faces_matched;
-    
+
     std::vector< Face<3>* >::iterator this_face_iterator=mFaces.begin();
     std::vector< bool >::iterator this_orientation_iterator=mOrientations.begin();
-    
+
     while (this_face_iterator!=mFaces.end())
     {
         std::vector< Face<3>* >::iterator other_face_iterator=otherCell.mFaces.begin();

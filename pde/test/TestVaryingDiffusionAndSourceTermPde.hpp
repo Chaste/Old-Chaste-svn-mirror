@@ -42,7 +42,7 @@ public:
         c_matrix<double, 1, 1> diffusion_term=pde.ComputeDiffusionTerm(evaluation_point);
         TS_ASSERT_EQUALS(diffusion_term(0,0),4);
     }
-    
+
     void TestVaryingPde2D ( void )
     {
         VaryingDiffusionAndSourceTermPde<2> pde;

@@ -42,13 +42,13 @@ public :
     {
         mInitialConditions.push_back(0.5);
     }
-    
+
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
         double alpha = 100;
         rDY[0]=alpha*rY[0]*(1-rY[0])*time;
     }
-    
+
 };
 
 #endif //_ODE4_HPP_

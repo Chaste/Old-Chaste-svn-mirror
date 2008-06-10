@@ -38,7 +38,7 @@ void AbstractCryptStatistics::LabelSPhaseCells()
             assert((*cell_iter).GetMutationState() == HEALTHY || (*cell_iter).GetMutationState() == LABELLED);
             (*cell_iter).SetMutationState(LABELLED);
         }
-    } 
+    }
 }
 
 void AbstractCryptStatistics::LabelAllCellsAsHealthy()
@@ -48,13 +48,13 @@ void AbstractCryptStatistics::LabelAllCellsAsHealthy()
          ++cell_iter)
     {
         (*cell_iter).SetMutationState(HEALTHY);
-    }    
+    }
 }
 
 std::vector<bool> AbstractCryptStatistics::GetWhetherCryptSectionCellsAreLabelled(std::vector<TissueCell*> cryptSection)
 {
     std::vector<bool> crypt_section_labelled(cryptSection.size());
-    
+
     for (unsigned vector_index=0; vector_index<cryptSection.size(); vector_index++)
     {
         if (cryptSection[vector_index]->GetMutationState() == LABELLED)
@@ -62,10 +62,10 @@ std::vector<bool> AbstractCryptStatistics::GetWhetherCryptSectionCellsAreLabelle
             crypt_section_labelled[vector_index]=true;
         }
         else
-        {   
+        {
             crypt_section_labelled[vector_index]=false;
         }
     }
-            
+
     return crypt_section_labelled;
 }

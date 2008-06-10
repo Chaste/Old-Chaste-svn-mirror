@@ -60,17 +60,17 @@ public:
     static const unsigned P_DIM = 1u;
 private:
     AbstractLinearParabolicPde<SPACE_DIM>* mpParabolicPde;
-    
+
     typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> SelfType;
     typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType> BaseClassType;
     /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType>;
-    
+
 protected:
     /**
-     *  The term to be added to the element stiffness matrix: 
-     *  
-     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) + 
+     *  The term to be added to the element stiffness matrix:
+     *
+     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) +
      *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
      */
     virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
@@ -82,13 +82,13 @@ protected:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX, pElement);
-        
+
         return    prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
                   + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
     }
-    
+
     /**
-     *  The term to be added to the element stiffness vector: 
+     *  The term to be added to the element stiffness vector:
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -97,13 +97,13 @@ protected:
         c_vector<double,1> &u,
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-            
+
     {
         return (mpParabolicPde->ComputeNonlinearSourceTerm(rX, u(0)) + mpParabolicPde->ComputeLinearSourceTerm(rX)
                 + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * u(0)) * rPhi;
     }
-    
-    
+
+
     /**
      *  The term arising from boundary conditions to be added to the element
      *  stiffness vector
@@ -117,8 +117,8 @@ protected:
         double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
         return rPhi * D_times_gradu_dot_n;
     }
-    
-    
+
+
 public:
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
@@ -136,19 +136,19 @@ public:
         mpParabolicPde = pPde;
         this->SetMesh(pMesh);
         this->SetBoundaryConditionsContainer(pBoundaryConditions);
-        
+
         this->SetMatrixIsConstant();
     }
-    
+
     /**
-     * Called by AbstractDynamicAssemblerMixin at the beginning of Solve() 
+     * Called by AbstractDynamicAssemblerMixin at the beginning of Solve()
      */
     virtual void PrepareForSolve()
     {
         BaseClassType::PrepareForSolve();
         assert(mpParabolicPde != NULL);
     }
-    
+
     Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
         return AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,1>::Solve(currentSolutionOrGuess,currentTime);

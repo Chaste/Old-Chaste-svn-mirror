@@ -46,17 +46,17 @@ public :
     {
         mInitialConditions.push_back(0.0);
     }
-    
+
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
         rDY[0]=rY[0]*rY[0];
     }
-    
+
     void AnalyticJacobian(const std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
     {
         jacobian[0][0] = 1 - 2.0*timeStep*solutionGuess[0];
     }
-    
+
 };
 
 

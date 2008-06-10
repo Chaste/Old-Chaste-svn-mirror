@@ -74,22 +74,22 @@ protected:
         void OutputResults(unsigned counter);
         void TakeNewtonStep();
     */
-    
+
     double mTstart;
     double mTend;
     double mOdeDt;
     bool   mTimesSet;
-    
+
     bool mNoRefinement;
-    
+
     Vector<double> mGrowthValuesAtVertices;
     std::vector<GrowthByConstantMassOdeSystem<DIM>*> mGrowthOdeSystems;
     EulerIvpOdeSolver mOdeSolver;
-    
+
     AbstractGrowingTumourSourceModel<DIM>* mpSourceModel;
-    
+
     double mAverageElementVolume;
-    
+
     /**
      *  Reimplemented to include growth term (only a minor change)
      */
@@ -100,24 +100,24 @@ protected:
                                    bool                                            assembleJacobian);
 
     virtual void WriteStresses(unsigned counter);
-    
+
     void WriteGrowthValuesAtVertices(unsigned counter);
-    
+
     bool RefineOvergrownElements();
-                                   
+
 public:
     /**
      *  Constructor
-     *  
+     *
      *  @param pMesh A pointer to a dealii mesh. Note, the mesh must have some surface
      *   elements which have had their boundary indicator set to FIXED_BOUNDARY
      *  @param pMaterialLaw A pointer to an incompressible material law
      *  @bodyForce A vector of size DIM represents the body force (force per unit volume)
      *  @density The mass density. Must be strictly positive
-     *  @outputDirectory The output directory, relative the the testoutput directory. If 
+     *  @outputDirectory The output directory, relative the the testoutput directory. If
      *   empty no output is written
      *  @degreeOfBasesForPosition Degree of the polynomials used for interpolating positions.
-     *   Defaults to 2, ie quadratic interpolation 
+     *   Defaults to 2, ie quadratic interpolation
      *  @degreeOfBasesForPressure Degree of the polynomials used for interpolating pressue.
      *   Defaults to 2, ie linear interpolation
      */
@@ -129,25 +129,25 @@ public:
                                         AbstractGrowingTumourSourceModel<DIM>* pSourceModel,
                                         unsigned degreeOfBasesForPosition=2,
                                         unsigned degreeOfBasesForPressure=1);
-                                        
-                                        
+
+
     virtual ~FiniteElasticityAssemblerWithGrowth();
-    
+
     void SetTimes(double Tstart, double Tend, double odeDt);
     void Run();
-    
-    
+
+
     /**
      *  Returns true if there is an growth ode system associated with
      *  this vertex in the mesh. Mainly for testing purposes
      */
     bool IsGrowingNode(unsigned vertexIndex);
-    
-    /** 
+
+    /**
      *  Switches off refinement/coarsening of overgrown/shrunken elements
      */
     void SetNoRefinement();
-    
+
     /* Inherited
         virtual void StaticSolve(bool writeOutput=true);
         DoFHandler<DIM>& rGetDofHandler();

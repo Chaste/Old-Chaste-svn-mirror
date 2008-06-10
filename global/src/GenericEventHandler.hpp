@@ -48,7 +48,7 @@ public:
     static double mCpuTime[MAX_EVENTS];
     static bool mHasBegun[MAX_EVENTS];
     static bool mEnabled;
-    
+
     static void Reset()
     {
         for (unsigned event=0; event<NUM_EVENTS; event++)
@@ -57,7 +57,7 @@ public:
             mHasBegun[event]=false;
         }
     }
-       
+
     static void BeginEvent(unsigned event) throw (Exception)
     {
         if (!mEnabled)
@@ -76,7 +76,7 @@ public:
         mHasBegun[event] = true;
         //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
-    
+
     static void EndEvent(unsigned event)
     {
         if (!mEnabled)
@@ -95,8 +95,8 @@ public:
         mHasBegun[event] = false;
         //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
-    
-    
+
+
     static void Report()
     {
         // times are in milliseconds
@@ -107,21 +107,21 @@ public:
         }
         std::cout << "(milliseconds) \n";
     }
-    
+
     static void Headings()
     {
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
             printf("%6s\t", EVENT_NAME[event]);
-        } 
+        }
         std::cout << "\n";
     }
-    
+
     static void Enable()
     {
         mEnabled=true;
     }
-    
+
     static void Disable()
     {
         mEnabled=false;

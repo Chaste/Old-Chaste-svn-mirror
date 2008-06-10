@@ -45,37 +45,37 @@ class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
 {
 protected:
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;
-    
+
 public:
     AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde()
     {
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
 
-        this->mpIntracellularConductivityTensors->Init();                
+        this->mpIntracellularConductivityTensors->Init();
         mpMonodomainPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
 
         return mpMonodomainPde;
     }
-    
+
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
     {
         assert(mpMonodomainPde);
-        
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler 
-          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, 
-                                                            mpMonodomainPde, 
-                                                            this->mpBoundaryConditionsContainer, 
+
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                            mpMonodomainPde,
+                                                            this->mpBoundaryConditionsContainer,
                                                             2);
-        
+
         if (this->mUseLinearSolverAbsoluteTolerance)
         {
-            p_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);       
+            p_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);
         }
         else
         {
-            p_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverTolerance);    
+            p_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverTolerance);
         }
-        
+
         return p_assembler;
     }
 
@@ -83,7 +83,7 @@ public:
 
     /**
      * Constructor
-     * @param pCellFactory User defined cell factory which shows how the pde should 
+     * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
     MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
@@ -91,20 +91,20 @@ public:
               mpMonodomainPde(NULL)
     {
     }
-    
+
     /**
      * Destructor
      */
     ~MonodomainProblem()
     {
     }
-    
+
     MonodomainPde<SPACE_DIM> * GetMonodomainPde()
     {
         assert(mpMonodomainPde != NULL);
         return mpMonodomainPde;
     }
-    
+
     /**
      *  Print out time and max/min voltage values at current time.
      */

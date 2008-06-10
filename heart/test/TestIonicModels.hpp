@@ -78,7 +78,7 @@ public:
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, time_step, &stimulus);
-        
+
         // Solve and write to file
         ck_start = clock();
         RunOdeSolverWithIonicModel(&hh52_ode_system,
@@ -87,9 +87,9 @@ public:
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
-                                   
+
         CheckCellModelResults("HH52RegResult");
-        
+
         // test GetIionic: (the GetIionic method was first manually tested
         // by changing the EvaluateYDerivatives() code to call it, this verified
         // that GetIionic has no errors, therefore we can test here against
@@ -99,8 +99,8 @@ public:
                                    "HhGetIIonic");
         TS_ASSERT_DELTA( hh52_ode_system.GetIIonic(), 40.6341, 1e-3);
     }
-    
-    
+
+
     void TestOdeSolverForFHN61WithSimpleStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
@@ -112,14 +112,14 @@ public:
         SimpleStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
                                  start_stimulus);
-                                 
+
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
         FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, time_step, &stimulus);
 
         // fhn has no [Ca_i]
         TS_ASSERT_THROWS_ANYTHING(fhn61_ode_system.GetIntracellularCalciumConcentration());
-        
+
         // Solve and write to file
         ck_start = clock();
         RunOdeSolverWithIonicModel(&fhn61_ode_system,
@@ -128,34 +128,34 @@ public:
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
-                                   
+
         CheckCellModelResults("FHN61RegResult");
-        
+
         // test GetIionic ('fake' ionic current) (the GetIionic method was first
         // manually tested by changing the EvaluateYDerivatives() code to call it,
         // this verified that GetIionic has no errors, therefore we can test here
         // against a hardcoded result
         TS_ASSERT_DELTA( fhn61_ode_system.GetIIonic(), -0.0058, 1e-3);
-        
+
         // some coverage
         SimpleStimulus another_stimulus(-200,1.0, 0.0);
         SimpleStimulus intra_stimulus(-100,1.0, 0.0);
         SimpleStimulus extra_stimulus(-50, 1.0, 0.0);
         FitzHughNagumo1961OdeSystem another_fhn61_ode_system(&solver, time_step, &stimulus);
-        
+
         another_fhn61_ode_system.SetStimulusFunction(&another_stimulus);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -200, 1e-12);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetIntracellularStimulus(0.5), -200, 1e-12);
-        
+
         another_fhn61_ode_system.SetIntracellularStimulusFunction(&intra_stimulus);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -100, 1e-12);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetIntracellularStimulus(0.5), -100, 1e-12);
-        
+
         another_fhn61_ode_system.SetExtracellularStimulusFunction(&extra_stimulus);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetExtracellularStimulus(0.5), -50, 1e-12);
     }
-    
-    
+
+
     void TestOdeSolverForLR91WithDelayedSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
@@ -165,14 +165,14 @@ public:
         double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
         SimpleStimulus stimulus(magnitude, duration, when);
-        
+
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds
-        
+
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 4u); // For coverage
-        
+
         // Solve and write to file
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_ode_system,
@@ -181,9 +181,9 @@ public:
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
-                                   
+
         CheckCellModelResults("Lr91DelayedStim");
-        
+
         // test GetIionic: (the GetIionic method was first manually tested
         // by changing the EvaluateYDerivatives() code to call it, this verified
         // that GetIionic has no errors, therefore we can test here against
@@ -193,7 +193,7 @@ public:
                                    "Lr91GetIIonic");
         TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);
     }
-    
+
     void TestOdeSolverForLR91WithRegularStimulus(void) throw (Exception)
     {
         // Set stimulus
@@ -202,24 +202,24 @@ public:
         double start = 50.0; // ms
         double period = 500; // ms
         RegularStimulus stimulus(magnitude, duration, period, start);
-        
+
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds
-        
+
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
-        
+
         // cover get intracellular calcium
         TS_ASSERT_DELTA(lr91_ode_system.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
-        
+
         // Solve and write to file
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    "Lr91RegularStim");
-                                   
+
         CheckCellModelResults("Lr91RegularStim");
     }
-    
+
     void TestBackwardEulerLr91WithDelayedSimpleStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
@@ -228,23 +228,23 @@ public:
         double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
         SimpleStimulus stimulus(magnitude, duration, when);
-        
+
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds
-        
+
         // Solve using backward euler
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler(time_step, &stimulus);
-        
+
         // cover get intracellular calcium
         TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
-        
+
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler,
                                    end_time,
                                    "Lr91BackwardEuler");
         ck_end = clock();
         double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
+
         // Solve using forward Euler
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
@@ -254,14 +254,14 @@ public:
                                    "Lr91DelayedStim");
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
+
         // Compare results
         CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler", 0.01);
-        
+
         // Try with larger timestep and coarser tolerance.
         // We can't use a larger time step than 0.01 for forward Euler - the gating
         // variables go out of range.
-        
+
         // (Use alternative contructor for coverage. This is a hack -see ticket:451 )
         EulerIvpOdeSolver* p_solver = new EulerIvpOdeSolver();
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(p_solver ,time_step*50, &stimulus);
@@ -273,11 +273,11 @@ public:
         ck_end = clock();
         double backward2 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler2", 0.25);
-        
+
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
                   << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
-        
-        
+
+
         // cover and check GetIIonic() match for normal and backward euler lr91
         LuoRudyIModel1991OdeSystem lr91(&solver, 0.01, &stimulus);
         BackwardEulerLuoRudyIModel1991 backward_lr91(0.01, &stimulus);
@@ -288,7 +288,7 @@ public:
         EulerIvpOdeSolver solver2;
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, time_step, &stimulus);
     }
-    
+
     void TestOdeSolverForFR2000WithDelayedSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
@@ -298,14 +298,14 @@ public:
         double duration  = 2.0;  // ms
         double when = 10.0; // ms
         SimpleStimulus stimulus(magnitude, duration, when);
-        
+
         double end_time = 1000.0; //ms
         double time_step = 0.007;
-        
+
         EulerIvpOdeSolver solver;
         FaberRudy2000Version3Optimised fr2000_ode_system_opt(&solver, time_step, &stimulus);
         FaberRudy2000Version3 fr2000_ode_system(&solver, time_step, &stimulus);
-        
+
         // Solve and write to file
         ck_start = clock();
         RunOdeSolverWithIonicModel(&fr2000_ode_system,
@@ -314,21 +314,21 @@ public:
                                    500, false);
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-                                  
-        ck_start = clock(); 
+
+        ck_start = clock();
         RunOdeSolverWithIonicModel(&fr2000_ode_system_opt,
                                    end_time,
                                    "FR2000DelayedStimOpt",
                                    500, false);
         ck_end = clock();
         double opt = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
+
         std::cout << "\n\tForward: " << forward
                   << "\n\tOptimised: " << opt << std::endl;
-        
+
         CheckCellModelResults("FR2000DelayedStim");
         CompareCellModelResults("FR2000DelayedStim", "FR2000DelayedStimOpt", 1e-4);
-        
+
         // test GetIionic: (the GetIionic method was first manually tested
         // by changing the EvaluateYDerivatives() code to call it, this verified
         // that GetIionic has no errors, therefore we can test here against
@@ -336,8 +336,8 @@ public:
         TS_ASSERT_DELTA(fr2000_ode_system.GetIIonic(), 0.0002, 1e-4);
         TS_ASSERT_DELTA(fr2000_ode_system_opt.GetIIonic(), 0.0002, 1e-4);
     }
-    
-    
+
+
     void TestOdeSolverForFR2000WithVariablePotassiumCurrents(void)
     {
         // Set stimulus
@@ -345,49 +345,49 @@ public:
         double duration  = 2.0;  // ms
         double when = 0.0; // ms
         SimpleStimulus stimulus(magnitude, duration, when);
-        
+
         double end_time = 1000.0; //ms
         double time_step = 0.007;
-        
+
         EulerIvpOdeSolver solver;
         FaberRudy2000Version3 fr2000_ode_system_endo(&solver, time_step, &stimulus);
         fr2000_ode_system_endo.SetScaleFactorGks(0.462);
         fr2000_ode_system_endo.SetScaleFactorIto(0.0);
-        
+
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_endo,
                                    end_time,
                                    "FR2000Endo",
                                    500, false);
-        
+
         CheckCellModelResults("FR2000Endo");
-        
+
         FaberRudy2000Version3 fr2000_ode_system_mid(&solver, time_step, &stimulus);
         fr2000_ode_system_mid.SetScaleFactorGks(1.154);
         fr2000_ode_system_mid.SetScaleFactorIto(0.85);
-        
+
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_mid,
                                    end_time,
                                    "FR2000Mid",
                                    500, false);
-        
+
         CheckCellModelResults("FR2000Mid");
-        
+
         FaberRudy2000Version3 fr2000_ode_system_epi(&solver, time_step, &stimulus);
         fr2000_ode_system_epi.SetScaleFactorGks(1.154);
         fr2000_ode_system_epi.SetScaleFactorIto(1.0);
-        
+
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_epi,
                                    end_time,
                                    "FR2000Epi",
                                    500, false);
-        
+
         CheckCellModelResults("FR2000Epi");
     }
-    
-        
+
+
     void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
@@ -398,15 +398,15 @@ public:
         double start = 50.0; // ms
         double period = 500; // ms
         RegularStimulus stimulus(magnitude, duration, period, start);
-        
+
         double end_time = 200.0;  // milliseconds
         double time_step = 0.002; //2e-6 seconds in milliseconds
                             // 0.005 leads to NaNs.
-        
+
         EulerIvpOdeSolver solver;
         FoxModel2002Modified fox_ode_system(&solver, time_step, &stimulus);
         BackwardEulerFoxModel2002Modified backward_system(time_step*5, &stimulus);
-        
+
         // Mainly for coverage, and to test consistency of GetIIonic
         TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
                         backward_system.GetIIonic(),
@@ -420,9 +420,9 @@ public:
                                    500);
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-                                   
+
         CheckCellModelResults("FoxRegularStim");
-        
+
         // Solve using Backward Euler
         ck_start = clock();
         RunOdeSolverWithIonicModel(&backward_system,
@@ -431,15 +431,15 @@ public:
                                    100);
         ck_end = clock();
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
+
         CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.2);
-        
+
         std::cout << "Run times:\n\tForward: " << forward
                   << "\n\tBackward: " << backward
                   << std::endl;
-        
+
     }
-    
+
     // For some bizarre reason having the exception specification here and/or in the private method
     // causes the IntelProduction build to fail on this test (unless it is the only test defined, i.e.
     // we x-out the other tests in this file).
@@ -450,7 +450,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(3))
         TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
     }
-    
+
 private:
     void TryTestLr91WithVoltageDrop(unsigned ratio) //throw (Exception)
     {
@@ -464,7 +464,7 @@ private:
         double start_voltage=-83.853;
         double end_voltage=-100;
         while (time<end_time)
-        {   
+        {
             double next_time=time+pde_time_step;
             lr91_ode_system.SetVoltage( start_voltage + (end_voltage-start_voltage)*time/end_time );
             lr91_ode_system.ComputeExceptVoltage(time, next_time);

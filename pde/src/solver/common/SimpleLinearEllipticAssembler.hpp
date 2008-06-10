@@ -61,15 +61,15 @@ public:
     typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SelfType> BaseClassType;
     /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SelfType>;
-    
+
 protected:
     AbstractLinearEllipticPde<SPACE_DIM>* mpEllipticPde;
-    
+
 protected:
     /**
-     *  The term to be added to the element stiffness matrix: 
-     *  
-     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) 
+     *  The term to be added to the element stiffness matrix:
+     *
+     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col])
      */
     virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -80,7 +80,7 @@ protected:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
-        
+
         // if statement just saves computing phi*phi^T if it is to be multiplied by zero
         if(mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)!=0)
         {
@@ -92,7 +92,7 @@ protected:
             return   prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) );
         }
     }
-    
+
     /**
      *  The term arising from boundary conditions to be added to the element
      *  stiffness vector
@@ -107,9 +107,9 @@ protected:
     {
         return mpEllipticPde->ComputeConstantInUSourceTerm(rX) * rPhi;
     }
-    
-    
-    
+
+
+
     virtual c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
             c_vector<double, ELEMENT_DIM> &rPhi,
             ChastePoint<SPACE_DIM> &rX )
@@ -118,9 +118,9 @@ protected:
         double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
         return rPhi * D_times_gradu_dot_n;
     }
-    
-    
-    
+
+
+
 public:
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
@@ -138,7 +138,7 @@ public:
         this->SetMesh(pMesh);
         this->SetBoundaryConditionsContainer(pBoundaryConditions);
     }
-    
+
     /**
      * This method is called at the beginning of Solve() in AbstractLinearStaticProblemAssembler
      */

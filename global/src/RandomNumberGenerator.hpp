@@ -44,7 +44,7 @@ public:
     double NormalRandomDeviate(double mean, double sd);
     double ranf(void);
     unsigned randMod(unsigned base);
-        
+
     static RandomNumberGenerator* Instance();
     static void Destroy();
     void Reseed(int seed)
@@ -63,13 +63,13 @@ protected:
         mTimesCalled = 0;
         srandom(0);
     }
-    
+
 private:
     int mSeed;
     unsigned mTimesCalled;
 
     static RandomNumberGenerator* mpInstance;
-    
+
     friend class boost::serialization::access;
     /**
      * Serialization of a RandomNumberGenerator object must be done with care.
@@ -91,7 +91,7 @@ private:
         archive & mTimesCalled;
         // reset the random number generator to use the correct seed
         srandom(mSeed);
-        // call it the correct number of times to put it in the 
+        // call it the correct number of times to put it in the
         // same state as it used to be.
         // NOTE: This is only guaranteed to work if Normal random
         // deviates are not used, since the methods to generate
@@ -102,6 +102,6 @@ private:
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-    
+
 };
 #endif /*RANDOMNUMBERGENERATORS_HPP_*/

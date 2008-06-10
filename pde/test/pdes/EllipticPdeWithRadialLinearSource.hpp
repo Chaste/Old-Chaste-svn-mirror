@@ -44,9 +44,9 @@ public:
 
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x, Element<2,2>*)
     {
-        return -(x[0]*x[0] + x[1]*x[1]); 
+        return -(x[0]*x[0] + x[1]*x[1]);
     }
-    
+
     c_matrix<double, 2, 2> ComputeDiffusionTerm(const ChastePoint<2>& )
     {
         return identity_matrix<double>(2);

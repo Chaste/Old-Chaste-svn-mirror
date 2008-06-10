@@ -40,7 +40,7 @@ class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 private:
     // define a new stimulus
     SimpleStimulus* mpStimulus;
-    
+
 public:
     PlaneStimulusCellFactory() : AbstractCardiacCellFactory<DIM>(0.01)//Ode timestep
     {
@@ -48,14 +48,14 @@ public:
         mpStimulus = new SimpleStimulus(-600, 0.5);
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus(-600, 0.5)\n");
     }
-    
+
     PlaneStimulusCellFactory(double timeStep, double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
@@ -73,7 +73,7 @@ public:
                                                   this->mpZeroStimulus);
         }
     }
-    
+
     ~PlaneStimulusCellFactory(void)
     {
         delete mpStimulus;

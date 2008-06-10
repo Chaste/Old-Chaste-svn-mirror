@@ -59,7 +59,7 @@ public:
     {
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node == mNodeNum)
@@ -71,7 +71,7 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
-    
+
     ~PointStimulus2dCellFactory(void)
     {
         delete mpStimulus;
@@ -90,51 +90,51 @@ public:
     // test should take about 30mins (or less)
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
-        
+
         PointStimulus2dCellFactory cell_factory(60); // Central node
-        
+
         MonodomainProblem<2> monodomain_problem(&cell_factory);
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(500);   // 500 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulusLong");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulusLong");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
-        
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+
         monodomain_problem.Solve();
-        
+
         CheckMonoLr91Vars(monodomain_problem);
-        
+
         ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
-        
+
         /*
         * Test that corners are 'equal', and centres of sides.
         * Irregularities in which way the triangles are oriented make
         * this rather difficult, especially since the edges are sampled
         * during the upstroke.
         */
-        
+
         // corners
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  0.1);
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[110], 0.1);
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[120], 0.1);
-        
+
         // centres of edges
         TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[55],  0.1);
         TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[65],  0.1);
         TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[115], 0.1);
-        
+
         int num_nodes = monodomain_problem.rGetMesh().GetNumNodes();
         // test final voltages have returned to the resting potential
         for (int i=0; i<num_nodes; i++)
         {
             TS_ASSERT_DELTA(voltage_replicated[i], -84.5, 1);
         }
-        
+
     }
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLERLONG_HPP_

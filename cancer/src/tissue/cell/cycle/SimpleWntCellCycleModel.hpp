@@ -44,10 +44,10 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
-       
+
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
-        
+
         archive & mUseCellTypeDependentG1Duration;
     }
 
@@ -56,60 +56,60 @@ private:
      * For use in SetG1Duration().
      */
     bool mUseCellTypeDependentG1Duration;
-        
+
 protected:
 
     /**
-     * Stochastically set the G1 duration. The G1 duration is taken 
-     * from a normal distribution whose mean is the G1 duration given 
-     * in CancerParameters for the cell type and whose standard deviation 
+     * Stochastically set the G1 duration. The G1 duration is taken
+     * from a normal distribution whose mean is the G1 duration given
+     * in CancerParameters for the cell type and whose standard deviation
      * is 1.
-     * 
-     * Called on cell creation at the start of a simulation, and for both 
+     *
+     * Called on cell creation at the start of a simulation, and for both
      * parent and daughter cells at cell division.
-     */        
+     */
     void SetG1Duration();
-    
+
     /**
      * Private constructor for identical cells.
-     * 
+     *
      * @param g1Duration  The duration of the G1 phase
      * @param generation  The generation of the cell cycle model
      * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
-    SimpleWntCellCycleModel(double g1Duration, unsigned generation, bool useCellTypeDependentG1Duration=false) 
+    SimpleWntCellCycleModel(double g1Duration, unsigned generation, bool useCellTypeDependentG1Duration=false)
         : AbstractSimpleCellCycleModel(g1Duration, generation),
           mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
-    {} 
-        
+    {}
+
 public:
 
     /**
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called.
-     * 
+     *
      * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
     SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration=false)
         : mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
     {}
 
-    /** 
+    /**
      * Overridden UpdateCellCyclePhase() method
-     */ 
+     */
     void UpdateCellCyclePhase();
 
-    /** 
+    /**
      * Overridden ResetForDivision() method
-     */  
+     */
     void ResetForDivision();
 
-    /** 
+    /**
      * Overridden InitialiseDaughterCell() method
-     */ 
+     */
     void InitialiseDaughterCell();
-    
-    AbstractCellCycleModel *CreateDaughterCellCycleModel();        
+
+    AbstractCellCycleModel *CreateDaughterCellCycleModel();
 };
 
 // Declare identifier for the serializer

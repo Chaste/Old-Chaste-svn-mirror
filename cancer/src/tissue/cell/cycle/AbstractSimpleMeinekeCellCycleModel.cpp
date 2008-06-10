@@ -49,7 +49,7 @@ void AbstractSimpleMeinekeCellCycleModel::InitialiseDaughterCell()
         mGeneration = 1;
     }
     // Daughter cell is always a TRANSIT or DIFFERENTIATED
-    mpCell->SetCellType(TRANSIT);   
+    mpCell->SetCellType(TRANSIT);
     if (mGeneration > CancerParameters::Instance()->GetMaxTransitGenerations())
     {
         mpCell->SetCellType(DIFFERENTIATED);

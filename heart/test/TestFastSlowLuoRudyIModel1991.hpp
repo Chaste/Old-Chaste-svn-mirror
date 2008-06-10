@@ -43,9 +43,9 @@ public:
         ZeroStimulus stimulus;
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
-        
+
         LuoRudyIModel1991OdeSystem luo_rudy(&solver, time_step, &stimulus);
-        
+
         std::vector<double> DY_normal(8);
 
         luo_rudy.EvaluateYDerivatives(0.0, luo_rudy.rGetStateVariables(), DY_normal);
@@ -62,17 +62,17 @@ public:
         std::vector<double> slow_values(2);
         slow_values[0] = luo_rudy.rGetStateVariables()[5];
         slow_values[1] = luo_rudy.rGetStateVariables()[6];
-        
+
         fast_luo_rudy.SetSlowValues(slow_values);
-                
+
         fast_luo_rudy.EvaluateYDerivatives(0.0, fast_luo_rudy.rGetStateVariables(), DY_fast);
-        
+
         //Compare the resulting Y derivatives
         for (unsigned i = 0; i < 5; ++i)
         {
             TS_ASSERT_DELTA(DY_normal[i], DY_fast[i], 1e-5);
         }
-        
+
         TS_ASSERT_DELTA(DY_normal[7], DY_fast[5], 1e-5);
     }
 
@@ -83,7 +83,7 @@ public:
         ZeroStimulus stimulus;
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
-        
+
         LuoRudyIModel1991OdeSystem luo_rudy(&solver, time_step, &stimulus);
         std::vector<double> DY_normal(8);
         luo_rudy.EvaluateYDerivatives(0.0, luo_rudy.rGetStateVariables(), DY_normal);
@@ -96,7 +96,7 @@ public:
 
         std::vector<double> DY_fast(8);
         slow_luo_rudy.EvaluateYDerivatives(0.0, slow_luo_rudy.rGetStateVariables(), DY_fast);
-        
+
         //Compare the resulting Y derivatives
         for (unsigned i = 0; i < 7; ++i)
         {

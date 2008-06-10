@@ -115,7 +115,7 @@ public:
         // Units: dimensionless; Initial value: 0.942
         double var_calcium_dynamics__Ca_i = rY[11];
         // Units: micromolar; Initial value: 0.0472
-        
+
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96.5;
@@ -263,7 +263,7 @@ public:
         double var_sodium_background_current__E_Na = var_fast_sodium_current__E_Na;
         double var_sodium_background_current__i_Na_b = var_sodium_background_current__g_Nab * (var_sodium_background_current__V - var_sodium_background_current__E_Na);
         double var_membrane__i_Na_b = var_sodium_background_current__i_Na_b;
-        
+
         return var_membrane__i_Na+var_membrane__i_Ca+var_membrane__i_CaK+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_to+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_NaCa+var_membrane__i_NaK+var_membrane__i_p_Ca+var_membrane__i_Ca_b+var_membrane__i_Na_b;
     }
 
@@ -277,11 +277,11 @@ public:
         // Units: dimensionless; Initial value: 0.983
         double var_L_type_Ca_current_d_gate__d = rY[9];
         // Units: dimensionless; Initial value: 0.0001
-        
+
         double var_L_type_Ca_current_f_Ca_gate__f_Ca = rCurrentGuess[0];
         double var_calcium_dynamics__Ca_SR = rCurrentGuess[1];
         double var_calcium_dynamics__Ca_i = rCurrentGuess[2];
-        
+
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96.5;
@@ -362,7 +362,7 @@ public:
         double d_dt_L_type_Ca_current_f_Ca_gate__f_Ca = (var_L_type_Ca_current_f_Ca_gate__f_Ca_infinity - var_L_type_Ca_current_f_Ca_gate__f_Ca) / var_L_type_Ca_current_f_Ca_gate__tau_f_Ca;
         double d_dt_calcium_dynamics__Ca_SR = (var_calcium_dynamics__beta_SR * ((var_calcium_dynamics__J_up - var_calcium_dynamics__J_leak) - var_calcium_dynamics__J_rel) * var_calcium_dynamics__V_myo) / var_calcium_dynamics__V_SR;
         double d_dt_calcium_dynamics__Ca_i = var_calcium_dynamics__beta_i * (((var_calcium_dynamics__J_rel + var_calcium_dynamics__J_leak) - var_calcium_dynamics__J_up) - (((var_calcium_dynamics__A_Cap * var_calcium_dynamics__C_sc) / (2.0 * var_calcium_dynamics__F * var_calcium_dynamics__V_myo)) * ((var_calcium_dynamics__i_Ca + var_calcium_dynamics__i_Ca_b + var_calcium_dynamics__i_p_Ca) - (2.0 * var_calcium_dynamics__i_NaCa))));
-        
+
         rResidual[0] = rCurrentGuess[0] - rY[10] - mDt*d_dt_L_type_Ca_current_f_Ca_gate__f_Ca;
         rResidual[2] = rCurrentGuess[2] - rY[11] - mDt*d_dt_calcium_dynamics__Ca_i;
         rResidual[1] = rCurrentGuess[1] - rY[12] - mDt*d_dt_calcium_dynamics__Ca_SR;
@@ -377,11 +377,11 @@ public:
         // Units: dimensionless; Initial value: 0.983
         double var_L_type_Ca_current_d_gate__d = rY[9];
         // Units: dimensionless; Initial value: 0.0001
-        
+
         double var_L_type_Ca_current_f_Ca_gate__f_Ca = rCurrentGuess[0];
         double var_calcium_dynamics__Ca_SR = rCurrentGuess[1];
         double var_calcium_dynamics__Ca_i = rCurrentGuess[2];
-        
+
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96.5;
@@ -410,7 +410,7 @@ public:
         const double var_calcium_dynamics__K_mCSQN = 600.0;
         const double var_calcium_dynamics__CSQN_tot = 10000.0;
         const double var_calcium_dynamics__V_SR = 2e-06;
-        
+
         rJacobian[0][0] = 1.0 + ((1.0 / 30.0) * mDt);
         rJacobian[0][1] = 0.0;
         rJacobian[0][2] = ((((1.0 / 10.0) * mDt) / pow(1.0 + (pow(var_calcium_dynamics__Ca_i, 3.0) / pow(var_L_type_Ca_current_f_Ca_gate__K_mfCa, 3.0)), 2.0)) * pow(var_calcium_dynamics__Ca_i, 2.0)) / pow(var_L_type_Ca_current_f_Ca_gate__K_mfCa, 3.0);
@@ -451,7 +451,7 @@ protected:
         // Units: dimensionless; Initial value: 0.942
         double var_calcium_dynamics__Ca_i = rY[11];
         // Units: micromolar; Initial value: 0.0472
-        
+
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96.5;
@@ -602,7 +602,7 @@ protected:
         double var_membrane__i_Na_b = var_sodium_background_current__i_Na_b;
         double var_membrane__i_Stim = GetStimulus(var_membrane__time);
         double d_dt_membrane__V = -(var_membrane__i_Na + var_membrane__i_Ca + var_membrane__i_CaK + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_to + var_membrane__i_K1 + var_membrane__i_Kp + var_membrane__i_NaCa + var_membrane__i_NaK + var_membrane__i_p_Ca + var_membrane__i_Na_b + var_membrane__i_Ca_b + var_membrane__i_Stim);
-        
+
         rY[0] += mDt * d_dt_membrane__V;
     }
 
@@ -612,7 +612,7 @@ protected:
         std::vector<double>& rY = rGetStateVariables();
         double var_membrane__V = rY[0];
         // Units: millivolt; Initial value: -94.7
-        
+
         double var_fast_sodium_current__V = var_membrane__V;
         double var_L_type_Ca_current__V = var_membrane__V;
         double var_rapid_activating_delayed_rectifiyer_K_current__V = var_membrane__V;
@@ -647,7 +647,7 @@ protected:
         double var_L_type_Ca_current_d_gate__d_infinity = 1.0 / (1.0 + exp((var_L_type_Ca_current_d_gate__V + 10.0) / (-6.24)));
         double var_L_type_Ca_current_d_gate__E0_m = var_L_type_Ca_current_d_gate__V + 40.0;
         double var_L_type_Ca_current_d_gate__tau_d = 1.0 / (((0.25 * exp((-0.01) * var_L_type_Ca_current_d_gate__V)) / (1.0 + exp((-0.07) * var_L_type_Ca_current_d_gate__V))) + ((0.07 * exp((-0.05) * var_L_type_Ca_current_d_gate__E0_m)) / (1.0 + exp(0.05 * var_L_type_Ca_current_d_gate__E0_m))));
-        
+
         const double _g_0 = var_L_type_Ca_current_d_gate__d_infinity / var_L_type_Ca_current_d_gate__tau_d;
         const double _h_0 = (-1.0) / var_L_type_Ca_current_d_gate__tau_d;
         const double _g_1 = var_L_type_Ca_current_f_gate__f_infinity / var_L_type_Ca_current_f_gate__tau_f;
@@ -666,7 +666,7 @@ protected:
         const double _h_7 = (var_transient_outward_potassium_current_X_to_gate__alpha_X_to * (-1.0)) - (var_transient_outward_potassium_current_X_to_gate__beta_X_to * 1.0);
         const double _g_8 = var_transient_outward_potassium_current_Y_to_gate__alpha_Y_to * 1.0;
         const double _h_8 = (var_transient_outward_potassium_current_Y_to_gate__alpha_Y_to * (-1.0)) - (var_transient_outward_potassium_current_Y_to_gate__beta_Y_to * 1.0);
-        
+
         rY[1] = (rY[1] + _g_4*mDt) / (1 - _h_4*mDt);
         rY[2] = (rY[2] + _g_2*mDt) / (1 - _h_2*mDt);
         rY[3] = (rY[3] + _g_3*mDt) / (1 - _h_3*mDt);
@@ -676,7 +676,7 @@ protected:
         rY[7] = (rY[7] + _g_8*mDt) / (1 - _h_8*mDt);
         rY[8] = (rY[8] + _g_1*mDt) / (1 - _h_1*mDt);
         rY[9] = (rY[9] + _g_0*mDt) / (1 - _h_0*mDt);
-        
+
         double _guess[3] = {rY[10],rY[11],rY[12]};
         CardiacNewtonSolver<3> *_solver = CardiacNewtonSolver<3>::Instance();
         _solver->Solve(*this, _guess);

@@ -68,7 +68,7 @@ void LogFile::Set(unsigned level, std::string directory, std::string fileName)
     if(level > mMaxLoggingLevel)
     {
         std::stringstream string_stream;
-        string_stream << "Requested level " << level 
+        string_stream << "Requested level " << level
                       << " should have been less than or equal to " << mMaxLoggingLevel;
         EXCEPTION(string_stream.str());
     }
@@ -77,14 +77,14 @@ void LogFile::Set(unsigned level, std::string directory, std::string fileName)
     OutputFileHandler handler(directory, false);
     mpOutStream = handler.OpenOutputFile(fileName);
     mFileSet = true;
-    
+
     // write header in the log file..?
 }
 
 unsigned LogFile::MaxLoggingLevel()
 {
     return mMaxLoggingLevel;
-} 
+}
 
 
 void LogFile::Close()
@@ -106,12 +106,12 @@ void LogFile::WriteElapsedTime(std::string pre)
 {
     double fsecs = difftime(time(NULL),mInitTime);
     long total_secs = static_cast<long>(floor(fsecs+0.5));
-    int total_mins = total_secs/60; 
-    
+    int total_mins = total_secs/60;
+
     int secs = total_secs%60;
     int mins = total_mins%60;
     int hrs = total_mins/60;
-    
+
     *this << pre << "Elapsed time is: " <<  hrs << "h " << mins << "m " << secs << "s\n";
 }
 

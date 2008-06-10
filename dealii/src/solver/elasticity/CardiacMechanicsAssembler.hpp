@@ -50,16 +50,16 @@ protected:
      *  The matrix P using JonW's convention. Orthogonal
      */
     Tensor<2,DIM> mFibreSheetMat;
-    
+
     /**
      *  The transpose of P, which is also the inverse of P
      */
     Tensor<2,DIM> mTransFibreSheetMat;
 
-    /** 
+    /**
      *  The active tension, quad point-wise. NOTE: the i-th entry of this vector is
      *  assumed to be the i-th quad point obtained by looping over cells in the obvious
-     *  way and then looping over quad points 
+     *  way and then looping over quad points
      */
     std::vector<double> mActiveTension;
 
@@ -69,49 +69,49 @@ protected:
      */
     double mScaleFactor;
 
-    
+
     /** Overloaded method for assembling system, which takes into account the active tensions */
     void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
                            Vector<double>&       elementRhs,
                            FullMatrix<double>&   elementMatrix,
                            bool                  assembleResidual,
                            bool                  assembleJacobian);
-                           
+
 
 public:
     /**
      *  Constructor
-     *  
+     *
      *  @param pMesh. A pointer to the mesh. Should have a surface set as the fixed surface
      *  @param outputDirectory. The output directory, relative to TEST_OUTPUT
      *  @param pMaterialLaw. The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
-    CardiacMechanicsAssembler(Triangulation<DIM>* pMesh, 
+    CardiacMechanicsAssembler(Triangulation<DIM>* pMesh,
                               std::string outputDirectory,
                               AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
     virtual ~CardiacMechanicsAssembler();
-    
-        
+
+
     /**
      *  Specify a constant fibre-sheet rotation matrix
-     * 
+     *
      *  This is really a temporary method until the fibre-sheet direction can be read in
      */
     virtual void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat);
-    
+
     virtual void Solve(double currentTime, double nextTime, double timestep);
 
-    /** 
+    /**
      *  Set the current active tensions, by quadrature point. Quad points don't have indices,
      *  so these values should be in the order given by looping over cells and then looping
      *  over quad points
      */
     virtual void SetForcingQuantity(std::vector<double>& activeTension);
-    
-    /** 
+
+    /**
      *  Set a scale factor by which (dimensional) material parameters are scaled. For
-     *  this assembler the active tension to be scaled likewise when it is used. A scale 
+     *  this assembler the active tension to be scaled likewise when it is used. A scale
      *  factor may be used/needed to improve GMRES convergence.
      */
     void SetScaling(double scaleFactor);

@@ -47,16 +47,16 @@ class AbstractNonlinearEllipticPde
 public:
 
     virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
-    
+
     virtual double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& x,
                                               double u)=0;
-                                              
+
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x,
             double u)=0;
-            
+
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(const ChastePoint<SPACE_DIM>& x,
             double u)=0;
-            
+
     virtual double ComputeNonlinearSourceTermPrime(const ChastePoint<SPACE_DIM>& x,
                                                    double u)=0;
     virtual ~AbstractNonlinearEllipticPde()

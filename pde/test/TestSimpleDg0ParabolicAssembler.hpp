@@ -61,14 +61,14 @@ public:
     {
         // Assembler
         SimpleDg0ParabolicAssembler<1,1, true> assembler(NULL,NULL,NULL);
-        
+
         // start > end
         TS_ASSERT_THROWS_ANYTHING(assembler.SetTimes(1.0, 0.0, 0.01));
-        
+
         // dt = 0
         TS_ASSERT_THROWS_ANYTHING(assembler.SetTimes(0.0, 1.0, 0.0));
     }
-    
+
     /// test 1D problem
     void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
     {
@@ -76,20 +76,20 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<1> pde;
-        
+
         // Boundary conditions - zero dirichlet at first and last node;
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition =
             new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<1,1,true> assembler(&mesh,&pde,&bcc);
-        
+
         // Initial condition, u(0,x) = sin(x*pi);
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -102,7 +102,7 @@ public:
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -117,18 +117,18 @@ public:
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
-    
+
+
     void TestSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquationWithSourceTerm<1> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition =
@@ -136,10 +136,10 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(-0.5);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<1,1,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition, u(0,x) = sin(x*pi)+0.5*x*x;
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -148,11 +148,11 @@ public:
             init_cond[i] = sin(x*M_PI)-0.5*x*x;
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-  
+
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -163,35 +163,35 @@ public:
             double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI)-0.5*x*x;
             TS_ASSERT_DELTA(result_repl[i], u, 0.1);
         }
-        
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
+
     void TestSimpleDg0ParabolicAssemblerNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<1> pde;
-        
+
         // Boundary conditions  u(0)=0, u'(1)=1
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
-        
+
         ConstBoundaryCondition<1>* p_neumann_boundary_condition =
             new ConstBoundaryCondition<1>(1.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<1,1,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition;
         const double PI_over_2 = M_PI/2.0;
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -205,7 +205,7 @@ public:
         // set time and initial condition
         assembler.SetTimes(0, 0.5, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        
+
         // solve
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
@@ -217,29 +217,29 @@ public:
             double u = x + exp(-0.5*PI_over_2*PI_over_2)*sin(x*PI_over_2);
             TS_ASSERT_DELTA(result_repl[i], u, 0.01);
         }
-        
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
-    
+
+
     void TestSimpleDg0ParabolicAssembler2DZeroDirich( void )
     {
         // read mesh on [0,1]x[0,1]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<2> pde;
-        
+
         // Boundary conditions - zero dirichlet everywhere on boundary
         BoundaryConditionsContainer<2,2,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
         // the heat equation.
@@ -251,12 +251,12 @@ public:
             init_cond[i] = sin(x*M_PI)*sin(y*M_PI);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-        
+
         // Solve
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.001);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -269,12 +269,12 @@ public:
             double u = exp(-2*t_end*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI);
             TS_ASSERT_DELTA(result_repl[i], u, 0.01);
         }
-        
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
-    
+
+
     // test 2D problem
     void TestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTerm( void )
     {
@@ -282,14 +282,14 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquationWithSourceTerm<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-        
+
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
@@ -299,10 +299,10 @@ public:
             bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             iter++;
         }
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -312,11 +312,11 @@ public:
             init_cond[i] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-        
+
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.001);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -329,11 +329,11 @@ public:
             double u = exp(-0.1*2*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
             TS_ASSERT_DELTA(result_repl[i], u, 0.05);
         }
-        
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
+
     // test 2D problem
     /// \todo - This test fails with current tolerance.
     void xTestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTermOnFineMeshWithSmallDt( void )
@@ -345,14 +345,14 @@ public:
                                           "femlab_square_edges.dat");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquationWithSourceTerm<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorEnd();
-        
+
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
@@ -362,16 +362,16 @@ public:
             bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             iter++;
         }
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
-        
+
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition);
-        
+
         int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
@@ -382,17 +382,17 @@ public:
             p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
-        
+
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.001);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
-        
+
         // Check result
         double *p_result;
         VecGetArray(result, &p_result);
-        
+
         // Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
         {
@@ -406,58 +406,58 @@ public:
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
+
     // test 2D problem
     void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        
+
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-        
+
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
-            
+
             if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) || (fabs(x) < 0.01))
             {
                 ConstBoundaryCondition<2>* p_dirichlet_boundary_condition
                 = new ConstBoundaryCondition<2>(x);
                 bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             }
-            
+
             iter++;
         }
-        
+
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_neumann_boundary_condition =
             new ConstBoundaryCondition<2>(1.0);
-            
+
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
             double x = mesh.GetNode(node)->GetPoint()[0];
-            
+
             if (fabs(x - 1.0) < 0.01)
             {
                 bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             }
-            
+
             surf_iter++;
         }
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -468,11 +468,11 @@ public:
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
 
-        
+
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -489,7 +489,7 @@ public:
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
+
     // test 2D problem
     void TestSimpleDg0ParabolicAssembler2DNeumann( void )
     {
@@ -498,52 +498,52 @@ public:
                                           "femlab_square_nodes.dat",
                                           "femlab_square_elements.dat",
                                           "femlab_square_edges.dat");
-                                          
+
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<2> pde;
-        
+
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-        
+
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
-            
+
             if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) || (fabs(x) < 0.01))
             {
                 ConstBoundaryCondition<2>* p_dirichlet_boundary_condition =
                     new ConstBoundaryCondition<2>(x);
                 bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             }
-            
+
             iter++;
         }
-        
+
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_neumann_boundary_condition =
             new ConstBoundaryCondition<2>(1.0);
-            
+
         while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
             double x = mesh.GetNode(node)->GetPoint()[0];
-            
+
             if (fabs(x - 1.0) < 0.01)
             {
                 bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             }
-            
+
             surf_iter++;
         }
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -553,10 +553,10 @@ public:
             init_cond[i] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-        
+
         assembler.SetTimes(0, 0.1, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -569,21 +569,21 @@ public:
             double u = exp((-5/4)*M_PI*M_PI*0.1) * sin(0.5*M_PI*x) * sin(M_PI*y) + x;
             TS_ASSERT_DELTA(result_repl[i], u, u*0.1);
         }
-        
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
+
     void TestHeatEquationSolutionDoesntDrift2D( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<2> pde;
-        
+
         // Boundary conditions - non-zero constant dirichlet on boundary
         BoundaryConditionsContainer<2,2,1> bcc;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
@@ -593,17 +593,17 @@ public:
             bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
             iter++;
         }
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition;
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes(), -84.5);
-        
+
         double t_end = 1.0;
         assembler.SetTimes(0, t_end, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -612,21 +612,21 @@ public:
         {
             TS_ASSERT_DELTA(result_repl[i],-84.5, 0.0002);
         }
-        
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
+
     void TestHeatEquationSolutionDoesntDrift1D( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<1> pde;
-        
+
         // Boundary conditions - non-zero constant dirichlet on boundary
         BoundaryConditionsContainer<1,1,1> bcc;
         ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
@@ -636,19 +636,19 @@ public:
             bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
             iter++;
         }
-        
+
         // Assembler - created using Set methods for coverage
         SimpleDg0ParabolicAssembler<1,1,true> assembler(NULL,&pde,NULL);
         assembler.SetMesh(&mesh);
         assembler.SetBoundaryConditionsContainer(&bcc);
-        
+
         // initial condition;
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes(), -84.5);
-        
+
         double t_end = 1;
         assembler.SetTimes(0, t_end, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -657,11 +657,11 @@ public:
         {
             TS_ASSERT_DELTA(result_repl[i],-84.5, 0.0001);
         }
-        
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
+
     // commented out heat equation with 2d mesh and initial condition non-zero at centre,
     // writing out data (doesn't test anything, wanted to see if we get a circular
     // diffusion pattern on such a small mesh, to compare with monodomain with
@@ -673,35 +673,35 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // Instantiate PDE object
         HeatEquation<2> pde;
-        
+
         BoundaryConditionsContainer<2,2,1> bcc;
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_neumann_boundary_condition =
             new ConstBoundaryCondition<2>(0.0);
-            
+
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             surf_iter++;
         }
-        
+
         // Assembler
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
-        
+
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
         // the heat equation.
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
-        
+
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition);
-        
+
         int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
-        
+
         // stimulate
         for (int global_index = lo; global_index < hi; global_index++)
         {
@@ -719,39 +719,39 @@ public:
             }
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
-        
+
         double time = 0;
         double t_end = 0.1;
         double dt = 0.001;
         assembler.SetInitialCondition(initial_condition);
-        
+
         int time_var_id = 0;
         int heat_var_id = 0;
-        
+
         ParallelColumnDataWriter *p_test_writer;
         p_test_writer = new ParallelColumnDataWriter("2DHeatEquation", "2DHeatEquation");
-        
+
         p_test_writer->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
         time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
-        
+
         heat_var_id = p_test_writer->DefineVariable("T","K");
         p_test_writer->EndDefineMode();
-        
+
         p_test_writer->PutVariable(time_var_id, time);
         p_test_writer->PutVector(heat_var_id, initial_condition);
         p_test_writer->AdvanceAlongUnlimitedDimension();
-        
+
         Vec result;
-        
+
         while (time < t_end)
         {
             time += dt;
             assembler.SetTimes(time, time+dt, dt);
-            
+
             result = assembler.Solve();
-            
+
             assembler.SetInitialCondition(result);
-            
+
             p_test_writer->PutVariable(time_var_id, time);
             p_test_writer->PutVector(heat_var_id, result);
             p_test_writer->AdvanceAlongUnlimitedDimension();

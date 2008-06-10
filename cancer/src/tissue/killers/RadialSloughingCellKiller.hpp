@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 /**
- *  Radial sloughing cell killer for use with the crypt projection model. 
- *  
- *  Kills cells if they are outside a circle whose centre and radius can be 
+ *  Radial sloughing cell killer for use with the crypt projection model.
+ *
+ *  Kills cells if they are outside a circle whose centre and radius can be
  *  passed in but are take default values.
  */
 class RadialSloughingCellKiller : public AbstractCellKiller<2>
@@ -45,40 +45,40 @@ private:
 
     // Centre of death.
     c_vector<double,2> mCentre;
-    
-    // Radius of death.    
+
+    // Radius of death.
     double mRadius;
-    
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
     }
-    
+
 public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param pTissue pointer to the tissue.
      * @param centre the centre of death.
      * @param radius the radius of death.
      */
-    RadialSloughingCellKiller(AbstractTissue<2>* pTissue, 
-                              c_vector<double,2> centre, 
+    RadialSloughingCellKiller(AbstractTissue<2>* pTissue,
+                              c_vector<double,2> centre,
                               double radius);
-    
+
     /**
      * Get method for mCentre.
      */
     c_vector<double,2> GetCentre() const;
-    
+
     /**
      * Get method for mRadius.
      */
     double GetRadius() const;
-        
+
     /**
      *  Loop over cells and kills cells outside boundary.
      */

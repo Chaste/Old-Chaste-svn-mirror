@@ -41,14 +41,14 @@ public:
     void TestLogFileCreate()
     {
         LogFile* p_log_file = LogFile::Instance();
-    
+
         // no file set yet
         TS_ASSERT_EQUALS(p_log_file->IsFileSet(), false);
-        
+
         // set the file
         p_log_file->Set(1, "TestLogFile");
         TS_ASSERT_EQUALS(p_log_file->IsFileSet(), true);
-        
+
         // check a new instance works correctly
         LogFile* p_same_log = LogFile::Instance();
         TS_ASSERT_EQUALS(p_same_log->IsFileSet(), true);
@@ -59,11 +59,11 @@ public:
         LogFile* p_log = LogFile::Instance();
         TS_ASSERT_EQUALS(p_log->IsFileSet(), true);
     }
-    
+
     void TestClose()
     {
         LogFile::Close();
-    
+
         // check file not set on a new instance
         LogFile* p_log = LogFile::Instance();
         TS_ASSERT_EQUALS(p_log->IsFileSet(), false);
@@ -73,7 +73,7 @@ public:
     {
         LogFile* p_log_file = LogFile::Instance();
         p_log_file->Set(1, "TestLogFile", "log2.txt");
-        
+
         (*p_log_file) << "Some stuff\n" << "Some more\n";
         (*p_log_file) << "Even more\n";
     }
@@ -83,14 +83,14 @@ public:
         LogFile* p_log_file = LogFile::Instance();
 
         (*p_log_file) << ".. and another bit\n";
-        
+
         (*LogFile::Instance()) << "..and one final bit\n";
         LogFile::Close();
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log2.txt  global/test/data/good_log2.txt").c_str()), 0);
     }
-        
+
     void TestWritingToNoFile()
     {
         LogFile::Close();
@@ -112,28 +112,28 @@ public:
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log.txt  global/test/data/good_log.txt").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log3.txt  global/test/data/good_log.txt").c_str()), 0);
-        
+
         LogFile::Close();
     }
-    
-    
+
+
     void TestUsingMacroAndLevels()
     {
         LogFile* p_log_file = LogFile::Instance();
-        
+
         // bad level
         TS_ASSERT_THROWS_ANYTHING(p_log_file->Set( LogFile::MaxLoggingLevel()+1, "TestLogFile") );
-        
+
         p_log_file->Set(1, "TestLogFile", "log4.txt");
-        
+
 #ifndef NDEBUG
         unsigned i=0;
 #endif
-        LOG(1, "Level 1 info, will be written. i = " << i); 
-        LOG(2, "Level 2 info, WONT be written. i = " << i); 
+        LOG(1, "Level 1 info, will be written. i = " << i);
+        LOG(2, "Level 2 info, WONT be written. i = " << i);
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
-        
+
 #ifndef NDEBUG
         // this will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);
@@ -148,14 +148,14 @@ public:
     {
         LogFile* p_log_file = LogFile::Instance();
         p_log_file->Set(1, "TestLogFile", "log5.txt");
-        
+
         p_log_file->WriteHeader("Complete human");
-        
+
         // for(unsigned i=0; i<1e9; i++);
         p_log_file->WriteElapsedTime(" -> ");
-        
+
         LogFile::Close();
-    
+
         // the file will be different on different occasions (as the date is printed),
         // so we test by reading it in
         std::ifstream ifs((OutputFileHandler::GetChasteTestOutputDirectory()+"TestLogFile/log5.txt").c_str());
@@ -185,7 +185,7 @@ public:
             TS_FAIL("log file not written?");
         }
     }
-    
+
     void TestExceptionMessageIsWritten()
     {
         LogFile::Instance()->Set(1, "TestLogFile", "log6.txt");
@@ -203,6 +203,6 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log6.txt  global/test/data/good_log6.txt").c_str()), 0);
 #endif
     }
-        
+
 };
 #endif /*TESTLOGFILE_HPP_*/

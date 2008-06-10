@@ -43,26 +43,26 @@ public:
     void TestCreateCell()
     {
         c_vector<double, 3> vertex1;
-        vertex1(0)= -0.2500;      
+        vertex1(0)= -0.2500;
         vertex1(1)=-0.2500;
         vertex1(2)=1.2500;
-        c_vector<double, 3> vertex2;        
+        c_vector<double, 3> vertex2;
         vertex2(0)=1.2500;
         vertex2(1)=-0.2500;
         vertex2(2)=-0.2500;
-        c_vector<double, 3> vertex3; 
-        vertex3(0)= -0.2500;      
+        c_vector<double, 3> vertex3;
+        vertex3(0)= -0.2500;
         vertex3(1)=1.2500;
         vertex3(2)=-0.2500;
         c_vector<double, 3> vertex4;
-        vertex4(0)= 1.2500;      
+        vertex4(0)= 1.2500;
         vertex4(1)=1.2500;
         vertex4(2)=1.2500;
         c_vector<double, 3> vertex5;
-        vertex5(0)= 1.0;      
+        vertex5(0)= 1.0;
         vertex5(1)=1.0;
         vertex5(2)=1.0;
-        
+
         Face<3> face1;
         face1.mVertices.push_back(&vertex2);
         face1.mVertices.push_back(&vertex3);
@@ -79,7 +79,7 @@ public:
         face4.mVertices.push_back(&vertex1);
         face4.mVertices.push_back(&vertex3);
         face4.mVertices.push_back(&vertex2);
-                
+
         Face<3> face1b;
         face1b.mVertices.push_back(&vertex2);
         face1b.mVertices.push_back(&vertex3);
@@ -102,7 +102,7 @@ public:
         face1r.mVertices.push_back(&vertex4);
         face1r.mVertices.push_back(&vertex2);
         face1r.mVertices.push_back(&vertex3);
-        
+
         VoronoiCell cell1;
         cell1.mFaces.push_back(&face1);
         cell1.mOrientations.push_back(true);
@@ -113,7 +113,7 @@ public:
         cell1.mFaces.push_back(&face4);
         cell1.mOrientations.push_back(true);
         TS_ASSERT_EQUALS(cell1, cell1);
-        
+
        // a different cell
         VoronoiCell cell1b;
         cell1b.mFaces.push_back(&face1b);
@@ -125,7 +125,7 @@ public:
         cell1b.mFaces.push_back(&face4);
         cell1b.mOrientations.push_back(true);
         TS_ASSERT_DIFFERS(cell1, cell1b);
-        
+
         // like first cell but face 1 permuted
         VoronoiCell cell1p;
         cell1p.mFaces.push_back(&face1p);
@@ -136,9 +136,9 @@ public:
         cell1p.mOrientations.push_back(true);
         cell1p.mFaces.push_back(&face4);
         cell1p.mOrientations.push_back(true);
-        
+
         TS_ASSERT_DIFFERS(cell1, cell1p);
-        
+
         // like first cell but face 1 rotated, and faces in different order
         VoronoiCell cell1r;
         cell1r.mFaces.push_back(&face3);
@@ -149,15 +149,15 @@ public:
         cell1r.mOrientations.push_back(true);
         cell1r.mFaces.push_back(&face4);
         cell1r.mOrientations.push_back(true);
-        
+
         TS_ASSERT_EQUALS(cell1, cell1r);
-        
+
         // null cell
         VoronoiCell cell0;
         TS_ASSERT_DIFFERS(cell1, cell0);
         TS_ASSERT_DIFFERS(cell0, cell1);
         TS_ASSERT_EQUALS(cell0, cell0);
-        
+
         // like first cell but face 1 premuted and opposite orientation
         VoronoiCell cell1o;
         cell1o.mFaces.push_back(&face3);
@@ -169,9 +169,9 @@ public:
         cell1o.mFaces.push_back(&face4);
         cell1o.mOrientations.push_back(true);
         TS_ASSERT_EQUALS(cell1, cell1o);
-        
+
     }
-    
+
 };
 
 

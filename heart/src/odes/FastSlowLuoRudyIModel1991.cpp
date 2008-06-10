@@ -42,7 +42,7 @@ FastSlowLuoRudyIModel1991::FastSlowLuoRudyIModel1991(AbstractIvpOdeSolver *pSolv
     : AbstractFastSlowCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
 {
     // NOTE: above we set the number of state variables to be 8 (the second arg to AbstractCardiacCell),
-    // but we don't know what the correct is until SetState is called. So we MUST correctly set 
+    // but we don't know what the correct is until SetState is called. So we MUST correctly set
     // mNumberOfStateVariables in SetState.
 }
 
@@ -53,7 +53,7 @@ void FastSlowLuoRudyIModel1991::SetState(CellModelState state)
     assert(mState == STATE_UNSET); // SetState() has been called twice if this fails
 
     mState = state;
-    
+
     // set mNumberOfStateVariables correctly (see comment in constructor)
     if(mState == FAST)
     {
@@ -62,7 +62,7 @@ void FastSlowLuoRudyIModel1991::SetState(CellModelState state)
     else
     {
         mNumberOfStateVariables = 8;
-    } 
+    }
     
     // set the final paramter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
@@ -94,7 +94,7 @@ void FastSlowLuoRudyIModel1991::SetState(CellModelState state)
         mVariableNames.push_back("d");
         mVariableUnits.push_back("");
         mInitialConditions.push_back(0.00316354);
-        
+
         mVariableNames.push_back("f");
         mVariableUnits.push_back("");
         mInitialConditions.push_back(0.99427859);
@@ -133,7 +133,7 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
                                                      std::vector<double> &rDY)
 {
     assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
-    
+
     if(mState==FAST)
     {
         assert(mSlowValues.size()==2); // verify that SetSlowValues() has been called.
@@ -147,7 +147,7 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
     double slow_inward_current_d_gate_d;
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
-    
+
     // set up last three variable depending on which mode we are in
     if(mState==FAST)
     {
@@ -272,7 +272,7 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
         double slow_inward_current_d_gate_alpha_d = 0.095*exp(-0.01*(membrane_V-5.0))/(1.0+exp(-0.072*(membrane_V-5.0)));
         double slow_inward_current_d_gate_beta_d = 0.07*exp(-0.017*(membrane_V+44.0))/(1.0+exp(0.05*(membrane_V+44.0)));
         double slow_inward_current_d_gate_d_prime = slow_inward_current_d_gate_alpha_d*(1.0-slow_inward_current_d_gate_d)-slow_inward_current_d_gate_beta_d*slow_inward_current_d_gate_d;
-        
+
         double slow_inward_current_f_gate_alpha_f = 0.012*exp(-0.008*(membrane_V+28.0))/(1.0+exp(0.15*(membrane_V+28.0)));
         double slow_inward_current_f_gate_beta_f = 0.0065*exp(-0.02*(membrane_V+30.0))/(1.0+exp(-0.2*(membrane_V+30.0)));
         double slow_inward_current_f_gate_f_prime = slow_inward_current_f_gate_alpha_f*(1.0-slow_inward_current_f_gate_f)-slow_inward_current_f_gate_beta_f*slow_inward_current_f_gate_f;
@@ -293,22 +293,22 @@ void FastSlowLuoRudyIModel1991::SetSlowValues(const std::vector<double> &rSlowVa
 
     assert(mState==FAST);
     assert(rSlowValues.size() == 2);
-    
+
     double slow_inward_current_d_gate_d = rSlowValues[0];
     double slow_inward_current_f_gate_f = rSlowValues[1];
-    
+
     #define COVERAGE_IGNORE
     if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
     {
         EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
-    
+
     if (!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
     {
         EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     #undef COVERAGE_IGNORE
-    
+
     mSlowValues = rSlowValues;
 }
 
@@ -336,7 +336,7 @@ double FastSlowLuoRudyIModel1991::GetIIonic()
     double slow_inward_current_d_gate_d;
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
-    
+
     if(mState==FAST)
     {
         slow_inward_current_d_gate_d = mSlowValues[0];
@@ -410,7 +410,7 @@ void FastSlowLuoRudyIModel1991::VerifyStateVariables()
     double slow_inward_current_d_gate_d;
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
-    
+
     if(mState==FAST)
     {
         slow_inward_current_d_gate_d = mSlowValues[0];
@@ -423,7 +423,7 @@ void FastSlowLuoRudyIModel1991::VerifyStateVariables()
         slow_inward_current_f_gate_f = rY[6];
         time_dependent_potassium_current_X_gate_X = rY[7];
     }
-    
+
 
     #define COVERAGE_IGNORE
     if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
@@ -450,14 +450,14 @@ void FastSlowLuoRudyIModel1991::VerifyStateVariables()
     {
         EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
-    
+
     if(mState==SLOW)
     {
         if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
         {
             EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
         }
-    
+
         if (!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
         {
             EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));

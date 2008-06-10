@@ -32,7 +32,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
 {
     /**
      * State variables
-     * 
+     *
      * 0. x = Cdh1-APC complexes
      * 1. y = cyclin-CDK
      * 2. z = p27
@@ -41,12 +41,12 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
      * 5. oxygenConcentration
      */
     Init(); // set up parameters
-    
+
     assert(rMutationState == HEALTHY || rMutationState == LABELLED);
-       
+
     mMutationState = rMutationState;
-    
-    // parameter values taken from the Alarcon et al. (2004) paper        
+
+    // parameter values taken from the Alarcon et al. (2004) paper
     if (mMutationState == HEALTHY)    // normal cells
     {
         ma1 = 0.05;
@@ -60,28 +60,28 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
         mc1 = 0.007;
         mxThreshold = 0.04; // should this be 0.004??
         myThreshold = 0.05;
-    }  
-        
+    }
+
     mVariableNames.push_back("Cdh1_APC_complexes");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(0.9);
-    
+
     mVariableNames.push_back("cyclin_CDK");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(0.01);
-    
+
     mVariableNames.push_back("p27");
     mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(0.0);    
-    
+    mInitialConditions.push_back(0.0);
+
     mVariableNames.push_back("mass");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(mMstar/2.0);
-    
+
     mVariableNames.push_back("RBNP");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(1.0);
-        
+
     mVariableNames.push_back("O2");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(oxygenConcentration);
@@ -123,13 +123,13 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     double mass = rY[3];
     double u = rY[4];
     double oxygen_concentration = rY[5];
-    
+
     double dx = 0.0;
     double dy = 0.0;
     double dz = 0.0;
     double dmass = 0.0;
     double du = 0.0;
-    
+
     /*
      % The variables are
      % 1. x = Cdh1-APC complexes
@@ -139,22 +139,22 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
      % 5. u = RBNP
     */
 
-    dx = ((1 + mb3*u)*(1-x))/(mJ3 + 1 - x) - (mb4*mass*x*y)/(mJ4 + x);    
+    dx = ((1 + mb3*u)*(1-x))/(mJ3 + 1 - x) - (mb4*mass*x*y)/(mJ4 + x);
     dy = ma4 -(ma1 + ma2*x + ma3*z)*y;
-    
+
     assert(mMutationState == HEALTHY || mMutationState == LABELLED);
-    
-    // Parameter values taken from the Alarcon et al. (2004) paper        
+
+    // Parameter values taken from the Alarcon et al. (2004) paper
     if (mMutationState == HEALTHY)    // normal cells
     {
         dz = mc1*(1 - mass/mMstar) - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
     }
     else // cancer cells
     {
-        dz = mc1 - mc2*oxygen_concentration*z/(mB + oxygen_concentration);   
-    } 
-        
-    dmass = mEta*mass*(1 - mass/mMstar);        
+        dz = mc1 - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
+    }
+
+    dmass = mEta*mass*(1 - mass/mMstar);
     du = md1 - (md2 + md1*y)*u;
 
     // Rescale time to be in hours

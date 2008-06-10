@@ -47,11 +47,11 @@ protected:
                              double time,
                              std::vector<double>& currentYValues,
                              std::vector<double>& nextYValues);
-                             
+
 public:
     RungeKutta2IvpOdeSolver()
     {};    //Constructor-does nothing
-    
+
 };
 
 #endif //_RUNGEKUTTA2IVPODESOLVER_HPP_

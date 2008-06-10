@@ -49,11 +49,11 @@ class Exception
 {
 private:
     std::string mMessage; /**< Exception message */
-    
+
 public:
     /** Construct an exception with a message string */
     Exception(std::string message, std::string filename, const unsigned rLineNumber);
-    
+
     /** Get the message associated with the exception
      *
      * @return The message set when the exception was thrown.

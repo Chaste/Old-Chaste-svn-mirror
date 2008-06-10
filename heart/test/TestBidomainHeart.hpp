@@ -52,20 +52,20 @@ public:
     {
         mpStimulus = new SimpleStimulus(-1000.0*1000, 0.5);
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {      
+    {
         // Stimulate the apex
         if (mpMesh->GetNode(node)->rGetLocation()[0] > 0.94)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);            
-        }        
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
+        }
         else
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
-        
+
     ~PointStimulusHeartCellFactory(void)
     {
         delete mpStimulus;
@@ -85,32 +85,32 @@ public:
         double ode_time_step = 0.0025; // ms
         double end_time = 100;        // ms
         double printing_time_step = 0.1;
-        
+
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
-        
+
         bidomain_problem.SetMeshFilename("heart/test/data/halfheart");
         bidomain_problem.SetOutputDirectory("BiDg0Heart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
-        
+
         bidomain_problem.SetEndTime(end_time);
         bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
-        
-        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);        
+
+        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");
         //PetscOptionsSetValue("-ksp_monitor", "");
         PetscOptionsSetValue("-options_table", "");
-        
+
         bidomain_problem.SetWriteInfo();
 
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
-        
+
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
-        
+
         EventHandler::Headings();
         EventHandler::Report();
     }
@@ -121,55 +121,55 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        unsigned num_procs = PetscTools::NumProcs();        
+
+        unsigned num_procs = PetscTools::NumProcs();
         mesh.PermuteNodesWithMetisBinaries(num_procs);
-        
+
         TrianglesMeshWriter<3,3> mesh_writer("","halfheart_metis");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
-    
-    
+
+
     void TestBidomainDg0HeartMetis() throw (Exception)
     {
         double pde_time_step = 0.005;  // ms
         double ode_time_step = 0.0025; // ms
         double end_time = 100;        // ms
         double printing_time_step = 0.1;
-        
+
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
-        
+
         // Data created in TestPermuteWithMetisBinaries
         OutputFileHandler handler("");
         std::string metis_mesh = handler.GetOutputDirectoryFullPath("") + "halfheart_metis";
         std::string nodes_file = handler.GetOutputDirectoryFullPath("") + "metis.mesh.nodesperproc";
-        
+
         bidomain_problem.SetMeshFilename(metis_mesh);//"heart/test/data/halfheart_metis");
         bidomain_problem.SetNodesPerProcessorFilename(nodes_file);
         bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
-        
+
         bidomain_problem.SetEndTime(end_time);
         bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
-        
-        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);        
+
+        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");
         //PetscOptionsSetValue("-ksp_monitor", "");
         PetscOptionsSetValue("-options_table", "");
-        
+
         bidomain_problem.SetWriteInfo();
 
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));        
-        
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
+
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
-                
+
         EventHandler::Headings();
-        EventHandler::Report();        
+        EventHandler::Report();
     }
 };
 

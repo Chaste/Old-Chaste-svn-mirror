@@ -36,14 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  * @param lastTime last time the cell cycle model was evaluated
  * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
- * @param readyToDivide 
+ * @param readyToDivide
  * @param divideTime If in the future this is the time at which the cell is going to divide
  */
 WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
-                                     const CellMutationState& rMutationState, 
+                                     const CellMutationState& rMutationState,
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
-   : AbstractWntOdeBasedCellCycleModel(lastTime) 
+   : AbstractWntOdeBasedCellCycleModel(lastTime)
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -92,11 +92,11 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
 AbstractCellCycleModel* WntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    // calls a cheeky version of the constructor which makes the new cell 
+    // calls a cheeky version of the constructor which makes the new cell
     // cycle model the same as the old one - not a dividing copy at this time.
     // unless the parent cell has just divided.
-    return new WntCellCycleModel(mpOdeSystem, 
-                                 mpCell->GetMutationState(), mBirthTime, mLastTime, 
+    return new WntCellCycleModel(mpOdeSystem,
+                                 mpCell->GetMutationState(), mBirthTime, mLastTime,
                                  mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
 }
 
@@ -111,13 +111,13 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
     double beta_catenin_level = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
 
     CellType cell_type=TRANSIT;
-                
+
     // For mitogenic stimulus of 6x10^-4 in Wnt equations
     if (beta_catenin_level < 0.4127)
     {
         cell_type = DIFFERENTIATED;
     }
-    
+
     mpCell->SetCellType(cell_type);
 }
 
@@ -127,8 +127,8 @@ void WntCellCycleModel::Initialise()
     assert(mpCell!=NULL);
     mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-    ChangeCellTypeDueToCurrentBetaCateninLevel();   
-}    
+    ChangeCellTypeDueToCurrentBetaCateninLevel();
+}
 
 bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 {

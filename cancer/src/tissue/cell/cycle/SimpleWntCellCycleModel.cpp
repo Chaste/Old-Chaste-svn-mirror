@@ -62,7 +62,7 @@ void SimpleWntCellCycleModel::SetG1Duration()
         default:
             NEVER_REACHED;
     }
-    
+
     // Check that the normal random deviate has not returned a small or negative G1 duration
     if (mG1Duration < p_params->GetMinimumGapDuration())
     {
@@ -77,10 +77,10 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 
     // The cell is of type STEM if the Wnt concentration > wnt_stem_cell_threshold
     double wnt_stem_cell_threshold = DBL_MAX;
-    
+
     // The cell can divide if the Wnt concentration >= wnt_division_threshold
     double wnt_division_threshold = DBL_MAX;
-    double healthy_threshold = p_params->GetWntTransitThreshold(); 
+    double healthy_threshold = p_params->GetWntTransitThreshold();
 
     // In the case of a RADIAL Wnt gradient, set up under what level
     // of Wnt stimulus a cell will change type

@@ -34,7 +34,7 @@ using namespace xsd::cxx::tree;
 HeartConfig* HeartConfig::mpInstance = NULL;
 
 HeartConfig* HeartConfig::Instance()
-{    
+{
     if (mpInstance == NULL)
     {
         mpInstance = new HeartConfig;
@@ -45,7 +45,7 @@ HeartConfig* HeartConfig::Instance()
 HeartConfig::HeartConfig()
 {
     assert(mpInstance == NULL);
-    
+
     mpDefaultParameters = ReadFile("ChasteDefaults.xml");
     mpUserParameters = mpDefaultParameters;
 }
@@ -56,19 +56,19 @@ HeartConfig::~HeartConfig()
     {
         delete mpUserParameters;
     }
-    
-    delete mpDefaultParameters;      
+
+    delete mpDefaultParameters;
 }
 
 void HeartConfig::SetDefaultsFile(std::string fileName)
 {
     bool same_target = (mpUserParameters == mpDefaultParameters);
-    
+
     mpDefaultParameters = ReadFile(fileName);
-    
+
     if (same_target)
     {
-        mpUserParameters = mpDefaultParameters;                
+        mpUserParameters = mpDefaultParameters;
     }
 }
 std::string GetOutputDirectory();
@@ -108,7 +108,7 @@ chaste_parameters_type* HeartConfig::DefaultParameters()
 void HeartConfig::Destroy()
 {
     delete mpInstance;
-    mpInstance = NULL;  
+    mpInstance = NULL;
 }
 
 template<class TYPE>
@@ -122,63 +122,63 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     {
         if (ptr2->present())
         {
-            return ptr2;            
+            return ptr2;
         }
         else
         {
             EXCEPTION("No " + nameParameter + " provided (neither default nor user defined)");
-        }             
+        }
     }
 
 }
 
 double HeartConfig::GetSimulationDuration() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().SimulationDuration(), 
-                           & mpDefaultParameters->Simulation().SimulationDuration(), 
-                           "SimulationDuration")->get(); 
+    return DecideLocation( & mpUserParameters->Simulation().SimulationDuration(),
+                           & mpDefaultParameters->Simulation().SimulationDuration(),
+                           "SimulationDuration")->get();
 }
 
 domain_type HeartConfig::GetDomain() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().Domain(), 
-                           & mpDefaultParameters->Simulation().Domain(), 
+    return DecideLocation( & mpUserParameters->Simulation().Domain(),
+                           & mpDefaultParameters->Simulation().Domain(),
                            "Domain")->get();
 }
 
 ionic_model_type HeartConfig::GetIonicModel() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().IonicModel(), 
-                           & mpDefaultParameters->Simulation().IonicModel(), 
-                           "IonicModel")->get(); 
+    return DecideLocation( & mpUserParameters->Simulation().IonicModel(),
+                           & mpDefaultParameters->Simulation().IonicModel(),
+                           "IonicModel")->get();
 }
 
 void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const
 {
 
     simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
-         stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(), 
-                           & mpDefaultParameters->Simulation().Stimuli(), 
+         stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(),
+                           & mpDefaultParameters->Simulation().Stimuli(),
                            "Stimuli")->get().Stimulus();
     for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
          i != stimuli.end();
          ++i)
-    {                     
-        stimulus_type stimulus(*i);           
+    {
+        stimulus_type stimulus(*i);
         point_type point_a = stimulus.Location().CornerA();
         point_type point_b = stimulus.Location().CornerB();
-        
-        ChastePoint<3> chaste_point_a ( point_a.x(), 
+
+        ChastePoint<3> chaste_point_a ( point_a.x(),
                                         point_a.y(),
                                         point_a.z());
 
         ChastePoint<3> chaste_point_b ( point_b.x(),
                                         point_b.y(),
                                         point_b.z());
-                    
+
         stimuliApplied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
         stimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
-    }    
+    }
 }
 
 void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
@@ -186,30 +186,30 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
     							         std::vector<double>& scaleFactorIto) const
 {
     simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
-         cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(), 
-                                                 & mpDefaultParameters->Simulation().CellHeterogeneities(), 
+         cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(),
+                                                 & mpDefaultParameters->Simulation().CellHeterogeneities(),
                                                  "CellHeterogeneities")->get().CellHeterogeneity();
-    
+
     for (simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::iterator i = cell_heterogeneity.begin();
          i != cell_heterogeneity.end();
          ++i)
-    {                     
-        cell_heterogeneity_type ht(*i);           
+    {
+        cell_heterogeneity_type ht(*i);
         point_type point_a = ht.Location().CornerA();
         point_type point_b = ht.Location().CornerB();
-        
-        ChastePoint<3> chaste_point_a (point_a.x(), 
+
+        ChastePoint<3> chaste_point_a (point_a.x(),
                                        point_a.y(),
                                        point_a.z());
 
         ChastePoint<3> chaste_point_b (point_b.x(),
                                        point_b.y(),
                                        point_b.z());
-                    
+
         scaleFactorGks.push_back (ht.ScaleFactorGks());
-        scaleFactorIto.push_back (ht.ScaleFactorIto());                                    
+        scaleFactorIto.push_back (ht.ScaleFactorIto());
         cellHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
-    }        
+    }
 }
 
 void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
@@ -217,34 +217,34 @@ void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& cond
 									             std::vector< c_vector<double,3> >& extraConductivities) const
 {
     simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container&
-         conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(), 
-                                                         & mpDefaultParameters->Simulation().ConductivityHeterogeneities(), 
+         conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
+                                                         & mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
                                                            "CellHeterogeneities")->get().ConductivityHeterogeneity();
-    
+
     for (simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::iterator i = conductivity_heterogeneity.begin();
          i != conductivity_heterogeneity.end();
          ++i)
-    {                     
-        conductivity_heterogeneity_type ht(*i);           
+    {
+        conductivity_heterogeneity_type ht(*i);
         point_type point_a = ht.Location().CornerA();
         point_type point_b = ht.Location().CornerB();
-        
-        ChastePoint<3> chaste_point_a (point_a.x(), 
+
+        ChastePoint<3> chaste_point_a (point_a.x(),
                                        point_a.y(),
                                        point_a.z());
 
         ChastePoint<3> chaste_point_b (point_b.x(),
                                        point_b.y(),
                                        point_b.z());
-                    
+
         conductivitiesHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
-        
+
         if (ht.IntracellularConductivities().present())
         {
             double intra_x = ht.IntracellularConductivities().get().longi();
             double intra_y = ht.IntracellularConductivities().get().trans();
             double intra_z = ht.IntracellularConductivities().get().normal();
-            
+
             intraConductivities.push_back( Create_c_vector(intra_x, intra_y, intra_z) );
         }
         else
@@ -257,7 +257,7 @@ void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& cond
             double extra_x = ht.ExtracellularConductivities().get().longi();
             double extra_y = ht.ExtracellularConductivities().get().trans();
             double extra_z = ht.ExtracellularConductivities().get().normal();
-            
+
             extraConductivities.push_back( Create_c_vector(extra_x, extra_y, extra_z) );
         }
         else
@@ -265,125 +265,125 @@ void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& cond
             extraConductivities.push_back( GetExtracellularConductivities() );
         }
 
-    }        
+    }
 }
 
 std::string HeartConfig::GetOutputDirectory() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().OutputDirectory(), 
-                           & mpDefaultParameters->Simulation().OutputDirectory(), 
-                           "OutputDirectory")->get();        
+    return DecideLocation( & mpUserParameters->Simulation().OutputDirectory(),
+                           & mpDefaultParameters->Simulation().OutputDirectory(),
+                           "OutputDirectory")->get();
 }
 
 c_vector<double, 3> HeartConfig::GetIntracellularConductivities() const
 {
-    optional<conductivities_type, false>* intra_conductivities  = DecideLocation( & mpUserParameters->Physiological().IntracellularConductivities(), 
-                                                                                  & mpDefaultParameters->Physiological().IntracellularConductivities(), 
-                                                                                  "IntracellularConductivities");           
+    optional<conductivities_type, false>* intra_conductivities  = DecideLocation( & mpUserParameters->Physiological().IntracellularConductivities(),
+                                                                                  & mpDefaultParameters->Physiological().IntracellularConductivities(),
+                                                                                  "IntracellularConductivities");
     double intra_x_cond = intra_conductivities->get().longi();
     double intra_y_cond = intra_conductivities->get().trans();
     double intra_z_cond = intra_conductivities->get().normal();;
 
-    return Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond);       
+    return Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond);
 }
 
 c_vector<double, 3> HeartConfig::GetExtracellularConductivities() const
 {
-    optional<conductivities_type, false>* extra_conductivities  = DecideLocation( & mpUserParameters->Physiological().ExtracellularConductivities(), 
-                                                                                  & mpDefaultParameters->Physiological().ExtracellularConductivities(), 
+    optional<conductivities_type, false>* extra_conductivities  = DecideLocation( & mpUserParameters->Physiological().ExtracellularConductivities(),
+                                                                                  & mpDefaultParameters->Physiological().ExtracellularConductivities(),
                                                                                   "ExtracellularConductivities");
     double extra_x_cond = extra_conductivities->get().longi();
     double extra_y_cond = extra_conductivities->get().trans();
     double extra_z_cond = extra_conductivities->get().normal();;
 
-    return Create_c_vector(extra_x_cond, extra_y_cond, extra_z_cond);   
+    return Create_c_vector(extra_x_cond, extra_y_cond, extra_z_cond);
 }
 
 double HeartConfig::GetSurfaceAreaToVolumeRatio() const
 {
-    return DecideLocation( & mpUserParameters->Physiological().SurfaceAreaToVolumeRatio(), 
-                           & mpDefaultParameters->Physiological().SurfaceAreaToVolumeRatio(), 
-                           "SurfaceAreaToVolumeRatio")->get();            
+    return DecideLocation( & mpUserParameters->Physiological().SurfaceAreaToVolumeRatio(),
+                           & mpDefaultParameters->Physiological().SurfaceAreaToVolumeRatio(),
+                           "SurfaceAreaToVolumeRatio")->get();
 }
 
 double HeartConfig::GetCapacitance() const
-{    
-    return DecideLocation( & mpUserParameters->Physiological().Capacitance(), 
-                           & mpDefaultParameters->Physiological().Capacitance(), 
-                           "Capacitance")->get();            
+{
+    return DecideLocation( & mpUserParameters->Physiological().Capacitance(),
+                           & mpDefaultParameters->Physiological().Capacitance(),
+                           "Capacitance")->get();
 }
 
 double HeartConfig::GetOdeTimestep() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().Timesteps(), 
-                           & mpDefaultParameters->Numerical().Timesteps(), 
-                           "ode timestep")->get().ode();                
+    return DecideLocation( & mpUserParameters->Numerical().Timesteps(),
+                           & mpDefaultParameters->Numerical().Timesteps(),
+                           "ode timestep")->get().ode();
 }
 
 double HeartConfig::GetPdeTimestep() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().Timesteps(), 
-                           & mpDefaultParameters->Numerical().Timesteps(), 
-                           "pde timestep")->get().pde();                
+    return DecideLocation( & mpUserParameters->Numerical().Timesteps(),
+                           & mpDefaultParameters->Numerical().Timesteps(),
+                           "pde timestep")->get().pde();
 }
 
 double HeartConfig::GetPrintingTimestep() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().Timesteps(), 
-                           & mpDefaultParameters->Numerical().Timesteps(), 
-                           "printing timestep")->get().printing();                
+    return DecideLocation( & mpUserParameters->Numerical().Timesteps(),
+                           & mpDefaultParameters->Numerical().Timesteps(),
+                           "printing timestep")->get().printing();
 }
 
 bool HeartConfig::GetUseAbsoluteTolerance() const
 {
-    ksp_use_type use_value = DecideLocation( & mpUserParameters->Numerical().KSPTolerances(), 
-                                             & mpDefaultParameters->Numerical().KSPTolerances(), 
+    ksp_use_type use_value = DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+                                             & mpDefaultParameters->Numerical().KSPTolerances(),
                                              "KSPTolerances")->get().use();
-                                   
-    return (use_value == ksp_use_type::absolute);                                   
+
+    return (use_value == ksp_use_type::absolute);
 }
 
 double HeartConfig::GetAbsoluteTolerance() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(), 
-                           & mpDefaultParameters->Numerical().KSPTolerances(), 
-                           "KSPTolerances")->get().KSPAbsolute();        
+    return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+                           & mpDefaultParameters->Numerical().KSPTolerances(),
+                           "KSPTolerances")->get().KSPAbsolute();
 }
 
 bool HeartConfig::GetUseRelativeTolerance() const
 {
-    ksp_use_type use_value = DecideLocation( & mpUserParameters->Numerical().KSPTolerances(), 
-                                             & mpDefaultParameters->Numerical().KSPTolerances(), 
+    ksp_use_type use_value = DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+                                             & mpDefaultParameters->Numerical().KSPTolerances(),
                                              "KSPTolerances")->get().use();
-                                   
-    return (use_value == ksp_use_type::relative);                                   
+
+    return (use_value == ksp_use_type::relative);
 }
 
 double HeartConfig::GetRelativeTolerance() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(), 
-                           & mpDefaultParameters->Numerical().KSPTolerances(), 
-                           "KSPTolerances")->get().KSPRelative();        
+    return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+                           & mpDefaultParameters->Numerical().KSPTolerances(),
+                           "KSPTolerances")->get().KSPRelative();
 }
 
 ksp_solver_type HeartConfig::GetKSPSolver() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().KSPSolver(), 
-                           & mpDefaultParameters->Numerical().KSPSolver(), 
-                           "KSPSolver")->get();    
+    return DecideLocation( & mpUserParameters->Numerical().KSPSolver(),
+                           & mpDefaultParameters->Numerical().KSPSolver(),
+                           "KSPSolver")->get();
 }
 
 ksp_preconditioner_type HeartConfig::GetKSPPreconditioner() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().KSPPreconditioner(), 
-                           & mpDefaultParameters->Numerical().KSPPreconditioner(), 
+    return DecideLocation( & mpUserParameters->Numerical().KSPPreconditioner(),
+                           & mpDefaultParameters->Numerical().KSPPreconditioner(),
                            "KSPPreconditioner")->get();
 }
 
 
 /*
  *  Set methods
- */    
+ */
 // Simulation
 void HeartConfig::SetSimulationDuration(double simulationDuration)
 {
@@ -392,12 +392,12 @@ void HeartConfig::SetSimulationDuration(double simulationDuration)
 
 void HeartConfig::SetDomain(domain_type domain)
 {
-    mpUserParameters->Simulation().Domain().set(domain);        
+    mpUserParameters->Simulation().Domain().set(domain);
 }
 
 void HeartConfig::SetIonicModel(ionic_model_type ionicModel)
 {
-    mpUserParameters->Simulation().IonicModel().set(ionicModel);    
+    mpUserParameters->Simulation().IonicModel().set(ionicModel);
 }
 
 void HeartConfig::SetOutputDirectory(std::string outputDirectory)
@@ -412,7 +412,7 @@ void HeartConfig::SetIntracellularConductivities(const c_vector<double, 3>& intr
     conductivities_type intra(intraConductivities[0],
                               intraConductivities[1],
                               intraConductivities[2]);
-    
+
     mpUserParameters->Physiological().IntracellularConductivities().set(intra);
 }
 
@@ -421,18 +421,18 @@ void HeartConfig::SetExtracellularConductivities(const c_vector<double, 3>& extr
     conductivities_type extra(extraConductivities[0],
                               extraConductivities[1],
                               extraConductivities[2]);
-    
+
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
 }
 
 void HeartConfig::SetSurfaceAreaToVolumeRatio(double ratio)
 {
-    mpUserParameters->Physiological().SurfaceAreaToVolumeRatio().set(ratio);    
+    mpUserParameters->Physiological().SurfaceAreaToVolumeRatio().set(ratio);
 }
 
 void HeartConfig::SetCapacitance(double capacitance)
 {
-    mpUserParameters->Physiological().Capacitance().set(capacitance);        
+    mpUserParameters->Physiological().Capacitance().set(capacitance);
 }
 
 
@@ -440,86 +440,86 @@ void HeartConfig::SetCapacitance(double capacitance)
 void HeartConfig::SetTimesteps(double odeTimestep, double pdeTimestep, double printingTimestep)
 {
     timesteps_type timesteps(odeTimestep, pdeTimestep, printingTimestep);
-    
+
     mpUserParameters->Numerical().Timesteps().set(timesteps);
 }
 
 void HeartConfig::SetOdeTimestep(double odeTimestep)
 {
     timesteps_type timesteps(odeTimestep, GetPdeTimestep(), GetPrintingTimestep());
-    
+
     mpUserParameters->Numerical().Timesteps().set(timesteps);
 }
 
 void HeartConfig::SetPdeTimestep(double pdeTimestep)
 {
     timesteps_type timesteps(GetOdeTimestep(), pdeTimestep, GetPrintingTimestep());
-    
-    mpUserParameters->Numerical().Timesteps().set(timesteps);        
+
+    mpUserParameters->Numerical().Timesteps().set(timesteps);
 }
 
 void HeartConfig::SetPrintingTimestep(double printingTimestep)
 {
     timesteps_type timesteps(GetOdeTimestep(), GetPdeTimestep(), printingTimestep);
-    
-    mpUserParameters->Numerical().Timesteps().set(timesteps);        
+
+    mpUserParameters->Numerical().Timesteps().set(timesteps);
 }
 
 void HeartConfig::SetTolerances(double relativeTolerance, double absoluteTolerance, ksp_use_type use)
 {
     ksp_tolerances_type tolerances(relativeTolerance, absoluteTolerance, use);
-    
+
     mpUserParameters->Numerical().KSPTolerances().set(tolerances);
 }
 
 void HeartConfig::SetUseRelativeTolerance(void)
 {
     ksp_tolerances_type tolerances(GetRelativeTolerance(), GetAbsoluteTolerance(), ksp_use_type::relative);
-    
+
     mpUserParameters->Numerical().KSPTolerances().set(tolerances);
 }
 
 void HeartConfig::SetUseAbsoluteTolerance(void)
 {
     ksp_tolerances_type tolerances(GetRelativeTolerance(), GetAbsoluteTolerance(), ksp_use_type::absolute);
-    
+
     mpUserParameters->Numerical().KSPTolerances().set(tolerances);
 }
 
 void HeartConfig::SetRelativeTolerance(double relativeTolerance)
 {
     ksp_use_type use(ksp_use_type::relative);
-    
+
     if (GetUseAbsoluteTolerance())
     {
         use =  ksp_use_type::absolute;
     }
-    
+
     ksp_tolerances_type tolerances(relativeTolerance, GetAbsoluteTolerance(), use);
-    
+
     mpUserParameters->Numerical().KSPTolerances().set(tolerances);
 }
 
 void HeartConfig::SetAbsoluteTolerance(double absoluteTolerance)
 {
     ksp_use_type use(ksp_use_type::absolute);
-    
+
     if (GetUseRelativeTolerance())
     {
         use =  ksp_use_type::relative;
     }
-    
+
     ksp_tolerances_type tolerances(GetRelativeTolerance(), absoluteTolerance, use);
-    
+
     mpUserParameters->Numerical().KSPTolerances().set(tolerances);
 }
 
 void HeartConfig::SetKSPSolver(ksp_solver_type kspSolver)
 {
-    mpUserParameters->Numerical().KSPSolver().set(kspSolver);    
+    mpUserParameters->Numerical().KSPSolver().set(kspSolver);
 }
 
 void HeartConfig::SetKSPPreconditioner(ksp_preconditioner_type kspPreconditioner)
 {
-    mpUserParameters->Numerical().KSPPreconditioner().set(kspPreconditioner);    
+    mpUserParameters->Numerical().KSPPreconditioner().set(kspPreconditioner);
 }

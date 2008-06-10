@@ -44,7 +44,7 @@ public:
               PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
               Vec initialGuess,
               void *pContext);
-              
+
 };
 
 #endif // _SIMPLENONLINEARSOLVER_HPP_

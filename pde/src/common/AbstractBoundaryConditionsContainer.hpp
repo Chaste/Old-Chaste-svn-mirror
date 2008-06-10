@@ -52,10 +52,10 @@ class AbstractBoundaryConditionsContainer
 protected:
     std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >
     *mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
-    
+
     typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
     mDirichIterator; /**< Internal iterator over dirichlet boundary conditions */
-    
+
 public:
     /**
      * Constructor allocates memory for the dirichlet boundary conditions lists.
@@ -67,13 +67,13 @@ public:
             mpDirichletMap[index_of_unknown] =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
         }
     }
-    
-    
+
+
     ~AbstractBoundaryConditionsContainer()
     {
         DeleteDirichletBoundaryConditions();
     }
-    
+
     /**
      * Return whether any Dirichlet conditions are defined.
      */
@@ -88,7 +88,7 @@ public:
         }
         return false;
     }
-    
+
     void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>())
     {
         for (unsigned i=0; i<PROBLEM_DIM; i++)
@@ -105,43 +105,43 @@ public:
                     }
                     mDirichIterator++;
                 }
-                
+
                 delete(mpDirichletMap[i]);
                 mpDirichletMap[i] = NULL;
             }
         }
     }
-        
-        
+
+
     /**
      * Obtain value of dirichlet boundary condition at specified node
-     * 
+     *
      * This is unlikely to be needed by the user, the methods ApplyDirichletToLinearProblem or
-     * ApplyDirichletToNonlinearProblem can be called instead to apply all dirichlet boundary conditions 
-     * at the same time 
+     * ApplyDirichletToNonlinearProblem can be called instead to apply all dirichlet boundary conditions
+     * at the same time
      */
     double GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode, unsigned indexOfUnknown = 0)
     {
         assert(indexOfUnknown < PROBLEM_DIM);
         //assert(pBoundaryNode->IsBoundaryNode());
-        
+
         mDirichIterator = mpDirichletMap[indexOfUnknown]->find(pBoundaryNode);
         assert(mDirichIterator != mpDirichletMap[indexOfUnknown]->end());
-        
+
         return mDirichIterator->second->GetValue(pBoundaryNode->GetPoint());
     }
-    
+
     /**
      * Test if there is a Dirichlet boundary condition defined on the given node.
-     * 
+     *
      * \todo Perhaps have flag in node object for efficiency?
      */
     bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode, unsigned indexOfUnknown = 0)
     {
         assert(indexOfUnknown < PROBLEM_DIM);
-        
+
         this->mDirichIterator = this->mpDirichletMap[indexOfUnknown]->find(pNode);
-        
+
         return (this->mDirichIterator != this->mpDirichletMap[indexOfUnknown]->end());
     }
 };

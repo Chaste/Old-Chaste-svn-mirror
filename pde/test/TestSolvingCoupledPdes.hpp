@@ -56,12 +56,12 @@ public:
     {
         return x[0];
     }
-    
+
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>&, Element<2,2>* )
     {
         return 0.0;
     }
-        
+
     c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& x)
     {
         return identity_matrix<double>(2);
@@ -90,7 +90,7 @@ public:
 
 private:
     double mLambda;
-    
+
     virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
                                                                c_matrix<double, 2, 2+1> &rGradPhi,
                                                                ChastePoint<2> &rX,
@@ -99,7 +99,7 @@ private:
                                                                Element<2,2>* pElement)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
-        
+
         // the following can be done more efficiently using matrix slices and prods
         // and so on (see BidomainDg0Assembler) - efficiency not needed for this
         // test though
@@ -116,8 +116,8 @@ private:
         }
         return ret;
     }
-    
-    
+
+
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
                                                        ChastePoint<2> &rX,
@@ -126,7 +126,7 @@ private:
                                                        Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
-        
+
         for (unsigned i=0; i<3; i++)
         {
             ret(2*i)   =         rX[0]*rPhi(i);
@@ -134,8 +134,8 @@ private:
         }
         return ret;
     }
-    
-    
+
+
     virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement,
                                                            c_vector<double,2> &rPhi,
                                                            ChastePoint<2> &rX )
@@ -143,18 +143,18 @@ private:
         // D_times_grad_u_dot_n  = (D gradu) \dot n
         double D_times_grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
         double D_times_grad_v_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
-        
+
         c_vector<double, 2*2> ret;
         for (int i=0; i<2; i++)
         {
             ret(2*i)   = rPhi(i)*D_times_grad_u_dot_n;
             ret(2*i+1) = rPhi(i)*D_times_grad_v_dot_n;
         }
-        
+
         return ret;
     }
-    
-    
+
+
 public:
     MySimpleCoupledAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
@@ -212,12 +212,12 @@ private:
     {
         return -2*M_PI*M_PI*sin(M_PI*x)*sin(M_PI*y) + sin(2*M_PI*x)*sin(2*M_PI*y);
     }
-    
+
     double g(double x,double y)
     {
         return -8*M_PI*M_PI*sin(2*M_PI*x)*sin(2*M_PI*y) + sin(M_PI*x)*sin(M_PI*y);
     }
-    
+
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
                                                        ChastePoint<2> &rX,
@@ -226,7 +226,7 @@ private:
                                                        Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
-        
+
         for (unsigned i=0; i<3; i++)
         {
             ret(2*i)   = ( u(1) - f(rX[0],rX[1]) )*rPhi(i);   // = (v-f(x,y))*phi_i
@@ -234,8 +234,8 @@ private:
         }
         return ret;
     }
-    
-    
+
+
 public :
     AnotherCoupledAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) :
@@ -264,8 +264,8 @@ public:
      *     u_xx + u_yy + x  = 0
      *     v_xx + v_yy + 2x = 0
      *  with zero dirichlet on boundary
-     * 
-     *  This is obviously really just two virtually identical uncoupled 
+     *
+     *  This is obviously really just two virtually identical uncoupled
      *  problems
      */
     void TestSimpleCoupledPde( void ) throw (Exception)
@@ -273,39 +273,39 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         ////////////////////////////////////////////////////////////////
         // Solve coupled system using assembler defined above
         ////////////////////////////////////////////////////////////////
-        
+
         // boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
-        
+
         // lambda in MySimpleCoupledAssembler = 2
         MySimpleCoupledAssembler<> assembler_2unknowns(&mesh,&bcc_2unknowns,2.0);
         Vec result_2unknowns = assembler_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
-        
-        
+
+
         ///////////////////////////////////////////////////////////////////
         // Now solve u_xx + u_yy + x = 0 as an uncoupled 1-unknown problem
         ///////////////////////////////////////////////////////////////////
-        
+
         // Instantiate PDE object
         MySimplePde pde;  //defined above
-        
+
         // boundary conditions for 1-unknown problem
         BoundaryConditionsContainer<2,2,1> bcc_1unknown;
         bcc_1unknown.DefineZeroDirichletOnMeshBoundary(&mesh);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
-        
+
         Vec result_1unknown = assembler_1unknown.Solve();
         ReplicatableVector result_1unknown_repl(result_1unknown);
-        
+
         // check the u solutions (result_2unknowns_repl[2*i]) is equal to the
         // solution of the 1-unknown problem and the v solutions
         // (result_2unknowns_repl[2*i+1]) are equal to two times the 1-unknown
@@ -316,18 +316,18 @@ public:
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i+1], 2*result_1unknown_repl[i], 1e-10);
             //std::cout << result_1unknown_repl[i] << " ";
         }
-        
+
         VecDestroy(result_2unknowns);
         VecDestroy(result_1unknown);
     }
-    
-    
+
+
     /*  Solve:
      *     u_xx + u_yy + x = 0
      *     v_xx + v_yy + x = 0
      *  with neumann boundary conditions (the same on both u and v)
      *  on part of the boundary
-     * 
+     *
      *  This is obviously two identical uncoupled problems
      */
     void TestSimpleCoupledPdeWithNeumannBoundaryConditions( void ) throw (Exception)
@@ -335,14 +335,14 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         ////////////////////////////////////////////////////////////////
         // Solve coupled system using assembler defined above
         ////////////////////////////////////////////////////////////////
-        
+
         // boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
-        
+
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
@@ -358,25 +358,25 @@ public:
         p_boundary_condition1 = new ConstBoundaryCondition<2>(2.0);
         bcc_2unknowns.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition,0);
         bcc_2unknowns.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition1,1);
-        
+
         // use assembler to solve (with lambda in MySimpleCoupledAssembler = 1)
-        
+
         MySimpleCoupledAssembler<> assembler_2unknowns(&mesh,&bcc_2unknowns,1.0);
-        
+
         Vec result_2unknowns = assembler_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
-        
-        
+
+
         ///////////////////////////////////////////////////////////////////
         // Now solve u_xx + u_yy + x = 0 as an uncoupled 1-unknown problem
         ///////////////////////////////////////////////////////////////////
-        
+
         // Instantiate PDE object
         MySimplePde pde;  //defined above
-        
+
         // boundary conditions for 1-unknown problem
         BoundaryConditionsContainer<2,2,1> bcc_1unknown;
-        
+
         iter = mesh.GetBoundaryElementIteratorBegin();
         p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
@@ -387,13 +387,13 @@ public:
         // u = 2 at some point on the boundary, say node 1
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         bcc_1unknown.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
-        
+
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
-        
+
         Vec result_1unknown = assembler_1unknown.Solve();
         ReplicatableVector result_1unknown_repl(result_1unknown);
-        
+
         // check the u solutions (result_2unknowns_repl[2*i]) is equal to the
         // solution of the 1-unknown problem and the v solutions
         // (result_2unknowns_repl[2*i+1]) are equal to the 1-unknown
@@ -404,20 +404,20 @@ public:
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i+1], result_1unknown_repl[i], 1e-6);
             //std::cout << result_1unknown_repl[i] << " ";
         }
-        
+
         VecDestroy(result_2unknowns);
         VecDestroy(result_1unknown);
     }
-    
-    
+
+
     /*
      *  Solve a real coupled problem:
      *     u_xx + u_yy  + v = f(x,y)
      *     v_xx + v_yy  + u = g(x,y)
-     * 
+     *
      *  where f and g are chosen so that (with zero-dirichlet boundary conditions)
-     *  the solution is 
-     *    
+     *  the solution is
+     *
      *     u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
      */
     void TestRealCoupledPde( void ) throw (Exception)
@@ -425,32 +425,32 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
-        
+
         // purpose-made assembler for this problem:
         AnotherCoupledAssembler assembler(&mesh,&bcc);
-        
+
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
-        
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
-            
+
             double u = sin(M_PI*x)*sin(M_PI*y);
             double v = sin(2*M_PI*x)*sin(2*M_PI*y);
-            
+
             // need lower tolerance for v because v is higher frequency
             // and not captured very well on this mesh
             TS_ASSERT_DELTA( result_repl[2*i]  , u, 0.02);
             TS_ASSERT_DELTA( result_repl[2*i+1], v, 0.1);
         }
-        
+
         VecDestroy(result);
     }
 };

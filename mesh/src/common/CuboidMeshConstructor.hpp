@@ -53,19 +53,19 @@ private:
     {
         rMesh.ConstructCuboid(width, width, width);
     }
-    
+
 public:
     double mMeshWidth;
-    unsigned NumElements;   
-    unsigned NumNodes; 
-    
+    unsigned NumElements;
+    unsigned NumNodes;
+
     std::string Construct(unsigned meshNum, double meshWidth)
     {
         mMeshWidth=meshWidth;
         assert(meshNum < 30); //Sanity
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
-        
+
         // create the mesh
         unsigned mesh_size = (unsigned) pow(2, meshNum+2); // number of elements in each dimension
         double scaling = mMeshWidth/(double) mesh_size;
@@ -77,25 +77,25 @@ public:
         std::stringstream file_name_stream;
         file_name_stream<< "cube_" << DIM << "D_2mm_"<< NumElements <<"_elements";
         std::string mesh_filename = file_name_stream.str();
-        
+
         if (output_file_handler.IsMaster())
         {
-            TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);           
+            TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);
             mesh_writer.WriteFilesUsingMesh(mesh);
         }
         PetscTools::Barrier();
-        
+
         std::string mesh_pathname = output_file_handler.GetOutputDirectoryFullPath()
                                   + mesh_filename;
-                                    
+
         return mesh_pathname;
     }
-    
+
     double GetWidth()
     {
         return mMeshWidth;
     }
-    
+
 };
 
 #endif /*CUBOIDMESHCONSTRUCTOR_HPP_*/

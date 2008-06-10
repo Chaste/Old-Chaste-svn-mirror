@@ -57,21 +57,21 @@ protected:
     double mTimeStep;
     ZeroStimulus* mpZeroStimulus;
     AbstractIvpOdeSolver* mpSolver;
-    
+
     /** the mesh is automatically set in MonodomainProblem and BidomainProblem */
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
-    
+
 public:
     virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned)=0;
     virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
     {}
-    
+
     virtual unsigned GetNumberOfCells()
     {
         assert(mpMesh != NULL);
         return mpMesh->GetNumNodes();
     }
-    
+
     AbstractCardiacCellFactory(double timeStep,
                                AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver)
     {
@@ -89,11 +89,11 @@ public:
     {
         mpMesh = pMesh;
     }
-    
+
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* GetMesh()
     {
         assert(mpMesh != NULL);
-        return mpMesh;   
+        return mpMesh;
     }
 };
 

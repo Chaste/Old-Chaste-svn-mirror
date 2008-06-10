@@ -45,8 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Generator of honeycomb mesh
  *
  *  This class takes in options such as width, height, number of ghost nodes
- *  and generates a honeycomb (with distance between nodes=1) mesh, and ghost 
- *  node info. NOTE: the user should delete the mesh after use. 
+ *  and generates a honeycomb (with distance between nodes=1) mesh, and ghost
+ *  node info. NOTE: the user should delete the mesh after use.
  */
 class HoneycombMeshGenerator
 {
@@ -62,7 +62,7 @@ private:
     unsigned mNumCellWidth;
     unsigned mNumCellLength;
     bool mCylindrical;
-       
+
     /////////////////////////////////////////////////////////////
     // Periodic honeycomb mesh maker
     /////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ private:
 
             (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
             unsigned node = 0;
-            
+
             for (unsigned i=0; i<numNodesAlongLength; i++)
             {
                 for (unsigned j=0; j<numNodesAlongWidth; j++)
@@ -168,7 +168,7 @@ private:
                     unsigned node0 =     i*numNodesAlongWidth + j;
                     unsigned node1 =     i*numNodesAlongWidth + j+1;
                     unsigned node2 = (i+1)*numNodesAlongWidth + j;
- 
+
                     if (i%2 != 0)
                     {
                         node2 = node2 + 1;
@@ -247,10 +247,10 @@ public:
     {
         delete mpMesh;
     }
-    
+
     /**
      * Crypt Periodic Honeycomb Mesh Generator
-     * 
+     *
      * Overwritten constructor for a mesh so mesh can be compressed by changing crypt width
      *
      * @param numNodesAlongWidth  The number of stem cells you want
@@ -258,7 +258,7 @@ public:
      * @param ghosts The thickness of ghost nodes to put around the edge (defaults to 3)
      * @param cylindrical whether the mesh should be cylindrically periodic (defaults to true)
      * @param scaleFactor  The scale factor for the width (circumference) of the cells
-     * 
+     *
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
@@ -269,44 +269,44 @@ public:
         mNumCellLength = numNodesAlongLength;
         mCryptWidth = numNodesAlongWidth*scaleFactor; //*1 because cells are considered to be size one
         mGhostNodeIndices.empty();
-        
+
         std::stringstream pid; // Gives a unique filename
         pid << getpid();
         mMeshFilename = "2D_temporary_periodic_crypt_mesh_" + pid.str();
         Make2dPeriodicCryptMesh(mCryptWidth, ghosts);
         OutputFileHandler output_file_handler("");
         std::string output_dir = output_file_handler.GetOutputDirectoryFullPath();
-        
+
         TrianglesMeshReader<2,2> mesh_reader(output_dir+ mMeshFilename);
-        
+
         if (!mCylindrical)
         {
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
         }
         else
-        {   
+        {
             mpMesh = new Cylindrical2dMesh(mCryptWidth);
             mpMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpMesh->GetNumNodes());
             mpMesh->ReMeshWithTriangleLibrary(map); // This makes the mesh cylindrical (uses Triangle library mode inside this ReMesh call).
         }
-        
+
         // Delete the temporary files.
         std::string command = "rm " + output_dir + mMeshFilename + ".*";
-        int return_value = system(command.c_str()); 
+        int return_value = system(command.c_str());
         if (return_value != 0)
-        {   
+        {
             // Can't figure out how to make this throw but seems as if it should be here?
             #define COVERAGE_IGNORE
-            EXCEPTION("HoneycombMeshGenerator cannot delete temporary files\n");   
+            EXCEPTION("HoneycombMeshGenerator cannot delete temporary files\n");
             #undef COVERAGE_IGNORE
         }
-                
+
         CancerParameters::Instance()->SetCryptLength(mCryptDepth);
         CancerParameters::Instance()->SetCryptWidth(mCryptWidth);
     }
-    
+
     ConformingTetrahedralMesh<2,2>* GetMesh()
     {
         if (mCylindrical)
@@ -315,7 +315,7 @@ public:
         }
         return mpMesh;
     }
-    
+
     Cylindrical2dMesh* GetCylindricalMesh()
     {
         if (!mCylindrical)
@@ -341,10 +341,10 @@ public:
             centre += mpMesh->GetNode(i)->rGetLocation();
         }
         centre /= (double)mpMesh->GetNumNodes();
-                
+
         mpMesh->Translate(-centre[0], -centre[1]);
-        
-        // Iterate over nodes, deleting any that lie more 
+
+        // Iterate over nodes, deleting any that lie more
         // than the specified radius from (0,0)
         for (unsigned i=0; i<mpMesh->GetNumAllNodes(); i++)
         {
@@ -362,14 +362,14 @@ public:
                 shift[0]=max_jiggle*(r_gen->ranf()-0.5);
                 shift[1]=max_jiggle*(r_gen->ranf()-0.5);
                 r_location += shift;
- 
+
             }
         }
-        
+
         // Remesh
         NodeMap map(mpMesh->GetNumNodes());
-        mpMesh->ReMeshWithTriangleLibrary(map); 
-        
+        mpMesh->ReMeshWithTriangleLibrary(map);
+
         return mpMesh;
     }
 };

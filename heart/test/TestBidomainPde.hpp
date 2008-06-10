@@ -63,7 +63,7 @@ public:
         mpExtracellularStimulus1 = new SimpleStimulus(-150,0.5);
         mpExtracellularStimulus2 = new SimpleStimulus(-250,0.5);
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node==0)
@@ -80,7 +80,7 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpExtracellularStimulus1);
         }
     }
-    
+
     ~MyCardiacCellFactory(void)
     {
         delete mpStimulus;
@@ -104,12 +104,12 @@ public:
 
         MyCardiacCellFactory cell_factory; // same as cell factory but with extracell stimuli
         cell_factory.SetMesh(&mesh);
-        
+
         BidomainPde<1>   bidomain_pde( &cell_factory );
-        
+
         bidomain_pde.SetSurfaceAreaToVolumeRatio(3.14);
         TS_ASSERT_DELTA( bidomain_pde.GetSurfaceAreaToVolumeRatio(), 3.14, 1e-10);
-        
+
         bidomain_pde.SetCapacitance(2.718);
         TS_ASSERT_DELTA( bidomain_pde.GetCapacitance(), 2.718, 1e-10);
 
@@ -121,17 +121,17 @@ public:
 
         sigma_i.Init();
         sigma_e.Init();
-        
+
         bidomain_pde.SetIntracellularConductivityTensors(&sigma_i);
         bidomain_pde.SetExtracellularConductivityTensors(&sigma_e);
-        
+
         c_matrix<double, 1,1> sigma = bidomain_pde.rGetIntracellularConductivityTensor(0);
         TS_ASSERT_DELTA( sigma(0,0), 314, 1e-10);
-        
+
         sigma = bidomain_pde.rGetExtracellularConductivityTensor(0);
         TS_ASSERT_DELTA( sigma(0,0), 218, 1e-10);
     }
-    
+
     void TestBidomainPdeSolveCellSystems( void )
     {
         ConformingTetrahedralMesh<1,1> mesh;
@@ -140,20 +140,20 @@ public:
         double big_time_step = 0.5;
         MyCardiacCellFactory cell_factory;
         cell_factory.SetMesh(&mesh);
-        
+
         MonodomainPde<1> monodomain_pde( &cell_factory );
         BidomainPde<1>     bidomain_pde( &cell_factory );
-        
+
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
-                
+
         // initial condition;
         Vec monodomain_vec = DistributedVector::CreateVec();
         DistributedVector monodomain_voltage(monodomain_vec);
         Vec bidomain_vec = DistributedVector::CreateVec(2);
         DistributedVector bidomain_ic(bidomain_vec);
         DistributedVector::Stripe bidomain_voltage(bidomain_ic,0);
-        
+
         for (DistributedVector::Iterator index=DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
@@ -161,14 +161,14 @@ public:
             monodomain_voltage[index] = initial_voltage;
             bidomain_voltage[index] = initial_voltage;
         }
-        
+
         monodomain_voltage.Restore();
         bidomain_ic.Restore();
 
         monodomain_pde.SolveCellSystems(monodomain_vec, 0, big_time_step);
         bidomain_pde.SolveCellSystems(bidomain_vec, 0, big_time_step);
-        
-        
+
+
         // Check that both the monodomain and bidomain PDE have the same ionic cache
         for (DistributedVector::Iterator index=DistributedVector::Begin();
              index != DistributedVector::End();
@@ -176,15 +176,15 @@ public:
         {
             TS_ASSERT_EQUALS(monodomain_pde.rGetIionicCacheReplicated()[index.Global], bidomain_pde.rGetIionicCacheReplicated()[index.Global]);
         }
-        
+
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[0], -80);
         TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[1], 0);
-        
+
         // Check that the bidomain PDE has the right extracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularStimulusCacheReplicated()[0], -150);
         TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularStimulusCacheReplicated()[1], -250);
-        
+
         VecDestroy(monodomain_vec);
         VecDestroy(bidomain_vec);
     }

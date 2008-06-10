@@ -82,39 +82,39 @@ private:
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, SelfType>;
 
     BidomainPde<SPACE_DIM>* mpBidomainPde;
-    
+
     // quantities to be interpolated
     double mIionic;
     double mIIntracellularStimulus;
     double mIExtracellularStimulus;
-    
+
     bool mNullSpaceCreated;
 
     Vec mExternalVoltageMask;
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
-    
+
     unsigned mRowMeanPhiEZero;
-    
+
     void ResetInterpolatedQuantities( void )
     {
         mIionic=0;
         mIIntracellularStimulus=0;
         mIExtracellularStimulus=0;
     }
-    
-    
+
+
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
     {
         unsigned node_global_index = pNode->GetIndex();
-        
+
         mIionic                 += phi_i * mpBidomainPde->rGetIionicCacheReplicated()[ node_global_index ];
         mIIntracellularStimulus += phi_i * mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
         mIExtracellularStimulus += phi_i * mpBidomainPde->rGetExtracellularStimulusCacheReplicated()[ node_global_index ];
     }
-    
+
     /**
      *  ComputeMatrixTerm()
-     * 
+     *
      *  This method is called by AssembleOnElement() and tells the assembler
      *  the contribution to add to the element stiffness matrix.
      */
@@ -129,52 +129,52 @@ private:
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
         double Cm = mpBidomainPde->GetCapacitance();
-        
+
         const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpBidomainPde->rGetIntracellularConductivityTensor(pElement->GetIndex());
         const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_e = mpBidomainPde->rGetExtracellularConductivityTensor(pElement->GetIndex());
-        
-        
+
+
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
             prod(trans(rGradPhi), temp);
-            
+
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
             outer_prod(rPhi, rPhi);
-            
+
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(sigma_e, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_e_grad_phi =
             prod(trans(rGradPhi), temp2);
-            
-            
+
+
         c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ret;
-        
+
         // even rows, even columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice00(ret, slice (0, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
         slice00 = (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi;
-        
+
         // odd rows, even columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice10(ret, slice (1, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
         slice10 = grad_phi_sigma_i_grad_phi;
-        
+
         // even rows, odd columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice01(ret, slice (0, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
         slice01 = grad_phi_sigma_i_grad_phi;
-        
+
         // odd rows, odd columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice11(ret, slice (1, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
         slice11 = grad_phi_sigma_i_grad_phi + grad_phi_sigma_e_grad_phi;
-        
+
         return ret;
     }
-    
-    
+
+
     /**
      *  ComputeVectorTerm()
-     * 
+     *
      *  This method is called by AssembleOnElement() and tells the assembler
      *  the contribution to add to the element stiffness vector.
      */
@@ -189,37 +189,37 @@ private:
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
         double Cm = mpBidomainPde->GetCapacitance();
-        
+
         c_vector<double,2*(ELEMENT_DIM+1)> ret;
-        
+
         vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
         vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
-        
+
         // u(0) = voltage
         noalias(slice_V)   =  (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
         noalias(slice_Phi) =  -mIExtracellularStimulus * rPhi;
-        
+
 //        double factor = (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus);
-//        
+//
 //        for (unsigned index=0; index<ELEMENT_DIM+1; index++)
 //        {
 //            ret(2*index)=factor * rPhi(index);
 //            ret(2*index+1)=-mIExtracellularStimulus * rPhi(index);
 //        }
-   
-        
+
+
         return ret;
     }
-    
-    
-    
-    
+
+
+
+
     /** ComputeSurfaceLhsTerm()
-     * 
-     *  This method is called by AssembleOnSurfaceElement() and tells the 
-     *  assembler what to add to the element stiffness matrix arising 
+     *
+     *  This method is called by AssembleOnSurfaceElement() and tells the
+     *  assembler what to add to the element stiffness matrix arising
      *  from surface element contributions.
-     * 
+     *
      *  NOTE: this method has to be implemented but shouldn't ever be called -
      *  because all bidomain problems (currently) just have zero Neumann boundary
      *  conditions and the AbstractLinearAssmebler::AssembleSystem() method
@@ -234,33 +234,33 @@ private:
         // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
         double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
         double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
-        
+
         c_vector<double, 2*ELEMENT_DIM> ret;
         for (unsigned i=0; i<ELEMENT_DIM; i++)
         {
             ret(2*i)   = rPhi(i)*D_times_grad_v_dot_n;
             ret(2*i+1) = rPhi(i)*D_times_grad_phi_e_dot_n;
         }
-        
+
         return ret;
     }
 #undef COVERAGE_IGNORE
-    
- 
+
+
     /**
      *  PrepareForAssembleSystem
-     * 
-     *  Called at the beginning of AbstractLinearAssembler::AssembleSystem() 
+     *
+     *  Called at the beginning of AbstractLinearAssembler::AssembleSystem()
      *  after the system. Here, used to integrate cell odes.
      */
     virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
     {
         mpBidomainPde->SolveCellSystems(currentSolution, time, time+this->mDt);
     }
-    
+
     /**
      *  FinaliseAssembleSystem
-     * 
+     *
      *  Called by AbstractLinearAssmebler::AssembleSystem() after the system
      *  has been assembled. Here, used to avoid problems with phi_e drifting
      *  by one of 3 methods: pinning nodes, using a null space, or using an
@@ -290,12 +290,12 @@ private:
                         null_basis_stripe_1[index] = 1;
                     }
                     dist_null_basis.Restore();
-        
+
                     this->mpLinearSystem->SetNullBasis(nullbasis, 1);
-                    
+
                     VecDestroy(nullbasis[0]);
                     mNullSpaceCreated = true;
-                    
+
                     //Make a mask to use if we need to shift the external voltage
                     VecDuplicate(currentSolution, &mExternalVoltageMask);
                     DistributedVector mask(mExternalVoltageMask);
@@ -313,20 +313,20 @@ private:
                 //Try to fudge the solution vector with respect to the external voltage
                 //Find the largest absolute value
                 double min, max;
-    
+
 #if (PETSC_VERSION_MINOR == 2) //Old API
                 PetscInt position;
-                VecMax(currentSolution, &position, &max);  
+                VecMax(currentSolution, &position, &max);
                 VecMin(currentSolution, &position, &min);
 #else
-                VecMax(currentSolution, PETSC_NULL, &max);  
+                VecMax(currentSolution, PETSC_NULL, &max);
                 VecMin(currentSolution, PETSC_NULL, &min);
 #endif
-                if ( -min > max ) 
+                if ( -min > max )
                 {
                     //Largest value is negative
                     max=min;
-                }  
+                }
                 //Standard transmembrane potentials are within +-100 mV
                 if (fabs(max) > 500)
                 {
@@ -345,11 +345,11 @@ private:
             else
             {
                 // mRowMeanPhiEZero!=INT_MAX, i.e. we're using the mean phi_e method
-                //Set average phi_e to zero            
-                unsigned matrix_size = this->mpLinearSystem->GetSize(); 
+                //Set average phi_e to zero
+                unsigned matrix_size = this->mpLinearSystem->GetSize();
                 if (!this->mMatrixIsAssembled)
                 {
-                    
+
                     // Set the mRowMeanPhiEZero-th matrix row to 0 1 0 1 ...
                     this->mpLinearSystem->ZeroMatrixRow(mRowMeanPhiEZero);
                     for (unsigned col_index=0; col_index<matrix_size; col_index++)
@@ -360,17 +360,17 @@ private:
                         }
                     }
                     this->mpLinearSystem->AssembleFinalLhsMatrix();
-                    
+
                 }
                 // Set the mRowMeanPhiEZero-th rhs vector row to 0
                 this->mpLinearSystem->SetRhsVectorElement(mRowMeanPhiEZero, 0);
-                
+
                 this->mpLinearSystem->AssembleRhsVector();
             }
         }
     }
-    
-    
+
+
 public:
 
     /**
@@ -387,34 +387,34 @@ public:
         assert(pPde != NULL);
         assert(pMesh != NULL);
         assert(pBcc != NULL);
-        
+
         mpBidomainPde = pPde;
         this->SetMesh(pMesh);
-        
+
         this->mpBoundaryConditions = pBcc;
-        
+
         mNullSpaceCreated = false;
-        
+
         this->SetMatrixIsConstant();
-        
+
         mRowMeanPhiEZero = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
     }
-    
+
     ~BidomainDg0Assembler()
     {
         if (mNullSpaceCreated)
         {
-            VecDestroy(mExternalVoltageMask);            
+            VecDestroy(mExternalVoltageMask);
         }
     }
-    
+
     /**
-     *  Set the nodes at which phi_e (the extracellular potential) is fixed to 
-     *  zero. This does not necessarily have to be called. If it is not, phi_e 
+     *  Set the nodes at which phi_e (the extracellular potential) is fixed to
+     *  zero. This does not necessarily have to be called. If it is not, phi_e
      *  is only defined up to a constant.
-     * 
+     *
      *  @param the nodes to be fixed.
-     * 
+     *
      *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
      */
@@ -427,30 +427,30 @@ public:
                 EXCEPTION("Fixed node number must be less than total number nodes");
             }
         }
-        
+
         mFixedExtracellularPotentialNodes = fixedExtracellularPotentialNodes;
-        
+
         for (unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
         {
             ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition
             = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-            
+
             Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(mFixedExtracellularPotentialNodes[i]);
-            
+
             this->mpBoundaryConditions->AddDirichletBoundaryCondition(p_node, p_boundary_condition, 1);
         }
     }
-    
+
     void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
     {
-        // Row should be odd in C++-like indexing 
+        // Row should be odd in C++-like indexing
         if (rowMeanPhiEZero % 2 == 0)
         {
-            EXCEPTION("Row for meaning phi_e to zero should be odd in C++ like indexing");   
+            EXCEPTION("Row for meaning phi_e to zero should be odd in C++ like indexing");
         }
-        
+
         mRowMeanPhiEZero = rowMeanPhiEZero;
-        
+
     }
 };
 

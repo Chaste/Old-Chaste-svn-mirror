@@ -47,10 +47,10 @@ CryptSimulation1d::CryptSimulation1d(ConformingTetrahedralMesh<1,1> &rMesh,
     mpParams->SetSpringStiffness(30.0);
     mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
     mEndTime = 120.0; // hours
-    
+
     mIncludeVariableRestLength = false;
     mOutputDirectory = "";
-    
+
     mpSimulationTime = SimulationTime::Instance();
     if (!mpSimulationTime->IsStartTimeSetUp())
     {
@@ -120,17 +120,17 @@ void CryptSimulation1d::Solve()
     {
         EXCEPTION("OutputDirectory not set");
     }
-    
+
     // Creating Column Data Writer Handler
     ColumnDataWriter tabulated_writer(mOutputDirectory, "tabulated_results");
     unsigned time_var_id = tabulated_writer.DefineUnlimitedDimension("Time","hours");
-    
+
     std::vector<unsigned> type_var_ids;
     std::vector<unsigned> position_var_ids;
-    
+
     type_var_ids.resize(mMaxCells);
     position_var_ids.resize(mMaxCells);
-    
+
     // Set up columns
     for (unsigned cell=0; cell<mMaxCells; cell++)
     {
@@ -142,17 +142,17 @@ void CryptSimulation1d::Solve()
         position_var_ids[cell]=tabulated_writer.DefineVariable(cell_position_var_name.str(),"cell_lengths");
     }
     tabulated_writer.EndDefineMode();
-    
+
     unsigned num_time_steps = (unsigned)(mEndTime/mDt+0.5);
     mpSimulationTime->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
-    
+
     double time_since_last_birth = 15.0; // 15 hours - only used in non-random birth
-    
+
     unsigned num_births = 0;
     unsigned num_deaths = 0;
-    
+
     std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
-    
+
     // Creating Simple File Handler
     OutputFileHandler output_file_handler(mOutputDirectory, false);
     out_stream p_results_file = output_file_handler.OpenOutputFile("results");
@@ -166,18 +166,18 @@ void CryptSimulation1d::Solve()
                 if (mrMesh.GetNode(i)->IsDeleted()) continue; // Skip deleted cells
                 // Check for this cell dividing
                 if (mCells[i].ReadyToDivide())
-                { 
+                {
                     // Create new cell
                     TissueCell new_cell = mCells[i].Divide();
-                    
+
                     // Add new node to mesh
                     Node<1> *p_our_node = mrMesh.GetNode(i);
-                    
+
                     // Note: May need to check which side element is put esp. at the ends
                     Element<1,1> *p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
-                                        
+
                     unsigned new_node_index = AddNodeToElement(p_element,mpSimulationTime->GetDimensionalisedTime());
-                    
+
                     // Update cells
                     new_cell.SetNodeIndex(new_node_index);
                     if (new_node_index == mCells.size())
@@ -189,10 +189,10 @@ void CryptSimulation1d::Solve()
                         mCells[new_node_index] = new_cell;
                     }
                     num_births++;
-                }   
+                }
             }
         }
-        
+
         // Calculate node velocities
         std::vector<double> drdt(mrMesh.GetNumAllNodes());
         if (mIncludeVariableRestLength && !mCells.empty())
@@ -209,18 +209,18 @@ void CryptSimulation1d::Solve()
                     double age0 = mCells[element->GetNode(0)->GetIndex()].GetAge();
                     double age1 = mCells[element->GetNode(1)->GetIndex()].GetAge();
                     double rest_length = 1.0;
-                    
+
                     if (age0<1.0 && age1<1.0 && fabs(age0-age1)<1e-6)
                     {
                         /* Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
                          * This doesnt happen at present as when the full line is included the tests fail
-                         * 
+                         *
                          * This is wrong but due to the model being set up in 1D, when a new cell with a weaker spring is
                          * put in next to other stressed cells, the weaker spring will be compressed too much and lead to
                          * cells being pushed through other ones.  Leading to an exception being thrown in line 319 ish.
                          */
                         rest_length=(0.9+0.1*age0);
-                        
+
                         assert(rest_length<=1.0);
                     }
                     drdt_contributions(0) = ( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
@@ -241,20 +241,20 @@ void CryptSimulation1d::Solve()
                     double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
                     double unit_vector_backward = -1;
                     double unit_vector_forward = 1;
-                    
+
                     drdt_contributions(0) =( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - 1.0) );
                     drdt_contributions(1) =( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - 1.0) );
-                    
+
                     drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                     drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
                 }
             }
         }
-        
+
         //Update node positions
         for (unsigned index = 1; index<mrMesh.GetNumAllNodes(); index++)
         {
-            // assume stem cells are fixed, or if there are no cells, fix node 0            
+            // assume stem cells are fixed, or if there are no cells, fix node 0
             if (!mrMesh.GetNode(index)->IsDeleted())
             {
                 c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
@@ -263,7 +263,7 @@ void CryptSimulation1d::Solve()
                 mrMesh.SetNode(index, new_point, false);
             }
         }
-        
+
         // Remove nodes that are beyond the crypt
         while (true)
         {
@@ -285,15 +285,15 @@ void CryptSimulation1d::Solve()
             if (!sloughed_node) break;
         }
         // Check nodes havent crossed
-        mrMesh.RefreshMesh();        
-        
+        mrMesh.RefreshMesh();
+
         // Increment simulation time here, so results files look sensible
         mpSimulationTime->IncrementTimeOneStep();
-        
+
         // Writing Results To Tabulated File First And Then To Space Separated File
         tabulated_writer.PutVariable(time_var_id, mpSimulationTime->GetDimensionalisedTime());
         (*p_results_file) << mpSimulationTime->GetDimensionalisedTime() << "\t";
-        
+
         unsigned cell=0; // NB this is not the index in mCells, but the index in the mesh!
         for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
         {
@@ -325,17 +325,17 @@ void CryptSimulation1d::Solve()
                 {
                     tabulated_writer.PutVariable(type_var_ids[cell], -1);
                 }
-                
+
                 const c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
                 tabulated_writer.PutVariable(position_var_ids[cell], node_loc[0]);
                 (*p_results_file) << node_loc[0] << " ";
-                
+
                 cell++;
             }
         }
         tabulated_writer.AdvanceAlongUnlimitedDimension();
         (*p_results_file) << "\n";
-        
+
         time_since_last_birth += mDt;
     }
 }
@@ -349,7 +349,7 @@ unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time
     {
         double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge();
         double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge();
-        
+
         if (fabs(age0)<1e-6)
         {
             // Place the new node to 0.1 to the right of the left-hand node
@@ -374,10 +374,10 @@ unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time
         double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
         // Pick a random position in the central 60% of the element
         displacement = 0.2 + (mpGen->ranf())*(element_length-0.4);
-        
+
     }
     ChastePoint<1> new_point(left_position + displacement);
-    
+
     return mrMesh.RefineElement(pElement, new_point);
 }
 

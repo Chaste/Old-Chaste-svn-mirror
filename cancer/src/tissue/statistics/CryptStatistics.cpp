@@ -51,42 +51,42 @@ bool CryptStatistics::CellIsInSection(double xBottom, double xTop, double yTop, 
     else
     {
         double m = (yTop)/(xTop-xBottom); // gradient of line
-    
+
         intercept[0] = (m*m*xBottom + cellPosition[0] + m*cellPosition[1])/(1+m*m);
         intercept[1] = m*(intercept[0] - xBottom);
     }
-        
+
     c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
     double dist = norm_2(vec_from_A_to_B);
-   
+
     return (dist <= widthOfSection);
 }
 
 bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection)
 {
     bool is_in_section=false;
-    
+
     c_vector<double,2> intercept;
     double crypt_width = CancerParameters::Instance()->GetCryptWidth();
 
     double m; // gradient of line
     double offset;
-    
+
     if(xBottom<xTop)
     {
-        offset = -crypt_width;    
+        offset = -crypt_width;
     }
     else
     {
         offset = crypt_width;
     }
-    
+
     m = (yTop)/(xTop-xBottom+offset); // gradient of line
-    
-    // 1st Line        
+
+    // 1st Line
     intercept[0] = (m*m*xBottom + cellPosition[0] + m*cellPosition[1])/(1+m*m);
     intercept[1] = m*(intercept[0] - xBottom);
-    
+
     c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
     double dist = norm_2(vec_from_A_to_B);
 
@@ -95,10 +95,10 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
         is_in_section=true;
     }
 
-    // 2nd Line        
+    // 2nd Line
     intercept[0] = (m*m*(xBottom-offset) + cellPosition[0] + m*cellPosition[1])/(1+m*m);
     intercept[1] = m*(intercept[0] - (xBottom-offset));
-    
+
     vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
     dist = norm_2(vec_from_A_to_B);
 
@@ -109,7 +109,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
 
     return is_in_section;
 }
-    
+
 /*
  * PUBLIC FUNCTIONS -----------------------------------------------------------------
  */
@@ -120,24 +120,24 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
     {
         xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth();
     }
-    
-    if (xTop == DBL_MAX)
-    { 
-        xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth();
-    }   
 
-    
+    if (xTop == DBL_MAX)
+    {
+        xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth();
+    }
+
+
     assert(yTop>0.0);
     std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
-    
+
     if (fabs(xTop-xBottom)<0.5*CancerParameters::Instance()->GetCryptWidth())
     {
         // the periodic version isn't needed, ignore even if periodic was set to true
         periodic = false;
-    }    
-    
+    }
+
     // loop over cells and add to the store if they are within a cell's radius of the
-    // specified line  
+    // specified line
     for (MeshBasedTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
@@ -177,11 +177,11 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
     return ordered_cells;
 }
 
-std::vector<TissueCell*> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop) 
+std::vector<TissueCell*> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop)
 {
    return GetCryptSection(xBottom,xTop,yTop,true);
-}   
-    
+}
+
 
 
 

@@ -65,27 +65,27 @@ private:
     AbstractConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors;
 
     ReplicatableVector mExtracellularStimulusCacheReplicated;
-    
+
 public:
     //Constructor
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
             :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
-    {                                                         
+    {
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
-    
+
     void SetExtracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pExtracellularTensors)
-    {        
+    {
         mpExtracellularConductivityTensors = pExtracellularTensors;
     }
-    
-    
+
+
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex)
     {
         assert(mpExtracellularConductivityTensors);
-        return (*mpExtracellularConductivityTensors)[elementIndex];      
+        return (*mpExtracellularConductivityTensors)[elementIndex];
     }
-    
+
     /**
      * The bidomain pde also updates the extracellular stimulus cache
      */
@@ -94,7 +94,7 @@ public:
         AbstractCardiacPde<SPACE_DIM>::UpdateCaches(globalIndex, localIndex, nextTime);
         mExtracellularStimulusCacheReplicated[globalIndex] = this->mCellsDistributed[localIndex]->GetExtracellularStimulus(nextTime);
     }
-    
+
     /**
      * The bidomain Pde also replicates the extracellular stimulus cache
      */
@@ -103,10 +103,10 @@ public:
         AbstractCardiacPde<SPACE_DIM>::ReplicateCaches();
         unsigned lo=DistributedVector::Begin().Global;
         unsigned hi=DistributedVector::End().Global;
-        
+
         mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
     }
-    
+
     ReplicatableVector& rGetExtracellularStimulusCacheReplicated()
     {
         return mExtracellularStimulusCacheReplicated;

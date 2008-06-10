@@ -43,14 +43,14 @@ class MyCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
     SimpleStimulus* mpStimulus;
-    SimpleStimulus* mpHalfStimulus;    
+    SimpleStimulus* mpHalfStimulus;
 public:
     MyCellFactory() : AbstractCardiacCellFactory<2>(0.01)
     {
         mpStimulus = new SimpleStimulus(-600.0, 0.5);
         mpHalfStimulus = new SimpleStimulus(-300, 0.5);
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned nodeIndex)
     {
         double x = mpMesh->GetNode(nodeIndex)->rGetLocation()[0];
@@ -69,7 +69,7 @@ public:
             return new FastSlowLuoRudyIModel1991(mpSolver, mTimeStep, mpStimulus); // state unset at the moment
         }
     }
-    
+
     ~MyCellFactory(void)
     {
         delete mpStimulus;
@@ -85,13 +85,13 @@ public:
     void testMonodomainFastSlowPde() throw (Exception)
     {
         EXIT_IF_PARALLEL;
-        
+
         MixedTetrahedralMesh<2,2> mixed_mesh;
         mixed_mesh.ConstructRectangularMeshes(1.0,1.0,1,2);
 
         MyCellFactory cell_factory;
         cell_factory.SetMesh(mixed_mesh.GetFineMesh());
-        
+
         MonodomainFastSlowPde<2> monodomain_fast_slow_pde( &cell_factory, mixed_mesh, 0, 1.0 );
 
         std::vector<FastSlowLuoRudyIModel1991*> cells(mixed_mesh.GetFineMesh()->GetNumNodes());
@@ -144,14 +144,14 @@ public:
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<double> slow_values(2);
-        
+
         // test cells for which x=0: correspond to fine nodes 0 (coarse-slow cell), 3 (fine-fast cell), 6 (coarse-slow cell)
         TS_ASSERT_DELTA( cells[0]->GetVoltage(), cells[3]->GetVoltage(), 1.0); // check coarse and fine agree in voltage
         TS_ASSERT_DELTA( cells[0]->rGetStateVariables()[0], cells[3]->rGetStateVariables()[0], 0.01); // check coarse and fine agree in a gating var
         cells[0]->GetSlowValues(slow_values);
         TS_ASSERT_DELTA(slow_values[0], cells[3]->mSlowValues[0], 0.01); // check slow values match
         TS_ASSERT_DELTA(slow_values[1], cells[3]->mSlowValues[1], 0.01); // check slow values match
-        
+
         // test cells for which x=0.5: correspond to fine nodes 1, 4, 7 (all fine-fast cells)
         TS_ASSERT_DELTA( cells[1]->GetVoltage(), cells[4]->GetVoltage(), 1.0);
 

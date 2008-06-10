@@ -36,20 +36,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 /**
- * 
+ *
  *  This class provides an abstraction for the definition of constant/non-constant difussion tensors
  * associated to the different elements of the mesh.
- * 
+ *
  *  After instanciating the class any of SetFibreOrientationFile() or SetNonConstantConductivities()
  * (or both) can be called to implement fiber orientation or heterogeneous conductivity into the
  * tensors, respectively. If none of them is called a constant tensor (with constant conductivies)
  * will be generated for all the elements of the mesh.
- * 
+ *
  *  Init() should be called to actually create the tensors.
- * 
- *  Initial values for conductivity from "Laminar Arrangement of Ventricular Myocytes Influences Electrical 
+ *
+ *  Initial values for conductivity from "Laminar Arrangement of Ventricular Myocytes Influences Electrical
  * Behavior of the Heart", Hooks et al. 2007
- *     
+ *
  */
 
 template<unsigned SPACE_DIM>
@@ -59,13 +59,13 @@ private:
 
     void ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& orientMatrix)
     {
-        std::vector<double> items;        
+        std::vector<double> items;
         unsigned num_elems = this->GetTokensAtNextLine(items);
-                           
+
         if (num_elems != SPACE_DIM*SPACE_DIM)
         {
             this->CloseFibreOrientationFile();
-            EXCEPTION("Orthotropic media defined. Number of vectors in fibre orientation file and size of them should match SPACE_DIM");                
+            EXCEPTION("Orthotropic media defined. Number of vectors in fibre orientation file and size of them should match SPACE_DIM");
         }
 
         for (unsigned vector_index=0; vector_index<SPACE_DIM; vector_index++)
@@ -73,12 +73,12 @@ private:
             for (unsigned component_index=0; component_index<SPACE_DIM; component_index++)
             {
                 orientMatrix(component_index, vector_index) = items[vector_index*SPACE_DIM + component_index];
-            }                        
+            }
         }
     }
-    
+
 public:
-    
+
     /**
      *  Computes the tensors based in all the info set
      */
@@ -87,9 +87,9 @@ public:
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
-            conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);     
+            conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);
         }
-        
+
         if (!this->mUseNonConstantConductivities && !this->mUseFibreOrientation)
         {
             // Constant tensor for every element
@@ -98,7 +98,7 @@ public:
         else
         {
             c_matrix<double,SPACE_DIM,SPACE_DIM> orientation_matrix((identity_matrix<double>(SPACE_DIM)));
-                        
+
             if (this->mUseFibreOrientation)
             {
                 this->OpenFibreOrientationFile();
@@ -108,59 +108,59 @@ public:
             {
                 this->mNumElements = this->mpNonConstantConductivities->size();
             }
-                
-            // reserve() allocates all the memory at once, more efficient than relying 
+
+            // reserve() allocates all the memory at once, more efficient than relying
             // on the automatic reallocation scheme.
             this->mTensors.reserve(this->mNumElements);
-                           
+
             for (unsigned element_index=0; element_index<this->mNumElements; element_index++)
             {
                 /*
-                 *  For every element of the mesh we compute its tensor like (from 
-                 * "Laminar Arrangement of VentricularMyocites Influences Electrical 
+                 *  For every element of the mesh we compute its tensor like (from
+                 * "Laminar Arrangement of VentricularMyocites Influences Electrical
                  * Behavior of the Heart", Darren et al. 2007):
-                 * 
+                 *
                  *                         [g_f  0   0 ] [a_f']
                  *  tensor = [a_f a_l a_n] [ 0  g_l  0 ] [a_l']
                  *                         [ 0   0  g_n] [a_n']
-                 * 
+                 *
                  *              [x_i]
                  *  where a_i = [y_i], i={f,l,n} are read from the fibre orientation file and
                  *              [z_i]
-                 * 
+                 *
                  *  g_f = fibre/longitudinal conductivity (constant or element specific)
                  *  g_l = laminar/transverse conductivity (constant or element specific)
-                 *  g_n = normal conductivity (constant or element specific) 
-                 * 
+                 *  g_n = normal conductivity (constant or element specific)
+                 *
                  */
-                
+
                 if (this->mUseNonConstantConductivities)
                 {
                     for (unsigned dim=0; dim<SPACE_DIM; dim++)
                     {
-                        conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[element_index][dim];     
-                    }                    
-                }      
-                
+                        conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[element_index][dim];
+                    }
+                }
+
                 if (this->mUseFibreOrientation)
                 {
-                    ReadOrientationMatrixFromFile(orientation_matrix);                    
-                }                    
-                
+                    ReadOrientationMatrixFromFile(orientation_matrix);
+                }
+
                 c_matrix<double,SPACE_DIM,SPACE_DIM> temp;
-                noalias(temp) = prod(orientation_matrix, conductivity_matrix);  
-                this->mTensors.push_back( prod(temp, trans(orientation_matrix) ) );   
+                noalias(temp) = prod(orientation_matrix, conductivity_matrix);
+                this->mTensors.push_back( prod(temp, trans(orientation_matrix) ) );
             }
-            
+
             if (this->mUseFibreOrientation)
             {
                 this->CloseFibreOrientationFile();
             }
         }
-        
+
         this->mInitialised = true;
     }
-        
+
 };
 
 #endif /*ORTHOTROPICCONDUCTIVITYTENSORS_HPP_*/

@@ -37,12 +37,12 @@ TissueCell::TissueCell(CellType cellType,
     {
         EXCEPTION("TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
     }
-    
+
     if(pCellCycleModel==NULL)
     {
         EXCEPTION("Cell cycle model is null");
     }
-    
+
     mCellType = cellType;
     mMutationState = mutationState;
     mCanDivide = false;
@@ -50,9 +50,9 @@ TissueCell::TissueCell(CellType cellType,
     mIsDead = false;
     mDeathTime = DBL_MAX; // This has to be initialised for archiving...
     mNodeIndex = (unsigned)(-1); // Initialise to a silly value for archiving (avoid memory check error)
-    mIsLogged = false;    
+    mIsLogged = false;
     mAncestor = UNSIGNED_UNSET; // Has to be set by a SetAncestor() call (usually from Tissue)
-    
+
     mpCellCycleModel->SetCell(this);
 }
 
@@ -69,15 +69,15 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mNodeIndex = other_cell.mNodeIndex;
     mIsLogged = other_cell.mIsLogged;
     mAncestor = other_cell.mAncestor;
-    
+
     // Copy cell cycle model
     // First create a new object
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state.
     // BEWARE: This will only copy base class state!!!
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
-    // and inform it of the new cell object 
-    mpCellCycleModel->SetCell(this); 
+    // and inform it of the new cell object
+    mpCellCycleModel->SetCell(this);
 }
 
 TissueCell::TissueCell(const TissueCell &other_cell)
@@ -181,14 +181,14 @@ bool TissueCell::IsLogged()
 void TissueCell::StartApoptosis()
 {
     assert(!IsDead());
-    
+
     if (mUndergoingApoptosis)
     {
         EXCEPTION("StartApoptosis() called when already undergoing apoptosis");
     }
     mUndergoingApoptosis = true;
-    
-    mDeathTime =    SimulationTime::Instance()->GetDimensionalisedTime() 
+
+    mDeathTime =    SimulationTime::Instance()->GetDimensionalisedTime()
                   + CancerParameters::Instance()->GetApoptosisTime();
 }
 
@@ -224,7 +224,7 @@ void TissueCell::SetAncestor(unsigned ancestorIndex)
 
 unsigned TissueCell::GetAncestor() const
 {
-    return mAncestor;   
+    return mAncestor;
 }
 
 bool TissueCell::ReadyToDivide()
@@ -233,8 +233,8 @@ bool TissueCell::ReadyToDivide()
     if (mUndergoingApoptosis || mCellType==NECROTIC)
     {
         return false;
-    }    
-    
+    }
+
     mCanDivide = mpCellCycleModel->ReadyToDivide();
 
     return mCanDivide;
@@ -246,17 +246,17 @@ TissueCell TissueCell::Divide()
     assert(!IsDead());
     assert(mCanDivide);
     mCanDivide = false;
-                
+
     // Reset properties of parent cell
     mpCellCycleModel->ResetForDivision();
-    
+
     // Create daughter cell
     TissueCell new_cell = TissueCell(mCellType, mMutationState,
                                      mpCellCycleModel->CreateDaughterCellCycleModel());
 
-    // Initialise properties of daughter cell     
+    // Initialise properties of daughter cell
     new_cell.GetCellCycleModel()->InitialiseDaughterCell();
-    new_cell.SetAncestor(GetAncestor());    
-    
-    return new_cell;    
+    new_cell.SetAncestor(GetAncestor());
+
+    return new_cell;
 }

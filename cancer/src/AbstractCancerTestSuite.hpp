@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class AbstractCancerTestSuite : public CxxTest::TestSuite
 {
-protected:    
+protected:
     void setUp()
     {
         // Initialise singleton classes
@@ -47,7 +47,7 @@ protected:
         RandomNumberGenerator::Instance()->Reseed(0);
         CancerParameters::Instance()->Reset();
     }
-    
+
     void tearDown()
     {
         // Clear up singleton classes

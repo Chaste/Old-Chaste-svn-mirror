@@ -24,7 +24,7 @@ public:
                               AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractCardiacCell(pSolver, 25, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
     {
-        
+
         mScaleFactorGks=1.0;
         mScaleFactorIto=0.0;
         // Time units: second
@@ -136,13 +136,13 @@ public:
     ~FaberRudy2000Version3(void)
     {
     }
-    
+
     void SetScaleFactorGks(double sfgks)
     {
         assert(sfgks>=0.0);
         mScaleFactorGks=sfgks;
     }
-    
+
     void SetScaleFactorIto(double sfito)
     {
         assert(sfito>=0.0);
@@ -186,7 +186,7 @@ public:
         // Units: millimolar; Initial value: 9
         double var_ionic_concentrations__Ki = rY[24];
         // Units: millimolar; Initial value: 141.2
-        
+
         const double var_membrane__R = 8314.0;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96485.0;
@@ -392,7 +392,7 @@ public:
         double var_non_specific_calcium_activated_current__i_ns_K = (var_non_specific_calcium_activated_current__I_ns_K * 1.0) / (1.0 + pow(var_non_specific_calcium_activated_current__K_m_ns_Ca / var_non_specific_calcium_activated_current__Cai, 3.0));
         double var_non_specific_calcium_activated_current__i_ns_Ca = var_non_specific_calcium_activated_current__i_ns_Na + var_non_specific_calcium_activated_current__i_ns_K;
         double var_membrane__i_ns_Ca = var_non_specific_calcium_activated_current__i_ns_Ca;
-        
+
         return var_membrane__i_Na+var_membrane__i_Ca_L+var_membrane__i_Ca_T+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_K_Na+var_membrane__i_K_ATP+var_membrane__i_to+var_membrane__i_NaCa+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_p_Ca+var_membrane__i_Na_b+var_membrane__i_Ca_b+var_membrane__i_NaK+var_membrane__i_ns_Ca;
     }
 
@@ -454,8 +454,8 @@ public:
         // Units: millimolar; Initial value: 9
         double var_ionic_concentrations__Ki = rY[24];
         // Units: millimolar; Initial value: 141.2
-        
-        
+
+
         // Mathematics
         const double var_membrane__R = 8314.0;
         const double var_membrane__T = 310.0;
@@ -798,7 +798,7 @@ public:
         double d_dt_calcium_dynamics__Cai = (1.0 / (1.0 + ((var_calcium_dynamics__CMDN_max * var_calcium_dynamics__K_mCMDN) / pow(var_calcium_dynamics__K_mCMDN + var_calcium_dynamics__Cai, 2.0)) + ((var_calcium_dynamics__Tn_max * var_calcium_dynamics__K_mTn) / pow(var_calcium_dynamics__K_mTn + var_calcium_dynamics__Cai, 2.0)))) * ((((-var_calcium_dynamics__A_cap) * (((var_calcium_dynamics__i_CaCa + var_calcium_dynamics__i_Ca_T) - (2.0 * var_calcium_dynamics__i_NaCa)) + var_calcium_dynamics__i_p_Ca + var_calcium_dynamics__i_Ca_b)) / (2.0 * var_calcium_dynamics__V_myo * var_calcium_dynamics__F)) + ((var_calcium_dynamics__i_rel * var_calcium_dynamics__V_JSR) / var_calcium_dynamics__V_myo) + (((var_calcium_dynamics__i_leak - var_calcium_dynamics__i_up) * var_calcium_dynamics__V_NSR) / var_calcium_dynamics__V_myo));
         double d_dt_ionic_concentrations__Nai = ((-(var_ionic_concentrations__i_Na + var_ionic_concentrations__i_CaNa + var_ionic_concentrations__i_Na_b + var_ionic_concentrations__i_ns_Na + (var_ionic_concentrations__i_NaCa * 3.0) + (var_ionic_concentrations__i_NaK * 3.0))) * var_ionic_concentrations__A_cap) / (var_ionic_concentrations__V_myo * var_ionic_concentrations__F);
         double d_dt_ionic_concentrations__Ki = ((-(var_ionic_concentrations__i_CaK + var_ionic_concentrations__i_Kr + var_ionic_concentrations__i_Ks + var_ionic_concentrations__i_K1 + var_ionic_concentrations__i_Kp + var_ionic_concentrations__i_K_Na + var_ionic_concentrations__i_K_ATP + var_ionic_concentrations__i_to + var_ionic_concentrations__i_ns_K + ((-var_ionic_concentrations__i_NaK) * 2.0))) * var_ionic_concentrations__A_cap) / (var_ionic_concentrations__V_myo * var_ionic_concentrations__F);
-        
+
         rDY[0] = d_dt_membrane__V*1e-3;
         rDY[1] = d_dt_fast_sodium_current_m_gate__m*1e-3;
         rDY[2] = d_dt_fast_sodium_current_h_gate__h*1e-3;

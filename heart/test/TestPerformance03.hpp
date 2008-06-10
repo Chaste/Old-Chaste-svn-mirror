@@ -44,10 +44,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PerformanceTester.hpp"
 
 class TestPerformance : public CxxTest::TestSuite
-{   
+{
 public:
 
-    
+
     void TestPerf() throw(Exception)
     {
         // write headings
@@ -59,7 +59,7 @@ public:
         tester.SimTime=0.0025;
         tester.MeshNum=3;
         tester.Run();
-        
+
         EventHandler::Report();
     }
 };

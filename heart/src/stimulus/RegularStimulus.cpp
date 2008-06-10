@@ -43,8 +43,8 @@ RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, do
     mDuration = duration;
     mPeriod = period;
     mStartTime = startTime;
-  
-    //Swell duration to avoid rounding issues   
+
+    //Swell duration to avoid rounding issues
     mDuration += period*DBL_EPSILON;
 }
 
@@ -64,7 +64,7 @@ RegularStimulus::~RegularStimulus()
 double RegularStimulus::GetStimulus(double time)
 {
     double beatTime = fmod(time-mStartTime,mPeriod);
-    
+
     if (beatTime >=0 && beatTime <= mDuration)
     {
         return mMagnitudeOfStimulus;

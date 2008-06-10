@@ -44,11 +44,11 @@ private:
     double mDuration;
     double mPeriod;
     double mStartTime;
-    
+
 public:
     RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime);
     ~RegularStimulus();
     double GetStimulus(double time);
-    
+
 };
 #endif //_REGULARSTIMULUS_HPP_

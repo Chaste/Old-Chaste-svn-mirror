@@ -40,14 +40,14 @@ AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
         mVoltageIndex(voltageIndex)
 {
     mpOdeSolver = pOdeSolver;
-    
+
     assert(voltageIndex < mNumberOfStateVariables);
     assert(dt>0);
     mDt=dt;
-    
+
     mpIntracellularStimulus = intracellularStimulus;
     mpExtracellularStimulus = extracellularStimulus;
-    
+
     mSetVoltageDerivativeToZero = false;
 }
 
@@ -82,11 +82,11 @@ OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd)
 void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 {
     double saved_voltage = GetVoltage();
-    
+
     mSetVoltageDerivativeToZero = true;
     mpOdeSolver->SolveAndUpdateStateVariable(this, tStart, tEnd, mDt);
     mSetVoltageDerivativeToZero = false;
-    
+
     SetVoltage(saved_voltage);
 }
 

@@ -45,14 +45,14 @@ class MyCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
     RegularStimulus* mpStimulus;
-    
+
 public:
     MyCellFactory() : AbstractCardiacCellFactory<2>(0.01)//Ode timestep
     {
         mpStimulus = new RegularStimulus(-600, 0.5, 100000, 0.0);
         LOG(1, "Using RegularStimulus(-600, 0.5, 100000, 0.0)\n");
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
@@ -70,7 +70,7 @@ public:
                                                   this->mpZeroStimulus);
         }
     }
-    
+
     ~MyCellFactory()
     {
         delete mpStimulus;
@@ -87,7 +87,7 @@ public:
         //PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
         MyCellFactory cell_factory;
 
-        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
                                                            2300,  // end time of 200ms
                                                            10,   // 10 mech elements in 1cm by 1cm square
                                                            100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
@@ -100,15 +100,15 @@ public:
         pos(0) = 1.0;
         pos(1) = 0.0;
         implicit_problem.SetWatchedPosition(pos);
-        
+
         implicit_problem.Solve();
     }
-        
+
 
 //    void dontTestScaleCalcium() throw(Exception)
 //    {
 //        EventHandler::Disable();
-//        
+//
 //        double calcium_scale_factors[8] = {0.9, 0.95, 0.99, 1.0, 1.01, 1.05, 1.1, 2};
 //
 //        for(unsigned i=0; i<8; i++)
@@ -117,8 +117,8 @@ public:
 //            name << "CardiacElectroMechScaleCalcium/" << calcium_scale_factors[i];
 //
 //            PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
-//    
-//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+//
+//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
 //                                                               200,  // end time of 200ms
 //                                                               10,   // 10 mech elements in 1cm by 1cm square
 //                                                               100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
@@ -130,8 +130,8 @@ public:
 //        }
 //    }
 
-    
-    
+
+
 //    void Test2dCompareExplicitVsImplicit() throw(Exception)
 //    {
 //        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
@@ -141,11 +141,11 @@ public:
 //        {
 //            std::stringstream name;
 //            name << "CardiacElectroMech_Time_MORE_" << dt;
-//            
+//
 //            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, dt, 0.01, name.str());
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
-//            
+//
 //            dt *= 2;
 //        }
 //
@@ -155,11 +155,11 @@ public:
 //        {
 //            std::stringstream name;
 //            name << "CardiacElectroMech_Space_NEW_" << num_nodes_in_each_dir;
-//            
+//
 //            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, num_nodes_in_each_dir, 100, 1.0, name.str());
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
-//            
+//
 //            num_nodes_in_each_dir *= 2;
 //        }
 
@@ -171,11 +171,11 @@ public:
 //            name << "CardiacElectroMech_OdeTimeStepNew_" << i;
 //
 //            std::cout << nhs_ode_time_step << "\n";
-//            
+//
 //            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, 128, nhs_ode_time_step, name.str());
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
-//            
+//
 //            nhs_ode_time_step *= 2;
 //        }
 //    }

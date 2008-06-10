@@ -39,12 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class contains all the things common to simple cell cycle models
- * 
- * i.e. models where the length of cell cycle phases are determined when 
- * the cell cycle model is created, 
+ *
+ * i.e. models where the length of cell cycle phases are determined when
+ * the cell cycle model is created,
  * rather than evaluated 'on the fly' by ODEs and suchlike.
- * 
- * N.B. Whether or not the cell should actually divide may depend on 
+ *
+ * N.B. Whether or not the cell should actually divide may depend on
  * Wnt / Oxygen etc. in subclasses...
  */
 class AbstractSimpleCellCycleModel : public AbstractCellCycleModel
@@ -56,11 +56,11 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
     }
-    
+
 protected:
 
-    /** 
-     * Protected constructor for creating an identical daughter cell 
+    /**
+     * Protected constructor for creating an identical daughter cell
      * (with the same G1 duration).
      */
     AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
@@ -68,15 +68,15 @@ protected:
         mG1Duration = g1Duration;
         mGeneration = generation;
     }
-    
-    /** 
+
+    /**
      * Subclasses can override this function if they wish,
      * this just allocates the cancer parameter default values for each
      * of the different cell types' G1 durations.
      */
     virtual void SetG1Duration();
-    
-    
+
+
 public:
     /**
      * Default constructor - creates an AbstractSimpleCellCycleModel
@@ -84,28 +84,28 @@ public:
     AbstractSimpleCellCycleModel()
     {
     }
-        
+
     /**
      * Default destructor
      */
     virtual ~AbstractSimpleCellCycleModel()
     {}
-    
+
     virtual void ResetForDivision();
-    
+
     /**
      * Default UpdateCellCyclePhase function for a simple cell cycle model.
-     * 
-     * Can be overridden if they should do something more subtle. 
+     *
+     * Can be overridden if they should do something more subtle.
      */
     virtual void UpdateCellCyclePhase();
-    
-    /** 
-     * Set the new cell's G1 duration once it has been created after division. 
-     * The duration will be based on cell type. 
-     */ 
+
+    /**
+     * Set the new cell's G1 duration once it has been created after division.
+     * The duration will be based on cell type.
+     */
     void InitialiseDaughterCell();
-    
+
     virtual void Initialise();
 };
 

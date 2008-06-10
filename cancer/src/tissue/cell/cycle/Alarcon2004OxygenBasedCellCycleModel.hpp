@@ -47,62 +47,62 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Oxygen-dependent cell cycle model.
- * 
- * Note that this class uses C++'s default copying semantics, and so 
+ *
+ * Note that this class uses C++'s default copying semantics, and so
  * doesn't implement a copy constructor or operator=.
- * 
- * Note also that this model currently only works in 2D, since the 
- * SolveOdeToTime() and GetDivideTime() methods involve instances of 
- * CellwiseData<2>. 
+ *
+ * Note also that this model currently only works in 2D, since the
+ * SolveOdeToTime() and GetDivideTime() methods involve instances of
+ * CellwiseData<2>.
  */
 class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
-    friend class boost::serialization::access;   
-    
+    friend class boost::serialization::access;
+
 private:
     static RungeKutta4IvpOdeSolver msSolver;
-    
+
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        assert(mpOdeSystem!=NULL); 
+        assert(mpOdeSystem!=NULL);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
         // reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
-        archive & static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState(); 
+        archive & static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState();
     }
-        
+
 public:
 
     /**
      * Default constructor, variables are set by abstract classes.
      */
     Alarcon2004OxygenBasedCellCycleModel() {};
-   
 
-    Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
-                                         const CellMutationState& rMutationState, 
-                                         double birthTime, 
-                                         double lastTime, 
-                                         bool inSG2MPhase, 
-                                         bool readyToDivide, 
-                                         double divideTime, 
+
+    Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
+                                         const CellMutationState& rMutationState,
+                                         double birthTime,
+                                         double lastTime,
+                                         bool inSG2MPhase,
+                                         bool readyToDivide,
+                                         double divideTime,
                                          unsigned generation);
 
-    Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
-                                         const CellMutationState& rMutationState); 
-                          
+    Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+                                         const CellMutationState& rMutationState);
+
     virtual void ResetForDivision();
-    
+
     AbstractCellCycleModel *CreateDaughterCellCycleModel();
-    
-    void Initialise();    
-    
+
+    void Initialise();
+
     bool SolveOdeToTime(double currentTime);
-    
+
     double GetOdeStopTime();
-    
+
 };
 
 // declare identifier for the serializer
@@ -135,8 +135,8 @@ inline void load_construct_data(
     // constructor, provided they are valid parameter values, since the
     // state loaded later from the archive will overwrite their effect in
     // this case.
-    // Invoke inplace constructor to initialize instance of my_class   
-    
+    // Invoke inplace constructor to initialize instance of my_class
+
     std::vector<double> state_vars;
     for (unsigned i=0; i<6; i++)
     {

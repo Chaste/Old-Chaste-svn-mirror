@@ -85,38 +85,38 @@ class DynamicFiniteElasticityAssembler : public FiniteElasticityAssembler<DIM>
 {
 private:
 
-    /* Inherited 
+    /* Inherited
         Triangulation<DIM>*  mpMesh;
         FESystem<DIM>        mFeSystem;
         DoFHandler<DIM>      mDofHandler;
-    
+
         SparsityPattern      mSparsityPattern;
-    
+
         SparseMatrix<double> mJacobianMatrix;
         Vector<double>       mCurrentSolution;
         Vector<double>       mResidual;
-    
+
         std::string          mOutputDirectoryFullPath;
- 
+
         FourthOrderTensor<DIM> dTdE;
-    
+
         AbstractIncompressibleMaterialLaw<DIM>*  mpMaterialLaw;
         Vector<double>       mBodyForce;
         double               mDensity;
         const unsigned       PRESSURE_COMPONENT_INDEX;
-    
+
         std::map<unsigned,double> mBoundaryValues;
-    
+
         void AssembleSystem(bool assembleResidual, bool assembleJacobian);
         void ApplyDirichletBoundaryConditions(bool assembleResidual, bool assembleJacobian);
-    
+
         void OutputResults(unsigned newtonIteration);
         SparseMatrix<double> mNumericalJacobianMatrix;
      */
-    
+
     /*< Stored solution at the previous time step */
     Vector<double> mSolutionAtLastTimestep;
-    
+
     /*< Start time */
     double mTstart;
     /*< End time */
@@ -127,13 +127,13 @@ private:
     double mDtInverse;
     /*< Whether the start time, end time and timestep have been set */
     bool   mTimesSet;
-    
+
     /**
      *  AssembleOnElement
-     *  
+     *
      *  Assemble of the element matrix and/or element vector for the given element. Called
      *  by AssembleSystem in the base class
-     * 
+     *
      *  @elementIter Iterator pointing at current element
      *  @elementRhs Small vector to be filled in. Should be of size AbstractDealiiAssembler::mDofsPerElement
      *  @elementMatrix Small matrix to be filled in. Should be of square, of size AbstractDealiiAssembler::mDofsPerElement
@@ -145,21 +145,21 @@ private:
                            FullMatrix<double>&                             elementMatrix,
                            bool                                            assembleResidual,
                            bool                                            assembleJacobian);
-                           
-                           
+
+
 public:
     /**
      *  Constructor
-     *  
+     *
      *  @param pMesh A pointer to a dealii mesh. Note, the mesh must have some surface
      *   elements which have had their boundary indicator set to FIXED_BOUNDARY
      *  @param pMaterialLaw A pointer to an incompressible material law
      *  @bodyForce A vector of size DIM represents the body force (force per unit volume)
      *  @density The mass density. Must be strictly positive
-     *  @outputDirectory The output directory, relative the the testoutput directory. If 
+     *  @outputDirectory The output directory, relative the the testoutput directory. If
      *   empty no output is written
      *  @degreeOfBasesForPosition Degree of the polynomials used for interpolating positions.
-     *   Defaults to 2, ie quadratic interpolation 
+     *   Defaults to 2, ie quadratic interpolation
      *  @degreeOfBasesForPressure Degree of the polynomials used for interpolating pressue.
      *   Defaults to 2, ie linear interpolation
      */
@@ -171,21 +171,21 @@ public:
                                      unsigned degreeOfBasesForPosition=2,
                                      unsigned degreeOfBasesForPressure=1);
     virtual ~DynamicFiniteElasticityAssembler();
-    
+
     /**
-     *  Set the start and end times, and dt, for the simulation. Must be called 
+     *  Set the start and end times, and dt, for the simulation. Must be called
      *  before Solve()
      */
     void SetTimes(double Tstart, double Tend, double dt);
-    
+
     /**
-     *  Solve the dynamic finite elasticity problem. Note, SetTimes() must be called 
-     *  before this. rGetDeformedPosition() in the base class can be used to get the 
+     *  Solve the dynamic finite elasticity problem. Note, SetTimes() must be called
+     *  before this. rGetDeformedPosition() in the base class can be used to get the
      *  deformed positions post-solve.
      */
     void Solve();
-    
-    
+
+
     /* Inherited
         void SetBoundaryValues(std::map<unsigned, double> boundary_values);
         void ComputeNumericalJacobian();

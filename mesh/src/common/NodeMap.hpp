@@ -37,21 +37,21 @@ class NodeMap
 {
 private:
     std::vector<unsigned> mMap;
-    
+
 public:
     NodeMap(unsigned size)
     {
-        // this used to be reserve, but this acts oddly: 
+        // this used to be reserve, but this acts oddly:
         // eg: mMap.reserve(2); mMap[0]=1;
         // runs and mMap[0] returns 1, but mMap.size() returns 0
-        mMap.resize(size); 
+        mMap.resize(size);
     }
-    
+
     void Resize(unsigned size)
     {
         mMap.resize(size);
     }
-    
+
     void ResetToIdentity()
     {
         for (unsigned oldIndex=0; oldIndex<mMap.size(); oldIndex++)
@@ -63,17 +63,17 @@ public:
     {
         mMap[oldIndex] = newIndex;
     }
-    
+
     void SetDeleted(unsigned index)
     {
         mMap[index] = UINT_MAX;
     }
-    
+
     bool IsDeleted(unsigned index)
     {
         return (mMap[index]==UINT_MAX);
     }
-    
+
     unsigned GetNewIndex(unsigned oldIndex) const
     {
         if (mMap[oldIndex] == UINT_MAX)
@@ -82,7 +82,7 @@ public:
         }
         return (unsigned) mMap[oldIndex];
     }
-    
+
     bool IsIdentityMap()
     {
         for(unsigned i=0; i<mMap.size(); i++)
@@ -94,12 +94,12 @@ public:
         }
         return true;
     }
-    
+
     unsigned Size()
     {
         return mMap.size();
     }
-  
+
 };
 
 

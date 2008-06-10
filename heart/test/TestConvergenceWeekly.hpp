@@ -48,12 +48,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 class TestConvergenceWeekly : public CxxTest::TestSuite
-{   
+{
 public:
 
     void xxTest3DSpace() throw(Exception)
     {
-        
+
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-8);
         tester.SetMeshWidth(0.15);//cm
@@ -61,9 +61,9 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u); ///Just to prove the thing works
     }
-    
+
     //Experiments with ksp_atol follow.
-    //This first one has to be done before we've asked for symmlq    
+    //This first one has to be done before we've asked for symmlq
     void TestSpaceConvergencein1DWithAtol() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
@@ -75,7 +75,7 @@ public:
         //Has to be at least as good as the 1D with Rtol=1e-7
         //Note the final line fails with ksp_atol=1e-4
     }
- 
+
     //Copied from projects/jmpf
     void Test3DSpace10() throw(Exception)
     {
@@ -87,14 +87,14 @@ public:
         tester.OdeTimeStep /= 2.0;
         tester.PdeTimeStep /= 2.0;
         tester.SetMeshWidth(0.10);//cm
-        
+
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 3u);
     }
-    
-    
-    //More experiments with ksp_atol follow.  
+
+
+    //More experiments with ksp_atol follow.
     void TestSpaceConvergencein2DWithAtol() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
@@ -105,31 +105,31 @@ public:
         TS_ASSERT_LESS_THAN(tester.LastDifference, 6.65582e-05);
         //Comes in at 1.17118e-5
         //Has to be at least as good as the 2D with Rtol=5e-8
-        
+
     }
-    
+
     //Copied from projects/jmpf since this converges on mesh4
     void Test3DSpaceRelaxWidthWithAtol() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-3);        
-        
+        tester.SetKspAbsoluteTolerance(1e-3);
+
         tester.SetMeshWidth(0.15);//cm
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
     }
-    
+
     void TestSpaceConvergence3d()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-3); 
+        tester.SetKspAbsoluteTolerance(1e-3);
         tester.Stimulus=NEUMANN;
         tester.SetMeshWidth(0.14);//cm
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
-    }  
+    }
 
 };
 

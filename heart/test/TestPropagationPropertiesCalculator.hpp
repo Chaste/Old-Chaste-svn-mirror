@@ -50,17 +50,17 @@ public:
 
         double velocity = ppc.CalculateConductionVelocity(5,15,0.1);
         TS_ASSERT_DELTA(velocity, 0.0499, 0.001);
-        
+
         // Should throw because AP does not propagate far enough in simulation time
         TS_ASSERT_THROWS_ANYTHING(ppc.CalculateConductionVelocity(5,95,0.9));
-        
+
         // Should throw because AP does not propagate far enough in simulation time
         TS_ASSERT_THROWS_ANYTHING(ppc.CalculateConductionVelocity(90,100,0.1));
-        
+
         TS_ASSERT_DELTA(ppc.CalculateMaximumUpstrokeVelocity(1),343.9429,0.001);
-        
+
         TS_ASSERT_DELTA(ppc.CalculatePeakMembranePotential(5),23.6271,0.001);
-        
+
         TS_ASSERT_DELTA(ppc.CalculateActionPotentialDuration(50,5),0,0.001);
     }
 };

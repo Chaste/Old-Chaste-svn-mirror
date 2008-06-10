@@ -52,7 +52,7 @@ public:
     {
         mpStimulus = new SimpleStimulus(-1000.0*1000, 1);
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node==19)
@@ -64,7 +64,7 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
-    
+
     ~BidomainPointStimulusCellFactory(void)
     {
         delete mpStimulus;
@@ -78,11 +78,11 @@ public:
     void TestBidomainCompareWithMemfemBasic()
     {
         BidomainPointStimulusCellFactory bidomain_cell_factory;
-        
+
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
-        
+
         bidomain_problem.SetMeshFilename("heart/test/data/memfem_mesh/simple");
-        
+
         // set the back face (nodes 468-506) to have phi_e fixed to zero
         std::vector<unsigned> fixed_nodes;
         for (unsigned i=468;i<507;i++)
@@ -90,20 +90,20 @@ public:
             fixed_nodes.push_back(i);
         }
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
-        
-        
+
+
         bidomain_problem.SetEndTime(50);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d_CompareWithMemfem");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetWriteInfo();
-        
+
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.19, 0.19, 1.79));
         bidomain_problem.SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));
-        
+
         bidomain_problem.Initialise();
 
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1500); //    1/cm
-        
+
         try
         {
             TS_FAIL("Doesn't yet agree with Memfem");
@@ -120,8 +120,8 @@ public:
         {
             std::cout << e.GetMessage() << "\n";
         }
-        
- 
+
+
     }
 };
 

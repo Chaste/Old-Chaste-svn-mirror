@@ -43,7 +43,7 @@ void NhsCellularMechanicsOdeSystem::CalculateCalciumTrop50()
 double NhsCellularMechanicsOdeSystem::CalculateT0(double z)
 {
     double calcium_ratio_to_n = pow(mCalciumTrop50/mCalciumTroponinMax, mN);
-    
+
     double z_max = mAlpha0 - mK2*calcium_ratio_to_n;
     z_max /= mAlpha0 + (mAlphaR1 + mK1)*calcium_ratio_to_n;
 
@@ -78,19 +78,19 @@ NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
     mVariableNames.push_back("Q3");
     mVariableUnits.push_back("");
     mStateVariables.push_back(0);
-            
+
     mLambda = 1.0;
     mDLambdaDt = 0.0;
-    mCalciumI = 0.0;            
-    
+    mCalciumI = 0.0;
+
     // Initialise mCalciumTrop50!!
     CalculateCalciumTrop50();
-    
+
     double zp_to_n_plus_K_to_n = pow(mZp,mNr) + pow(mKZ,mNr);
-    
+
     mK1 = mAlphaR2 * pow(mZp,mNr-1) * mNr * pow(mKZ,mNr);
     mK1 /= zp_to_n_plus_K_to_n * zp_to_n_plus_K_to_n;
-    
+
     mK2 = mAlphaR2 * pow(mZp,mNr)/zp_to_n_plus_K_to_n;
     mK2 *= 1 - mNr*pow(mKZ,mNr)/zp_to_n_plus_K_to_n;
 }
@@ -126,7 +126,7 @@ void NhsCellularMechanicsOdeSystem::EvaluateYDerivatives(double time,
     const double& Q1 = rY[2];
     const double& Q2 = rY[3];
     const double& Q3 = rY[4];
-    
+
     // check the state vars are in the expected range
     #define COVERAGE_IGNORE
     if(calcium_troponin < 0)
@@ -143,10 +143,10 @@ void NhsCellularMechanicsOdeSystem::EvaluateYDerivatives(double time,
     }
     #undef COVERAGE_IGNORE
 
-            
+
     double Q = Q1 + Q2 + Q3;
     double T0 = CalculateT0(z);
-    
+
     double Ta;
     if(Q>0)
     {
@@ -161,12 +161,12 @@ void NhsCellularMechanicsOdeSystem::EvaluateYDerivatives(double time,
              - mKrefoff * (1-Ta/(mGamma*mTref)) * calcium_troponin;
 
     double ca_trop_to_ca_trop50_ratio_to_n = pow(calcium_troponin/mCalciumTrop50, mN);
-            
-    rDY[1] =   mAlpha0 * ca_trop_to_ca_trop50_ratio_to_n * (1-z) 
+
+    rDY[1] =   mAlpha0 * ca_trop_to_ca_trop50_ratio_to_n * (1-z)
              - mAlphaR1 * z
              - mAlphaR2 * pow(z,mNr) / (pow(z,mNr) + pow(mKZ,mNr));
-    
-           
+
+
     rDY[2] = mA1 * mDLambdaDt - mAlpha1 * Q1;
     rDY[3] = mA2 * mDLambdaDt - mAlpha2 * Q2;
     rDY[4] = mA3 * mDLambdaDt - mAlpha3 * Q3;
@@ -177,7 +177,7 @@ double NhsCellularMechanicsOdeSystem::GetActiveTension()
 {
     double T0 = CalculateT0(mStateVariables[1]);
     double Q = mStateVariables[2]+mStateVariables[3]+mStateVariables[4];
-    
+
     if(Q>0)
     {
         return T0*(1+(2+mA)*Q)/(1+Q);

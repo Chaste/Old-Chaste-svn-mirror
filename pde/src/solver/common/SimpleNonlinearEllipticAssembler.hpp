@@ -72,13 +72,13 @@ private:
 
     /*< The pde to be solved */
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;
-    
-    
+
+
     /**
      *  This method returns the matrix to be added to element stiffness matrix
-     *  for a given gauss point. The arguments are the bases, bases gradients, 
+     *  for a given gauss point. The arguments are the bases, bases gradients,
      *  x and current solution computed at the Gauss point. The returned matrix
-     *  will be multiplied by the gauss weight and jacobian determinent and 
+     *  will be multiplied by the gauss weight and jacobian determinent and
      *  added to the element stiffness matrix (see AssembleOnElement()).
      */
     virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
@@ -90,35 +90,35 @@ private:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
-        
+
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX,u(0));
-        
+
         //LinearSourceTerm(x)   not needed as it is a constant wrt u
         double forcing_term_prime = mpNonlinearEllipticPde->ComputeNonlinearSourceTermPrime(rX, u(0));
-        
+
         // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
         // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector
         matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
         c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,rGradU0);
         c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, rGradPhi);
-        
+
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, rPhi);
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(f_of_u, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2 = prod(trans(rGradPhi), temp2);
         c_vector<double, ELEMENT_DIM+1> integrand_values3 = forcing_term_prime * rPhi;
-        
+
         ret = integrand_values1 + integrand_values2 - outer_prod( scalar_vector<double>(ELEMENT_DIM+1), integrand_values3);
-        
+
         return ret;
     }
-    
-    
+
+
     /**
      *  This method returns the vector to be added to element stiffness vector
-     *  for a given gauss point. The arguments are the bases, 
+     *  for a given gauss point. The arguments are the bases,
      *  x and current solution computed at the Gauss point. The returned vector
-     *  will be multiplied by the gauss weight and jacobian determinent and 
+     *  will be multiplied by the gauss weight and jacobian determinent and
      *  added to the element stiffness matrix (see AssembleOnElement()).
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
@@ -130,9 +130,9 @@ private:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_vector<double, 1*(ELEMENT_DIM+1)> ret;
-        
+
         //c_vector<double, SPACE_DIM> gradU = prod(grad_phi, Ui);
-        
+
         // For solving NonlinearEllipticEquation
         // which should be defined in/by NonlinearEllipticEquation.hpp:
         // d/dx [f(U,x) du/dx ] = -g
@@ -140,25 +140,25 @@ private:
         double ForcingTerm = mpNonlinearEllipticPde->ComputeLinearSourceTerm(rX);
         ForcingTerm += mpNonlinearEllipticPde->ComputeNonlinearSourceTerm(rX, u(0));
         //make RHS general: consists of linear and nonlinear source terms
-        
+
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
-        
+
         // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
         // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector.
         matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
         c_vector<double, ELEMENT_DIM+1> integrand_values1 =
             prod(c_vector<double, ELEMENT_DIM>(prod(rGradU0, FOfU)), rGradPhi);
-            
+
         ret = integrand_values1 - (ForcingTerm * rPhi);
         return ret;
     }
-    
-    
+
+
     /**
      *  This method returns the vector to be added to element stiffness vector
-     *  for a given gauss point in BoundaryElement. The arguments are the bases, 
+     *  for a given gauss point in BoundaryElement. The arguments are the bases,
      *  x and current solution computed at the Gauss point. The returned vector
-     *  will be multiplied by the gauss weight and jacobian determinent and 
+     *  will be multiplied by the gauss weight and jacobian determinent and
      *  added to the element stiffness matrix (see AssembleOnElement()).
      */
     virtual c_vector<double, 1*ELEMENT_DIM> ComputeVectorSurfaceTerm(
@@ -167,12 +167,12 @@ private:
         ChastePoint<SPACE_DIM> &rX )
     {
         double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
-        
+
         // I'm not sure why we want -phi, but it seems to work:)
         return  (-Dgradu_dot_n)* rPhi;
     }
-    
-    
+
+
 public :
 
     /**
@@ -190,7 +190,7 @@ public :
         assert(pMesh!=NULL);
         assert(pPde!=NULL);
         assert(pBoundaryConditions!=NULL);
-        
+
         this->SetMesh(pMesh);
         mpNonlinearEllipticPde = pPde;
         this->SetBoundaryConditionsContainer(pBoundaryConditions);

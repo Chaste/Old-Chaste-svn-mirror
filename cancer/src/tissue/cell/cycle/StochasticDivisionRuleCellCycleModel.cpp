@@ -27,17 +27,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "StochasticDivisionRuleCellCycleModel.hpp"
 
-void StochasticDivisionRuleCellCycleModel::SetG1Duration()    
+void StochasticDivisionRuleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
-    
-    CancerParameters* p_params = CancerParameters::Instance(); 
-    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance(); 
-    
+
+    CancerParameters* p_params = CancerParameters::Instance();
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+
     switch (mpCell->GetCellType())
     {
         case STEM:
-            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(), 1.0);            
+            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(), 1.0);
             break;
         case TRANSIT:
             mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(), 1.0);
@@ -48,7 +48,7 @@ void StochasticDivisionRuleCellCycleModel::SetG1Duration()
         default:
             NEVER_REACHED;
     }
-    
+
     // Check that the normal random deviate has not returned a small or negative G1 duration
     if (mG1Duration < p_params->GetMinimumGapDuration())
     {
@@ -64,30 +64,30 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
     {
         mpCell->SetCellType(DIFFERENTIATED);
     }
-    
+
     // If dealing with a stem cell, we may have symmetric division.
     // We therefore neglect the possibility of de-differentiation.
-    // NB. This code must be implemented before the call to 
-    // AbstractSimpleCellCycleModel::ResetForDivision(), because that 
+    // NB. This code must be implemented before the call to
+    // AbstractSimpleCellCycleModel::ResetForDivision(), because that
     // method sets the G1 duration based on the cell type.
     if (mpCell->GetCellType() == STEM)
     {
         double test_number = RandomNumberGenerator::Instance()->ranf(); // U(0,1)
         double sym_div_prob = CancerParameters::Instance()->GetSymmetricDivisionProbability();
-                    
+
         // If undergoing symmetric division...
         if (test_number < sym_div_prob)
         {
             mDividedSymmetrically = true;
-            
+
             // Check if the daughter cells are both STEM or TRANSIT.
-            // We assign an equal probability to each of these events.                
+            // We assign an equal probability to each of these events.
             if (test_number < 0.5*sym_div_prob)
-            {                    
+            {
                 mpCell->SetCellType(STEM);
             }
             else
-            {                    
+            {
                 mpCell->SetCellType(TRANSIT);
             }
         }
@@ -96,9 +96,9 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
             mDividedSymmetrically = false;
         }
     }
-            
+
     AbstractSimpleCellCycleModel::ResetForDivision();
-    
+
     if (mpCell->GetCellType() == STEM)
     {
         mGeneration = 0;
@@ -107,8 +107,8 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
 
 void StochasticDivisionRuleCellCycleModel::InitialiseDaughterCell()
 {
-    // If the cell was born out of symmetric division, 
-    // then do not alter generation or cell type        
+    // If the cell was born out of symmetric division,
+    // then do not alter generation or cell type
     if (mDividedSymmetrically == false)
     {
         if (mGeneration == 0)

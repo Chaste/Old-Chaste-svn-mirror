@@ -46,36 +46,36 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<WntCellCycleModel>(*this);
-        
+
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
-        
+
         archive & mG2Duration;
     }
-    
+
     /**
-     * This is a function which overrides that in WntCellCycleModel and 
-     * introduces the stochastic element of this class. 
-     * We allow the duration of the G2 phase of the cell cycle to 
-     * vary with a mean of its deterministic duration and a standard 
+     * This is a function which overrides that in WntCellCycleModel and
+     * introduces the stochastic element of this class.
+     * We allow the duration of the G2 phase of the cell cycle to
+     * vary with a mean of its deterministic duration and a standard
      * deviation of 0.9 hours.
-     * 
+     *
      * @return the duration of the G2 phases of the cell cycle.
      */
     void SetG2Duration();
-    
+
     /// The duration of the G2 phase, set stochastically
     double mG2Duration;
-        
+
 public:
 
     void InitialiseDaughterCell();
 
     void Initialise();
-    
+
     void ResetForDivision();
-    
+
     double GetG2Duration();
 
     /**
@@ -83,27 +83,27 @@ public:
      */
     StochasticWntCellCycleModel()
       :  WntCellCycleModel() {};
-    
+
     /**
-     * This is needed because a wnt model which is not to be run from the current time is 
+     * This is needed because a wnt model which is not to be run from the current time is
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
      */
     StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                 CellMutationState mutationState,
                                 double birthTime, double lastTime,
                                 bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation, double g2Duration)
-      : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, 
+      : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime,
                           inSG2MPhase, readyToDivide, divideTime, generation),
         mG2Duration(g2Duration) {};
 
     /**
-     * This is needed because a wnt model which is not to be run from the current time is 
+     * This is needed because a wnt model which is not to be run from the current time is
      * sometimes needed. Should only be called by the archiver.
      */
-    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, 
+    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations,
                                 CellMutationState mutationState)
       : WntCellCycleModel(proteinConcentrations, mutationState) {};
-    
+
     /**
      * Returns a new StochasticWntCellCycleModel created with the correct initial conditions.
      *
@@ -111,7 +111,7 @@ public:
      *
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
-    
+
 };
 
 
@@ -150,7 +150,7 @@ inline void load_construct_data(
     for (unsigned i=0; i<9; i++)
     {
         state_vars.push_back(0.0);
-    }   
+    }
 
     CellMutationState mutation_state = HEALTHY;
 

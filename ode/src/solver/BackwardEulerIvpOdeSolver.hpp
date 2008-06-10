@@ -42,23 +42,23 @@ class BackwardEulerIvpOdeSolver  : public AbstractOneStepIvpOdeSolver
 {
 private:
     unsigned mSizeOfOdeSystem;
-    
+
     /** the epsilon to use in calculating numerical jacobians */
     double mNumericalJacobianEpsilon;
     bool mForceUseOfNumericalJacobian;
-    
+
     // NOTE: we use (unsafe) double pointers here rather than
     // std::vectors because using std::vectors would lead to a
     // slow down by a factor of about 4.
-    
+
     /** Working memory : residual vector */
     double* mResidual;
     /** Working memory : Jacobian matrix */
     double** mJacobian;
     /** Working memory : update vector */
     double* mUpdate;
-    
-    
+
+
     void ComputeResidual(AbstractOdeSystem* pAbstractOdeSystem,
                          double timeStep,
                          double time,
@@ -69,12 +69,12 @@ private:
         pAbstractOdeSystem->EvaluateYDerivatives(time, currentGuess, dy);
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
-        
+
             mResidual[i] = currentGuess[i] - timeStep * dy[i] - currentYValues[i];
         }
     }
-    
-    
+
+
     void ComputeJacobian(AbstractOdeSystem* pAbstractOdeSystem,
                          double timeStep,
                          double time,
@@ -88,7 +88,7 @@ private:
                 mJacobian[i][j]=0.0;
             }
         }
-        
+
         if (pAbstractOdeSystem->GetUseAnalytic() && !mForceUseOfNumericalJacobian)
         {
             // the ode system has an analytic jacobian, use that
@@ -105,7 +105,7 @@ private:
                                      currentGuess);
         }
     }
-    
+
     void SolveLinearSystem()
     {
         double fact;
@@ -133,7 +133,7 @@ private:
             mUpdate[i] /= mJacobian[i][i];
         }
     }
-    
+
     double ComputeNorm(double* vector)
     {
         double norm = 0.0;
@@ -146,8 +146,8 @@ private:
         }
         return norm;
     }
-    
-    
+
+
     void ComputeNumericalJacobian(AbstractOdeSystem* pAbstractOdeSystem,
                                   double timeStep,
                                   double time,
@@ -157,31 +157,31 @@ private:
         std::vector<double> residual(mSizeOfOdeSystem);
         std::vector<double> residual_perturbed(mSizeOfOdeSystem);
         std::vector<double> guess_perturbed(mSizeOfOdeSystem);
-        
+
         double epsilon= mNumericalJacobianEpsilon;
-        
+
         ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, currentGuess);
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             residual[i] = mResidual[i];
         }
-        
-        
+
+
         for (unsigned global_column=0; global_column<mSizeOfOdeSystem; global_column++)
         {
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 guess_perturbed[i] = currentGuess[i];
             }
-            
+
             guess_perturbed[global_column] += epsilon;
-            
+
             ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, guess_perturbed);
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 residual_perturbed[i] = mResidual[i];
             }
-            
+
             // compute residual_perturbed - residual
             double one_over_eps=1.0/epsilon;
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
@@ -190,10 +190,10 @@ private:
             }
         }
     }
-    
-    
-    
-    
+
+
+
+
 protected:
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                              double timeStep,
@@ -203,16 +203,16 @@ protected:
     {
         // check the size of the ode system matches the solvers expected
         assert(mSizeOfOdeSystem == pAbstractOdeSystem->GetNumberOfStateVariables());
-        
-        
+
+
         unsigned counter = 0;
 //        const double eps = 1e-6 * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
         const double eps = 1e-6; // JonW tolerance
         double norm = 2*eps;
-        
+
         std::vector<double> current_guess(mSizeOfOdeSystem);
         current_guess.assign(currentYValues.begin(), currentYValues.end());
-        
+
         while (norm > eps)
         {
             // Calculate Jacobian and mResidual for current guess
@@ -223,62 +223,62 @@ protected:
 
             // Solve Newton linear system
             SolveLinearSystem();
-            
+
             // Update norm (JonW style)
             norm = ComputeNorm(mUpdate);
-            
+
             // Update current guess
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 current_guess[i] -= mUpdate[i];
             }
-            
+
             counter++;
             assert(counter < 20); // avoid infinite loops
         }
         nextYValues.assign(current_guess.begin(), current_guess.end());
-        
+
     }
-    
+
 public:
     BackwardEulerIvpOdeSolver(unsigned sizeOfOdeSystem)
     {
         mSizeOfOdeSystem = sizeOfOdeSystem;
-        
+
         // default epsilon
         mNumericalJacobianEpsilon = 1e-6;
         mForceUseOfNumericalJacobian = false;
-        
+
         // allocate memory
         mResidual = new double[mSizeOfOdeSystem];
         mUpdate = new double[mSizeOfOdeSystem];
-        
+
         mJacobian = new double*[mSizeOfOdeSystem];
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             mJacobian[i] = new double[mSizeOfOdeSystem];
         }
     }
-    
+
     ~BackwardEulerIvpOdeSolver()
     {
         // delete pointers
         delete[] mResidual;
         delete[] mUpdate;
-        
+
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             delete[] mJacobian[i];
         }
         delete[] mJacobian;
     }
-    
+
     void SetEpsilonForNumericalJacobian(double epsilon)
     {
         assert(epsilon > 0);
         mNumericalJacobianEpsilon = epsilon;
     }
-    
+
     /** Force the solver to use the numerical Jacobian even if the
      *  ode system is one with an analytical jacobian provided
      */

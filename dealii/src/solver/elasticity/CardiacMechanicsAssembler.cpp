@@ -66,7 +66,7 @@ template<unsigned DIM>
 CardiacMechanicsAssembler<DIM>::~CardiacMechanicsAssembler()
 {
     if(mAllocatedMaterialLawMemory)
-    {    
+    {
         delete this->mMaterialLaws[0];
     }
 }
@@ -115,7 +115,7 @@ void CardiacMechanicsAssembler<DIM>::SetFibreSheetMatrix(Tensor<2,DIM> fibreShee
             }
         }
     }
-    
+
     mFibreSheetMat = fibreSheetMat;
     mTransFibreSheetMat = transpose(mFibreSheetMat);
 }
@@ -123,20 +123,20 @@ void CardiacMechanicsAssembler<DIM>::SetFibreSheetMatrix(Tensor<2,DIM> fibreShee
 
 /*************************************
  *  AssembleOnElement
- * 
- *  Differs FiniteElasticityAssembler::AssembleOnElement in a few ways:  
+ *
+ *  Differs FiniteElasticityAssembler::AssembleOnElement in a few ways:
  *   1. The active tension at a quad point is used, and the stretch at the quad point is set.
- *   
- *   2. The extra term in the stress (see below) arising from the active tension is incorporated 
- *      into the formulation. It is added to the stress (the variable 'T'), and dTdE is amended 
+ *
+ *   2. The extra term in the stress (see below) arising from the active tension is incorporated
+ *      into the formulation. It is added to the stress (the variable 'T'), and dTdE is amended
  *      as well. The fibre direction is taken into account using a rotation matrix.
- * 
+ *
  *   3. Since the body force and Neumann tractions will be zero, the corresponding loops
- *      have been removed. 
- * 
+ *      have been removed.
+ *
  *  The active tension term in the stress is T_a/C_fibre[0][0], when C_fibre = P^T C P,
  *  where P is a rotation matrix rotating the axes onto the fibre-sheet axes.
- *      
+ *
  *************************************/
 template<unsigned DIM>
 void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
@@ -147,25 +147,25 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                                       )
 {
     // if mCurrentQuadPointGlobalIndex is greater than the total num of quad points something
-    // very bad has happened. 
+    // very bad has happened.
     assert(this->mCurrentQuadPointGlobalIndex <= this->mTotalQuadPoints);
-    
+
     if(this->mCurrentQuadPointGlobalIndex==this->mTotalQuadPoints)
     {
         // if we are not back to the first cell something bad has happened
         assert( elementIter == this->mDofHandler.begin_active() );
-        
+
         this->mCurrentQuadPointGlobalIndex = 0;
     }
 
 
     static QGauss<DIM>   quadrature_formula(this->mNumQuadPointsInEachDimension);
     //static QGauss<DIM-1> face_quadrature_formula(3);
-    
+
     const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
     //const unsigned n_face_q_points = face_quadrature_formula.n_quadrature_points;
-    
-    
+
+
     // would want this to be static too (slight speed up), but causes errors
     // in debug mode (upon destruction of the class, in 2d, or something)
     FEValues<DIM> fe_values(this->mFeSystem, quadrature_formula,
@@ -173,7 +173,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                         update_gradients |
                                         update_q_points  |     // needed for interpolating u and u' on the quad point
                                         update_JxW_values));
-                                        
+
     //    // would want this to be static too (slight speed up), but causes errors
     //    // in debug mode (upon destruction of the class, in 2d, or something)
     //    FEFaceValues<DIM> fe_face_values(this->mFeSystem, face_quadrature_formula,
@@ -181,18 +181,18 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     //                                                 update_q_points       |
     //                                                 update_normal_vectors |
     //                                                 update_JxW_values));
-                                                 
-                                                 
+
+
     const unsigned dofs_per_element = this->mFeSystem.dofs_per_cell;
-    
+
     static std::vector< Vector<double> >                  local_solution_values(n_q_points);
     static std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
-    
+
     static Tensor<2,DIM> identity;
-    
+
     static bool first = true;
-    
-    
+
+
     if (first)
     {
         for (unsigned q_point=0; q_point<n_q_points; q_point++)
@@ -208,16 +208,16 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
             }
         }
     }
-        
+
     elementMatrix = 0;
     elementRhs = 0;
 
     fe_values.reinit(elementIter); // compute fe values for this element
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
-    
+
     AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
-    
+
 
 //// for a varying fibre-direction
 //    assert(DIM==2);
@@ -227,12 +227,12 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 //    mFibreSheetMat[1][0] = -sin(theta);
 //    mFibreSheetMat[1][1] =  cos(theta);
 //    mTransFibreSheetMat = transpose(mFibreSheetMat);
-    
-    
+
+
     for (unsigned q_point=0; q_point<n_q_points; q_point++)
     {
         const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
-        
+
         double p = local_solution_values[q_point](this->PRESSURE_COMPONENT_INDEX);
 
         static Tensor<2,DIM> F;
@@ -240,7 +240,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         static Tensor<2,DIM> inv_C;
         static Tensor<2,DIM> inv_F;
         static Tensor<2,DIM> T;
-        
+
         for (unsigned i=0; i<DIM; i++)
         {
             for (unsigned j=0; j<DIM; j++)
@@ -248,14 +248,14 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                 F[i][j] = identity[i][j] + grad_u_p[i][j];
             }
         }
-        
+
         C = transpose(F) * F;
-        
+
         inv_C = invert(C);
         inv_F = invert(F);
 
         double detF = determinant(F);
-        
+
         /*************************************
          *  The cardiac-specific code
          ************************************/
@@ -264,7 +264,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         static Tensor<2,DIM> C_fibre;          // C when transformed to fibre-sheet axes
         static Tensor<2,DIM> inv_C_fibre;      // C^{-1} transformed to fibre-sheet axes
         static SymmetricTensor<2,DIM> T_fibre; // T when transformed to fibre-sheet axes
-        
+
         // transform C and invC
         C_fibre = mTransFibreSheetMat * C * mFibreSheetMat;
         inv_C_fibre = mTransFibreSheetMat * inv_C * mFibreSheetMat;
@@ -284,19 +284,19 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 
         // amend the stress and dTdE using the active tension
         T_fibre[0][0] += active_tension/C_fibre[0][0];
-        mDTdE_fibre(0,0,0,0) -= 2*active_tension/(C_fibre[0][0]*C_fibre[0][0]);  
-        
+        mDTdE_fibre(0,0,0,0) -= 2*active_tension/(C_fibre[0][0]*C_fibre[0][0]);
+
         // transform T back to real coordinates
         // Note we explicitly do the multiplication as can't multiply
         // deal.II SymmetricTensor with a Tensor
 
 ///\todo: make efficient
-        for(unsigned M=0; M<DIM; M++) 
+        for(unsigned M=0; M<DIM; M++)
         {
             for(unsigned N=0; N<DIM; N++)
             {
-                T[M][N] = 0;        
-                for(unsigned al=0; al<DIM; al++) 
+                T[M][N] = 0;
+                for(unsigned al=0; al<DIM; al++)
                 {
                     for(unsigned be=0; be<DIM; be++)
                     {
@@ -306,21 +306,21 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                     }
                 }
             }
-        }            
+        }
 
 
-        
+
 //        // transform dTdE back to real coords (ie dT_{albe}dE_{gam de} to dT_{MN}dE_{PQ})
-//        for(unsigned M=0; M<DIM; M++) 
+//        for(unsigned M=0; M<DIM; M++)
 //        {
 //            for(unsigned N=0; N<DIM; N++)
 //            {
-//                for(unsigned P=0; P<DIM; P++) 
+//                for(unsigned P=0; P<DIM; P++)
 //                {
 //                    for(unsigned Q=0; Q<DIM; Q++)
 //                    {
 //                        this->dTdE(M,N,P,Q) = 0;
-//                        for(unsigned al=0; al<DIM; al++) 
+//                        for(unsigned al=0; al<DIM; al++)
 //                        {
 //                            for(unsigned be=0; be<DIM; be++)
 //                            {
@@ -340,7 +340,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 //                    }
 //                }
 //            }
-//        }            
+//        }
 
         static FourthOrderTensor<DIM> temp1;
         static FourthOrderTensor<DIM> temp2;
@@ -349,25 +349,25 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         temp1.SetAsProduct(mDTdE_fibre, mFibreSheetMat, 0);
         temp2.SetAsProduct(temp1,       mFibreSheetMat, 1);
         temp3.SetAsProduct(temp2,       mFibreSheetMat, 2);
-        
+
         this->dTdE.SetAsProduct(temp3, mFibreSheetMat, 3);
 
-        
+
         /********************************
          * end of cardiac specific code
          ********************************/
-///\todo: refactor somehow 
+///\todo: refactor somehow
 
         for (unsigned i=0; i<dofs_per_element; i++)
         {
             const unsigned component_i = this->mFeSystem.system_to_component_index(i).first;
-            
+
             if (assembleJacobian)
             {
                 for (unsigned j=0; j<dofs_per_element; j++)
                 {
                     const unsigned component_j = this->mFeSystem.system_to_component_index(j).first;
-                    
+
                     if ((component_i<this->PRESSURE_COMPONENT_INDEX) &&(component_j<this->PRESSURE_COMPONENT_INDEX) )
                     {
                         for (unsigned N=0; N<DIM; N++)
@@ -379,7 +379,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                                       * fe_values.shape_grad(i,q_point)[N]
                                                       * identity[component_i][component_j]
                                                       * fe_values.JxW(q_point);
-                                                        
+
                                 for (unsigned P=0; P<DIM; P++)
                                 {
                                     for (unsigned Q=0; Q<DIM; Q++)
@@ -402,7 +402,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 //// implementation of old (wrong) equation, where T = .. + T_a invF_{0M} invF_{0N}
 //// Note T is now directly altered, so no need to add anything new to elementMatrix
 //                                ///////////////////////////////////////////////////////////
-//                                // The extra part of the element stiffness matrix 
+//                                // The extra part of the element stiffness matrix
 //                                // arising from the active tension part of the stress
 //                                ///////////////////////////////////////////////////////////
 //                                elementMatrix(i,j) +=  -active_tension
@@ -448,7 +448,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                     //}
                 }
             }
-            
+
             if (assembleResidual)
             {
                 if (component_i<this->PRESSURE_COMPONENT_INDEX)
@@ -457,7 +457,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                     //elementRhs(i) += - mDensity * this->mBodyForce(component_i)
                     //                 * fe_values.shape_value(i,q_point)
                     //                 * fe_values.JxW(q_point);
-                                     
+
                     for (unsigned N=0; N<DIM; N++)
                     {
                         for (unsigned M=0; M<DIM; M++)
@@ -471,7 +471,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 //// implementation of old (wrong) equation, where T = .. + T_a invF_{0M} invF_{0N}
 //// Note T is now directly altered, so no need to add anything new to elementRhs
 //                        ///////////////////////////////////////////////////////////
-//                        // The extra part of the element stiffness matrix 
+//                        // The extra part of the element stiffness matrix
 //                        // arising from the active tension part of the stress
 //                        ///////////////////////////////////////////////////////////
 //                        elementRhs(i) +=   active_tension
@@ -492,9 +492,9 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 
         this->mCurrentQuadPointGlobalIndex++;
     }
-    
+
     /* zero applied stress, so do not do this */
-    //    
+    //
     //    ////////////////////////////
     //    // loop over faces
     //    ////////////////////////////
@@ -505,17 +505,17 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     //            if (elementIter->face(face_index)->boundary_indicator() == NEUMANN_BOUNDARY)
     //            {
     //                fe_face_values.reinit(elementIter, face_index);
-    //                
+    //
     //                for (unsigned q_point=0; q_point<n_face_q_points; q_point++)
     //                {
     //                    Vector<double> neumann_traction(DIM); // zeros
-    //                    
+    //
     //                    neumann_traction(1)=0.0;
-    //                    
+    //
     //                    for (unsigned i=0; i<dofs_per_element; i++)
     //                    {
     //                        const unsigned component_i = this->mFeSystem.system_to_component_index(i).first;
-    //                        
+    //
     //                        if (component_i < this->PRESSURE_COMPONENT_INDEX)
     //                        {
     //                            elementRhs(i) +=   neumann_traction(component_i)
@@ -527,7 +527,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     //            }
     //        }
     //    }
-    
+
     first = false;
 }
 

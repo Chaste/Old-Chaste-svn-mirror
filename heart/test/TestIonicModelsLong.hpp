@@ -62,14 +62,14 @@ public:
         double start = 50.0; // ms
         double period = 500; // ms
         RegularStimulus stimulus(magnitude, duration, period, start);
-        
+
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.002;  //2e-6 seconds in milliseconds
                             // 0.005 leads to NaNs.
-        
+
         EulerIvpOdeSolver solver;
         FoxModel2002Modified fox_ode_system(&solver, time_step, &stimulus);
-        
+
         // Solve and write to file
         ck_start = clock();
         RunOdeSolverWithIonicModel(&fox_ode_system,
@@ -78,9 +78,9 @@ public:
                                    500);
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-                                   
+
         CheckCellModelResults("FoxRegularStimLong");
-        
+
         // Solve using Backward Euler
         BackwardEulerFoxModel2002Modified backward_system(time_step*5, &stimulus);
         ck_start = clock();
@@ -90,17 +90,17 @@ public:
                                    100);
         ck_end = clock();
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
+
         CompareCellModelResults("FoxRegularStimLong", "BackwardFoxRegularStimLong", 0.15);
         // Mainly for coverage, and to test consistency of GetIIonic
         TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
                         backward_system.GetIIonic(),
                         1e-6);
-        
+
         std::cout << "Run times:\n\tForward: " << forward
                   << "\n\tBackward: " << backward
                   << std::endl;
-        
+
     }
 };
 

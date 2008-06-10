@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Fixed cell cycle model
  *
  *  Cell cycle time is deterministic for stem and transit cells (with values
- *  CancerParameters::StemCellG1Duration + SG2MDuration 
+ *  CancerParameters::StemCellG1Duration + SG2MDuration
  *  and CancerParameters::TransitCellG1Duration + SG2MDuration)
  */
 class FixedCellCycleModel : public AbstractSimpleMeinekeCellCycleModel
@@ -46,15 +46,15 @@ private:
     {
         archive & boost::serialization::base_object<AbstractSimpleMeinekeCellCycleModel>(*this);
     }
-    
+
     /**
      * Private constructor for identical cells.
      */
     FixedCellCycleModel(double g1Duration, unsigned generation):
         AbstractSimpleMeinekeCellCycleModel(g1Duration, generation){};
-    
-protected:    
-    
+
+protected:
+
 public:
 
     /**
@@ -62,9 +62,9 @@ public:
      *                          mG1Duration now set in AbstractSimpleCellCycleModel()
      */
     FixedCellCycleModel() {};
-    
-    AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
-    
+
+    AbstractCellCycleModel *CreateDaughterCellCycleModel();
+
 };
 
 // declare identifier for the serializer

@@ -45,7 +45,7 @@ const double smidge=1e-10;
 /*
  * PROTECTED FUNCTIONS =========================================================
  */
- 
+
 void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
                                                 AbstractOdeSystem* pOdeSystem,
                                                 std::vector<double>& rYValues,
@@ -70,19 +70,19 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
     myk4.reserve(number_of_variables);
     myk5.reserve(number_of_variables);
     myk6.reserve(number_of_variables);
-    
+
     double current_time = startTime;
     double time_step = maxTimeStep;
     bool got_to_end = false;
     bool accurate_enough = false;
     unsigned number_of_time_steps = 0;
-    
+
     if (outputSolution)
     {   // Write out ICs
         rSolution.rGetTimes().push_back(current_time);
         rSolution.rGetSolutions().push_back(rYValues);
     }
-    
+
     // should never get here if this bool has been set to true;
     assert(!mStoppingEventOccured);
     while ( !got_to_end )
@@ -98,17 +98,17 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
                                 current_time,
                                 rYValues,
                                 rWorkingMemory);
-              
+
             // Find the maximum error in this vector.
             double max_error = -DBL_MAX;
             for (unsigned i=0; i<number_of_variables; i++)
             {
                 if (mError[i] > max_error)
                 {
-                    max_error = mError[i];   
+                    max_error = mError[i];
                 }
             }
-            
+
             if (max_error > tolerance)
             {// Reject the step-size and do it again.
                 accurate_enough = false;
@@ -117,7 +117,7 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
             else
             {
                 // step forward the time since step has now been made
-                current_time = current_time + time_step;    
+                current_time = current_time + time_step;
                 //std::cout << "Approximation accepted with time step = "<< time_step << "\n" << std::flush;
                 //std::cout << "max_error = " << max_error << " tolerance = " << tolerance << "\n" << std::flush;
                 if (outputSolution)
@@ -128,29 +128,29 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
                     number_of_time_steps++;
                 }
             }
-            
+
             // Set a new step size based on the accuracy here
             AdjustStepSize(time_step, max_error, tolerance, maxTimeStep, minTimeStep);
         }
-        
+
         // For the next timestep check the step doesn't go past the end...
         if (current_time + time_step > endTime)
         {   // Allow a smaller timestep for the final step.
             time_step = endTime - current_time;
         }
-        
+
         if ( pOdeSystem->CalculateStoppingEvent(current_time,
                                                 rWorkingMemory) == true )
         {
             mStoppingTime = current_time;
             mStoppingEventOccured = true;
         }
-        
+
         if (mStoppingEventOccured || current_time>=endTime)
         {
-            got_to_end = true;   
+            got_to_end = true;
         }
-        
+
         // Approximation accepted - put it in rYValues
         rYValues.assign(rWorkingMemory.begin(), rWorkingMemory.end());
         accurate_enough = false; // for next loop.
@@ -170,38 +170,38 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
 
 
     std::vector<double>& dy = nextYValues; // re-use memory (not that it makes much difference here!)
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, dy);
-    
+
     for (unsigned i=0;i<num_equations; i++)
     {
         mk1[i] = timeStep*dy[i];
         myk2[i] = currentYValues[i] + 0.25*mk1[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time + 0.25*timeStep, myk2, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
         mk2[i] = timeStep*dy[i];
         myk3[i] = currentYValues[i] + 0.09375*mk1[i] + 0.28125*mk2[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time + 0.375*timeStep, myk3, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
         mk3[i] = timeStep*dy[i];
-        myk4[i] = currentYValues[i] + m1932o2197*mk1[i] - m7200o2197*mk2[i] 
+        myk4[i] = currentYValues[i] + m1932o2197*mk1[i] - m7200o2197*mk2[i]
                     + m7296o2197*mk3[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time+m12o13*timeStep, myk4, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
         mk4[i] = timeStep*dy[i];
-        myk5[i] = currentYValues[i] + m439o216*mk1[i] - 8*mk2[i] 
+        myk5[i] = currentYValues[i] + m439o216*mk1[i] - 8*mk2[i]
                     + m3680o513*mk3[i]- m845o4104*mk4[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep, myk5, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
@@ -209,7 +209,7 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
         myk6[i] = currentYValues[i] - m8o27*mk1[i] + 2*mk2[i] - m3544o2565*mk3[i]
                         + m1859o4104*mk4[i] - 0.275*mk5[i];
     }
-    
+
     pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep, myk6, dy);
     for (unsigned i=0;i<num_equations; i++)
     {
@@ -222,14 +222,14 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
 }
 
 void RungeKuttaFehlbergIvpOdeSolver::AdjustStepSize(double& rCurrentStepSize,
-                                const double& rError, 
-                                const double& rTolerance, 
-                                const double& rMaxTimeStep, 
+                                const double& rError,
+                                const double& rTolerance,
+                                const double& rMaxTimeStep,
                                 const double& rMinTimeStep)
 {
     // Work out scaling factor delta for the step size
     double delta = pow(rTolerance/(2.0*rError), 0.25);
-    
+
     // Maximum adjustment is *0.1 or *4
     if (delta <= 0.1)
     {
@@ -237,27 +237,27 @@ void RungeKuttaFehlbergIvpOdeSolver::AdjustStepSize(double& rCurrentStepSize,
     }
     else if (delta >= 4.0)
     {
-        rCurrentStepSize *= 4.0;  
+        rCurrentStepSize *= 4.0;
     }
     else
     {
         rCurrentStepSize *= delta;
     }
-    
+
     if (rCurrentStepSize > rMaxTimeStep)
     {
         rCurrentStepSize = rMaxTimeStep;
     }
-    
+
     if (rCurrentStepSize < rMinTimeStep)
     {
         std::cout << "rCurrentStepSize = " << rCurrentStepSize << "\n" << std::flush;
         std::cout << "rMinTimeStep = " << rMinTimeStep << "\n" << std::flush;
-                
-        EXCEPTION("RKF45 Solver: Ode needs a smaller timestep than the set minimum\n");   
+
+        EXCEPTION("RKF45 Solver: Ode needs a smaller timestep than the set minimum\n");
     }
-    
-}     
+
+}
 
 
 /*
@@ -274,7 +274,7 @@ OdeSolution RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     assert(rYValues.size()==pOdeSystem->GetNumberOfStateVariables());
     assert(endTime > startTime);
     assert(timeStep > 0.0);
-    
+
     mStoppingEventOccured = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
@@ -299,7 +299,7 @@ void RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     assert(rYValues.size()==pOdeSystem->GetNumberOfStateVariables());
     assert(endTime > startTime);
     assert(timeStep > 0.0);
-    
+
     mStoppingEventOccured = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {

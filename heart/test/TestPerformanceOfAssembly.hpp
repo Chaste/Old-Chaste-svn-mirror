@@ -44,10 +44,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PerformanceTester.hpp"
 
 class TestPerformanceOfAssembly : public CxxTest::TestSuite
-{   
+{
 public:
 
-    
+
     void TestPerf() throw(Exception)
     {
         // write headings
@@ -57,14 +57,14 @@ public:
         // base line
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.SimTime=0.0025;
-        
+
         for (unsigned mesh_num=0; mesh_num<3; mesh_num++)
         {
             tester.MeshNum=mesh_num;
             tester.Run();
-            EventHandler::Report();      
+            EventHandler::Report();
         }
-        
+
     }
 };
 

@@ -43,22 +43,22 @@ public:
     {
         return 1.0;
     }
-    
+
     double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
     {
         return 0.0;
     }
-    
+
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& , double u)
     {
         return identity_matrix<double>(SPACE_DIM)*(1.0/u);
     }
-    
+
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(const ChastePoint<SPACE_DIM>& , double u)
     {
         return identity_matrix<double>(SPACE_DIM)*(-1.0/pow(u,2));
     }
-    
+
     double ComputeNonlinearSourceTermPrime(const ChastePoint<SPACE_DIM>& , double )
     {
         return 0.0;

@@ -31,9 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 
 class NumericFileComparison
-{ 
+{
     /**
-     * Compare files of numbers to see if they are to within a given tolerance. 
+     * Compare files of numbers to see if they are to within a given tolerance.
      */
 private:
     std::ifstream *file1, *file2;
@@ -47,7 +47,7 @@ public:
             file1=NULL;
             EXCEPTION("Couldn't open info file: " + fileName1);
         }
-        
+
         file2 = new std::ifstream(fileName2.c_str(), std::ios::in);
         // If it doesn't exist - throw exception
         if (!file2->is_open())
@@ -105,7 +105,7 @@ public:
         //Force CxxTest error if there were any major differences
         TS_ASSERT_LESS_THAN(max_error, absTolerance);
         TS_ASSERT(!empty_files);
-        return (failures==0 && !empty_files);   
-    }                       
+        return (failures==0 && !empty_files);
+    }
 };
 #endif /*NUMERICFILECOMPARISON_HPP_*/

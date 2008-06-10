@@ -48,7 +48,7 @@ public:
     {
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
-        
+
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
@@ -56,12 +56,12 @@ public:
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         bidomain_problem.SetExtracellularConductivities(Create_c_vector(0.0005));
 
-        
+
         bidomain_problem.Initialise();
-        
+
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        
+
         std::vector<unsigned> pinned_nodes;
 
         // check throws if the fixed node num isn't valid
@@ -72,8 +72,8 @@ public:
         // Pin extracellular potential of node 100 to 0
         pinned_nodes.clear();
         pinned_nodes.push_back(100);
-        bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);      
-        
+        bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
+
         try
         {
             bidomain_problem.Solve();
@@ -82,7 +82,7 @@ public:
         {
             TS_FAIL(e.GetMessage());
         }
-       
+
         DistributedVector striped_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe voltage(striped_voltage,0);
 
@@ -93,10 +93,10 @@ public:
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
-            
+
             TS_ASSERT_LESS_THAN_EQUALS( voltage[index], Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
-            
+
             std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
             for (int j=0; j<8; j++)
             {
@@ -107,18 +107,18 @@ public:
                     TS_ASSERT_LESS_THAN_EQUALS(-r_ode_vars[j], 0.0);
                 }
             }
-            
+
             // wave shouldn't have reached the second half of the mesh so
             // these should all be near the resting potential
-            
+
             if (index.Global>50)
             {
                 TS_ASSERT_DELTA(voltage[index], -83.85, 0.1);
             }
-            
+
             // final voltages for nodes 0 to 5 produced with ksp_rtol=1e-9
             double test_values[6]={31.0335, 28.9214, 20.0279, -3.92649, -57.9395, -79.7754};
-            
+
             for (unsigned node=0; node<=5; node++)
             {
                 if (index.Global == node)
@@ -135,45 +135,45 @@ public:
             TS_ASSERT_DELTA(extracellular_potential[100], 0.0, 1e-6);
         }
     }
-    
-    
+
+
     void TestBidomainDg01DMeanPhiEOverDifferentRows()
     {
-        
+
         EventHandler::Disable();
 
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
-        
+
         /* Can we get it to work with a different pre-conditioner and solver?
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         */
-        
+
         // Final values to test against have been produced with ksp_rtol=1e-9
         bidomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
-        
+
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         bidomain_problem.SetExtracellularConductivities(Create_c_vector(0.0005));
-        
-        
+
+
         // Check rows 1, 51, 101, 151, 201, ...
         for (unsigned row_to_mean_phi=1; row_to_mean_phi<2*bidomain_problem.rGetMesh().GetNumNodes(); row_to_mean_phi=row_to_mean_phi+50)
         {
             bidomain_problem.Initialise();
-            
+
             bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
             bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-            
+
             // First line is for coverage
             TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi-1));
             bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi);
-            
+
             try
             {
                 bidomain_problem.Solve();
@@ -182,11 +182,11 @@ public:
             {
                 TS_FAIL(e.GetMessage());
             }
-            
+
             DistributedVector striped_voltage(bidomain_problem.GetVoltage());
             DistributedVector::Stripe voltage(striped_voltage,0);
             DistributedVector::Stripe phi_e(striped_voltage,1);
-            
+
             for (DistributedVector::Iterator index = DistributedVector::Begin();
                  index != DistributedVector::End();
                  ++index)
@@ -194,10 +194,10 @@ public:
                 // assuming LR model has Ena = 54.4 and Ek = -77
                 double Ena   =  54.4;   // mV
                 double Ek    = -77.0;   // mV
-                
+
                 TS_ASSERT_LESS_THAN_EQUALS( voltage[index], Ena +  30);
                 TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
-                
+
                 std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
                 for (int j=0; j<8; j++)
                 {
@@ -208,85 +208,85 @@ public:
                         TS_ASSERT_LESS_THAN_EQUALS(-r_ode_vars[j], 0.0);
                     }
                 }
-                
+
                 // wave shouldn't have reached the second half of the mesh so
                 // these should all be near the resting potential
-                
+
                 if (index.Global>50)
                 {
                     TS_ASSERT_DELTA(voltage[index], -83.85, 0.1);
                 }
-                
+
                 // final voltages for nodes 0 to 5 produced with ksp_rtol=1e-9
                 double voltage_test_values[6]={31.0335, 28.9214, 20.0279, -3.92649, -57.9395, -79.7754};
-                
+
                 if (index.Global<6)
                 {
                     // test against hardcoded value to check nothing has changed
                     TS_ASSERT_DELTA(voltage[index], voltage_test_values[index.Global], 7e-3);
-                }            
+                }
 
                 // final extracellular potencials for nodes 0 to 5 produced with ksp_rtol=1e-9
                 double phi_e_test_values[6]={-55.2567, -54.2006, -49.7538, -37.7767, -10.7701, 0.148278};
-            
+
                 if (index.Global<6)
                 {
                     // test against hardcoded value to check nothing has changed
                     TS_ASSERT_DELTA(phi_e[index], phi_e_test_values[index.Global], 7e-3);
-                } 
-                
-                           
-                
+                }
+
+
+
             }
-           
-            // check mean of extracellular potential is 0            
+
+            // check mean of extracellular potential is 0
             double local_phi_e=0.0;
             double total_phi_e=0.0;
-            
+
             for (DistributedVector::Iterator index = DistributedVector::Begin();
                  index != DistributedVector::End();
                  ++index)
             {
-                local_phi_e += phi_e[index];                
+                local_phi_e += phi_e[index];
             }
 
             int ierr = MPI_Allreduce(&local_phi_e, &total_phi_e, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
             TS_ASSERT_EQUALS (ierr, MPI_SUCCESS)
 
             TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
-            
+
         }
-    
+
         // Coverage of the exception in the assembler itself
         BoundaryConditionsContainer<1, 1, 2> *p_container = new BoundaryConditionsContainer<1, 1, 2>;
-        
+
         BidomainDg0Assembler<1,1>* p_bidomain_assembler
                 = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),
                             bidomain_problem.GetBidomainPde(),
                             p_container,
                             2);
         p_bidomain_assembler->SetLinearSolverRelativeTolerance(1e-9);
-    
+
         TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
-        
+
         delete p_container;
         delete p_bidomain_assembler;
         EventHandler::Enable();
-    }    
+    }
 
     /*
      * The monodomain equations are obtained by taking the limit of the bidomain
      * equations as sigma_e tends to infinity (corresponding to the extracellular
-     * space being grounded). Therefore, if we set sigma_e very large (relative to 
-     * sigma_i) in a bidomain simulation it should agree with a monodomain 
-     * simulation with the same parameters. 
+     * space being grounded). Therefore, if we set sigma_e very large (relative to
+     * sigma_i) in a bidomain simulation it should agree with a monodomain
+     * simulation with the same parameters.
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
         Vec monodomain_results;
-        
+
         PlaneStimulusCellFactory<1> cell_factory;
-        
+
         // To avoid an issue with the Event handler only one simulation should be
         // in existance at a time: therefore monodomain simulation is defined in a block
         {
@@ -295,32 +295,32 @@ public:
             ///////////////////////////////////////////////////////////////////
 
             MonodomainProblem<1> monodomain_problem( &cell_factory );
-            
+
             monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
             monodomain_problem.SetEndTime(1);   // 1 ms
             monodomain_problem.SetOutputDirectory("Monodomain1d");
             monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
             monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
             monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-            
+
             monodomain_problem.Initialise();
-            
+
             monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
             monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-    
+
             // now solve
             monodomain_problem.Solve();
-            
+
             VecDuplicate(monodomain_problem.GetVoltage(), &monodomain_results);
             VecCopy(monodomain_problem.GetVoltage(), monodomain_results);
         }
-        
-        
+
+
         ///////////////////////////////////////////////////////////////////
         // bidomain
         ///////////////////////////////////////////////////////////////////
         BidomainProblem<1> bidomain_problem( &cell_factory );
-        
+
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("Bidomain1d");
@@ -330,15 +330,15 @@ public:
         // and the extra conductivity to be very large in comparison
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         bidomain_problem.SetExtracellularConductivities(Create_c_vector(1));
-                
+
         bidomain_problem.Initialise();
-        
+
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        
+
         // now solve
         bidomain_problem.Solve();
-        
+
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
@@ -346,7 +346,7 @@ public:
         DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
-        
+
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
@@ -354,19 +354,19 @@ public:
             if (index.Global==0)
             {
                 TS_ASSERT_LESS_THAN(0, monodomain_voltage[index]);
-            }            
+            }
             // the mono and bidomains should agree closely
             TS_ASSERT_DELTA(monodomain_voltage[index], bidomain_voltage[index], 0.4);
-            
+
             // the extracellular potential should be uniform
             TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.06);
-        }       
+        }
 
         VecDestroy(monodomain_results);
     }
-    
-    
-    
+
+
+
     ///////////////////////////////////////////////////////////////////
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
@@ -377,80 +377,80 @@ public:
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-        
+
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        
+
         p_bidomain_problem->SetEndTime(0.3);          // ms
         p_bidomain_problem->SetPdeAndPrintingTimeSteps(0.01, 0.1);  //ms
-        
+
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
-        
+
         //Restrict the number of nodes
         std::vector<unsigned> nodes_to_be_output;
         nodes_to_be_output.push_back(0);
         nodes_to_be_output.push_back(5);
         nodes_to_be_output.push_back(10);
         p_bidomain_problem->SetOutputNodes(nodes_to_be_output);
-        
+
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
-        
+
         delete p_bidomain_problem;
-        
+
         // read data entries for the time file and check correct
         Hdf5DataReader data_reader1("Bidomain1d", "bidomain_testPrintTimes");
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
-        
+
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
         TS_ASSERT_DELTA( times[0], 0.00, 1e-12);
         TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
         TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
-        
+
         //Get back node over all times
         std::vector<double> node_0 = data_reader1.GetVariableOverTime("V", 0);
         TS_ASSERT_EQUALS( node_0.size(), 4U);
-        TS_ASSERT_DELTA( node_0[0], -83.853, 1e-10); 
-        TS_ASSERT_DELTA( node_0[1], -83.835224864786, 1e-10); 
-        TS_ASSERT_DELTA( node_0[2], -83.826404431209, 1e-10); 
-        TS_ASSERT_DELTA( node_0[3], -83.8197950069, 1e-10); 
+        TS_ASSERT_DELTA( node_0[0], -83.853, 1e-10);
+        TS_ASSERT_DELTA( node_0[1], -83.835224864786, 1e-10);
+        TS_ASSERT_DELTA( node_0[2], -83.826404431209, 1e-10);
+        TS_ASSERT_DELTA( node_0[3], -83.8197950069, 1e-10);
         std::vector<double> node_5 = data_reader1.GetVariableOverTime("V", 5);
         TS_ASSERT_EQUALS( node_5.size(), 4U);
         std::vector<double> node_10 = data_reader1.GetVariableOverTime("V", 10);
         TS_ASSERT_EQUALS( node_10.size(), 4U);
-        
+
         //Can't read back this node as it wasn't written
         TS_ASSERT_THROWS_ANYTHING( data_reader1.GetVariableOverTime("V", 1));
-    
-        
+
+
         // run testing PrintEveryNthTimeStep
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-        
+
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         p_bidomain_problem->SetEndTime(0.50);   // ms
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
-        
+
         p_bidomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 17);  // every 17 timesteps
-        
+
         // for coverage:
         p_bidomain_problem->SetWriteInfo();
-        
+
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
-        
+
         // read data entries for the time file and check correct
         Hdf5DataReader data_reader2("Bidomain1d", "bidomain_testPrintTimes");
         times = data_reader2.GetUnlimitedDimensionValues();
-        
+
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
         TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
-        
-        
+
+
         // Now check that we can turn off output printing
         // Output should be the same as above: printing every 17th time step
         // because even though we set to print every time step...
@@ -459,119 +459,119 @@ public:
         p_bidomain_problem->PrintOutput(false);
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
-        
+
         Hdf5DataReader data_reader3("Bidomain1d", "bidomain_testPrintTimes");
         times = data_reader3.GetUnlimitedDimensionValues();
-        
+
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
         TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
-        
+
         delete p_bidomain_problem;
         EventHandler::Enable();
     }
-    
+
     void TestBidomainProblemExceptions() throw (Exception)
     {
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
-        
+
         //Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-        
+
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(-1,  1));
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps( 1));
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeTimeStepAndPrintEveryNthTimeStep(-1));
-        
-        //Throws when we try to print more often than the pde time step 
+
+        //Throws when we try to print more often than the pde time step
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(0.2, 0.1));
-         //Throws when printing step is not a multiple of pde time step 
+         //Throws when printing step is not a multiple of pde time step
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(0.2, 0.3));
-        
+
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename(""));
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
-        
+
         //Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         bidomain_problem.SetEndTime(1);  // ms
-               
+
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
         bidomain_problem.SetOutputDirectory("temp");
         bidomain_problem.SetOutputFilenamePrefix("temp");
- 
-        
+
+
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;
         too_large.push_back(4358743);
         bidomain_problem.SetFixedExtracellularPotentialNodes(too_large);
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-        
+
         //Explicitly reset the counters so the next test in the test suite doesn't find on
         EventHandler::Reset();
     }
-    
-    
-    
+
+
+
     void TestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
     {
-        
+
         PlaneStimulusCellFactory<3> cell_factory;
-        
+
         ///////////////////////////////////////////////////////////////////
         // orthotropic
         ///////////////////////////////////////////////////////////////////
 
         BidomainProblem<3> orthotropic_bido( &cell_factory );
-        
+
         orthotropic_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         orthotropic_bido.SetEndTime(1);   // 1 ms
         orthotropic_bido.SetOutputDirectory("OrthotropicBidomain");
         orthotropic_bido.SetOutputFilenamePrefix("ortho3d");
-                
+
         orthotropic_bido.Initialise();
-        orthotropic_bido.Solve();              
-        
+        orthotropic_bido.Solve();
+
         ///////////////////////////////////////////////////////////////////
-        // axisymmetric        
+        // axisymmetric
         ///////////////////////////////////////////////////////////////////
         BidomainProblem<3> axisymmetric_bido( &cell_factory, false );
-        
+
         axisymmetric_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         axisymmetric_bido.SetEndTime(1);   // 1 ms
         axisymmetric_bido.SetOutputDirectory("AxisymmetricBidomain");
-        axisymmetric_bido.SetOutputFilenamePrefix("axi3d");        
-                
+        axisymmetric_bido.SetOutputFilenamePrefix("axi3d");
+
         axisymmetric_bido.Initialise();
         axisymmetric_bido.Solve();
-        
+
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
         DistributedVector orthotropic_solution(orthotropic_bido.GetVoltage());
         DistributedVector axisymmetric_solution(axisymmetric_bido.GetVoltage());
-        
+
         DistributedVector::Stripe ortho_voltage(orthotropic_solution, 0);
-        DistributedVector::Stripe axi_voltage(axisymmetric_solution, 0);        
-        
+        DistributedVector::Stripe axi_voltage(axisymmetric_solution, 0);
+
         DistributedVector::Stripe ortho_ex_pot(orthotropic_solution, 1);
-        DistributedVector::Stripe axi_ex_pot(axisymmetric_solution, 1);        
+        DistributedVector::Stripe axi_ex_pot(axisymmetric_solution, 1);
 
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
         {
             TS_ASSERT_DELTA(ortho_voltage[index], axi_voltage[index], 1e-11);
-            TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-11);            
-        }       
+            TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-11);
+        }
 
     }
-    
+
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/

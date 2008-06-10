@@ -50,7 +50,7 @@ class CardiacNewtonSolver
 public:
     /**
      * Call this method to obtain a solver instance.
-     * 
+     *
      * @return a single instance of the class
      */
     static CardiacNewtonSolver<SIZE>* Instance()
@@ -58,10 +58,10 @@ public:
         static CardiacNewtonSolver<SIZE> inst;
         return &inst;
     }
-    
+
     /**
      * Use Newton's method to solve the given cell for the next timestep.
-     * 
+     *
      * @param rCell  the cell to solve
      * @param rCurrentGuess  the current guess at a solution.  Will be mUpdated on exit.
      */
@@ -72,39 +72,39 @@ public:
 //        const double eps = 1e-6 * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
         const double eps = 1e-6; // JonW tolerance
         double norm = 2*eps;
-        
+
         while (norm > eps)
         {
             // Calculate Jacobian and mResidual for current guess
             rCell.ComputeResidual(rCurrentGuess, mResidual);
             rCell.ComputeJacobian(rCurrentGuess, mJacobian);
-            
+
 //            // Update norm (our style)
 //            norm = ComputeNorm(mResidual);
 
             // Solve Newton linear system
             SolveLinearSystem();
-            
+
             // Update norm (JonW style)
             norm = ComputeNorm(mUpdate);
-            
+
             // Update current guess
             for (unsigned i=0; i<SIZE; i++)
             {
                 rCurrentGuess[i] -= mUpdate[i];
             }
-            
+
             counter++;
             assert(counter < 15); // avoid infinite loops
         }
     }
-    
+
 protected:
     CardiacNewtonSolver()
     {}
     CardiacNewtonSolver(const CardiacNewtonSolver<SIZE>&);
     CardiacNewtonSolver<SIZE>& operator= (const CardiacNewtonSolver<SIZE>&);
-    
+
     /**
      * Compute a norm of a vector.
      */
@@ -120,7 +120,7 @@ protected:
         }
         return norm;
     }
-    
+
     /**
      * Solve a linear system to calculate the Newton update step
      */
@@ -150,7 +150,7 @@ protected:
             mUpdate[i] /= mJacobian[i][i];
         }
     }
-    
+
 private:
     /** Working memory : residual vector */
     double mResidual[SIZE];

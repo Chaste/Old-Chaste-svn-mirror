@@ -45,24 +45,24 @@ class OdeSolution
 {
 private:
     unsigned mNumberOfTimeSteps;    /**< Variable for the number of timesteps */
-    
+
     std::vector<double> mTimes; /**< A vector of times at each timestep. */
     std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */
-    
+
 public:
 
     unsigned GetNumberOfTimeSteps(void)
     {
         return mNumberOfTimeSteps;
     }
-    
+
     void SetNumberOfTimeSteps(unsigned num_timesteps)
     {
         mNumberOfTimeSteps = num_timesteps;
         mTimes.reserve(num_timesteps+1);
         mSolutions.reserve(num_timesteps+1);
     }
-    
+
     std::vector<double> GetVariableAtIndex(unsigned index)
     {
         std::vector<double> answer;
@@ -73,12 +73,12 @@ public:
         }
         return answer;
     }
-    
+
     std::vector<double>& rGetTimes()
     {
         return mTimes;
     }
-    
+
     std::vector<std::vector<double> >& rGetSolutions()
     {
         return mSolutions;
@@ -86,10 +86,10 @@ public:
 
 
     /**
-     *  Write the data to a file. 
-     *   @param pOdeSystem The ode system solved to obtain these results (needed for variable 
-     *    names and units). 
-     */ 
+     *  Write the data to a file.
+     *   @param pOdeSystem The ode system solved to obtain these results (needed for variable
+     *    names and units).
+     */
     void WriteToFile(std::string directoryName,
                      std::string baseResultsFilename,
                      AbstractOdeSystem* pOdeSystem,
@@ -100,12 +100,12 @@ public:
         assert(stepPerRow > 0);
         assert(mTimes.size()>0);
         assert(mTimes.size()==mSolutions.size());
-     
+
         // Write data to a file using ColumnDataWriter
         ColumnDataWriter writer(directoryName,baseResultsFilename,cleanDirectory);
 
         int time_var_id = writer.DefineUnlimitedDimension("Time",timeUnits);
-    
+
         // Either: the ODE system should have no names&units defined, or it should
         // the same number as the number of solutions per timestep.
         assert( pOdeSystem->rGetVariableNames().size()==0 ||
@@ -132,7 +132,7 @@ public:
                 var_ids.push_back(writer.DefineVariable(string_stream.str(),""));
             }
         }
-            
+
         writer.EndDefineMode();
 
         for (unsigned i=0; i<mSolutions.size(); i+=stepPerRow)

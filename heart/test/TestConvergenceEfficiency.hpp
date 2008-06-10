@@ -57,7 +57,7 @@ public:
     void Test3DSpace10() throw(Exception)
     {
         ///\todo Remove line 367 <-- Doing so now (#606)
-        ///cardiac_problem.SetOutputNodes(nodes_to_be_output); 
+        ///cardiac_problem.SetOutputNodes(nodes_to_be_output);
         ///from AbstractConvergenceTester.hpp
         ///to see if it made a difference
         PetscOptionsSetValue("-ksp_type", "symmlq");
@@ -68,7 +68,7 @@ public:
         tester.OdeTimeStep /= 2.0;
         tester.PdeTimeStep /= 2.0;
         tester.SetMeshWidth(0.10);//cm
-        
+
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 3u);

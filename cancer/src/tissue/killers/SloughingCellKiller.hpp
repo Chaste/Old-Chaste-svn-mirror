@@ -35,10 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Kills cells if they are outside the crypt.
- * 
+ *
  *  The crypt width and height is taken from the cancer parameters singleton
  *  object. The crypt is assumed to start at x=0 and y=0. By default only cells
- *  are sloughed if y>crypt_height. To slough the sides call the constructor 
+ *  are sloughed if y>crypt_height. To slough the sides call the constructor
  *  with the appropriate parameter.
  */
 class SloughingCellKiller : public AbstractCellKiller<2>
@@ -46,7 +46,7 @@ class SloughingCellKiller : public AbstractCellKiller<2>
 private:
 
     bool mSloughSides;
-    
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -58,16 +58,16 @@ private:
         archive & *p_params;
         archive & p_params;
     }
-    
+
 public:
 
     SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false)
         : AbstractCellKiller<2>(pCrypt),
           mSloughSides(sloughSides)
     {}
-    
+
     bool GetSloughSides() const;
-    
+
     /**
      *  Loops over cells and kills cells outside boundary.
      */

@@ -36,11 +36,11 @@ class CancerParameters
 public:
     /**
      * Call this method to access the global parameters holder.
-     * 
+     *
      * @return a single instance of the class
      */
     static CancerParameters* Instance();
-    
+
     /**
      * Get methods
      */
@@ -48,10 +48,10 @@ public:
     double GetTransitCellG1Duration();
     double GetHepaOneCellG1Duration();
     double GetMinimumGapDuration();
-    double GetSG2MDuration();    
+    double GetSG2MDuration();
     double GetSDuration();
     double GetG2Duration();
-    double GetMDuration();    
+    double GetMDuration();
     unsigned GetMaxTransitGenerations();
     double GetCryptLength();
     double GetCryptWidth();
@@ -74,17 +74,17 @@ public:
     double GetNecroticSpringCompressionStiffness();
     double GetWntChemotaxisStrength();
     double GetSymmetricDivisionProbability();
-    
+
     /**
      * Set methods
-     */ 
+     */
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
     void SetHepaOneCellG1Duration(double);
     void SetMinimumGapDuration(double);
     void SetSDuration(double);
     void SetG2Duration(double);
-    void SetMDuration(double);    
+    void SetMDuration(double);
     void SetMaxTransitGenerations(unsigned);
     void SetCryptLength(double);
     void SetCryptWidth(double);
@@ -97,8 +97,8 @@ public:
     void SetDivisionSeparation(double);
     void SetHepaOneCellHypoxicConcentration(double);
     void SetHepaOneCellQuiescentConcentration(double);
-    void SetWntTransitThreshold(double); 
-    void SetWntStemThreshold(double); 
+    void SetWntTransitThreshold(double);
+    void SetWntStemThreshold(double);
     void SetTopOfLinearWntConcentration(double);
     void SetCriticalHypoxicDuration(double);
     void SetHepaOneParameters();
@@ -108,26 +108,26 @@ public:
     void SetNecroticSpringCompressionStiffness(double);
     void SetWntChemotaxisStrength(double);
     void SetSymmetricDivisionProbability(double);
-    
-    /** 
+
+    /**
      *  Reset all parameters to their defaults
      */
     void Reset();
-    
+
 protected:
     CancerParameters();
     CancerParameters(const CancerParameters&);
     CancerParameters& operator= (const CancerParameters&);
-    
+
 private:
 
     /** The single instance of the class */
     static CancerParameters *mpInstance;
-    
+
     /**
      * Duration of G1 phase for stem cells.
      * May be used as a mean duration for stochastic cell cycle models.
-     * 
+     *
      */
     double mStemCellG1Duration;
 
@@ -135,7 +135,7 @@ private:
      * Duration of G1 phase for transit cells.
      * May be used as a mean duration for stochastic cell cycle models.
      */
-    double mTransitCellG1Duration;    
+    double mTransitCellG1Duration;
 
     /**
      * Duration of G1 phase for HEPA-1 cells, for use in monolayer/spheroid simulations.
@@ -145,7 +145,7 @@ private:
 
     /**
      * Minimum possbile duration of either of the gap phases (G1 or G2).
-     * Used to guarantee a strictly positive duration in cell cycle models that 
+     * Used to guarantee a strictly positive duration in cell cycle models that
      * use normal random deviates for G1 or G2 phases.
      */
     double mMinimumGapDuration;
@@ -154,140 +154,140 @@ private:
      * Duration of S phase for all cell types.
      */
     double mSDuration;
-    
+
     /**
      * Duration of G2 phase for all cell types.
      */
     double mG2Duration;
-    
+
     /**
      * Duration of M phase for all cell types.
      */
     double mMDuration;
-    
+
     /**
      * How many generations a transit cell lives for before becoming fully differentiated.
      */
     unsigned mMaxTransitGenerations;
-    
+
     /**
      * The length of the crypt, non-dimensionalised with cell length.
      * This parameter determines when cells are sloughed from the crypt.
      */
     double mCryptLength;
-    
+
     /**
     * The width of the crypt, non-dimensionalised with cell length.
     * This determines when cells are sloughed from the crypt in 2D.
     */
     double mCryptWidth;
-    
+
     /**
      * Spring stiffness.
      * Represented by the parameter mu in the model by Meineke et al (2001).
      */
     double mSpringStiffness;
-    
+
     /**
      * Damping constant for normal cells.
      * Represented by the parameter eta in the model by Meineke et al (2001).
      */
     double mDampingConstantNormal;
-    
+
     /**
      * Damping constant for mutant cells.
      */
     double mDampingConstantMutant;
-    
+
     /**
      * Scaling factor for beta catenin to spring strength
      */
     double mBetaCatSpringScaler;
-    
+
     /**
      * The time it takes for a cell to fully undergo apoptosis
      */
     double mApoptosisTime;
-    
+
     /**
      * Initial separation placement of mother/daughter cells at birth
      */
     double mDivisionSeparation;
-    
+
     /**
      * Initial resting spring length after cell division.
-     * The value of thiis parameter should be larger than mDivisionSeparation, 
+     * The value of thiis parameter should be larger than mDivisionSeparation,
      * because of pressure from neighbouring springs.
      */
     double mDivisionRestingSpringLength;
-    
-    /**
-     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are 
-     * considered to be hypoxic.
-     * A prolonged period of hypoxia causes the cell to become necrotic. 
-     */
-    double mHepaOneCellHypoxicConcentration;
-    
+
     /**
      * Non-dimensionalized oxygen concentration below which HEPA-1 cells are
-     * considered to be quiescent and slow their progress through the G1 phase 
+     * considered to be hypoxic.
+     * A prolonged period of hypoxia causes the cell to become necrotic.
+     */
+    double mHepaOneCellHypoxicConcentration;
+
+    /**
+     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are
+     * considered to be quiescent and slow their progress through the G1 phase
      * of the cell cycle.
      */
     double mHepaOneCellQuiescentConcentration;
-      
+
     /**
      * Non-dimensionalized Wnt threshold, above which cells progress through the cell cycle.
      */
     double mWntTransitThreshold;
-    
+
     /**
      * Non-dimensionalized Wnt threshold, above which cells behave as stem cells.
      */
     double mWntStemThreshold;
-    
+
     /**
      * The proportion of the crypt that has a Wnt gradient.
      * The Wnt concentration goes to zero at this height up the crypt.
      */
     double mTopOfLinearWntConcentration;
-    
+
     /**
      * Non-dimensionalized critical hypoxic duration.
      */
     double mCriticalHypoxicDuration;
-    
+
     /**
-     * Parameter a, for use in crypt projection simulations, in which the crypt 
+     * Parameter a, for use in crypt projection simulations, in which the crypt
      * surface is given in cylindrical polar coordinates by z = a*r^b.
      */
     double mCryptProjectionParameterA;
-    
+
     /**
-     * Parameter b, for use in crypt projection simulations, in which the crypt 
+     * Parameter b, for use in crypt projection simulations, in which the crypt
      * surface is given in cylindrical polar coordinates by z = a*r^b.
      */
     double mCryptProjectionParameterB;
-    
+
     /**
      * Non-dimensionalized 'stiffness' of a necrotic cell under tension.
      */
     double mNecroticSpringTensionStiffness;
-    
+
     /**
      * Non-dimensionalized 'stiffness' of a necrotic cell under compression.
      */
     double mNecroticSpringCompressionStiffness;
-    
+
     /**
      * Strength of Wnt-based chemotactic force.
      */
     double mWntChemotaxisStrength;
-    
+
     /**
      * Probability of symmetric division.
      */
     double mSymmetricDivisionProbability;
-      
+
     friend class boost::serialization::access;
     /**
      * As with other singleton classes, ensure the instance of this
@@ -303,7 +303,7 @@ private:
         archive & mMinimumGapDuration;
         archive & mSDuration;
         archive & mG2Duration;
-        archive & mMDuration;                       
+        archive & mMDuration;
         archive & mMaxTransitGenerations;
         archive & mCryptLength;
         archive & mCryptWidth;

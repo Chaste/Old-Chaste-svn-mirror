@@ -59,12 +59,12 @@ void EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSyste
 {
     // for each timestep in AbstractOneStepIvpSolver calculates a vector containing
     // the next Y value from the current one for each equation in the system.
-    
+
     const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
-    
+
     // Yes, this looks wierd, but it makes good use of memory!
     pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, nextYValues);
-    
+
     for (unsigned i=0;i<num_equations; i++)
     {
         // nextYValues contains dY/dt until here

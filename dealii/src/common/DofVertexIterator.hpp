@@ -51,10 +51,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Triangulation<DIM>::active_cell_iterator, which means the dofs for the vertex
  *  can be obtained.
  *
- *  Note: vertices are reached by looping over elements (internally, in this class), 
+ *  Note: vertices are reached by looping over elements (internally, in this class),
  *  therefore this class only reaches ACTIVE vertices (ie ones that are part of an
  *  element). (Unactive vertices arise if the mesh is coarsened)
- * 
+ *
  *  Note: this class doesn't act like a typical std::iterator class, in that the
  *  result doesn't point to a vertex, you don't call ++ etc. (although in the
  *  future ++ might be implemented to call Next()
@@ -74,7 +74,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  The vertex number, current cell, local number of the vertex in that cell can
  *  also be obtained.
  *
- *  TODO: perhaps extract commonality between this and TriangulationVertexIterator. 
+ *  TODO: perhaps extract commonality between this and TriangulationVertexIterator.
  *  (although the code is almost identical mpCell are different types in the two classes)
  */
 template<unsigned DIM>
@@ -85,10 +85,10 @@ private :
     DoFHandler<DIM>* mpDofHandler;
     std::vector<bool> mVertexTouched;
     typename DoFHandler<DIM>::active_cell_iterator mpCurrentCell;
-    
+
     unsigned mCurrentVertexIndex;
     bool mReachedEnd;
-    
+
     void NextNode()
     {
         if (mCurrentVertexIndex < GeometryInfo<DIM>::vertices_per_cell-1)
@@ -101,26 +101,26 @@ private :
             mpCurrentCell++;
         }
     }
-    
+
 public :
-    DofVertexIterator(Triangulation<DIM>* pMesh, DoFHandler<DIM>* pDofHandler) : 
+    DofVertexIterator(Triangulation<DIM>* pMesh, DoFHandler<DIM>* pDofHandler) :
               mpMesh(pMesh),
               mpDofHandler(pDofHandler),
               mVertexTouched(mpMesh->n_vertices(),false),
               mpCurrentCell(mpDofHandler->begin_active())
     {
         assert(pMesh && pDofHandler);
-        
+
         mCurrentVertexIndex = 0;
         mReachedEnd = (mpCurrentCell==mpDofHandler->end());
-        
+
         // set the current node as having been touched
         if(!mReachedEnd)
         {
             mVertexTouched[GetVertexGlobalIndex()] = true;
         }
     }
-    
+
     /**
      *  Move to the next vertex
      */
@@ -130,7 +130,7 @@ public :
         while ( (found==false) && (!mReachedEnd) )
         {
             NextNode();
-            
+
             mReachedEnd = (mpCurrentCell==mpDofHandler->end());
             if ( !mReachedEnd && !mVertexTouched[mpCurrentCell->vertex_index(mCurrentVertexIndex)] )
             {
@@ -139,7 +139,7 @@ public :
             }
         }
     }
-    
+
     /**
      *  The method returns true if the last vertex has been passed
      */
@@ -147,7 +147,7 @@ public :
     {
         return mReachedEnd;
     }
-    
+
     /**
      *  Get the position of the vertex
      */
@@ -156,7 +156,7 @@ public :
         assert(!mReachedEnd);
         return mpCurrentCell->vertex(mCurrentVertexIndex);
     }
-    
+
     /**
      *  Get the global vertex index
      */
@@ -165,7 +165,7 @@ public :
         assert(!mReachedEnd);
         return mpCurrentCell->vertex_index(mCurrentVertexIndex);
     }
-    
+
     /**
      *  Get the index of the current vertex in the current cell
      *  To be used with GetCell()
@@ -175,17 +175,17 @@ public :
         assert(!mReachedEnd);
         return mCurrentVertexIndex;
     }
-    
+
     /**
      *  Get the current cell. Together with GetLocalVertexIndexForCell() this
-     *  specifies the vertex. Needed for calling other methods on the cell. 
+     *  specifies the vertex. Needed for calling other methods on the cell.
      */
     typename DoFHandler<DIM>::active_cell_iterator GetCell()
     {
         assert(!mReachedEnd);
         return mpCurrentCell;
     }
-    
+
     /**
      * Get the Dof associated with the ith unknown at the current vertex
      */
@@ -193,7 +193,7 @@ public :
     {
         return mpCurrentCell->vertex_dof_index(mCurrentVertexIndex,i);
     }
-    
+
     /**
      *  Reset to the first vertex so the iterator can be used again
      */
@@ -204,7 +204,7 @@ public :
         {
             mVertexTouched.resize(mpMesh->n_vertices());
         }
-        
+
         for (unsigned i=0; i<mpMesh->n_vertices(); i++)
         {
             mVertexTouched[i] = false;
@@ -212,7 +212,7 @@ public :
         mpCurrentCell = mpDofHandler->begin_active();
         mCurrentVertexIndex = 0;
         mReachedEnd = (mpCurrentCell==mpDofHandler->end());
-        
+
         // set the current node as having been touched
         if(!mReachedEnd)
         {

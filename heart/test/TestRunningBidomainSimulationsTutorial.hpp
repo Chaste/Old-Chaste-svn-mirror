@@ -31,21 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
- * 
+ *
  *  Chaste tutorial - this page gets automatically changed to a wiki page
  *  DO NOT remove the comments below, and if the code has to be changed in
  *  order to run, please check the comments are still accurate
- * 
- * 
- */  
+ *
+ *
+ */
 #ifndef TESTRUNNINGBIDOMAINSIMULATIONSTUTORIAL_HPP_
 #define TESTRUNNINGBIDOMAINSIMULATIONSTUTORIAL_HPP_
-/* 
+/*
  * == Introduction ==
- * 
+ *
  * In this tutorial we show how Chaste is used to run a standard bidomain simulation.
  * Note that monodomain simulations are run very similarly.
- *  
+ *
  * The first thing that needs to be done, when writing any Chaste test,
  * is to include the following header.
  */
@@ -55,56 +55,56 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 /* The {{{PlaneStimulusCellFactory}}} is a useful class to include (see later). */
 #include "PlaneStimulusCellFactory.hpp"
-/* All tests which run cardiac simulations (which use Petsc) should include 
+/* All tests which run cardiac simulations (which use Petsc) should include
  * {{{PetscSetupAndFinalize.hpp}}} '''is this true?''' */
 #include "PetscSetupAndFinalize.hpp"
 
 /* EMPTYLINE
- * 
+ *
  * == Defining a cell factory ==
- * 
+ *
  * EMPTYLINE
- * 
+ *
  * All mono/bidomain simulations need a ''cell factory'' as input. This is a class
  * which tells the problem class what type of cardiac cells to create. The cell-factory
  * class has to inherit from {{{AbstractCardiacCellFactory<DIM>}}}, which means it must
  * implement the method {{{CreateCardiacCellForNode(unsigned nodeNum)}}}, which returns
- * a pointer to an {{{AbstractCardiacCell}}}. Note, some concrete cell factories have 
- * been defined, such as the {{{PlaneStimulusCellFactory}}}, which could be used in the 
+ * a pointer to an {{{AbstractCardiacCell}}}. Note, some concrete cell factories have
+ * been defined, such as the {{{PlaneStimulusCellFactory}}}, which could be used in the
  * simulation, but for completeness we create our own cell factory in this test. For
  * complicated problems with, say, heterogeneous cell types or particular stimuli, a
  * new cell factory will have to be defined by the user for their particular problem.
- * 
+ *
  * EMPTYLINE
- * 
+ *
  * This cell factory is a simple cell factory where every cell is a Luo-Rudy 91 cell,
  * and only the cell at position (0,0) is given a non-zero stimulus.
  */
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
-/* Declare pointer to an {{{SimpleStimulus}}} for the cell which is stimulated. 
+/* Declare pointer to an {{{SimpleStimulus}}} for the cell which is stimulated.
  * Note that {{{AbstractCardiacCellFactory}}} also has as protected members: {{{mpZeroStimulus}}}
  * of type {{{ZeroStimulus}}}; {{{mpMesh}}}, a pointer to the mesh used (the problem
  * class will set this before it calls {{{CreateCardiacCellForNode}}}, so it can be used
  * in that method); {{{mTimestep}}}, a double (see below); and {{{mpSolver}}} a forward
- * euler ode solver (see below). */ 
+ * euler ode solver (see below). */
 private:
     SimpleStimulus *mpStimulus;
 
 public:
-    /* Our contructor takes in nothing. It calls the constructor of 
+    /* Our contructor takes in nothing. It calls the constructor of
      * {{{AbstractCardiacCellFactory}}} with 0.01 - this is what {{{mTimestep}}} will be set
      * to. We also initialise the stimulus to have magnitude -6000 and duration 0.5ms.
-     */ 
+     */
     PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>(0.01)
     {
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
-    
-    /* Now we implement the pure method which needs to be implemented. We return 
+
+    /* Now we implement the pure method which needs to be implemented. We return
      * a LR91 cell for each node, with the node at (0,0) given the non-zero stimulus,
      * and all other nodes given the zero stimulus. Note that we use {{{mpMesh}}},
-     * {{{mTimestep}}}, {{{mpZeroStimulus}}} and {{{mpSolver}}} which are all 
+     * {{{mTimestep}}}, {{{mpZeroStimulus}}} and {{{mpSolver}}} which are all
      * members of the base class. The timestep and solver being defined in the base
      * class are just so that the user doesn't have to create them here. */
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned nodeIndex)
@@ -126,7 +126,7 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
-    
+
     /* The destructor just deletes the memory for the stimulus. Note the the problem
      * class deals with deleting the cells. */
     ~PointStimulus2dCellFactory()
@@ -135,11 +135,11 @@ public:
     }
 };
 
-/* 
+/*
  * EMPTYLINE
- * 
+ *
  * == Running the simulation ==
- * 
+ *
  * EMPTYLINE
  *
  * Now we can define the test class, which must inherit from {{{CxxTest::TestSuite}}}
@@ -154,33 +154,33 @@ public:
     {
         /* First, we have to create a cell factory of the type we defined above. */
         PointStimulus2dCellFactory cell_factory;
-        
+
         /* Now we create a problem class using (a pointer to) the cell factory. */
         BidomainProblem<2> bidomain_problem( &cell_factory );
-        
+
         /* Next, some things which have to be set: the mesh filename, and the end time
          * (in ms). */
         bidomain_problem.SetMeshFilename("mesh/test/data/square_128_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
-        
+
         /* If we want output to be written we need to set the output directory and output
          * file prefix.
          */
         bidomain_problem.SetOutputDirectory("BidomainTutorial");
         bidomain_problem.SetOutputFilenamePrefix("results");
-        
-        /* If this was enough setup, we could then call {{{Initialise()}}} 
-         * and {{{Solve()}}} to run the simulation... */ 
-        // bidomain_problem.Initialise();        
+
+        /* If this was enough setup, we could then call {{{Initialise()}}}
+         * and {{{Solve()}}} to run the simulation... */
+        // bidomain_problem.Initialise();
         // bidomain_problem.Solve();
         /* ..Instead we show how to set a few parameters. To
-         * set the conductivity ''values'' in the principal fibre, sheet and normal directions do the following. 
+         * set the conductivity ''values'' in the principal fibre, sheet and normal directions do the following.
          * Note that {{{Create_c_vector}}} is just a helper method for creating a {{{c_vector<double,DIM>}}}
          * of the correct size (2, in this case). Note that these methods need to be called before
          * {{{Initialise()}}} '''is this true?''' '''todo - fix this'''*/
     //    bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
     //    bidomain_problem.SetExtracellularConductivities(Create_c_vector(1));
-     
+
         /* Now we call {{{Initialise()}}}... */
         bidomain_problem.Initialise();
         /* .. and set the surface-area-to-volume ratio and capicitance. These
@@ -190,11 +190,11 @@ public:
          */
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        
+
         /* Now we call Solve() to run the simulation. Output will be written
          * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''todo: To visualise...'''*/
         bidomain_problem.Solve();
-        
+
         /* Finally, we show how to access the voltage values (at the final timestep, the
          * data for previous timesteps is not retained), using the {{{DistributedVector}}}
          * class. The call {{{bidomain_problem.GetVoltage())}}} returns a Petsc vector
@@ -203,7 +203,7 @@ public:
         DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
-        
+
         /* A loop over all the components owned by this process.. */
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
@@ -215,8 +215,8 @@ public:
                 TS_ASSERT_LESS_THAN(0, bidomain_voltage[index]);
             }
         }
-        
-        /* Recall that the {{{ReplicatableVector}}} class can also be used for easier access. */ 
+
+        /* Recall that the {{{ReplicatableVector}}} class can also be used for easier access. */
         //ReplicatableVector res_repl(bidomain_problem.GetVoltage());
         //for(unsigned i=0; i<res_repl.size(); i++)
         //{

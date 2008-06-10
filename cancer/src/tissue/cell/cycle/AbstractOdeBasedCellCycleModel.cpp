@@ -42,7 +42,7 @@ AbstractOdeBasedCellCycleModel::~AbstractOdeBasedCellCycleModel()
 {
     if (mpOdeSystem!=NULL)
     {
-        delete mpOdeSystem;   
+        delete mpOdeSystem;
     }
 }
 
@@ -72,11 +72,11 @@ void AbstractOdeBasedCellCycleModel::SetProteinConcentrationsForTestsOnly(double
 
 
 void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
-{     
+{
     assert(mpOdeSystem!=NULL);
-    
+
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
-    
+
     // Update the phase from M to G1 when necessary
     if (mCurrentCellCyclePhase == M_PHASE)
     {
@@ -92,14 +92,14 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
             return;
         }
     }
-    
+
     if (current_time > mLastTime)
     {
         if (!mFinishedRunningOdes)
-        {   
-            // Update whether a stopping event has occurred 
+        {
+            // Update whether a stopping event has occurred
             mFinishedRunningOdes = SolveOdeToTime(current_time);
-            
+
             // Check no concentrations have gone negative
             for (unsigned i=0; i<mpOdeSystem->GetNumberOfStateVariables(); i++)
             {
@@ -111,7 +111,7 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
                     #undef COVERAGE_IGNORE
                 }
             }
-                        
+
             if (mFinishedRunningOdes)
             {
                 // Update durations of each phase

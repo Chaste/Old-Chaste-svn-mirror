@@ -47,7 +47,7 @@ public:
     {
         TS_ASSERT_EQUALS(DistributedVector::GetProblemSize(), 0u);
     }
-    
+
     void TestRead()
     {
         // WRITE VECTOR
@@ -61,7 +61,7 @@ public:
         PetscInt petsc_lo, petsc_hi;
         VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
         unsigned lo=(unsigned)petsc_lo;
-        unsigned hi=(unsigned)petsc_hi;   
+        unsigned hi=(unsigned)petsc_hi;
         // create 20 element petsc vector
         Vec striped;
         VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*vec_size, &striped);
@@ -83,7 +83,7 @@ public:
         VecRestoreArray(striped, &p_striped);
         VecAssemblyBegin(striped);
         VecAssemblyEnd(striped);
-        
+
         // READ VECTOR
         DistributedVector::SetProblemSize(vec);
         DistributedVector distributed_vector(vec);
@@ -103,7 +103,7 @@ public:
             TS_ASSERT_EQUALS(linear[index], index.Local);
             TS_ASSERT_EQUALS(quadratic[index], index.Global * index.Global);
         }
-        
+
         // read the 2nd element of the first vector
         if (lo<=2 && 2<hi)
         {
@@ -115,7 +115,7 @@ public:
             TS_ASSERT(!DistributedVector::IsGlobalIndexLocal(2));
             TS_ASSERT_THROWS_ANYTHING(distributed_vector[2]);
         }
-        
+
         //read the 3rd element of the other vectors
         if (lo<=3 && 3<hi)
         {
@@ -129,11 +129,11 @@ public:
             TS_ASSERT_THROWS_ANYTHING(linear[3]);
             TS_ASSERT_THROWS_ANYTHING(quadratic[3]);
         }
-        
+
         VecDestroy(vec);
         VecDestroy(striped);
     }
-    
+
     void TestWrite()
     {
         //WRITE VECTOR
@@ -155,16 +155,16 @@ public:
             linear[index] =  1;
             quadratic[index] =  index.Local+1;
         }
-        
+
         distributed_vector.Restore();
         distributed_vector2.Restore();
-        
+
         //READ VECTOR
         // calculate my range
         PetscInt petsc_lo, petsc_hi;
         VecGetOwnershipRange(petsc_vec,&petsc_lo,&petsc_hi);
         unsigned lo=(unsigned)petsc_lo;
-        unsigned hi=(unsigned)petsc_hi;   
+        unsigned hi=(unsigned)petsc_hi;
         // read some values
         double* p_striped;
         VecGetArray(striped, &p_striped);
@@ -177,37 +177,37 @@ public:
             TS_ASSERT_EQUALS(p_striped[2*local_index], (double)1);
             TS_ASSERT_EQUALS(p_striped[2*local_index+1], local_index+1);
         }
-        
+
         VecDestroy(petsc_vec);
         VecDestroy(striped);
     }
-    
+
     void TestException()
     {
         TS_ASSERT_THROWS_ANYTHING(throw DistributedVectorException() );
     }
-    
+
     void TestUnevenDistribution()
     {
         unsigned my_rank = PetscTools::GetMyRank();
         unsigned num_procs = PetscTools::NumProcs();
-        
+
         //Calculate total number of elements in the vector
         unsigned total_elements = (num_procs+1)*num_procs/2;
-        
+
         DistributedVector::SetProblemSizePerProcessor(total_elements, my_rank+1);
-        
+
         Vec petsc_vec = DistributedVector::CreateVec(1);
-        
+
         PetscInt petsc_lo, petsc_hi;
         VecGetOwnershipRange(petsc_vec,&petsc_lo,&petsc_hi);
-        
+
         unsigned expected_lo = (my_rank+1)*my_rank/2;
         unsigned expected_hi = (my_rank+2)*(my_rank+1)/2;
-        
+
         TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
         TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
-        
+
         VecDestroy(petsc_vec);
     }
 };

@@ -34,14 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  Simple oxygen-based cell cycle model
  *
- *  A simple oxygen-dependent cell cycle model that inherits from 
- *  AbstractSimpleCellCycleModel. The duration of G1 phase depends 
+ *  A simple oxygen-dependent cell cycle model that inherits from
+ *  AbstractSimpleCellCycleModel. The duration of G1 phase depends
  *  on the local oxygen concentration. A prolonged period of acute
  *  hypoxia leads to the cell being labelled as necrotic. This model
- *  allows for quiescence imposed by transient periods of hypoxia, 
+ *  allows for quiescence imposed by transient periods of hypoxia,
  *  followed by reoxygenation.
- *  
- */ 
+ *
+ */
 class SimpleOxygenBasedCellCycleModel : public AbstractSimpleCellCycleModel
 {
 private:
@@ -55,23 +55,23 @@ private:
         archive & mCurrentHypoxicDuration;
         archive & mCurrentHypoxiaOnsetTime;
     }
-    
+
     /**
      * The time spent in G1 phase so far
-     */ 
+     */
     double mTimeSpentInG1Phase;
-    
+
     /**
      * How long the current period of hypoxia has lasted
-     */    
+     */
     double mCurrentHypoxicDuration;
-    
+
     /*
      * The time when the current period of hypoxia began
-     */ 
+     */
     double mCurrentHypoxiaOnsetTime;
-    
-    /** 
+
+    /**
      * Private constructor for creating an identical daughter cell
      */
     SimpleOxygenBasedCellCycleModel(double g1Duration,
@@ -82,31 +82,31 @@ private:
           mTimeSpentInG1Phase(0.0),
           mCurrentHypoxicDuration(currentHypoxicDuration),
           mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime) {};
-                
+
 public:
 
     /**
      * Constructor
-     */ 
+     */
     SimpleOxygenBasedCellCycleModel();
-    
-    /** 
-     * Overridden UpdateCellCyclePhase() method
-     */ 
-    void UpdateCellCyclePhase();
-    
+
     /**
-     * Method for updating mCurrentHypoxicDuration, 
+     * Overridden UpdateCellCyclePhase() method
+     */
+    void UpdateCellCyclePhase();
+
+    /**
+     * Method for updating mCurrentHypoxicDuration,
      * called at the start of ReadyToDivide()
-     */ 
+     */
     void UpdateHypoxicDuration();
-     
-    double GetCurrentHypoxicDuration();  
-    
-    double GetCurrentHypoxiaOnsetTime();  
-    
+
+    double GetCurrentHypoxicDuration();
+
+    double GetCurrentHypoxiaOnsetTime();
+
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
-    
+
 };
 
 // declare identifier for the serializer

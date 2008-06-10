@@ -67,10 +67,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class IngeWntSwatCellCycleOdeSystem : public AbstractOdeSystem
 {
 private:
-    
+
     /**
      * Parameters for the Swat et al. (2004) model
-     */ 
+     */
     double mk2d;
     double mk3d;
     double mk34d;
@@ -91,11 +91,11 @@ private:
     double mphi_p;
     double mk16d;
     double mk61d;
-    double mPhiE2F1;    
-    
+    double mPhiE2F1;
+
     /**
-     * Parameters for the Van Leeuwen et al. (2007) model 
-     */  
+     * Parameters for the Van Leeuwen et al. (2007) model
+     */
     double mSa;
     double mSca;
     double mSc;
@@ -123,70 +123,70 @@ private:
     double mXiDx;
     double mXiX;
     double mXiC;
-    
+
     CellMutationState mMutationState;
-    
+
     unsigned mHypothesis;
-        
+
 public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param hypothesis takes the value 1 or 2 and affects the ODE system.
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
      * @param rMutationState affects the ODE system and is given by CryptCellMutationStates.hpp
-     */ 
+     */
     IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double WntStimulus = 0.0, const CellMutationState& rMutationState = HEALTHY);
-    
+
     /**
      * Destructor
-     */ 
+     */
     ~IngeWntSwatCellCycleOdeSystem();
-    
+
     /**
      * Initialise parameter values
-     */ 
+     */
     void Init();
-    
+
     /**
-     * Set the mutation state of the cell. 
-     * 
+     * Set the mutation state of the cell.
+     *
      * This should be called by the relevant cell cycle model before any solving
      * of the ODE system (as it is used to evaluate the Y derivatives).
-     * 
+     *
      * @param rMutationState the mutation state.
      */
     void SetMutationState(const CellMutationState &rMutationState);
-    
-    /** 
+
+    /**
      * Called by the archive function on the Wnt cell cycle model.
-     * 
-     * @return mMutationState the mutation state of the cell defined by 
+     *
+     * @return mMutationState the mutation state of the cell defined by
      * CryptCellMutationStates.hpp
      */
     CellMutationState& rGetMutationState();
 
     /**
-     * Compute the RHS of the system of ODEs. 
-     * 
+     * Compute the RHS of the system of ODEs.
+     *
      * Returns a vector representing the RHS of the ODEs at each time step, y' = [y1' ... yn'].
      * An ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
-     * 
+     *
      * @param time used to evaluate the RHS.
      * @param rY value of the solution vector used to evaluate the RHS.
      * @param rDY filled in with the resulting derivatives (using van Leeuwen et al. (2007) system of equations)
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
     /**
      * Calculate whether the conditions for the cell cycle to finish have been met.
-     * 
+     *
      * @param time at which to calculate whether the stopping event has occured
      * @param rY value of the solution vector used to evaluate the RHS.
-     */ 
+     */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
-        
+
 };
 
 #endif //_INGEWNTSWATCELLCYCLEODESYSTEM_HPP_

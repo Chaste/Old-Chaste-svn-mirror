@@ -68,14 +68,14 @@ public:
     /**
      *  The constant in u part of the source term, i.e g(x) in
      *  Div(D Grad u)  +  f(x)u + g(x) = 0
-     *  @param x The point in space 
+     *  @param x The point in space
      */
     virtual double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
-    
+
     /**
      *  The coefficient of u in the linear part of the source term, i.e f(x) in
      *  Div(D Grad u)  +  f(x)u + g(x) = 0
-     *  @param x The point in space 
+     *  @param x The point in space
      */
     virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& x,
                                                      Element<SPACE_DIM,SPACE_DIM>* pElement)=0;
@@ -83,20 +83,20 @@ public:
     /**
      * Compute Diffusion Term.
      * @param x The point in space at which the Diffusion Term is computed.
-     * @return A matrix. 
+     * @return A matrix.
      */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x)=0;
-    
+
     virtual double ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& node)
     {
         return ComputeConstantInUSourceTerm(node.GetPoint());
     }
-    
+
     virtual double ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& node)
     {
         return ComputeLinearInUCoeffInSourceTerm(node.GetPoint(), NULL);
     }
-    
+
     virtual ~AbstractLinearEllipticPde()
     {}
 };

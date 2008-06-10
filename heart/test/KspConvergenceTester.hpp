@@ -41,7 +41,7 @@ public:
     void UpdateConvergenceParameters()
     {
         this->SetKspRelativeTolerance(this->GetKspRelativeTolerance()*0.1);
-    
+
     }
     bool GiveUpConvergence()
     {

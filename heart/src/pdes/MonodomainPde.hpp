@@ -55,20 +55,20 @@ class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>, public AbstractLinea
 {
 private:
     friend class TestMonodomainPde;
-    
+
 public:
 
     //Constructor
     MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
             :  AbstractCardiacPde<SPACE_DIM>(pCellFactory)
     {}
-    
-    
+
+
     //The following are hidden from the coverage test while it is waiting
     //for a re-factor. (Ticket #157)
 #define COVERAGE_IGNORE
     /**
-     * This should not be called; use 
+     * This should not be called; use
      * ComputeLinearSourceTermAtNode instead
      */
     double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
@@ -76,9 +76,9 @@ public:
         NEVER_REACHED;
         return 0.0;
     }
-    
+
     /**
-     * This should not be called; use 
+     * This should not be called; use
      * ComputeNonlinearSourceTermAtNode instead
      */
     double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
@@ -87,22 +87,22 @@ public:
         return 0.0;
     }
 #undef COVERAGE_IGNORE
-    
+
     //virtual, since overridden by Fisher
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& , Element<SPACE_DIM,SPACE_DIM>* pElement)
     {
         return (*this->mpIntracellularConductivityTensors)[pElement->GetIndex()];
     }
-    
-    
+
+
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         unsigned index = node.GetIndex();
         return  -(this->mSurfaceAreaToVolumeRatio)*(this->mIionicCacheReplicated[index])
                 - this->mIntracellularStimulusCacheReplicated[index];
     }
-    
-    
+
+
     double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& )
     {
         return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);

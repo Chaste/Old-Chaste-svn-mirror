@@ -46,7 +46,7 @@ public:
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>&, Element<SPACE_DIM,SPACE_DIM>* )
     {
         return 0.0;
-    }    
+    }
 
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
     {

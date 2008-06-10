@@ -47,7 +47,7 @@ public :
          mValue(value)
     {
     }
-    
+
     void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticity)
     {
         typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter

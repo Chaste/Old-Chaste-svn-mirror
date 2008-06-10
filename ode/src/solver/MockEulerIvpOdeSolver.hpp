@@ -44,7 +44,7 @@ class MockEulerIvpOdeSolver : public EulerIvpOdeSolver
 {
 private:
     unsigned mCallCount;
-    
+
 protected:
     virtual void InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
                                std::vector<double>& rCurrentYValues,
@@ -52,15 +52,15 @@ protected:
                                double startTime,
                                double endTime,
                                double timeStep);
-                               
+
 public:
     MockEulerIvpOdeSolver();
-    
+
     unsigned GetCallCount();
-    
+
     virtual ~MockEulerIvpOdeSolver()
     {}
-    
+
 };
 
 #endif //_MOCKEULERIVPODESOLVER_HPP_

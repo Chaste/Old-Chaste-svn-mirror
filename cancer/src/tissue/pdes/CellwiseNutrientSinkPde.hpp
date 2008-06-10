@@ -40,19 +40,19 @@ class CellwiseNutrientSinkPde : public AbstractLinearEllipticPde<DIM>
 private:
 
     MeshBasedTissue<DIM>& mrTissue;
-    
+
     double mCoefficient;
-    
+
 public:
 
     CellwiseNutrientSinkPde(MeshBasedTissue<DIM>& rTissue, double coefficient);
 
     double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x);
-    
+
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>*);
-   
+
     double ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode);
-    
+
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& );
 
 };
@@ -95,6 +95,6 @@ template<unsigned DIM>
 c_matrix<double,DIM,DIM> CellwiseNutrientSinkPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& )
 {
     return identity_matrix<double>(DIM);
-}  
+}
 
 #endif /*CELLWISENUTRIENTSINKPDE_HPP_*/

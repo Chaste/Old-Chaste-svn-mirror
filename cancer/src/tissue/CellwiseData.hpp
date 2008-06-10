@@ -36,14 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  A singleton object for storing data that certain cell cycle models
- *  need to know about, e.g. nutrient concentrations computed via some PDE 
+ *  need to know about, e.g. nutrient concentrations computed via some PDE
  *  for use in nutrient based cell cycle models.
  */
 template<unsigned DIM>
 class CellwiseData
 {
     friend class TestCellwiseData;
-    
+
 private:
 
     /* the single instance of the singleton object */
@@ -59,11 +59,11 @@ private:
     unsigned mNumberOfVariables;
 
     /*< store of the data */
-    std::vector<double> mData;  
-      
+    std::vector<double> mData;
+
     std::vector<double> mConstantDataForTesting;
-    bool mUseConstantDataForTesting;    
-    
+    bool mUseConstantDataForTesting;
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -75,74 +75,74 @@ private:
         archive & mConstantDataForTesting;
         archive & mUseConstantDataForTesting;
     }
-    
-    
+
+
 protected:
 
     /**
      *  Protected constuctor. Not to be called, use Instance() instead
      */
     CellwiseData();
-    
-    
+
+
 public:
     /**
      *  Get an instance of the object
      */
     static CellwiseData* Instance();
-    
+
     virtual ~CellwiseData();
-    
-    /** 
-     *  Destroy the current instance. Should be called at the end of a 
+
+    /**
+     *  Destroy the current instance. Should be called at the end of a
      *  simulation.
      */
     static void Destroy();
-    
+
     /**
      *  Get the value for particular cell and given variable number (defaults
      *  to zero)
      */
     double GetValue(TissueCell* pCell, unsigned variableNumber=0);
-    
+
     /**
      *  Set the value for particular node and given variable number (defaults
      *  to zero)
      */
     void SetValue(double value, Node<DIM>* pNode, unsigned variableNumber=0);
-    
+
     /**
      *  Set the Tissue. Must be called before GetValue().
      */
     void SetTissue(MeshBasedTissue<DIM>& rTissue);
-    
+
     /**
      *  Gets the tissue used in data.
      */
     MeshBasedTissue<DIM>& rGetTissue();
-     
+
     /**
      *  Set the number of variables to be stored per cell. The constructor
      *  assumes 1 variable so only really needs to be called if num_vars > 1
      */
     void SetNumNodesAndVars(unsigned numNodes, unsigned numVars);
-    
+
     /**
      *  Force the data to return given values for all cells (only for testing)
      */
     void SetConstantDataForTesting(std::vector<double> values);
-        
+
     /**
      *  Is the instance in existence and fully set up
      */
     bool IsSetUp();
-    
+
     /**
      *  Reallocate size of mData. Needed because of growth/death. Reallocates
      *  according to the number of nodes in the mesh in the Tissue member variable
      */
     void ReallocateMemory();
-    
+
 };
 
 /** Pointer to the single instance */
@@ -168,9 +168,9 @@ CellwiseData<DIM>* CellwiseData<DIM>::Instance()
 template<unsigned DIM>
 CellwiseData<DIM>::CellwiseData()
  :  mpTissue(NULL),
-    mAllocatedMemory(false),    
+    mAllocatedMemory(false),
     mConstantDataForTesting(0),
-    mUseConstantDataForTesting(false) 
+    mUseConstantDataForTesting(false)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
@@ -197,11 +197,11 @@ template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
 {
     // To test a cell and cell cycle models without a tissue
-    if(mUseConstantDataForTesting)  
+    if(mUseConstantDataForTesting)
     {
         return mConstantDataForTesting[variableNumber];
     }
-    
+
     assert(IsSetUp());
     assert(mpTissue!=NULL);
     assert(mAllocatedMemory);
@@ -210,13 +210,13 @@ double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
 
     unsigned node_index = mpTissue->GetNodeCorrespondingToCell(*pCell)->GetIndex();
     unsigned vector_index = node_index*mNumberOfVariables + variableNumber;
-    
+
     return mData[vector_index];
 }
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variableNumber)
-{       
+{
     assert(IsSetUp());
     assert(variableNumber < mNumberOfVariables);
     unsigned vector_index = pNode->GetIndex()*mNumberOfVariables + variableNumber;
@@ -248,21 +248,21 @@ void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfV
     {
         EXCEPTION("SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
     }
-    
+
     assert(numberOfVariables>0);
     assert(mAllocatedMemory==false);
-    
+
     mNumberOfVariables = numberOfVariables;
     mData.clear();
     mData.resize(numNodes * mNumberOfVariables, 0.0);
-    
+
     mAllocatedMemory = true;
 }
 
 template<unsigned DIM>
 bool CellwiseData<DIM>::IsSetUp()
 {
-    return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpTissue!=NULL));   
+    return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpTissue!=NULL));
 }
 
 template<unsigned DIM>
@@ -270,7 +270,7 @@ void CellwiseData<DIM>::ReallocateMemory()
 {
     assert(mAllocatedMemory==true);
     assert(mpTissue!=NULL);
-    
+
     unsigned num_nodes = mpTissue->rGetMesh().GetNumNodes();
     if (mData.size() != num_nodes*mNumberOfVariables)
     {
@@ -281,7 +281,7 @@ void CellwiseData<DIM>::ReallocateMemory()
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double> values)
-{        
+{
     mConstantDataForTesting = values;
     mUseConstantDataForTesting = true;
 }

@@ -33,7 +33,7 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::s
         : ColumnDataWriter::ColumnDataWriter(directory, baseName, cleanDirectory)
 {
     mConcentrated=NULL;
-    
+
     int num_procs, my_rank;
     MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
     if (num_procs==1)
@@ -44,7 +44,7 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::s
     {
         mIsParallel=true;
     }
-    
+
     MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
     if (my_rank==0)
     {
@@ -61,26 +61,26 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 {
     int size;
     VecGetSize(petscVector,&size);
-    
+
     if (size != mFixedDimensionSize)
     {
         //std::cout << "fixed_dim: " << mFixedDimensionSize << ", vec_size " << size << "\n";
         EXCEPTION("Size of vector does not match FixedDimensionSize.");
     }
-    
+
     //Construct the appropriate "scatter" object to concentrate the vector on the master
     if (mConcentrated==NULL)
     {
         VecScatterCreateToZero(petscVector, &mToMaster, &mConcentrated);
     }
-    
+
 //    int size2;
 //    VecGetSize(mConcentrated, &size2);
 //    std::cout << "Vector size=" << size << "," << size2 << std::endl << std::flush;
 
     VecScatterBegin(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
     VecScatterEnd(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
-    
+
 //    std::cout << "Done scatter" << std::endl << std::flush;
 
     if (mAmMaster)
@@ -93,7 +93,7 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
         }
         VecRestoreArray(mConcentrated, &concentrated_vector);
     }
-    
+
 }
 
 void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe stripe)
@@ -107,7 +107,7 @@ void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector
         {
             unstriped[index] =  stripe[index];
         }
-    
+
     // put the unstriped vector
     ParallelColumnDataWriter::PutVector(variableId, unstriped_petsc);
     VecDestroy(unstriped_petsc);
@@ -159,7 +159,7 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
 {
     //Make sure that everyone has queued their messages
     MPI_Barrier(PETSC_COMM_WORLD);
-    
+
 //    std::cout<<"In AdvanceAlongUnlimitedDimension mAmMaster="<< mAmMaster<<
 //     " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n"<<std::flush;
 
@@ -176,7 +176,7 @@ void ParallelColumnDataWriter::Close()
 {
     //std::cout<<"In Close mMyRank="<< mMyRank<<"\n";
     MPI_Barrier(PETSC_COMM_WORLD);
-    
+
     ///\todo.. we may still have queued messages at this point.
     if (mAmMaster)
     {

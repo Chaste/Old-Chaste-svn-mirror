@@ -51,23 +51,23 @@ public:
         VecCreate(PETSC_COMM_WORLD, &test_vec);
         VecSetSizes(test_vec, PETSC_DECIDE, 20);
         VecSetFromOptions(test_vec);
-        
+
         VecAssemblyBegin(test_vec);
         VecAssemblyEnd(test_vec);
-        
+
         EXCEPTION("Will cxxtest be nice if we do PETSc things?");
     }
-    
+
     void ThrowExceptionMethod()
     {
         EXCEPTION("Exception thrown from method.");
     }
-    
+
     void TestThrowingAnExceptionInATest()
     {
         EXCEPTION("Will cxxtest be nice I wonder?");
     }
-    
+
     void TestCatchingExceptionWithCxxtest()
     {
         TS_ASSERT_THROWS_ANYTHING(EXCEPTION("Will cxxtest be nice I wonder?"));

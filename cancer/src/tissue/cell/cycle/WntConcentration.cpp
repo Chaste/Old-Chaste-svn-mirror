@@ -49,7 +49,7 @@ WntConcentration::WntConcentration()
     mpTissue(NULL),
     mTypeSet(false),
     mConstantWntValueForTesting(0),
-    mUseConstantWntValueForTesting(false)    
+    mUseConstantWntValueForTesting(false)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
@@ -78,14 +78,14 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     assert(mpTissue!=NULL);
     assert(mTypeSet);
     assert(pCell!=NULL);
-    
+
     double height;
-    
+
     if (mWntType==RADIAL)
     {
         double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
         double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
-        height = a*pow(norm_2(mpTissue->GetLocationOfCell(*pCell)),b);  
+        height = a*pow(norm_2(mpTissue->GetLocationOfCell(*pCell)),b);
     }
     else
     {
@@ -103,9 +103,9 @@ c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
     assert(mpTissue!=NULL);
     assert(mTypeSet);
     assert(pCell!=NULL);
-    
+
     c_vector<double,2> location_of_cell = mpTissue->GetLocationOfCell(*pCell);
-    
+
     return GetWntGradient(location_of_cell);
 }
 
@@ -116,7 +116,7 @@ void WntConcentration::SetTissue(AbstractTissue<2>& rTissue)
 
 WntConcentrationType WntConcentration::GetType()
 {
-    return mWntType;    
+    return mWntType;
 }
 
 void WntConcentration::SetType(WntConcentrationType type)
@@ -136,18 +136,18 @@ void WntConcentration::SetType(WntConcentrationType type)
 double WntConcentration::GetWntLevel(double height)
 {
     double wnt_level = -1.0;
-    
+
     if (mWntType==NONE)
     {
         wnt_level=0.0;
     }
-    
+
     // The first Wnt gradient to try
     if (mWntType==LINEAR || mWntType==RADIAL)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
         double top_of_gradient = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
-        
+
         if ((height >= -1e-9) && (height < top_of_gradient*crypt_height))
         {
             wnt_level = 1.0 - height/(top_of_gradient*crypt_height);
@@ -157,9 +157,9 @@ double WntConcentration::GetWntLevel(double height)
             wnt_level = 0.0;
         }
     }
-    
+
     assert(wnt_level >= 0.0);
-    
+
     return wnt_level;
 }
 
@@ -170,12 +170,12 @@ double WntConcentration::GetWntLevel(double height)
 c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
 {
     c_vector<double,2> wnt_gradient = zero_vector<double>(2);
-    
+
     if (mWntType!=NONE)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
         double top_of_gradient = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
-        
+
         if (mWntType==LINEAR)
         {
             if ((location[1] >= -1e-9) && (location[1] < top_of_gradient*crypt_height))
@@ -184,30 +184,30 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
             }
         }
         else // RADIAL Wnt
-        {   
+        {
             double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
             double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
-            double r = norm_2(location);            
-            double r_critical = pow(top_of_gradient*crypt_height/a,1.0/b); 
-                       
+            double r = norm_2(location);
+            double r_critical = pow(top_of_gradient*crypt_height/a,1.0/b);
+
             double dwdr = 0.0;
-            
+
             if ( r>=-1e-9 && r<r_critical )
             {
                 dwdr = -top_of_gradient*crypt_height*pow(r,b-1.0)/a;
             }
-            
+
             wnt_gradient[0] = location[0]*dwdr/r;
             wnt_gradient[1] = location[1]*dwdr/r;
-        }        
-    }    
+        }
+    }
     return wnt_gradient;
 }
 
 /**
  * This allows the TissueSimulation to ask whether a WntConcentration has been set up or not
  * To let it know whether it should move stem cells around!!
- * 
+ *
  * @return result  True if the Wnt concentration is set up.
  */
 bool WntConcentration::IsWntSetUp()
@@ -217,7 +217,7 @@ bool WntConcentration::IsWntSetUp()
     {
         result = true;
     }
-    return result;   
+    return result;
 }
 
 
@@ -225,7 +225,7 @@ void WntConcentration::SetConstantWntValueForTesting(double value)
 {
     if (value < 0)
     {
-        EXCEPTION("WntConcentration::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");   
+        EXCEPTION("WntConcentration::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");
     }
     mConstantWntValueForTesting = value;
     mUseConstantWntValueForTesting = true;

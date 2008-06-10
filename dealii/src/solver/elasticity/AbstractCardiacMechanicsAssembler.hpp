@@ -44,12 +44,12 @@ protected :
     static const unsigned mNumQuadPointsInEachDimension = 3;
 
     unsigned mTotalQuadPoints;
-    unsigned mCurrentQuadPointGlobalIndex;    
+    unsigned mCurrentQuadPointGlobalIndex;
 
-    /** 
+    /**
      *  The x stretch, quad point-wise. NOTE: the i-th entry of this vector is
      *  assumed to be the i-th quad point obtained by looping over cells in the obvious
-     *  way and then looping over quad points 
+     *  way and then looping over quad points
      */
     std::vector<double> mLambda;
 
@@ -62,10 +62,10 @@ public :
         QGauss<DIM>   quadrature_formula(mNumQuadPointsInEachDimension);
         mTotalQuadPoints = quadrature_formula.n_quadrature_points * pMesh->n_active_cells();
         mCurrentQuadPointGlobalIndex = 0;
-        
+
         mLambda.resize(mTotalQuadPoints, 1.0);
     }
-    
+
     virtual ~AbstractCardiacMechanicsAssembler()
     {
     }
@@ -75,10 +75,10 @@ public :
     {
         return mNumQuadPointsInEachDimension;
     }
-    
-    /** 
+
+    /**
      *  Get the total number of quadrature points (equal to the n.q^d, where n=number of cells
-     *  q is the number of quad points in each dimension, and d=DIM). 
+     *  q is the number of quad points in each dimension, and d=DIM).
      */
     unsigned GetTotalNumQuadPoints()
     {
@@ -95,7 +95,7 @@ public :
             return mNumQuadPointsInEachDimension;
         }
         if(DIM==2)
-        { 
+        {
             return mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension;
         }
         else //DIM==3
@@ -103,19 +103,19 @@ public :
             return mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension;
         }
     }
-    
-        
-    /** 
-     *  Get lambda (the stretch ratio). 
-     * 
+
+
+    /**
+     *  Get lambda (the stretch ratio).
+     *
      *  NOTE: the i-th entry of this vector is
      *  assumed to be the i-th quad point obtained by looping over cells in the obvious
-     *  way and then looping over quad points 
+     *  way and then looping over quad points
      */
     std::vector<double>& rGetLambda()
     {
         return mLambda;
-    }       
+    }
 
     /**
      *  Solve between given times. A static explicit assembler will ignore

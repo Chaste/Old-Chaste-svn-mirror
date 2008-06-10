@@ -34,6 +34,6 @@ public:
     static double GetTime();
 private:
     static double mTime;
-};        
+};
 
 #endif /*PDESIMULATIONTIME_HPP_*/

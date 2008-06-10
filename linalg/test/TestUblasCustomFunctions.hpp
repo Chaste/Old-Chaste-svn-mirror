@@ -48,7 +48,7 @@ public:
         C(0,0)=5.6;
         OneOneDeterminant = Determinant(C);
         TS_ASSERT_DELTA( OneOneDeterminant, 5.6, 0.0000000001);
-        
+
         c_matrix<double, 3, 3> A;
         A(0,0) = 2.4;
         A(0,1) = 5;
@@ -61,7 +61,7 @@ public:
         A(2,2) = 9;
         double ThreeThreeDeterminant = Determinant(A);
         TS_ASSERT_DELTA( ThreeThreeDeterminant, 0.2, 0.0000000001);
-        
+
         c_matrix<double, 2, 2> B;
         B(0,0) = 2.4;
         B(0,1) = 5;
@@ -70,11 +70,11 @@ public:
         double TwoTwoDeterminant = Determinant(B);
         TS_ASSERT_DELTA( TwoTwoDeterminant, -10.6, 0.0000000001);
     }
-    
+
     void TestSubDeterminant()
     {
         using namespace boost::numeric::ublas;
-        
+
         c_matrix<double, 1, 1> C;
         double OneOneDeterminant;
         C(0,0)=5.6;
@@ -82,15 +82,15 @@ public:
         TS_ASSERT_DELTA( OneOneDeterminant,
                          C(0,0)*SubDeterminant(C,0,0),
                          1e-10);
-                         
+
         c_matrix<double, 2, 2> B;
         B(0,0) = 2.4;
         B(0,1) = 5;
         B(1,0) = 5;
         B(1,1) = 6;
         double TwoTwoDeterminant = Determinant(B);
-        
-        
+
+
         TS_ASSERT_DELTA( TwoTwoDeterminant,
                          B(0,0)*SubDeterminant(B,0,0)-B(0,1)*SubDeterminant(B,0,1), 1e-10);
         TS_ASSERT_DELTA( TwoTwoDeterminant,
@@ -127,11 +127,11 @@ public:
                          + A(1,1)*SubDeterminant(A,1,1)
                          - A(1,2)*SubDeterminant(A,1,2),
                          1e-10);
-                         
-                         
-                         
+
+
+
     }
-    
+
     void TestInverse( void )
     {
         using namespace boost::numeric::ublas;
@@ -189,21 +189,21 @@ public:
             }
         }
     }
-    
-    
+
+
     void TestTraceAndSecondInvariant()
     {
         c_matrix<double, 1,1> a;
         a(0,0) = 13.03;
         TS_ASSERT_DELTA(Trace(a),13.03,1e-10);
-        
+
         c_matrix<double, 2,2> b;
         b(0,0) = 13.03;
         b(1,0) = 3.03;
         b(0,1) = 3.03;
         b(1,1) = 165;
         TS_ASSERT_DELTA(Trace(b),13.03+165,1e-10);
-        
+
         // symmetric 3 by 3 matrix.
         c_matrix<double, 3,3> c;
         c(0,0) = 13.03;
@@ -215,18 +215,18 @@ public:
         c(0,2) = 2.3;
         c(1,2) = 9.9;
         c(2,2) = 34;
-        
+
         c_matrix<double,3,3> c_squared = prod(trans(c),c);
-        
+
         TS_ASSERT_DELTA(Trace(c),13.03+45+34,1e-10);
         TS_ASSERT_DELTA(SecondInvariant(c),0.5*(Trace(c)*Trace(c)-Trace(c_squared)),1e-10);
-        
+
         c_matrix<double, 4,4> d = identity_matrix<double>(4);
         TS_ASSERT_DELTA(Trace(d),4,1e-10);
     }
-    
-    
-    
+
+
+
     // Get a row from a matrix
     void TestUblasMatrixRow()
     {
@@ -237,10 +237,10 @@ public:
         a(1,0) = 4;
         a(1,1) = 5;
         a(1,2) = 6;
-        
+
         matrix_row< c_matrix<double,2,3> > row0(a, 0);
         matrix_row< c_matrix<double,2,3> > row1(a, 1);
-        
+
         TS_ASSERT_EQUALS(a(0,0), row0(0));
         TS_ASSERT_EQUALS(a(0,1), row0(1));
         TS_ASSERT_EQUALS(a(0,2), row0(2));
@@ -252,8 +252,8 @@ public:
     void TestCreate_c_vector()
     {
         c_vector<double, 1> v1 = Create_c_vector(1);
-        TS_ASSERT_EQUALS( v1[0], 1);    
-        
+        TS_ASSERT_EQUALS( v1[0], 1);
+
         c_vector<double, 2> v2 = Create_c_vector(1,2);
         TS_ASSERT_EQUALS( v2[0], 1);
         TS_ASSERT_EQUALS( v2[1], 2);
@@ -261,7 +261,7 @@ public:
         c_vector<double, 3> v3 = Create_c_vector(1,2,3);
         TS_ASSERT_EQUALS( v3[0], 1);
         TS_ASSERT_EQUALS( v3[1], 2);
-        TS_ASSERT_EQUALS( v3[2], 3);        
+        TS_ASSERT_EQUALS( v3[2], 3);
     }
 
 };

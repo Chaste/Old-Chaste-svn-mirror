@@ -44,7 +44,7 @@ class TissueCell
 private:
     /// Caches the result of ReadyToDivide() so Divide() can look at it
     bool mCanDivide;
-    
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -63,7 +63,7 @@ private:
         archive & mIsLogged;
         archive & mAncestor;
     }
-    
+
 protected:
     // NB - if you add any member variables make sure CommonCopy includes them.
     CellType mCellType;
@@ -83,7 +83,7 @@ protected:
      * Contains code common to both the copy constructor and operator=.
      */
     void CommonCopy(const TissueCell &other_cell);
-    
+
 public:
 
     /**
@@ -94,19 +94,19 @@ public:
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
-     */       
+     */
     TissueCell(CellType cellType,
                CellMutationState mutationState,
                AbstractCellCycleModel *pCellCycleModel,
                bool archiving = false);
-               
+
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
      */
     ~TissueCell();
-    
+
     TissueCell(const TissueCell &other_cell);
-    
+
     /**
      * Copy all the attributes of one cell to another
      * (used for periodic boundaries - does not copy node or position information)
@@ -116,46 +116,46 @@ public:
      * \todo Also, since cell cycle models don't have an operator=, only copies data members of AbstractCellCycleModel when the model is copied.
      */
     TissueCell& operator=(const TissueCell &other_cell);
-    
+
     void SetBirthTime(double birthTime);
-    
+
     /**
      * Change the cell cycle model used.  This takes effect immediately.
      */
     void SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel);
     AbstractCellCycleModel *GetCellCycleModel() const;
-    
+
     /**
      * Calls Initialise on the cell cycle model associated with this cell.
      */
     void InitialiseCellCycleModel();
-    
+
     // This method doesn't appear to actually be defined anywhere...
     // void UpdateCellCycleModel();
-    
+
     /**
      * Set the node at which this cell is positioned.
-     * 
+     *
      * @param index Index of the node in the mesh
      */
     void SetNodeIndex(unsigned index);
     unsigned GetNodeIndex() const;
-    
+
     double GetAge() const;
     double GetBirthTime() const;
     unsigned GetGeneration() const;
-    
+
     CellType GetCellType() const;
     void SetCellType(CellType cellType);
     CellMutationState GetMutationState() const;
     void SetMutationState(CellMutationState mutationState);
-    
+
     /**
      * Determine if this cell is ready to divide at the current simulation time.
      * MUST be called before calling Divide().
      */
     bool ReadyToDivide();
-    
+
     /**
      * Divide this cell to produce a daughter cell.
      * ReadyToDivide MUST have been called at the current time, and returned true.
@@ -163,16 +163,16 @@ public:
      * @return the new daughter cell
      */
     TissueCell Divide();
-    
+
     void StartApoptosis();
     void Kill();
     bool HasApoptosisBegun() const;
     double TimeUntilDeath() const;
     bool IsDead() const;
-    
+
     void SetLogged();
     bool IsLogged();
-    
+
     void SetAncestor(unsigned ancestorIndex);
     unsigned GetAncestor() const;
 };

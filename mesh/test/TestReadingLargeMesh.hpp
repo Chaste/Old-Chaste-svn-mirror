@@ -47,7 +47,7 @@ public:
         TrianglesMeshReader<3,3> meshReader("heart/test/data/heart");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(meshReader);
-        
+
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 322267U);

@@ -27,9 +27,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/** 
+/**
  * Linear System implementation.
- * 
+ *
  */
 #include "LinearSystem.hpp"
 #include "PetscException.hpp"
@@ -52,11 +52,11 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize)
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
     VecSetFromOptions(mRhsVector);
-    
+
     PetscTools::SetupMat(mLhsMatrix, lhsVectorSize, lhsVectorSize);
-        
+
     mSize = lhsVectorSize;
-    
+
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 }
 
@@ -87,7 +87,7 @@ LinearSystem::LinearSystem(Vec templateVector)
  * Create a linear system which wraps the provided PETSc objects so we can
  * access them using our API.  Either of the objects may be NULL, but at
  * least one of them must not be.
- * 
+ *
  * Useful for storing residuals and jacobians when solving nonlinear PDEs.
  */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
@@ -101,7 +101,7 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
     mLhsMatrix = jacobianMatrix;
-    
+
     PetscInt mat_size=0, vec_size=0;
     if (mRhsVector)
     {
@@ -114,10 +114,10 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
         PetscInt mat_cols;
         MatGetSize(mLhsMatrix, &mat_size, &mat_cols);
         assert(mat_size == mat_cols);
-        mSize = (unsigned)mat_size; 
+        mSize = (unsigned)mat_size;
         MatGetOwnershipRange(mLhsMatrix, &mOwnershipRangeLo, &mOwnershipRangeHi);
     }
-    assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);   
+    assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
 }
 
 LinearSystem::~LinearSystem()
@@ -234,17 +234,17 @@ void LinearSystem::ZeroMatrixRow(PetscInt row)
     double diag_zero=0.0;
     // MatZeroRows allows a non-zero value to be placed on the diagonal
     // diag_zero is the value to put in the diagonal
-    
+
 #if (PETSC_VERSION_MINOR == 2) //Old API
     IS is;
     ISCreateGeneral(PETSC_COMM_WORLD,1,&row,&is);
     MatZeroRows(mLhsMatrix, is, &diag_zero);
     ISDestroy(is);
 #else
-    
+
     MatZeroRows(mLhsMatrix, 1, &row, diag_zero);
 #endif
-    
+
 }
 
 void LinearSystem::ZeroRhsVector()
@@ -302,11 +302,11 @@ double LinearSystem::GetMatrixElement(PetscInt row, PetscInt col)
     row_as_array[0] = row;
     PetscInt col_as_array[1];
     col_as_array[0] = col;
-    
+
     double ret_array[1];
-    
+
     MatGetValues(mLhsMatrix, 1, row_as_array, 1, col_as_array, ret_array);
-    
+
     return ret_array[0];
 }
 
@@ -317,13 +317,13 @@ double LinearSystem::GetMatrixElement(PetscInt row, PetscInt col)
 double LinearSystem::GetRhsVectorElement(PetscInt row)
 {
     assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
-    
+
     double *p_rhs_vector;
     PetscInt local_index=row-mOwnershipRangeLo;
     VecGetArray(mRhsVector, &p_rhs_vector);
     double answer=p_rhs_vector[local_index];
     VecRestoreArray(mRhsVector, &p_rhs_vector);
-    
+
     return answer;
 }
 
@@ -354,7 +354,7 @@ void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
 {
     mMatrixIsConstant=matrixIsConstant;
 }
-    
+
 void LinearSystem::SetRelativeTolerance(double relativeTolerance)
 {
     mTolerance=relativeTolerance;
@@ -362,8 +362,8 @@ void LinearSystem::SetRelativeTolerance(double relativeTolerance)
     if (mKspIsSetup)
     {
         KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
-    }        
-    
+    }
+
 }
 
 void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
@@ -373,8 +373,8 @@ void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
     if (mKspIsSetup)
     {
         KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
-    }        
-    
+    }
+
 }
 
 Vec LinearSystem::Solve(Vec lhsGuess)
@@ -386,13 +386,13 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     //Double check that the non-zero pattern hasn't changed
     MatInfo mat_info;
     MatGetInfo(mLhsMatrix, MAT_GLOBAL_SUM, &mat_info);
-    
+
     if (!mKspIsSetup)
     {
         mNonZerosUsed=mat_info.nz_used;
         //MatNorm(lhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
         PC prec; //Type of pre-conditioner
-        
+
         KSPCreate(PETSC_COMM_WORLD, &mKspSolver);
         //See
         //http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
@@ -406,7 +406,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         {
             KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_NONZERO_PATTERN);
         }
-        
+
         // Set either absolute or relative tolerance of the KSP solver.
         // The default is to use relative tolerance (1e-6)
         if (mUseAbsoluteTolerance)
@@ -417,7 +417,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         {
             KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         }
-        
+
         // Turn off pre-conditioning if the system size is very small
         KSPGetPC(mKspSolver, &prec);
         if (mSize <= 4)
@@ -428,22 +428,22 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         {
             PCSetType(prec, PCJACOBI);
         }
-        
+
         if (mMatNullSpace)
         {
             PETSCEXCEPT( KSPSetNullSpace(mKspSolver, mMatNullSpace) );
         }
-        
+
         if (lhsGuess)
         {
-            //Assume that the user of this method will always be kind enough 
+            //Assume that the user of this method will always be kind enough
             //to give us a reasonable guess.
             KSPSetInitialGuessNonzero(mKspSolver,PETSC_TRUE);
         }
-         
+
         KSPSetFromOptions(mKspSolver);
         KSPSetUp(mKspSolver);
-        
+
         mKspIsSetup = true;
     }
     else
@@ -453,25 +453,25 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         {
             EXCEPTION("LinearSystem doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
         }
-        
+
         #undef COVERAGE_IGNORE
     }
-    
+
     // Create solution vector
     ///\todo Should it be compulsory for the caller to supply this and manage the memory?
     Vec lhs_vector;
     VecDuplicate(mRhsVector, &lhs_vector);//Sets the same size (doesn't copy)
     if (lhsGuess)
-    {           
-        VecCopy(lhsGuess, lhs_vector);  
+    {
+        VecCopy(lhsGuess, lhs_vector);
     }
-    
-    try 
+
+    try
     {
         EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
         EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
-    
+
         // Check that solver converged and throw if not
         KSPConvergedReason reason;
         KSPGetConvergedReason(mKspSolver, &reason);
@@ -483,7 +483,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         VecDestroy(lhs_vector);
         throw e;
     }
-    
+
     return lhs_vector;
 }
 

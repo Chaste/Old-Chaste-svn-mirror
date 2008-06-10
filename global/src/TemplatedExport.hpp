@@ -45,7 +45,7 @@ template<class T> struct pack<void (T)> {
 
 #define EXPORT_TEMPLATE_CLASS2(CLASS, E, S) \
     BOOST_CLASS_EXPORT( pack<void (CLASS< E,S >)>::type );
-    
+
 #define EXPORT_TEMPLATE_CLASS1(CLASS, D) \
     BOOST_CLASS_EXPORT( pack<void (CLASS< D >)>::type );
 

@@ -52,81 +52,81 @@ public:
         SimpleStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
                                  start_stimulus);
-                                 
+
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, 0.01, &stimulus);
-        
+
         double v_singularity[2];
         v_singularity[0]=-65;
         v_singularity[1]=-50;
-        
+
         for (int i=0; i<2; i++)
         {
-        
+
             std::vector<double> yleft;
-            
+
             //mVariableNames.push_back("V");
             //mVariableUnits.push_back("mV");
             yleft.push_back(v_singularity[i]+0.1);
-            
+
             //mVariableNames.push_back("n");
             //mVariableUnits.push_back("");
             yleft.push_back(0.325);
-            
+
             //mVariableNames.push_back("h");
             //mVariableUnits.push_back("");
             yleft.push_back(0.6);
-            
+
             //mVariableNames.push_back("m");
             //mVariableUnits.push_back("");
             yleft.push_back(0.05);
-            
-            
+
+
             std::vector<double> rhsleft(yleft.size());
             hh52_ode_system.EvaluateYDerivatives (0.0, yleft, rhsleft);
-            
+
             std::vector<double> yright;
-            
+
             //mVariableNames.push_back("V");
             //mVariableUnits.push_back("mV");
             yright.push_back(v_singularity[i]-0.1);
-            
+
             //mVariableNames.push_back("n");
             //mVariableUnits.push_back("");
             yright.push_back(0.325);
-            
+
             //mVariableNames.push_back("h");
             //mVariableUnits.push_back("");
             yright.push_back(0.6);
-            
+
             //mVariableNames.push_back("m");
             //mVariableUnits.push_back("");
             yright.push_back(0.05);
-            
+
             std::vector<double> rhsright(yright.size());
             hh52_ode_system.EvaluateYDerivatives (0.0, yright, rhsright);
-            
-            
+
+
             std::vector<double> y_at_singularity;
-            
+
             //mVariableNames.push_back("V");
             //mVariableUnits.push_back("mV");
             y_at_singularity.push_back(v_singularity[i]);
-            
+
             //mVariableNames.push_back("n");
             //mVariableUnits.push_back("");
             y_at_singularity.push_back(0.325);
-            
+
             //mVariableNames.push_back("h");
             //mVariableUnits.push_back("");
             y_at_singularity.push_back(0.6);
-            
+
             //mVariableNames.push_back("m");
             //mVariableUnits.push_back("");
             y_at_singularity.push_back(0.05);
-            
+
             std::vector<double> rhs_at_singularity(y_at_singularity.size());
             hh52_ode_system.EvaluateYDerivatives (0.0, y_at_singularity, rhs_at_singularity);
-            
+
             for (int j=0; j<4; j++)
             {
                 // std::cout << j << std::endl;

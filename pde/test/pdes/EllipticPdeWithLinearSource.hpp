@@ -56,7 +56,7 @@ public:
     {
         return mCoeffOfU;
     }
-    
+
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
     {
         return identity_matrix<double>(SPACE_DIM);

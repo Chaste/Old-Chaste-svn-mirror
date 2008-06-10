@@ -74,7 +74,7 @@ public:
         mpStimulus = new SimpleStimulus(-1000000, 0.5);
         mMeshWidth=meshWidth;
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
@@ -87,7 +87,7 @@ public:
             return new CELL(this->mpSolver, this->mTimeStep, this->mpZeroStimulus, this->mpZeroStimulus);
         }
     }
-    
+
     ~QuarterStimulusCellFactory(void)
     {
         delete mpStimulus;
@@ -101,7 +101,7 @@ class AbstractUntemplatedConvergenceTester
 protected:
     double mMeshWidth;
     double mKspTolerance;
-    bool mUseKspAbsoluteTolerance;   
+    bool mUseKspAbsoluteTolerance;
 public:
     double OdeTimeStep;
     double PdeTimeStep;
@@ -116,8 +116,8 @@ public:
     bool Converged;
     //bool StimulateRegion;
     StimulusType Stimulus;
-    
-    AbstractUntemplatedConvergenceTester()   
+
+    AbstractUntemplatedConvergenceTester()
     : mMeshWidth(0.2),//cm
       mKspTolerance(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
       mUseKspAbsoluteTolerance(false),
@@ -136,21 +136,21 @@ public:
       Stimulus(PLANE)
     {
     }
-    
-    virtual void Converge(std::string nameOfTest)=0;   
-    
+
+    virtual void Converge(std::string nameOfTest)=0;
+
     void SetKspRelativeTolerance(const double& relativeTolerance)
     {
        mKspTolerance = relativeTolerance;
-       mUseKspAbsoluteTolerance = false;   
+       mUseKspAbsoluteTolerance = false;
     }
-    
+
     void SetKspAbsoluteTolerance(const double& absoluteTolerance)
     {
        mKspTolerance = absoluteTolerance;
-       mUseKspAbsoluteTolerance = true;   
+       mUseKspAbsoluteTolerance = true;
     }
-    
+
     double GetKspAbsoluteTolerance()
     {
         if (!mUseKspAbsoluteTolerance)
@@ -159,7 +159,7 @@ public:
         }
         return mKspTolerance;
     }
-    
+
     double GetKspRelativeTolerance()
     {
         if (mUseKspAbsoluteTolerance)
@@ -168,11 +168,11 @@ public:
         }
         return mKspTolerance;
     }
-    
+
     virtual ~AbstractUntemplatedConvergenceTester()
     {
     }
-    
+
 };
 
 /**
@@ -213,7 +213,7 @@ void SetConductivities(MonodomainProblem<DIM>& rProblem)
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {
-public:    
+public:
     void Converge(std::string nameOfTest)
     {
         std::cout << "=========================== Beginning Test...==================================\n";
@@ -223,7 +223,7 @@ public:
         ReplicatableVector voltage_replicated;
 
         unsigned file_num=0;
-        
+
         // Create a file for storing conduction velocity and AP data and write the header
        OutputFileHandler conv_info_handler("ConvergencePlots", false);
        out_stream p_conv_info_file;
@@ -239,31 +239,31 @@ public:
                                 << "Conduction velocity (relative errors)" << std::endl;
         }
         SetInitialConvergenceParameters();
-        
+
         unsigned prev_mesh_num=9999;
         std::string mesh_pathname;
         std::string mesh_filename;
 
         double prev_apd90_first_qn=0.0;
         double prev_apd90_third_qn=0.0;
-        double prev_cond_velocity=0.0;        
+        double prev_cond_velocity=0.0;
         double prev_voltage[201];
         PopulateStandardResult(prev_voltage);
-                
+
         do
         {
             CuboidMeshConstructor<DIM> constructor;
-            
+
 
             if (this->MeshNum!=prev_mesh_num)
             {
                 mesh_pathname = constructor.Construct(this->MeshNum, mMeshWidth);
                 prev_mesh_num = this->MeshNum;
-            }                            
+            }
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
-            
+
             AbstractCardiacCellFactory<DIM>* p_cell_factory=NULL;
-            
+
             switch (this->Stimulus)
             {
                 case NEUMANN:
@@ -277,30 +277,30 @@ public:
                     {
                         #define COVERAGE_IGNORE
                         p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, 0, this->AbsoluteStimulus, true);
-                        #undef COVERAGE_IGNORE                
+                        #undef COVERAGE_IGNORE
                     }
                     else
                     {
-                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, num_ele_across, constructor.GetWidth());                
+                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, num_ele_across, constructor.GetWidth());
                     }
                     break;
-                }               
+                }
                 case REGION:
                 {
                     p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, constructor.GetWidth());
                     break;
                 }
             }
-            
-            
+
+
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
-            
+
             cardiac_problem.SetMeshFilename(mesh_pathname);
             cardiac_problem.SetOutputDirectory ("Convergence");
             cardiac_problem.SetOutputFilenamePrefix ("Results");
-            
+
             cardiac_problem.SetEndTime(simulation_time);   // ms
-            
+
             if (mUseKspAbsoluteTolerance)
             {
                 cardiac_problem.SetLinearSolverAbsoluteTolerance(this->mKspTolerance);
@@ -309,10 +309,10 @@ public:
             {
                 cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
             }
-    
+
             assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
             cardiac_problem.SetPdeAndPrintingTimeSteps(this->PdeTimeStep, 0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
-            
+
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;
             unsigned first_quadrant_node;
@@ -340,16 +340,16 @@ public:
                     third_quadrant_node = third_quadrant_nodes_3d[this->MeshNum];
                     break;
                 }
-                
+
                 default:
                     assert(0);
             }
-            
+
             double mesh_width=constructor.GetWidth();
-            
+
             #ifndef NDEBUG
             Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
-            Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);            
+            Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
             assert(fqn->rGetLocation()[0]==0.25*mesh_width);
             assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
             for (unsigned coord=1; coord<DIM; coord++)
@@ -358,29 +358,29 @@ public:
                 assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
             }
             #endif
-            
+
             // We only need the output of these two nodes
             std::vector<unsigned> nodes_to_be_output;
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
-            //cardiac_problem.SetOutputNodes(nodes_to_be_output);                        
-            ///\todo We need to back this out at some point to see if it makes much speed difference 
-            
-            
+            //cardiac_problem.SetOutputNodes(nodes_to_be_output);
+            ///\todo We need to back this out at some point to see if it makes much speed difference
+
+
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set
             // the former ones to be used.
             SetConductivities(cardiac_problem);
 
             cardiac_problem.Initialise();
-            
+
             BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
             SimpleStimulus stim(4000.0, 0.5);
             if (Stimulus==NEUMANN)
             {
-                
+
                 StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
-                        
+
                 // get mesh
                 ConformingTetrahedralMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();
                 // loop over boundary elements
@@ -398,12 +398,12 @@ public:
                 // pass the bcc to the problem
                 cardiac_problem.SetBoundaryConditionsContainer(&bcc);
             }
-            
+
               DisplayRun();
             double time_before=MPI_Wtime();
             //// use this to get some info printed out
-            //cardiac_problem.SetWriteInfo();                        
-            
+            //cardiac_problem.SetWriteInfo();
+
             try
             {
                 cardiac_problem.Solve();
@@ -413,19 +413,19 @@ public:
                 #define COVERAGE_IGNORE
                 ///\todo Cover this
                 std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
-                std::cout<<e.GetMessage() << std::endl;                 
+                std::cout<<e.GetMessage() << std::endl;
                 #undef COVERAGE_IGNORE
             }
-            
+
             std::cout << "Time to solve = "<<MPI_Wtime()-time_before<<" seconds\n";
-            
+
             OutputFileHandler results_handler("Convergence", false);
-            Hdf5DataReader results_reader("Convergence", "Results");          
-            
+            Hdf5DataReader results_reader("Convergence", "Results");
+
             {
                 std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", third_quadrant_node);
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
-                
+
                 // Write out the time series for the node at third quadrant
                 if (results_handler.IsMaster())
                 {
@@ -435,11 +435,11 @@ public:
                     out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
                     for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                     {
-                        (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";                 
+                        (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";
                     }
                     p_plot_file->close();
                 }
-                
+
                 // Write time series for first quadrant node
                 if (results_handler.IsMaster())
                 {
@@ -454,27 +454,27 @@ public:
                         (*p_plot_file) << time_series_1qd[data_point] << "\t" << transmembrane_potential_1qd[data_point] << "\n";
                     }
                     p_plot_file->close();
-                }                    
-                    
+                }
+
                 // calculate conduction velocity and APD90 error
                 PropagationPropertiesCalculator ppc(&results_reader);
-                
+
                 double cond_velocity=0.0, apd90_first_qn=0.0, apd90_third_qn=0.0;
                 try
                 {
                     apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
                     apd90_third_qn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
-                    
+
                     cond_velocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
                 }
                 catch (Exception e)
                 {
                     #define COVERAGE_IGNORE
                     std::cout<<"Warning - this run threw an exception in calculating propagation.  Check convergence results\n";
-                    std::cout<<e.GetMessage() << std::endl;                 
+                    std::cout<<e.GetMessage() << std::endl;
                     #undef COVERAGE_IGNORE
                 }
-                
+
                 double cond_velocity_error = 0.0;
                 double apd90_first_qn_error = 0.0;
                 double apd90_third_qn_error = 0.0;
@@ -484,21 +484,21 @@ public:
                     //std::cout << "APD90\n"
                     //          << "Current: " << apd90_first_qn << "\t" << apd90_third_qn << "\n"
                     //          << "Previous: " << prev_apd90_first_qn << "\t" << prev_apd90_third_qn << "\n";
-                    
-                    cond_velocity_error = fabs(cond_velocity - prev_cond_velocity) / prev_cond_velocity; 
+
+                    cond_velocity_error = fabs(cond_velocity - prev_cond_velocity) / prev_cond_velocity;
                     apd90_first_qn_error = fabs(apd90_first_qn - prev_apd90_first_qn) / prev_apd90_first_qn;
                     apd90_third_qn_error = fabs(apd90_third_qn - prev_apd90_third_qn) / prev_apd90_third_qn;
-                }                
+                }
 
                 prev_cond_velocity = cond_velocity;
                 prev_apd90_first_qn = apd90_first_qn;
                 prev_apd90_third_qn = apd90_third_qn;
-                
+
                 // calculate l2norm
                 double max_abs_error = 0;
                 double sum_sq_abs_error =0;
-                double sum_sq_prev_voltage = 0;                
-                
+                double sum_sq_prev_voltage = 0;
+
                 for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                 {
                     if (this->PopulatedResult)
@@ -507,27 +507,27 @@ public:
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
                         sum_sq_abs_error += abs_error*abs_error;
                         sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
-                    } 
-                    
+                    }
+
                     if (!this->PopulatedResult || !FixedResult)
                     {
                         prev_voltage[data_point] = transmembrane_potential[data_point];
                     }
                 }
-                
+
                 if (this->PopulatedResult)
                 {
-                    
+
                     std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
                     //std::cout << log10(Abscissa()) << "\t" << log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
                     //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
                     //std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
-                    
+
                     if (conv_info_handler.IsMaster())
                     {
                         (*p_conv_info_file) << std::setprecision(8)
-                                            << Abscissa() << "\t" 
+                                            << Abscissa() << "\t"
                                             << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
                                             << sqrt(sum_sq_abs_error/sum_sq_prev_voltage) << "\t"
                                             << max_abs_error << "\t"
@@ -539,14 +539,14 @@ public:
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
                     this->LastDifference=sum_sq_abs_error/sum_sq_prev_voltage;
                 }
-                
+
                 if (!this->PopulatedResult)
                 {
                     this->PopulatedResult=true;
-                    
+
                 }
             }
-                        
+
             // Get ready for the next test by halving the time step
             if (!this->Converged)
             {
@@ -556,22 +556,22 @@ public:
             delete p_cell_factory;
         }
         while (!GiveUpConvergence() && !this->Converged);
-        
+
         if (conv_info_handler.IsMaster())
         {
             p_conv_info_file->close();
-         
-            std::cout << "Results: " << std::endl;   
+
+            std::cout << "Results: " << std::endl;
             system(("cat " + conv_info_handler.GetOutputDirectoryFullPath() + nameOfTest + "_info.csv").c_str());
-        }            
-        
+        }
+
     }
-    
+
     void DisplayRun()
     {
         unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension
         double scaling = mMeshWidth/(double) num_ele_across;
-        
+
         std::cout<<"================================================================================"<<std::endl;
         std::cout<<"Solving in "<<DIM<<"D\n";
         std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
@@ -590,32 +590,32 @@ public:
             case PLANE:
             std::cout<<"Stimulus = Plane\n";
             break;
-            
+
             case REGION:
             std::cout<<"Stimulus = Region\n";
             break;
-            
+
             case NEUMANN:
             std::cout<<"Stimulus = Neumann\n";
             break;
-            
+
         }
         system("date");//To keep track of what Nightly things are doing
-        ///\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
+        ///\todo The UseAbsoluteStimulus is temporary, while we are sorting out
         ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
         if (this->UseAbsoluteStimulus)
         {
             #define COVERAGE_IGNORE
             std::cout<<"Using absolute stimulus of "<<this->AbsoluteStimulus<<std::endl;
-            #undef COVERAGE_IGNORE                
+            #undef COVERAGE_IGNORE
         }
         std::cout << std::flush;
-        
+
     }
-    
+
 public:
     virtual ~AbstractConvergenceTester() {}
-    
+
     virtual void SetInitialConvergenceParameters()=0;
     virtual void UpdateConvergenceParameters()=0;
     virtual bool GiveUpConvergence()=0;
@@ -624,12 +624,12 @@ public:
     {
         assert(this->PopulatedResult==false);
     }
-    
+
     bool IsConverged()
     {
         return Converged;
     }
-    
+
     void SetMeshWidth(double meshWidth)
     {
         mMeshWidth=meshWidth;

@@ -46,13 +46,13 @@ typedef enum _CellModelState
 class AbstractFastSlowCardiacCell : public AbstractCardiacCell
 {
 protected:
-    /*< Which mode the class is in */    
+    /*< Which mode the class is in */
     CellModelState mState;
 
     /* Values for slow ionic currents interpolated from the coarse mesh. */
     std::vector<double> mSlowValues;
 
-public: 
+public:
     AbstractFastSlowCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                                 unsigned numberOfStateVariables,
                                 unsigned voltageIndex,
@@ -69,22 +69,22 @@ public:
         mState = STATE_UNSET;
     }
 
-    /** 
+    /**
      *  Pure method for setting the state of this model. This should
      *  (i) set the state (ii) initialise the cell (iii) SET mNumberOfStateVariables
      *  CORRECTLY (as this would not have been known in the constructor
      */
     virtual void SetState(CellModelState state)=0;
 
-    /*< Pure method, for setting the slow variables. Should only be valid in fast mode) */ 
+    /*< Pure method, for setting the slow variables. Should only be valid in fast mode) */
     virtual void SetSlowValues(const std::vector<double> &rSlowValues)=0;
-    
+
     /*< Pure method, for getting the slow variables. Should only valid in slow mode. */
     virtual void GetSlowValues(std::vector<double>& rSlowValues)=0;
 
-    /** 
+    /**
      *  Pure method for getting the number of slow variables for the cell model
-     *  (irrespective of whether in fast or slow mode 
+     *  (irrespective of whether in fast or slow mode
      */
     virtual unsigned GetNumSlowValues()=0;
 

@@ -106,7 +106,7 @@ double& DistributedVector::operator[](unsigned globalIndex) throw (DistributedVe
     assert(mStride==1);
     if (mLo<=globalIndex && globalIndex <mHi)
     {
-        return mpVec[globalIndex - mLo];  
+        return mpVec[globalIndex - mLo];
     }
     throw DistributedVectorException();
 }
@@ -121,7 +121,7 @@ void DistributedVector::Restore()
 bool DistributedVector::Iterator::operator!=(const Iterator& other)
 {
    return(Global != other.Global);
-}        
+}
 
 DistributedVector::Iterator& DistributedVector::Iterator::operator++()
 {

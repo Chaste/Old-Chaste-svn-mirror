@@ -51,17 +51,17 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     }
     /**
      * \todo This assertion breaks several tests
-     * 
+     *
     if (endTime-startTime < dt-smidge)
     {
        std::cout<<"Span is "<<endTime-startTime<<"\n";
        std::cout<<"Delta is "<<dt<<"\n";
-       assert(0); 
+       assert(0);
     }
      */
-    
-        
-    
+
+
+
     mNextTime=CalculateNextTime();
 }
 
@@ -76,7 +76,7 @@ double TimeStepper::CalculateNextTime() const
 }
 
 void TimeStepper::AdvanceOneTimeStep()
-{   
+{
     mTimeStep++;
     mTime = mNextTime;
     mNextTime=CalculateNextTime();

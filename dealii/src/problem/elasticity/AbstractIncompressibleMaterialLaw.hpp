@@ -50,21 +50,21 @@ class AbstractIncompressibleMaterialLaw
 {
 public :
     /**
-     *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE for 
+     *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE for
      *  a given strain.
-     *  
+     *
      *  NOTE: the strain E is not expected to be passed in, instead the Lagrangian
      *  deformation tensor C is required (recall, E = 0.5(C-I))
-     * 
+     *
      *  dT/dE is a fourth-order tensor, where dT/dE[M][N][P][Q] = dT^{MN}/dE_{PQ}
-     * 
+     *
      *  @param C The Lagrangian deformation tensor (F^T F)
      *  @param invC The inverse of C. Should be computed by the user. (Change this?)
      *  @param pressure the current pressure
      *  @param T the stress will be returned in this parameter
      *  @param dTdE the stress derivative will be returned in this parameter, assuming
      *    the final parameter is true
-     *  @param computeDTdE a boolean flag saying whether the stress derivative is 
+     *  @param computeDTdE a boolean flag saying whether the stress derivative is
      *    required or not.
      */
     virtual void ComputeStressAndStressDerivative(Tensor<2,DIM>&          C,
@@ -73,36 +73,36 @@ public :
                                                   SymmetricTensor<2,DIM>& T,
                                                   FourthOrderTensor<DIM>& dTdE,
                                                   bool                    computeDTdE)=0;
-                                                  
-                                                  
+
+
     /**
      *  Compute the Cauchy stress (the true stress), given the deformation gradient
      *  F and the pressure. The Cauchy stress is given by
-     *  
+     *
      *  sigma^{ij} = (1/detF) F^i_M T^{MN} F^j_N
-     * 
+     *
      *  where T is the 2nd Piola Kirchoff stress, dW/dE
-     * 
+     *
      *  @param F the deformation gradient
      *  @param pressure the pressure
      *  @sigma sigma an empty matrix, which will be filled in with the Cauchy stress
-     * 
+     *
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
     void ComputeCauchyStress(Tensor<2,DIM>& F, double pressure, Tensor<2,DIM>& sigma)
     {
         double detF = determinant(F);
-        
+
         Tensor<2,DIM> C = transpose(F) * F;
         Tensor<2,DIM> invC = invert(C);
-        
+
         SymmetricTensor<2,DIM> T;
-        
+
         static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
-        
+
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
-        
+
         // looping it probably more eficient then doing sigma = (1/detF)F*T*transpose(F)
         // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
         // SymmetricTensor<2,DIM>
@@ -122,24 +122,24 @@ public :
             }
         }
     }
-    
-    
-    
+
+
+
     /**
      *  Compute the 1st Piola Kirchoff stress, given the deformation gradient F
      *  and the pressure. The 1st Piola Kirchoff stress given by
-     *  
-     *  S^{Mi} = T^{MN} F^i_M, 
-     * 
-     *  where T is the 2nd PK stress, dW/dE. 
-     * 
+     *
+     *  S^{Mi} = T^{MN} F^i_M,
+     *
+     *  where T is the 2nd PK stress, dW/dE.
+     *
      *  Note that this stress is not symmetric and the least useful of the three
-     *  stresses. 
-     * 
+     *  stresses.
+     *
      *  @param F the deformation gradient
      *  @param pressure the pressure
      *  @sigma S an empty matrix, which will be filled in with the stress
-     * 
+     *
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
@@ -147,14 +147,14 @@ public :
     {
         Tensor<2,DIM> C = transpose(F) * F;
         Tensor<2,DIM> invC = invert(C);
-        
+
         SymmetricTensor<2,DIM> T;
-        
+
         static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
-        
+
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
-        
-        
+
+
         // looping it probably more eficient then doing S = T*transpose(F)
         // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
         // SymmetricTensor<2,DIM>
@@ -170,40 +170,40 @@ public :
             }
         }
     }
-    
-    
-    
+
+
+
     /**
      *  Compute the 2nd Piola Kirchoff stress, given the deformation tensor C
      *  and the pressure. The 2nd Piola Kirchoff stress given by
-     *  
-     *  T^{MN} = dW/dE_{MN} = 2dW/dC_{MN} 
-     * 
+     *
+     *  T^{MN} = dW/dE_{MN} = 2dW/dC_{MN}
+     *
      *  @param C the Lagrange deformation tensor (C=F^T F), *not* F, and *not* E
      *  @param pressure the pressure
      *  @sigma T an empty matrix, which will be filled in with the stress
-     * 
+     *
      *  Note: to compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
     void Compute2ndPiolaKirchoffStress(Tensor<2,DIM>& C, double pressure, SymmetricTensor<2,DIM>& T)
     {
         Tensor<2,DIM> invC = invert(C);
-        
+
         static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
-        
+
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
     }
-    
+
     /**
      *  Get the pressure corresponding to E=0, ie C=identity
      */
     virtual double GetZeroStrainPressure()=0;
-    
+
     virtual ~AbstractIncompressibleMaterialLaw()
     {}
-    
-    /** 
+
+    /**
      *  Set a scale factor by which (dimensional) material parameters are scaled. This method
      *  can be optionally implemented in the child class; if no implementation is made an
      *  exception is thrown. A scale factor may be used/needed to improve GMRES convergence.

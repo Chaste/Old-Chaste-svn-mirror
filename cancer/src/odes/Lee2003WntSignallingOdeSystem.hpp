@@ -52,7 +52,7 @@ private:
 
     /**
      * Parameters for the Lee et al. (2003) Model
-     */ 
+     */
     double mDsh0;
     double mAPC0;
     double mTCF0;
@@ -77,31 +77,31 @@ private:
     double mv14;
 
 public:
-    
+
     /**
      * Constructor.
      *
      * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
-     * 
+     *
      */
     Lee2003WntSignallingOdeSystem(double WntStimulus=0.0);
-    
+
     /**
      * Destructor.
      */
     ~Lee2003WntSignallingOdeSystem();
-    
+
     /**
      * Initialise parameter values.
      */
     void Init();
-    
+
     /**
      * Compute the RHS of the Lee et al. (2003) system of ODEs.
      *
      * Returns a vector representing the RHS of the ODEs at each time step, y' = [y1' ... yn'].
      * An ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
-     *  
+     *
      * @param time used to evaluate the RHS.
      * @param rY value of the solution vector used to evaluate the RHS.
      * @param rDY filled in with the resulting derivatives (using Alarcons et al. (2004) system of equations).

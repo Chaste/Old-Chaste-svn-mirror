@@ -39,8 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  The probability passed into the constructor will be the probability
  *  of any cell dying whenever this TestAndLabelCellsForApoptosis is called.
  *  Note this does take into account current times or timesteps, so if
- *  more timesteps are used, and TestAndLabelCellsForApoptosis() is called 
- *  at each timestep, more cells will die.  
+ *  more timesteps are used, and TestAndLabelCellsForApoptosis() is called
+ *  at each timestep, more cells will die.
  */
 template <unsigned SPACE_DIM>
 class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
@@ -48,7 +48,7 @@ class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 private:
 
     double mProbabilityOfDeath;
-    
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -59,21 +59,21 @@ private:
         archive & *p_random_generator;
         archive & p_random_generator;
     }
-    
+
 public:
 
     RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath);
-    
+
     double GetDeathProbability() const;
-    
+
     void TestAndLabelSingleCellForApoptosis(TissueCell& cell);
 
     /**
-     *  Loop over cells and start apoptosis randomly, based on the user-set 
+     *  Loop over cells and start apoptosis randomly, based on the user-set
      *  probability
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath();
-    
+
 };
 
 template <unsigned SPACE_DIM>
@@ -100,7 +100,7 @@ void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell&
         RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
     {
         cell.StartApoptosis();
-    }        
+    }
 }
 
 template <unsigned SPACE_DIM>
@@ -111,9 +111,9 @@ void RandomCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
          ++cell_iter)
     {
         TestAndLabelSingleCellForApoptosis(*cell_iter);
-    }        
+    }
 }
-    
+
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(RandomCellKiller)

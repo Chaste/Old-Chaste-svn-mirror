@@ -44,7 +44,7 @@ private:
     void CheckValuesAreTheDefaultValues()
     {
         CancerParameters *inst = CancerParameters::Instance();
-        
+
         TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0 , 1e-12);
         TS_ASSERT_DELTA(inst->GetSDuration(), 5.0 , 1e-12);
         TS_ASSERT_DELTA(inst->GetG2Duration(), 4.0 , 1e-12);
@@ -81,11 +81,11 @@ public:
     {
         CheckValuesAreTheDefaultValues();
     }
-        
+
     void TestReset()
     {
         CancerParameters* inst = CancerParameters::Instance();
-        
+
         inst->SetSDuration(11.0);
         inst->SetG2Duration(11.0);
         inst->SetMDuration(11.0);
@@ -114,19 +114,19 @@ public:
 
         CheckValuesAreTheDefaultValues();
     }
-    
+
 
     void TestGettersAndSetters()
     {
         CancerParameters *inst1 = CancerParameters::Instance();
-        
+
         inst1->SetSDuration(4.0);
         inst1->SetG2Duration(3.0);
         inst1->SetMDuration(2.0);
         inst1->SetStemCellG1Duration(35.0);
         inst1->SetTransitCellG1Duration(45.0);
         inst1->SetHepaOneCellG1Duration(10.0);
-        inst1->SetMinimumGapDuration(2.5);        
+        inst1->SetMinimumGapDuration(2.5);
         inst1->SetMaxTransitGenerations(666u);
         inst1->SetCryptLength(100.0);
         inst1->SetSpringStiffness(20.0);
@@ -146,9 +146,9 @@ public:
         inst1->SetNecroticSpringCompressionStiffness(1.2);
         inst1->SetWntChemotaxisStrength(1.9);
         inst1->SetSymmetricDivisionProbability(0.1);
-        
+
         CancerParameters *inst2 = CancerParameters::Instance();
-        
+
         TS_ASSERT_DELTA(inst2->GetSG2MDuration(), 9.0 , 1e-12);
         TS_ASSERT_DELTA(inst2->GetSDuration(), 4.0 , 1e-12);
         TS_ASSERT_DELTA(inst2->GetG2Duration(), 3.0 , 1e-12);
@@ -177,13 +177,13 @@ public:
         TS_ASSERT_DELTA(inst2->GetWntChemotaxisStrength(), 1.9, 1e-12);
         TS_ASSERT_DELTA(inst2->GetSymmetricDivisionProbability(), 0.1, 1e-12);
     }
-    
+
     void TestArchiveCancerParameters()
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "cancer_params.arch";
-        
+
         // Create an ouput archive
         {
             CancerParameters *inst1 = CancerParameters::Instance();
@@ -214,18 +214,18 @@ public:
             inst1->SetNecroticSpringCompressionStiffness(1.2);
             inst1->SetWntChemotaxisStrength(1.9);
             inst1->SetSymmetricDivisionProbability(0.1);
-            
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // Save messed up parameters
             output_arch << static_cast<const CancerParameters&>(*inst1);
-            
+
         }
-        
+
         {
             CancerParameters *inst1 = CancerParameters::Instance();
-            
+
             // Restore to nice parameters
             inst1->SetSDuration(5.0);
             inst1->SetG2Duration(4.0);
@@ -253,19 +253,19 @@ public:
             inst1->SetNecroticSpringCompressionStiffness(0.0);
             inst1->SetWntChemotaxisStrength(100.0);
             inst1->SetWntChemotaxisStrength(0.0);
-        
+
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-            
+
             // Restore messed up parameters from the archive
             input_arch >> *inst1;
-            
+
             // Check they are messed up
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 9.0 , 1e-12);
             TS_ASSERT_DELTA(inst1->GetSDuration(), 4.0 , 1e-12);
             TS_ASSERT_DELTA(inst1->GetG2Duration(), 3.0 , 1e-12);
-            TS_ASSERT_DELTA(inst1->GetMDuration(), 2.0 , 1e-12);        
+            TS_ASSERT_DELTA(inst1->GetMDuration(), 2.0 , 1e-12);
             TS_ASSERT_DELTA(inst1->GetStemCellG1Duration(), 35.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetTransitCellG1Duration(), 45.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetHepaOneCellG1Duration(), 10.0, 1e-12);
@@ -282,7 +282,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetWntStemThreshold(), 0.7, 1e-12);
             TS_ASSERT_DELTA(inst1->GetWntTransitThreshold(), 0.6, 1e-12);
             TS_ASSERT_DELTA(inst1->GetTopOfLinearWntConcentration(), 0.4, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetCriticalHypoxicDuration(), 1.0, 1e-12);            
+            TS_ASSERT_DELTA(inst1->GetCriticalHypoxicDuration(), 1.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterA(), 0.8, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterB(), 1.3, 1e-12);
             TS_ASSERT_DELTA(inst1->GetNecroticSpringTensionStiffness(), 1.3, 1e-12);
@@ -291,7 +291,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetSymmetricDivisionProbability(), 0.1, 1e-12);
         }
     }
-    
+
 };
 
 #endif /*TESTCANCERPARAMETERS_HPP_*/

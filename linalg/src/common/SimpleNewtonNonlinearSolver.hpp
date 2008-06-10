@@ -40,32 +40,32 @@ private :
     double mLinearSolverRelativeTolerance;
     double mTolerance;
     bool mWriteStats;
-    
+
     std::vector<double> mTestDampingValues;
-    
+
 public :
     SimpleNewtonNonlinearSolver(double linearSolverRelativeTolerance = 1e-6);
     virtual ~SimpleNewtonNonlinearSolver();
-    
+
     /**
      * Solve()
-     * 
+     *
      * Solve a nonlinear system using Newton's method with damping. Newton's algorithm
-     * is 
-     * 
+     * is
+     *
      * x_new = x_old - J^{-1} f
-     * 
-     * where J is the Jacobian matrix evaluated at x_old and f the residual evaluated at 
-     * x_old. The Newton method with damping is 
-     * 
+     *
+     * where J is the Jacobian matrix evaluated at x_old and f the residual evaluated at
+     * x_old. The Newton method with damping is
+     *
      * x_new = x_old - s J^{-1} f
-     * 
-     * where s is some damping factor. Here s is chosen by just looked at a fixed set of 
-     * possible damping factors and choosing the one which gives the best x_new (the one 
+     *
+     * where s is some damping factor. Here s is chosen by just looked at a fixed set of
+     * possible damping factors and choosing the one which gives the best x_new (the one
      * for which the residual evaluated at x_new has the lowest norm).
-     * 
-     * The solver quits once the ||f||/numVariables 
-     * 
+     *
+     * The solver quits once the ||f||/numVariables
+     *
      * @param pComputeResidual points to the function which
      * computes the residual, it must take arguments SNES (a PETSc nonlinear solver
      * object), Vec (current guess - a vector of the correct size), Vec (a Vec of the
@@ -77,11 +77,11 @@ public :
      * nonlinear solver * object), Mat* (a pointer to the Jacobian matrix) ,Mat* (a pointer
      * to a preconditioner matrix), MatStructure* (points to the PETSc matrix type e.g. AIJ), void* (a pointer to
      * anything you may need to refer to when calculating the residual).
-     * 
+     *
      * @param initialGuess A PETSc Vec of the correct size, containing initial guesses
      * for the nonlinear solver.
-     * 
-     * @param pContext [optional] A pointer to a class that may have to be used in the 
+     *
+     * @param pContext [optional] A pointer to a class that may have to be used in the
      *  ComputeResidual and ComputeJacobian functions
      *
      * @return Returns a PETSc Vec of the solution.
@@ -96,10 +96,10 @@ public :
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec initialGuess,
                       void *pContext);
-                      
+
     /*< Set a tolerance other than the default */
     void SetTolerance(double tolerance);
-    
+
     /*< Call to set the solver to write details as it solves */
     void SetWriteStats(bool writeStats = true)
     {

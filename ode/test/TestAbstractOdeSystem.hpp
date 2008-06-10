@@ -60,8 +60,8 @@ public:
         ode1.EvaluateYDerivatives(1.0, ode1.GetInitialConditions(),dy);
         TS_ASSERT_DELTA(dy[0],1.0,tol);
     }
-    
-    
+
+
     void TestOdeSystemTwo(void)
     {
         Ode2 ode2;
@@ -69,8 +69,8 @@ public:
         ode2.EvaluateYDerivatives(2.0, ode2.GetInitialConditions(), dy);
         TS_ASSERT_DELTA(dy[0],8.0,tol);
     }
-    
-    
+
+
     void TestOdeSystemThree(void)
     {
         Ode3 ode3;
@@ -92,67 +92,67 @@ public:
         TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditionsComponent(2, -3.0));
         TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariables(v));
     }
-    
-    
+
+
     void TestSetGetFunctionsInAbstractOdeSystem(void)
     {
         TwoDimOdeSystem ode;
-        
+
         std::vector<double> initial_conditions = ode.GetInitialConditions();
         std::vector<double> state_variables = ode.rGetStateVariables();
-        
+
         TS_ASSERT_DELTA( initial_conditions[0], 1.0, 1e-12 );
         TS_ASSERT_DELTA( initial_conditions[1], 2.0, 1e-12 );
         TS_ASSERT_DELTA( state_variables[0], 3.0, 1e-12 );
         TS_ASSERT_DELTA( state_variables[1], 4.0, 1e-12 );
-        
+
         std::vector<double> new_initial_conditions;
         new_initial_conditions.push_back(5.0);
         new_initial_conditions.push_back(6.0);
-        
+
         std::vector<double> new_state_variables;
         new_state_variables.push_back(7.0);
         new_state_variables.push_back(8.0);
-        
+
         ode.SetInitialConditions(new_initial_conditions);
         ode.SetStateVariables(new_state_variables);
-        
+
         initial_conditions = ode.GetInitialConditions();
         state_variables = ode.rGetStateVariables();
-        
+
         TS_ASSERT_DELTA( initial_conditions[0], 5.0, 1e-12 );
         TS_ASSERT_DELTA( initial_conditions[1], 6.0, 1e-12 );
         TS_ASSERT_DELTA( state_variables[0], 7.0, 1e-12 );
         TS_ASSERT_DELTA( state_variables[1], 8.0, 1e-12 );
-        
+
         ode.SetInitialConditionsComponent(1,9.0);
         initial_conditions = ode.GetInitialConditions();
         TS_ASSERT_DELTA( initial_conditions[0], 5.0, 1e-12 );
         TS_ASSERT_DELTA( initial_conditions[1], 9.0, 1e-12 );
     }
-    
+
     void TestReadSpecificStateVariable()
     {
         // Create a VanDerPol system
         VanDerPolOde ode_system;
-        
+
         // get the velocity state variable number
         unsigned var_number = ode_system.GetStateVariableNumberByName("v");
         TS_ASSERT_EQUALS(var_number, 1u);
-        
+
         TS_ASSERT_THROWS_ANYTHING(ode_system.GetStateVariableNumberByName("foo"));
 
         TS_ASSERT_EQUALS(ode_system.GetStateVariableValueByNumber(var_number), 10.0);
-        
-        TS_ASSERT_EQUALS(ode_system.GetStateVariableUnitsByNumber(var_number), "m/s");        
+
+        TS_ASSERT_EQUALS(ode_system.GetStateVariableUnitsByNumber(var_number), "m/s");
     }
-    
+
     // This test is mainly for coverage purposes.
     void TestDumpState()
     {
         // Create a VanDerPol system
         VanDerPolOde ode_system;
-        
+
         // Dump the state variables
         std::string state = ode_system.DumpState("This is a test.");
         TS_ASSERT_EQUALS(state, "This is a test.\nState:\n\tx:10\n\tv:10\n");

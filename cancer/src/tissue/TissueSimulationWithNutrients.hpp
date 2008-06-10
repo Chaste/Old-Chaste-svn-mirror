@@ -41,17 +41,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
-    // Allow tests to access private members, in order to test computation of private functions 
+    // Allow tests to access private members, in order to test computation of private functions
     friend class TestTissueSimulationWithNutrients;
-    
+
 private :
 
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
-    {   
+    {
         // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>      
+        // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<TissueSimulation<DIM> >(*this);
         archive & mWriteAverageRadialNutrientResults;
         archive & mWriteDailyAverageRadialNutrientResults;
@@ -59,128 +59,128 @@ private :
         archive & mCellNutrientElementMap;
     }
 
-    /** 
-     *  Current nutrient concentration, for use as an initial guess 
+    /**
+     *  Current nutrient concentration, for use as an initial guess
      *  when solving the nutrient PDE.
-     */  
+     */
     Vec mNutrientSolution;
 
-    /** 
-     *  Pointer to the PDE satisfied by the nutrient. 
-     */ 
+    /**
+     *  Pointer to the PDE satisfied by the nutrient.
+     */
     AbstractLinearEllipticPde<DIM>* mpPde;
-    
-    /** 
-     *  Pointer to the averaged sink PDE satisfied by the nutrient. 
-     */ 
-    AveragedSinksPde<DIM>* mpAveragedSinksPde;  
-
-    /** 
-     *  File that the nutrient values are written out to. 
-     */ 
-    out_stream mpNutrientResultsFile; 
 
     /**
-     *  File that the average radial nutrient distribution is written out to. 
-     */ 
+     *  Pointer to the averaged sink PDE satisfied by the nutrient.
+     */
+    AveragedSinksPde<DIM>* mpAveragedSinksPde;
+
+    /**
+     *  File that the nutrient values are written out to.
+     */
+    out_stream mpNutrientResultsFile;
+
+    /**
+     *  File that the average radial nutrient distribution is written out to.
+     */
     out_stream mpAverageRadialNutrientResultsFile;
 
-    /** 
-     *  Whether to write to file the average radial nutrient distribution. 
+    /**
+     *  Whether to write to file the average radial nutrient distribution.
      */
-    bool mWriteAverageRadialNutrientResults; 
+    bool mWriteAverageRadialNutrientResults;
 
-    /** 
-     *  Whether to write the average radial nutrient distribution DAILY. 
+    /**
+     *  Whether to write the average radial nutrient distribution DAILY.
      */
     bool mWriteDailyAverageRadialNutrientResults;
-    
-    /** 
-     *  Number of radial 'bins' used to calculate the average 
-     *  radial nutrient distribution. 
+
+    /**
+     *  Number of radial 'bins' used to calculate the average
+     *  radial nutrient distribution.
      */
     unsigned mNumRadialIntervals;
-  
+
     /**
      *  Coarse nutrient mesh on which to solve the nutrient PDE.
      */
     ConformingTetrahedralMesh<DIM,DIM>* mpCoarseNutrientMesh;
-    
+
     /**
      * Map between cells and the elements of the coarse nutrient mesh containing them.
      */
     std::map<TissueCell*, unsigned> mCellNutrientElementMap;
-    
+
     /**
-     *  Overridden SetupSolve() method. 
-     */ 
+     *  Overridden SetupSolve() method.
+     */
     void SetupSolve();
-    
+
     /**
      *  Set up the nutrient writer.
-     */ 
+     */
     void SetupWriteNutrient();
-    
+
     /**
      *  Write the nutrient distribution to file at a specified time.
-     * 
+     *
      * @param time The time at which to record the nutrient distribution
      */
     void WriteNutrient(double time);
 
     /**
      *  Write the average radial nutrient distribution to file at a specified time.
-     * 
+     *
      * @param time The time at which to record the average radial nutrient distribution
-     * @param numIntervals  The number of radial intervals in which the average nutrient concentration is calculated 
+     * @param numIntervals  The number of radial intervals in which the average nutrient concentration is calculated
      */
     void WriteAverageRadialNutrientDistribution(double time, unsigned numIntervals);
-    
+
     /**
-     *  Solve the nutrient PDE. 
+     *  Solve the nutrient PDE.
      */
     void SolveNutrientPde();
-    
+
     /**
      *  Solve the nutrient PDE on a coarse mesh.
      */
     void SolveNutrientPdeUsingCoarseMesh();
-    
+
     /**
      *  Find the index of the coarse mesh element containing rCell.
-     */  
+     */
     unsigned FindElementContainingCell(TissueCell& rCell);
 
     /**
-     *  Overridden PostSolve() method. 
+     *  Overridden PostSolve() method.
      */
     void PostSolve();
-    
+
     /**
-     *  Overridden AfterSolve() method. 
+     *  Overridden AfterSolve() method.
      */
     void AfterSolve();
-    
+
     /**
      *  Create a coarse mesh on which to solve the nutrient PDE.
-     */ 
+     */
     void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
-    
+
     /**
      *  Initialise the std::map mCellNutrientElementMap.
-     */ 
+     */
     void InitialiseCoarseNutrientMesh();
 
 public:
 
-    /** 
+    /**
      * Constructor
-     * 
+     *
      * @param rTissue A tissue facade class (contains a mesh and cells)
      * @
      * @param deleteTissue whether to delete the tissue on destruction to free up memory
      * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
-     * 
+     *
      */
      TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
                                    AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
@@ -191,49 +191,49 @@ public:
 
     /**
      * Destructor
-     * 
+     *
      * Free any memory allocated by the constructor.
      * This frees the current nutrient distribution, if it exists.
      */
     ~TissueSimulationWithNutrients();
-    
+
     /**
-     * A small hack until we fully archive this class - 
-     * needed to set the PDE after loading a simulation 
+     * A small hack until we fully archive this class -
+     * needed to set the PDE after loading a simulation
      * from an archive.
      */
     void SetPde(AbstractLinearEllipticPde<DIM>* pPde);
-    
+
     /**
-     * A small hack until we fully archive this class - 
-     * needed to set the PDE after loading a simulation 
+     * A small hack until we fully archive this class -
+     * needed to set the PDE after loading a simulation
      * from an archive.
      */
     void SetAveragedSinksPde(AveragedSinksPde<DIM>* pAveragedSinksPde);
-    
-    /** 
+
+    /**
      *  Get the current nutrient solution
      */
     Vec GetNutrientSolution();
-    
+
     /**
-     * Write the final (and optionally also the daily) average 
+     * Write the final (and optionally also the daily) average
      * radial nutrient distribution to file.
      *
      * @param numRadialIntervals The number of radial intervals in which the average nutrient concentration is calculated
-     * @param writeDailyResults Whether to record the average radial nutrient distribution at the end of each day of the simulation 
-     */ 
-    
-    void SetWriteAverageRadialNutrientResults(unsigned numRadialIntervals=10, 
+     * @param writeDailyResults Whether to record the average radial nutrient distribution at the end of each day of the simulation
+     */
+
+    void SetWriteAverageRadialNutrientResults(unsigned numRadialIntervals=10,
                                               bool writeDailyResults=false);
 
     /**
      * Solve the nutrient PDE on a coarse mesh.
-     * 
+     *
      * @param coarseGrainScaleFactor The ratio of the width of the coarse nutrient mesh to the initial width of the tissue
-     */ 
+     */
     void UseCoarseNutrientMesh(double coarseGrainScaleFactor=10.0);
-    
+
     /**
      * Saves the whole tissue simulation for restarting later.
      *
@@ -241,27 +241,27 @@ public:
      * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch"
      *
      * First archives simulation time then the simulation itself.
-     * 
+     *
      * Note that this method has to be implemented in this class,
      * so you save the right sort of simulation to the archive.
      * Not really sure why this is needed, but...
      */
     void Save();
-    
+
     /**
      * Loads a saved tissue simulation to run further.
      *
      * @param rArchiveDirectory the name of the simulation to load
      * (specified originally by simulation.SetOutputDirectory("wherever"); )
      * @param rTimeStamp the time at which to load the simulation (this must
-     * be one of the times at which simulation.Save() was called) 
-     * 
-     * Note that this method has to be implemented in this class, since it's 
+     * be one of the times at which simulation.Save() was called)
+     *
+     * Note that this method has to be implemented in this class, since it's
      * a static method.
      */
-    static TissueSimulationWithNutrients<DIM>* Load(const std::string& rArchiveDirectory, 
+    static TissueSimulationWithNutrients<DIM>* Load(const std::string& rArchiveDirectory,
                                                     const double& rTimeStamp);
-        
+
 };
 
 
@@ -307,35 +307,35 @@ void TissueSimulationWithNutrients<DIM>::SetAveragedSinksPde(AveragedSinksPde<DI
 {
     mpAveragedSinksPde = pAveragedSinksPde;
 }
-    
+
 template<unsigned DIM>
 Vec TissueSimulationWithNutrients<DIM>::GetNutrientSolution()
 {
     return mNutrientSolution;
 }
-    
+
 //////////////////////////////////////////////////////////////////////////////
 //                          Setup/AfterSolve methods                        //
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupSolve()
-{ 
+{
     if (mpCoarseNutrientMesh!=NULL)
-    { 
+    {
         InitialiseCoarseNutrientMesh();
     }
     if (this->mrTissue.Begin() != this->mrTissue.End())
     {
         SetupWriteNutrient();
-        double current_time = SimulationTime::Instance()->GetDimensionalisedTime();            
-        WriteNutrient(current_time);                      
-    } 
+        double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
+        WriteNutrient(current_time);
+    }
 }
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupWriteNutrient()
-{ 
+{
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
     if (output_file_handler.IsMaster())
     {
@@ -343,9 +343,9 @@ void TissueSimulationWithNutrients<DIM>::SetupWriteNutrient()
         *this->mpSetupFile << "Nutrient \n";
         if (mWriteAverageRadialNutrientResults)
         {
-            mpAverageRadialNutrientResultsFile = output_file_handler.OpenOutputFile("radial_dist.dat");                     
+            mpAverageRadialNutrientResultsFile = output_file_handler.OpenOutputFile("radial_dist.dat");
         }
-    }        
+    }
 }
 
 template<unsigned DIM>
@@ -353,7 +353,7 @@ void TissueSimulationWithNutrients<DIM>::UseCoarseNutrientMesh(double coarseGrai
 {
     assert(mpAveragedSinksPde);
     CreateCoarseNutrientMesh(coarseGrainScaleFactor);
-}    
+}
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)
@@ -362,7 +362,7 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
     TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
     mpCoarseNutrientMesh = new ConformingTetrahedralMesh<2,2>;
     mpCoarseNutrientMesh->ConstructFromMeshReader(mesh_reader);
-        
+
     // Find centre of tissue
     c_vector<double,2> centre_of_tissue = zero_vector<double>(2);
     for (typename MeshBasedTissue<2>::Iterator cell_iter = this->mrTissue.Begin();
@@ -372,7 +372,7 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
         centre_of_tissue += cell_iter.rGetLocation();
     }
     centre_of_tissue /= this->mrTissue.GetNumRealCells();
-    
+
     // Find max radius of tissue
     double max_tissue_radius = 0.0;
     for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
@@ -385,16 +385,16 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
             max_tissue_radius = radius;
         }
     }
-    
+
     // Find centre of coarse nutrient mesh
     c_vector<double,2> centre_of_nutrient_mesh = zero_vector<double>(2);
-    
+
     for (unsigned i=0; i<mpCoarseNutrientMesh->GetNumNodes(); i++)
     {
         centre_of_nutrient_mesh += mpCoarseNutrientMesh->GetNode(i)->rGetLocation();
     }
     centre_of_nutrient_mesh /= mpCoarseNutrientMesh->GetNumNodes();
-    
+
     // Find max radius of coarse nutrient mesh
     double max_mesh_radius = 0.0;
     for (unsigned i=0; i<mpCoarseNutrientMesh->GetNumNodes(); i++)
@@ -405,23 +405,23 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
             max_mesh_radius = radius;
         }
     }
-    
+
     // Translate centre of coarse nutrient mesh to the origin
     mpCoarseNutrientMesh->Translate(-centre_of_nutrient_mesh[0], -centre_of_nutrient_mesh[1]);
-    
+
     // Scale nutrient mesh
-    double scale_factor = (max_tissue_radius/max_mesh_radius)*coarseGrainScaleFactor;    
+    double scale_factor = (max_tissue_radius/max_mesh_radius)*coarseGrainScaleFactor;
     mpCoarseNutrientMesh->Scale(scale_factor, scale_factor);
-    
+
     // Translate centre of coarse nutrient mesh to centre of the tissue
-    mpCoarseNutrientMesh->Translate(centre_of_tissue[0], centre_of_tissue[1]); 
-}    
+    mpCoarseNutrientMesh->Translate(centre_of_tissue[0], centre_of_tissue[1]);
+}
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
-{    
+{
     mCellNutrientElementMap.clear();
-    
+
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
@@ -429,20 +429,20 @@ void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
         // Find the element of mpCoarseNutrientMesh that contains this cell
         const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
         unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
-        mCellNutrientElementMap[&(*cell_iter)] = elem_index;      
+        mCellNutrientElementMap[&(*cell_iter)] = elem_index;
     }
-}   
+}
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::AfterSolve()
 {
     TissueSimulation<DIM>::AfterSolve();
-    
+
     if (this->mrTissue.Begin() != this->mrTissue.End() // if there are any cells
     && PetscTools::AmMaster())
     {
         mpNutrientResultsFile->close();
-        
+
         if (mWriteAverageRadialNutrientResults)
         {
             WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetDimensionalisedTime(), mNumRadialIntervals);
@@ -452,7 +452,7 @@ void TissueSimulationWithNutrients<DIM>::AfterSolve()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//                             PostSolve methods                            // 
+//                             PostSolve methods                            //
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
@@ -463,18 +463,18 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
         SolveNutrientPdeUsingCoarseMesh();
         return;
     }
-    
+
     assert(mpAveragedSinksPde == NULL);
     assert(mpPde);
-    
+
     // Note: If not using a coarse nutrient mesh, we MUST be using a MeshBasedTissue
-        
+
     ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
-    
+
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
     assert(this->mrTissue.HasGhostNodes()==false);
-            
+
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
@@ -484,15 +484,15 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     {
         bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
     }
-    
+
     // Set up assembler - note this is a purpose-made elliptic assembler
     // that interpolates the source terms from node onto gauss points,
     // as for a nutrients simulation the source will only be known at the
     // cells (nodes), not the gauss points
     TissueSimulationWithNutrientsAssembler<DIM> assembler(&r_mesh,mpPde,&bcc);
-    
+
     PetscInt size_of_soln_previous_step = 0;
-    
+
     if(mNutrientSolution)
     {
         VecGetSize(mNutrientSolution, &size_of_soln_previous_step);
@@ -504,7 +504,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
         Vec initial_guess;
         VecDuplicate(mNutrientSolution, &initial_guess);
         VecCopy(mNutrientSolution, initial_guess);
-        
+
         // Use current solution as the initial guess
         VecDestroy(mNutrientSolution);    // Solve method makes its own mNutrientSolution
         mNutrientSolution = assembler.Solve(initial_guess);
@@ -518,7 +518,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
             VecDestroy(mNutrientSolution);
         }
         mNutrientSolution = assembler.Solve();
-    }            
+    }
 
     ReplicatableVector result_repl(mNutrientSolution);
 
@@ -568,7 +568,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
-    
+
     // Get the set of coarse element indices that contain tissue cells
     std::set<unsigned> coarse_element_indices_in_map;
     for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
@@ -636,9 +636,9 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         assert(mNutrientSolution == NULL);
         /**
          * Eventually we will enable the coarse nutrient mesh to change size, for example
-         * in the case of a spheroid that grows a lot (see #630). In this case we should 
+         * in the case of a spheroid that grows a lot (see #630). In this case we should
          * uncomment the following code.
-         * 
+         *
         if (mNutrientSolution)
         {
             assert(0);
@@ -658,18 +658,18 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        // Find coarse mesh element containing cell 
+        // Find coarse mesh element containing cell
         unsigned elem_index = FindElementContainingCell(*cell_iter);
 
         Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(elem_index);
-        
+
         const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
 
         c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
 
         double interpolated_nutrient = 0.0;
         for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
-        {         
+        {
             double nodal_value = nutrient_repl[ p_element->GetNodeGlobalIndex(i) ];
             interpolated_nutrient += nodal_value*weights(i);
         }
@@ -683,32 +683,32 @@ unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCel
 {
     // Get containing element at last timestep from mCellNutrientElementMap
     unsigned old_element_index = mCellNutrientElementMap[&rCell];
-    
+
     // Create a std::set of guesses for the current containing element
     std::set<unsigned> test_elements;
     test_elements.insert(old_element_index);
-    
+
     Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(old_element_index);
-    
+
     for (unsigned local_index=0; local_index<DIM+1; local_index++)
     {
         std::set<unsigned> element_indices = p_element->GetNode(local_index)->rGetContainingElementIndices();
-        
-        for (std::set<unsigned>::iterator iter = element_indices.begin(); 
-             iter != element_indices.end(); 
+
+        for (std::set<unsigned>::iterator iter = element_indices.begin();
+             iter != element_indices.end();
              ++iter)
         {
             test_elements.insert(*iter);
         }
     }
-    
+
     // Find new element, using the previous one as a guess
     const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCell(rCell);
     unsigned new_element_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_cell_position, false, test_elements);
-    
+
     // Update mCellNutrientElementMap
     mCellNutrientElementMap[&rCell] = new_element_index;
-    
+
     return new_element_index;
 }
 
@@ -716,17 +716,17 @@ template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::PostSolve()
 {
     SolveNutrientPde();
-    
+
     // Save results to file
     SimulationTime* p_time = SimulationTime::Instance();
-    
+
     double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
-    
+
     if ((p_time->GetTimeStepsElapsed()+1)%this->mSamplingTimestepMultiple == 0)
     {
         WriteNutrient(time_next_step);
     }
-        
+
 #define COVERAGE_IGNORE
     // Note: The number of timesteps per day is equal to 2880=24*120
     if ( mWriteDailyAverageRadialNutrientResults &&
@@ -739,7 +739,7 @@ void TissueSimulationWithNutrients<DIM>::PostSolve()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//                             Output methods                               // 
+//                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
@@ -747,12 +747,12 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
 {
     if (PetscTools::AmMaster())
     {
-        // Since there are no ghost nodes, the number of nodes must equal the number of real cells 
+        // Since there are no ghost nodes, the number of nodes must equal the number of real cells
         assert(this->mrTissue.GetNumNodes()==this->mrTissue.GetNumRealCells());
-        
+
         (*mpNutrientResultsFile) << time << "\t";
-        
-        unsigned global_index; 
+
+        unsigned global_index;
         double x;
         double y;
         double nutrient;
@@ -763,11 +763,11 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
         {
             global_index = cell_iter.GetNode()->GetIndex();
             x = cell_iter.rGetLocation()[0];
-            y = cell_iter.rGetLocation()[1];                    
-            nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));                    
-            
+            y = cell_iter.rGetLocation()[1];
+            nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
+
             (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
-        }            
+        }
         (*mpNutrientResultsFile) << "\n";
     }
 }
@@ -783,59 +783,59 @@ void TissueSimulationWithNutrients<DIM>::SetWriteAverageRadialNutrientResults(un
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(double time, unsigned numRadialIntervals)
 {
-    (*mpAverageRadialNutrientResultsFile) << time << " "; 
-    
+    (*mpAverageRadialNutrientResultsFile) << time << " ";
+
     // Get reference to the mesh and its size
     ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     unsigned num_nodes = r_mesh.GetNumNodes();
-    
+
     // Calculate the centre of the tissue
     c_vector<double,DIM> centre = zero_vector<double>(DIM);
     for (unsigned i=0; i< num_nodes; i++)
     {
-        centre += r_mesh.GetNode(i)->rGetLocation();    
+        centre += r_mesh.GetNode(i)->rGetLocation();
     }
     centre /= (double) num_nodes;
-    
-    // Calculate the distance between each node and the centre 
+
+    // Calculate the distance between each node and the centre
     // of the tissue, as well as the maximum of these
     std::map<double, TissueCell*> distance_cell_map;
-    
+
     double max_distance_from_centre = 0.0;
-            
+
     for (unsigned i=0; i<this->mrTissue.GetNumRealCells(); i++)
     {
-        double distance = norm_2(r_mesh.GetNode(i)->rGetLocation()-centre);            
+        double distance = norm_2(r_mesh.GetNode(i)->rGetLocation()-centre);
         distance_cell_map[distance] = &(this->mrTissue.rGetCellAtNodeIndex(i));
-        
+
         if (distance > max_distance_from_centre)
         {
             max_distance_from_centre = distance;
         }
     }
 
-    // Create vector of radius intervals                                  
+    // Create vector of radius intervals
     std::vector<double> radius_intervals;
     for (unsigned i=0; i<numRadialIntervals; i++)
     {
         double upper_radius = max_distance_from_centre*((double) i+1)/((double) numRadialIntervals);
-        radius_intervals.push_back(upper_radius);       
+        radius_intervals.push_back(upper_radius);
     }
-    
+
     // Calculate nutrient concentration in each radial interval
     double lower_radius = 0.0;
     for (unsigned i=0; i<numRadialIntervals; i++)
-    {   
+    {
         unsigned counter = 0;
         double average_conc = 0.0;
-        
+
         for (std::map<double, TissueCell*>::iterator iter=distance_cell_map.begin();
              iter != distance_cell_map.end();
              ++iter)
         {
             if ((*iter).first > lower_radius && (*iter).first <= radius_intervals[i])
             {
-                average_conc += CellwiseData<DIM>::Instance()->GetValue((*iter).second); 
+                average_conc += CellwiseData<DIM>::Instance()->GetValue((*iter).second);
                 counter++;
             }
         }
@@ -843,7 +843,7 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
         {
             average_conc /= (double) counter;
         }
-        
+
         // Write results to file
         (*mpAverageRadialNutrientResultsFile) << radius_intervals[i] << " " << average_conc << " ";
         lower_radius = radius_intervals[i];
@@ -852,7 +852,7 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//                           Save/Load methods                              // 
+//                           Save/Load methods                              //
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
@@ -873,21 +873,21 @@ TissueSimulationWithNutrients<DIM>* TissueSimulationWithNutrients<DIM>::Load(con
 
     TissueSimulation<DIM>::CommonLoad(input_arch);
 
-    TissueSimulationWithNutrients<DIM>* p_sim; 
+    TissueSimulationWithNutrients<DIM>* p_sim;
     input_arch >> p_sim;
-     
-    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
-    { 
-        #define COVERAGE_IGNORE 
-        std::stringstream string_stream; 
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes() 
-                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()  
-                      << ")"; 
-        EXCEPTION(string_stream.str()); 
-        #undef COVERAGE_IGNORE 
-    } 
-      
-    return p_sim;         
+
+    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
+    {
+        #define COVERAGE_IGNORE
+        std::stringstream string_stream;
+        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes()
+                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()
+                      << ")";
+        EXCEPTION(string_stream.str());
+        #undef COVERAGE_IGNORE
+    }
+
+    return p_sim;
 }
 
 
@@ -909,7 +909,7 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
-    
+
     const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
     ar & p_spring_system;
 }
@@ -924,10 +924,10 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
-    
+
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;
     ar >> p_spring_system;
-    
+
     // Invoke inplace constructor to initialize instance
     ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, p_spring_system, NULL,NULL, true, false);
 }

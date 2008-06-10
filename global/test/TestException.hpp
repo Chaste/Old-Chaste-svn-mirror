@@ -40,7 +40,7 @@ public:
     void TestGetMessage()
     {
         std::string msg("This is an exception");
-        
+
         try
         {
             EXCEPTION(msg);
@@ -52,7 +52,7 @@ public:
             std::string::size_type len = msg.length();
             TS_ASSERT_EQUALS(e_msg.substr(e_len - len), msg);
         }
-        
+
         TS_ASSERT_THROWS_ANYTHING(EXCEPTION("Hello. I'm an exception"));
         TS_ASSERT_THROWS_ANYTHING(NEVER_REACHED);
     }

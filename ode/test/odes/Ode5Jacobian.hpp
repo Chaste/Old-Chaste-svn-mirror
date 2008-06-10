@@ -40,24 +40,24 @@ class Ode5Jacobian : public AbstractOdeSystemWithAnalyticJacobian
 {
 private :
     double mAlpha;
-    
+
 public :
     Ode5Jacobian() : AbstractOdeSystemWithAnalyticJacobian(1)  // 1 here is the number of unknowns
     {
         mInitialConditions.push_back(0.2);
         mAlpha = 100;
     }
-    
+
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
         rDY[0]=mAlpha*rY[0]*(1-rY[0]);
     }
-    
+
     void AnalyticJacobian(const std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
     {
         jacobian[0][0] = 1.0 - timeStep*mAlpha + 2.0*timeStep*mAlpha*solutionGuess[0];
     }
-    
+
 };
 
 #endif /*ODE5JACOBIAN_HPP_*/

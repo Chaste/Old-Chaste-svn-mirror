@@ -51,7 +51,7 @@ public:
     void TestTysonNovakEquation()
     {
         TysonNovak2001OdeSystem tyson_novak_system;
-        
+
         double time = 0.0;
         std::vector<double> initial_conditions;
         initial_conditions.push_back(0.6);
@@ -60,10 +60,10 @@ public:
         initial_conditions.push_back(0.6);
         initial_conditions.push_back(0.6);
         initial_conditions.push_back(0.85);
-        
+
         std::vector<double> derivs(initial_conditions.size());
         tyson_novak_system.EvaluateYDerivatives(time, initial_conditions, derivs);
-        
+
         // Test derivatives are correct
         // Divided by 60 to change to hours
         TS_ASSERT_DELTA(derivs[0],-4.400000000000000e-02*60.0, 1e-5);
@@ -73,63 +73,63 @@ public:
         TS_ASSERT_DELTA(derivs[4],8.400000000000001e-03*60.0, 1e-5);
         TS_ASSERT_DELTA(derivs[5],7.777500000000001e-03*60.0, 1e-5);
     }
-    
+
     void TestTysonNovakSolver() throw(Exception)
     {
         TysonNovak2001OdeSystem tyson_novak_system;
-        
+
         // Solve system using backward Euler solver
-        
+
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits
-        
+
         double dt=0.1/60.0;
-        
+
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(6);
-        
+
         OdeSolution solutions;
-        
+
         std::vector<double> state_variables = tyson_novak_system.GetInitialConditions();
-        
+
         double start_time, end_time, elapsed_time = 0.0;
-        
+
         state_variables = tyson_novak_system.GetInitialConditions();
-        
+
         start_time = std::clock();
         solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350/60.0, dt, dt);
         end_time = std::clock();
-        
+
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Elapsed time = " << elapsed_time << "\n";
-                
+
         // If you run it up to about 75min the ODE will stop, anything less and it will not and this test will fail
         TS_ASSERT(backward_euler_solver.StoppingEventOccured());
-        
-        unsigned end = solutions.rGetSolutions().size() - 1;    
-        
+
+        unsigned end = solutions.rGetSolutions().size() - 1;
+
         // The following code provides nice output for gnuplot
         // use the command
         // plot "tyson_novak.dat" u 1:2
         // or
         // plot "tyson_novak.dat" u 1:3 etc. for the various proteins...
-        
+
 //        OutputFileHandler handler("");
 //        out_stream file=handler.OpenOutputFile("tyson_novak.dat");
 //        for (unsigned i=0; i<=end; i++)
 //        {
 //            (*file) << solutions.rGetTimes()[i]<< "\t" << solutions.rGetSolutions()[i][0] << "\t" << solutions.rGetSolutions()[i][1] <<"\t"<< solutions.rGetSolutions()[i][2] << "\t" << solutions.rGetSolutions()[i][3] <<"\t"<< solutions.rGetSolutions()[i][4] << "\t" << solutions.rGetSolutions()[i][5] << "\n" << std::flush;
-//        }    
-//        file->close();   
-        
+//        }
+//        file->close();
+
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         if (my_rank==0) // if master process
         {
-        
+
             int step_per_row = 1;
             ColumnDataWriter writer("TysonNovak","TysonNovak");
             int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-            
+
             std::vector<int> var_ids;
             for (unsigned i=0; i<tyson_novak_system.rGetVariableNames().size(); i++)
             {
@@ -137,7 +137,7 @@ public:
                                                         tyson_novak_system.rGetVariableUnits()[i]));
             }
             writer.EndDefineMode();
-            
+
             for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
             {
                 writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
@@ -150,9 +150,9 @@ public:
             writer.Close();
         }
         MPI_Barrier(PETSC_COMM_WORLD);
-        
+
         // Test backward euler solutions are OK for a very small time increase...
-        
+
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.59995781827316, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.09406711653612, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.50003361032032, 1e-5);
@@ -161,7 +161,7 @@ public:
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.85000777753272, 1e-5);
 //
 
-        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that 
+        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that
         // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.98913684535843, 1e-2);
@@ -169,7 +169,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.95328206604519, 1e-2);
-        
+
     }
 };
 

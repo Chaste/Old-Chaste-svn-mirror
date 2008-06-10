@@ -71,35 +71,35 @@ protected:
      *  UNITS: surface area to volume ratio: 1/cm
      *         capacitance                 : uF/cm^2
      *         conductivity                : mS/cm
-     *  
+     *
      *  which means the units of these should be
-     *         Iionic                      : uA/cm^2   
-     *         Istimuli                    : uA/cm^3   
+     *         Iionic                      : uA/cm^2
+     *         Istimuli                    : uA/cm^3
      */
     double mSurfaceAreaToVolumeRatio;
     double mCapacitance;
-    
+
     AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
-    
+
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
-    
+
     /**
-     *  Caches containing all the ionic and stimulus currents for each node, 
+     *  Caches containing all the ionic and stimulus currents for each node,
      *  replicated over all processes
      */
     ReplicatableVector mIionicCacheReplicated;
     ReplicatableVector mIntracellularStimulusCacheReplicated;
-    
+
     /**
      *  Constant set to 1 in monodomain and 2 in bidomain. Used when accessing
      *  the voltage components in the solution vector (because the solution vector
-     *  is of the form (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N), where V_j is 
+     *  is of the form (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N), where V_j is
      *  the voltage at node j and phi_j is the extracellular potential at node j.
      */
     const unsigned mStride;
-    
-    
+
+
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
             :  mStride(stride)
@@ -116,7 +116,7 @@ public:
         }
 
         if(r_nodes_per_processor.size() != 0)
-        {      
+        {
             unsigned num_local_nodes = r_nodes_per_processor[ PetscTools::GetMyRank() ];
             DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
         }
@@ -128,37 +128,37 @@ public:
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
-                  
+
         mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
-        
+
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
         {
-            mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);            
+            mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
         }
         pCellFactory->FinaliseCellCreation(&mCellsDistributed,
                                            DistributedVector::Begin().Global,
                                            DistributedVector::End().Global);
-        
-        
+
+
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
-    
-    
+
+
     virtual ~AbstractCardiacPde()
     {
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
         {
-            delete mCellsDistributed[index.Local];             
+            delete mCellsDistributed[index.Local];
         }
-        
+
     }
-    
-    
+
+
     void SetSurfaceAreaToVolumeRatio(double surfaceAreaToVolumeRatio)
     {
         if (surfaceAreaToVolumeRatio <= 0)
@@ -167,7 +167,7 @@ public:
         }
         mSurfaceAreaToVolumeRatio = surfaceAreaToVolumeRatio;
     }
-    
+
     void SetCapacitance(double capacitance)
     {
         if (capacitance <= 0)
@@ -176,53 +176,53 @@ public:
         }
         mCapacitance = capacitance;
     }
-     
+
     void SetIntracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pIntracellularTensors)
-    {        
+    {
         mpIntracellularConductivityTensors = pIntracellularTensors;
     }
-    
+
     double GetSurfaceAreaToVolumeRatio()
     {
         return mSurfaceAreaToVolumeRatio;
     }
-    
+
     double GetCapacitance()
     {
         return mCapacitance;
     }
-    
+
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex)
     {
         assert( mpIntracellularConductivityTensors);
-        return (*mpIntracellularConductivityTensors)[elementIndex];        
+        return (*mpIntracellularConductivityTensors)[elementIndex];
     }
-    
+
     /**
      *  Get a pointer to a cell, indexed by the global node index. Should only called by the process
      *  owning the cell though.
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
-    {   
+    {
         assert(DistributedVector::Begin().Global <= globalIndex &&
                globalIndex < DistributedVector::End().Global);
         return mCellsDistributed[globalIndex - DistributedVector::Begin().Global];
     }
-    
-    
+
+
     /**
      *  SolveCellSystems()
-     *  
-     *  Integrate the cell ODEs and update ionic current etc for each of the 
+     *
+     *  Integrate the cell ODEs and update ionic current etc for each of the
      *  cells, between the two times provided.
-     * 
+     *
      *  NOTE: this used to be PrepareForAssembleSystem, but that method is now
      *  a virtual method in the assemblers not the pdes.
      */
     virtual void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
-    {   
+    {
         EventHandler::BeginEvent(SOLVE_ODES);
-        
+
         DistributedVector dist_solution(currentSolution);
         DistributedVector::Stripe voltage(dist_solution, 0);
         for (DistributedVector::Iterator index = DistributedVector::Begin();
@@ -230,7 +230,7 @@ public:
              ++index)
         {
             // overwrite the voltage with the input value
-            mCellsDistributed[index.Local]->SetVoltage( voltage[index] );            
+            mCellsDistributed[index.Local]->SetVoltage( voltage[index] );
             try
             {
                 // solve
@@ -243,7 +243,7 @@ public:
                 PetscTools::ReplicateException(true);
                 throw e;
             }
-            
+
             // update the Iionic and stimulus caches
             UpdateCaches(index.Global, index.Local, nextTime);
         }
@@ -255,18 +255,18 @@ public:
         ReplicateCaches();
         EventHandler::EndEvent(COMMUNICATION);
     }
-    
+
     ReplicatableVector& rGetIionicCacheReplicated()
     {
         return mIionicCacheReplicated;
     }
-    
+
     ReplicatableVector& rGetIntracellularStimulusCacheReplicated()
     {
         return mIntracellularStimulusCacheReplicated;
     }
-    
-    
+
+
     /**
      *  Update the Iionic and intracellular stimulus caches.
      *  The method is overridden in the BidomainPde to also update the
@@ -277,7 +277,7 @@ public:
         mIionicCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIIonic();
         mIntracellularStimulusCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIntracellularStimulus(nextTime);
     }
-    
+
     /**
      *  Replicate the Iionic and intracellular stimulus caches.
      *  The method is overridden in the BidomainPde to also replicate the

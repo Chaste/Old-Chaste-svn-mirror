@@ -26,31 +26,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 /*
- * 
+ *
  *  Chaste tutorial - this page gets automatically changed to a wiki page
  *  DO NOT remove the comments below, and if the code has to be changed in
  *  order to run, please check the comments are still accurate
- * 
- * 
- */  
+ *
+ *
+ */
 #ifndef TESTSOLVINGLINEARPDESTUTORIAL_HPP_
 #define TESTSOLVINGLINEARPDESTUTORIAL_HPP_
 
-/* 
+/*
  * = Introduction =
- * 
+ *
  * In this tutorial we show how Chaste can be used to solve linear PDEs. The first test
  * uses the {{{SimpleLinearEllipticAssembler}}} to solve a linear elliptic PDE, and the
- * second test uses the {{{SimpleDg0ParabolicAssembler}}} to solve a parabolic time-dependent 
+ * second test uses the {{{SimpleDg0ParabolicAssembler}}} to solve a parabolic time-dependent
  * linear PDE
- * 
+ *
  * EMPTYLINE
- * 
+ *
  * The following header files need to be included.
  * First we include the header needed to define this class as a test suite */
 #include <cxxtest/TestSuite.h>
 /* On some systems there is a clash between Boost Ublas includes and PETSc.  This can be
- * resolved by making sure that Chaste's interface to the Boost libraries are included 
+ * resolved by making sure that Chaste's interface to the Boost libraries are included
  * as early as possible.
  */
 #include "UblasCustomFunctions.hpp"
@@ -70,17 +70,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-/* = Test 1: Solving a linear elliptic PDE = 
- * 
+/* = Test 1: Solving a linear elliptic PDE =
+ *
  * Here, we solve the PDE: div(D grad u) + u = x^2^+y^2^, in 2D, where
  * D is the diffusion tensor (1 1; 0 1) (ie D11=D12=D22=1, D21=0), on a square
  * domain, with boundary conditions u=0 on x=0 or y=0, and (D gradu).n = 0 on x=1 and y=1,
  * where n is the surface normal.
- * 
+ *
  * EMPTYLINE
- * 
- * We need to create a class representing the PDE we want to solve, which will be 
- * passed into the solver. The PDE we are solving is of the type 
+ *
+ * We need to create a class representing the PDE we want to solve, which will be
+ * passed into the solver. The PDE we are solving is of the type
  * {{{AbstractLinearEllipticPde}}}, which is an abstract class with 3 pure methods
  * which have to implemented. The template variable in the following line is the dimension
  * of the space.
@@ -90,9 +90,9 @@ class MyPde : public AbstractLinearEllipticPde<2>
 private:
     /* For efficiency, we will save the diffusion tensor that will be returned by one of the
      * class' methods as a member variable. The diffusion tensor which has to be returned
-     * by the {{{GetDiffusionTensor}}} method in PDE classes is of the type 
-     * {{{c_matrix<double,SIZE,SIZE>}}}, which is a u-blas matrix. We use ublas vectors 
-     * and matrices where small vectors and matrices are needed. Note that ublas objects 
+     * by the {{{GetDiffusionTensor}}} method in PDE classes is of the type
+     * {{{c_matrix<double,SIZE,SIZE>}}}, which is a u-blas matrix. We use ublas vectors
+     * and matrices where small vectors and matrices are needed. Note that ublas objects
      * are only particularly efficient if optimisation is on ({{{scons build=GccOpt ..}}}).*/
     c_matrix<double,2,2> mDiffusionTensor;
 
@@ -106,20 +106,20 @@ public:
         mDiffusionTensor(1,1) = 1.0;
     }
 
-    /* The first method which has to be implemented returns the constant 
-     * (not dependent on u) part of the source term, which for our PDE is 
+    /* The first method which has to be implemented returns the constant
+     * (not dependent on u) part of the source term, which for our PDE is
      * x^2^ + y^2^ */
     double ComputeConstantInUSourceTerm(const ChastePoint<2>& rX)
     {
         return rX[0]*rX[0] + rX[1]*rX[1];
     }
 
-    /* The second method which has to be implemented returns the coefficient in the linear-in-u 
+    /* The second method which has to be implemented returns the coefficient in the linear-in-u
      * part of the source term, which for our PDE is just 1.0 */
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>&, Element<2,2>* )
     {
         return 1.0;
-    }    
+    }
 
     /* The third method returns the diffusion tensor D */
     c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
@@ -133,33 +133,33 @@ public:
  * as the filename. The class should inherit from {{{CxxTest::TestSuite}}} */
 class TestSolvingLinearPdesTutorial : public CxxTest::TestSuite
 {
-/* All individual test defined in this test suite '''must''' be declared as public */ 
+/* All individual test defined in this test suite '''must''' be declared as public */
 public:
     /* Define a particular test */
     void TestSolvingEllipticPde()
     {
         /* First we declare a mesh reader which reads mesh data files of the 'Triangles'
          * format. The path given is the relative to the main Chaste directory. The reader
-         * will look for three datafiles, [name].nodes, [name].ele and (in 2d or 3d) 
-         * [name].edge. Note that the first template argument here is the dimension of the 
-         * elements in the mesh ({{{ELEM_DIM}}}), and the second is the dimension of the nodes, 
-         * i.e. the dimension of the space the mesh lives in ({{{SPACE_DIM}}}). Usually 
-         * {{{ELEM_DIM}}} and {{{SPACE_DIM}}} will be equal. */ 
+         * will look for three datafiles, [name].nodes, [name].ele and (in 2d or 3d)
+         * [name].edge. Note that the first template argument here is the dimension of the
+         * elements in the mesh ({{{ELEM_DIM}}}), and the second is the dimension of the nodes,
+         * i.e. the dimension of the space the mesh lives in ({{{SPACE_DIM}}}). Usually
+         * {{{ELEM_DIM}}} and {{{SPACE_DIM}}} will be equal. */
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         /* Now declare a tetrahedral mesh with the same dimensions */
         ConformingTetrahedralMesh<2,2> mesh;
         /* Construct the mesh using the mesh reader */
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        /* Next we instantiate an instance of our PDE we which to solve */ 
+
+        /* Next we instantiate an instance of our PDE we which to solve */
         MyPde pde;
 
-        /* A set of boundary conditions are stored in a {{{BoundaryConditionsContainer}}}. The 
+        /* A set of boundary conditions are stored in a {{{BoundaryConditionsContainer}}}. The
          * three template arguments are ELEM_DIM, SPACE_DIM and PROBLEM_DIM, the latter being
          * the number of unknowns we are solving for. We have one unknown (ie u is a scalar, not
          * a vector), so in this case {{{PROBLEM_DIM}}}=1. */
         BoundaryConditionsContainer<2,2,1> bcc;
-        
+
         /* Defining the boundary conditions is the only particularly fiddly part of solving PDEs,
          * unless they are very simple, such as u=0 on the boundary, which could be done
          * as follows */
@@ -167,9 +167,9 @@ public:
 
         /* We want to specify u=0 on x=0 and y=0. To do this, get a boundary node iterator
          * from the mesh */
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter 
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter
            = mesh.GetBoundaryNodeIteratorBegin();
-        /* Then loop over the boundary nodes, getting the x and y value */                
+        /* Then loop over the boundary nodes, getting the x and y value */
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
@@ -179,9 +179,9 @@ public:
             {
                 /* ..create a new {{{ConstBoundaryConditions}}} object. This is a subclass of
                  * {{{AbstractBoundaryCondition}}}, and tells the caller what value to return
-                 * given a particular point in space. In the first line below we say that value 
+                 * given a particular point in space. In the first line below we say that value
                  * should be 0.0. The second line tells the {{{BoundaryConditionsContainer}}}
-                 * object that it should associate this boundary condition with this node 
+                 * object that it should associate this boundary condition with this node
                  * ({{{*iter}}} being a pointer to a {{{Node<2>}}}).
                  */
                 ConstBoundaryCondition<2>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<2>(0.0);
@@ -189,30 +189,30 @@ public:
             }
             iter++;
         }
-        
+
         /* Now we create Neumann boundary conditions for the ''surface elements'' on x=1 and y=1. Note that
-         * Dirichlet boundary conditions are defined on nodes, whereas Neumann boundary conditions are 
+         * Dirichlet boundary conditions are defined on nodes, whereas Neumann boundary conditions are
          * defined on surface elements. Note also that the natural boundary condition statement for this
-         * PDE is (D grad u).n = g(x) (where n is the surface normal), and g(x) is a prescribed function, 
+         * PDE is (D grad u).n = g(x) (where n is the surface normal), and g(x) is a prescribed function,
          * ''not'' something like du/dn=g(x). Hence the boundary condition we are specifying is
          * (D grad u).n = 0.
-         * 
+         *
          * EMPTYLINE
-         * 
+         *
          * '''Important note for 1D:''' This means that if we were solving 2u,,xx,,=f(x) in 1D, and
          * wanted to specify du/dx=1 on the RHS boundary, the Neumann boundary value we have to specify is
          * -2, as (D gradu).n = -2 when du/dx=1
-         * 
+         *
          * EMPTYLINE
-         * 
-         * To define Neumann bcs, we define another constant boundary condition object (created using 
+         *
+         * To define Neumann bcs, we define another constant boundary condition object (created using
          * {{{new}}} - note that the {{{BoundaryConditionsContainer}}} object deals with deleting
-         * its {{{AbstractBoundaryCondition}}} objects), and then loop over surface elements, using the 
-         * iterator provided by the mesh class. 
-         */ 
+         * its {{{AbstractBoundaryCondition}}} objects), and then loop over surface elements, using the
+         * iterator provided by the mesh class.
+         */
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
-         
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter 
+
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter
           = mesh.GetBoundaryElementIteratorBegin();
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
@@ -220,48 +220,48 @@ public:
             unsigned node_index = (*surf_iter)->GetNodeGlobalIndex(0);
             double x = mesh.GetNode(node_index)->GetPoint()[0];
             double y = mesh.GetNode(node_index)->GetPoint()[1];
-            
+
             /* if x=1 or y=1.. */
             if( (fabs(x-1.0) < 1e-6) || (fabs(y-1.0) < 1e-6) )
             {
                 /* associate the boundary condition with the surface element */
                 bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             }
-            
+
             /* and increment the iterator */
             surf_iter++;
         }
 
-        
-        
-        /* Next we define the assembler - the solver of the PDE. (Assembler is a bit of a 
+
+
+        /* Next we define the assembler - the solver of the PDE. (Assembler is a bit of a
          * misnomer - assemblers both assemble the finite element equations, and solve them.
          * To solve {{{AbstractLinearEllipticPde}}} (which is the type of pde {{{MyPde}}} is),
          * we use a {{{SimpleLinearEllipticAssembler}}}. The assembler, again templated over
-         * {{{ELEM_DIM}}} and {{{SPACE_DIM}}}, needs to be given (pointers to) the mesh, 
+         * {{{ELEM_DIM}}} and {{{SPACE_DIM}}}, needs to be given (pointers to) the mesh,
          * pde and boundary conditions.
-         */ 
+         */
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-        
+
         /* To solve, just call {{{Solve()}}}. A Petsc vector is returned. */
         Vec result = assembler.Solve();
-        
+
         /* It is a pain to access the individual components of a Petsc vector, even in
          * sequential. A helper class called {{{ReplicatableVector}}} has been created. Create
          * an instance of one of these, using the Petsc {{{Vec}}} as the data. The ith
          * component of {{{result}}} can now be obtained by simply doing {{{result_repl[i]}}}.
          */
         ReplicatableVector result_repl(result);
-        
-        /* Let us write out the solution to a file. To do this, create an 
+
+        /* Let us write out the solution to a file. To do this, create an
          * {{{OutputFileHandler}}}, passing in the directory we want files written to.
          * This is relative to the directory defined by the CHASTE_TEST_OUTPUT environment
          * variable - usually /tmp/chaste/testoutput. Note by default the output directory
-         * passed in is cleaned. To avoid this, {{{false}}} can be passed in as a second 
+         * passed in is cleaned. To avoid this, {{{false}}} can be passed in as a second
          * parameter
          */
         OutputFileHandler output_file_handler("TestSolvingLinearPdeTutorial");
-        
+
         /* Create an {{{out_stream}}}, which is a stream to a particular file. An {{{out_stream}}}
          * is a pointer to a ofstream */
         out_stream p_file = output_file_handler.OpenOutputFile("linear_solution.txt");
@@ -269,7 +269,7 @@ public:
         /* Loop over the entries of the solution */
         for (unsigned i=0; i<result_repl.size(); i++)
         {
-            /* Get the x and y-values of the node corresponding to this entry. The method 
+            /* Get the x and y-values of the node corresponding to this entry. The method
              * {{{GetNode}}} on the mesh class returns a pointer to a {{{Node}}} */
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -277,24 +277,24 @@ public:
             /* Get the computed solution at this node from the {{{ReplicatableVector}}} */
             double u = result_repl[i];
 
-            /* Finally, write x, y and u to the output file. The solution could then be 
-             * visualised in (eg) matlab, using the commands: 
+            /* Finally, write x, y and u to the output file. The solution could then be
+             * visualised in (eg) matlab, using the commands:
              * {{{sol=load('linear_solution.txt'); plot3(sol(:,1),sol(:,2),sol(:,3),'.');}}}*/
-            (*p_file) << x << " " << y << " " << u << "\n"; 
+            (*p_file) << x << " " << y << " " << u << "\n";
         }
 
         /* All Petsc {{{Vec}}}s should be destroyed when they are no longer needed */
         VecDestroy(result);
     }
-    
+
     /*
      * = Test 2: Solving a linear parabolic PDE =
-     * 
+     *
      * Now we solve a parabolic PDE. We choose a simple problem so that the code changes
      * needed from the elliptic case are clearer. We will solve
      * du/dt = div(gradu) + u, in 3d, with boundary conditions u=1 on the boundary, and initial
      * conditions u=1
-     * 
+     *
      */
     void TestSolvingParabolicPde( void )
     {
@@ -311,31 +311,31 @@ public:
          * so simple, it has already been defined
          */
         HeatEquationWithSourceTerm<3> pde;
-        
+
         /* Create a new boundary conditions container and specify u=1.0 on the boundary */
         BoundaryConditionsContainer<3,3,1> bcc;
         bcc.DefineConstantDirichletOnMeshBoundary(&mesh, 1.0);
-        
-        /* Create an instance of the assembler, passing in the mesh, pde and boundary conditions. 
+
+        /* Create an instance of the assembler, passing in the mesh, pde and boundary conditions.
          * The {{{true}}} template parameters says this is a NON_HEART problem (so the certain
          * optimisations for cardiac problems are not used). */
         SimpleDg0ParabolicAssembler<3,3,true> assembler(&mesh,&pde,&bcc);
 
         /* For parabolic problems, initial conditions are also needed. The assembler will expect
-         * a Petsc vector, where the i-th entry is the initial solution at node i, to be passed 
-         * in. To create this Petsc {{{Vec}}}, we will use a helper function in the {{{PetscTools}}} 
-         * class to create a {{{Vec}}} of size num_nodes, with each entry set to 1.0. Then we 
+         * a Petsc vector, where the i-th entry is the initial solution at node i, to be passed
+         * in. To create this Petsc {{{Vec}}}, we will use a helper function in the {{{PetscTools}}}
+         * class to create a {{{Vec}}} of size num_nodes, with each entry set to 1.0. Then we
          * set the initial condition on the assembler */
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes(), 1.0);
         assembler.SetInitialCondition(initial_condition);
 
-        /* Next define the start time, end time, and timestep, and set them. */        
+        /* Next define the start time, end time, and timestep, and set them. */
         double t_start = 0;
         double t_end = 1;
         double dt = 0.01;
         assembler.SetTimes(t_start, t_end, dt);
-        
-        /* Now we can solve the problem. The {{{Vec}}} that is returned can be passed into a 
+
+        /* Now we can solve the problem. The {{{Vec}}} that is returned can be passed into a
          * {{{ReplicatableVector}}} as before
          */
         Vec solution = assembler.Solve();
@@ -347,22 +347,22 @@ public:
         SimpleLinearEllipticAssembler<3,3> static_assembler(&mesh, &static_pde, &bcc);
         Vec static_solution = static_assembler.Solve();
         ReplicatableVector static_solution_repl(static_solution);
-        
+
         /* We can now compare the solution of the parabolic PDE at t=1 with the static solution,
-         * to see if the static equilibrium solution was reached in the former. (Ideally we should 
+         * to see if the static equilibrium solution was reached in the former. (Ideally we should
          * compute some relative error, but we just compute an absolute error for simplicity). */
         for(unsigned i=0; i<static_solution_repl.size(); i++)
         {
             TS_ASSERT_DELTA( solution_repl[i], static_solution_repl[i], 1e-3);
-        } 
-        
+        }
+
         /* All Petsc vectors should be destroyed when they are no longer needed */
         VecDestroy(initial_condition);
         VecDestroy(solution);
         VecDestroy(static_solution);
     }
 };
-    
+
 
 
 #endif /*TESTSOLVINGLINEARPDESTUTORIAL_HPP_*/

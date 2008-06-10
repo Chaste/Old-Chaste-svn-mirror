@@ -49,22 +49,22 @@ class AbstractGrowingTumourSourceModel
 {
 private:
     friend class TestAbstractGrowingTumourSourceModel;
-    
+
 protected :
     std::map< unsigned, EvaluationPointInfo<DIM> > mEvaluationPoints;
     std::vector<int> mVertexToEvalPointMap;
-        
+
 public :
     AbstractGrowingTumourSourceModel()
     {
     }
-    
+
     virtual ~AbstractGrowingTumourSourceModel()
     {}
-        
+
     virtual void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)=0;
 
-    
+
     virtual double GetSourceValue(unsigned vertexIndex)
     {
         // could just do:
@@ -73,22 +73,22 @@ public :
 
         typename std::map< unsigned, EvaluationPointInfo<DIM> >::iterator iter
         = mEvaluationPoints.find(vertexIndex);
-        
+
         if (iter == mEvaluationPoints.end())
         {
             std::stringstream ss;
             ss << "No evaluation point corresponding to index=" << vertexIndex;
             EXCEPTION(ss.str());
         }
-        
+
         return iter->second.SourceValue;
     }
-    
-    
+
+
 
     void AddEvaluationPoint(unsigned vertexIndex, Point<DIM> initialPosition)
     {
-        // check an evaluation point with this index doesn't already 
+        // check an evaluation point with this index doesn't already
         // exist
 
         typename std::map< unsigned, EvaluationPointInfo<DIM> >::iterator iter
@@ -99,22 +99,22 @@ public :
             ss << "An evaluation point corresponding to index=" << vertexIndex << " already exists";
             EXCEPTION(ss.str());
         }
-        
-        EvaluationPointInfo<DIM> evaluation_point_info; 
+
+        EvaluationPointInfo<DIM> evaluation_point_info;
         mEvaluationPoints[vertexIndex] = evaluation_point_info;
-        
+
         mEvaluationPoints[vertexIndex].OldPosition = initialPosition;
         mEvaluationPoints[vertexIndex].NewPosition = initialPosition;
         mEvaluationPoints[vertexIndex].SourceValue = 0.0;
     }
-    
-    
+
+
 
     void UpdateEvaluationPointsNewPosition(std::vector<Vector<double> >& deformedPositions)
     {
-        typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter 
+        typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter
            = mEvaluationPoints.begin();
-        
+
         while(iter!=mEvaluationPoints.end())
         {
             unsigned vertex_index = iter->first;
@@ -125,8 +125,8 @@ public :
             iter++;
         }
     }
-        
-    
+
+
     unsigned GetNumEvaluationPoints()
     {
         return mEvaluationPoints.size();

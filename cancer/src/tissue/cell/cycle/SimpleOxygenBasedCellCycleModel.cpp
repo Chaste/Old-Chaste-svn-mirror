@@ -39,8 +39,8 @@ double SimpleOxygenBasedCellCycleModel::GetCurrentHypoxicDuration()
 {
     return mCurrentHypoxicDuration;
 }
-    
-    
+
+
 double SimpleOxygenBasedCellCycleModel::GetCurrentHypoxiaOnsetTime()
 {
     return mCurrentHypoxiaOnsetTime;
@@ -50,22 +50,22 @@ double SimpleOxygenBasedCellCycleModel::GetCurrentHypoxiaOnsetTime()
 void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
     // mG1Duration is set when the cell cycle model is given a cell
-    
+
     if (this->mpCell->GetCellType()!=NECROTIC)
     {
         UpdateHypoxicDuration();
-        
+
         // Get cell's oxygen concentration
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
 
         AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
 
         if (mCurrentCellCyclePhase == G_ONE_PHASE)
-        {            
+        {
             // Update G1 duration based on oxygen concentration
             double dt = SimulationTime::Instance()->GetTimeStep();
             double quiescent_concentration = CancerParameters::Instance()->GetHepaOneCellQuiescentConcentration();
-           
+
             if (oxygen_concentration < quiescent_concentration)
             {
                 mG1Duration += (1 - std::max(oxygen_concentration,0.0)/quiescent_concentration)*dt;
@@ -86,19 +86,19 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
     assert(this->mpCell->GetCellType()!=NECROTIC);
     assert(!this->mpCell->HasApoptosisBegun());
-    
+
     double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(this->mpCell);
     double hypoxic_concentration = CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration();
-    
+
     if ( oxygen_concentration < hypoxic_concentration)
     {
         // Update the duration of the current period of hypoxia
-        mCurrentHypoxicDuration = (SimulationTime::Instance()->GetDimensionalisedTime() - mCurrentHypoxiaOnsetTime);      
-                
+        mCurrentHypoxicDuration = (SimulationTime::Instance()->GetDimensionalisedTime() - mCurrentHypoxiaOnsetTime);
+
         // Include a little bit of stochasticity here
-        double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration); 
+        double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
         if (mCurrentHypoxicDuration > CancerParameters::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
-        {                     
+        {
             this->mpCell->SetCellType(NECROTIC);
         }
     }
@@ -107,5 +107,5 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         // Reset the cell's hypoxic duration and update the time at which the onset of hypoxia occurs
         mCurrentHypoxicDuration = 0.0;
         mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetDimensionalisedTime();
-    }       
-} 
+    }
+}

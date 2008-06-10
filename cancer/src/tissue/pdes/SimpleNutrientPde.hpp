@@ -43,13 +43,13 @@ private:
 public:
 
     SimpleNutrientPde(double coefficient);
-    
+
     double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x);
-    
+
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>*);
-    
+
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& );
-    
+
 };
 
 template<unsigned DIM>
@@ -74,6 +74,6 @@ template<unsigned DIM>
 c_matrix<double,DIM,DIM> SimpleNutrientPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& )
 {
     return identity_matrix<double>(DIM);
-} 
+}
 
 #endif /*SIMPLENUTRIENTPDE_HPP_*/

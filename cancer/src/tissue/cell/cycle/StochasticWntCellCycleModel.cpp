@@ -31,12 +31,12 @@ void StochasticWntCellCycleModel::SetG2Duration()
 {
     CancerParameters* p_params = CancerParameters::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-    
+
     double mean = p_params->GetG2Duration();
     double standard_deviation = 0.9;
-    
+
     mG2Duration = p_gen->NormalRandomDeviate(mean, standard_deviation);
-    
+
     // Check that the normal random deviate has not returned a small or negative G2 duration
     if (mG2Duration < p_params->GetMinimumGapDuration())
     {

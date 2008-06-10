@@ -63,36 +63,36 @@ private:
     double mDt;
     double mEndTime;
     ConformingTetrahedralMesh<1,1> &mrMesh;
-    
+
     bool mIncludeVariableRestLength;
-    
+
     unsigned mMaxCells;
-    
+
     std::string mOutputDirectory;
-    
+
     std::vector<TissueCell> mCells;
-    
+
     CancerParameters *mpParams;
     SimulationTime *mpSimulationTime;
     RandomNumberGenerator *mpGen;
     bool mCreatedRng;
-    
+
     unsigned AddNodeToElement(Element<1,1>* pElement, double time);
-    
+
 public:
 
     CryptSimulation1d(ConformingTetrahedralMesh<1,1> &rMesh,
                       std::vector<TissueCell> cells = std::vector<TissueCell>());
-                    
+
     ~CryptSimulation1d();
-    
+
     void SetDt(double dt);
     void SetEndTime(double endTime);
     void SetOutputDirectory(std::string outputDirectory);
     void SetIncludeVariableRestLength();
     void SetMaxCells(unsigned maxCells);
     std::vector<TissueCell> GetCells();
-    
+
     void Solve();
 };
 

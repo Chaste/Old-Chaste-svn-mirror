@@ -37,29 +37,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  A singleton log file class. Allows the user to define log file in the test, which
  *  can be written to (without being passed around in the code).
- * 
+ *
  *  Usage (in test):
- *  
+ *
  *  // begining of test
  *  LogFile* p_log = LogFile::Instance();
  *  p_log->Set(level, "dir","file");
  *  p_log->WriteHeader("type_of_sim"); // optional
- * 
+ *
  *  // at end of simulation
  *  LogFile::Close();
- * 
+ *
  *  Here 'level' is a number between 0 and LogFile::MaxLoggingLevel, with zero
  *  meaning no logging and MaxLoggingLevel meaning full logging.
- * 
+ *
  *  Usage (in source) - use the macro 'LOG'
  *  LOG(1, "Info to be written to the log file\n" << "More info\n");
  *  LogFile::Instance()->WriteElapsedTime(); // optional
- * 
+ *
  *  This checks whether the given level (here '1') is greater or equal to the given
  *  logging level, in which case it writes to the current log file. If there is
  *  no log file is set up it does nothing.
- * 
- *  Note the log file can be written to directly, without any level-checking, using  
+ *
+ *  Note the log file can be written to directly, without any level-checking, using
  *  (*LogFile::Instance()) << "Info to be written to the log file\n";
  */
 class LogFile
@@ -87,22 +87,22 @@ private:
 
 public:
     /**
-     *  Get the single instance of the LogFile object. 
+     *  Get the single instance of the LogFile object.
      */
     static LogFile* Instance();
-    
+
     static unsigned Level();
 
     /**
-     *  Set the logging level, the directory (relative to TEST_OUTPUT) and the file 
+     *  Set the logging level, the directory (relative to TEST_OUTPUT) and the file
      *  the log should be written to (file defaults to "log.txt").
-     *  
-     *  The level should be a number between 0 and LogFile::MaxLoggingLevel() (which is the 
+     *
+     *  The level should be a number between 0 and LogFile::MaxLoggingLevel() (which is the
      *  same as LogFile::mMaxLoggingLevel)
-     * 
+     *
      *  Note: we intentionally do NOT check or throw an exception if a file has already
      *  been set (ie Close() wasn't called the last time a log was used).
-     *  
+     *
      *  The directory is never cleaned.
      */
     void Set(unsigned level, std::string directory, std::string fileName="log.txt");
@@ -110,17 +110,17 @@ public:
     /** Get the maximum allowed logging level */
     static unsigned MaxLoggingLevel();
 
-    /** 
-     *  Write a header in the log file, stating the (given) type of simulation and the 
+    /**
+     *  Write a header in the log file, stating the (given) type of simulation and the
      *  date and time
-     *  
-     *  @simulationType The type of simulation, eg "Bidomain" or "Crypt" or 
+     *
+     *  @simulationType The type of simulation, eg "Bidomain" or "Crypt" or
      *  "Cardiac Electromechanics". Defaults to empty
      */
     void WriteHeader(std::string simulationType="");
-    
-    /** 
-     *  Write the elapsed time since the simulation began (since the log file was created) 
+
+    /**
+     *  Write the elapsed time since the simulation began (since the log file was created)
      *  @param pre a string (eg spacings) to write before the elapsed time line
      */
     void WriteElapsedTime(std::string pre="");
@@ -133,8 +133,8 @@ public:
     /**
      *  Whether Set() has been called
      */
-    bool IsFileSet();    
-   
+    bool IsFileSet();
+
     /**
      *  Overloaded << operator, to write to the log file, if one has been set, and
      *  does nothing if not
@@ -146,7 +146,7 @@ public:
         {
             (*mpOutStream) << message << std::flush;
         }
-    
+
         return *this;
     }
 };
@@ -157,7 +157,7 @@ public:
     #define LOG_AND_COUT(level, message) {std::cout << message << std::endl << std::flush; LOG(level, message); }
 #else
     // do nothing
-    #define LOG(level, message) 
+    #define LOG(level, message)
     #define LOG_AND_COUT(level, message)
 #endif
 

@@ -45,40 +45,40 @@ private:
 
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
-    
+
     hid_t mFileId;
-    
-    hid_t mVariablesDatasetId;    
+
+    hid_t mVariablesDatasetId;
     unsigned mVariablesDatasetRank;
     hsize_t mVariablesDatasetSizes[MAX_DATASET_RANK];
 
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
     hid_t mTimeDatasetId;
     hsize_t mNumberTimesteps;
-    
-    std::map<std::string, unsigned>    mVariableToColumnIndex;  
-    std::vector<std::string>    mVariableNames;  
-    
+
+    std::map<std::string, unsigned>    mVariableToColumnIndex;
+    std::vector<std::string>    mVariableNames;
+
     std::map<std::string, std::string> mVariableToUnit;
-    
+
     bool mIsDataComplete;
-    std::vector<unsigned> mIncompleteNodeIndices; 
-    
+    std::vector<unsigned> mIncompleteNodeIndices;
+
 public:
 
     Hdf5DataReader(std::string directory, std::string baseName, bool make_absolute=true);
-    
+
     std::vector<double> GetVariableOverTime(std::string variableName, unsigned nodeIndex);
-    
+
     void GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep=0);
-    
+
     std::vector<double> GetUnlimitedDimensionValues();
-    
+
     unsigned GetNumberOfRows()
     {
         return mVariablesDatasetSizes[1];
     }
-    
+
     std::vector<std::string> GetVariableNames()
     {
         return mVariableNames;
@@ -87,17 +87,17 @@ public:
     {
         return mVariableToUnit[variableName];
     }
-    
+
     bool IsDataComplete()
     {
         return mIsDataComplete;
     }
-    
+
     std::vector<unsigned> GetIncompleteNodeMap()
     {
         return mIncompleteNodeIndices;
     }
-    
+
     void Close();
 
 };

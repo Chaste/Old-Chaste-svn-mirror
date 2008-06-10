@@ -40,19 +40,19 @@ class FunctionalBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private :
     double (*mFunction)(const ChastePoint<SPACE_DIM>& x);
-    
+
 public :
     /**
      * Typical use:
      *  pBoundaryCondition = new FunctionalBoundaryCondition(&function_name);
-     * 
+     *
      * @param func Pointer to a function to be used for evaluating this boundary
      *     condition.
      */
     FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& x)) : mFunction(func)
     {
     }
-    
+
     double GetValue( const ChastePoint<SPACE_DIM>& x) const
     {
         return mFunction(x);

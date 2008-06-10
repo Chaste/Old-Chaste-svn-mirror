@@ -65,7 +65,7 @@ ColumnDataWriter::~ColumnDataWriter()
 {
     // Close any open output files.
     Close();
-    
+
     // Delete memory allocated for variables.
     if (mpUnlimitedDimensionVariable != NULL)
     {
@@ -95,7 +95,7 @@ void ColumnDataWriter::Close()
         mpCurrentOutputFile->close();
         mpCurrentOutputFile = out_stream(NULL);
     }
-    
+
     if (mpCurrentAncillaryFile.get() != NULL)
     {
         mpCurrentAncillaryFile->close();
@@ -139,24 +139,24 @@ int ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dime
     {
         EXCEPTION("Unlimited dimension already set. Cannot be defined twice");
     }
-    
+
     if (!mIsInDefineMode)
     {
         EXCEPTION("Cannot define variables when not in Define mode");
     }
-    
+
     CheckVariableName(dimensionName);
     CheckUnitsName(dimensionUnits);
-    
+
     mUnlimitedDimensionName = dimensionName;
     mUnlimitedDimensionUnits = dimensionUnits;
-    
+
     mpUnlimitedDimensionVariable = new DataWriterVariable;
     mpUnlimitedDimensionVariable->mVariableName = dimensionName;
     mpUnlimitedDimensionVariable->mVariableUnits = dimensionUnits;
-    
+
     mIsUnlimitedDimensionSet = true;
-    
+
     return UNLIMITED_DIMENSION_VAR_ID;
 }
 
@@ -179,16 +179,16 @@ int ColumnDataWriter::DefineFixedDimension(string dimensionName, string dimensio
     {
         EXCEPTION("Fixed dimension must be at least 1 long");
     }
-    
+
     CheckVariableName(dimensionName);
     CheckUnitsName(dimensionUnits);
-    
+
     mFixedDimensionName = dimensionName;
     mFixedDimensionUnits = dimensionUnits;
     mFixedDimensionSize = dimensionSize;
-    
+
     mIsFixedDimensionSet = true;
-    
+
     mpFixedDimensionVariable = new DataWriterVariable;
     mpFixedDimensionVariable->mVariableName = dimensionName;
     mpFixedDimensionVariable->mVariableUnits = dimensionUnits;
@@ -211,15 +211,15 @@ int ColumnDataWriter::DefineVariable(string variableName, string variableUnits)
     {
         EXCEPTION("Cannot define variables when not in Define mode");
     }
-    
+
     CheckVariableName(variableName);
     CheckUnitsName(variableUnits);
-    
+
     DataWriterVariable new_variable;
     new_variable.mVariableName = variableName;
     new_variable.mVariableUnits = variableUnits;
     int variable_id;
-    
+
     if (variableName == mUnlimitedDimensionName)
     {
         EXCEPTION("Variable name: " + variableName + " already in use as unlimited dimension");
@@ -236,7 +236,7 @@ int ColumnDataWriter::DefineVariable(string variableName, string variableUnits)
         //this is ok since there is no way to remove variables.
         variable_id = mVariables.size()-1;
     }
-    
+
     return variable_id;
 }
 
@@ -269,7 +269,7 @@ void ColumnDataWriter::EndDefineMode()
             //write out the headers for the first position along the unlimited dimension
             std::stringstream suffix;
             suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << mUnlimitedDimensionPosition;
-            
+
             if (mpUnlimitedDimensionVariable != NULL)
             {
                 std::string ancillary_filename = mBaseName + "_unlimited.dat";
@@ -325,11 +325,11 @@ void ColumnDataWriter::EndDefineMode()
         std::string filename = mBaseName + ".dat";
         this->CreateFixedDimensionFile(filename);
     }
-    
+
     // Write info file
     std::string infoname = mBaseName + ".info";
     this->CreateInfoFile(infoname);
-    
+
     mIsInDefineMode = false;
 }
 
@@ -364,7 +364,7 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filename)
     {
         (*mpCurrentOutputFile) << blank_line << std::endl;
     }
-    
+
 }
 
 
@@ -392,7 +392,7 @@ void ColumnDataWriter::DoAdvanceAlongUnlimitedDimension()
 {
     mHasPutVariable = false;
     mNeedAdvanceAlongUnlimitedDimension = false;
-    
+
     if (mIsUnlimitedDimensionSet)
     {
         if (mIsFixedDimensionSet)
@@ -401,8 +401,8 @@ void ColumnDataWriter::DoAdvanceAlongUnlimitedDimension()
             mpCurrentOutputFile->close();
             std::stringstream suffix;
             suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << mUnlimitedDimensionPosition + 1;
-            
-            
+
+
 //            // pad out the suffix, so that its always 6 digits
 //            while (suffix.size() < 6)
 //            {
@@ -450,7 +450,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
 {
     if (mNeedAdvanceAlongUnlimitedDimension)
         DoAdvanceAlongUnlimitedDimension();
-        
+
     //check that we are not in define mode
     if (mIsInDefineMode)
     {
@@ -464,7 +464,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
     {
         EXCEPTION("variableID unknown");
     }
-    
+
     if (mIsFixedDimensionSet)
     {
         if (dimensionPosition == -1 && variableID != UNLIMITED_DIMENSION_VAR_ID)
@@ -480,7 +480,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
             EXCEPTION("Dimension position supplied, but not required");
         }
     }
-    
+
     if (mIsUnlimitedDimensionSet)
     {
         if (mIsFixedDimensionSet)
@@ -488,7 +488,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
             //go to the correct position in the file
             if (variableID == UNLIMITED_DIMENSION_VAR_ID)
             {
-            
+
                 if (variableValue >= 0)
                 {
                     (*mpCurrentAncillaryFile) << std::endl << "  ";
@@ -513,7 +513,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
                     position = mRowStartPosition + (mRowWidth+1) * dimensionPosition +
                                ((variableID + (mpFixedDimensionVariable != NULL))* (FIELD_WIDTH + SPACING)) + SPACING;
                 }
-                
+
                 if (variableValue >= 0)
                 {
                     mpCurrentOutputFile->seekp(position);
@@ -539,7 +539,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
             {
                 position = (variableID + (mpUnlimitedDimensionVariable != NULL)) * (FIELD_WIDTH + SPACING) + mRowStartPosition + SPACING;
             }
-            
+
             if (variableValue >= 0)
             {
                 mpCurrentOutputFile->seekp(position);
@@ -576,10 +576,10 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
             mpCurrentOutputFile->seekp(position-1);
             mpCurrentOutputFile->width(FIELD_WIDTH);
         }
-        
+
         (*mpCurrentOutputFile) << variableValue;
-        
+
     }
-    
+
     mHasPutVariable = true;
 }

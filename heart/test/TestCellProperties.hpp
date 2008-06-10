@@ -49,7 +49,7 @@ public:
         std::vector<double> empty;
         TS_ASSERT_THROWS_ANYTHING(CellProperties cell_props(empty, empty));
     }
-    
+
     void TestCellPhysiologicalPropertiesForRegularLr91(void)
     {
         /*
@@ -63,27 +63,27 @@ public:
                                  duration_of_stimulus,
                                  period,
                                  when);
-                                 
+
         EulerIvpOdeSolver solver;
-        
+
         /*
-         * Solve 
+         * Solve
          */
         double start_time = 0.0;   // ms
         double end_time = 3450.0;  // ms
         double time_step = 0.01;   // ms
-        
+
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
-        
+
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
-        
+
 solution.WriteToFile("", __FUNCTION__, &lr91_ode_system, "ms");
 
 
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
         CellProperties  cell_props(voltage, solution.rGetTimes()); // Use default threshold
-        
+
 //        std::cout << "Max upstroke vel: " << cell_props.GetMaxUpstrokeVelocity() << std::endl;
 //        std::cout << "Cycle length: " << cell_props.GetCycleLength() << std::endl;
 //        std::cout << "Max potential: " << cell_props.GetMaxPotential() << std::endl;

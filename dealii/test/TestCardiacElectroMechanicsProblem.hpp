@@ -46,29 +46,29 @@ public:
     void TestDeterminingWatchedNodes() throw(Exception)
     {
         EventHandler::Disable();
-        
+
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        CardiacElectroMechanicsProblem<2> problem(&cell_factory, 
+        CardiacElectroMechanicsProblem<2> problem(&cell_factory,
                                                   1, /* end time */
                                                   10, /*mech mesh size*/
                                                   100, /* 100*0.01ms mech dt */
                                                   0.01,
                                                   "nothingtolookathere");
-                                                  
+
         c_vector<double,2> pos;
         pos(0) = 1.0;
         pos(1) = 0.0;
         problem.SetWatchedPosition(pos);
         problem.Initialise();
-        
+
         // have checked these hardcoded values correspond to the nodes
-        // at (1,0); 
+        // at (1,0);
         TS_ASSERT_EQUALS(problem.mWatchedElectricsNodeIndex, 9408u);
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 10u);
-        
+
         //// would like to do the following....
-        //CardiacElectroMechanicsProblem<2> problem2(&cell_factory, 
+        //CardiacElectroMechanicsProblem<2> problem2(&cell_factory,
         //                                           1, 10, 100, 0.01,
         //                                           "nothingtolookathere");
         //pos(1) = 1.1;
@@ -77,7 +77,7 @@ public:
         //// ... but the exception causes a segmentation fault and had to be replaced
         //// with an assert(0);
     }
-        
+
 
     // test the interface works and does what it should do.
     // We only test the implicit solver as the explicit is not expected to work for very long
@@ -85,7 +85,7 @@ public:
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
                                                            10, /* end time */
                                                            5, /*mech mesh size*/
                                                            100, /* 100*0.01ms mech dt */
@@ -103,7 +103,7 @@ public:
 //    void TestCinverseDataStructure() throw(Exception)
 //    {
 //        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
-//        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+//        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
 //                                                           0.05, /* end time */
 //                                                           5, /*mech mesh size*/
 //                                                           1, /* 0.01ms mech dt */
@@ -111,7 +111,7 @@ public:
 //                                                           "TestCardiacElectroMechImplicitCinverse");
 //        implicit_problem.SetNoElectricsOutput();
 //        implicit_problem.Solve();
-//        
+//
 //        NodewiseData<2>* p_nodewise_data = NodewiseData<2>::Instance();
 //        unsigned num_nodes = 97*97; //hardcoded
 //        TS_ASSERT_EQUALS(p_nodewise_data->rGetData().size(), num_nodes);

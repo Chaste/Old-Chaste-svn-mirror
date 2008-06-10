@@ -48,47 +48,47 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
 {
-private:    
+private:
     BidomainPde<SPACE_DIM>* mpBidomainPde;
-    std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
+    std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     unsigned mExtracelluarColumnId;
-    
+
     AbstractConductivityTensors<SPACE_DIM>* mpExtracellularConductivityTensors;
-    
+
     unsigned mRowMeanPhiEZero;
-    
+
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
         mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
 
-        this->mpIntracellularConductivityTensors->Init();                
+        this->mpIntracellularConductivityTensors->Init();
         mpBidomainPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
-        
-        mpExtracellularConductivityTensors->Init();                
+
+        mpExtracellularConductivityTensors->Init();
         mpBidomainPde->SetExtracellularConductivityTensors( mpExtracellularConductivityTensors );
-        
+
         return mpBidomainPde;
     }
-    
+
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
     {
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
-            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, 
-                                                            mpBidomainPde, 
-                                                            this->mpBoundaryConditionsContainer, 
+            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                            mpBidomainPde,
+                                                            this->mpBoundaryConditionsContainer,
                                                             2);
         try
         {
             if (this->mUseLinearSolverAbsoluteTolerance)
             {
-                p_bidomain_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);       
+                p_bidomain_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);
             }
             else
             {
-                p_bidomain_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverTolerance);    
+                p_bidomain_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverTolerance);
             }
-            
+
             p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
             p_bidomain_assembler->SetRowForMeanPhiEToZero(mRowMeanPhiEZero);
         }
@@ -97,14 +97,14 @@ protected:
             delete p_bidomain_assembler;
             throw e;
         }
-        
+
         return p_bidomain_assembler;
     }
-    
+
 public:
     /**
      * Constructor
-     * @param pCellFactory User defined cell factory which shows how the pde should 
+     * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
     BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
@@ -121,20 +121,20 @@ public:
         else
         {
             mpExtracellularConductivityTensors = new AxisymmetricConductivityTensors<SPACE_DIM>;
-        }             
-        
-        // Reference Clerc 1976 (x,y,z)
-        double default_extra_conductivities[] = {6.2, 2.4, 2.4}; // mS/cm (Averaged) 
+        }
 
-        c_vector<double, SPACE_DIM> extra_conductivities;    
+        // Reference Clerc 1976 (x,y,z)
+        double default_extra_conductivities[] = {6.2, 2.4, 2.4}; // mS/cm (Averaged)
+
+        c_vector<double, SPACE_DIM> extra_conductivities;
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
             extra_conductivities[dim] = default_extra_conductivities[dim];
         }
 
-        mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);        
+        mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
     }
-    
+
     /**
      * Destructor
      */
@@ -142,30 +142,30 @@ public:
     {
         delete mpExtracellularConductivityTensors;
     }
-    
+
     void SetExtracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
     {
         mpExtracellularConductivityTensors->SetConstantConductivities(constantConductivities);
     }
-    
+
     void SetExtracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
     {
         mpExtracellularConductivityTensors->SetNonConstantConductivities(nonConstantConductivities);
     }
-    
-    
+
+
     /**
-     *  Set the nodes at which phi_e (the extracellular potential) is fixed to 
-     *  zero. This does not necessarily have to be called. If it is not, phi_e 
+     *  Set the nodes at which phi_e (the extracellular potential) is fixed to
+     *  zero. This does not necessarily have to be called. If it is not, phi_e
      *  is only defined up to a constant.
-     * 
+     *
      *  @param the nodes to be fixed.
-     * 
+     *
      *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
-    {        
+    {
         mFixedExtracellularPotentialNodes.resize(nodes.size());
         for (unsigned i=0; i<nodes.size(); i++)
         {
@@ -174,12 +174,12 @@ public:
             mFixedExtracellularPotentialNodes[i] = nodes[i];
         }
     }
-    
+
     /**
      * Set which row of the linear system should be used to enforce the
      * condition that the mean of phi_e is zero.  If not called, this
      * condition will not be used.
-     */    
+     */
     void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
     {
         // Row should be odd in C++-like indexing
@@ -187,10 +187,10 @@ public:
         {
             EXCEPTION("Row for enforcing mean phi_e = 0 should be odd in C++ style indexing");
         }
-        
+
         mRowMeanPhiEZero = rowMeanPhiEZero;
     }
-    
+
     /**
      *  Get the pde. Can only be called after Initialise()
      */
@@ -199,7 +199,7 @@ public:
         assert(mpBidomainPde!=NULL);
         return mpBidomainPde;
     }
-    
+
     /**
      *  Print out time and max/min voltage/phi_e values at current time.
      */
@@ -231,19 +231,19 @@ public:
         }
         std::cout << " max/min V, phi_e = " << v_max << " " << v_min << " " << phi_max << " " << phi_min << "\n" << std::flush;
     }
-    
+
     virtual void DefineWriterColumns()
     {
         AbstractCardiacProblem<SPACE_DIM,2>::DefineWriterColumns();
         mExtracelluarColumnId = this->mpWriter->DefineVariable("Phi_e","mV");
     }
-    
+
     virtual void WriteOneStep(double time, Vec voltageVec)
     {
         this->mpWriter->PutUnlimitedVariable(time);
-        this->mpWriter->PutStripedVector(this->mVoltageColumnId, mExtracelluarColumnId, voltageVec);        
+        this->mpWriter->PutStripedVector(this->mVoltageColumnId, mExtracelluarColumnId, voltageVec);
     }
-    
+
 };
 
 

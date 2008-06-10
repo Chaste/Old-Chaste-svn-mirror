@@ -29,16 +29,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 RadialSloughingCellKiller::RadialSloughingCellKiller(AbstractTissue<2>* pTissue, c_vector<double,2> centre, double radius)
         : AbstractCellKiller<2>(pTissue),
-          mCentre(centre), 
-          mRadius(radius) 
+          mCentre(centre),
+          mRadius(radius)
 {
 }
-          
+
 c_vector<double,2> RadialSloughingCellKiller::GetCentre() const
 {
     return mCentre;
-}    
-    
+}
+
 double RadialSloughingCellKiller::GetRadius() const
 {
     return mRadius;
@@ -52,10 +52,10 @@ void RadialSloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
     {
         // Get distance from centre of tissue
         double r = norm_2(cell_iter.rGetLocation() - mCentre);
-        
+
         if ( r > mRadius )
         {
             cell_iter->Kill();
-        }        
-    }        
+        }
+    }
 }

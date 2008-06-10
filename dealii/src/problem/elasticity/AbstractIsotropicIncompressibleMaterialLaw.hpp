@@ -53,26 +53,26 @@ protected :
     virtual double Get_d2W_dI1(double I1, double I2)=0;
     virtual double Get_d2W_dI2(double I1, double I2)=0;
     virtual double Get_d2W_dI1I2(double I1, double I2)=0;
-    
+
 public :
     /**
-     *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE 
+     *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE
      *  for a given strain.
-     *  
+     *
      *  NOTE: the strain E is not expected to be passed in, instead the Lagrangian
      *  deformation tensor C is required (recall, E = 0.5(C-I)
-     * 
+     *
      *  dT/dE is a fourth-order tensor, where dT/dE(M,N,P,Q) = dT^{MN}/dE_{PQ}
-     * 
+     *
      *  @param C The Lagrangian deformation tensor (F^T F)
      *  @param invC The inverse of C. Should be computed by the user. (Change this?)
      *  @param pressure the current pressure
      *  @param T the stress will be returned in this parameter
      *  @param dTdE the stress derivative will be returned in this parameter, assuming
      *    the final parameter is true
-     *  @param computeDTdE a boolean flag saying whether the stress derivative is 
+     *  @param computeDTdE a boolean flag saying whether the stress derivative is
      *    required or not.
-     * 
+     *
      *  This is the implemtation for an isotropic material law, so the stress etc is
      *  computed by calling methods returning dW/dI1, dW/dI2 etc.
      */
@@ -83,12 +83,12 @@ public :
                                           FourthOrderTensor<DIM>& dTdE,
                                           bool                    computeDTdE)
     {
-        // this is covered, but gcov doesn't see this as being covered 
+        // this is covered, but gcov doesn't see this as being covered
         // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE 
+        #define COVERAGE_IGNORE
         assert((DIM==2) || (DIM==3));
         #undef COVERAGE_IGNORE
-                
+
         static Tensor<2,DIM> identity;
         static bool first=true;
         if (first)
@@ -102,38 +102,38 @@ public :
             }
         }
         first = false;
-        
-        
+
+
         double I1 = trace(C);
-        
+
         double I2 = 0.0;
         if (DIM==3)
         {
             I2 =   C[0][0]*C[1][1] + C[1][1]*C[2][2] + C[2][2]*C[0][0]
                  - C[0][1]*C[1][0] - C[1][2]*C[2][1] - C[2][0]*C[0][2];
         }
-        
+
         double  dW_dI1 = Get_dW_dI1(I1,I2);
         double  dW_dI2; // only computed if DIM==3
-        
+
         double  d2W_dI1;
         double  d2W_dI2;
         double  d2W_dI1I2;
-        
+
         // Compute stress:
         //
         //  T = dW_dE
         //    = 2 * dI1_dC_MN * dI1_dC_MN   +   2 * dI1_dC_MN * dI1_dC_MN  -  p * invC
         //    = 2 * dI1_dC_MN * delta_MN    +   2 * dI1_dC_MN * (I1 delta_MN - C_MN)  -  p * invC
-        
+
         T = 2*dW_dI1*identity - pressure*invC;
         if (DIM==3)
         {
             dW_dI2 = Get_dW_dI2(I1,I2);
             T += 2*dW_dI2*(I1*identity - C);
         }
-        
-        
+
+
         // Compute stress derivative if required:
         //
         // The stress derivative dT_{MN}/dE_{PQ} can be expanded to be seen to be
@@ -158,13 +158,13 @@ public :
         if (computeDTdE)
         {
             d2W_dI1 = Get_d2W_dI1(I1,I2);
-            
+
             if (DIM==3)
             {
                 d2W_dI2   = Get_d2W_dI2(I1,I2);
                 d2W_dI1I2 = Get_d2W_dI1I2(I1,I2);
             }
-            
+
             for (unsigned M=0;M<DIM;M++)
             {
                 for (unsigned N=0;N<DIM;N++)
@@ -175,7 +175,7 @@ public :
                         {
                             dTdE(M,N,P,Q)  =    4 * d2W_dI1  * (M==N) * (P==Q)
                                               + 2 * pressure * invC[M][P] * invC[Q][N];
-                                                   
+
                             if (DIM==3)
                             {
                                 dTdE(M,N,P,Q) +=    4 * d2W_dI2   * (I1*(M==N)-C[M][N]) * (I1*(P==Q)-C[P][Q])
@@ -188,30 +188,30 @@ public :
             }
         }
     }
-    
+
     virtual ~AbstractIsotropicIncompressibleMaterialLaw()
     {}
-    
-    
+
+
     /**
      *  Get the pressure corresponding to E=0, ie corresponding to C=identity
-     * 
+     *
      *  Since T = 2*Get_dW_dI1 identity + 4*Get_dW_dI2 (I1*identity - C) - p inverse(C),
      *  this is equal to 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3) in 3D
      */
     double GetZeroStrainPressure()
     {
-        // this is covered, but gcov doesn't see this as being covered 
+        // this is covered, but gcov doesn't see this as being covered
         // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE 
+        #define COVERAGE_IGNORE
         assert(DIM>=2 && DIM<=3);
         #undef COVERAGE_IGNORE
-        
+
         if (DIM==2)
         {
             return 2*Get_dW_dI1(2,0);
         }
-        
+
         // else DIM==3
         return 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3);
     }

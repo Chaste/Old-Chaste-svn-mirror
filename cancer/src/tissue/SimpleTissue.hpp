@@ -44,12 +44,12 @@ class SimpleTissue : public AbstractTissue<DIM>
 private:
 
     /** List of nodes */
-    std::vector<Node<DIM> > mNodes;    
-    
+    std::vector<Node<DIM> > mNodes;
+
     friend class boost::serialization::access;
     /**
      * Serialize the facade.
-     * 
+     *
      * Note that serialization of the nodes is handled by load/save_construct_data,
      * so we don't actually have to do anything here except delegate to the base class.
      */
@@ -57,20 +57,20 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
-        
+
         Validate(); // paranoia
     }
-            
-    /** 
-     * Add a new node to the tissue. 
+
+    /**
+     * Add a new node to the tissue.
      */
     unsigned AddNode(Node<DIM> *pNewNode);
-    
-    /** 
+
+    /**
      * Move the node with a given index to a new point in space.
      */
     void SetNode(unsigned index, ChastePoint<DIM> point);
-    
+
 
 public:
 
@@ -81,20 +81,20 @@ public:
      * dealt with by the serialize method of our base class.
      */
     SimpleTissue(const std::vector<Node<DIM> >& rNodes);
-    
-    ~SimpleTissue() 
+
+    ~SimpleTissue()
     {}
 
-    /** 
+    /**
      * Get the number of nodes in the tissue.
      */
     unsigned GetNumNodes();
-    
+
     /**
      * Get a pointer to the node with a given index.
-     */  
+     */
     Node<DIM>* GetNode(unsigned index);
-    
+
     /**
      * Add a new cell to the tissue.
      * @param cell  the cell to add
@@ -102,47 +102,47 @@ public:
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
     TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
-    
-    /** 
-     * Remove all cells labelled as dead. 
-     * 
-     * Note that after calling this method the tissue will be in an inconsistent state until 
-     * the equivalent of a 'remesh' is performed! So don't try iterating over cells or anything 
+
+    /**
+     * Remove all cells labelled as dead.
+     *
+     * Note that after calling this method the tissue will be in an inconsistent state until
+     * the equivalent of a 'remesh' is performed! So don't try iterating over cells or anything
      * like that.
-     * 
+     *
      *  @return number of cells removed
      */
     unsigned RemoveDeadCells();
-    
-    /** 
+
+    /**
      * Remove nodes that have been marked as deleted and update the node cell map.
      */
     void ReMesh();
-    
+
     /**
      * Check consistency of our internal data structures.
      */
     void Validate();
-    
+
     std::vector<Node<DIM> >& rGetNodes();
     const std::vector<Node<DIM> >& rGetNodes() const;
-    
+
     /**
      * Move a cell to a new location.
      * @param iter  pointer to the cell to move
      * @param rNewLocation  where to move it to
      */
     void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
-    
+
 };
 
 template<unsigned DIM>
-SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes, 
+SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes,
                                 const std::vector<TissueCell>& rCells)
         : AbstractTissue<DIM>(rCells),
           mNodes(rNodes)
 {
-    Validate();    
+    Validate();
 }
 
 template<unsigned DIM>
@@ -156,21 +156,21 @@ SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes)
 template<unsigned DIM>
 void SimpleTissue<DIM>::Validate()
 {
-    std::vector<bool> validated_node(GetNumNodes()); 
-    
+    std::vector<bool> validated_node(GetNumNodes());
+
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = cell_iter->GetNodeIndex();
         validated_node[node_index] = true;
     }
-    
+
     for (unsigned i=0; i<validated_node.size(); i++)
     {
         if(!validated_node[i])
         {
             std::stringstream ss;
             ss << "Node " << i << " does not appear to have a cell associated with it";
-            EXCEPTION(ss.str()); 
+            EXCEPTION(ss.str());
         }
     }
 }
@@ -196,7 +196,7 @@ Node<DIM>* SimpleTissue<DIM>::GetNode(unsigned index)
 template<unsigned DIM>
 void SimpleTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM> point)
 {
-    mNodes[index].SetPoint(point);    
+    mNodes[index].SetPoint(point);
 }
 
 template<unsigned DIM>
@@ -211,16 +211,16 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
 {
     // Create a new node
     Node<DIM> new_node(GetNumNodes(), newLocation, false); // never on boundary
-    
+
     unsigned new_node_index = AddNode(&new_node); //Uses copy constructor (so it doesn't matter that new_node goes out of scope)
 
     // Associate the new cell with the node
     newCell.SetNodeIndex(new_node_index);
     this->mCells.push_back(newCell);
-    
+
     TissueCell *p_created_cell = &(this->mCells.back());
     this->mNodeCellMap[new_node_index] = p_created_cell;
-    
+
     return p_created_cell;
 }
 
@@ -230,7 +230,7 @@ void SimpleTissue<DIM>::ReMesh()
     // Create and reserve space for a temporary vector
     std::vector<Node<DIM> > old_nodes;
     old_nodes.reserve(mNodes.size());
-    
+
     // Store all non-deleted nodes in the temporary vector
     for (unsigned i=0; i<mNodes.size(); i++)
     {
@@ -239,26 +239,26 @@ void SimpleTissue<DIM>::ReMesh()
             old_nodes.push_back(mNodes[i]);
         }
     }
-    
+
     // Update mNodes
     mNodes = old_nodes;
-    
-    // Update the correspondence between nodes and cells.    
+
+    // Update the correspondence between nodes and cells.
     // We expect the node indices to be {0,1,...,num_nodes}
-    std::set<unsigned> expected_node_indices;    
+    std::set<unsigned> expected_node_indices;
     for (unsigned i=0; i<GetNumNodes(); i++)
     {
         expected_node_indices.insert(i);
     }
-    
+
     // Get the actual set of node indices
     std::set<unsigned> node_indices;
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = cell_iter->GetNodeIndex();
-        node_indices.insert(node_index);       
+        node_indices.insert(node_index);
     }
-    
+
     // If necessary, update the node cell map
     if (node_indices != expected_node_indices)
     {
@@ -272,7 +272,7 @@ void SimpleTissue<DIM>::ReMesh()
             new_node_index++;
         }
     }
-    
+
     Validate();
 }
 
@@ -280,13 +280,13 @@ template<unsigned DIM>
 unsigned SimpleTissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
-    
+
     for (std::list<TissueCell>::iterator cell_iter = this->mCells.begin();
          cell_iter != this->mCells.end();
          ++cell_iter)
     {
         if (cell_iter->IsDead())
-        {   
+        {
             // Remove the node from the mesh
             num_removed++;
             this->GetNodeCorrespondingToCell(*cell_iter)->MarkAsDeleted();
@@ -300,11 +300,11 @@ unsigned SimpleTissue<DIM>::RemoveDeadCells()
 template<unsigned DIM>
 unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
 {
-    /// \todo: employ a std::vector of deleted node indices to re-use indices? 
+    /// \todo: employ a std::vector of deleted node indices to re-use indices?
     pNewNode->SetIndex(mNodes.size());
-    mNodes.push_back(*pNewNode);        
+    mNodes.push_back(*pNewNode);
     return pNewNode->GetIndex();
-}    
+}
 
 template<unsigned DIM>
 unsigned SimpleTissue<DIM>::GetNumNodes()
@@ -378,11 +378,11 @@ inline void save_construct_data(
     // Save the global index of the node
     const unsigned index = t->GetIndex();
     ar << index;
-    
+
     // Save whether the node is a boundary node
     const bool is_boundary = t->IsBoundaryNode();
     ar << is_boundary;
-    
+
     // Save the location of the node
     const c_vector<double, DIM>& r_loc = t->rGetLocation();
     for (unsigned i=0; i<DIM; i++)
@@ -401,18 +401,18 @@ inline void load_construct_data(
     // Load the global index of the node
     unsigned index;
     ar >> index;
-    
+
     // Load whether the node is a boundary node
     bool is_boundary;
     ar >> is_boundary;
-    
+
     // Load the location of the node
     c_vector<double, DIM> loc;
     for (unsigned i=0; i<DIM; i++)
     {
         ar >> loc[i];
     }
-    
+
     // Invoke inplace constructor to initialize instance
     ::new(t)Node<DIM>(index, loc, is_boundary);
 }
@@ -438,7 +438,7 @@ inline void load_construct_data(
     // Load the nodes
     std::vector<Node<DIM> > nodes;
     ar >> nodes;
-    
+
     // Invoke inplace constructor to initialize instance
     ::new(t)SimpleTissue<DIM>(nodes);
 }

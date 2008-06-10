@@ -50,14 +50,14 @@ public:
     {
         double wnt_level = 0.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system(wnt_level);
-        
+
         double time = 0.0;
         std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
-        
+
         std::vector<double> derivs(initial_conditions.size());
         wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.0074,1e-4);
-        
+
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
@@ -69,7 +69,7 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        
+
         /**
          * And the same for a high Wnt level
          */
@@ -77,11 +77,11 @@ public:
         WntCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level,LABELLED);
         initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         //std::cout << "mutation 0 beta-cat = " << initial_conditions[6] << "\n";
-        
+
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.6002,1e-4);
-        
+
         wnt_cell_cycle_system2.EvaluateYDerivatives(time, initial_conditions, derivs);
-        
+
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
@@ -93,7 +93,7 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        
+
         /**
          * A test for the case mutation = 1
          * (An APC +/- mutation)
@@ -104,9 +104,9 @@ public:
         initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.750207,1e-6);
-        
+
         wnt_cell_cycle_system3.EvaluateYDerivatives(time, initial_conditions, derivs);
-        
+
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
@@ -118,7 +118,7 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        
+
         /**
         * A test for the case mutation = 2
         * (A beta-cat delta45 mutation)
@@ -129,9 +129,9 @@ public:
         initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.8001,1e-4);
-        
+
         wnt_cell_cycle_system4.EvaluateYDerivatives(time, initial_conditions, derivs);
-        
+
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
@@ -143,7 +143,7 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        
+
         /**
         * A test for the case mutation = 3
         * (An APC -/- mutation)
@@ -153,11 +153,11 @@ public:
         WntCellCycleOdeSystem wnt_cell_cycle_system5(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
-        
+
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],1.0,1e-6);
-        
+
         wnt_cell_cycle_system5.EvaluateYDerivatives(time, initial_conditions, derivs);
-        
+
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
@@ -170,41 +170,41 @@ public:
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
     }
-    
+
     void TestWntCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_system(wnt_level,LABELLED);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
-        
+
         double h_value_rk4=1e-4;
-        
+
         RungeKutta4IvpOdeSolver rk4_solver;
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
-        
+
         OdeSolution solutions_rk4;
         OdeSolution solutions_rkf;
-        
+
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
-                
+
         double start_time, end_time, elapsed_time = 0.0;
         start_time = std::clock();
         solutions_rk4 = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value_rk4, h_value_rk4);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
-        
+
         double h_value_rkf = 0.1;
-        
+
         initial_conditions = wnt_system.GetInitialConditions();
         start_time = std::clock();
         solutions_rkf = rkf_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value_rkf, 1e-4);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
-        
+
 //        WntCellCycleOdeSystem wnt_system_2(wnt_level);
 //        initial_conditions = wnt_system.GetInitialConditions();
 //
@@ -218,7 +218,7 @@ public:
 
 
 
-        
+
         // Testing RK4 solution
         // Test solutions are OK for a small time increase...
         int end = solutions_rk4.rGetSolutions().size() - 1;
@@ -233,8 +233,8 @@ public:
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][6]+solutions_rk4.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][8],1.00, 1e-3);
-        
-        
+
+
         // Testing RKF solution
         // Test solutions are OK for a small time increase...
         end = solutions_rkf.rGetSolutions().size() - 1;
@@ -248,28 +248,28 @@ public:
         TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);
         TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
         TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][6]+solutions_rkf.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][8],1.00, 1e-3);               
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][8],1.00, 1e-3);
     }
-    
+
     void TestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
     {
         double wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_system(wnt_level,APC_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
-        
+
         double h_value=0.0001;
-        
+
         RungeKutta4IvpOdeSolver rk4_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
-        
+
         OdeSolution solutions;
         //OdeSolution solutions2;
-        
+
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
-                
+
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
-        
+
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
@@ -285,31 +285,31 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.375, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
     }
-    
+
     void TestWntCellCycleSolverWithBetaCateninHit() throw(Exception)
     {
         double wnt_level = 0.0;
         WntCellCycleOdeSystem wnt_system(wnt_level,BETA_CATENIN_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
-        
+
         double h_value=0.001;
-        
+
         RungeKutta4IvpOdeSolver rk4_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
-        
+
         OdeSolution solutions;
         //OdeSolution solutions2;
-        
+
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
-        
+
         //double start_time, end_time, elapsed_time = 0.0;
         //start_time = std::clock();
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         //end_time = std::clock();
         //elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         //std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
-        
+
 //
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
@@ -326,26 +326,26 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.5, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
     }
-    
+
     void TestWntCellCycleSolverWithAPCDoubleHit() throw(Exception)
     {
         double wnt_level = 0.0;
         WntCellCycleOdeSystem wnt_system(wnt_level,APC_TWO_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
-        
+
         double h_value=0.001;
-        
+
         RungeKutta4IvpOdeSolver rk4_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
-        
+
         OdeSolution solutions;
         //OdeSolution solutions2;
-        
+
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
-        
+
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
-        
+
 
 
         // Test solutions are OK for a small time increase...
@@ -363,7 +363,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.5, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
     }
-    
+
 };
 
 #endif /*TESTWNTCELLCYCLEODESYSTEM_HPP_*/

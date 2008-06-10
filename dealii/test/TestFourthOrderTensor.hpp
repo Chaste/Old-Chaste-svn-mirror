@@ -39,7 +39,7 @@ public :
     void testFourthOrderTensor() throw(Exception)
     {
         FourthOrderTensor<2> x;
-        
+
         for(unsigned M=0; M<2; M++)
         {
             for(unsigned N=0; N<2; N++)
@@ -71,7 +71,7 @@ public :
 
 
         FourthOrderTensor<3> xx;
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -100,7 +100,7 @@ public :
                 }
             }
         }
-        
+
         xx.Zero();
 
         for(unsigned M=0; M<3; M++)
@@ -118,18 +118,18 @@ public :
         }
     }
 
-    
+
     // Test the first of the four possibilities for SetAsProduct
     void TestSetAsProduct0() throw(Exception)
     {
         FourthOrderTensor<3> X;
         Tensor<2,3> A;
-        
+
         // check throws if bad component passed in..
         FourthOrderTensor<3> Z;
         TS_ASSERT_THROWS_ANYTHING(Z.SetAsProduct(X,A,5));
-        
-        
+
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -144,10 +144,10 @@ public :
                 }
             }
         }
-        
+
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,0);
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -162,14 +162,14 @@ public :
             }
         }
     }
-    
+
 
     // Test the second of the four possibilities for SetAsProduct
     void TestSetAsProduct1() throw(Exception)
     {
         FourthOrderTensor<3> X;
         Tensor<2,3> A;
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -184,10 +184,10 @@ public :
                 }
             }
         }
-        
+
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,1);
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -208,7 +208,7 @@ public :
     {
         FourthOrderTensor<3> X;
         Tensor<2,3> A;
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -223,10 +223,10 @@ public :
                 }
             }
         }
-        
+
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,2);
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -241,13 +241,13 @@ public :
             }
         }
     }
-    
+
     // Test the last of the four possibilities for SetAsProduct
     void TestSetAsProduct3() throw(Exception)
     {
         FourthOrderTensor<3> X;
         Tensor<2,3> A;
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -262,10 +262,10 @@ public :
                 }
             }
         }
-        
+
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,3);
-        
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)

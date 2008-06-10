@@ -45,7 +45,7 @@ public:
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec initialGuess,
                       void *pContext)=0;
-                      
+
     virtual ~AbstractNonlinearSolver()
     {}
 };

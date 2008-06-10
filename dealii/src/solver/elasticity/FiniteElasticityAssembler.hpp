@@ -108,7 +108,7 @@ const double NEWTON_REL_TOL = 1e-6;
  *  The Newton method is used to solve the nonlinear set of finite element equations.
  *  The default degree of the basis functions is quadratic for displacement and linear
  *  for pressure.
- * 
+ *
  *  Note: Calling Solve() repeatedly will use the previous solution as the starting guess.
  */
 template<unsigned DIM>
@@ -119,50 +119,50 @@ protected:
     // matter now that the dof handler is in the abstract class
     /*< The dealii finite element object */
     FESystem<DIM>        mFeSystem;
-    
+
     /** The derivative of stress (ie second derivative of the strain energy).
      *  dTdE[M][N][P][Q] = d(T^{MN})/d(E_{PQ}) */
     FourthOrderTensor<DIM> dTdE;
-    
+
     /*< Whether the material is heterogeneous or not */
     bool                 mHeterogeneous;
     /*< The material laws at each region of the mesh */
     std::vector<AbstractIncompressibleMaterialLaw<DIM>*>  mMaterialLaws;
     /*< Map from region number of material law (needed for heterogeneous simulations */
     std::vector<int>     mMaterialIdToMaterialLawIndexMap;
-    /*< Helper function for getting material law given element */ 
+    /*< Helper function for getting material law given element */
     AbstractIncompressibleMaterialLaw<DIM>* GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter);
 
     /*< Body force per unit volume */
     Vector<double>       mBodyForce;
     /*< Mass density of the material (currently as if homogeneous material) */
     double               mDensity;
-    
+
     /*< just set to be DIM, ie if DIM==2 the spatial indices are 0 and 1, the pressure index is 2 */
     const unsigned       PRESSURE_COMPONENT_INDEX;
-    
+
     /*< Map from degree of freedom index to boundary value on that degree of freedom */
     std::map<unsigned,double> mBoundaryValues;
     /*< Storage for a numerical approximation of the Jacobian (mainly used in testing) */
     SparseMatrix<double> mNumericalJacobianMatrix;
-    
-    
+
+
     /**
-     *  Since this assembler will be used repeatedly in quasi-static simulations (eg cardiac, 
+     *  Since this assembler will be used repeatedly in quasi-static simulations (eg cardiac,
      *  growth), we want to only call FormInitialGuess() (which guess the zero deformation
      *  solution) the first time, and use the current solution as the guess the rest of the time.
      *  This bool is used for this.
-     */ 
+     */
     bool mADeformedHasBeenSolved;
-    
+
     virtual void WriteStresses(unsigned counter);
-    
+
     /**
      *  AssembleOnElement
-     *  
+     *
      *  Assemble of the element matrix and/or element vector for the given element. Called
      *  by AssembleSystem in the base class
-     * 
+     *
      *  @elementIter Iterator pointing at current element
      *  @elementRhs Small vector to be filled in. Should be of size AbstractDealiiAssembler::mDofsPerElement
      *  @elementMatrix Small matrix to be filled in. Should be of square, of size AbstractDealiiAssembler::mDofsPerElement
@@ -174,54 +174,54 @@ protected:
                                    FullMatrix<double>&                             elementMatrix,
                                    bool                                            assembleResidual,
                                    bool                                            assembleJacobian);
-                                   
+
     /**
      *  Apply boundary using the mBoundaryValues map to the system matrix and system
-     *  vector. Takes into account the fact that this is a nonlinear problem, not a 
+     *  vector. Takes into account the fact that this is a nonlinear problem, not a
      *  linear problem, so calculates the appropriate boundary conditions on the linear
      *  sub-problem for the update vector.
      */
     void ApplyDirichletBoundaryConditions();
-    
-    
+
+
     /**
-     *  Gets the material law corresponding to the required region of the mesh. 
+     *  Gets the material law corresponding to the required region of the mesh.
      *  Reads mMaterialIdToMaterialLawIndexMap but with error checking
      */
     unsigned GetMaterialLawIndexFromMaterialId(unsigned materialId);
-    
+
     /**
      *  Set up mCurrentSolution as the solution of zero body force problem. This
      *  is obviously zero displacement, but has non-zero pressure.
      */
     void FormInitialGuess();
-    
+
     /**
      *  Set up a numerical approximation to the jacobian. Won't generally be needed.
      */
     void ComputeNumericalJacobian();
-    
-    /** 
-     *  Simple method called by the base class which needs to be implemented in 
+
+    /**
+     *  Simple method called by the base class which needs to be implemented in
      *  this concrete class
-     */ 
+     */
     void DistributeDofs();
-    
-    
+
+
 public:
     /**
      *  Constructor
-     *  
+     *
      *  @param pMesh A pointer to a dealii mesh. Note, the mesh must have some surface
      *   elements which have had their boundary indicator set to FIXED_BOUNDARY
      *  @param pMaterialLaw A pointer to an incompressible material law. If this is null
      *   SetMaterialLawsForHeterogeneousProblem() must be called before Solve()
      *  @bodyForce A vector of size DIM represents the body force (force per unit volume)
      *  @density The mass density. Must be strictly positive
-     *  @outputDirectory The output directory, relative the the testoutput directory. If 
+     *  @outputDirectory The output directory, relative the the testoutput directory. If
      *   empty no output is written
      *  @degreeOfBasesForPosition Degree of the polynomials used for interpolating positions.
-     *   Defaults to 2, ie quadratic interpolation 
+     *   Defaults to 2, ie quadratic interpolation
      *  @degreeOfBasesForPressure Degree of the polynomials used for interpolating pressue.
      *   Defaults to 2, ie linear interpolation
      */
@@ -232,48 +232,48 @@ public:
                               std::string outputDirectory,
                               unsigned degreeOfBasesForPosition=2,
                               unsigned degreeOfBasesForPressure=1);
-                              
+
     virtual ~FiniteElasticityAssembler();
-    
-    
-    
+
+
+
     // Note: this type of function doesn't really work
     // void SetDisplacementBoundaryConditions(std::vector<unsigned> nodes,
     //                                        std::vector<unsigned> coordinates,
     //                                        std::vector<double>   values);
-    
+
     /**
-     *  Setting boundary conditions is a hassle. Currently, assuming the 
-     *  default boundary conditions are not required, the user has to set 
-     *  up the dof->value map themselves and pass it in using this method. 
+     *  Setting boundary conditions is a hassle. Currently, assuming the
+     *  default boundary conditions are not required, the user has to set
+     *  up the dof->value map themselves and pass it in using this method.
      *  Note: call rGetDofHandler() to get the dof handler first.
      */
     void SetBoundaryValues(std::map<unsigned, double> boundary_values);
-    
-    
+
+
     /** Set the material laws
-     * 
+     *
      *  @materialLaws The material laws of the different regions of the mesh
-     *  @materialIds The values of the labels of the different region. Each element in 
+     *  @materialIds The values of the labels of the different region. Each element in
      *   the mesh should have it's material id set to a value in this vector
      */
     void SetMaterialLawsForHeterogeneousProblem(std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
                                                 std::vector<unsigned> materialIds);
-                                                
+
     /**
      *  Solve the static finite elasticity problem
-     *  
+     *
      *  @param whether to write output (which will be the solution at the end of every
      *  Newton iteration) to the output directory (if one exists). Defaults to true.
      */
     virtual void StaticSolve(bool writeOutput=true);
 
-    
+
     /**
      *  Verify that the analytic jacobian is the same as the numerical jacobian
-     *  
+     *
      *  @param tol. The tolerance with which to compare the absolute component-wise
-     *  difference between the two jacobians. 
+     *  difference between the two jacobians.
      */
     void CompareJacobians(double tol=1e-8);
 };

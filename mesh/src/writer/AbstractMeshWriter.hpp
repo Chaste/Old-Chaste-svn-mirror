@@ -49,15 +49,15 @@ class AbstractMeshWriter
 protected:
     OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
-    
+
     std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
     std::vector< std::vector<unsigned> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
     std::vector< std::vector<unsigned> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */
-    
+
     std::vector< std::vector<double> >::iterator mpNodeIterator; /**< Is an iterator for the node data */
     std::vector< std::vector<unsigned> >::iterator mpElementIterator; /**< Is an iterator for the element data */
     std::vector< std::vector<unsigned> >::iterator mpBoundaryFaceIterator; /**< Is an iterator for the boundary face data */
-    
+
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
     bool mWriteMetaFile;
 public:
@@ -75,7 +75,7 @@ public:
         delete mpOutputFileHandler;
     }
     std::string GetOutputDirectory(void);
-    
+
     void SetNextNode(std::vector<double> nextNode);
     void SetNextElement(std::vector<unsigned> nextElement);
     void SetNextBoundaryFace(std::vector<unsigned> nextFace);
@@ -149,7 +149,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes();i++)
     {
         Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
-        
+
         if (p_node->IsDeleted() == false)
         {
             std::vector<double> coords(SPACE_DIM);
@@ -166,11 +166,11 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
     }
     assert(new_index==(unsigned)rMesh.GetNumNodes());
-    
+
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
         rMesh.GetElementIteratorBegin();
-        
+
     while (iter != rMesh.GetElementIteratorEnd())
     {
         if ((*iter)->IsDeleted() == false)
@@ -183,10 +183,10 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             }
             SetNextElement(indices);
         }
-        
+
         iter++;
     }
-    
+
     // Get a iterator over the boundary elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator boundary_iter =
         rMesh.GetBoundaryElementIteratorBegin();

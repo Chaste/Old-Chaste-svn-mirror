@@ -75,40 +75,40 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
                                       void *pContext)
 {
     SNES snes;
-    
+
     // create the residual vector by copying the structure of the initial guess
     Vec residual;
     VecDuplicate(initialGuess, &residual);
-    
+
     Mat jacobian; //Jacobian Matrix
-    
+
     PetscInt N; //number of elements
     //get the size of the jacobian from the residual
     VecGetSize(initialGuess,&N);
-    
+
     PetscTools::SetupMat(jacobian, N, N);
-    
+
     SNESCreate(PETSC_COMM_WORLD, &snes);
     SNESSetFunction(snes, residual, pComputeResidual, pContext);
     SNESSetJacobian(snes, jacobian, jacobian, pComputeJacobian, pContext);
     SNESSetType(snes,SNESLS);
     SNESSetTolerances(snes,1.0e-5,1.0e-5,1.0e-5,PETSC_DEFAULT,PETSC_DEFAULT);
-    
+
     // x is the iteration vector SNES uses when solving, set equal to initialGuess to start with
     Vec x;
     VecDuplicate(initialGuess, &x);
     VecCopy(initialGuess, x);
-    
-    
+
+
 #if (PETSC_VERSION_MINOR == 2) //Old API
     SNESSolve(snes, x);
 #else
     SNESSolve(snes, PETSC_NULL, x);
 #endif
-    
+
     VecDestroy(residual);
     MatDestroy(jacobian); // Free Jacobian
-    
+
     SNESConvergedReason reason;
     SNESGetConvergedReason(snes,&reason);
 #define COVERAGE_IGNORE
@@ -123,6 +123,6 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     }
 #undef COVERAGE_IGNORE
     SNESDestroy(snes);
-    
+
     return x;
 }

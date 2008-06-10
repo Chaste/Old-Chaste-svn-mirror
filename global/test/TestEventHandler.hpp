@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestEventHandler : public CxxTest::TestSuite
 {
 public:
-    
+
     void TestEvents() throw(Exception)
     {
         EventHandler::BeginEvent(EVERYTHING);
@@ -56,25 +56,25 @@ public:
 
         EventHandler::EndEvent(COMMUNICATION);
         EventHandler::EndEvent(EVERYTHING);
-        
+
         EventHandler::Headings();
-        
+
         EventHandler::Report();
-        
+
         EventHandler::Report();
 
     }
-    
+
     void TestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
         TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EVERYTHING));
-        
+
         EventHandler::BeginEvent(EVERYTHING);
-        
+
         // should not be able to begin that has already begun
         TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EVERYTHING));
-        
+
     }
 };
 

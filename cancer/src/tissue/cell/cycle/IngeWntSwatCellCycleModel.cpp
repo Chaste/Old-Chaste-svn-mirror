@@ -37,15 +37,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  * @param lastTime last time the cell cycle model was evaluated
  * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
- * @param readyToDivide 
+ * @param readyToDivide
  * @param divideTime If in the future this is the time at which the cell is going to divide
  */
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                      AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
-                                     const CellMutationState& rMutationState, 
+                                     const CellMutationState& rMutationState,
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
-   : AbstractWntOdeBasedCellCycleModel(lastTime) 
+   : AbstractWntOdeBasedCellCycleModel(lastTime)
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -58,7 +58,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     {
         mpOdeSystem = NULL;
     }
-    
+
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
         #define COVERAGE_IGNORE
@@ -97,12 +97,12 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
 AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    // calls a cheeky version of the constructor which makes the new cell 
+    // calls a cheeky version of the constructor which makes the new cell
     // cycle model the same as the old one - not a dividing copy at this time.
     // unless the parent cell has just divided.
     return new IngeWntSwatCellCycleModel(mHypothesis,
-                                 mpOdeSystem, 
-                                 mpCell->GetMutationState(), mBirthTime, mLastTime, 
+                                 mpOdeSystem,
+                                 mpCell->GetMutationState(), mBirthTime, mLastTime,
                                  mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
 }
 
@@ -114,19 +114,19 @@ void IngeWntSwatCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
-    double beta_catenin_level = mpOdeSystem->rGetStateVariables()[16] 
-                                + mpOdeSystem->rGetStateVariables()[17] 
-                                + mpOdeSystem->rGetStateVariables()[18] 
+    double beta_catenin_level = mpOdeSystem->rGetStateVariables()[16]
+                                + mpOdeSystem->rGetStateVariables()[17]
+                                + mpOdeSystem->rGetStateVariables()[18]
                                 + mpOdeSystem->rGetStateVariables()[19];
 
     CellType cell_type = TRANSIT;
-                
+
     // For mitogenic stimulus of 1/25.0 in Wnt equations
     if (beta_catenin_level < 10.188)
     {
         cell_type = DIFFERENTIATED;
     }
-    
+
     mpCell->SetCellType(cell_type);
 }
 
@@ -136,8 +136,8 @@ void IngeWntSwatCellCycleModel::Initialise()
     assert(mpCell!=NULL);
     mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, WntConcentration::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-    ChangeCellTypeDueToCurrentBetaCateninLevel();   
-}    
+    ChangeCellTypeDueToCurrentBetaCateninLevel();
+}
 
 bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 {
@@ -146,7 +146,7 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 
     // Feed this time step's Wnt stimulus into the solver as a constant over this timestep.
     mpOdeSystem->rGetStateVariables()[21] = WntConcentration::Instance()->GetWntLevel(mpCell);
-    
+
     // Use the cell's current mutation status as another input
     static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 
@@ -156,11 +156,11 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
     UpdateCellType();
     return msSolver.StoppingEventOccured();
 }
-    
-    
+
+
 double IngeWntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
 {
-    return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];   
+    return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];
 }
 
 double IngeWntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
@@ -173,12 +173,12 @@ double IngeWntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
 double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
 {
     return mpOdeSystem->rGetStateVariables()[16] + mpOdeSystem->rGetStateVariables()[17]
-        +  mpOdeSystem->rGetStateVariables()[18] + mpOdeSystem->rGetStateVariables()[19];   
+        +  mpOdeSystem->rGetStateVariables()[18] + mpOdeSystem->rGetStateVariables()[19];
 }
 
 unsigned IngeWntSwatCellCycleModel::GetHypothesis() const
 {
-    return mHypothesis;   
+    return mHypothesis;
 }
 
 bool IngeWntSwatCellCycleModel::UsesBetaCat()

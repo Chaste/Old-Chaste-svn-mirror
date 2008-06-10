@@ -40,7 +40,7 @@ class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 private:
     SimpleStimulus *mpStimulus;
     RegularStimulus *mpRegStimulus;
-    
+
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.001 (10:1)
@@ -48,7 +48,7 @@ public:
     {
         mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
@@ -60,7 +60,7 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
-    
+
     ~BidomainFaceStimulusCellFactory(void)
     {
         delete mpRegStimulus;

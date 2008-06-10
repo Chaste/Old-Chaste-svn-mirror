@@ -35,14 +35,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  Stochastic oxygen-based cell cycle model
  *
- *  A simple oxygen-dependent cell cycle model that inherits from 
- *  AbstractSimpleCellCycleModel. The duration of G1 phase depends 
+ *  A simple oxygen-dependent cell cycle model that inherits from
+ *  AbstractSimpleCellCycleModel. The duration of G1 phase depends
  *  on the local oxygen concentration. A prolonged period of acute
  *  hypoxia leads to the cell being labelled as necrotic. This model
- *  allows for quiescence imposed by transient periods of hypoxia, 
+ *  allows for quiescence imposed by transient periods of hypoxia,
  *  followed by reoxygenation.
- *  
- */ 
+ *
+ */
 class StochasticOxygenBasedCellCycleModel : public AbstractSimpleCellCycleModel
 {
 private:
@@ -52,46 +52,46 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
-                
+
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
-        
+
         archive & mG2Duration;
         archive & mTimeSpentInG1Phase;
         archive & mCurrentHypoxicDuration;
         archive & mCurrentHypoxiaOnsetTime;
     }
-    
+
     /**
      * The duration of the G2 phase, set stochastically
      */
     double mG2Duration;
-    
+
     /**
      * The time spent in G1 phase so far
-     */ 
+     */
     double mTimeSpentInG1Phase;
-    
+
     /**
      * How long the current period of hypoxia has lasted
-     */    
+     */
     double mCurrentHypoxicDuration;
-    
+
     /*
      * The time when the current period of hypoxia began
-     */ 
+     */
     double mCurrentHypoxiaOnsetTime;
-    
-    
+
+
     /**
-     * Stochastically set the G2 duration.  Called on cell creation at 
-     * the start of a simulation, and for both parent and daughter 
-     * cells at cell division. 
+     * Stochastically set the G2 duration.  Called on cell creation at
+     * the start of a simulation, and for both parent and daughter
+     * cells at cell division.
      */
     void SetG2Duration();
-    
-    /** 
+
+    /**
      * Private constructor for creating an identical daughter cell
      */
     StochasticOxygenBasedCellCycleModel(double g1Duration,
@@ -104,39 +104,39 @@ private:
           mTimeSpentInG1Phase(0.0),
           mCurrentHypoxicDuration(currentHypoxicDuration),
           mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime) {};
-                
+
 public:
 
     /**
      * Constructor
-     */ 
+     */
     StochasticOxygenBasedCellCycleModel();
-    
+
     void InitialiseDaughterCell();
 
     void Initialise();
-    
+
     void ResetForDivision();
-    
+
     double GetG2Duration();
-    
-    /** 
-     * Overridden UpdateCellCyclePhase() method
-     */ 
-    void UpdateCellCyclePhase();
-    
+
     /**
-     * Method for updating mCurrentHypoxicDuration, 
+     * Overridden UpdateCellCyclePhase() method
+     */
+    void UpdateCellCyclePhase();
+
+    /**
+     * Method for updating mCurrentHypoxicDuration,
      * called at the start of ReadyToDivide()
-     */ 
+     */
     void UpdateHypoxicDuration();
-     
-    double GetCurrentHypoxicDuration();  
-    
-    double GetCurrentHypoxiaOnsetTime();  
-    
+
+    double GetCurrentHypoxicDuration();
+
+    double GetCurrentHypoxiaOnsetTime();
+
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
-    
+
 };
 
 // declare identifier for the serializer

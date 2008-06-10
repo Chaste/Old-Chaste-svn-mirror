@@ -44,7 +44,7 @@ public:
     void UpdateConvergenceParameters()
     {
         this->MeshNum++;
-    
+
     }
     bool GiveUpConvergence()
     {
@@ -76,7 +76,7 @@ public:
         unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
         return this->mMeshWidth/(double) mesh_size;
     }
-    
+
     int GetMeshNum()
     {
         return (int) this->MeshNum; //unsigned -> int is just cosmetic here.  (The test looks prettier).
@@ -87,7 +87,7 @@ public:
         double scaling = this->mMeshWidth/(double) mesh_size;
         return scaling;
     }
-    
+
 };
 
 #endif /*SPACECONVERGENCETESTER_HPP_*/

@@ -56,14 +56,14 @@ private:
      */
     std::vector<double>& mrVoltage;
     std::vector<double>& mrTime;
-    
+
     /**
      * Threshold for determining what counts as an action potential.
      * This is a value part way between the min & max potential, to avoid
      * problems due to 'notches' in an action potential.
      */
     double mThreshold;
-    
+
     /**
      * Cached values of the properties
      */
@@ -72,20 +72,20 @@ private:
     double mCycleLength;
     double mMaxPotential, mMinPotential;
     double mUpstrokeStartTime;
-    
+
     /**
      * Values needed for calculating APD.
      */
     double mOnset, mPrevOnset, mPrevMinPotential, mPrevMaxPotential;
-    
+
     /**
      * Calculate all the cacheable values.
      */
     void CalculateProperties();
-    
+
     /**
      * Actually calculate APD.
-     * 
+     *
      * @param percentage  The percentage of the amplitude to calculate for.
      * @param onset  The time at which the upstroke reaches the threshold.
      * @param minPotential  The minimum potential of this AP.
@@ -95,7 +95,7 @@ private:
                                             const double onset,
                                             const double minPotential,
                                             const double maxPotential);
-                                            
+
 public:
     /**
      * Constructor sets the data and calls CalculateProperties
@@ -105,10 +105,10 @@ public:
           mrTime(rTime),
           mThreshold(threshold)
     {
-        CalculateProperties();        
+        CalculateProperties();
     }
-    
-    
+
+
     /**
      * Return the maximum upstroke velocity.
      */
@@ -153,7 +153,7 @@ public:
     }
     /**
      * Return the duration of the action potential at a given percentage.
-     * 
+     *
      * @param percentage  The percentage of the amplitude to calculate for.
      */
     double GetActionPotentialDuration(const double percentage);

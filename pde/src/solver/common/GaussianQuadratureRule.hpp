@@ -47,22 +47,22 @@ class GaussianQuadratureRule
     unsigned mNumQuadPoints;
     std::vector<double>            mWeights;
     std::vector<ChastePoint<ELEM_DIM> >  mPoints;
-    
+
 public:
 
     /**
      * The constructor builds the appropriate table for the dimension (given
      * by the template argument) and number of points in each dimension (given
      * as a constructor argument).
-     * 
+     *
      * An exception is thrown if data is not available for the requested
      * parameters.
      */
     GaussianQuadratureRule(unsigned numPointsInEachDimension);
-    
+
     /**
      * Get a quadrature point.
-     * 
+     *
      * @param index The index of the point to return.
      * @return A gaussian quadrature point.
      */
@@ -71,7 +71,7 @@ public:
         assert(index < mNumQuadPoints);
         return mPoints[index];
     }
-    
+
     /**
      * Get the weight associated with a quadrature point.
      */
@@ -80,16 +80,16 @@ public:
         assert(index < mNumQuadPoints);
         return mWeights[index];
     }
-    
+
     /**
-     * Get the number of quadrature points. This is the number of points in 
+     * Get the number of quadrature points. This is the number of points in
      * each dimension, raised to the power of the number of dimensions.
      */
     unsigned GetNumQuadPoints() const
     {
         return mNumQuadPoints;
     }
-    
+
 };
 
 
@@ -97,10 +97,10 @@ template<unsigned ELEM_DIM>
 GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEachDimension)
     {
         mNumQuadPoints = (unsigned) pow((double) numPointsInEachDimension,(ELEM_DIM));
-        
+
         mWeights.reserve(mNumQuadPoints);
         mPoints.reserve(mNumQuadPoints);
-        
+
         switch (ELEM_DIM)
         {
             case 0 :
@@ -119,25 +119,25 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mWeights.push_back(1);
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.5)); //check
                         break;
-                        
+
                     case 2: // 1d, 2 points
                         mWeights.push_back(0.5);
                         mWeights.push_back(0.5);
-                        
+
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.21132486540519));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.78867513459481));
                         break;
-                        
+
                     case 3: // 1d, 3 points
                         mWeights.push_back(5.0/18.0);
                         mWeights.push_back(4.0/9.0);
                         mWeights.push_back(5.0/18.0);
-                        
+
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.1127016654));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.5));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.8872983346));
                         break;
-                        
+
                     default:
                         EXCEPTION("Number of gauss points per dimension not supported.");
                 }
@@ -151,19 +151,19 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mWeights.push_back(0.5);
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.25,0.5));
                         break;
-                        
+
                     case 2: // 2d, 2 points per dimension
                         mWeights.push_back(0.19716878364870);
                         mWeights.push_back(0.19716878364870);
                         mWeights.push_back(0.05283121635130);
                         mWeights.push_back(0.05283121635130);
-                        
+
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.16666666666667,0.21132486540519));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.62200846792815,0.21132486540519));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.04465819873852,0.78867513459481));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.16666666666667,0.78867513459481));
                         break;
-                        
+
                     case 3: // 2d, 3 points per dimension
                         mWeights.push_back(0.06846437766975);
                         mWeights.push_back(0.10954300427160);
@@ -174,7 +174,7 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mWeights.push_back(0.00869611615741);
                         mWeights.push_back(0.01391378585185);
                         mWeights.push_back(0.00869611615741);
-                        
+
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.10000000001607,0.11270166540000));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.44364916730000,0.11270166540000));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.78729833458393,0.11270166540000));
@@ -185,11 +185,11 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.05635083270000,0.88729833460000));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.10000000001607,0.88729833460000));
                         break;
-                        
+
                     default:
                         EXCEPTION("Number of gauss points per dimension not supported.");
                 }
-                
+
             }
             break;
             case 3 :
@@ -200,7 +200,7 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mWeights.push_back(0.12500000000000);
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.25000000000000,0.50000000000000,0.12500000000000));
                         break;
-                        
+
                     case 2: //3d, 2 points per dimension
                         mWeights.push_back(0.06132032652029);
                         mWeights.push_back(0.01643073197073);
@@ -210,7 +210,7 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mWeights.push_back(0.01643073197073);
                         mWeights.push_back(0.00440260136261);
                         mWeights.push_back(0.00117967347971);
-                        
+
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.16666666666667,   0.21132486540519,   0.13144585576580));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.62200846792815,   0.21132486540519,   0.03522081090086));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.04465819873852,   0.78867513459481,   0.03522081090086));
@@ -220,7 +220,7 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.04465819873852,   0.78867513459481,   0.13144585576580));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.16666666666667,   0.78867513459481,   0.03522081090086));
                         break;
-                        
+
                     case 3: //3d, 3 points per dimension
                         mWeights.push_back(0.01497274736603);
                         mWeights.push_back(0.01349962850795);
@@ -249,7 +249,7 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mWeights.push_back(0.00024155878219);
                         mWeights.push_back(0.00021779261632);
                         mWeights.push_back(0.00003068198821);
-                        
+
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.10000000001607,   0.11270166540000,   0.08872983347426));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.44364916730000,   0.11270166540000,   0.05000000000803));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.78729833458393,   0.11270166540000,   0.01127016654181));
@@ -278,7 +278,7 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.05635083270000,   0.88729833460000,   0.05000000000803));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.10000000001607,   0.88729833460000,   0.01127016654181));
                         break;
-                        
+
                     case 4: //3d, 4 points per dimension
                         mWeights.push_back(0.00423982561968);
                         mWeights.push_back(0.00572288385156);
@@ -344,7 +344,7 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mWeights.push_back(0.00003185928022);
                         mWeights.push_back(0.00001569255698);
                         mWeights.push_back(0.00000176108183);
-                        
+
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.06461106321099,   0.06943184420000,   0.06012499793653));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.30709631152509,   0.06943184420000,   0.04328879995478));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.62347184427491,   0.06943184420000,   0.02132226325621));
@@ -410,17 +410,17 @@ GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEac
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.04651867752509,   0.93056815580000,   0.02132226325621));
                         mPoints.push_back(ChastePoint<ELEM_DIM>(0.06461106321099,   0.93056815580000,   0.00448606527446));
                         break;
-                        
+
                     default:
                         EXCEPTION("Number of gauss points per dimension not supported.");
                 }
             }
             break;
-            
+
             default:
                 EXCEPTION("Gauss points not available for this dimension.");
         }
-        
+
     }
 
 

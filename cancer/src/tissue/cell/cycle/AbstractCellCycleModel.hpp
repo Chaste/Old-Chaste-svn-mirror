@@ -65,7 +65,7 @@ private:
         archive & *p_params;
         archive & p_params;
 
-        // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell 
+        // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell
         // which knows this and it is handled in the load_construct of TissueCell.
         archive & mBirthTime;
         archive & mCurrentCellCyclePhase;
@@ -74,39 +74,39 @@ private:
         archive & mReadyToDivide;
     }
 
-        
+
 protected:
     /** The cell that this model is associated with */
     TissueCell* mpCell;
-    
-    /** 
+
+    /**
      * The time that the cell began to split from its parent
-     * (i.e. beginning of M phase NOT the end) 
+     * (i.e. beginning of M phase NOT the end)
      */
     double mBirthTime;
-    
+
     /** The phase of the cell cycle that this model is in (specified in CellCyclePhases.hpp) */
     CellCyclePhase mCurrentCellCyclePhase;
-    
+
     /** The generation of this cell (STEM cells have a generation of 0) */
-    unsigned mGeneration;    
-    
+    unsigned mGeneration;
+
     /**
      * How long the G1 phase lasts for.
      * Not necessarily a fixed value...
      */
     double mG1Duration;
-    
+
     /**
      * Whether the cell is currently ready to undergo division.
      */
     bool mReadyToDivide;
-    
+
 public:
 
     /**
-     * Sets up a new AbstractCellCycleModel, gives it a birth time of the 
-     * current simulation time (which is overwritten by some subclasses) 
+     * Sets up a new AbstractCellCycleModel, gives it a birth time of the
+     * current simulation time (which is overwritten by some subclasses)
      */
     AbstractCellCycleModel()
         : mpCell(NULL),
@@ -121,70 +121,70 @@ public:
      * Base class with virtual methods needs a virtual destructor.
      */
     virtual ~AbstractCellCycleModel();
-    
+
     void SetCell(TissueCell* pCell);
-    
-    /** 
-     * Initialise the cell cycle model at the start of a simulation. 
-     * 
-     * This method will be called precisely once per cell set up in the initial 
-     * tissue. It is not called on cell division; use ResetModel, 
-     * CreateDaughterCellCycleModel and InitialiseDaughterCell for that. 
-     * 
-     * By the time this is called, a Tissue will have been set up, so the model 
-     * can know where its cell is located in space.  If relevant to the simulation, 
-     * the CellwiseData and WntConcentration singletons will also have been initialised. 
-     */ 
-    virtual void Initialise() 
-    {} 
-    
-    /** 
-     * Initialise the new daughter cell's cycle model after a cell division. 
-     * 
-     * This is called by TissueCell::Divide once the new cell object 
-     * has been fully created, to perform any initialisation of the 
-     * cell cycle which requires access to the cell. 
-     * 
-     * Note that much initialisation can be performed using the 
-     * combination of ResetModel (called on the parent prior to 
-     * division) and CreateDaughterCellCycleModel (called on the reset 
-     * parent to create the new cell cycle model object). 
-     */  
+
+    /**
+     * Initialise the cell cycle model at the start of a simulation.
+     *
+     * This method will be called precisely once per cell set up in the initial
+     * tissue. It is not called on cell division; use ResetModel,
+     * CreateDaughterCellCycleModel and InitialiseDaughterCell for that.
+     *
+     * By the time this is called, a Tissue will have been set up, so the model
+     * can know where its cell is located in space.  If relevant to the simulation,
+     * the CellwiseData and WntConcentration singletons will also have been initialised.
+     */
+    virtual void Initialise()
+    {}
+
+    /**
+     * Initialise the new daughter cell's cycle model after a cell division.
+     *
+     * This is called by TissueCell::Divide once the new cell object
+     * has been fully created, to perform any initialisation of the
+     * cell cycle which requires access to the cell.
+     *
+     * Note that much initialisation can be performed using the
+     * combination of ResetModel (called on the parent prior to
+     * division) and CreateDaughterCellCycleModel (called on the reset
+     * parent to create the new cell cycle model object).
+     */
     virtual void InitialiseDaughterCell()
     {}
-    
+
     TissueCell* GetCell();
-    
+
     /**
      * Set the cell's time of birth (usually not required as it should be inside
      * the indivdual cell-cycle-model-constructor, but useful for tests).
-     * 
+     *
      * @param birthTime the simulation time at this cell's birth.
-     * 
+     *
      * (This function is overridden in AbstractOdeBasedCellCycleModel).
      */
     virtual void SetBirthTime(double birthTime);
-    
+
     /**
      * @return the time at which the cell was born.
      */
     double GetBirthTime() const;
-    
+
     /**
      * Returns the cell's age...
      */
     double GetAge();
-    
+
     /**
      * Sets the cell's generation...
      */
-    void SetGeneration(unsigned generation);    
-    
+    void SetGeneration(unsigned generation);
+
     /**
      * Returns the cell's generation...
      */
     unsigned GetGeneration() const;
-        
+
     /**
      * Determine whether the cell is ready to divide (enter M phase).
      *
@@ -194,98 +194,98 @@ public:
      * unusual usage patterns.
      */
     bool ReadyToDivide();
-    
+
     /**
      * This method must be implemented by subclasses in order to set the phase
      * the cell cycle model is currently in.  It is called from ReadyToDivide()
      * just prior to deciding whether to divide the cell based on how far through
-     * the cell cycle it is, i.e. whether it has completed M, G1, S and G2 phases. 
+     * the cell cycle it is, i.e. whether it has completed M, G1, S and G2 phases.
      */
     virtual void UpdateCellCyclePhase()=0;
-    
+
     /**
      * Each cell cycle model must be able to be reset 'after' a cell division.
-     * 
+     *
      * Actually, this method is called from TissueCell::Divide to
      * reset the cell cycle just before the daughter cell is created.
      * CreateDaughterCellCycleModel can then clone our state to generate a
      * cell cycle model instance for the daughter cell.
      */
     virtual void ResetForDivision();
-        
+
     /**
      * Builder method to create new instances of the cell cycle model.
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
-     * 
-     * This method is called by the copy constructor and operator= of 
-     * TissueCell to create a copy of the cell cycle model when 
-     * copying a cell.  It thus just needs to create any instance of 
-     * the right class, as operator= on the cell cycle model is then 
-     * called to ensure the model is copied properly. 
-     * 
-     * A default implementation is given here which uses 
-     * CreateDaughterCellCycleModel, in order to reduce coding effort 
-     * for the refactor. 
+     *
+     * This method is called by the copy constructor and operator= of
+     * TissueCell to create a copy of the cell cycle model when
+     * copying a cell.  It thus just needs to create any instance of
+     * the right class, as operator= on the cell cycle model is then
+     * called to ensure the model is copied properly.
+     *
+     * A default implementation is given here which uses
+     * CreateDaughterCellCycleModel, in order to reduce coding effort
+     * for the refactor.
      */
-    virtual AbstractCellCycleModel *CreateCellCycleModel() 
-    { 
-        return CreateDaughterCellCycleModel(); 
-    } 
-      
-    /** 
-     * Builder method to create new instances of the cell cycle model. 
-     * Each concrete subclass must implement this method to create an 
-     * instance of that subclass. 
-     * 
-     * This method is called by TissueCell.Divide to create a cell 
-     * cycle model for the daughter cell.  It thus must thus produce a 
-     * cell cycle model in a suitable state for a newly-born cell 
-     * spawned from the 'current' cell.  Note that the parent cell 
-     * cycle model will have had ResetModel called just before 
-     * CreateDaughterCellCycleModel is called. 
-     */ 
-    virtual AbstractCellCycleModel *CreateDaughterCellCycleModel()=0; 
-    
+    virtual AbstractCellCycleModel *CreateCellCycleModel()
+    {
+        return CreateDaughterCellCycleModel();
+    }
+
+    /**
+     * Builder method to create new instances of the cell cycle model.
+     * Each concrete subclass must implement this method to create an
+     * instance of that subclass.
+     *
+     * This method is called by TissueCell.Divide to create a cell
+     * cycle model for the daughter cell.  It thus must thus produce a
+     * cell cycle model in a suitable state for a newly-born cell
+     * spawned from the 'current' cell.  Note that the parent cell
+     * cycle model will have had ResetModel called just before
+     * CreateDaughterCellCycleModel is called.
+     */
+    virtual AbstractCellCycleModel *CreateDaughterCellCycleModel()=0;
+
     /**
      * @return whether the cell cycle model uses beta-catenin levels in cell cycle model, ie Inge models.
      */
     virtual bool UsesBetaCat();
-    
+
     /**
      * Returns the protein concentrations at the current time. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
-     * \todo may be better to use dynamic_cast and/or MI (see #697)   
-     *  
+     * We have a "work-around" such that we throw an error if we try and access it for any other cell type.
+     * \todo may be better to use dynamic_cast and/or MI (see #697)
+     *
      * NB: Will copy the vector - you can't use this to modify the concentrations.
      */
      virtual std::vector<double> GetProteinConcentrations() const;
-    
+
     /*
      * @return the current cell cycle phase
      */
     CellCyclePhase GetCurrentCellCyclePhase();
-    
+
     /**
      * @return the duration of the G1 phase of the cell cycle
      */
     virtual double GetG1Duration();
-    
+
     /**
      * @return the duration of the S phase of the cell cycle
      */
     virtual double GetSDuration();
-    
+
     /**
      * @return the duration of the G2 phase of the cell cycle
      */
     virtual double GetG2Duration();
-    
+
     /**
      * @return the duration of the M phase of the cell cycle
      */
     virtual double GetMDuration();
-    
+
 };
 
 

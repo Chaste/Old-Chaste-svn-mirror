@@ -38,12 +38,12 @@ RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  * @param lastTime last time the cell cycle model was evaluated
  * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
- * @param readyToDivide 
+ * @param readyToDivide
  * @param divideTime If in the future this is the time at which the cell is going to divide
  */
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
-                              const CellMutationState& rMutationState, double birthTime, 
-                              double lastTime, bool inSG2MPhase, 
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
+                              const CellMutationState& rMutationState, double birthTime,
+                              double lastTime, bool inSG2MPhase,
                               bool readyToDivide, double divideTime, unsigned generation)
     : AbstractOdeBasedCellCycleModel(lastTime)// these values overwritten below
 {
@@ -51,7 +51,7 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
     {
         std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
         mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(parent_protein_concs[5], rMutationState);
-        
+
         // Set the model to be the same as the parent cell.
         mpOdeSystem->rGetStateVariables() = parent_protein_concs;
     }
@@ -70,7 +70,7 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
     mFinishedRunningOdes = inSG2MPhase;
-    mGeneration = generation; 
+    mGeneration = generation;
 }
 
 /**
@@ -79,11 +79,11 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
  * @param rMutationState the mutation state of the cell (used by ODEs)
  */
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                               const CellMutationState& rMutationState)
 {
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
-    
+
     // Set the model to be the same as the parent cell.
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
@@ -97,10 +97,10 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const
  *
  */
 void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
-{    
+{
     AbstractOdeBasedCellCycleModel::ResetForDivision();
     assert(mpOdeSystem!=NULL);
-    
+
     // This model needs the protein concentrations and phase resetting to G0/G1.
     // Keep the oxygen concentration the same but reset everything else
     std::vector<double> init_conds = mpOdeSystem->GetInitialConditions();
@@ -118,10 +118,10 @@ void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    // calls a cheeky version of the constructor which makes the new cell 
+    // calls a cheeky version of the constructor which makes the new cell
     // cycle model the same as the old one - not a dividing copy at this time.
-    // unless the parent cell has just divided.        
-    return new Alarcon2004OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), 
+    // unless the parent cell has just divided.
+    return new Alarcon2004OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(),
                                          mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
 }
 
@@ -129,15 +129,15 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateDaughterCell
 void Alarcon2004OxygenBasedCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
-    assert(mpCell!=NULL);    
+    assert(mpCell!=NULL);
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<2>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
-    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());  
-}    
- 
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+}
+
 bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
 {
     double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
-    
+
     // feed this time step's oxygen concentration into the solver as a constant over this timestep.
     // Danger Will Robinson! DIM currently hard-coded to 2
     mpOdeSystem->rGetStateVariables()[5] = CellwiseData<2>::Instance()->GetValue(mpCell,0);
@@ -147,10 +147,10 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
     return msSolver.StoppingEventOccured();
 }
- 
- 
+
+
 double Alarcon2004OxygenBasedCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccured());
-    return msSolver.GetStoppingTime();    
+    return msSolver.GetStoppingTime();
 }

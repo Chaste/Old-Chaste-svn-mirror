@@ -59,7 +59,7 @@ class MooneyRivlinMaterialLaw : public AbstractIsotropicIncompressibleMaterialLa
 private :
     double mC1;
     double mC2;
-    
+
 public :
     double Get_dW_dI1(double I1, double I2)
     {
@@ -67,9 +67,9 @@ public :
     }
     double Get_dW_dI2(double I1, double I2)
     {
-        // this is covered, but gcov doesn't see this as being covered 
+        // this is covered, but gcov doesn't see this as being covered
         // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE 
+        #define COVERAGE_IGNORE
         assert(DIM==3);
         #undef COVERAGE_IGNORE
         return mC2;
@@ -80,34 +80,34 @@ public :
     }
     double Get_d2W_dI2(double I1, double I2)
     {
-        // this is covered, but gcov doesn't see this as being covered 
+        // this is covered, but gcov doesn't see this as being covered
         // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE 
+        #define COVERAGE_IGNORE
         assert(DIM==3);
         #undef COVERAGE_IGNORE
         return 0.0;
     }
     double Get_d2W_dI1I2(double I1, double I2)
     {
-        // this is covered, but gcov doesn't see this as being covered 
+        // this is covered, but gcov doesn't see this as being covered
         // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE 
+        #define COVERAGE_IGNORE
         assert(DIM==3);
         #undef COVERAGE_IGNORE
         return 0.0;
     }
-    
+
     double GetC1()
     {
         return mC1;
     }
-    
+
     double GetC2()
     {
         assert(DIM==3);
         return mC2;
     }
-    
+
 public :
     /**
      *  Constructor, Taking in mooney-rivlin parameters c1 and c2.
@@ -119,29 +119,29 @@ public :
         {
             EXCEPTION("Can only have 2 or 3d incompressible Mooney-Rivlin laws");
         }
-        
+
         // if dim==3, check that c2 was passed in, ie c2 isn't the default value
         if ((DIM==3) && (c2<MINUS_LARGE+1))
         {
             EXCEPTION("Two parameters needed for 3d Mooney-Rivlin");
         }
-        
+
         if (c1 < 0.0)
         {
             EXCEPTION("c1 must be positive in mooney-rivlin"); // is this correct?
         }
-        
+
         mC1 = c1;
         mC2 = c2;
     }
-    
+
     /** Scale the dimensional material parameters */
     void ScaleMaterialParameters(double scaleFactor)
     {
         assert(scaleFactor > 0.0);
         mC1 /= scaleFactor;
         mC2 /= scaleFactor;
-    }  
+    }
 };
 
 

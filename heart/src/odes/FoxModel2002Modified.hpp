@@ -85,7 +85,7 @@ public:
     {
     }
 
-    
+
     double GetIIonic()
     {
         std::vector<double>& rY = rGetStateVariables();
@@ -113,7 +113,7 @@ public:
         // Units: dimensionless; Initial value: 0.942
         double var_calcium_dynamics__Ca_i = rY[11];
         // Units: micromolar; Initial value: 0.0472
-       
+
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96.5;
@@ -261,7 +261,7 @@ public:
         double var_sodium_background_current__E_Na = var_fast_sodium_current__E_Na;
         double var_sodium_background_current__i_Na_b = var_sodium_background_current__g_Nab * (var_sodium_background_current__V - var_sodium_background_current__E_Na);
         double var_membrane__i_Na_b = var_sodium_background_current__i_Na_b;
-        
+
         return var_membrane__i_Na+var_membrane__i_Ca+var_membrane__i_CaK+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_to+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_NaCa+var_membrane__i_NaK+var_membrane__i_p_Ca+var_membrane__i_Ca_b+var_membrane__i_Na_b;
     }
 
@@ -306,12 +306,12 @@ public:
         {
             if (!(0.0<=rY[index] && rY[index]<=1.0))
             {
-                EXCEPTION(DumpState(mVariableNames[index] + 
+                EXCEPTION(DumpState(mVariableNames[index] +
                           " gate has gone out of range. Check model parameters, for example spatial stepsize"));
             }
         }
         #undef COVERAGE_IGNORE
-        //#endif //NDEBUG        
+        //#endif //NDEBUG
 
         // Mathematics
         const double var_membrane__R = 8.314;
@@ -524,7 +524,7 @@ public:
         const double var_calcium_dynamics__V_SR = 2e-06;
         double var_calcium_dynamics__beta_SR = 1.0 / (1.0 + ((var_calcium_dynamics__CSQN_tot * var_calcium_dynamics__K_mCSQN) / pow(var_calcium_dynamics__K_mCSQN + var_calcium_dynamics__Ca_SR, 2.0)));
         double d_dt_membrane__V = -(var_membrane__i_Na + var_membrane__i_Ca + var_membrane__i_CaK + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_to + var_membrane__i_K1 + var_membrane__i_Kp + var_membrane__i_NaCa + var_membrane__i_NaK + var_membrane__i_p_Ca + var_membrane__i_Na_b + var_membrane__i_Ca_b + var_membrane__i_Stim);
-       
+
         // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
         if (mSetVoltageDerivativeToZero)
         {

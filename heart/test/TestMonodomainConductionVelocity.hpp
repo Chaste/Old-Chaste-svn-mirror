@@ -51,43 +51,43 @@ public:
     {
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         monodomain_problem.SetEndTime(30);   // 30 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-        
+
         std::vector<unsigned> output_nodes;
         output_nodes.push_back(5);
-        output_nodes.push_back(95);        
+        output_nodes.push_back(95);
         monodomain_problem.SetOutputNodes(output_nodes);
-        
+
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-        
+
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        
+
         monodomain_problem.Solve();
-        
+
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars<1>(monodomain_problem);
-        
+
         // Calculate the conduction velocity
         Hdf5DataReader simulation_data("MonoConductionVel",
                                        "MonodomainLR91_1d");
         PropagationPropertiesCalculator ppc(&simulation_data);
         double velocity=0.0;
-        
+
         // Check action potential propagated to node 95
         TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,95,0.9));
-        
+
         // The value should be approximately 50cm/sec
         // i.e. 0.05 cm/msec (which is the units of the simulation)
         TS_ASSERT_DELTA(velocity, 0.05, 0.003);
     }
-    
+
     // Solve on a 1D string of cells, 1cm long with a space step of 0.5mm.
     //
     // Note that this space step ought to be too big!
@@ -98,23 +98,23 @@ public:
 //#else
         //Note that this test *used to* FAIL under any NDEBUG build.
         /*
-         * This is because it is testing exceptions which are tripped by gating variables going 
+         * This is because it is testing exceptions which are tripped by gating variables going
          * out of range in the Luo-Rudy cell model.  These variable ranges are not tested in
          * production builds.  They are guarded with  "#ifndef NDEBUG"
-         */ 
-        
+         */
+
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-        
+
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-        
+
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
 

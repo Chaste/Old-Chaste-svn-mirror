@@ -39,13 +39,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class contains all the things common to simple meineke cell cycle models
- * 
- * i.e. models where the length of cell cycle phases are determined when 
- * the cell cycle model is created, 
+ *
+ * i.e. models where the length of cell cycle phases are determined when
+ * the cell cycle model is created,
  * rather than evaluated 'on the fly' by ODEs and suchlike.
- * And also models which consider the generation of cells 
- * 
- * N.B. Whether or not the cell should actually divide may depend on 
+ * And also models which consider the generation of cells
+ *
+ * N.B. Whether or not the cell should actually divide may depend on
  * Wnt / Oxygen etc. in subclasses...
  */
 class AbstractSimpleMeinekeCellCycleModel : public AbstractSimpleCellCycleModel
@@ -59,8 +59,8 @@ private:
     }
 
 protected:
-    /** 
-     * Protected constructor for creating an identical daughter cell 
+    /**
+     * Protected constructor for creating an identical daughter cell
      * (with the same G_ONE duration...)
      * */
     AbstractSimpleMeinekeCellCycleModel(double g1Duration, unsigned generation)
@@ -73,17 +73,17 @@ public:
      */
     AbstractSimpleMeinekeCellCycleModel()
     {}
-        
+
     /**
      * Default destructor
      */
     virtual ~AbstractSimpleMeinekeCellCycleModel()
     {}
-        
+
     void ResetForDivision();
-    
+
     void InitialiseDaughterCell();
-    
+
 };
 
 BOOST_IS_ABSTRACT(AbstractSimpleMeinekeCellCycleModel)

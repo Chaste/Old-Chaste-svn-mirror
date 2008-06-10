@@ -43,14 +43,14 @@ template<unsigned DIM>
 class LaplacesEquation : public AbstractDealiiAssembler<DIM>
 {
 protected:
-    FE_Q<DIM>        mFe;    
+    FE_Q<DIM>        mFe;
     Vector<double>   mSolutionAtVertices;
-    
+
     void DistributeDofs()
     {
         this->mDofHandler.distribute_dofs(mFe);
     }
-    
+
     virtual void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
                                    Vector<double>&                                 elementRhs,
                                    FullMatrix<double>&                             elementMatrix,
@@ -59,37 +59,37 @@ protected:
     {
         static QGauss<DIM>   quadrature_formula(3);
         const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
-        
-        
+
+
         // would want this to be static too (slight speed up), but causes errors
         // in debug mode (upon destruction of the class, in 2d, or something)
         FEValues<DIM> fe_values(mFe, quadrature_formula,
                                 UpdateFlags(update_values    |
                                             update_gradients |
                                             update_JxW_values));
-                                            
-                                            
+
+
         const unsigned dofs_per_element = mFe.dofs_per_cell;
-        
+
         std::vector<unsigned> local_dof_indices(dofs_per_element);
-        
+
         elementMatrix = 0;
         elementRhs = 0;
-        
+
         elementIter->get_dof_indices(local_dof_indices);
-        
+
         fe_values.reinit(elementIter); // compute fe values for this element
-        
+
         Point<1> conc;
-        
+
         double source_term = 1;
-        
+
 //// !!!!!!!!!!!!!!!! GROWING_REGION == 99
 //        if (elementIter->material_id()==99)
 //        {
 //            source_term = 1;
 //        }
-//        
+//
 
         for (unsigned q_point=0; q_point<n_q_points; q_point++)
         {
@@ -121,28 +121,28 @@ protected:
                                                  0,
                                                  ZeroFunction<2>(),
                                                  boundary_values);
-                                                 
+
         MatrixTools::apply_boundary_values(boundary_values,
                                            this->mSystemMatrix,
                                            this->mCurrentSolution,
                                            this->mRhsVector);
     }
-    
+
 public :
     LaplacesEquation(Triangulation<DIM>* pMesh)
             :   AbstractDealiiAssembler<DIM>(pMesh),
                 mFe(1)
-    {  
+    {
         // distribute dofs
         this->mDofHandler.distribute_dofs(mFe);
         this->InitialiseMatricesVectorsAndConstraints();
-        
+
         this->mDofsPerElement = mFe.dofs_per_cell;
-        
+
         assert(pMesh!=NULL);
 
         typename Triangulation<DIM>::cell_iterator element_iter = this->mpMesh->begin_active();
-        
+
         while (element_iter != this->mpMesh->end())
         {
             for (unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
@@ -155,39 +155,39 @@ public :
             element_iter++;
         }
     }
-    
+
     void Solve()
     {
         this->AssembleSystem(true, true);
-        
+
         SolverControl solver_control(1000, 1e-12);
         PrimitiveVectorMemory<> vector_memory;
         SolverCG<>              cg(solver_control, vector_memory);
-        
+
         cg.solve(this->mSystemMatrix, this->mCurrentSolution, this->mRhsVector, PreconditionIdentity());
-        
-        
+
+
         mSolutionAtVertices.reinit(this->mpMesh->n_vertices());
         for (unsigned i=0;i<mSolutionAtVertices.size(); i++)
         {
             mSolutionAtVertices(i) = -1e200;
         }
-        
-        
+
+
         DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
         while (!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            
+
             mSolutionAtVertices(vertex_index) = mCurrentSolution(vertex_iter.GetDof(0));
-            
+
             Point<DIM> posn = vertex_iter.GetVertex();
             std::cout << vertex_index << " " << posn(0) << " " << posn(1) << " " << mSolutionAtVertices(vertex_index) << "\n" << std::flush;
-            
+
             vertex_iter.Next();
         }
     }
-    
+
     Vector<double> GetSolutionAtVertices()
     {
         return mSolutionAtVertices;
@@ -212,15 +212,15 @@ class ConcentrationBasedTumourSourceModel : public AbstractGrowingTumourSourceMo
 {
 private :
     friend class TestConcentrationBasedTumourSourceModel;
-    
+
     Triangulation<DIM> mDeformedMesh;
     Vector<double> mConcentrations;
-    
+
 
     void UpdateMesh(FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
     {
         std::vector<Vector<double> >& deformed_position = pFiniteElasticityAssembler->rGetDeformedPosition();
-        
+
         assert(deformed_position[0].size()==mDeformedMesh.n_vertices());
 
         TriangulationVertexIterator<DIM> vertex_iter(&mDeformedMesh);
@@ -235,13 +235,13 @@ private :
         }
     }
 
-    
+
 public :
     ConcentrationBasedTumourSourceModel(Triangulation<DIM>& mesh)
     {
         mDeformedMesh.copy_triangulation(mesh);
     }
-    
+
     void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
     {
         Triangulation<DIM>* p_fe_mesh = pFiniteElasticityAssembler->GetMesh();
@@ -255,18 +255,18 @@ public :
             mDeformedMesh.copy_triangulation(*p_fe_mesh);
             UpdateMesh(pFiniteElasticityAssembler);
         }
-        
+
         LaplacesEquation<DIM> laplace(&mDeformedMesh);
-        
+
         laplace.Solve();
 
         // proper solution, not solution vector.. not reference too..
         mConcentrations = laplace.GetSolutionAtVertices();
-        
+
         static double death_threshold;
         static double birth_threshold;
         static bool first = true;
-        
+
         if (first==true)
         {
             first = false;
@@ -283,15 +283,15 @@ public :
                     min_conc = mConcentrations(i);
                 }
             }
-            
+
             death_threshold = (2.0/3.0)*min_conc + (1.0/3.0)*max_conc;
             birth_threshold = (1.0/3.0)*min_conc + (2.0/3.0)*max_conc;
-            
+
             std::cout << "max, min = " << max_conc << " " << min_conc << "\n";
             std::cout << "d, b     = " << death_threshold << " " << birth_threshold << "\n";
         }
-        
-        
+
+
         std::cout << "\n\nSource values:\n";
         typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter
             = this->mEvaluationPoints.begin();
@@ -300,7 +300,7 @@ public :
             unsigned mesh_index = iter->first;
 
             double concentration = mConcentrations(mesh_index);
-            
+
             if (concentration < death_threshold)
             {
                 iter->second.SourceValue = -0.5;
@@ -313,9 +313,9 @@ public :
             {
                 iter->second.SourceValue =  0.5;
             }
-            
+
             std::cout << concentration << " " << iter->first << " " << iter->second.OldPosition[0] << " " << iter->second.OldPosition[1] << ": " << iter->second.SourceValue << "\n";
-            
+
             iter++;
         }
     }

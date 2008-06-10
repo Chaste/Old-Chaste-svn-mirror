@@ -42,9 +42,9 @@ CancerParameters::CancerParameters()
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
-    
+
     Reset();
-}    
+}
 
 /**
  * mStemCellG1Duration has units of hours
@@ -63,7 +63,7 @@ CancerParameters::CancerParameters()
  * mBetaCatSpringScaler has no units
  * mApoptosisTime has units of hours
  * mDivisionRestingSpringLength has units of cell size at equilibrium rest length
- * mDivisionSeparation has units of cell size at equilibrium rest length 
+ * mDivisionSeparation has units of cell size at equilibrium rest length
  * mHepaOneCellHypoxicConcentration has no units
  * mHepaOneCellQuiescentConcentration has no units
  * mWntTransitThreshold has no units
@@ -78,7 +78,7 @@ CancerParameters::CancerParameters()
  * mSymmetricDivisionProbability has no units
  */
 void CancerParameters::Reset()
-{   
+{
     // Default parameter values
     mStemCellG1Duration = 14.0;
     mTransitCellG1Duration = 2.0;
@@ -93,7 +93,7 @@ void CancerParameters::Reset()
     mSpringStiffness = 15.0;        // this is mu in Meineke
     mDampingConstantNormal = 1.0;   // this is nu in Meineke
     mDampingConstantMutant = 2.0;
-    mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin 
+    mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin
                                         // (divided by 6 as a cell normally is a hexagon)
     mApoptosisTime = 0.25;          // cell takes 15 min to fully undergo apoptosis
     mDivisionRestingSpringLength = 0.5;
@@ -106,13 +106,13 @@ void CancerParameters::Reset()
     mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
-    
+
     mNecroticSpringTensionStiffness = 0.25*mSpringStiffness;
     mNecroticSpringCompressionStiffness = 0.75*mSpringStiffness;
-    
+
     mWntChemotaxisStrength = 100.0;
     mSymmetricDivisionProbability = 0.0;
-    
+
     // Calculated parameters
     // This was used in non-dimensional case
 }
@@ -324,7 +324,7 @@ void CancerParameters::SetDivisionRestingSpringLength(double divisionRestingSpri
 {
     assert(divisionRestingSpringLength<=1.0);
     assert(divisionRestingSpringLength>=0.0);
-    
+
     mDivisionRestingSpringLength = divisionRestingSpringLength;
 }
 void CancerParameters::SetDivisionSeparation(double divisionSeparation)

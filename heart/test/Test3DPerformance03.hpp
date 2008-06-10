@@ -44,17 +44,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PerformanceTester.hpp"
 
 class TestPerformance : public CxxTest::TestSuite
-{   
+{
 public:
 
-    
+
     void TestPerf() throw(Exception)
     {
         // solver and preconditioner options
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
-        
+
         // write headings
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3>::DisplayHeadings();
         EventHandler::Headings();
@@ -63,7 +63,7 @@ public:
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.MeshNum=3;
         tester.Run();
-        
+
         EventHandler::Report();
     }
 };

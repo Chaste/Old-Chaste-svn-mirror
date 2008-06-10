@@ -59,13 +59,13 @@ public:
          */
         PETSCEXCEPT(PetscInitialize(&cxxtest_argc, &cxxtest_argv,
                                     PETSC_NULL, PETSC_NULL) );
-                                    
+
         char buf[10000];
         std::cout << std::endl << "CWD: " << getcwd(buf, 10000) << std::endl;
         std::cout << "Root: " << CHASTE_ROOT << std::endl;
         chdir(CHASTE_ROOT);
         std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
-        
+
         return true;
     }
     // Clean up PETSc after running all tests.

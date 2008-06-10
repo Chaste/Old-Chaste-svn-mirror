@@ -32,7 +32,7 @@ Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
 {
     /**
      * The state variables are
-     *   
+     *
      *  0. X2 Dsh_active
      *  1. X3 APC/axin/GSK3
      *  2. X4 APC/axin/GSK3
@@ -42,43 +42,43 @@ Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
      *  6. X12 axin
      *  7. WntLevel
      */
-     
+
     Init(); // set up parameters values
-    
+
     // Unstimulated state first of all...
-    
+
     mVariableNames.push_back("Dsh_active");
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(0.0);
-    
+
     mVariableNames.push_back("APC_axin_GSK3");
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(4.83e-3);
-    
+
     mVariableNames.push_back("beta_cat_P_APC_P_axin_P_GSK3");
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(2.02e-3);
-    
+
     mVariableNames.push_back("beta_cat_P");
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(1.00);
-    
+
     mVariableNames.push_back("APC_P_axin_P_GSK3");
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(9.66e-3);
-    
+
     mVariableNames.push_back("beta_cat");
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(25.1);
-    
+
     mVariableNames.push_back("axin");
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(4.93e-4);
-    
+
     mVariableNames.push_back("Wnt");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(WntLevel);
-    
+
     mNumberOfStateVariables = 8;
 }
 
@@ -125,7 +125,7 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     double X3 = rY[4];
     double X11 = rY[5];
     double X12 = rY[6];
-    double WntLevel = rY[7];  
+    double WntLevel = rY[7];
 
     for(unsigned i=0; i<rY.size(); i++)
     {
@@ -137,7 +137,7 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     double dX4 = -(mk3*X2+mk4+mk_6)*X4 + mk5*X3 + mk6*X5*((mK17*X12*mAPC0)/(mK7*(mK17+X11)));
     double dX9 = (mk9*X3*X11)/mK8 - mk10*X9;
     double dX10 = mk10*X9 - mk11*X10;
-    
+
     // Bit of rearranging of A.43 and A.44 simultaneous equations
     double a = 1 + X11/mK8;
     double b = X3/mK8;
@@ -147,21 +147,21 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     double f = mv12 - ((mk9*X3)/mK8 +mk13)*X11;
     double dX3 = (e-(b/d)*f)/(a-(b/d)*c);
     double dX11 = (e-(a/c)*f)/(b-(a/c)*d);
-    
+
     // And a bit more for A.42
     double temp1 = mk3*X2*X4 - (mk6*mGSK0*mAPC0*mK17*X12)/(mK7*(mK17+X11)) + mk_6*X4+mv14-mk15*X12;
     double temp2 = (dX11*mAPC0*mK17*X12)/(mK7*(mK17+X11)*(mK17+X11));
     double temp3 = 1 + (mAPC0*mK17)/(mK7*(mK17+X11));
     double dX12 = (temp1 + temp2)/temp3;
-    
+
     double factor = 60.0;  // convert d/dt in minutes to d/dt in hours
-        
+
     rDY[0] = dX2*factor;
     rDY[1] = dX4*factor;
     rDY[2] = dX9*factor;
     rDY[3] = dX10*factor;
     rDY[4] = dX3*factor;
     rDY[5] = dX11*factor;
-    rDY[6] = dX12*factor; 
+    rDY[6] = dX12*factor;
     rDY[7] = 0.0; // do not change the Wnt level
 }

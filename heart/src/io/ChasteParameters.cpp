@@ -41,7 +41,7 @@
 #include "ChasteParameters.hpp"
 
 // domain_type
-// 
+//
 
 domain_type::
 domain_type (_xsd_domain_type v)
@@ -66,7 +66,7 @@ domain_type (const domain_type& v,
 domain_type& domain_type::
 operator= (_xsd_domain_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_domain_type_literals_[v]);
 
   return *this;
@@ -74,7 +74,7 @@ operator= (_xsd_domain_type v)
 
 
 // ionic_model_type
-// 
+//
 
 ionic_model_type::
 ionic_model_type (_xsd_ionic_model_type v)
@@ -99,7 +99,7 @@ ionic_model_type (const ionic_model_type& v,
 ionic_model_type& ionic_model_type::
 operator= (_xsd_ionic_model_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ionic_model_type_literals_[v]);
 
   return *this;
@@ -107,7 +107,7 @@ operator= (_xsd_ionic_model_type v)
 
 
 // anisotropic_type
-// 
+//
 
 anisotropic_type::
 anisotropic_type (_xsd_anisotropic_type v)
@@ -132,7 +132,7 @@ anisotropic_type (const anisotropic_type& v,
 anisotropic_type& anisotropic_type::
 operator= (_xsd_anisotropic_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_anisotropic_type_literals_[v]);
 
   return *this;
@@ -140,7 +140,7 @@ operator= (_xsd_anisotropic_type v)
 
 
 // point_type
-// 
+//
 
 const point_type::x::type& point_type::
 x () const
@@ -198,7 +198,7 @@ z (const z::type& z)
 
 
 // box_type
-// 
+//
 
 const box_type::CornerA::type& box_type::
 CornerA () const
@@ -250,7 +250,7 @@ CornerB (::std::auto_ptr< CornerB::type > CornerB)
 
 
 // stimulus_type
-// 
+//
 
 const stimulus_type::Strength::type& stimulus_type::
 Strength () const
@@ -332,7 +332,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // cell_heterogeneity_type
-// 
+//
 
 const cell_heterogeneity_type::ScaleFactorGks::type& cell_heterogeneity_type::
 ScaleFactorGks () const
@@ -396,7 +396,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // conductivity_heterogeneity_type
-// 
+//
 
 const conductivity_heterogeneity_type::IntracellularConductivities::container& conductivity_heterogeneity_type::
 IntracellularConductivities () const
@@ -484,7 +484,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // slab_type
-// 
+//
 
 const slab_type::SlabX::type& slab_type::
 SlabX () const
@@ -560,7 +560,7 @@ InterNodeSpace (const InterNodeSpace::type& InterNodeSpace)
 
 
 // mesh_type
-// 
+//
 
 const mesh_type::Slab::container& mesh_type::
 Slab () const
@@ -593,7 +593,7 @@ Slab (::std::auto_ptr< Slab::type > Slab)
 }
 
 // mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh
-// 
+//
 
 const mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::name::type& mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
 name () const
@@ -682,7 +682,7 @@ LoadMesh (::std::auto_ptr< LoadMesh::type > LoadMesh)
 
 
 // conductivities_type
-// 
+//
 
 const conductivities_type::longi::type& conductivities_type::
 longi () const
@@ -740,7 +740,7 @@ normal (const normal::type& normal)
 
 
 // timesteps_type
-// 
+//
 
 const timesteps_type::ode::type& timesteps_type::
 ode () const
@@ -798,7 +798,7 @@ printing (const printing::type& printing)
 
 
 // ksp_use_type
-// 
+//
 
 ksp_use_type::
 ksp_use_type (_xsd_ksp_use_type v)
@@ -823,7 +823,7 @@ ksp_use_type (const ksp_use_type& v,
 ksp_use_type& ksp_use_type::
 operator= (_xsd_ksp_use_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ksp_use_type_literals_[v]);
 
   return *this;
@@ -831,7 +831,7 @@ operator= (_xsd_ksp_use_type v)
 
 
 // ksp_tolerances_type
-// 
+//
 
 const ksp_tolerances_type::KSPRelative::type& ksp_tolerances_type::
 KSPRelative () const
@@ -895,7 +895,7 @@ use (::std::auto_ptr< use::type > use)
 
 
 // ksp_solver_type
-// 
+//
 
 ksp_solver_type::
 ksp_solver_type (_xsd_ksp_solver_type v)
@@ -920,7 +920,7 @@ ksp_solver_type (const ksp_solver_type& v,
 ksp_solver_type& ksp_solver_type::
 operator= (_xsd_ksp_solver_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ksp_solver_type_literals_[v]);
 
   return *this;
@@ -928,7 +928,7 @@ operator= (_xsd_ksp_solver_type v)
 
 
 // ksp_preconditioner_type
-// 
+//
 
 ksp_preconditioner_type::
 ksp_preconditioner_type (_xsd_ksp_preconditioner_type v)
@@ -953,7 +953,7 @@ ksp_preconditioner_type (const ksp_preconditioner_type& v,
 ksp_preconditioner_type& ksp_preconditioner_type::
 operator= (_xsd_ksp_preconditioner_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ksp_preconditioner_type_literals_[v]);
 
   return *this;
@@ -961,7 +961,7 @@ operator= (_xsd_ksp_preconditioner_type v)
 
 
 // simulation_type
-// 
+//
 
 const simulation_type::SimulationDuration::container& simulation_type::
 SimulationDuration () const
@@ -1078,7 +1078,7 @@ Mesh (::std::auto_ptr< Mesh::type > Mesh)
 }
 
 // simulation_type::Stimuli::_xsd_Stimuli_::Stimuli
-// 
+//
 
 const simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container& simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::
 Stimulus () const
@@ -1130,7 +1130,7 @@ Stimuli (::std::auto_ptr< Stimuli::type > Stimuli)
 }
 
 // simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities
-// 
+//
 
 const simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container& simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::
 CellHeterogeneity () const
@@ -1182,7 +1182,7 @@ CellHeterogeneities (::std::auto_ptr< CellHeterogeneities::type > CellHeterogene
 }
 
 // simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities
-// 
+//
 
 const simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container& simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::
 ConductivityHeterogeneity () const
@@ -1265,7 +1265,7 @@ OutputDirectory (::std::auto_ptr< OutputDirectory::type > OutputDirectory)
 
 
 // physiological_type
-// 
+//
 
 const physiological_type::IntracellularConductivities::container& physiological_type::
 IntracellularConductivities () const
@@ -1377,7 +1377,7 @@ Capacitance (const Capacitance::container& Capacitance)
 
 
 // numerical_type
-// 
+//
 
 const numerical_type::Timesteps::container& numerical_type::
 Timesteps () const
@@ -1501,7 +1501,7 @@ KSPPreconditioner (::std::auto_ptr< KSPPreconditioner::type > KSPPreconditioner)
 
 
 // chaste_parameters_type
-// 
+//
 
 const chaste_parameters_type::Simulation::type& chaste_parameters_type::
 Simulation () const
@@ -2625,7 +2625,7 @@ _clone (::xml_schema::flags f,
 //
 
 // mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media
-// 
+//
 
 const mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::type mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::default_value_ (
   ::std::basic_string< char > ("Orthotropic"), 0, 0, 0);
@@ -4437,7 +4437,7 @@ ChasteParameters (const ::xercesc::DOMDocument& d,
                   const ::xsd::cxx::tree::properties< char >&)
 {
   ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
-    (f & ::xml_schema::flags::keep_dom) 
+    (f & ::xml_schema::flags::keep_dom)
     ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
     : 0);
 

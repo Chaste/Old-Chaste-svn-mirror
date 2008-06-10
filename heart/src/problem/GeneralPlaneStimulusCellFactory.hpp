@@ -38,11 +38,11 @@ class GeneralPlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 private:
     // define a new stimulus
     SimpleStimulus* mpStimulus;
-    
+
 public:
     GeneralPlaneStimulusCellFactory(double timeStep, unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
-        ///\todo The useMeshWidth is temporary, while we are sorting out 
+        ///\todo The useMeshWidth is temporary, while we are sorting out
         ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
         /// scale stimulus depending on space_step of elements
         ///\todo It looks like the value of the stimulus is specific to 3D
@@ -83,7 +83,7 @@ public:
             mpStimulus = new SimpleStimulus(stimulus_magnitude, 0.5);
         }
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
@@ -96,7 +96,7 @@ public:
             return new CELL(this->mpSolver, this->mTimeStep, this->mpZeroStimulus, this->mpZeroStimulus);
         }
     }
-    
+
     ~GeneralPlaneStimulusCellFactory(void)
     {
         delete mpStimulus;

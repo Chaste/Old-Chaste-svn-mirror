@@ -50,13 +50,13 @@ private:
     /*< The next time the slow-coarse cells should be updated */
     double mNextSlowCurrentSolveTime;
 
-    /** 
+    /**
      *  The same vector of cells as in the base class, but
      *  as AbstractFastSlowCardiacCells. Created with
      *  a static cast in the constructor. Distributed.
      */
     std::vector< AbstractFastSlowCardiacCell* > mFastSlowCellsDistributed;
-    
+
     /**
      *  Assuming the slow cells ODE have just been solved for, this method
      *  interpolates the slow values from the slow cells onto the fine-fast cells
@@ -77,34 +77,34 @@ private:
             if(mFastSlowCellsDistributed[index.Local]->IsFast())
             {
                 Element<DIM,DIM>* p_coarse_element = r_coarse_mesh.GetACoarseElementForFineNodeIndex(index.Local);
-                
+
                 const ChastePoint<DIM>& r_position_of_fine_node = r_fine_mesh.GetNode(index.Local)->rGetLocation();
-    
+
                 c_vector<double,DIM+1> weights = p_coarse_element->CalculateInterpolationWeights(r_position_of_fine_node);
-         
+
                 unsigned num_slow_values = mFastSlowCellsDistributed[p_coarse_element->GetNodeGlobalIndex(0)]->GetNumSlowValues();
 
                 // interpolate
-                std::vector<double> interpolated_slow_values(num_slow_values, 0.0); 
+                std::vector<double> interpolated_slow_values(num_slow_values, 0.0);
                 for (unsigned i=0; i<p_coarse_element->GetNumNodes(); i++)
                 {
                     unsigned coarse_cell_index = p_coarse_element->GetNodeGlobalIndex(i);
                     unsigned corresponding_fine_mesh_index = r_coarse_mesh.rGetCoarseFineNodeMap().GetNewIndex(coarse_cell_index);
-    
-                    AbstractFastSlowCardiacCell* p_coarse_node_cell 
+
+                    AbstractFastSlowCardiacCell* p_coarse_node_cell
                        = mFastSlowCellsDistributed[ corresponding_fine_mesh_index ];
-                    
+
                     assert(p_coarse_node_cell->IsFast()==false);
-                    
+
                     std::vector<double> nodal_slow_values;
                     p_coarse_node_cell->GetSlowValues(nodal_slow_values);
                     assert(nodal_slow_values.size() == num_slow_values);
                     for(unsigned j=0; j<nodal_slow_values.size(); j++)
-                    {                    
+                    {
                         interpolated_slow_values[j] += nodal_slow_values[j]*weights(i);
                     }
                 }
-                
+
                 // set the interpolated values on the fine-fast cell
                 mFastSlowCellsDistributed[index.Local]->SetSlowValues(interpolated_slow_values);
             }
@@ -126,43 +126,43 @@ public:
     {
         assert( PetscTools::NumProcs()==1 );
         assert(slowCurrentsTimeStep > 0.0);
-        
+
         mSlowCurrentsTimeStep = slowCurrentsTimeStep;
         mLastSlowCurrentSolveTime = startTime;
         mNextSlowCurrentSolveTime = mLastSlowCurrentSolveTime + mSlowCurrentsTimeStep;
- 
-        
+
+
         //////////////////////////////////////////////////////////////
         // Set up the vector of fast/slow cells.
-        // This is the same as the vector of cells in the base 
+        // This is the same as the vector of cells in the base
         // class (copies of pointers to the same objects)
         // but static_cast to be of type AbstractFastSlowCardiacCell
         //////////////////////////////////////////////////////////////
         mFastSlowCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
-        
+
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
         {
-            mFastSlowCellsDistributed[index.Local] 
+            mFastSlowCellsDistributed[index.Local]
               = static_cast<AbstractFastSlowCardiacCell*>(this->mCellsDistributed[index.Local]);
         }
- 
- 
-        ///////////////////////////////////////////////////////////////////////       
+
+
+        ///////////////////////////////////////////////////////////////////////
         // determine which are slow and fast cells, by looking to be see which
         // nodes in the fine mesh have a coarse counterpart.
-        ///////////////////////////////////////////////////////////////////////       
- 
+        ///////////////////////////////////////////////////////////////////////
+
         // two aliases to make thing clearer
         MixedTetrahedralMesh<DIM,DIM>& r_coarse_mesh = mrMixedMesh;
         ConformingTetrahedralMesh<DIM,DIM>& r_fine_mesh = *(mrMixedMesh.GetFineMesh());
-                
+
         // create temporary vector or bools (as can't set state on a cell and then change it). assume fast for
         // all cells initially
         std::vector<bool> is_fast(r_fine_mesh.GetNumNodes(), true);
 
-        // if a fine node has a coarse node counterpact, it is slow cell 
+        // if a fine node has a coarse node counterpact, it is slow cell
         for (unsigned coarse_node_index=0;
              coarse_node_index < r_coarse_mesh.GetNumNodes();
              coarse_node_index++)
@@ -170,7 +170,7 @@ public:
             unsigned fine_node_index = r_coarse_mesh.rGetCoarseFineNodeMap().GetNewIndex(coarse_node_index);
             is_fast[fine_node_index] = false;
         }
-        
+
         // set all cells using temporary vector
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
@@ -188,7 +188,7 @@ public:
 
     /**
      *  Overloaded SolveCellSystems()
-     * 
+     *
      *  Only solves the ODEs on the fine-fast cells, unless it is time to
      *  solve the ODEs on the coarse cells. In the latter, it solves the ODEs
      *  on the coarse cells, interpolates slow values onto the fine cells, and
@@ -198,17 +198,17 @@ public:
     {
         assert( mLastSlowCurrentSolveTime <= currentTime);
         assert( mNextSlowCurrentSolveTime >= currentTime);
-        
+
         // this assertion means that pde_timestep must be smaller than
         // slow_current_timestep. Saves us checking whether the slow
         // cells have to be solved more than once in this method.
-        assert( nextTime - currentTime < mNextSlowCurrentSolveTime);  
-        
+        assert( nextTime - currentTime < mNextSlowCurrentSolveTime);
+
         EventHandler::BeginEvent(SOLVE_ODES);
-        
+
         DistributedVector dist_solution(currentSolution);
         DistributedVector::Stripe voltage(dist_solution, 0);
-        
+
         ////////////////////////////////////
         // update the voltage in all cells
         ////////////////////////////////////
@@ -217,7 +217,7 @@ public:
              ++index)
         {
             // overwrite the voltage with the input value
-            mFastSlowCellsDistributed[index.Local]->SetVoltage( voltage[index] );            
+            mFastSlowCellsDistributed[index.Local]->SetVoltage( voltage[index] );
         }
 
         //////////////////////////////////////////////////////
@@ -246,10 +246,10 @@ public:
                 }
             }
 
-            // interpolate slow values from coarse-slow to fine-fast    
+            // interpolate slow values from coarse-slow to fine-fast
             InterpolateSlowCurrentsToFastCells();
 
-            // update time info            
+            // update time info
             mLastSlowCurrentSolveTime = mNextSlowCurrentSolveTime;
             mNextSlowCurrentSolveTime += mSlowCurrentsTimeStep;
         }

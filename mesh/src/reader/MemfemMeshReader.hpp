@@ -48,12 +48,12 @@ class MemfemMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
         std::vector<std::string> rawData);
-        
+
     std::vector<std::vector<unsigned> > TokenizeStringsToInts(
         std::vector<std::string> rawData,
         unsigned dimensionOfObject,
         bool readHeader);
-        
+
 public:
     MemfemMeshReader(std::string pathBaseName);
     virtual ~MemfemMeshReader();
@@ -79,23 +79,23 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
     //Open node file and store the lines as a vector of strings (minus the comments)
     std::string nodeFileName=pathBaseName+".pts";
     this->mNodeRawData=this->GetRawDataFromFile(nodeFileName);
-    
+
     /* Read single line header which is the number of nodes */
     std::stringstream node_header_stream(this->mNodeRawData[0]);
     unsigned num_nodes;
     node_header_stream >> num_nodes;
-    
+
     /* All Memfem data is in 3-d. */
     if (SPACE_DIM != 3  || ELEMENT_DIM != 3)
     {
         EXCEPTION("You have asked to read non-3D data. All Memfem data is in 3D.");
     }
-    
+
     // Read the rest of the node data using TokenizeStringsToDoubles method
     this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
     //Initialise iterator for public GetNextNode method
     this->mpNodeIterator = this->mNodeData.begin();
-    
+
     //Check that the size of the data matches the information in the header
     if (num_nodes != this->mNodeData.size())
     {
@@ -105,22 +105,22 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
         EXCEPTION("Number of nodes does not match expected number declared in header");
 #undef COVERAGE_IGNORE
     }
-    
+
     //Open element file and store the lines as a vector of strings (minus the comments)
     std::string elementFileName=pathBaseName+".tetras";
     this->mElementRawData=this->GetRawDataFromFile(elementFileName);
-    
+
     /* Read single line header which is the number of elements   */
     std::stringstream element_header_stream(this->mElementRawData[0]);
     unsigned num_elements;
     element_header_stream >> num_elements;
-    
-    
+
+
     // Read the rest of the element data using TokenizeStringsToInts method
     this->mElementData = TokenizeStringsToInts(this->mElementRawData,SPACE_DIM+1, true);
     this->mpElementIterator = this->mElementData.begin();
-    
-    
+
+
     //Check that the size of the data matches the information in the header
     if (num_elements != this->mElementData.size())
     {
@@ -130,14 +130,14 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
         EXCEPTION("Number of elements does not match expected number declared in header");
 #undef COVERAGE_IGNORE
     }
-    
+
     //Open boundary face file and store the lines as a vector of strings (minus the comments)
     std::string faceFileName=pathBaseName+".tri";
     this->mFaceRawData=this->GetRawDataFromFile(faceFileName);
-    
+
     /* There is no header.
      */
-    
+
     // Read the face/edge data using TokenizeStringsToInts method
     this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,SPACE_DIM,false);
     this->mpFaceIterator = this->mFaceData.begin();
@@ -157,7 +157,7 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
     std::vector<std::string> rawData)
 {
     std::vector<std::vector<double> > tokenized_data; // Output
-    
+
     //Iterate over the lines of input
     std::vector<std::string>::iterator the_iterator;
     for ( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
@@ -165,11 +165,11 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
         std::string line_of_data=*the_iterator;
         //std::cout << line_of_data << std::endl;
         std::stringstream line_stream(line_of_data);
-        
+
         if (the_iterator!=rawData.begin()) //Ignore the header string
         {
             std::vector<double> current_coords;
-            
+
             //Form the vector which represents the position of this item
             for (unsigned i = 0; i < SPACE_DIM; i++)
             {
@@ -177,13 +177,13 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
                 line_stream >> item_coord;
                 current_coords.push_back(item_coord);
             }
-            
+
             //Put item onto main output vector
             tokenized_data.push_back(current_coords);
         }
-        
+
     }
-    
+
     return tokenized_data;
 }
 
@@ -207,18 +207,18 @@ std::vector<std::vector<unsigned> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::To
     bool readHeader)
 {
     std::vector<std::vector<unsigned> > tokenized_data;
-    
+
     std::vector<std::string>::iterator the_iterator;
     for ( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
     {
         std::string line_of_data=*the_iterator;
         std::stringstream line_stream(line_of_data);
-        
-        
+
+
         if ( readHeader == false || the_iterator!=rawData.begin() )
         {
             std::vector<unsigned> current_indices;
-            
+
             for (unsigned i = 0; i < dimensionOfObject; i++)
             {
                 unsigned item_index;
@@ -227,12 +227,12 @@ std::vector<std::vector<unsigned> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::To
                 item_index -= 1;
                 current_indices.push_back(item_index);
             }
-            
+
             tokenized_data.push_back(current_indices);
         }
-        
+
     }
-    
+
     return tokenized_data;
 }
 

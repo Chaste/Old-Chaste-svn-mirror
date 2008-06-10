@@ -53,7 +53,7 @@ public:
     {
         mpStimulus = new SimpleStimulus(-10.0, 0.5);
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
@@ -65,7 +65,7 @@ public:
             return new FitzHughNagumo1961OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
-    
+
     ~FhnEdgeStimulusCellFactory(void)
     {
         delete mpStimulus;
@@ -81,28 +81,28 @@ public:
     void TestMonodomainFitzHughNagumoWithEdgeStimulus( void )
     {
         FhnEdgeStimulusCellFactory cell_factory;
-        
+
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(1.2);   // 1.2 ms
         monodomain_problem.SetOutputDirectory("FhnWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.01, 0.01));
-                
+
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
 
-        
+
         monodomain_problem.Solve();
-        
-        
+
+
         /*
-        * Test the top right node against the right one in the 1D case, 
-        * comparing voltage, and then test all the nodes on the right hand 
+        * Test the top right node against the right one in the 1D case,
+        * comparing voltage, and then test all the nodes on the right hand
         * side of the square against the top right one, comparing voltage.
         */
         bool need_initialisation = true;
@@ -111,7 +111,7 @@ public:
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
         need_initialisation = true;
-        
+
         // Test the RHS of the mesh
         for (unsigned i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
@@ -120,7 +120,7 @@ public:
                 // x = 0 is where the stimulus has been applied
                 // x = 0.1cm is the other end of the mesh and where we want to
                 //       to test the value of the nodes
-                
+
                 if (need_initialisation)
                 {
                     probe_voltage = voltage_replicated[i];
@@ -133,19 +133,19 @@ public:
                     // This works as we are using the 'criss-cross' mesh,
                     // the voltages would vary more with a mesh with all the
                     // triangles aligned in the same direction.
-                    
+
                     TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 1e-10);
                 }
-                
+
                 TS_ASSERT_DELTA(voltage_replicated[i], 0.1394, 1e-4);
             }
         }
-        
-        
-        
+
+
+
     }
-    
-    
-    
+
+
+
 };
 #endif //_TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_

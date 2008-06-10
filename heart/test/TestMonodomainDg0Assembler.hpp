@@ -55,7 +55,7 @@ public:
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
         mNodeNum = nodeNum;
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node == mNodeNum)
@@ -67,7 +67,7 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
-    
+
     ~PointStimulus2dCellFactory(void)
     {
         delete mpStimulus;
@@ -85,49 +85,49 @@ public:
     {
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        monodomain_problem.SetEndTime(2);   // ms
-        monodomain_problem.SetOutputDirectory("MonoDg01d");
-        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");        
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));        
-        monodomain_problem.Initialise();
-        
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        
-        monodomain_problem.Solve();
-        
-        // test whether voltages and gating variables are in correct ranges
-        CheckMonoLr91Vars<1>(monodomain_problem);
-        
-        // check some voltages    
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
-        double atol=5e-3;
-        
-        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
-        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
-        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
-        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
-        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
-        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
-        
-        // cover get pde
-        monodomain_problem.GetPde();       
-    }
-    
-    void TestMonodomainDg01DWithRelativeTolerance()
-    {
-        PlaneStimulusCellFactory<1> cell_factory;
-        MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         monodomain_problem.Initialise();
-        
+
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+
+        monodomain_problem.Solve();
+
+        // test whether voltages and gating variables are in correct ranges
+        CheckMonoLr91Vars<1>(monodomain_problem);
+
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+
+        // cover get pde
+        monodomain_problem.GetPde();
+    }
+
+    void TestMonodomainDg01DWithRelativeTolerance()
+    {
+        PlaneStimulusCellFactory<1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+
+        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        monodomain_problem.SetEndTime(2);   // ms
+        monodomain_problem.SetOutputDirectory("MonoDg01d");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
+        monodomain_problem.Initialise();
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         monodomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
@@ -135,61 +135,61 @@ public:
         monodomain_problem.SetLinearSolverRelativeTolerance(1e-9);
         TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverRelativeTolerance(),1e-9,1e-14);
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetLinearSolverAbsoluteTolerance());
-        
+
         monodomain_problem.Solve();
-        
+
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars<1>(monodomain_problem);
-        
-        // check some voltages    
+
+        // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
         double atol=1e-6;
-        
+
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
         TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
-       
+
     }
- 
+
     void TestMonodomainDg01DWithAbsoluteTolerance() throw (Exception)
     {
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));        
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         double atol=1e-1;
         monodomain_problem.SetLinearSolverAbsoluteTolerance(atol/4.0);
         TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverAbsoluteTolerance(),atol/4.0,1e-14);
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetLinearSolverRelativeTolerance());
-        
+
         monodomain_problem.Solve();
-        
+
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars<1>(monodomain_problem);
-        
-        // check some voltages    
+
+        // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
-        
-        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol); 
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
         TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
-       
+
     }
-    
+
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
     // edge.
     // Should behave like the 1D case, extrapolated.
@@ -198,41 +198,41 @@ public:
     {
         static double test_tolerance=1e-10;
         PlaneStimulusCellFactory<2> cell_factory;
-        
+
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(2);   // 2 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005,0.0005));
-                
+
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-                
+
         monodomain_problem.Solve();
-        
+
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars(monodomain_problem);
-        
+
         //Since we are going to compare voltages that may be owned by
         //various processes it makes sense to replicate the data.
         Vec voltage=monodomain_problem.GetVoltage();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
         /*
-         * Test the top right node against the right one in the 1D case, 
-         * comparing voltage, and then test all the nodes on the right hand 
+         * Test the top right node against the right one in the 1D case,
+         * comparing voltage, and then test all the nodes on the right hand
          * side of the square against the top right one, comparing voltage.
          */
         bool need_initialisation = true;
         double probe_voltage=0.0;
-        
+
         need_initialisation = true;
-        
+
         // Test the RHS of the mesh
         for (unsigned i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
@@ -241,7 +241,7 @@ public:
                 // x = 0 is where the stimulus has been applied
                 // x = 0.1cm is the other end of the mesh and where we want to
                 //       to test the value of the nodes
-                
+
                 if (need_initialisation)
                 {
                     probe_voltage = voltage_replicated[i];
@@ -256,12 +256,12 @@ public:
                     // triangles aligned in the same direction.
                     TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
                 }
-                
-                
+
+
                 // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
                 // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
                 // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
-                
+
                 // test the RHS edge voltages
                 // hardcoded result that looks accurate - this is a test to see
                 // that nothing has changeed
@@ -269,10 +269,10 @@ public:
                 TS_ASSERT_DELTA(voltage_replicated[i], -59.6495, 4e-4);
             }
         }
-        
+
     }
-    
-    
+
+
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating in the
     // very centre of the mesh.
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
@@ -282,34 +282,34 @@ public:
         double dif;
         time (&start);
         static double test_tolerance=1e-10;
-        
+
         PointStimulus2dCellFactory cell_factory(60); // Central node
-        
+
         MonodomainProblem<2> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulus");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));        
-        
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
-        
+
         // To time the solve
         time (&end);
         dif = difftime (end,start);
         //printf ("\nSolve took %.2lf seconds. \n", dif );
 
-        
+
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars(monodomain_problem);
 
-        
+
         /*
          * Test that corners are 'equal', and centres of sides.
          * Irregularities in which way the triangles are oriented make
@@ -317,25 +317,25 @@ public:
          * during the upstroke.
          */
         ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
-        
+
         // corners
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  test_tolerance);
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[110], test_tolerance);
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[120], test_tolerance);
-        
+
         // centres of edges
         TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[55],  test_tolerance);
         TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[65],  test_tolerance);
         TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[115], test_tolerance);
-        
+
         // hardcoded result to check nothing has changed
         // assumes endtime = 1.3
         TS_ASSERT_DELTA(voltage_replicated[0], -34.3493, 1e-3);
-        
+
 //        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
-    
-    
+
+
     ///////////////////////////////////////////////////////////////////
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
@@ -345,7 +345,7 @@ public:
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
-        
+
 //        // pass in mesh this time rather than a filename
 //        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1mm_10_elements");
 //        ConformingTetrahedralMesh<1,1> mesh;
@@ -354,77 +354,77 @@ public:
 
         p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
 
-        
+
         p_monodomain_problem->SetEndTime(0.30);          // ms
         p_monodomain_problem->SetPdeAndPrintingTimeSteps(0.01, 0.1);  // ms
-        
+
         p_monodomain_problem->SetOutputDirectory("MonoDg01d");
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
-        
+
         p_monodomain_problem->Initialise();
         p_monodomain_problem->Solve();
-        
+
         delete p_monodomain_problem;
-        
+
         // read data entries for the time file and check correct
         Hdf5DataReader data_reader1("MonoDg01d", "mono_testPrintTimes");
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
-        
+
         TS_ASSERT_EQUALS( times.size(), 4u);
         TS_ASSERT_DELTA( times[0], 0.00, 1e-12);
         TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
         TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
-        
+
         // run testing PrintEveryNthTimeStep
         p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
-        
+
         p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         p_monodomain_problem->SetEndTime(0.50);   // ms
         p_monodomain_problem->SetOutputDirectory("MonoDg01d");
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
-        
+
         p_monodomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 17);  // every 17 timesteps
-        
+
         p_monodomain_problem->SetWriteInfo(); // just to have SetWriteInfo() covered in the tests
-        
+
         p_monodomain_problem->Initialise();
         p_monodomain_problem->Solve();
-        
+
         // read data entries for the time file and check correct
         Hdf5DataReader data_reader2("MonoDg01d", "mono_testPrintTimes");
         times = data_reader2.GetUnlimitedDimensionValues();
-        
+
         TS_ASSERT_EQUALS( times.size(), 4u);
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
         TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
-        
+
         delete p_monodomain_problem;
     }
-    
-    
+
+
     void TestMonodomainProblemExceptions() throw (Exception)
     {
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
+
         // Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
-        
+
         //Makes sure that Weekly test won't throw
         monodomain_problem.SetPdeAndPrintingTimeSteps(0.01,  1);
-        
+
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeAndPrintingTimeSteps(-1,  1));
-        
+
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeAndPrintingTimeSteps( 1, -1));
-        
+
         // Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
-        
+
         // Throws because of the bad file name
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetMeshFilename(""));
 
@@ -434,14 +434,14 @@ public:
         // bad params
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(-1));
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetCapacitance(-1));
-        
+
         // Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         monodomain_problem.SetEndTime(1);  // ms
-        
+
         // Throws because output directory has not been set
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
-    }    
+    }
 };
 
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

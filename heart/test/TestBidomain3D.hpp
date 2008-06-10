@@ -49,35 +49,35 @@ public:
     void TestBidomain3d() throw (Exception)
     {
         PlaneStimulusCellFactory<3> bidomain_cell_factory(0.01, -600.0*1000);
-        
+
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
-        
+
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         bidomain_problem.SetEndTime(4);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
-        
-        
+
+
         bidomain_problem.Initialise();
-        
+
         bidomain_problem.Solve();
-        
+
         Vec voltage=bidomain_problem.GetVoltage();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
-        
+
         /*
-         * Test the top right node against the right one in the 1D case, 
-         * comparing voltage, and then test all the nodes on the right hand 
+         * Test the top right node against the right one in the 1D case,
+         * comparing voltage, and then test all the nodes on the right hand
          * face of the cube against the top right one, comparing voltage.
          */
         bool need_initialisation = true;
         double probe_voltage=0;
-        
+
         need_initialisation = true;
-        
+
         // Test the RHF of the mesh
         for (unsigned i = 0; i < bidomain_problem.rGetMesh().GetNumNodes(); i++)
         {
@@ -86,7 +86,7 @@ public:
                 // x = 0 is where the stimulus has been applied
                 // x = 0.1cm is the other end of the mesh and where we want to
                 //       to test the value of the nodes
-                
+
                 if (need_initialisation)
                 {
                     probe_voltage = voltage_replicated[2*i];
@@ -99,18 +99,18 @@ public:
                     // hence the tolerance of 0.2
                     TS_ASSERT_DELTA(voltage_replicated[2*i], probe_voltage, 0.2);
                 }
-                
+
                 // if a 1D simulation is run for 4ms on the 0_1mm_10elements mesh
                 // the result at the end node is 20.0755
                 TS_ASSERT_DELTA(voltage_replicated[2*i], 20.0755, 1.3);
             }
         }
-        
+
     }
-    
-    
-    
-    
+
+
+
+
     ////////////////////////////////////////////////////////////
     // Compare Mono and Bidomain Simulations
     ////////////////////////////////////////////////////////////
@@ -121,41 +121,41 @@ public:
         ///////////////////////////////////////////////////////////////////
         PlaneStimulusCellFactory<3> cell_factory(0.01, -600.0*1000);
         MonodomainProblem<3> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("Monodomain3d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain3d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));        
-        
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+
         monodomain_problem.Initialise();
-        
+
         // now solve
         monodomain_problem.Solve();
-        
-        
+
+
         ///////////////////////////////////////////////////////////////////
         // bidomain
         ///////////////////////////////////////////////////////////////////
         BidomainProblem<3> bidomain_problem( &cell_factory );
-        
+
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
-        
+
         // the bidomain equations reduce to the monodomain equations
         // if sigma_e is infinite (equivalent to saying the extra_cellular
         // space is grounded. sigma_e is set to be very large here:
         bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         bidomain_problem.SetExtracellularConductivities(Create_c_vector(17500, 17500, 17500));
-        
+
         bidomain_problem.Initialise();
-        
+
         // now solve
         bidomain_problem.Solve();
-        
-        
+
+
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ public:
             TS_ASSERT_DELTA(extracellular_potential[index], 0, 1.0);
         }
     }
-    
+
 };
 
 

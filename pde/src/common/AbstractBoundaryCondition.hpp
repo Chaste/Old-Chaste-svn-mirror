@@ -40,11 +40,11 @@ class AbstractBoundaryCondition
 public:
     /**
      * Get the value of the boundary condition at a given point.
-     * 
+     *
      * @param x The point at which to evaluate the boundary condition.
      */
     virtual double GetValue(const ChastePoint<SPACE_DIM>& x) const = 0;
-    
+
     // Make derived classes work
     AbstractBoundaryCondition()
     {}

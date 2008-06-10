@@ -27,6 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "EventHandler.hpp"
 
-const char* EventNames::EVENT_NAME[] =  { "InMesh", "AssSys", "Ode", 
+const char* EventNames::EVENT_NAME[] =  { "InMesh", "AssSys", "Ode",
                                            "Comms", "AssRhs", "NeuBCs", "Ksp",
                                            "Output", "Total" };

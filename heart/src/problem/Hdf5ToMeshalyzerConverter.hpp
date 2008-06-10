@@ -33,10 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "PetscTools.hpp"
 
-/** 
+/**
  *  This class converts from Hdf5 format to meshalyzer format, ie, for
  *  voltage, one file, which looks like
- * 
+ *
  *  V_node_0_time_0
  *  ..
  *  V_node_N_time_0
@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  V_node_0_time_2
  *  ..
  *  V_node_N_time_M
- * 
+ *
  *  The files that are written are <base_name>_V.dat or <base_name>_Phi_e.dat,
  *  where <base_name> is the base name of the original .h5 file. The new files
  *  are written in the same directory as the .h5 file. All paths are relative
@@ -56,7 +56,7 @@ class Hdf5ToMeshalyzerConverter
 {
 private:
     Hdf5DataReader* mpReader;
-    std::string mOutputDirectory; 
+    std::string mOutputDirectory;
     std::string mFileBaseName;
 
     /** A helper method which takes in a string, which must be 'V' or 'Phi_e'
@@ -66,7 +66,7 @@ private:
     void Write(std::string type)
     {
         assert(type=="V" || type=="Phi_e");
-        
+
         OutputFileHandler output_file_handler(mOutputDirectory, false);
         out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + type + ".dat");
 
@@ -79,9 +79,9 @@ private:
         {
             mpReader->GetVariableOverNodes(data, type, time_step);
             ReplicatableVector repl_data(data);
-            
+
             assert(repl_data.size()==num_nodes);
-            
+
             if(PetscTools::AmMaster())
             {
                 for(unsigned i=0; i<num_nodes; i++)
@@ -96,27 +96,27 @@ private:
 
 
 public:
-    /** Constructor, which does the conversion. 
+    /** Constructor, which does the conversion.
      *  @param outputDirectory The output directory, relative to CHASTE_TEST_OUTPUT,
      *  where the .h5 file is found, and where the output will be place
      *  @param fileBaseName The base name of the data file.
      */
-    Hdf5ToMeshalyzerConverter(std::string outputDirectory, 
+    Hdf5ToMeshalyzerConverter(std::string outputDirectory,
                               std::string fileBaseName)
     {
         // store dir and filenames, and create a reader
         mOutputDirectory = outputDirectory;
         mFileBaseName = fileBaseName;
         mpReader = new Hdf5DataReader(mOutputDirectory, mFileBaseName);
-        
+
         // check the data file read has one or two variables (ie V; or V and PhiE)
         std::vector<std::string> variable_names = mpReader->GetVariableNames();
         if((variable_names.size()==0) || (variable_names.size()>2))
         {
             delete mpReader;
-            EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain"); 
+            EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
         }
-        
+
         // if one variable, a monodomain problem
         if(variable_names.size()==1)
         {
@@ -125,7 +125,7 @@ public:
                 delete mpReader;
                 EXCEPTION("One variable, but it is not called 'V'");
             }
-            
+
             Write("V");
         }
 
@@ -141,10 +141,10 @@ public:
             Write("V");
             Write("Phi_e");
         }
-        
+
         MPI_Barrier(PETSC_COMM_WORLD);
     }
-    
+
     ~Hdf5ToMeshalyzerConverter()
     {
         delete mpReader;

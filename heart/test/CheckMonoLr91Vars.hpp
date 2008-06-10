@@ -44,10 +44,10 @@ void CheckMonoLr91Vars(MonodomainProblem<SPACE_DIM>& problem)
         // assuming LR model has Ena = 54.4 and Ek = -77
         double Ena   =  54.4;
         double Ek    = -77.0;
-        
+
         TS_ASSERT_LESS_THAN_EQUALS( voltage[index] , Ena +  30);
         TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
-        
+
         std::vector<double> odeVars = problem.GetMonodomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
         for (int j=0; j<8; j++)
         {

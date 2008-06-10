@@ -54,12 +54,12 @@ private:
      */
     PetscInt mOwnershipRangeLo; /*< For parallel code.  Stores lowest index of vectors and lowest row of matrix*/
     PetscInt mOwnershipRangeHi; /*< Stores <b>one more than</b> the highest index stored locally*/
-    
+
     MatNullSpace mMatNullSpace;
-    
+
     /** Whether we need to destroy the Petsc matrix and vector in our destructor */
     bool mDestroyMatAndVec;
-    
+
     KSP mKspSolver;
     bool mKspIsSetup; //Used by Solve method to track whether KSP has been used
     double mNonZerosUsed; //Yes, it really is stored as a double.
@@ -71,7 +71,7 @@ public:
     LinearSystem(Vec templateVector);
     LinearSystem(Vec residualVector, Mat jacobianMatrix);
     ~LinearSystem();
-    
+
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
     void SetMatrixElement(PetscInt row, PetscInt col, double value);
@@ -82,7 +82,7 @@ public:
     void AssembleFinalLhsMatrix();
     void AssembleIntermediateLhsMatrix();
     void AssembleRhsVector();
-    
+
     void SetMatrixIsSymmetric();
     void SetMatrixIsConstant(bool matrixIsConstant);
     void SetRelativeTolerance(double relativeTolerance);
@@ -101,29 +101,29 @@ public:
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
     Vec& rGetRhsVector();
     Mat& rGetLhsMatrix();
-    
-    
+
+
     // DEBUGGING CODE:
     void GetOwnershipRange(PetscInt &lo, PetscInt &hi);
     double GetMatrixElement(PetscInt row, PetscInt col);
     double GetRhsVectorElement(PetscInt row);
-    
-    
+
+
     /***
      * Add multiple values to the matrix of linear system
      * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
      *  to index of the Petsc matrix of this linear system
      * @param smallMatrix Ublas matrix containing the values to be added
-     * 
+     *
      * N.B. Values which are not local (ie the row is not owned) will be skipped.
      */
     template<size_t MATRIX_SIZE>
     void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
     {
         PetscInt matrix_row_indices[MATRIX_SIZE];
-        PetscInt num_rows_owned=0; 
+        PetscInt num_rows_owned=0;
         unsigned num_values_owned=0;
-        
+
         double values[MATRIX_SIZE*MATRIX_SIZE];
         for (unsigned row = 0; row<MATRIX_SIZE; row++)
         {
@@ -137,7 +137,7 @@ public:
                 }
             }
         }
-        
+
         MatSetValues(mLhsMatrix,
                      num_rows_owned,
                      matrix_row_indices,
@@ -153,15 +153,15 @@ public:
      * @param vectorIndices mapping from index of the ublas vector (see param below)
      *  to index of the vector of this linear system
      * @param smallVector Ublas vector containing the values to be added
-     * 
+     *
      * N.B. Values which are not local (ie the row is not owned) will be skipped.
      */
     template<size_t VECTOR_SIZE>
     void AddRhsMultipleValues(unsigned* VectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
     {
         PetscInt indices_owned[VECTOR_SIZE];
-        PetscInt num_indices_owned=0; 
-        
+        PetscInt num_indices_owned=0;
+
         double values[VECTOR_SIZE];
         for (unsigned row = 0; row<VECTOR_SIZE; row++)
         {
@@ -173,7 +173,7 @@ public:
                 num_indices_owned++;
             }
         }
-        
+
         VecSetValues(mRhsVector,
                      num_indices_owned,
                      indices_owned,

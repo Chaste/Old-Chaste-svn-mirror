@@ -42,7 +42,7 @@ public:
     ZeroStimulus()
     {
     }
-    
+
     virtual ~ZeroStimulus()
     {
     }

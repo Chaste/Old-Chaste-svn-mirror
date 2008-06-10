@@ -61,12 +61,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  The vertex number, current cell, local number of the vertex in that cell can
  *  also be obtained.
- * 
- *  Note: vertices are reached by looping over elements (internally, in this class), 
+ *
+ *  Note: vertices are reached by looping over elements (internally, in this class),
  *  therefore this class only reaches ACTIVE vertices (ie ones that are part of an
  *  element). (Unactive vertices arise if the mesh is coarsened)
  *
- *  TODO: perhaps extract commonality between this and DofVertexIterator. (although 
+ *  TODO: perhaps extract commonality between this and DofVertexIterator. (although
  *  the code is almost identical mpCell are different types in the two classes)
  */
 template<unsigned DIM>
@@ -76,10 +76,10 @@ private :
     Triangulation<DIM>* mpMesh;
     std::vector<bool> mVertexTouched;
     typename Triangulation<DIM>::active_cell_iterator mpCurrentCell;
-    
+
     unsigned mCurrentVertexIndex;
     bool mReachedEnd;
-    
+
     void NextNode()
     {
         if (mCurrentVertexIndex < GeometryInfo<DIM>::vertices_per_cell-1)
@@ -92,7 +92,7 @@ private :
             mpCurrentCell++;
         }
     }
-    
+
 public :
     TriangulationVertexIterator(Triangulation<DIM>* pMesh)
             : mpMesh(pMesh),
@@ -100,9 +100,9 @@ public :
             mpCurrentCell(mpMesh->begin_active())
     {
         assert(pMesh);
-        
+
         mCurrentVertexIndex = 0;
-        
+
         mReachedEnd = (mpCurrentCell==mpMesh->end());
 
         // set the current node as having been touched
@@ -111,7 +111,7 @@ public :
             mVertexTouched[GetVertexGlobalIndex()] = true;
         }
    }
-    
+
     /**
       *  Move to the next vertex
       */
@@ -121,9 +121,9 @@ public :
         while ( (found==false) && (!mReachedEnd) )
         {
             NextNode();
-            
+
             mReachedEnd = (mpCurrentCell==mpMesh->end());
-            
+
             if ( !mReachedEnd && !mVertexTouched[mpCurrentCell->vertex_index(mCurrentVertexIndex)] )
             {
                 found = true;
@@ -131,8 +131,8 @@ public :
             }
         }
     }
-    
-    
+
+
     /**
      *  The method returns true if the last vertex has been passed
      */
@@ -140,7 +140,7 @@ public :
     {
         return mReachedEnd;
     }
-    
+
     /**
      *  Get the position of the vertex
      */
@@ -149,7 +149,7 @@ public :
         assert(!mReachedEnd);
         return mpCurrentCell->vertex(mCurrentVertexIndex);
     }
-    
+
     /**
      *  Get the global vertex index
      */
@@ -158,7 +158,7 @@ public :
         assert(!mReachedEnd);
         return mpCurrentCell->vertex_index(mCurrentVertexIndex);
     }
-    
+
     /**
      *  Get the index of the current vertex in the current cell
      *  To be used with GetCell()
@@ -168,17 +168,17 @@ public :
         assert(!mReachedEnd);
         return mCurrentVertexIndex;
     }
-    
+
     /**
      *  Get the current cell. Together with GetLocalVertexIndexForCell() this
-     *  specifies the vertex. Needed for calling other methods on the cell. 
+     *  specifies the vertex. Needed for calling other methods on the cell.
      */
     typename Triangulation<DIM>::active_cell_iterator GetCell()
     {
         assert(!mReachedEnd);
         return mpCurrentCell;
     }
-    
+
     /**
      *  Reset to the first vertex so the iterator can be used again
      */
@@ -197,7 +197,7 @@ public :
         mpCurrentCell = mpMesh->begin_active();
         mCurrentVertexIndex = 0;
         mReachedEnd = (mpCurrentCell==mpMesh->end());
-        
+
         // set the current node as having been touched
         if(!mReachedEnd)
         {

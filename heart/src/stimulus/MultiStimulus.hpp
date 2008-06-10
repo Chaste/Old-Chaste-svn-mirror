@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 /**
- * This class provides a stimulus function which is the 
+ * This class provides a stimulus function which is the
  * sum of an arbitrary number of stimuli.
- * 
+ *
  * After creation it behaves like a ZeroStimulus until
  * any number of stimuli are added.
  */
@@ -45,13 +45,13 @@ class MultiStimulus : public AbstractStimulusFunction
 {
 private:
     std::vector<AbstractStimulusFunction*> mStimuli;
-        
+
 public:
     /**
      * Combine a stimulus with the existing ones.
-     * 
+     *
      * @param pStimulus pointer to the stimulus to be added.
-     */   
+     */
      void AddStimulus(AbstractStimulusFunction* pStimulus);
 
     /**

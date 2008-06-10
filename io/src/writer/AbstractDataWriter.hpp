@@ -49,10 +49,10 @@ public:
     virtual void AdvanceAlongUnlimitedDimension() = 0;
     virtual void PutVariable(int variableID, double variableValue, long dimensionPosition=-1) = 0;
     virtual void Close() = 0;
-    
+
     virtual ~AbstractDataWriter()
     {}
-    
+
 };
 
 #endif

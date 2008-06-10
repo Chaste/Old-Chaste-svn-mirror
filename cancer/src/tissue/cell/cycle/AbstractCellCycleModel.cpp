@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractCellCycleModel::~AbstractCellCycleModel()
 {
-    // Don't delete the cell - the cell deletes the cell cycle model 
+    // Don't delete the cell - the cell deletes the cell cycle model
     // when it is destroyed (not the following way round):
     // delete mpCell;
 }
@@ -68,13 +68,13 @@ CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
 #define COVERAGE_IGNORE
 std::vector<double> AbstractCellCycleModel::GetProteinConcentrations() const
 {
-    // this method will be overriden on those models which use protein concentrations 
+    // this method will be overriden on those models which use protein concentrations
     // (ie ODE-based models)
     EXCEPTION("Called GetProteinConcentrations() on model which does not implement it");
     std::vector<double> return_vec;
     return return_vec;
 }
-#undef COVERAGE_IGNORE 
+#undef COVERAGE_IGNORE
 
 bool AbstractCellCycleModel::UsesBetaCat()
 {
@@ -98,11 +98,11 @@ void AbstractCellCycleModel::ResetForDivision()
     mCurrentCellCyclePhase = M_PHASE;
     mReadyToDivide = false;
 }
-    
+
 double AbstractCellCycleModel::GetSDuration()
 {
     return CancerParameters::Instance()->GetSDuration();
-}   
+}
 
 double AbstractCellCycleModel::GetG1Duration()
 {
@@ -112,17 +112,17 @@ double AbstractCellCycleModel::GetG1Duration()
 double AbstractCellCycleModel::GetG2Duration()
 {
     return CancerParameters::Instance()->GetG2Duration();
-}   
+}
 
 double AbstractCellCycleModel::GetMDuration()
 {
     return CancerParameters::Instance()->GetMDuration();
-}   
+}
 
 bool AbstractCellCycleModel::ReadyToDivide()
 {
     assert(mpCell != NULL);
-    
+
     if (!mReadyToDivide)
     {
         UpdateCellCyclePhase();

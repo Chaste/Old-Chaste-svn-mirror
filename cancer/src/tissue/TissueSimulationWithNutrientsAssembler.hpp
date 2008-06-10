@@ -38,8 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  TissueSimulationWithNutrientsAssembler
- * 
- *  This is a purpose made elliptic assembler that interpolates the source terms 
+ *
+ *  This is a purpose made elliptic assembler that interpolates the source terms
  *  from node onto gauss points, as for a nutrients simulation the source will only
  *  be known at the cells (nodes), not the gauss points.
  */
@@ -49,23 +49,23 @@ class TissueSimulationWithNutrientsAssembler
 {
     typedef SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> > BaseClassType;
     friend class AbstractStaticAssembler<DIM, DIM, 1u, true, BaseClassType>;
-    
+
 private:
 
     /** The constant in u part of the source term, interpolated onto
-     *  the current point 
+     *  the current point
      */
     double mConstantInUSourceTerm;
-    
+
     /** The linear in u part of the source term, interpolated onto
-     *  the current point 
+     *  the current point
      */
     double mLinearInUCoeffInSourceTerm;
-    
+
 protected:
 
     /**
-     *  The SimpleLinearEllipticAssembler version of this method is 
+     *  The SimpleLinearEllipticAssembler version of this method is
      *  overloaded using the interpolated source term
      */
     virtual c_vector<double,1*(DIM+1)> ComputeVectorTerm(
@@ -77,7 +77,7 @@ protected:
         Element<DIM,DIM>* pElement);
 
     /**
-     *  The SimpleLinearEllipticAssembler version of this method is 
+     *  The SimpleLinearEllipticAssembler version of this method is
      *  overloaded using the interpolated source term
      */
     virtual c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
@@ -87,11 +87,11 @@ protected:
         c_vector<double,1> &u,
         c_matrix<double,1,DIM> &rGradU,
         Element<DIM,DIM>* pElement);
-    
-    void ResetInterpolatedQuantities();    
-    
-    void IncrementInterpolatedQuantities(double phiI, const Node<DIM> *pNode);    
-    
+
+    void ResetInterpolatedQuantities();
+
+    void IncrementInterpolatedQuantities(double phiI, const Node<DIM> *pNode);
+
 public:
 
     /**
@@ -101,12 +101,12 @@ public:
                                   AbstractLinearEllipticPde<DIM>* pPde,
                                   BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2);
-    
+
     /**
      *  Destructor
      */
     ~TissueSimulationWithNutrientsAssembler();
-    
+
 };
 
 template<unsigned DIM>
@@ -145,7 +145,7 @@ c_matrix<double,1*(DIM+1),1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>
         Element<DIM,DIM>* pElement)
 {
     c_matrix<double, DIM, DIM> pde_diffusion_term = this->mpEllipticPde->ComputeDiffusionTerm(rX);
-    
+
     // if statement just saves computing phi*phi^T if it is to be multiplied by zero
     if(mLinearInUCoeffInSourceTerm!=0)
     {

@@ -35,60 +35,60 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class DiscreteSystemForceCalculator
 {
     friend class TestDiscreteSystemForceCalculator;
-    
+
 private:
-    
-    /**
-     * Spring system, used to get mesh and calculate forces between nodes.
-     */ 
-    Meineke2001SpringSystem<2>& mrMeinekeSpringSystem;
-    
-    /**
-     * Small parameter, used in GetSamplingAngles().
-     */ 
-    double mEpsilon; 
-    
-    /** The file that the results of CalculateExtremalNormalForces */ 
-    out_stream mpStressResultsFile;    
-    
-    /**
-     * Given a node index, returns the set of neighbouring node indices.
-     */ 
-    std::set<unsigned> GetNeighbouringNodeIndices(unsigned index);
-        
-    /**
-     * Given a node index and angle of intersecting line in the range (-pi,pi], 
-     * returns the tangential and normal forces.
-     */ 
-    std::vector<double> CalculateFtAndFn(unsigned index, double theta);
-        
-    /**
-     * Given a node index, returns a vector of sampling angles in the range (-pi,pi]
-     * that can be used by GetExtremalAngles() to find the locations of local extrema 
-     * of the normal force.
-     */  
-    std::vector<double> GetSamplingAngles(unsigned index);
-        
-    /**
-     * Given a node index and two sampling angles, finds the location of 
-     * the root of the tangential force in the interval between the two 
-     * angles. There is no guarantee that this will lie in (-pi,pi].
-     */ 
-    double GetLocalExtremum(unsigned index, double angle1, double angle2);    
 
     /**
-     * Given a vector of sampling angles in the range (-pi,pi], returns a vector 
-     * of extremal angles, i.e. angles at which local extrema of the normal force 
+     * Spring system, used to get mesh and calculate forces between nodes.
+     */
+    Meineke2001SpringSystem<2>& mrMeinekeSpringSystem;
+
+    /**
+     * Small parameter, used in GetSamplingAngles().
+     */
+    double mEpsilon;
+
+    /** The file that the results of CalculateExtremalNormalForces */
+    out_stream mpStressResultsFile;
+
+    /**
+     * Given a node index, returns the set of neighbouring node indices.
+     */
+    std::set<unsigned> GetNeighbouringNodeIndices(unsigned index);
+
+    /**
+     * Given a node index and angle of intersecting line in the range (-pi,pi],
+     * returns the tangential and normal forces.
+     */
+    std::vector<double> CalculateFtAndFn(unsigned index, double theta);
+
+    /**
+     * Given a node index, returns a vector of sampling angles in the range (-pi,pi]
+     * that can be used by GetExtremalAngles() to find the locations of local extrema
+     * of the normal force.
+     */
+    std::vector<double> GetSamplingAngles(unsigned index);
+
+    /**
+     * Given a node index and two sampling angles, finds the location of
+     * the root of the tangential force in the interval between the two
+     * angles. There is no guarantee that this will lie in (-pi,pi].
+     */
+    double GetLocalExtremum(unsigned index, double angle1, double angle2);
+
+    /**
+     * Given a vector of sampling angles in the range (-pi,pi], returns a vector
+     * of extremal angles, i.e. angles at which local extrema of the normal force
      * occur, again in the range (-pi,pi].
-     */ 
+     */
     std::vector<double> GetExtremalAngles(unsigned index, std::vector<double> samplingAngles);
-    
+
 public:
-    
+
     DiscreteSystemForceCalculator(Meineke2001SpringSystem<2>& rMeinekeSpringSystem);
-    
+
     std::vector< std::vector<double> > CalculateExtremalNormalForces();
-    
+
     void WriteResultsToFile(std::string simulationOutputDirectory);
 
 };

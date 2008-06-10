@@ -99,10 +99,10 @@ Separator { \n\
 //}   \n
 //";
 ////  NOTE: You also need to change INVENTOR_MID used between cells to "\n\"
-// 
-// 
- 
-      
+//
+//
+
+
 const std::string INVENTOR_MID="      ] \n\
     } \n\
     IndexedFaceSet { \n\
@@ -122,7 +122,7 @@ class InventorVoronoiWriter
 protected:
     OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
-    
+
 public:
     /** Constructor */
     InventorVoronoiWriter(const std::string &rDirectory,
@@ -132,13 +132,13 @@ public:
     {
         mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
     }
-    
+
     /** Destructor */
     ~InventorVoronoiWriter()
     {
         delete mpOutputFileHandler;
     }
-    
+
     /**
      *  Write the voronoi tessellation in Inventor format
      */
@@ -147,14 +147,14 @@ public:
         // open inventor file
         std::string file_name = this->mBaseName+".iv";
         out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(file_name);
-        
-        // write out header part of file      
+
+        // write out header part of file
 
         *p_file << INVENTOR_HEADER;
-        
+
         // write out vertices
         // and construct map from pointer to vertex to vertex number
-        
+
         std::map< c_vector<double, 3>*, unsigned> vertex_number_map;
         for ( unsigned vertex_number=0;
               vertex_number<rTessellation.mVertices.size();
@@ -162,14 +162,14 @@ public:
         {
             c_vector<double ,3>& vertex=*(rTessellation.mVertices[vertex_number]);
             *p_file << "        " << vertex(0) << " " << vertex(1) << " " << vertex(2) << ",\n";
-            
+
             vertex_number_map[rTessellation.mVertices[vertex_number]]=vertex_number;
         }
-        
+
         *p_file << INVENTOR_MID; //  CHANGE this to: *p_file << "\n";
-        
+
         // write out faces;
-        
+
         for (unsigned face_number=0;
              face_number < rTessellation.mFaces.size();
              face_number++)
@@ -188,7 +188,7 @@ public:
         }
         *p_file << INVENTOR_FOOTER;
     }
-    
+
     /**
      *  Scale the vertex of each cell toward the centre of that cell by the given scaleFactor
      *  and write.
@@ -199,20 +199,20 @@ public:
         {
             EXCEPTION("scaleFactor should be between 0 and 1");
         }
-        
+
         // open inventor file
         std::string file_name = this->mBaseName+".iv";
         out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(file_name);
-        
-        // write out header part of file      
+
+        // write out header part of file
         *p_file << INVENTOR_HEADER;
-        
+
         unsigned global_vertex_number = 0;
 
         // the face data which will be written to file afterwards
         std::vector<std::vector<unsigned> > new_faces_data;
         std::vector<unsigned> number_faces_per_cell;
-        
+
         // loop over cells and write out scaled vertices for each one, storing face info as we go
         for (unsigned cell_index = 0; cell_index<rTessellation.mVoronoiCells.size(); cell_index++)
         {
@@ -222,7 +222,7 @@ public:
             std::map< c_vector<double, 3>*, unsigned> vertex_number_map;
 
             const VoronoiCell& r_cell = rTessellation.mVoronoiCells[cell_index];
-            
+
             for (unsigned face_number=0; face_number<r_cell.mFaces.size(); face_number++)
             {
                 std::vector<unsigned> face_vertex_data;
@@ -231,7 +231,7 @@ public:
                 for (unsigned face_vertex_number=0; face_vertex_number<r_face.mVertices.size(); face_vertex_number++)
                 {
                     unsigned global_number_for_this_vertex;
-                    
+
                     // see if vertex is in the map
                     std::map< c_vector<double,3>*,unsigned>::iterator iter = vertex_number_map.find(r_face.mVertices[face_vertex_number]);
                     if(iter!=vertex_number_map.end())
@@ -245,14 +245,14 @@ public:
                         // not in the map, so add it to map
                         vertex_number_map[r_face.mVertices[face_vertex_number]] = global_number_for_this_vertex;
                         global_vertex_number++;
-                        
+
                         // scale the vertex and print out the new position
                         c_vector<double,3> new_vertex = *(r_face.mVertices[face_vertex_number]);
                         new_vertex = scaleFactor*(new_vertex - r_cell_centre) + r_cell_centre;
 
                         *p_file << "        " << new_vertex(0) << " " << new_vertex(1) << " " << new_vertex(2) << ",\n";
                     }
-                    
+
                     // store this vertex's global number as a vertex for this face
                     face_vertex_data.push_back(global_number_for_this_vertex);
                 }
@@ -260,7 +260,7 @@ public:
                 // add the vertex data for this face to the store
                 new_faces_data.push_back( face_vertex_data );
             }
-            
+
             // store how many faces were in this cell
             number_faces_per_cell.push_back(r_cell.mFaces.size());
         }

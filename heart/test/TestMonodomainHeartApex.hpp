@@ -49,15 +49,15 @@ public:
     {
         mpStimulus = new SimpleStimulus(-1000*1000, 0.5);
     }
-    
+
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
     }
-    
+
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
     {
-        /* 
+        /*
          * Here's the list of stimulated cells from the original mesh file with tetgen numbering:
 37483   1.95075 0.02458 0.007709
 37498   1.974   0.0669055       0.0212167
@@ -93,7 +93,7 @@ public:
  Failure occurs on node
   5045    1.4275700000000000056   0.24721699999999999231  0.05276329999999999909 0
 [     */
-        
+
         int stimulated_cells[] = {
                                     875,
                                     890,
@@ -110,8 +110,8 @@ public:
                                     3259,
                                     5109
                                  };
-                                    
-                                 
+
+
         for (unsigned i=0; i<14; i++)
         {
             int global_index = stimulated_cells[i];
@@ -122,7 +122,7 @@ public:
             }
         }
     }
-    
+
     ~PointStimulusHeartCellFactory(void)
     {
         delete mpStimulus;
@@ -141,42 +141,42 @@ public:
         double pde_time_step = 0.01;  // ms
         double ode_time_step = 0.01/3.0; // ms
         double end_time = 10.0;        // ms
-        
+
         double printing_time_step = end_time/100;
-        
+
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         MonodomainProblem<3> monodomain_problem(&cell_factory);
-        
+
         monodomain_problem.SetMeshFilename("heart/test/data/HeartApex"); // note that this is the full heart mesh (not fifthheart)
         monodomain_problem.SetOutputDirectory("MonoDg0HeartApex");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_HeartApex");
-        
+
         monodomain_problem.SetEndTime(end_time);
         monodomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
-        
+
         monodomain_problem.SetWriteInfo();
-        
+
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        
+
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
-        
+
         ///////////////////////////////////////////////////////////////////////
         // now reread the data and check verify that one of the stimulated
         // nodes was actually stimulated, and that the propagation spread to
         // a nearby node
         ///////////////////////////////////////////////////////////////////////
         /*
-         * 
+         *
         ColumnDataReader data_reader("MonoDg0Heart","MonodomainLR91_Heart");
-        
+
         // get the voltage values at stimulated node
         std::vector<double> voltage_values_at_node_37483 = data_reader.GetValues("V", 37484-1);
         // get the voltage values at a nearby unstimulated node
         std::vector<double> voltage_values_at_node_500 = data_reader.GetValues("V", 501-1);
         bool stimulated_node_was_excited = false;
         bool unstimulated_node_was_excited = false;
-        
+
         for (unsigned i=0; i<voltage_values_at_node_37483.size(); i++)
         {
             if (voltage_values_at_node_37483[i] > 0)

@@ -37,17 +37,17 @@ template <unsigned SPACE_DIM>
 class AbstractCellKiller
 {
 public:
-    
+
     /**
      * Constructor.
-     * 
+     *
      * @param pTissue pointer to the tissue.
      */
     AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue);
-    
+
     /**
      * Destructor.
-     */     
+     */
     virtual ~AbstractCellKiller() {};
 
     /**
@@ -56,17 +56,17 @@ public:
      *  on any cell which should die immediately.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
-    
+
     /**
      * Get a pointer to the tissue.
-     */ 
+     */
     const AbstractTissue<SPACE_DIM>* GetTissue() const;
-    
+
 protected:
 
     // The tissue
     AbstractTissue<SPACE_DIM>* mpTissue;
-    
+
 private:
 
     friend class boost::serialization::access;
@@ -75,12 +75,12 @@ private:
     {
         // Archiving of mpTissue is implemented in load_construct_data of subclasses
     }
-    
+
 };
 
 template <unsigned SPACE_DIM>
 AbstractCellKiller<SPACE_DIM>::AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
-        : mpTissue(pTissue) 
+        : mpTissue(pTissue)
 {
 }
 
@@ -89,7 +89,7 @@ const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() cons
 {
     return mpTissue;
 }
-    
+
 namespace boost {
 namespace serialization {
 template<unsigned DIM>

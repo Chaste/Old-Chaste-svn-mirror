@@ -42,18 +42,18 @@ class StimulusBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private:
     AbstractStimulusFunction* mpStimulus;
-    
+
 public:
     /**
      * Create a new boundary condition object.
-     * 
+     *
      * @param pStimulus Stimulus object defining the parameters of the boundary condition
      */
     StimulusBoundaryCondition(AbstractStimulusFunction* pStimulus)
     {
         mpStimulus = pStimulus;
     }
-    
+
     /**
      * @param x The point at which this boundary condition is to be evaluated.
      * @return The constant value given in the constructor.
