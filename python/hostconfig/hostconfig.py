@@ -77,6 +77,8 @@ elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
     import nottingham as conf
 elif machine_fqdn.endswith(".maths.ox.ac.uk"):
     import maths as conf
+elif machine_fqdn.startswith('alex-laptop'):
+    import alexf as conf
 else:
     print >>sys.stderr, "Unrecognised machine %s; please add a stanza for it to hostconfig.py" % machine_fqdn
     sys.exit(1)
