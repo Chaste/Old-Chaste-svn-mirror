@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This class sets up the FastSlowLuoRudyIModel1991 system of equations.
  *
  * This has two modes:
- * FAST MODE: where the variables are (h, j, m, [Ca]_i, V, x) (in that order)
+ * FAST MODE: where the variables are (h, j, m, V) (in that order)
  * SLOW MODE: where the variables are (h, j, m, [Ca]_i, V, d, f, x)
  */
 class FastSlowLuoRudyIModel1991 : public AbstractFastSlowCardiacCell
@@ -103,7 +103,7 @@ public:
      */
     unsigned GetNumSlowValues()
     {
-        return 2;
+        return 4;
     }
 };
 

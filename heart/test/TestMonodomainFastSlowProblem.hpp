@@ -103,7 +103,9 @@ public:
         unsigned num_coarse_elem_each_dir = 2;
         unsigned num_fine_elem_each_dir = 20;
 
+        //////////////////////////////////////////////////
         // solve a mixed mesh, fast/slow problem
+        //////////////////////////////////////////////////
         MixedTetrahedralMesh<2,2> mixed_mesh;
         mixed_mesh.ConstructRectangularMeshes(0.1, 0.1, num_coarse_elem_each_dir, num_fine_elem_each_dir);
 
@@ -121,7 +123,9 @@ public:
         ReplicatableVector voltage_fast_slow( monodomain_fast_slow_prob.GetVoltage() );
         TS_ASSERT_EQUALS(voltage_fast_slow.size(), mixed_mesh.GetFineMesh()->GetNumNodes() );
 
+        //////////////////////////////////////////////////
         // solve using normal monodomain problem
+        //////////////////////////////////////////////////
         MyCellFactory cell_factory_normal(false);
 
         MonodomainProblem<2> monodomain_prob( &cell_factory_normal, 1.0 );
@@ -134,6 +138,9 @@ public:
         monodomain_prob.Initialise();
         monodomain_prob.Solve();
 
+        //////////////////////////////////////////////////
+        // compare 
+        //////////////////////////////////////////////////
         ReplicatableVector voltage_normal( monodomain_prob.GetVoltage() );
         TS_ASSERT_EQUALS(voltage_fast_slow.size(), voltage_normal.size() );
 

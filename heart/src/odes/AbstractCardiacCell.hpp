@@ -43,7 +43,7 @@ class AbstractCardiacCell : public AbstractOdeSystem
 {
 
 protected:
-    const unsigned mVoltageIndex;  /**< The index of the voltage within our state variable vector */
+    unsigned mVoltageIndex;  /**< The index of the voltage within our state variable vector */
     AbstractIvpOdeSolver *mpOdeSolver;   /**< Pointer to the solver used to simulate currents for this cell. */
     double mDt;
     AbstractStimulusFunction* mpIntracellularStimulus;

@@ -54,26 +54,26 @@ public:
         FastSlowLuoRudyIModel1991 fast_luo_rudy(&solver, time_step, &stimulus);
         fast_luo_rudy.SetState(FAST);
         TS_ASSERT_EQUALS(fast_luo_rudy.IsFast(), true);
-        TS_ASSERT_EQUALS(fast_luo_rudy.GetNumberOfStateVariables(), 6u);
-        TS_ASSERT_EQUALS(fast_luo_rudy.GetNumSlowValues(), 2u);
+        TS_ASSERT_EQUALS(fast_luo_rudy.GetNumberOfStateVariables(), 4u);
+        TS_ASSERT_EQUALS(fast_luo_rudy.GetNumSlowValues(), 4u);
 
+        TS_ASSERT_DELTA(fast_luo_rudy.GetVoltage(), -84, 1.0);
 
-        std::vector<double> DY_fast(6);
-        std::vector<double> slow_values(2);
-        slow_values[0] = luo_rudy.rGetStateVariables()[5];
-        slow_values[1] = luo_rudy.rGetStateVariables()[6];
+        std::vector<double> DY_fast(4);
+        std::vector<double> slow_values(4);
+        slow_values[0] = luo_rudy.rGetStateVariables()[3];
+        slow_values[1] = luo_rudy.rGetStateVariables()[5];
+        slow_values[2] = luo_rudy.rGetStateVariables()[6];
+        slow_values[3] = luo_rudy.rGetStateVariables()[7];
 
         fast_luo_rudy.SetSlowValues(slow_values);
 
         fast_luo_rudy.EvaluateYDerivatives(0.0, fast_luo_rudy.rGetStateVariables(), DY_fast);
 
-        //Compare the resulting Y derivatives
-        for (unsigned i = 0; i < 5; ++i)
-        {
-            TS_ASSERT_DELTA(DY_normal[i], DY_fast[i], 1e-5);
-        }
-
-        TS_ASSERT_DELTA(DY_normal[7], DY_fast[5], 1e-5);
+        TS_ASSERT_DELTA(DY_normal[0], DY_fast[0], 1e-5);
+        TS_ASSERT_DELTA(DY_normal[1], DY_fast[1], 1e-5);
+        TS_ASSERT_DELTA(DY_normal[2], DY_fast[2], 1e-5);
+        TS_ASSERT_DELTA(DY_normal[4], DY_fast[3], 1e-5);
     }
 
 
@@ -94,6 +94,8 @@ public:
         TS_ASSERT_EQUALS(slow_luo_rudy.IsFast(), false);
         TS_ASSERT_EQUALS(slow_luo_rudy.GetNumberOfStateVariables(), 8u);
 
+        TS_ASSERT_DELTA(slow_luo_rudy.GetVoltage(), -84, 1.0);
+
         std::vector<double> DY_fast(8);
         slow_luo_rudy.EvaluateYDerivatives(0.0, slow_luo_rudy.rGetStateVariables(), DY_fast);
 
@@ -105,8 +107,10 @@ public:
 
         std::vector<double> slow_values;
         slow_luo_rudy.GetSlowValues(slow_values);
-        TS_ASSERT_DELTA(slow_values[0], luo_rudy.rGetStateVariables()[5], 1e-5);
-        TS_ASSERT_DELTA(slow_values[1], luo_rudy.rGetStateVariables()[6], 1e-5);
+        TS_ASSERT_DELTA(slow_values[0], luo_rudy.rGetStateVariables()[3], 1e-5);
+        TS_ASSERT_DELTA(slow_values[1], luo_rudy.rGetStateVariables()[5], 1e-5);
+        TS_ASSERT_DELTA(slow_values[2], luo_rudy.rGetStateVariables()[6], 1e-5);
+        TS_ASSERT_DELTA(slow_values[3], luo_rudy.rGetStateVariables()[7], 1e-5);
     }
 };
 

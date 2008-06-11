@@ -57,11 +57,13 @@ void FastSlowLuoRudyIModel1991::SetState(CellModelState state)
     // set mNumberOfStateVariables correctly (see comment in constructor)
     if(mState == FAST)
     {
-        mNumberOfStateVariables = 6;
+        mNumberOfStateVariables = 4;
+        mVoltageIndex = 3;
     }
     else
     {
         mNumberOfStateVariables = 8;
+        mVoltageIndex = 4;
     }
     
     // set the final paramter
@@ -81,9 +83,12 @@ void FastSlowLuoRudyIModel1991::SetState(CellModelState state)
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.00187018);
     
-    mVariableNames.push_back("CaI");
-    mVariableUnits.push_back("mMol");
-    mInitialConditions.push_back(0.0002);
+    if(mState == SLOW)
+    {
+        mVariableNames.push_back("CaI");
+        mVariableUnits.push_back("mMol");
+        mInitialConditions.push_back(0.0002);
+    }
     
     mVariableNames.push_back("V");
     mVariableUnits.push_back("mV");
@@ -98,11 +103,11 @@ void FastSlowLuoRudyIModel1991::SetState(CellModelState state)
         mVariableNames.push_back("f");
         mVariableUnits.push_back("");
         mInitialConditions.push_back(0.99427859);
-    }
 
-    mVariableNames.push_back("x");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.16647703);
+        mVariableNames.push_back("x");
+        mVariableUnits.push_back("");
+        mInitialConditions.push_back(0.16647703);
+    }
     
     AbstractCardiacCell::Init();
 }
@@ -116,6 +121,7 @@ FastSlowLuoRudyIModel1991::~FastSlowLuoRudyIModel1991(void)
 
 double FastSlowLuoRudyIModel1991::GetIntracellularCalciumConcentration()
 {
+    assert(mState == SLOW);    
     return mStateVariables[3];
 }
 
@@ -136,27 +142,31 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
 
     if(mState==FAST)
     {
-        assert(mSlowValues.size()==2); // verify that SetSlowValues() has been called.
+        assert(mSlowValues.size()==4); // verify that SetSlowValues() has been called.
     }
     
     double fast_sodium_current_h_gate_h = rY[0];
     double fast_sodium_current_j_gate_j = rY[1];
     double fast_sodium_current_m_gate_m = rY[2];
-    double intracellular_calcium_concentration_Cai = rY[3];
-    double membrane_V = rY[4];
+    double intracellular_calcium_concentration_Cai;
+    double membrane_V;
     double slow_inward_current_d_gate_d;
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
 
-    // set up last three variable depending on which mode we are in
+    // set up other variable depending on which mode we are in
     if(mState==FAST)
     {
-        slow_inward_current_d_gate_d = mSlowValues[0];
-        slow_inward_current_f_gate_f = mSlowValues[1];
-        time_dependent_potassium_current_X_gate_X = rY[5];
+        intracellular_calcium_concentration_Cai = mSlowValues[0];
+        membrane_V = rY[3];
+        slow_inward_current_d_gate_d = mSlowValues[1];
+        slow_inward_current_f_gate_f = mSlowValues[2];
+        time_dependent_potassium_current_X_gate_X = mSlowValues[3];
     }
     else
     {
+        intracellular_calcium_concentration_Cai = rY[3];
+        membrane_V = rY[4];
         slow_inward_current_d_gate_d = rY[5];
         slow_inward_current_f_gate_f = rY[6];
         time_dependent_potassium_current_X_gate_X = rY[7];
@@ -218,9 +228,6 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
     double fast_sodium_current_m_gate_m_prime = fast_sodium_current_m_gate_alpha_m*(1.0-fast_sodium_current_m_gate_m)-fast_sodium_current_m_gate_beta_m*fast_sodium_current_m_gate_m;
     double fast_sodium_current_i_Na = fast_sodium_current_g_Na*pow(fast_sodium_current_m_gate_m, 3.0)*fast_sodium_current_h_gate_h*fast_sodium_current_j_gate_j*(membrane_V-fast_sodium_current_E_Na);
     
-    double slow_inward_current_E_si = 7.7-13.0287*log(intracellular_calcium_concentration_Cai);
-    double slow_inward_current_i_si = 0.09*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f*(membrane_V-slow_inward_current_E_si);
-    double intracellular_calcium_concentration_Cai_prime = -1e-4*slow_inward_current_i_si+0.07*(1e-4-intracellular_calcium_concentration_Cai);
     double time_dependent_potassium_current_g_K = 0.282*sqrt(ionic_concentrations_Ko/5.4);
     
     double time_dependent_potassium_current_Xi_gate_Xi;
@@ -235,6 +242,10 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
         #undef COVERAGE_IGNORE
     }
+
+    double slow_inward_current_E_si = 7.7-13.0287*log(intracellular_calcium_concentration_Cai);
+    double slow_inward_current_i_si = 0.09*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f*(membrane_V-slow_inward_current_E_si);
+
     
     double time_dependent_potassium_current_X_gate_alpha_X = 0.0005*exp(0.083*(membrane_V+50.0))/(1.0+exp(0.057*(membrane_V+50.0)));
     double time_dependent_potassium_current_X_gate_beta_X = 0.0013*exp(-0.06*(membrane_V+20.0))/(1.0+exp(-0.04*(membrane_V+20.0)));
@@ -264,8 +275,6 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
     rDY[0] = fast_sodium_current_h_gate_h_prime;
     rDY[1] = fast_sodium_current_j_gate_j_prime;
     rDY[2] = fast_sodium_current_m_gate_m_prime;
-    rDY[3] = intracellular_calcium_concentration_Cai_prime;
-    rDY[4] = membrane_V_prime;
 
     if(mState==SLOW)
     {
@@ -277,13 +286,17 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
         double slow_inward_current_f_gate_beta_f = 0.0065*exp(-0.02*(membrane_V+30.0))/(1.0+exp(-0.2*(membrane_V+30.0)));
         double slow_inward_current_f_gate_f_prime = slow_inward_current_f_gate_alpha_f*(1.0-slow_inward_current_f_gate_f)-slow_inward_current_f_gate_beta_f*slow_inward_current_f_gate_f;
 
+        double intracellular_calcium_concentration_Cai_prime = -1e-4*slow_inward_current_i_si+0.07*(1e-4-intracellular_calcium_concentration_Cai);
+
+        rDY[3] = intracellular_calcium_concentration_Cai_prime;
+        rDY[4] = membrane_V_prime;
         rDY[5] = slow_inward_current_d_gate_d_prime;
         rDY[6] = slow_inward_current_f_gate_f_prime;
         rDY[7] = time_dependent_potassium_current_X_gate_X_prime;
     }
     else
     {
-        rDY[5] = time_dependent_potassium_current_X_gate_X_prime;
+        rDY[3] = membrane_V_prime;
     }
 }
 
@@ -292,12 +305,19 @@ void FastSlowLuoRudyIModel1991::SetSlowValues(const std::vector<double> &rSlowVa
     assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
 
     assert(mState==FAST);
-    assert(rSlowValues.size() == 2);
+    assert(rSlowValues.size() == 4);
 
-    double slow_inward_current_d_gate_d = rSlowValues[0];
-    double slow_inward_current_f_gate_f = rSlowValues[1];
+    double intracellular_calcium_concentration_Cai = rSlowValues[0];
+    double slow_inward_current_d_gate_d = rSlowValues[1];
+    double slow_inward_current_f_gate_f = rSlowValues[2];
+    double time_dependent_potassium_current_X_gate_X = rSlowValues[3];
 
     #define COVERAGE_IGNORE
+    if (0.0 > intracellular_calcium_concentration_Cai)
+    {
+        EXCEPTION(DumpState("Calcium concentration has gone negative. Check model parameters, for example spatial stepsize"));
+    }
+
     if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
     {
         EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
@@ -306,6 +326,11 @@ void FastSlowLuoRudyIModel1991::SetSlowValues(const std::vector<double> &rSlowVa
     if (!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
     {
         EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+    
+    if (!(0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0))
+    {
+        EXCEPTION(DumpState("x gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     #undef COVERAGE_IGNORE
 
@@ -317,9 +342,11 @@ void FastSlowLuoRudyIModel1991::GetSlowValues(std::vector<double> &rSlowValues)
     assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
 
     assert(mState==SLOW);
-    rSlowValues.resize(2);
-    rSlowValues[0] = mStateVariables[5];
-    rSlowValues[1] = mStateVariables[6];
+    rSlowValues.resize(4);
+    rSlowValues[0] = mStateVariables[3];
+    rSlowValues[1] = mStateVariables[5];
+    rSlowValues[2] = mStateVariables[6];
+    rSlowValues[3] = mStateVariables[7];
 }
     
 
@@ -330,21 +357,25 @@ double FastSlowLuoRudyIModel1991::GetIIonic()
     double fast_sodium_current_h_gate_h = mStateVariables[0];
     double fast_sodium_current_j_gate_j = mStateVariables[1];
     double fast_sodium_current_m_gate_m = mStateVariables[2];
-    double intracellular_calcium_concentration_Cai = mStateVariables[3];
-    double membrane_V = mStateVariables[4];
-
+    double intracellular_calcium_concentration_Cai;
+    double membrane_V;
     double slow_inward_current_d_gate_d;
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
 
+    // set up other variable depending on which mode we are in
     if(mState==FAST)
     {
-        slow_inward_current_d_gate_d = mSlowValues[0];
-        slow_inward_current_f_gate_f = mSlowValues[1];
-        time_dependent_potassium_current_X_gate_X = mStateVariables[5];
+        intracellular_calcium_concentration_Cai = mSlowValues[0];
+        membrane_V = mStateVariables[3];
+        slow_inward_current_d_gate_d = mSlowValues[1];
+        slow_inward_current_f_gate_f = mSlowValues[2];
+        time_dependent_potassium_current_X_gate_X = mSlowValues[3];
     }
     else
     {
+        intracellular_calcium_concentration_Cai = mStateVariables[3];
+        membrane_V = mStateVariables[4];
         slow_inward_current_d_gate_d = mStateVariables[5];
         slow_inward_current_f_gate_f = mStateVariables[6];
         time_dependent_potassium_current_X_gate_X = mStateVariables[7];
@@ -398,32 +429,37 @@ double FastSlowLuoRudyIModel1991::GetIIonic()
 void FastSlowLuoRudyIModel1991::VerifyStateVariables()
 {
     assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
+    if(mState==FAST)
+    {
+        assert(mSlowValues.size()==4); // verify that SetSlowValues() has been called.
+    }
 
 //#ifndef NDEBUG
     const std::vector<double>& rY = rGetStateVariables();
- 
-    const double fast_sodium_current_h_gate_h = rY[0];            // gating
-    const double fast_sodium_current_j_gate_j = rY[1];            // gating
-    const double fast_sodium_current_m_gate_m = rY[2];            // gating
-    const double intracellular_calcium_concentration_Cai = rY[3]; // concentration
-
+    
+    double fast_sodium_current_h_gate_h = rY[0];
+    double fast_sodium_current_j_gate_j = rY[1];
+    double fast_sodium_current_m_gate_m = rY[2];
+    double intracellular_calcium_concentration_Cai;
     double slow_inward_current_d_gate_d;
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
 
+    // set up other variables depending on which mode we are in
     if(mState==FAST)
     {
-        slow_inward_current_d_gate_d = mSlowValues[0];
-        slow_inward_current_f_gate_f = mSlowValues[1];
-        time_dependent_potassium_current_X_gate_X = rY[5];
+        intracellular_calcium_concentration_Cai = mSlowValues[0];
+        slow_inward_current_d_gate_d = mSlowValues[1];
+        slow_inward_current_f_gate_f = mSlowValues[2];
+        time_dependent_potassium_current_X_gate_X = mSlowValues[3];
     }
     else
     {
+        intracellular_calcium_concentration_Cai = rY[3];
         slow_inward_current_d_gate_d = rY[5];
         slow_inward_current_f_gate_f = rY[6];
         time_dependent_potassium_current_X_gate_X = rY[7];
     }
-
 
     #define COVERAGE_IGNORE
     if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
@@ -441,18 +477,13 @@ void FastSlowLuoRudyIModel1991::VerifyStateVariables()
         EXCEPTION(DumpState("m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
 
-    if (!(0.0<intracellular_calcium_concentration_Cai))
-    {
-        EXCEPTION(DumpState("intracellular_calcium_concentration_Cai has become non-positive, ie gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-    
-    if (!(0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0))
-    {
-        EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-
     if(mState==SLOW)
     {
+        if (!(0.0<intracellular_calcium_concentration_Cai))
+        {
+            EXCEPTION(DumpState("intracellular_calcium_concentration_Cai has become non-positive, ie gone out of range. Check model parameters, for example spatial stepsize"));
+        }
+
         if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
         {
             EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
@@ -461,6 +492,11 @@ void FastSlowLuoRudyIModel1991::VerifyStateVariables()
         if (!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
         {
             EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
+        }
+
+        if (!(0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0))
+        {
+            EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
         }
     }
     #undef COVERAGE_IGNORE
