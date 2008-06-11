@@ -72,6 +72,7 @@ public:
     // Physiological
     c_vector<double, 3> GetIntracellularConductivities() const;
     c_vector<double, 3> GetExtracellularConductivities() const;
+    bool GetIsMediaOrthotropic() const;
     double GetSurfaceAreaToVolumeRatio() const;
     double GetCapacitance() const;
 

@@ -103,7 +103,7 @@ public :
         std::vector<ChasteCuboid> cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
-         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+        HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                         scale_factor_gks,
                                                         scale_factor_ito);
 
@@ -114,7 +114,7 @@ public :
         std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
-         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+        HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
                                                                 intra_h_conductivities,
                                                                 extra_h_conductivities);
 
@@ -135,6 +135,8 @@ public :
         TS_ASSERT_EQUALS(extra_conductivities[0], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
+        
+        TS_ASSERT(HeartConfig::Instance()->GetIsMediaOrthotropic())
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
 

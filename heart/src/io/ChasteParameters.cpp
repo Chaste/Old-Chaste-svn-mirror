@@ -41,7 +41,7 @@
 #include "ChasteParameters.hpp"
 
 // domain_type
-//
+// 
 
 domain_type::
 domain_type (_xsd_domain_type v)
@@ -66,7 +66,7 @@ domain_type (const domain_type& v,
 domain_type& domain_type::
 operator= (_xsd_domain_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) =
+  static_cast< ::xml_schema::string& > (*this) = 
   ::xml_schema::string (_xsd_domain_type_literals_[v]);
 
   return *this;
@@ -74,7 +74,7 @@ operator= (_xsd_domain_type v)
 
 
 // ionic_model_type
-//
+// 
 
 ionic_model_type::
 ionic_model_type (_xsd_ionic_model_type v)
@@ -99,48 +99,48 @@ ionic_model_type (const ionic_model_type& v,
 ionic_model_type& ionic_model_type::
 operator= (_xsd_ionic_model_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) =
+  static_cast< ::xml_schema::string& > (*this) = 
   ::xml_schema::string (_xsd_ionic_model_type_literals_[v]);
 
   return *this;
 }
 
 
-// anisotropic_type
-//
+// media_type
+// 
 
-anisotropic_type::
-anisotropic_type (_xsd_anisotropic_type v)
-: ::xml_schema::string (_xsd_anisotropic_type_literals_[v])
+media_type::
+media_type (_xsd_media_type v)
+: ::xml_schema::string (_xsd_media_type_literals_[v])
 {
 }
 
-anisotropic_type::
-anisotropic_type (const ::xml_schema::string& _xsd_anisotropic_type)
-: ::xml_schema::string (_xsd_anisotropic_type)
+media_type::
+media_type (const ::xml_schema::string& _xsd_media_type)
+: ::xml_schema::string (_xsd_media_type)
 {
 }
 
-anisotropic_type::
-anisotropic_type (const anisotropic_type& v,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+media_type::
+media_type (const media_type& v,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
 : ::xml_schema::string (v, f, c)
 {
 }
 
-anisotropic_type& anisotropic_type::
-operator= (_xsd_anisotropic_type v)
+media_type& media_type::
+operator= (_xsd_media_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) =
-  ::xml_schema::string (_xsd_anisotropic_type_literals_[v]);
+  static_cast< ::xml_schema::string& > (*this) = 
+  ::xml_schema::string (_xsd_media_type_literals_[v]);
 
   return *this;
 }
 
 
 // point_type
-//
+// 
 
 const point_type::x::type& point_type::
 x () const
@@ -198,7 +198,7 @@ z (const z::type& z)
 
 
 // box_type
-//
+// 
 
 const box_type::CornerA::type& box_type::
 CornerA () const
@@ -250,7 +250,7 @@ CornerB (::std::auto_ptr< CornerB::type > CornerB)
 
 
 // stimulus_type
-//
+// 
 
 const stimulus_type::Strength::type& stimulus_type::
 Strength () const
@@ -332,7 +332,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // cell_heterogeneity_type
-//
+// 
 
 const cell_heterogeneity_type::ScaleFactorGks::type& cell_heterogeneity_type::
 ScaleFactorGks () const
@@ -396,7 +396,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // conductivity_heterogeneity_type
-//
+// 
 
 const conductivity_heterogeneity_type::IntracellularConductivities::container& conductivity_heterogeneity_type::
 IntracellularConductivities () const
@@ -484,7 +484,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // slab_type
-//
+// 
 
 const slab_type::SlabX::type& slab_type::
 SlabX () const
@@ -560,7 +560,7 @@ InterNodeSpace (const InterNodeSpace::type& InterNodeSpace)
 
 
 // mesh_type
-//
+// 
 
 const mesh_type::Slab::container& mesh_type::
 Slab () const
@@ -593,7 +593,7 @@ Slab (::std::auto_ptr< Slab::type > Slab)
 }
 
 // mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh
-//
+// 
 
 const mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::name::type& mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
 name () const
@@ -617,36 +617,6 @@ void mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
 name (::std::auto_ptr< name::type > name)
 {
   this->_xsd_name_.set (name);
-}
-
-const mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::type& mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::
-default_value ()
-{
-  return default_value_;
-}
-
-const mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::type& mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-media () const
-{
-  return this->_xsd_media_.get ();
-}
-
-mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::type& mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-media ()
-{
-  return this->_xsd_media_.get ();
-}
-
-void mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-media (const media::type& media)
-{
-  this->_xsd_media_.set (media);
-}
-
-void mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-media (::std::auto_ptr< media::type > media)
-{
-  this->_xsd_media_.set (media);
 }
 
 
@@ -682,7 +652,7 @@ LoadMesh (::std::auto_ptr< LoadMesh::type > LoadMesh)
 
 
 // conductivities_type
-//
+// 
 
 const conductivities_type::longi::type& conductivities_type::
 longi () const
@@ -740,7 +710,7 @@ normal (const normal::type& normal)
 
 
 // timesteps_type
-//
+// 
 
 const timesteps_type::ode::type& timesteps_type::
 ode () const
@@ -798,7 +768,7 @@ printing (const printing::type& printing)
 
 
 // ksp_use_type
-//
+// 
 
 ksp_use_type::
 ksp_use_type (_xsd_ksp_use_type v)
@@ -823,7 +793,7 @@ ksp_use_type (const ksp_use_type& v,
 ksp_use_type& ksp_use_type::
 operator= (_xsd_ksp_use_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) =
+  static_cast< ::xml_schema::string& > (*this) = 
   ::xml_schema::string (_xsd_ksp_use_type_literals_[v]);
 
   return *this;
@@ -831,7 +801,7 @@ operator= (_xsd_ksp_use_type v)
 
 
 // ksp_tolerances_type
-//
+// 
 
 const ksp_tolerances_type::KSPRelative::type& ksp_tolerances_type::
 KSPRelative () const
@@ -895,7 +865,7 @@ use (::std::auto_ptr< use::type > use)
 
 
 // ksp_solver_type
-//
+// 
 
 ksp_solver_type::
 ksp_solver_type (_xsd_ksp_solver_type v)
@@ -920,7 +890,7 @@ ksp_solver_type (const ksp_solver_type& v,
 ksp_solver_type& ksp_solver_type::
 operator= (_xsd_ksp_solver_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) =
+  static_cast< ::xml_schema::string& > (*this) = 
   ::xml_schema::string (_xsd_ksp_solver_type_literals_[v]);
 
   return *this;
@@ -928,7 +898,7 @@ operator= (_xsd_ksp_solver_type v)
 
 
 // ksp_preconditioner_type
-//
+// 
 
 ksp_preconditioner_type::
 ksp_preconditioner_type (_xsd_ksp_preconditioner_type v)
@@ -953,7 +923,7 @@ ksp_preconditioner_type (const ksp_preconditioner_type& v,
 ksp_preconditioner_type& ksp_preconditioner_type::
 operator= (_xsd_ksp_preconditioner_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) =
+  static_cast< ::xml_schema::string& > (*this) = 
   ::xml_schema::string (_xsd_ksp_preconditioner_type_literals_[v]);
 
   return *this;
@@ -961,7 +931,7 @@ operator= (_xsd_ksp_preconditioner_type v)
 
 
 // simulation_type
-//
+// 
 
 const simulation_type::SimulationDuration::container& simulation_type::
 SimulationDuration () const
@@ -1078,7 +1048,7 @@ Mesh (::std::auto_ptr< Mesh::type > Mesh)
 }
 
 // simulation_type::Stimuli::_xsd_Stimuli_::Stimuli
-//
+// 
 
 const simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container& simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::
 Stimulus () const
@@ -1130,7 +1100,7 @@ Stimuli (::std::auto_ptr< Stimuli::type > Stimuli)
 }
 
 // simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities
-//
+// 
 
 const simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container& simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::
 CellHeterogeneity () const
@@ -1182,7 +1152,7 @@ CellHeterogeneities (::std::auto_ptr< CellHeterogeneities::type > CellHeterogene
 }
 
 // simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities
-//
+// 
 
 const simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container& simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::
 ConductivityHeterogeneity () const
@@ -1265,7 +1235,7 @@ OutputDirectory (::std::auto_ptr< OutputDirectory::type > OutputDirectory)
 
 
 // physiological_type
-//
+// 
 
 const physiological_type::IntracellularConductivities::container& physiological_type::
 IntracellularConductivities () const
@@ -1327,6 +1297,36 @@ ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type 
   this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
 }
 
+const physiological_type::ConductivityMedia::container& physiological_type::
+ConductivityMedia () const
+{
+  return this->_xsd_ConductivityMedia_;
+}
+
+physiological_type::ConductivityMedia::container& physiological_type::
+ConductivityMedia ()
+{
+  return this->_xsd_ConductivityMedia_;
+}
+
+void physiological_type::
+ConductivityMedia (const ConductivityMedia::type& ConductivityMedia)
+{
+  this->_xsd_ConductivityMedia_.set (ConductivityMedia);
+}
+
+void physiological_type::
+ConductivityMedia (const ConductivityMedia::container& ConductivityMedia)
+{
+  this->_xsd_ConductivityMedia_ = ConductivityMedia;
+}
+
+void physiological_type::
+ConductivityMedia (::std::auto_ptr< ConductivityMedia::type > ConductivityMedia)
+{
+  this->_xsd_ConductivityMedia_.set (ConductivityMedia);
+}
+
 const physiological_type::SurfaceAreaToVolumeRatio::container& physiological_type::
 SurfaceAreaToVolumeRatio () const
 {
@@ -1377,7 +1377,7 @@ Capacitance (const Capacitance::container& Capacitance)
 
 
 // numerical_type
-//
+// 
 
 const numerical_type::Timesteps::container& numerical_type::
 Timesteps () const
@@ -1501,7 +1501,7 @@ KSPPreconditioner (::std::auto_ptr< KSPPreconditioner::type > KSPPreconditioner)
 
 
 // chaste_parameters_type
-//
+// 
 
 const chaste_parameters_type::Simulation::type& chaste_parameters_type::
 Simulation () const
@@ -1725,55 +1725,55 @@ _xsd_ionic_model_type_indexes_[5] =
   ::ionic_model_type::LuoRudyIModel1991OdeSystem
 };
 
-// anisotropic_type
+// media_type
 //
 
-anisotropic_type::
-anisotropic_type (const ::xercesc::DOMElement& e,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+media_type::
+media_type (const ::xercesc::DOMElement& e,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
 : ::xml_schema::string (e, f, c)
 {
-  _xsd_anisotropic_type_convert ();
+  _xsd_media_type_convert ();
 }
 
-anisotropic_type::
-anisotropic_type (const ::xercesc::DOMAttr& a,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+media_type::
+media_type (const ::xercesc::DOMAttr& a,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
 : ::xml_schema::string (a, f, c)
 {
-  _xsd_anisotropic_type_convert ();
+  _xsd_media_type_convert ();
 }
 
-anisotropic_type::
-anisotropic_type (const ::std::basic_string< char >& s,
-                  const ::xercesc::DOMElement* e,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+media_type::
+media_type (const ::std::basic_string< char >& s,
+            const ::xercesc::DOMElement* e,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
 : ::xml_schema::string (s, e, f, c)
 {
-  _xsd_anisotropic_type_convert ();
+  _xsd_media_type_convert ();
 }
 
-anisotropic_type* anisotropic_type::
+media_type* media_type::
 _clone (::xml_schema::flags f,
         ::xml_schema::type* c) const
 {
-  return new anisotropic_type (*this, f, c);
+  return new media_type (*this, f, c);
 }
 
-anisotropic_type::_xsd_anisotropic_type anisotropic_type::
-_xsd_anisotropic_type_convert () const
+media_type::_xsd_media_type media_type::
+_xsd_media_type_convert () const
 {
-  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_anisotropic_type_literals_);
-  const _xsd_anisotropic_type* i (::std::lower_bound (
-                                    _xsd_anisotropic_type_indexes_,
-                                    _xsd_anisotropic_type_indexes_ + 2,
-                                    *this,
-                                    c));
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_media_type_literals_);
+  const _xsd_media_type* i (::std::lower_bound (
+                              _xsd_media_type_indexes_,
+                              _xsd_media_type_indexes_ + 2,
+                              *this,
+                              c));
 
-  if (i == _xsd_anisotropic_type_indexes_ + 2 || _xsd_anisotropic_type_literals_[*i] != *this)
+  if (i == _xsd_media_type_indexes_ + 2 || _xsd_media_type_literals_[*i] != *this)
   {
     throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
   }
@@ -1781,18 +1781,18 @@ _xsd_anisotropic_type_convert () const
   return *i;
 }
 
-const char* const anisotropic_type::
-_xsd_anisotropic_type_literals_[2] =
+const char* const media_type::
+_xsd_media_type_literals_[2] =
 {
   "Orthotropic",
   "Axisymmetric"
 };
 
-const anisotropic_type::_xsd_anisotropic_type anisotropic_type::
-_xsd_anisotropic_type_indexes_[2] =
+const media_type::_xsd_media_type media_type::
+_xsd_media_type_indexes_[2] =
 {
-  ::anisotropic_type::Axisymmetric,
-  ::anisotropic_type::Orthotropic
+  ::media_type::Axisymmetric,
+  ::media_type::Orthotropic
 };
 
 // point_type
@@ -2624,21 +2624,12 @@ _clone (::xml_schema::flags f,
 // mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh
 //
 
-// mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media
-//
-
-const mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::type mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::media::default_value_ (
-  ::std::basic_string< char > ("Orthotropic"), 0, 0, 0);
-
 mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
 LoadMesh (const name::type& _xsd_name)
 : ::xml_schema::type (),
 _xsd_name_ (_xsd_name,
             ::xml_schema::flags (),
-            this),
-_xsd_media_ (media::default_value (),
-             ::xml_schema::flags (),
-             this)
+            this)
 {
 }
 
@@ -2649,10 +2640,7 @@ LoadMesh (const LoadMesh& _xsd_LoadMesh,
 : ::xml_schema::type (_xsd_LoadMesh, f, c),
 _xsd_name_ (_xsd_LoadMesh._xsd_name_,
             f | ::xml_schema::flags::not_root,
-            this),
-_xsd_media_ (_xsd_LoadMesh._xsd_media_,
-             f | ::xml_schema::flags::not_root,
-             this)
+            this)
 {
 }
 
@@ -2661,8 +2649,7 @@ LoadMesh (const ::xercesc::DOMElement& e,
           ::xml_schema::flags f,
           ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_name_ (f | ::xml_schema::flags::not_root, this),
-_xsd_media_ (f | ::xml_schema::flags::not_root, this)
+_xsd_name_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -2687,18 +2674,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       this->name (r);
       continue;
     }
-
-    if (a.name () == "media" && a.namespace_ ().empty ())
-    {
-      ::std::auto_ptr< media::type > r (
-        media::traits::create (
-          a.dom_attribute (),
-          f | ::xml_schema::flags::not_root,
-          this));
-
-      this->media (r);
-      continue;
-    }
   }
 
   if (!_xsd_name_.present ())
@@ -2706,16 +2681,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     throw ::xsd::cxx::tree::expected_attribute< char > (
       "name",
       "");
-  }
-
-  if (!_xsd_media_.present ())
-  {
-    this->media (
-      media::traits::create (
-        ::std::basic_string< char > ("Orthotropic"),
-        &e,
-        f | ::xml_schema::flags::not_root,
-        this));
   }
 }
 
@@ -3829,6 +3794,7 @@ physiological_type ()
 : ::xml_schema::type (),
 _xsd_IntracellularConductivities_ (::xml_schema::flags (), this),
 _xsd_ExtracellularConductivities_ (::xml_schema::flags (), this),
+_xsd_ConductivityMedia_ (::xml_schema::flags (), this),
 _xsd_SurfaceAreaToVolumeRatio_ (::xml_schema::flags (), this),
 _xsd_Capacitance_ (::xml_schema::flags (), this)
 {
@@ -3845,6 +3811,9 @@ _xsd_IntracellularConductivities_ (_xsd_physiological_type._xsd_IntracellularCon
 _xsd_ExtracellularConductivities_ (_xsd_physiological_type._xsd_ExtracellularConductivities_,
                                    f | ::xml_schema::flags::not_root,
                                    this),
+_xsd_ConductivityMedia_ (_xsd_physiological_type._xsd_ConductivityMedia_,
+                         f | ::xml_schema::flags::not_root,
+                         this),
 _xsd_SurfaceAreaToVolumeRatio_ (_xsd_physiological_type._xsd_SurfaceAreaToVolumeRatio_,
                                 f | ::xml_schema::flags::not_root,
                                 this),
@@ -3861,6 +3830,7 @@ physiological_type (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f, c),
 _xsd_IntracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ExtracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
+_xsd_ConductivityMedia_ (f | ::xml_schema::flags::not_root, this),
 _xsd_SurfaceAreaToVolumeRatio_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Capacitance_ (f | ::xml_schema::flags::not_root, this)
 {
@@ -3908,6 +3878,24 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (this->ExtracellularConductivities ())
           continue;
         this->ExtracellularConductivities (r);
+        continue;
+      }
+    }
+
+    // ConductivityMedia
+    //
+    {
+      if (e.name () == "ConductivityMedia" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< ConductivityMedia::type > r (
+          ConductivityMedia::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (this->ConductivityMedia ())
+          continue;
+        this->ConductivityMedia (r);
         continue;
       }
     }
@@ -4437,7 +4425,7 @@ ChasteParameters (const ::xercesc::DOMDocument& d,
                   const ::xsd::cxx::tree::properties< char >&)
 {
   ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
-    (f & ::xml_schema::flags::keep_dom)
+    (f & ::xml_schema::flags::keep_dom) 
     ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
     : 0);
 

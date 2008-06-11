@@ -299,6 +299,15 @@ c_vector<double, 3> HeartConfig::GetExtracellularConductivities() const
     return Create_c_vector(extra_x_cond, extra_y_cond, extra_z_cond);
 }
 
+bool HeartConfig::GetIsMediaOrthotropic() const
+{
+    media_type media_defined = DecideLocation( & mpUserParameters->Physiological().ConductivityMedia(),
+                                               & mpDefaultParameters->Physiological().ConductivityMedia(),
+                                               "ConductivityMedia")->get();    
+    
+    return (media_defined == media_type::Orthotropic);    
+}
+
 double HeartConfig::GetSurfaceAreaToVolumeRatio() const
 {
     return DecideLocation( & mpUserParameters->Physiological().SurfaceAreaToVolumeRatio(),

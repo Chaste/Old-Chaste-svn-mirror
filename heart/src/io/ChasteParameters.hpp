@@ -201,7 +201,7 @@ namespace xml_schema
 //
 class domain_type;
 class ionic_model_type;
-class anisotropic_type;
+class media_type;
 class point_type;
 class box_type;
 class stimulus_type;
@@ -335,56 +335,56 @@ class ionic_model_type: public ::xml_schema::string
   static const _xsd_ionic_model_type _xsd_ionic_model_type_indexes_[5];
 };
 
-class anisotropic_type: public ::xml_schema::string
+class media_type: public ::xml_schema::string
 {
   public:
-  enum _xsd_anisotropic_type
+  enum _xsd_media_type
   {
     Orthotropic,
     Axisymmetric
   };
 
-  anisotropic_type (_xsd_anisotropic_type);
+  media_type (_xsd_media_type);
 
-  anisotropic_type (const ::xml_schema::string&);
+  media_type (const ::xml_schema::string&);
 
-  anisotropic_type (const ::xercesc::DOMElement&,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  media_type (const ::xercesc::DOMElement&,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
 
-  anisotropic_type (const ::xercesc::DOMAttr&,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  media_type (const ::xercesc::DOMAttr&,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
 
-  anisotropic_type (const ::std::basic_string< char >&,
-                    const ::xercesc::DOMElement*,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  media_type (const ::std::basic_string< char >&,
+              const ::xercesc::DOMElement*,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
 
-  anisotropic_type (const anisotropic_type&,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  media_type (const media_type&,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
 
-  virtual anisotropic_type*
+  virtual media_type*
   _clone (::xml_schema::flags = 0,
           ::xml_schema::type* = 0) const;
 
-  anisotropic_type&
-  operator= (_xsd_anisotropic_type);
+  media_type&
+  operator= (_xsd_media_type);
 
   virtual
-  operator _xsd_anisotropic_type () const
+  operator _xsd_media_type () const
   {
-    return _xsd_anisotropic_type_convert ();
+    return _xsd_media_type_convert ();
   }
 
   protected:
-  _xsd_anisotropic_type
-  _xsd_anisotropic_type_convert () const;
+  _xsd_media_type
+  _xsd_media_type_convert () const;
 
   public:
-  static const char* const _xsd_anisotropic_type_literals_[2];
-  static const _xsd_anisotropic_type _xsd_anisotropic_type_indexes_[2];
+  static const char* const _xsd_media_type_literals_[2];
+  static const _xsd_media_type _xsd_media_type_indexes_[2];
 };
 
 class point_type: public ::xml_schema::type
@@ -397,7 +397,7 @@ class point_type: public ::xml_schema::type
   };
 
   // x
-  //
+  // 
   public:
   struct x
   {
@@ -415,7 +415,7 @@ class point_type: public ::xml_schema::type
   x (const x::type&);
 
   // y
-  //
+  // 
   public:
   struct y
   {
@@ -433,7 +433,7 @@ class point_type: public ::xml_schema::type
   y (const y::type&);
 
   // z
-  //
+  // 
   public:
   struct z
   {
@@ -490,7 +490,7 @@ class box_type: public ::xml_schema::type
   };
 
   // CornerA
-  //
+  // 
   public:
   struct CornerA
   {
@@ -511,7 +511,7 @@ class box_type: public ::xml_schema::type
   CornerA (::std::auto_ptr< CornerA::type >);
 
   // CornerB
-  //
+  // 
   public:
   struct CornerB
   {
@@ -569,7 +569,7 @@ class stimulus_type: public ::xml_schema::type
   };
 
   // Strength
-  //
+  // 
   public:
   struct Strength
   {
@@ -587,7 +587,7 @@ class stimulus_type: public ::xml_schema::type
   Strength (const Strength::type&);
 
   // Duration
-  //
+  // 
   public:
   struct Duration
   {
@@ -605,7 +605,7 @@ class stimulus_type: public ::xml_schema::type
   Duration (const Duration::type&);
 
   // Delay
-  //
+  // 
   public:
   struct Delay
   {
@@ -623,7 +623,7 @@ class stimulus_type: public ::xml_schema::type
   Delay (const Delay::type&);
 
   // Location
-  //
+  // 
   public:
   struct Location
   {
@@ -685,7 +685,7 @@ class cell_heterogeneity_type: public ::xml_schema::type
   };
 
   // ScaleFactorGks
-  //
+  // 
   public:
   struct ScaleFactorGks
   {
@@ -703,7 +703,7 @@ class cell_heterogeneity_type: public ::xml_schema::type
   ScaleFactorGks (const ScaleFactorGks::type&);
 
   // ScaleFactorIto
-  //
+  // 
   public:
   struct ScaleFactorIto
   {
@@ -721,7 +721,7 @@ class cell_heterogeneity_type: public ::xml_schema::type
   ScaleFactorIto (const ScaleFactorIto::type&);
 
   // Location
-  //
+  // 
   public:
   struct Location
   {
@@ -781,7 +781,7 @@ class conductivity_heterogeneity_type: public ::xml_schema::type
   };
 
   // IntracellularConductivities
-  //
+  // 
   public:
   struct IntracellularConductivities
   {
@@ -806,7 +806,7 @@ class conductivity_heterogeneity_type: public ::xml_schema::type
   IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type >);
 
   // ExtracellularConductivities
-  //
+  // 
   public:
   struct ExtracellularConductivities
   {
@@ -831,7 +831,7 @@ class conductivity_heterogeneity_type: public ::xml_schema::type
   ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
 
   // Location
-  //
+  // 
   public:
   struct Location
   {
@@ -889,7 +889,7 @@ class slab_type: public ::xml_schema::type
   };
 
   // SlabX
-  //
+  // 
   public:
   struct SlabX
   {
@@ -907,7 +907,7 @@ class slab_type: public ::xml_schema::type
   SlabX (const SlabX::type&);
 
   // SlabY
-  //
+  // 
   public:
   struct SlabY
   {
@@ -925,7 +925,7 @@ class slab_type: public ::xml_schema::type
   SlabY (const SlabY::type&);
 
   // SlabZ
-  //
+  // 
   public:
   struct SlabZ
   {
@@ -943,7 +943,7 @@ class slab_type: public ::xml_schema::type
   SlabZ (const SlabZ::type&);
 
   // InterNodeSpace
-  //
+  // 
   public:
   struct InterNodeSpace
   {
@@ -1002,7 +1002,7 @@ class mesh_type: public ::xml_schema::type
   };
 
   // Slab
-  //
+  // 
   public:
   struct Slab
   {
@@ -1027,7 +1027,7 @@ class mesh_type: public ::xml_schema::type
   Slab (::std::auto_ptr< Slab::type >);
 
   // LoadMesh
-  //
+  // 
   public:
   struct LoadMesh
   {
@@ -1043,7 +1043,7 @@ class mesh_type: public ::xml_schema::type
         };
 
         // name
-        //
+        // 
         public:
         struct name
         {
@@ -1062,33 +1062,6 @@ class mesh_type: public ::xml_schema::type
 
         void
         name (::std::auto_ptr< name::type >);
-
-        // media
-        //
-        public:
-        struct media
-        {
-          typedef ::anisotropic_type type;
-          typedef ::xsd::cxx::tree::traits< type, char > traits;
-
-          static const type&
-          default_value ();
-
-          private:
-          static const type default_value_;
-        };
-
-        const media::type&
-        media () const;
-
-        media::type&
-        media ();
-
-        void
-        media (const media::type&);
-
-        void
-        media (::std::auto_ptr< media::type >);
 
         // Constructors.
         //
@@ -1114,7 +1087,6 @@ class mesh_type: public ::xml_schema::type
         parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
         ::xsd::cxx::tree::one< name::type > _xsd_name_;
-        ::xsd::cxx::tree::one< media::type > _xsd_media_;
       };
     };
 
@@ -1175,7 +1147,7 @@ class conductivities_type: public ::xml_schema::type
   };
 
   // longi
-  //
+  // 
   public:
   struct longi
   {
@@ -1193,7 +1165,7 @@ class conductivities_type: public ::xml_schema::type
   longi (const longi::type&);
 
   // trans
-  //
+  // 
   public:
   struct trans
   {
@@ -1211,7 +1183,7 @@ class conductivities_type: public ::xml_schema::type
   trans (const trans::type&);
 
   // normal
-  //
+  // 
   public:
   struct normal
   {
@@ -1268,7 +1240,7 @@ class timesteps_type: public ::xml_schema::type
   };
 
   // ode
-  //
+  // 
   public:
   struct ode
   {
@@ -1286,7 +1258,7 @@ class timesteps_type: public ::xml_schema::type
   ode (const ode::type&);
 
   // pde
-  //
+  // 
   public:
   struct pde
   {
@@ -1304,7 +1276,7 @@ class timesteps_type: public ::xml_schema::type
   pde (const pde::type&);
 
   // printing
-  //
+  // 
   public:
   struct printing
   {
@@ -1413,7 +1385,7 @@ class ksp_tolerances_type: public ::xml_schema::type
   };
 
   // KSPRelative
-  //
+  // 
   public:
   struct KSPRelative
   {
@@ -1431,7 +1403,7 @@ class ksp_tolerances_type: public ::xml_schema::type
   KSPRelative (const KSPRelative::type&);
 
   // KSPAbsolute
-  //
+  // 
   public:
   struct KSPAbsolute
   {
@@ -1449,7 +1421,7 @@ class ksp_tolerances_type: public ::xml_schema::type
   KSPAbsolute (const KSPAbsolute::type&);
 
   // use
-  //
+  // 
   public:
   struct use
   {
@@ -1615,7 +1587,7 @@ class simulation_type: public ::xml_schema::type
   };
 
   // SimulationDuration
-  //
+  // 
   public:
   struct SimulationDuration
   {
@@ -1637,7 +1609,7 @@ class simulation_type: public ::xml_schema::type
   SimulationDuration (const SimulationDuration::container&);
 
   // Domain
-  //
+  // 
   public:
   struct Domain
   {
@@ -1662,7 +1634,7 @@ class simulation_type: public ::xml_schema::type
   Domain (::std::auto_ptr< Domain::type >);
 
   // IonicModel
-  //
+  // 
   public:
   struct IonicModel
   {
@@ -1687,7 +1659,7 @@ class simulation_type: public ::xml_schema::type
   IonicModel (::std::auto_ptr< IonicModel::type >);
 
   // Mesh
-  //
+  // 
   public:
   struct Mesh
   {
@@ -1712,7 +1684,7 @@ class simulation_type: public ::xml_schema::type
   Mesh (::std::auto_ptr< Mesh::type >);
 
   // Stimuli
-  //
+  // 
   public:
   struct Stimuli
   {
@@ -1728,7 +1700,7 @@ class simulation_type: public ::xml_schema::type
         };
 
         // Stimulus
-        //
+        // 
         public:
         struct Stimulus
         {
@@ -1796,7 +1768,7 @@ class simulation_type: public ::xml_schema::type
   Stimuli (::std::auto_ptr< Stimuli::type >);
 
   // CellHeterogeneities
-  //
+  // 
   public:
   struct CellHeterogeneities
   {
@@ -1812,7 +1784,7 @@ class simulation_type: public ::xml_schema::type
         };
 
         // CellHeterogeneity
-        //
+        // 
         public:
         struct CellHeterogeneity
         {
@@ -1880,7 +1852,7 @@ class simulation_type: public ::xml_schema::type
   CellHeterogeneities (::std::auto_ptr< CellHeterogeneities::type >);
 
   // ConductivityHeterogeneities
-  //
+  // 
   public:
   struct ConductivityHeterogeneities
   {
@@ -1896,7 +1868,7 @@ class simulation_type: public ::xml_schema::type
         };
 
         // ConductivityHeterogeneity
-        //
+        // 
         public:
         struct ConductivityHeterogeneity
         {
@@ -1964,7 +1936,7 @@ class simulation_type: public ::xml_schema::type
   ConductivityHeterogeneities (::std::auto_ptr< ConductivityHeterogeneities::type >);
 
   // OutputDirectory
-  //
+  // 
   public:
   struct OutputDirectory
   {
@@ -2031,7 +2003,7 @@ class physiological_type: public ::xml_schema::type
   };
 
   // IntracellularConductivities
-  //
+  // 
   public:
   struct IntracellularConductivities
   {
@@ -2056,7 +2028,7 @@ class physiological_type: public ::xml_schema::type
   IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type >);
 
   // ExtracellularConductivities
-  //
+  // 
   public:
   struct ExtracellularConductivities
   {
@@ -2080,8 +2052,33 @@ class physiological_type: public ::xml_schema::type
   void
   ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
 
+  // ConductivityMedia
+  // 
+  public:
+  struct ConductivityMedia
+  {
+    typedef ::media_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const ConductivityMedia::container&
+  ConductivityMedia () const;
+
+  ConductivityMedia::container&
+  ConductivityMedia ();
+
+  void
+  ConductivityMedia (const ConductivityMedia::type&);
+
+  void
+  ConductivityMedia (const ConductivityMedia::container&);
+
+  void
+  ConductivityMedia (::std::auto_ptr< ConductivityMedia::type >);
+
   // SurfaceAreaToVolumeRatio
-  //
+  // 
   public:
   struct SurfaceAreaToVolumeRatio
   {
@@ -2103,7 +2100,7 @@ class physiological_type: public ::xml_schema::type
   SurfaceAreaToVolumeRatio (const SurfaceAreaToVolumeRatio::container&);
 
   // Capacitance
-  //
+  // 
   public:
   struct Capacitance
   {
@@ -2149,6 +2146,7 @@ class physiological_type: public ::xml_schema::type
 
   ::xsd::cxx::tree::optional< IntracellularConductivities::type > _xsd_IntracellularConductivities_;
   ::xsd::cxx::tree::optional< ExtracellularConductivities::type > _xsd_ExtracellularConductivities_;
+  ::xsd::cxx::tree::optional< ConductivityMedia::type > _xsd_ConductivityMedia_;
   ::xsd::cxx::tree::optional< SurfaceAreaToVolumeRatio::type > _xsd_SurfaceAreaToVolumeRatio_;
   ::xsd::cxx::tree::optional< Capacitance::type > _xsd_Capacitance_;
 };
@@ -2163,7 +2161,7 @@ class numerical_type: public ::xml_schema::type
   };
 
   // Timesteps
-  //
+  // 
   public:
   struct Timesteps
   {
@@ -2188,7 +2186,7 @@ class numerical_type: public ::xml_schema::type
   Timesteps (::std::auto_ptr< Timesteps::type >);
 
   // KSPTolerances
-  //
+  // 
   public:
   struct KSPTolerances
   {
@@ -2213,7 +2211,7 @@ class numerical_type: public ::xml_schema::type
   KSPTolerances (::std::auto_ptr< KSPTolerances::type >);
 
   // KSPSolver
-  //
+  // 
   public:
   struct KSPSolver
   {
@@ -2238,7 +2236,7 @@ class numerical_type: public ::xml_schema::type
   KSPSolver (::std::auto_ptr< KSPSolver::type >);
 
   // KSPPreconditioner
-  //
+  // 
   public:
   struct KSPPreconditioner
   {
@@ -2301,7 +2299,7 @@ class chaste_parameters_type: public ::xml_schema::type
   };
 
   // Simulation
-  //
+  // 
   public:
   struct Simulation
   {
@@ -2322,7 +2320,7 @@ class chaste_parameters_type: public ::xml_schema::type
   Simulation (::std::auto_ptr< Simulation::type >);
 
   // Physiological
-  //
+  // 
   public:
   struct Physiological
   {
@@ -2343,7 +2341,7 @@ class chaste_parameters_type: public ::xml_schema::type
   Physiological (::std::auto_ptr< Physiological::type >);
 
   // Numerical
-  //
+  // 
   public:
   struct Numerical
   {

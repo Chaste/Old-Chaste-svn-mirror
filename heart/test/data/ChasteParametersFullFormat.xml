@@ -118,6 +118,7 @@
 	    -->
 	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
 	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
+   	    <ConductivityMedia>Orthotropic</ConductivityMedia>
 	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>
 	    <Capacitance> 1.0 </Capacitance>
 	</Physiological>
