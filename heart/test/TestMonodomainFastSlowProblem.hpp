@@ -48,7 +48,7 @@ private:
 public:
     MyCellFactory(bool fastSlow) : AbstractCardiacCellFactory<2>(0.01)
     {
-        mpStimulus = new SimpleStimulus(-600*1000.0, 0.5);
+        mpStimulus = new SimpleStimulus(-10000*1000.0, 0.5);
         mFastSlow = fastSlow;
     }
 
@@ -67,8 +67,8 @@ public:
             p_stim = mpZeroStimulus;
         }
 
-          if(mFastSlow)
-          {
+        if(mFastSlow)
+        {
             // fast-slow cells
             return new FastSlowLuoRudyIModel1991(mpSolver, mTimeStep, p_stim); // state unset at the moment
         }
@@ -92,7 +92,7 @@ public:
     // run the fast slow problem and compare solution with a normal problem
     //
     // todo: fix test below. also check with different meshes and endtimes and
-    // timesteps. With num_coarse_nodes_each_dir = 2, num_fine_nodes_each_dir=20
+    // timesteps. With num_coarse_elem_each_dir = 2, num_fine_elem_each_dir=20
     // a gating variable exception occured..........
     void TestMonodomainFastSlowProblemAgainstNormal() throw (Exception)
     {
@@ -100,12 +100,12 @@ public:
 
         EventHandler::Disable();
 
-        unsigned num_coarse_nodes_each_dir = 3;
-        unsigned num_fine_nodes_each_dir = 30;
+        unsigned num_coarse_elem_each_dir = 2;
+        unsigned num_fine_elem_each_dir = 20;
 
         // solve a mixed mesh, fast/slow problem
         MixedTetrahedralMesh<2,2> mixed_mesh;
-        mixed_mesh.ConstructRectangularMeshes(1.0, 1.0, num_coarse_nodes_each_dir, num_fine_nodes_each_dir);
+        mixed_mesh.ConstructRectangularMeshes(0.1, 0.1, num_coarse_elem_each_dir, num_fine_elem_each_dir);
 
         MyCellFactory cell_factory(true);
 
@@ -137,25 +137,13 @@ public:
         ReplicatableVector voltage_normal( monodomain_prob.GetVoltage() );
         TS_ASSERT_EQUALS(voltage_fast_slow.size(), voltage_normal.size() );
 
-        bool some_voltage_greater_than_zero = true;
+        bool some_voltage_greater_than_zero = false;
         for(unsigned i=0; i<voltage_fast_slow.size(); i++)
         {
-//            if(fabs(voltage_fast_slow[i] - voltage_normal[i]) > 2.5)
-//            {
-//                std::cout << mixed_mesh.GetFineMesh()->GetNode(i)->rGetLocation() << "\n";
-//                std::cout << i << " " << fabs(voltage_fast_slow[i] - voltage_normal[i]) << "\n";
-//            }
-
-/// for some reason are only two nodes where the voltage isn't that close
-/// node 4 (pos = (0.133333,1), voltages are (8.8713 != 16.3619); and
-/// node 5 (pos = (0.166667,1), voltages are (-64.0252 != -59.5150)
-            if( (i!=4) && (i!=5) )
+            TS_ASSERT_DELTA(voltage_fast_slow[i], voltage_normal[i], 1.0);
+            if(voltage_fast_slow[i] > 0.0)
             {
-                TS_ASSERT_DELTA(voltage_fast_slow[i], voltage_normal[i], 2.5);
-                if(voltage_fast_slow[i] > 0.0)
-                {
-                    some_voltage_greater_than_zero = true;
-                }
+                some_voltage_greater_than_zero = true;
             }
         }
         TS_ASSERT(some_voltage_greater_than_zero);

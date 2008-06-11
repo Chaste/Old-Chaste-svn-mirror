@@ -90,7 +90,7 @@ public:
      * to be used by the base class when solving for the voltage.
      */
     MonodomainFastSlowProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
-                                MixedTetrahedralMesh<DIM,DIM>& rMixedMesh,
+                              MixedTetrahedralMesh<DIM,DIM>& rMixedMesh,
                               double slowCellsTimeStep,
                               bool orthotropicMedia=true)
             : MonodomainProblem<DIM>(pCellFactory, orthotropicMedia),
