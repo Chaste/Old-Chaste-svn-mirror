@@ -97,7 +97,7 @@ public:
             TS_ASSERT(simulation_params.Mesh().get().Slab() == NULL);
 
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->name(), "foo");
-            TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->media(), "Orthotropic"); // Testing for the default value
+           
 
             physiological_type physiological_params = params->Physiological();
 
