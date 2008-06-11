@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractDynamicAssemblerMixin.hpp"
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
+#include "Hdf5ToMeshalyzerConverter.hpp"
 
 #include "OrthotropicConductivityTensors.hpp"
 #include "AxisymmetricConductivityTensors.hpp"
@@ -134,7 +135,7 @@ public:
         mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
         mWriteInfo = false;
         mPrintOutput = true;
-        mCallChaste2Meshalyzer = true;
+        mCallChaste2Meshalyzer = false;
         mpCardiacPde = NULL;
         mpAssembler = NULL;
         mVoltage = NULL;
@@ -563,28 +564,29 @@ public:
 
         // close the file that stores voltage values
         if (mPrintOutput)
-        {
-//            bool am_master = mpWriter->AmMaster();
+        { 
             mpWriter->Close();
             delete mpWriter;
 
-//            if (am_master && mCallChaste2Meshalyzer) // ie only if master process and results files were written
-//            {
-//                // call shell script which converts the data to meshalyzer format
-//                std::string chaste_2_meshalyzer;
-//                std::stringstream space_dim;
-//                space_dim << SPACE_DIM;
-//                chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
-//                                      + space_dim.str() + " "       // argument 1 is the dimension.
-//                                      + mMeshFilename + " "         // arg 2 is mesh prefix, path relative to
-//                                      // the main chaste directory.
-//                                      + mOutputDirectory + "/"
-//                                      + mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix,
-//                                      // relative to the testoutput folder.
-//                                      + "last_simulation";          // arg 4 is the output prefix, relative to
-//                                                                    // anim folder.
-//                system(chaste_2_meshalyzer.c_str());
-//            }
+            bool am_master = PetscTools::AmMaster();
+
+            // Only if master process and results files were written and we are outputting all nodes
+            if (am_master && mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
+            {
+                // call shell script which converts the data to meshalyzer format
+                std::string chaste_2_meshalyzer;
+                std::stringstream space_dim;
+                space_dim << SPACE_DIM;
+                chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
+                                      + space_dim.str() + " "       // argument 1 is the dimension.
+                                      + mMeshFilename + " "         // arg 2 is mesh prefix, path relative to Chaste directory
+                                      + "last_simulation";          // arg 3 is the output prefix, relative to
+                                                                    // anim folder.
+                system(chaste_2_meshalyzer.c_str());
+                
+                //Convert simulation data to Meshalyzer format
+                Hdf5ToMeshalyzerConverter converter(mOutputDirectory, mOutputFilenamePrefix);
+            }
         }
         EventHandler::EndEvent(EVERYTHING);
     }
