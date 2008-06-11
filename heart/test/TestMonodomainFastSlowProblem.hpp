@@ -98,7 +98,6 @@ public:
     {
         EXIT_IF_PARALLEL;
 
-        EventHandler::Disable();
 
         unsigned num_coarse_elem_each_dir = 2;
         unsigned num_fine_elem_each_dir = 20;
@@ -108,40 +107,55 @@ public:
         //////////////////////////////////////////////////
         MixedTetrahedralMesh<2,2> mixed_mesh;
         mixed_mesh.ConstructRectangularMeshes(0.1, 0.1, num_coarse_elem_each_dir, num_fine_elem_each_dir);
+        ReplicatableVector voltage_fast_slow;
+        {
 
-        MyCellFactory cell_factory(true);
+    
+            MyCellFactory cell_factory(true);
+    
+            MonodomainFastSlowProblem<2> monodomain_fast_slow_prob( &cell_factory, mixed_mesh, 1.0 );
+    
+            monodomain_fast_slow_prob.SetEndTime(2);   // ms
+            monodomain_fast_slow_prob.SetOutputDirectory("MonodomainFastSlow");
+            monodomain_fast_slow_prob.SetOutputFilenamePrefix("res");
+    
+            monodomain_fast_slow_prob.Initialise();
+            monodomain_fast_slow_prob.Solve();
+    
+            EventHandler::Headings();
+            EventHandler::Report();
+    
+            voltage_fast_slow.ReplicatePetscVector( monodomain_fast_slow_prob.GetVoltage() );
+            TS_ASSERT_EQUALS(voltage_fast_slow.size(), mixed_mesh.GetFineMesh()->GetNumNodes() );
 
-        MonodomainFastSlowProblem<2> monodomain_fast_slow_prob( &cell_factory, mixed_mesh, 1.0 );
-
-        monodomain_fast_slow_prob.SetEndTime(2);   // ms
-        monodomain_fast_slow_prob.SetOutputDirectory("MonodomainFastSlow");
-        monodomain_fast_slow_prob.SetOutputFilenamePrefix("res");
-
-        monodomain_fast_slow_prob.Initialise();
-        monodomain_fast_slow_prob.Solve();
-
-        ReplicatableVector voltage_fast_slow( monodomain_fast_slow_prob.GetVoltage() );
-        TS_ASSERT_EQUALS(voltage_fast_slow.size(), mixed_mesh.GetFineMesh()->GetNumNodes() );
+            EventHandler::Reset();
+        }
 
         //////////////////////////////////////////////////
         // solve using normal monodomain problem
         //////////////////////////////////////////////////
-        MyCellFactory cell_factory_normal(false);
-
-        MonodomainProblem<2> monodomain_prob( &cell_factory_normal, 1.0 );
-        monodomain_prob.SetMesh(mixed_mesh.GetFineMesh());
-
-        monodomain_prob.SetEndTime(2);   // ms
-        monodomain_prob.SetOutputDirectory("MonodomainNormalToCompareWithFastSlow");
-        monodomain_prob.SetOutputFilenamePrefix("res");
-
-        monodomain_prob.Initialise();
-        monodomain_prob.Solve();
+        ReplicatableVector voltage_normal;
+        {
+            MyCellFactory cell_factory_normal(false);
+    
+            MonodomainProblem<2> monodomain_prob( &cell_factory_normal, 1.0 );
+            monodomain_prob.SetMesh(mixed_mesh.GetFineMesh());
+    
+            monodomain_prob.SetEndTime(2);   // ms
+            monodomain_prob.SetOutputDirectory("MonodomainNormalToCompareWithFastSlow");
+            monodomain_prob.SetOutputFilenamePrefix("res");
+    
+            monodomain_prob.Initialise();
+            monodomain_prob.Solve();
+            EventHandler::Headings();
+            EventHandler::Report();
+            EventHandler::Reset();
+            voltage_normal.ReplicatePetscVector( monodomain_prob.GetVoltage() );
+        }
 
         //////////////////////////////////////////////////
         // compare 
         //////////////////////////////////////////////////
-        ReplicatableVector voltage_normal( monodomain_prob.GetVoltage() );
         TS_ASSERT_EQUALS(voltage_fast_slow.size(), voltage_normal.size() );
 
         bool some_voltage_greater_than_zero = false;
