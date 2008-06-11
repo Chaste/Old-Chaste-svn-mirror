@@ -97,7 +97,6 @@ public:
             TS_ASSERT(simulation_params.Mesh().get().Slab() == NULL);
 
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->name(), "foo");
-           
 
             physiological_type physiological_params = params->Physiological();
 

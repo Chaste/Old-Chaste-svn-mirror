@@ -47,10 +47,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestMonodomainUneven : public CxxTest::TestSuite
 {
 public:
+    void tearDown()
+    {
+        HeartConfig::Destroy();   
+    }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainTwoUnevenProcessors()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
+        
         PlaneStimulusCellFactory<1> cell_factory;
 
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -60,7 +66,6 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonodomainUneven");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
 
         if(PetscTools::NumProcs() == 2)
         {

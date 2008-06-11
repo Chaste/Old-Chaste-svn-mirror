@@ -46,9 +46,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestMonodomainConductionVelocity : public CxxTest::TestSuite
 {
 public:
+    void tearDown()
+    {
+        HeartConfig::Destroy();   
+    }
+
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
     void TestMonodomainDg01DWith100elements()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
@@ -61,8 +68,6 @@ public:
         output_nodes.push_back(5);
         output_nodes.push_back(95);
         monodomain_problem.SetOutputNodes(output_nodes);
-
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
 
         monodomain_problem.Initialise();
 
@@ -103,6 +108,8 @@ public:
          * production builds.  They are guarded with  "#ifndef NDEBUG"
          */
 
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
@@ -110,8 +117,6 @@ public:
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
 
         monodomain_problem.Initialise();
 

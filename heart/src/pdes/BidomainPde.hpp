@@ -72,12 +72,33 @@ public:
             :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
     {
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
+        
+        if (HeartConfig::Instance()->GetIsMediaOrthotropic())
+        {
+            mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        }
+        else
+        {
+            mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+        }
+
+        c_vector<double, SPACE_DIM> extra_conductivities;
+        HeartConfig::Instance()->GetExtracellularConductivities(extra_conductivities);
+
+        mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
+        mpExtracellularConductivityTensors->Init();
+        
+    }
+    
+    ~BidomainPde()
+    {
+        delete mpExtracellularConductivityTensors;
     }
 
-    void SetExtracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pExtracellularTensors)
-    {
-        mpExtracellularConductivityTensors = pExtracellularTensors;
-    }
+//    void SetExtracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pExtracellularTensors)
+//    {
+//        mpExtracellularConductivityTensors = pExtracellularTensors;
+//    }
 
 
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex)

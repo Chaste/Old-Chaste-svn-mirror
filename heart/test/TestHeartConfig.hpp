@@ -122,21 +122,24 @@ public :
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
-        TS_ASSERT_EQUALS(extra_h_conductivities[1][0], HeartConfig::Instance()->GetExtracellularConductivities()[0]);
+        
+        c_vector<double, 3> extra_conductivities;
+        HeartConfig::Instance()->GetExtracellularConductivities(extra_conductivities);
+        TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
 
-        c_vector<double, 3> intra_conductivities = HeartConfig::Instance()->GetIntracellularConductivities();
+        c_vector<double, 3> intra_conductivities;
+        HeartConfig::Instance()->GetIntracellularConductivities(intra_conductivities);
         TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
         TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
         TS_ASSERT_EQUALS(intra_conductivities[2], 1.75);
 
-        c_vector<double, 3> extra_conductivities = HeartConfig::Instance()->GetExtracellularConductivities();
         TS_ASSERT_EQUALS(extra_conductivities[0], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
         
-        TS_ASSERT(HeartConfig::Instance()->GetIsMediaOrthotropic())
+        TS_ASSERT(HeartConfig::Instance()->GetIsMediaOrthotropic());
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
 
@@ -175,13 +178,16 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
 
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(-6.0, -5.0, -4.0));
-        c_vector<double, 3> intra = HeartConfig::Instance()->GetIntracellularConductivities();
+        
+        c_vector<double, 3> intra;
+        HeartConfig::Instance()->GetIntracellularConductivities(intra);
         TS_ASSERT_EQUALS(intra[0], -6.0);
         TS_ASSERT_EQUALS(intra[1], -5.0);
         TS_ASSERT_EQUALS(intra[2], -4.0);
 
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(-3.0, -2.0, -1.0));
-        c_vector<double, 3> extra = HeartConfig::Instance()->GetExtracellularConductivities();
+        c_vector<double, 3> extra;
+        HeartConfig::Instance()->GetExtracellularConductivities(extra);
         TS_ASSERT_EQUALS(extra[0], -3.0);
         TS_ASSERT_EQUALS(extra[1], -2.0);
         TS_ASSERT_EQUALS(extra[2], -1.0);

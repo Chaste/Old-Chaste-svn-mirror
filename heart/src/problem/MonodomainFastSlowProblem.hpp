@@ -72,9 +72,6 @@ public:
         assert(mpMonodomainFastSlowPde==NULL);
         mpMonodomainFastSlowPde = new MonodomainFastSlowPde<DIM>(this->mpCellFactory, mrMixedMesh, this->mStartTime, mSlowCellsTimeStep);
 
-        this->mpIntracellularConductivityTensors->Init();
-        mpMonodomainFastSlowPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
-
         // since this method is now not called in MonodomainPde, we have to
         // manually set the PDE variable in MonodomainPde here, before returning.
         this->mpMonodomainPde = mpMonodomainFastSlowPde;

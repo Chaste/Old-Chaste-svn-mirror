@@ -81,8 +81,6 @@ protected:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
-    AbstractConductivityTensors<SPACE_DIM>* mpIntracellularConductivityTensors;
-
     Vec mVoltage; // Current solution
     double mLinearSolverTolerance;
     bool mUseLinearSolverAbsoluteTolerance;
@@ -144,26 +142,6 @@ public:
         mAllocatedMemoryForMesh = false;
         assert(mNodesToOutput.empty());
 
-        if (orthotropicMedia)
-        {
-            mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
-        }
-        else
-        {
-            mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
-        }
-
-        // Reference Clerc 1976 (x,y,z)
-        double default_intra_conductivities[] = {1.75, 0.19, 0.19};      // mS/cm (Averaged)
-
-        c_vector<double, SPACE_DIM> intra_conductivities;
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            intra_conductivities[dim] = default_intra_conductivities[dim];
-        }
-
-        mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
-
         EventHandler::BeginEvent(EVERYTHING);
     }
 
@@ -179,8 +157,6 @@ public:
         {
             delete mpMesh;
         }
-
-        delete mpIntracellularConductivityTensors;
     };
 
     /*
@@ -211,22 +187,6 @@ public:
     void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc)
     {
         this->mpBoundaryConditionsContainer = bcc;
-    }
-
-    void SetFibreOrientation(const std::string fileName)
-    {
-        mpIntracellularConductivityTensors->SetFibreOrientationFile(fileName);
-    }
-
-    void SetIntracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
-    {
-
-        mpIntracellularConductivityTensors->SetConstantConductivities(constantConductivities);
-    }
-
-    void SetIntracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
-    {
-        mpIntracellularConductivityTensors->SetNonConstantConductivities(nonConstantConductivities);
     }
 
     void SetLinearSolverRelativeTolerance(const double &rRelTol)

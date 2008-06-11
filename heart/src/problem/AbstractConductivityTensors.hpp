@@ -123,7 +123,7 @@ public:
           mUseFibreOrientation(false),
           mInitialised(false)
     {
-        double init_data[]={7.0, 3.5, 1.75};
+        double init_data[]={DBL_MAX, DBL_MAX, DBL_MAX};
 
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {

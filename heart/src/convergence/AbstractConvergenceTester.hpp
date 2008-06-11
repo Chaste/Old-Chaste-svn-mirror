@@ -189,12 +189,13 @@ void SetConductivities(BidomainProblem<DIM>& rProblem)
     {
         conductivities[i] = 1.75;
     }
-    rProblem.SetIntracellularConductivities(conductivities);
+    HeartConfig::Instance()->SetIntracellularConductivities(conductivities);
+    
     for (unsigned i=0; i<DIM; i++)
     {
         conductivities[i] = 7.0;
     }
-    rProblem.SetExtracellularConductivities(conductivities);
+    HeartConfig::Instance()->SetExtracellularConductivities(conductivities);
 }
 
 template<unsigned DIM>
@@ -205,7 +206,7 @@ void SetConductivities(MonodomainProblem<DIM>& rProblem)
     {
         conductivities[i] = 1.75;
     }
-    rProblem.SetIntracellularConductivities(conductivities);
+    HeartConfig::Instance()->SetIntracellularConductivities(conductivities);
 }
 
 

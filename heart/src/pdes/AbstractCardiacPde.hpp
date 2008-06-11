@@ -41,7 +41,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
-#include "AbstractConductivityTensors.hpp"
+
+#include "HeartConfig.hpp"
+
+#include "AxisymmetricConductivityTensors.hpp"
+#include "OrthotropicConductivityTensors.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -144,6 +148,21 @@ public:
 
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
+        
+        if (HeartConfig::Instance()->GetIsMediaOrthotropic())
+        {
+            mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        }
+        else
+        {
+            mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+        }
+        
+        c_vector<double, SPACE_DIM> intra_conductivities; 
+        HeartConfig::Instance()->GetIntracellularConductivities(intra_conductivities);
+        
+        mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
+        mpIntracellularConductivityTensors->Init();        
     }
 
 
@@ -156,6 +175,7 @@ public:
             delete mCellsDistributed[index.Local];
         }
 
+        delete mpIntracellularConductivityTensors;
     }
 
 
@@ -177,10 +197,10 @@ public:
         mCapacitance = capacitance;
     }
 
-    void SetIntracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pIntracellularTensors)
-    {
-        mpIntracellularConductivityTensors = pIntracellularTensors;
-    }
+//    void SetIntracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pIntracellularTensors)
+//    {
+//        mpIntracellularConductivityTensors = pIntracellularTensors;
+//    }
 
     double GetSurfaceAreaToVolumeRatio()
     {

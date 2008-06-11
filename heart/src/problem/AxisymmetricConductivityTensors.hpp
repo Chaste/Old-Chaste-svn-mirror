@@ -87,16 +87,16 @@ public:
 
     void Init() throw (Exception)
     {
-        c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
-
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);
-        }
-
         if (!this->mUseNonConstantConductivities && !this->mUseFibreOrientation)
         {
             // Constant tensor for every element
+            c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
+    
+            for (unsigned dim=0; dim<SPACE_DIM; dim++)
+            {
+                assert(this->mConstantConductivities(dim) != DBL_MAX);
+                conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);
+            }
             this->mTensors.push_back(conductivity_matrix);
         }
         else
@@ -117,6 +117,8 @@ public:
             // reserve() allocates all the memory at once, more efficient than relying
             // on the automatic reallocation scheme.
             this->mTensors.reserve(this->mNumElements);
+            
+            c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
 
             for (unsigned element_index=0; element_index<this->mNumElements; element_index++)
             {
@@ -146,6 +148,15 @@ public:
                         conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[element_index][dim];
                     }
                 }
+                else
+                {
+                    for (unsigned dim=0; dim<SPACE_DIM; dim++)
+                    {
+                        assert(this->mConstantConductivities(dim) != DBL_MAX);
+                        conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);
+                    }                                       
+                }
+                
 
                 if (this->mUseFibreOrientation)
                 {

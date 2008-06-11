@@ -76,10 +76,17 @@ class TestMonodomainFitzHughNagumoWithDg0Assembler : public CxxTest::TestSuite
 {
 public:
 
+    void tearDown()
+    {
+        HeartConfig::Destroy();   
+    }
+
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
     // edge.
     void TestMonodomainFitzHughNagumoWithEdgeStimulus( void )
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.01, 0.01));
+        
         FhnEdgeStimulusCellFactory cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
@@ -89,7 +96,6 @@ public:
         monodomain_problem.SetEndTime(1.2);   // 1.2 ms
         monodomain_problem.SetOutputDirectory("FhnWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.01, 0.01));
 
         monodomain_problem.Initialise();
 

@@ -53,20 +53,12 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     unsigned mExtracelluarColumnId;
 
-    AbstractConductivityTensors<SPACE_DIM>* mpExtracellularConductivityTensors;
-
     unsigned mRowMeanPhiEZero;
 
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
         mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
-
-        this->mpIntracellularConductivityTensors->Init();
-        mpBidomainPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
-
-        mpExtracellularConductivityTensors->Init();
-        mpBidomainPde->SetExtracellularConductivityTensors( mpExtracellularConductivityTensors );
 
         return mpBidomainPde;
     }
@@ -109,50 +101,11 @@ public:
      */
     BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
             : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory, orthotropicMedia),
-            mpBidomainPde(NULL)
+            mpBidomainPde(NULL), 
+            mRowMeanPhiEZero(INT_MAX)
     {
-        mFixedExtracellularPotentialNodes.resize(0);
-        mRowMeanPhiEZero = INT_MAX;
-
-        if (orthotropicMedia)
-        {
-            mpExtracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
-        }
-        else
-        {
-            mpExtracellularConductivityTensors = new AxisymmetricConductivityTensors<SPACE_DIM>;
-        }
-
-        // Reference Clerc 1976 (x,y,z)
-        double default_extra_conductivities[] = {6.2, 2.4, 2.4}; // mS/cm (Averaged)
-
-        c_vector<double, SPACE_DIM> extra_conductivities;
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            extra_conductivities[dim] = default_extra_conductivities[dim];
-        }
-
-        mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
+        mFixedExtracellularPotentialNodes.resize(0);        
     }
-
-    /**
-     * Destructor
-     */
-    ~BidomainProblem()
-    {
-        delete mpExtracellularConductivityTensors;
-    }
-
-    void SetExtracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
-    {
-        mpExtracellularConductivityTensors->SetConstantConductivities(constantConductivities);
-    }
-
-    void SetExtracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
-    {
-        mpExtracellularConductivityTensors->SetNonConstantConductivities(nonConstantConductivities);
-    }
-
 
     /**
      *  Set the nodes at which phi_e (the extracellular potential) is fixed to

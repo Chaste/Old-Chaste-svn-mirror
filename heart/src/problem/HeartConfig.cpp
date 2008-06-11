@@ -249,7 +249,9 @@ void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& cond
         }
         else
         {
-            intraConductivities.push_back( GetIntracellularConductivities() );
+            c_vector<double, 3> intra_conductivities;
+            GetIntracellularConductivities(intra_conductivities);
+            intraConductivities.push_back(intra_conductivities);
         }
 
         if (ht.ExtracellularConductivities().present())
@@ -262,7 +264,9 @@ void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& cond
         }
         else
         {
-            extraConductivities.push_back( GetExtracellularConductivities() );
+            c_vector<double, 3> extra_conductivities;
+            GetExtracellularConductivities(extra_conductivities);
+            extraConductivities.push_back(extra_conductivities);
         }
 
     }
@@ -275,7 +279,7 @@ std::string HeartConfig::GetOutputDirectory() const
                            "OutputDirectory")->get();
 }
 
-c_vector<double, 3> HeartConfig::GetIntracellularConductivities() const
+void HeartConfig::GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const
 {
     optional<conductivities_type, false>* intra_conductivities  = DecideLocation( & mpUserParameters->Physiological().IntracellularConductivities(),
                                                                                   & mpDefaultParameters->Physiological().IntracellularConductivities(),
@@ -284,10 +288,39 @@ c_vector<double, 3> HeartConfig::GetIntracellularConductivities() const
     double intra_y_cond = intra_conductivities->get().trans();
     double intra_z_cond = intra_conductivities->get().normal();;
 
-    return Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond);
+    assert(intra_y_cond != DBL_MAX); 
+    assert(intra_z_cond != DBL_MAX); 
+
+    intraConductivities[0] = intra_x_cond;
+    intraConductivities[1] = intra_y_cond;
+    intraConductivities[2] = intra_z_cond;
 }
 
-c_vector<double, 3> HeartConfig::GetExtracellularConductivities() const
+void HeartConfig::GetIntracellularConductivities(c_vector<double, 2>& intraConductivities) const
+{
+    optional<conductivities_type, false>* intra_conductivities  = DecideLocation( & mpUserParameters->Physiological().IntracellularConductivities(),
+                                                                                  & mpDefaultParameters->Physiological().IntracellularConductivities(),
+                                                                                  "IntracellularConductivities");
+    double intra_x_cond = intra_conductivities->get().longi();
+    double intra_y_cond = intra_conductivities->get().trans();
+
+    assert(intra_y_cond != DBL_MAX);  
+
+    intraConductivities[0] = intra_x_cond;
+    intraConductivities[1] = intra_y_cond;
+}
+
+void HeartConfig::GetIntracellularConductivities(c_vector<double, 1>& intraConductivities) const
+{
+    optional<conductivities_type, false>* intra_conductivities  = DecideLocation( & mpUserParameters->Physiological().IntracellularConductivities(),
+                                                                                  & mpDefaultParameters->Physiological().IntracellularConductivities(),
+                                                                                  "IntracellularConductivities");
+    double intra_x_cond = intra_conductivities->get().longi();
+
+    intraConductivities[0] = intra_x_cond;
+}
+
+void HeartConfig::GetExtracellularConductivities(c_vector<double, 3>& extraConductivities) const
 {
     optional<conductivities_type, false>* extra_conductivities  = DecideLocation( & mpUserParameters->Physiological().ExtracellularConductivities(),
                                                                                   & mpDefaultParameters->Physiological().ExtracellularConductivities(),
@@ -296,7 +329,36 @@ c_vector<double, 3> HeartConfig::GetExtracellularConductivities() const
     double extra_y_cond = extra_conductivities->get().trans();
     double extra_z_cond = extra_conductivities->get().normal();;
 
-    return Create_c_vector(extra_x_cond, extra_y_cond, extra_z_cond);
+    assert(extra_y_cond != DBL_MAX); 
+    assert(extra_z_cond != DBL_MAX); 
+
+    extraConductivities[0] = extra_x_cond;
+    extraConductivities[1] = extra_y_cond;
+    extraConductivities[2] = extra_z_cond;
+}
+
+void HeartConfig::GetExtracellularConductivities(c_vector<double, 2>& extraConductivities) const
+{
+    optional<conductivities_type, false>* extra_conductivities  = DecideLocation( & mpUserParameters->Physiological().ExtracellularConductivities(),
+                                                                                  & mpDefaultParameters->Physiological().ExtracellularConductivities(),
+                                                                                  "ExtracellularConductivities");
+    double extra_x_cond = extra_conductivities->get().longi();
+    double extra_y_cond = extra_conductivities->get().trans();
+
+    assert(extra_y_cond != DBL_MAX);  
+
+    extraConductivities[0] = extra_x_cond;
+    extraConductivities[1] = extra_y_cond;
+}
+
+void HeartConfig::GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const
+{
+    optional<conductivities_type, false>* extra_conductivities  = DecideLocation( & mpUserParameters->Physiological().ExtracellularConductivities(),
+                                                                                  & mpDefaultParameters->Physiological().ExtracellularConductivities(),
+                                                                                  "ExtracellularConductivities");
+    double extra_x_cond = extra_conductivities->get().longi();
+
+    extraConductivities[0] = extra_x_cond;
 }
 
 bool HeartConfig::GetIsMediaOrthotropic() const
@@ -425,11 +487,47 @@ void HeartConfig::SetIntracellularConductivities(const c_vector<double, 3>& intr
     mpUserParameters->Physiological().IntracellularConductivities().set(intra);
 }
 
+void HeartConfig::SetIntracellularConductivities(const c_vector<double, 2>& intraConductivities)
+{
+    conductivities_type intra(intraConductivities[0],
+                              intraConductivities[1],
+                              DBL_MAX);
+
+    mpUserParameters->Physiological().IntracellularConductivities().set(intra);
+}
+
+void HeartConfig::SetIntracellularConductivities(const c_vector<double, 1>& intraConductivities)
+{
+    conductivities_type intra(intraConductivities[0],
+                              DBL_MAX,
+                              DBL_MAX);
+
+    mpUserParameters->Physiological().IntracellularConductivities().set(intra);
+}
+
 void HeartConfig::SetExtracellularConductivities(const c_vector<double, 3>& extraConductivities)
 {
     conductivities_type extra(extraConductivities[0],
                               extraConductivities[1],
                               extraConductivities[2]);
+
+    mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
+}
+
+void HeartConfig::SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities)
+{
+    conductivities_type extra(extraConductivities[0],
+                              extraConductivities[1],
+                              DBL_MAX);
+
+    mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
+}
+
+void HeartConfig::SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities)
+{
+    conductivities_type extra(extraConductivities[0],
+                              DBL_MAX,
+                              DBL_MAX);
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
 }

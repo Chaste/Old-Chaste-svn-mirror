@@ -48,10 +48,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNeumannStimulus : public CxxTest::TestSuite
 {
 public:
+    void tearDown()
+    {
+        HeartConfig::Destroy();   
+    }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainConstantStimulus() throw(Exception)
     {
+        // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
+        
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -59,9 +66,7 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoNeumannConst");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-
-        // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75));
+        
         monodomain_problem.Initialise();
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
@@ -104,6 +109,9 @@ public:
 
     void TestMonodomainSquareWaveStimulus() throw(Exception)
     {
+        // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
+        
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -111,9 +119,7 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoNeumannSquare");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-
-        // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75));
+        
         monodomain_problem.Initialise();
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
@@ -157,6 +163,9 @@ public:
 
     void TestBidomain1d() throw(Exception)
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2));
+        
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
@@ -212,6 +221,9 @@ public:
     }
     void TestBidomain2d() throw(Exception)
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2,6.2));
+        
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         BidomainProblem<2> bidomain_problem( &cell_factory );
 
@@ -219,8 +231,6 @@ public:
         bidomain_problem.SetEndTime(2);   // ms
         bidomain_problem.SetOutputDirectory("BiNeuman2d");
         bidomain_problem.SetOutputFilenamePrefix("results");
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75,1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(6.2,6.2));
 
         bidomain_problem.Initialise();
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);

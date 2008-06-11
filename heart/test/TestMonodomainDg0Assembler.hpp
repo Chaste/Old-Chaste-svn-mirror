@@ -79,10 +79,16 @@ public:
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite
 {
 public:
+    void tearDown()
+    {
+        HeartConfig::Destroy();   
+    }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainDg01D()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -90,7 +96,6 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         monodomain_problem.Initialise();
 
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -118,6 +123,8 @@ public:
 
     void TestMonodomainDg01DWithRelativeTolerance()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -125,7 +132,6 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         monodomain_problem.Initialise();
 
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -156,6 +162,8 @@ public:
 
     void TestMonodomainDg01DWithAbsoluteTolerance() throw (Exception)
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -163,7 +171,6 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         monodomain_problem.Initialise();
 
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -196,6 +203,8 @@ public:
     // See also TestMonodomainSlab.hpp (nightly test) for the 3D version.
     void TestMonodomainDg02DWithEdgeStimulus( void )
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+        
         static double test_tolerance=1e-10;
         PlaneStimulusCellFactory<2> cell_factory;
 
@@ -206,7 +215,6 @@ public:
         monodomain_problem.SetEndTime(2);   // 2 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005,0.0005));
 
         monodomain_problem.Initialise();
 
@@ -277,6 +285,8 @@ public:
     // very centre of the mesh.
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+        
         // To time the solve
         time_t start,end;
         double dif;
@@ -291,7 +301,6 @@ public:
         monodomain_problem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulus");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
 
         monodomain_problem.Initialise();
 

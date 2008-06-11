@@ -112,24 +112,6 @@ public:
 
         bidomain_pde.SetCapacitance(2.718);
         TS_ASSERT_DELTA( bidomain_pde.GetCapacitance(), 2.718, 1e-10);
-
-        OrthotropicConductivityTensors<1> sigma_i;
-        OrthotropicConductivityTensors<1> sigma_e;
-
-        sigma_i.SetConstantConductivities(Create_c_vector(314));
-        sigma_e.SetConstantConductivities(Create_c_vector(218));
-
-        sigma_i.Init();
-        sigma_e.Init();
-
-        bidomain_pde.SetIntracellularConductivityTensors(&sigma_i);
-        bidomain_pde.SetExtracellularConductivityTensors(&sigma_e);
-
-        c_matrix<double, 1,1> sigma = bidomain_pde.rGetIntracellularConductivityTensor(0);
-        TS_ASSERT_DELTA( sigma(0,0), 314, 1e-10);
-
-        sigma = bidomain_pde.rGetExtracellularConductivityTensor(0);
-        TS_ASSERT_DELTA( sigma(0,0), 218, 1e-10);
     }
 
     void TestBidomainPdeSolveCellSystems( void )

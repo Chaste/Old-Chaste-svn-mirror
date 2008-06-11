@@ -70,8 +70,14 @@ public:
     std::string GetOutputDirectory() const;
 
     // Physiological
-    c_vector<double, 3> GetIntracellularConductivities() const;
-    c_vector<double, 3> GetExtracellularConductivities() const;
+    void GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const;
+    void GetIntracellularConductivities(c_vector<double, 2>& intraConductivities) const;    
+    void GetIntracellularConductivities(c_vector<double, 1>& intraConductivities) const;
+        
+    void GetExtracellularConductivities(c_vector<double, 3>& extraConductivities) const;
+    void GetExtracellularConductivities(c_vector<double, 2>& extraConductivities) const;    
+    void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
+
     bool GetIsMediaOrthotropic() const;
     double GetSurfaceAreaToVolumeRatio() const;
     double GetCapacitance() const;
@@ -102,7 +108,13 @@ public:
 
     // Physiological
     void SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities);
+    void SetIntracellularConductivities(const c_vector<double, 2>& intraConductivities);
+    void SetIntracellularConductivities(const c_vector<double, 1>& intraConductivities);
+        
     void SetExtracellularConductivities(const c_vector<double, 3>& extraConductivities);
+    void SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities);
+    void SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities);
+    
     void SetSurfaceAreaToVolumeRatio(double ratio);
     void SetCapacitance(double capacitance);
 

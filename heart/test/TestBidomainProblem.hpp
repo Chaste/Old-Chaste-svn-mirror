@@ -44,8 +44,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestBidomainProblem : public CxxTest::TestSuite
 {
 public:
+    void tearDown()
+    {
+        HeartConfig::Destroy();   
+    }
+
     void TestBidomainDg01DPinned()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
+        
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
@@ -53,8 +61,6 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(0.0005));
 
 
         bidomain_problem.Initialise();
@@ -141,7 +147,10 @@ public:
     {
 
         EventHandler::Disable();
-
+        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
+        
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
@@ -158,9 +167,6 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(0.0005));
-
 
         // Check rows 1, 51, 101, 151, 201, ...
         for (unsigned row_to_mean_phi=1; row_to_mean_phi<2*bidomain_problem.rGetMesh().GetNumNodes(); row_to_mean_phi=row_to_mean_phi+50)
@@ -293,6 +299,7 @@ public:
             ///////////////////////////////////////////////////////////////////
             // monodomain
             ///////////////////////////////////////////////////////////////////
+            HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
 
             MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -301,7 +308,6 @@ public:
             monodomain_problem.SetOutputDirectory("Monodomain1d");
             monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
             monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
-            monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
 
             monodomain_problem.Initialise();
 
@@ -319,17 +325,18 @@ public:
         ///////////////////////////////////////////////////////////////////
         // bidomain
         ///////////////////////////////////////////////////////////////////
+
+        // set the intra conductivity to be the same as monodomain
+        // and the extra conductivity to be very large in comparison
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1));        
+        
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("Bidomain1d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain1d");
-
-        // set the intra conductivity to be the same as monodomain
-        // and the extra conductivity to be very large in comparison
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(1));
 
         bidomain_problem.Initialise();
 
@@ -412,9 +419,9 @@ public:
         std::vector<double> node_0 = data_reader1.GetVariableOverTime("V", 0);
         TS_ASSERT_EQUALS( node_0.size(), 4U);
         TS_ASSERT_DELTA( node_0[0], -83.853, 1e-10);
-        TS_ASSERT_DELTA( node_0[1], -83.835224864786, 1e-10);
-        TS_ASSERT_DELTA( node_0[2], -83.826404431209, 1e-10);
-        TS_ASSERT_DELTA( node_0[3], -83.8197950069, 1e-10);
+        TS_ASSERT_DELTA( node_0[1], -83.8354, 1e-4);
+        TS_ASSERT_DELTA( node_0[2], -83.8266, 1e-4);
+        TS_ASSERT_DELTA( node_0[3], -83.8201, 1e-4);
         std::vector<double> node_5 = data_reader1.GetVariableOverTime("V", 5);
         TS_ASSERT_EQUALS( node_5.size(), 4U);
         std::vector<double> node_10 = data_reader1.GetVariableOverTime("V", 10);
@@ -520,7 +527,6 @@ public:
 
     void TestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
     {
-
         PlaneStimulusCellFactory<3> cell_factory;
 
         ///////////////////////////////////////////////////////////////////
