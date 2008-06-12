@@ -530,20 +530,23 @@ public:
 
             bool am_master = PetscTools::AmMaster();
 
-            // Only if master process and results files were written and we are outputting all nodes
-            if (am_master && mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
+            // Only if results files were written and we are outputting all nodes
+            if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
             {
-                // call shell script which converts the data to meshalyzer format
-                std::string chaste_2_meshalyzer;
-                std::stringstream space_dim;
-                space_dim << SPACE_DIM;
-                chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
+                
+                if (am_master)
+                {
+                    // call shell script which converts the data to meshalyzer format
+                    std::string chaste_2_meshalyzer;
+                    std::stringstream space_dim;
+                    space_dim << SPACE_DIM;
+                    chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
                                       + space_dim.str() + " "       // argument 1 is the dimension.
                                       + mMeshFilename + " "         // arg 2 is mesh prefix, path relative to Chaste directory
                                       + "last_simulation";          // arg 3 is the output prefix, relative to
                                                                     // anim folder.
-                system(chaste_2_meshalyzer.c_str());
-                
+                    system(chaste_2_meshalyzer.c_str());
+                }
                 //Convert simulation data to Meshalyzer format
                 Hdf5ToMeshalyzerConverter converter(mOutputDirectory, mOutputFilenamePrefix);
             }
