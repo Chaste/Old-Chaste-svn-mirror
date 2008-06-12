@@ -118,6 +118,8 @@ public:
     // Creates data for the following test
     void TestPermuteWithMetisBinaries()
     {
+        EXIT_IF_SEQUENTIAL;
+        
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -132,6 +134,8 @@ public:
 
     void TestBidomainDg0HeartMetis() throw (Exception)
     {
+        EXIT_IF_SEQUENTIAL;
+        
         double pde_time_step = 0.005;  // ms
         double ode_time_step = 0.0025; // ms
         double end_time = 100;        // ms
