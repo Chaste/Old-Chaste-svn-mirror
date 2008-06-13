@@ -143,6 +143,8 @@ public:
         double end_time = 10.0;        // ms
 
         double printing_time_step = end_time/100;
+        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));                                
 
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         MonodomainProblem<3> monodomain_problem(&cell_factory);
@@ -155,8 +157,6 @@ public:
         monodomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
 
         monodomain_problem.SetWriteInfo();
-
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
 
         monodomain_problem.Initialise();
         monodomain_problem.Solve();

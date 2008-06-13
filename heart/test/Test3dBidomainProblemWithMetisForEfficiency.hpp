@@ -48,6 +48,9 @@ public:
 
     void TestBidomain3d() throw (Exception)
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
+                
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
@@ -56,10 +59,6 @@ public:
         bidomain_problem.SetEndTime(150);   // ms
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
-
-
 
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");

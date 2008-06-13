@@ -90,6 +90,7 @@ public:
     // test should take about 30mins (or less)
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
 
         PointStimulus2dCellFactory cell_factory(60); // Central node
 
@@ -99,7 +100,6 @@ public:
         monodomain_problem.SetEndTime(500);   // 500 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulusLong");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulusLong");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         monodomain_problem.Initialise();
 
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);

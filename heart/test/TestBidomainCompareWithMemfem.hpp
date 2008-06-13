@@ -77,6 +77,9 @@ public:
 
     void TestBidomainCompareWithMemfemBasic()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.19, 0.19, 1.79));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));                        
+        
         BidomainPointStimulusCellFactory bidomain_cell_factory;
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
@@ -96,9 +99,6 @@ public:
         bidomain_problem.SetOutputDirectory("Bidomain3d_CompareWithMemfem");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetWriteInfo();
-
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.19, 0.19, 1.79));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));
 
         bidomain_problem.Initialise();
 

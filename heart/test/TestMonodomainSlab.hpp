@@ -50,6 +50,8 @@ public:
     // See also TestMonodomainSlab.hpp
     void TestMonodomainDg03DWithFaceStimulus( void )
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        
         PlaneStimulusCellFactory<3> cell_factory(0.01, -600.0*1000);
 
         MonodomainProblem<3> monodomain_problem(&cell_factory);
@@ -58,7 +60,6 @@ public:
         monodomain_problem.SetEndTime(4);   // 4 ms
         monodomain_problem.SetOutputDirectory("MonoDg03dWithFaceStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_3dWithFaceStimulus");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
 
         monodomain_problem.Initialise();
 

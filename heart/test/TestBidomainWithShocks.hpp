@@ -158,6 +158,9 @@ public:
     // simple 1D bidomain simulation with a shock (ie a extracellular stimulus)
     void TestBidomainWithShocks1d()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0));                
+                
         // cell factory with an initial stimulus at node 0 and a shock (also applied
         // at node zero, although it affects everywhere instantaneously) at 10ms
         PointStimulusWithShockCellFactory bidomain_cell_factory;
@@ -173,9 +176,6 @@ public:
         std::vector<unsigned> fixed;
     fixed.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
-
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0));
 
         bidomain_problem.Initialise();
 
@@ -254,6 +254,10 @@ public:
     // 2D test
     void TestBidomainWithShocks2d()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0));                
+        
+        
         CornerStim2dBidomainCellFactory cell_factory;
 
         // initial stimulus at three corner nodes at t=0. Extracellular stimulus
@@ -270,9 +274,6 @@ public:
         std::vector<unsigned> fixed;
     fixed.push_back(120);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
-
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0));
 
         bidomain_problem.Initialise();
 
@@ -333,6 +334,9 @@ public:
     // 3D test
     void TestBidomain3dWithShock()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                        
+        
         // initial stimulus at a single node in centre of front face at t=0,
         // extracellular stimulus at whole of front face at t=5ms
         PointStimulusCellFactory3D cell_factory;
@@ -351,9 +355,6 @@ public:
         bidomain_problem.SetEndTime(10);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d_WithShock");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
-
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
 
         bidomain_problem.Initialise();
 

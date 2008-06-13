@@ -112,6 +112,8 @@ public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm and heterogeneous cell types.
     void TestFibreHeterogeneity()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+
         HeterogeneousCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
@@ -120,7 +122,6 @@ public:
         monodomain_problem.SetPdeAndPrintingTimeSteps(0.01, 0.1);
         monodomain_problem.SetOutputDirectory("FibreWithHeterogeneity");
         monodomain_problem.SetOutputFilenamePrefix("Monodomain1d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
 
         monodomain_problem.Initialise();
 

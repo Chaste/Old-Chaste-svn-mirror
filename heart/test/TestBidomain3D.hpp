@@ -48,6 +48,9 @@ public:
 
     void TestBidomain3d() throw (Exception)
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
+                
         PlaneStimulusCellFactory<3> bidomain_cell_factory(0.01, -600.0*1000);
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
@@ -56,9 +59,6 @@ public:
         bidomain_problem.SetEndTime(4);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
-
 
         bidomain_problem.Initialise();
 
@@ -116,6 +116,13 @@ public:
     ////////////////////////////////////////////////////////////
     void TestCompareBidomainProblemWithMonodomain3D()
     {
+        // the bidomain equations reduce to the monodomain equations
+        // if sigma_e is infinite (equivalent to saying the extra_cellular
+        // space is grounded. sigma_e is set to be very large here:        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(17500, 17500, 17500));                
+        
+        
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
@@ -126,7 +133,6 @@ public:
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("Monodomain3d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain3d");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
 
         monodomain_problem.Initialise();
 
@@ -143,12 +149,6 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
-
-        // the bidomain equations reduce to the monodomain equations
-        // if sigma_e is infinite (equivalent to saying the extra_cellular
-        // space is grounded. sigma_e is set to be very large here:
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        bidomain_problem.SetExtracellularConductivities(Create_c_vector(17500, 17500, 17500));
 
         bidomain_problem.Initialise();
 
