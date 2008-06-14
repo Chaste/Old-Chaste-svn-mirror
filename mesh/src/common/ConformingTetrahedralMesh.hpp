@@ -252,7 +252,7 @@ public:
     void ReIndex(NodeMap& map);
 
     /**
-     * Re-mesh a mesh using triangle or tetgen
+     * Re-mesh a mesh using triangle (via library calls) or tetgen
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
@@ -263,13 +263,6 @@ public:
      * classes should overload ReMesh(NodeMap&)
      */
     void ReMesh();
-
-    /**
-     * Re-mesh a mesh using triangle in 2D via library calls
-     * @param map is a NodeMap which associates the indices of nodes in the old mesh
-     * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
-     */
-    virtual void ReMeshWithTriangleLibrary(NodeMap& map);
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes
@@ -1518,254 +1511,226 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrary(NodeMap& map)
-{
-    struct triangulateio triangle_input;
-    triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
-    triangle_input.numberofpoints = GetNumNodes();
-    triangle_input.numberofpointattributes = 0;
-    triangle_input.pointmarkerlist = NULL;
-    triangle_input.numberofsegments = 0;
-    triangle_input.numberofholes = 0;
-    triangle_input.numberofregions = 0;
-
-    unsigned new_index = 0;
-    map.Resize(GetNumAllNodes());
-    for (unsigned i=0; i<GetNumAllNodes(); i++)
-    {
-        if (mNodes[i]->IsDeleted())
-        {
-            map.SetDeleted(i);
-        }
-        else
-        {
-            map.SetNewIndex(i,new_index);
-            triangle_input.pointlist[2*new_index]=mNodes[i]->rGetLocation()[0];
-            triangle_input.pointlist[2*new_index + 1]=mNodes[i]->rGetLocation()[1];
-            new_index++;
-
-        }
-    }
-
-    //Make structure for output
-    struct triangulateio triangle_output;
-    triangle_output.pointlist =  NULL;
-    triangle_output.pointattributelist = (double *) NULL;
-    triangle_output.pointmarkerlist = (int *) NULL;
-    triangle_output.trianglelist = (int *) NULL;
-    triangle_output.triangleattributelist = (double *) NULL;
-    triangle_output.edgelist = (int *) NULL;
-    triangle_output.edgemarkerlist = (int *) NULL;
-
-    //Library call
-    triangulate((char*)"Qze", &triangle_input, &triangle_output, NULL);
-
-    assert(triangle_output.numberofcorners == 3);
-
-    //Remove current data
-    Clear();
-
-    //Construct the nodes
-    for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
-    {
-        if (triangle_output.pointmarkerlist[node_index] == 1)
-        {
-            //Boundary node
-            Node<SPACE_DIM> *p_node=new Node<SPACE_DIM>(node_index, true,
-              triangle_output.pointlist[node_index * 2],
-              triangle_output.pointlist[node_index * 2+1]);
-            mNodes.push_back(p_node);
-            mBoundaryNodes.push_back(p_node);
-        }
-        else
-        {
-            mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
-              triangle_output.pointlist[node_index * 2],
-              triangle_output.pointlist[node_index * 2+1]));
-        }
-
-    }
-
-    //Construct the elements
-    mElements.reserve(triangle_output.numberoftriangles);
-    for (unsigned element_index=0; element_index < (unsigned)triangle_output.numberoftriangles; element_index++)
-    {
-        std::vector<Node<SPACE_DIM>*> nodes;
-        for (unsigned j = 0; j < 3; j++)
-        {
-            unsigned global_node_index=triangle_output.trianglelist[element_index*3 + j];
-            assert(global_node_index <  mNodes.size());
-            nodes.push_back(mNodes[global_node_index]);
-        }
-        mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes));
-    }
-
-    //Construct the edges
-    //too big mBoundaryElements.reserve(triangle_output.numberoftriangles);
-    unsigned next_boundary_element_index=0;
-    for (unsigned boundary_element_index=0; boundary_element_index < (unsigned)triangle_output.numberofedges; boundary_element_index++)
-    {
-        if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
-        {
-            std::vector<Node<SPACE_DIM>*> nodes;
-            for (unsigned j = 0; j < 2; j++)
-            {
-                unsigned global_node_index=triangle_output.edgelist[boundary_element_index*2 + j];
-                assert(global_node_index <  mNodes.size());
-                nodes.push_back(mNodes[global_node_index]);
-            }
-            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(next_boundary_element_index++, nodes));
-        }
-    }
-
-
-    free(triangle_input.pointlist);
-
-    free(triangle_output.pointlist);
-    free(triangle_output.pointattributelist);
-    free(triangle_output.pointmarkerlist);
-    free(triangle_output.trianglelist);
-    free(triangle_output.triangleattributelist);
-    free(triangle_output.edgelist);
-    free(triangle_output.edgemarkerlist);
-
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 {
-    //Make sure that we are in the correct dimension -- this code will be eliminated at compile time
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
     assert( SPACE_DIM==2 || SPACE_DIM==3 );
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
-    // avoid some triangle/tetgen errors:
-    // need at least four nodes for tetgen, and at least three for triangle
-    // assert( GetNumNodes() > SPACE_DIM );
+    
+    // Avoid some triangle/tetgen errors: need at least four 
+    // nodes for tetgen, and at least three for triangle
+    if (GetNumNodes() <= SPACE_DIM)
+    {
+        EXCEPTION("The number of nodes must exceed the spatial dimension.");   
+    }
 
-    //Make sure the map is big enough
-    map.Resize(GetNumAllNodes());
+// I think the following dramatically slows down the simulations, as with a 
+// decent sized mesh we nearly always do need to remesh.
 
-
-//// #554: commented out for the time being as some cancer tests do not pass with
-//// this (probably because of hardcoded values), although it seems to work ok
-//// and passes all the mesh tests.
+//    // If there are no nodes waiting to be deleted,
+//    // and the current mesh is Voronoi, then we don't
+//    // need to call triangle/tetgen
 //    if (mDeletedNodeIndices.size()==0 && !mAddedNodes)
-//    {
-//        //If there are no nodes waiting to be deleted and the current mesh is
-//        //Voronoi then we don't need to call triangle/tetgen
+//    {        
 //        if (CheckVoronoi())
 //        {
 //            map.ResetToIdentity();
 //            return;
 //        }
 //    }
-    std::stringstream pid;
-    pid<<getpid();
-
-    OutputFileHandler handler("");
-    std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp_"+pid.str()+".";
-
-    // Only the master process should do IO and call the mesher
-    if (handler.IsMaster())
+    
+    // Make sure the map is big enough
+    map.Resize(GetNumAllNodes());
+    
+    if (SPACE_DIM==2)  // In 2D, remesh using triangle via library calls
     {
-        std::string node_file_name="temp_"+pid.str()+".node";
-        {//Scope for node_file
-            out_stream node_file=handler.OpenOutputFile(node_file_name);
-
-            (*node_file)<<GetNumNodes()<<"\t" << SPACE_DIM << "\t0\t0\n";
-
-            unsigned new_index = 0;
-
-            for (unsigned i=0; i<GetNumAllNodes(); i++)
-            {
-                if (mNodes[i]->IsDeleted())
-                {
-                    map.SetDeleted(i);
-                }
-                else
-                {
-                    map.SetNewIndex(i,new_index);
-                    new_index++;
-                    const c_vector<double, SPACE_DIM> node_loc = mNodes[i]->rGetLocation();
-                    (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1];
-                    if (SPACE_DIM ==3)
-                    {
-                        (*node_file)<<"\t"<<node_loc[2];
-                    }
-                    (*node_file)<<"\n";
-                }
-            }
-
-            node_file->close();
-
-        }//Scope for node_file
-
-
-        std::string binary_name;
-        if (SPACE_DIM==2)
+        struct triangulateio triangle_input;
+        triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
+        triangle_input.numberofpoints = GetNumNodes();
+        triangle_input.numberofpointattributes = 0;
+        triangle_input.pointmarkerlist = NULL;
+        triangle_input.numberofsegments = 0;
+        triangle_input.numberofholes = 0;
+        triangle_input.numberofregions = 0;
+    
+        unsigned new_index = 0;
+        for (unsigned i=0; i<GetNumAllNodes(); i++)
         {
-            if (sizeof(long)==4)
+            if (mNodes[i]->IsDeleted())
             {
-                //32-bit machine, so use default binary.
-                binary_name="triangle";
+                map.SetDeleted(i);
             }
             else
             {
-                binary_name="triangle_64";
+                map.SetNewIndex(i, new_index);
+                triangle_input.pointlist[2*new_index] = mNodes[i]->rGetLocation()[0];
+                triangle_input.pointlist[2*new_index + 1] = mNodes[i]->rGetLocation()[1];
+                new_index++;
             }
         }
-        else
+    
+        // Make structure for output
+        struct triangulateio triangle_output;
+        triangle_output.pointlist = NULL;
+        triangle_output.pointattributelist = (double *) NULL;
+        triangle_output.pointmarkerlist = (int *) NULL;
+        triangle_output.trianglelist = (int *) NULL;
+        triangle_output.triangleattributelist = (double *) NULL;
+        triangle_output.edgelist = (int *) NULL;
+        triangle_output.edgemarkerlist = (int *) NULL;
+    
+        // Library call
+        triangulate((char*)"Qze", &triangle_input, &triangle_output, NULL);
+    
+        assert(triangle_output.numberofcorners == 3);
+    
+        // Remove current data
+        Clear();
+    
+        // Construct the nodes
+        for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
         {
-            binary_name="tetgen";
+            if (triangle_output.pointmarkerlist[node_index] == 1)
+            {
+                // Boundary node
+                Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true,
+                  triangle_output.pointlist[node_index * 2],
+                  triangle_output.pointlist[node_index * 2+1]);
+                mNodes.push_back(p_node);
+                mBoundaryNodes.push_back(p_node);
+            }
+            else
+            {
+                mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
+                  triangle_output.pointlist[node_index * 2],
+                  triangle_output.pointlist[node_index * 2+1]));
+            }
         }
-        std::string command =   "./bin/"+ binary_name +" -Qe "
-                              + full_name + "node";
-
-        if (SPACE_DIM == 3)
+    
+        // Construct the elements
+        mElements.reserve(triangle_output.numberoftriangles);
+        for (unsigned element_index=0; element_index<(unsigned)triangle_output.numberoftriangles; element_index++)
         {
-            //Tetgen's quiet mode isn't as quiet as Triangle's
+            std::vector<Node<SPACE_DIM>*> nodes;
+            for (unsigned j=0; j<3; j++)
+            {
+                unsigned global_node_index = triangle_output.trianglelist[element_index*3 + j];
+                assert(global_node_index < mNodes.size());
+                nodes.push_back(mNodes[global_node_index]);
+            }
+            mElements.push_back(new Element<ELEMENT_DIM, SPACE_DIM>(element_index, nodes));
+        }
+    
+        // Construct the edges
+        // too big mBoundaryElements.reserve(triangle_output.numberoftriangles);
+        unsigned next_boundary_element_index = 0;
+        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)triangle_output.numberofedges; boundary_element_index++)
+        {
+            if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
+            {
+                std::vector<Node<SPACE_DIM>*> nodes;
+                for (unsigned j=0; j<2; j++)
+                {
+                    unsigned global_node_index=triangle_output.edgelist[boundary_element_index*2 + j];
+                    assert(global_node_index < mNodes.size());
+                    nodes.push_back(mNodes[global_node_index]);
+                }
+                mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
+            }
+        }
+    
+        free(triangle_input.pointlist);
+    
+        free(triangle_output.pointlist);
+        free(triangle_output.pointattributelist);
+        free(triangle_output.pointmarkerlist);
+        free(triangle_output.trianglelist);
+        free(triangle_output.triangleattributelist);
+        free(triangle_output.edgelist);
+        free(triangle_output.edgemarkerlist);
+    }
+    else // in 3D, remesh using tetgen
+    {
+        std::stringstream pid;
+        pid << getpid();
+    
+        OutputFileHandler handler("");
+        std::string full_name = handler.GetOutputDirectoryFullPath("") + "temp_" + pid.str() + ".";
+    
+        // Only the master process should do IO and call the mesher
+        if (handler.IsMaster())
+        {
+            std::string node_file_name = "temp_" + pid.str() + ".node";
+            {
+                out_stream node_file = handler.OpenOutputFile(node_file_name);
+    
+                (*node_file) << GetNumNodes() << "\t" << SPACE_DIM << "\t0\t0\n";
+    
+                unsigned new_index = 0;
+    
+                for (unsigned i=0; i<GetNumAllNodes(); i++)
+                {
+                    if (mNodes[i]->IsDeleted())
+                    {
+                        map.SetDeleted(i);
+                    }
+                    else
+                    {
+                        map.SetNewIndex(i, new_index);
+                        new_index++;
+                        const c_vector<double, SPACE_DIM> node_loc = mNodes[i]->rGetLocation();
+                        (*node_file) << i << "\t" << node_loc[0] << "\t" << node_loc[1] << "\t" << node_loc[2] << "\n";
+                    }
+                }
+                node_file->close();
+            }
+    
+            std::string binary_name = "tetgen";
+            std::string command = "./bin/tetgen -Qe " + full_name + "node";
+    
+            // Tetgen's quiet mode isn't as quiet as Triangle's
             command += " > /dev/null";
+            
+            int return_value = system(command.c_str());
+            if (return_value != 0)
+            {
+                EXCEPTION("The tetgen mesher did not succeed in remeshing.");
+            }
         }
-        int return_value = system(command.c_str());
-
-
-        if (return_value != 0)
+        // Wait for the new mesh to be available and communicate its name
+    #ifndef SPECIAL_SERIAL
+        if (!PetscTools::IsSequential())
         {
-            EXCEPTION("The triangle/tetgen mesher did not succeed in remeshing.");
+            char full_name_comm[200];
+            strcpy(full_name_comm, full_name.c_str());
+            MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
+            full_name = full_name_comm;
         }
-    }
-    // Wait for the new mesh to be available and communicate its name
-#ifndef SPECIAL_SERIAL
-    if (!PetscTools::IsSequential())
-    {
-        char full_name_comm[200];
-        strcpy(full_name_comm, full_name.c_str());
-        MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
-        full_name=full_name_comm;
-    }
-#endif //SPECIAL_SERIAL
-
-    // clear all current data
-    Clear();
-
-    //Read the new mesh back from file
-    TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");
-    ConstructFromMeshReader(mesh_reader);
-
-    // Make sure the file is not deleted before all the processors have read it
-#ifndef SPECIAL_SERIAL
-    if (!PetscTools::IsSequential())
-    {
-        MPI_Barrier(PETSC_COMM_WORLD);
-    }
-#endif //SPECIAL_SERIAL
-
-    if (handler.IsMaster())
-    {
-        std::string remove_command = "rm "+ full_name+"*";
-        system(remove_command.c_str());
-    }
+    #endif //SPECIAL_SERIAL
+    
+        // Clear all current data
+        Clear();
+    
+        // Read the new mesh back from file
+        TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");
+        ConstructFromMeshReader(mesh_reader);
+    
+        // Make sure the file is not deleted before all the processors have read it
+    #ifndef SPECIAL_SERIAL
+        if (!PetscTools::IsSequential())
+        {
+            MPI_Barrier(PETSC_COMM_WORLD);
+        }
+    #endif //SPECIAL_SERIAL
+    
+        if (handler.IsMaster())
+        {
+            std::string remove_command = "rm " + full_name + "*";
+            system(remove_command.c_str());
+        }
+    }    
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

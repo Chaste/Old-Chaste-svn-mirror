@@ -382,9 +382,6 @@ public:
         in.numberofholes = 0;
         in.numberofregions = 0;
 
-
-
-
         out.pointlist =  NULL;
         out.pointattributelist = (double *) NULL;
         out.pointmarkerlist = (int *) NULL;
@@ -392,9 +389,6 @@ public:
         out.triangleattributelist = (double *) NULL;
         out.edgelist = (int *) NULL;
         out.edgemarkerlist = (int *) NULL;
-
-
-
 
         triangulate((char*)"Qze", &in, &out, NULL);
 
@@ -405,8 +399,7 @@ public:
         TS_ASSERT_EQUALS(out.numberoftriangleattributes,0);
         TS_ASSERT_EQUALS(out.numberofedges,             8);
 
-
-        /* Free all allocated arrays, including those allocated by Triangle. */
+        // Free all allocated arrays, including those allocated by Triangle
         free(in.pointlist);
 
         free(out.pointlist);
@@ -416,13 +409,12 @@ public:
         free(out.triangleattributelist);
         free(out.edgelist);
         free(out.edgemarkerlist);
-
     }
 
 
     void TestRemeshWithLibraryMethodSimple() throw (Exception)
     {
-        //Same data as previous test
+        // Same data as previous test
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, true,  0.0,  0.0));
         nodes.push_back(new Node<2>(1, true,  1.0,  0.0));
@@ -432,7 +424,6 @@ public:
 
         ConformingTetrahedralMesh<2,2> mesh(nodes);
 
-
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 10.0, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 22.0, 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
@@ -441,9 +432,9 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 4u);
 
         NodeMap map(1);
-        mesh.ReMeshWithTriangleLibrary(map);
+        mesh.ReMesh(map);
 
-        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes());
 
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 10.0, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 22.0, 1e-6);
@@ -472,16 +463,15 @@ public:
 
         mesh.MoveMergeNode(node_index, target_index);
 
-
         TS_ASSERT_DELTA(area, mesh.CalculateVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
 
         NodeMap map(1);
-        mesh.ReMeshWithTriangleLibrary(map);
+        mesh.ReMesh(map);
 
-        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes()+1);//one node removed during remesh
+        TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes()+1);//one node removed during remesh
 
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
@@ -492,10 +482,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
         TS_ASSERT_DELTA(mesh.CalculateVolume(),area,1e-6);
     }
-
-
-
-
 
 };
 

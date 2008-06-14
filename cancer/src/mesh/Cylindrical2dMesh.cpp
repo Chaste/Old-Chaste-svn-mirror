@@ -66,7 +66,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
     }
 
     NodeMap node_map(nodes.size());
-    ReMeshWithTriangleLibrary(node_map);
+    ReMesh(node_map);
 }
 
 
@@ -169,7 +169,7 @@ void Cylindrical2dMesh::CreateHaloNodes()
 }
 
 
-void Cylindrical2dMesh::ReMeshWithTriangleLibrary(NodeMap &map)
+void Cylindrical2dMesh::ReMesh(NodeMap &map)
 {
     unsigned old_num_all_nodes = GetNumAllNodes();
 
@@ -197,7 +197,7 @@ void Cylindrical2dMesh::ReMeshWithTriangleLibrary(NodeMap &map)
     // Call the normal re-mesh. Note that the mesh now has lots
     // of extra nodes which will be deleted, hence the name 'big_map'
     NodeMap big_map(GetNumAllNodes());
-    ConformingTetrahedralMesh<2,2>::ReMeshWithTriangleLibrary(big_map);
+    ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
 
     // If the big_map isn't the identity map, the little map ('map') needs to be
     // altered accordingly before being passed to the user. not sure how this all works,

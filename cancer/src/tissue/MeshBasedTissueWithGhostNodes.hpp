@@ -387,14 +387,7 @@ inline void load_construct_data(
 
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
-    if (DIM==2u)
-    {
-        p_mesh->ReMeshWithTriangleLibrary(map);
-    }
-    else
-    {
-        p_mesh->ReMesh(map);
-    }
+    p_mesh->ReMesh(map);
 
     // Invoke inplace constructor to initialize instance
     ::new(t)MeshBasedTissueWithGhostNodes<DIM>(*p_mesh);

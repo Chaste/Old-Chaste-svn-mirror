@@ -477,15 +477,8 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::ReMesh()
 {
     NodeMap map(mrMesh.GetNumAllNodes());
-    if (DIM==2)
-    {
-        mrMesh.ReMeshWithTriangleLibrary(map);
-    }
-    else
-    {
-        mrMesh.ReMesh(map);
-    }
-
+    mrMesh.ReMesh(map);
+    
     if (!map.IsIdentityMap())
     {
         UpdateGhostNodesAfterReMesh(map);
@@ -1026,14 +1019,7 @@ inline void load_construct_data(
 
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
-    if (DIM==2u)
-    {
-        p_mesh->ReMeshWithTriangleLibrary(map);
-    }
-    else
-    {
-        p_mesh->ReMesh(map);
-    }
+    p_mesh->ReMesh(map);
 
     // Invoke inplace constructor to initialize instance
     ::new(t)MeshBasedTissue<DIM>(*p_mesh);

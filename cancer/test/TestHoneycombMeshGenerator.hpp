@@ -399,10 +399,6 @@ public:
 
         NodeMap map(p_mesh->GetNumAllNodes());
 
-        // This line passes
-        p_mesh->ReMeshWithTriangleLibrary(map);
-
-        // This line fails
         p_mesh->ReMesh(map);
     }
 

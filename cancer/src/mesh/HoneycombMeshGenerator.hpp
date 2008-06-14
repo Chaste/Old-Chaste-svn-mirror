@@ -289,7 +289,7 @@ public:
             mpMesh = new Cylindrical2dMesh(mCryptWidth);
             mpMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpMesh->GetNumNodes());
-            mpMesh->ReMeshWithTriangleLibrary(map); // This makes the mesh cylindrical (uses Triangle library mode inside this ReMesh call).
+            mpMesh->ReMesh(map); // This makes the mesh cylindrical (uses Triangle library mode inside this ReMesh call).
         }
 
         // Delete the temporary files.
@@ -368,7 +368,7 @@ public:
 
         // Remesh
         NodeMap map(mpMesh->GetNumNodes());
-        mpMesh->ReMeshWithTriangleLibrary(map);
+        mpMesh->ReMesh(map);
 
         return mpMesh;
     }

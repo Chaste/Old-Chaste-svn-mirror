@@ -177,7 +177,7 @@ public:
      *
      * @param &map a reference to a nodemap which should be created with the required number of nodes.
      */
-    void ReMeshWithTriangleLibrary(NodeMap &map);
+    void ReMesh(NodeMap &map);
 
     /**
      * This OVERRIDDEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.

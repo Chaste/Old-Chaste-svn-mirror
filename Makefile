@@ -222,7 +222,7 @@ TestNicheSuccessionTimeDistributionsRunner: TestNicheSuccessionTimeDistributions
 # Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/NicheSuccessionTime; mkdir ${FRESH_DIR}/NicheSuccessionTime/archive ;\
 	cd ${FRESH_DIR}/NicheSuccessionTime/archive ;\
-	cp ../../../projects/AlexF/test/data/SteadyStateCryptFletcherGeometry/archive/* . ;\
+	cp ../../../projects/AlexF/test/data/SteadyStateCryptMeinekeGeometry/archive/* . ;\
 	cd ../.. ;\
 # Need the triangle binary for crypt projection simulations
 	mkdir ${FRESH_DIR}/bin ;\
