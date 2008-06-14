@@ -165,7 +165,7 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
     {
 
         //Remove comments (everything from a hash to the end of the line)
-        //If there is no hash, then hashLocation = string::npos = -1 =  4294967295 = UINT_MAX
+        //If there is no hash, then hashLocation = string::npos = -1 = 4294967295 = UINT_MAX
         //(so it works with unsigneds but is a little nasty)
         long hash_location=RawLineFromFile.find('#',0);
         if (hash_location >= 0)

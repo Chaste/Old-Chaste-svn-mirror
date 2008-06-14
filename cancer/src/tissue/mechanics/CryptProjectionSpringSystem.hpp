@@ -178,9 +178,9 @@ inline void save_construct_data(
     // save data required to construct instance
     const MeshBasedTissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
-    double a =  t->GetA();
+    double a = t->GetA();
     ar & a;
-    double b =  t->GetB();
+    double b = t->GetB();
     ar & b;
 }
 

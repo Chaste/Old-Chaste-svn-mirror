@@ -207,7 +207,7 @@ public:
         }
         else if (ELEMENT_DIM == 3)
         {
-            scale_factor=  6.0; // both the volume of the canonical triangle is 1/6
+            scale_factor= 6.0; // both the volume of the canonical triangle is 1/6
         }
         return mJacobianDeterminant/scale_factor;
     }
