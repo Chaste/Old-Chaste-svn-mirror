@@ -98,7 +98,7 @@ public:
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
         ortho_tensors.SetFibreOrientationFile("non_existing_file.fibres");
-        //TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // non existing file
+        TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // non existing file
 
         ortho_tensors.SetFibreOrientationFile ("heart/test/data/SimpleOrthotropic2D.fibres");
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // mismatching SPACE_DIM and # vectors in file
