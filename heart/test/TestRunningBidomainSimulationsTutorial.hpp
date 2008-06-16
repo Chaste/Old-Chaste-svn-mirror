@@ -178,9 +178,13 @@ public:
          * Note that {{{Create_c_vector}}} is just a helper method for creating a {{{c_vector<double,DIM>}}}
          * of the correct size (2, in this case). Note that these methods need to be called before
          * {{{Initialise()}}} '''is this true?''' '''todo - fix this'''*/
-    //    bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-    //    bidomain_problem.SetExtracellularConductivities(Create_c_vector(1));
-
+        //bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
+        //bidomain_problem.SetExtracellularConductivities(Create_c_vector(6.2, 2.4));
+        
+        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2, 2.4));
+        
         /* Now we call {{{Initialise()}}}... */
         bidomain_problem.Initialise();
         /* .. and set the surface-area-to-volume ratio and capicitance. These
