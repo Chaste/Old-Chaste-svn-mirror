@@ -398,15 +398,8 @@ public :
 
         // initialise monodomain problem
         mpMonodomainProblem->SetMesh(mpElectricsMesh);
-        if(DIM==2)
-        {
-            mpMonodomainProblem->SetIntracellularConductivities(Create_c_vector(1.75,1.75));
-        }
-        else
-        {
-            assert(DIM==3);
-            mpMonodomainProblem->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
-        }
+        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
 
         mpMonodomainProblem->Initialise();
 
@@ -665,8 +658,11 @@ public :
                 system(chaste_2_meshalyzer.c_str());
             }
 
+            HeartConfig::Instance()->Destroy();
             mpMonodomainProblem->mpWriter->Close();
             delete mpMonodomainProblem->mpWriter;
+            
+            
         }
 
         delete p_electrics_assembler;
