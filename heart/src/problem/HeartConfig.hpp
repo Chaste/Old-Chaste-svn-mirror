@@ -115,6 +115,8 @@ public:
     void SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities);
     void SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities);
     
+    void SetMediaIsOrthotropic();
+    void SetMediaIsAxisymmetric();
     void SetSurfaceAreaToVolumeRatio(double ratio);
     void SetCapacitance(double capacitance);
 

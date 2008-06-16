@@ -192,6 +192,12 @@ public :
         TS_ASSERT_EQUALS(extra[1], -2.0);
         TS_ASSERT_EQUALS(extra[2], -1.0);
 
+        HeartConfig::Instance()->SetMediaIsOrthotropic();
+        TS_ASSERT(HeartConfig::Instance()->GetIsMediaOrthotropic());
+
+        HeartConfig::Instance()->SetMediaIsAxisymmetric();
+        TS_ASSERT(!HeartConfig::Instance()->GetIsMediaOrthotropic());
+
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2000);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 2000);
 

@@ -88,9 +88,8 @@ public:
      */
     MonodomainFastSlowProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                               MixedTetrahedralMesh<DIM,DIM>& rMixedMesh,
-                              double slowCellsTimeStep,
-                              bool orthotropicMedia=true)
-            : MonodomainProblem<DIM>(pCellFactory, orthotropicMedia),
+                              double slowCellsTimeStep)
+            : MonodomainProblem<DIM>(pCellFactory),
               mrMixedMesh(rMixedMesh),
               mpMonodomainFastSlowPde(NULL),
               mSlowCellsTimeStep(slowCellsTimeStep)

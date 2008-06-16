@@ -532,6 +532,16 @@ void HeartConfig::SetExtracellularConductivities(const c_vector<double, 1>& extr
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
 }
 
+void HeartConfig::SetMediaIsOrthotropic()
+{
+    mpUserParameters->Physiological().ConductivityMedia().set(media_type::Orthotropic);    
+}
+
+void HeartConfig::SetMediaIsAxisymmetric()
+{
+    mpUserParameters->Physiological().ConductivityMedia().set(media_type::Axisymmetric);    
+}
+
 void HeartConfig::SetSurfaceAreaToVolumeRatio(double ratio)
 {
     mpUserParameters->Physiological().SurfaceAreaToVolumeRatio().set(ratio);

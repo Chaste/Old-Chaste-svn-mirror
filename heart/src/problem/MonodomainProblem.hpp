@@ -82,8 +82,8 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
-            : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory, orthotropicMedia),
+    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+            : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
               mpMonodomainPde(NULL)
     {
     }

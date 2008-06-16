@@ -138,7 +138,7 @@ public:
         {
             MyCellFactory cell_factory_normal(false);
     
-            MonodomainProblem<2> monodomain_prob( &cell_factory_normal, 1.0 );
+            MonodomainProblem<2> monodomain_prob( &cell_factory_normal);
             monodomain_prob.SetMesh(mixed_mesh.GetFineMesh());
     
             monodomain_prob.SetEndTime(2);   // ms

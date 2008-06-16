@@ -117,7 +117,7 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
+    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
             : mMeshFilename(""),     // i.e. undefined
               mNodesPerProcessorFilename(""),     // i.e. undefined
               mOutputDirectory(""),  // i.e. undefined

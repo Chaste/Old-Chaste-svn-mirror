@@ -99,8 +99,8 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
-            : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory, orthotropicMedia),
+    BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+            : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory),
             mpBidomainPde(NULL), 
             mRowMeanPhiEZero(INT_MAX)
     {
