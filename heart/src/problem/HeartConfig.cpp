@@ -46,6 +46,8 @@ HeartConfig::HeartConfig()
 {
     assert(mpInstance == NULL);
 
+    mpDefaultParameters=NULL;
+    mpUserParameters=NULL;
     mpDefaultParameters = ReadFile("ChasteDefaults.xml");
     mpUserParameters = mpDefaultParameters;
 }
@@ -64,6 +66,10 @@ void HeartConfig::SetDefaultsFile(std::string fileName)
 {
     bool same_target = (mpUserParameters == mpDefaultParameters);
 
+    
+    delete mpDefaultParameters;
+   
+    mpDefaultParameters = NULL;
     mpDefaultParameters = ReadFile(fileName);
 
     if (same_target)
@@ -77,8 +83,8 @@ chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
     // get the parameters using the method 'ChasteParameters(filename)',
     // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
     // it will delete memory when out of scope, or no longer point when it is copied,
-    // so we reallocate memory using a normal pointer and copy the data to thereS
-     try
+    // so we reallocate memory using a normal pointer and copy the data to there
+    try
     {
         std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(fileName));
         return new chaste_parameters_type(*p_default);
@@ -92,6 +98,7 @@ chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
 
 void HeartConfig::SetParametersFile(std::string fileName)
 {
+    mpUserParameters = NULL;
     mpUserParameters = ReadFile(fileName);
 }
 
