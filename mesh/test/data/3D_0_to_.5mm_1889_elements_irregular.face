@@ -1,4 +1,4 @@
-436  1
+436  0 #<-- 0 means ignore markers (all faces are boundary faces)
     0     79   305    45    0
     1     82     0   161    0
     2     47    79   155    0

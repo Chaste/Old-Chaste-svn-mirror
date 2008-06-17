@@ -49,7 +49,7 @@ public:
         HeartConfig::Destroy();   
     }
 
-    void xTestBidomainDg01DPinned()
+    void TestBidomainDg01DPinned()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
@@ -143,7 +143,7 @@ public:
     }
 
 
-    void xTestBidomainDg01DMeanPhiEOverDifferentRows()
+    void TestBidomainDg01DMeanPhiEOverDifferentRows()
     {
 
         EventHandler::Disable();
@@ -287,7 +287,7 @@ public:
      * sigma_i) in a bidomain simulation it should agree with a monodomain
      * simulation with the same parameters.
      */
-    void xTestCompareBidomainProblemWithMonodomain()
+    void TestCompareBidomainProblemWithMonodomain()
     {
         Vec monodomain_results;
 
@@ -378,7 +378,7 @@ public:
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
     ///////////////////////////////////////////////////////////////////
-    void xTestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
+    void TestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
     {
         EventHandler::Disable();
         // run testing PrintingTimeSteps
@@ -480,7 +480,7 @@ public:
         EventHandler::Enable();
     }
 
-    void xTestBidomainProblemExceptions() throw (Exception)
+    void TestBidomainProblemExceptions() throw (Exception)
     {
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );

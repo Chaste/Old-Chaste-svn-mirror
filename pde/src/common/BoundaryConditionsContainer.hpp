@@ -185,6 +185,8 @@ public:
                                                unsigned indexOfUnknown = 0)
     {
         assert(indexOfUnknown < PROBLEM_DIM);
+        //In applying a condition to the boundary, we need to be sure that the boundary exists
+        assert(pMesh->GetNumBoundaryNodes() > 0);
 
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition =
             new ConstBoundaryCondition<SPACE_DIM>( value );
@@ -209,7 +211,8 @@ public:
                                          unsigned indexOfUnknown = 0)
     {
         assert(indexOfUnknown < PROBLEM_DIM);
-
+        //In applying a condition to the boundary, we need to be sure that the boundary exists
+        assert(pMesh->GetNumBoundaryElements() > 0);
         ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
             new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
 

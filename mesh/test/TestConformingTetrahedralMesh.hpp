@@ -132,9 +132,14 @@ public:
     }
 
 
-    void Test3dLinearMeshConstructionFromMeshReader(void)
+    void Test3dMeshConstructionFromMeshReader(void)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 136U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 96U);
+
+
         ConformingTetrahedralMesh<3,3> mesh;
 
         try
@@ -150,7 +155,10 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
         //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
-
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-15);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-16);
+        
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
@@ -160,7 +168,21 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
     }
 
-
+    void Test3dMeshConstructionFromMeshReader2(void)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 425U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1889U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 436U);
+        
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.25e-4, 1e-16);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 0.015, 1e-15);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 425U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1889U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 436U);
+    }
     void TestMeshWithBoundaryElements(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
