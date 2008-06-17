@@ -1,4 +1,20 @@
 #!/bin/sh
+
+# Shell script to create an MPEG format movie using MPlayer from the 
+# image0*.png files in the anim folder
+
+# Various parameters
+INPUT_FILES="mf://image0*png"
+MF_OPTIONS="fps=25:type=png"
+VIDEO_CODEC="lavc"
+AUDIO_CODEC="copy"
+LAVC_OPTIONS="vcodec=msmpeg4v2:mbd=2:trell"
+OUTPUT_FILE="simulation.mpeg"
+
 echo "You must have mplayer/mencoder installed to use this (yum install mplayer)"
-mencoder mf://image0*png -mf fps=25:type=png -ovc lavc -lavcopts vcodec=msmpeg4v2:mbd=2:trell -oac copy -o simulation.mpeg
+
+# Encode movie
+mencoder $INPUT_FILES -mf $MF_OPTIONS -ovc $VIDEO_CODEC -lavcopts $LAVC_OPTIONS -oac $AUDIO_CODEC -o $OUTPUT_FILE
+
+# Play movie on a loop
 mplayer -loop 0 simulation.mpeg
