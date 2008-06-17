@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>// at end of includes
 
 
-class Cylindrical2dMesh : public ConformingTetrahedralMesh<2, 2>
+class Cylindrical2dMesh : public ConformingTetrahedralMesh<2,2>
 {
     friend class TestCylindrical2dMesh;
 private:
@@ -77,7 +77,6 @@ private:
 
     /** The indices of nodes on the bottom boundary */
     std::vector<unsigned > mBottomHaloNodes;
-
 
     /**
      * @param pElement

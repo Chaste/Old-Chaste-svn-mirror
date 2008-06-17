@@ -31,8 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "HoneycombMeshGenerator.hpp"
-#include "OutputFileHandler.hpp"
-#include "TrianglesMeshWriter.hpp"
 
 
 class TestHoneycombMeshGenerator : public CxxTest::TestSuite

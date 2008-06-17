@@ -1,5 +1,3 @@
-#ifndef CYLINDRICAL2DMESH_CPP_
-#define CYLINDRICAL2DMESH_CPP_
 /*
 
 Copyright (C) University of Oxford, 2008
@@ -27,20 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef CYLINDRICAL2DMESH_CPP_
+#define CYLINDRICAL2DMESH_CPP_
 
 #include "Cylindrical2dMesh.hpp"
-
-
-void Cylindrical2dMesh::ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex )
-{
-    for (unsigned j=0; j<rImageNodes.size(); j++)
-    {
-        if(nodeIndex==rImageNodes[j])
-        {
-            pElement->ReplaceNode(mNodes[rImageNodes[j]],mNodes[rOriginalNodes[j]]);
-        }
-    }
-}
 
 
 Cylindrical2dMesh::Cylindrical2dMesh(double width)
@@ -67,6 +55,18 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
 
     NodeMap node_map(nodes.size());
     ReMesh(node_map);
+}
+
+
+void Cylindrical2dMesh::ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex)
+{
+    for (unsigned j=0; j<rImageNodes.size(); j++)
+    {
+        if(nodeIndex==rImageNodes[j])
+        {
+            pElement->ReplaceNode(mNodes[rImageNodes[j]],mNodes[rOriginalNodes[j]]);
+        }
+    }
 }
 
 
@@ -571,7 +571,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
 
             if (is_coresponding_node)
             {
-                // remove original and coresponding element from sets
+                // Remove original and coresponding element from sets
                 temp_left_hand_side_elements.erase(elem_index);
                 temp_right_hand_side_elements.erase(corresponding_elem_index);
             }
@@ -595,24 +595,25 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     {
         assert(temp_right_hand_side_elements.size()==0u);
         assert(temp_left_hand_side_elements.size()==0u);
-        //std::cout << "No problem elements\n" << std::flush;
     }
     else
     {
-        //std::cout << "Problem elements\n" << std::flush;
         if (temp_right_hand_side_elements.size()==2u)
-        {   // Use the right hand side meshing and map to left
+        {   
+            // Use the right hand side meshing and map to left
             #define COVERAGE_IGNORE
             UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
             #undef COVERAGE_IGNORE
 
         }
         else if (temp_left_hand_side_elements.size()==2u)
-        {   // Use the left hand side meshing and map to right
+        {   
+            // Use the left hand side meshing and map to right
             UseTheseElementsToDecideMeshing(temp_left_hand_side_elements);
         }
         else
-        {   // If you get here there are more than two mixed up elements on the periodic edge.
+        {   
+            // If you get here there are more than two mixed up elements on the periodic edge.
             NEVER_REACHED;
         }
     }
