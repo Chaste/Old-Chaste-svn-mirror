@@ -68,7 +68,7 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         
         monodomain_problem.Initialise();
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -121,7 +121,7 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         
         monodomain_problem.Initialise();
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -175,7 +175,7 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("results");
 
         bidomain_problem.Initialise();
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
         //Double check to confirm the default values for conductivity
         c_matrix<double, 1,1> intra_tensor=bidomain_problem.GetBidomainPde()->rGetIntracellularConductivityTensor(0);
@@ -233,7 +233,7 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("results");
 
         bidomain_problem.Initialise();
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
         //Double check to confirm the default values for conductivity
         c_matrix<double, 2,2> intra_tensor=bidomain_problem.GetBidomainPde()->rGetIntracellularConductivityTensor(0);

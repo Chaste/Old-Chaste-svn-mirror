@@ -102,7 +102,7 @@ public:
 
         bidomain_problem.Initialise();
 
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1500); //    1/cm
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1500); //    1/cm
 
         try
         {

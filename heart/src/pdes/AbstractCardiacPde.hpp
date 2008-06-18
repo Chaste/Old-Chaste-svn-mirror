@@ -72,7 +72,7 @@ protected:
 
     /**
      *  Parameters used in mono and bidomain simulations
-     *  UNITS: surface area to volume ratio: 1/cm
+     *  UNITS: 
      *         capacitance                 : uF/cm^2
      *         conductivity                : mS/cm
      *
@@ -80,7 +80,6 @@ protected:
      *         Iionic                      : uA/cm^2
      *         Istimuli                    : uA/cm^3
      */
-    double mSurfaceAreaToVolumeRatio;
     double mCapacitance;
 
     AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
@@ -108,6 +107,7 @@ public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
             :  mStride(stride)
     {
+        //This constructor is called from the Initialise() method of the CardiacProblem class
         assert(pCellFactory!=NULL);
         assert(pCellFactory->GetMesh()!=NULL);
 
@@ -129,8 +129,6 @@ public:
             DistributedVector::SetProblemSize(pCellFactory->GetMesh()->GetNumNodes());
         }
 
-        // Reference: Trayanova (2002 - "Look inside the heart")
-        mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
 
         mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
@@ -179,15 +177,7 @@ public:
     }
 
 
-    void SetSurfaceAreaToVolumeRatio(double surfaceAreaToVolumeRatio)
-    {
-        if (surfaceAreaToVolumeRatio <= 0)
-        {
-            EXCEPTION("Surface area to volume ratio should be positive");
-        }
-        mSurfaceAreaToVolumeRatio = surfaceAreaToVolumeRatio;
-    }
-
+   
     void SetCapacitance(double capacitance)
     {
         if (capacitance <= 0)
@@ -197,15 +187,7 @@ public:
         mCapacitance = capacitance;
     }
 
-//    void SetIntracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pIntracellularTensors)
-//    {
-//        mpIntracellularConductivityTensors = pIntracellularTensors;
-//    }
 
-    double GetSurfaceAreaToVolumeRatio()
-    {
-        return mSurfaceAreaToVolumeRatio;
-    }
 
     double GetCapacitance()
     {

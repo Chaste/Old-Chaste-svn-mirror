@@ -65,7 +65,7 @@ public:
 
         bidomain_problem.Initialise();
 
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
 
         std::vector<unsigned> pinned_nodes;
@@ -173,7 +173,7 @@ public:
         {
             bidomain_problem.Initialise();
 
-            bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
 
             // First line is for coverage
@@ -311,7 +311,7 @@ public:
 
             monodomain_problem.Initialise();
 
-            monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
 
             // now solve
@@ -340,7 +340,7 @@ public:
 
         bidomain_problem.Initialise();
 
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
 
         // now solve

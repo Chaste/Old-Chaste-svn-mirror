@@ -187,12 +187,9 @@ public:
         
         /* Now we call {{{Initialise()}}}... */
         bidomain_problem.Initialise();
-        /* .. and set the surface-area-to-volume ratio and capicitance. These
-         * are members of {{{BidomainPde}}}, which can be accessed from the problem class.
-         * (The PDE, and the mesh, and the cells, are not created until {{{Initialise()}}} is called,
-         * hence the need to call {{{Initialise()}}} before setting these variables. '''todo - choose sensible params'''
+        /* .. and set the surface-area-to-volume ratio and capicitance. 
          */
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
 
         /* Now we call Solve() to run the simulation. Output will be written

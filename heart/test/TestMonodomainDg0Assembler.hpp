@@ -98,7 +98,7 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
 
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
@@ -134,7 +134,7 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
 
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         monodomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
 
@@ -173,7 +173,7 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
 
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         double atol=1e-1;
         monodomain_problem.SetLinearSolverAbsoluteTolerance(atol/4.0);
@@ -218,7 +218,7 @@ public:
 
         monodomain_problem.Initialise();
 
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
@@ -304,7 +304,7 @@ public:
 
         monodomain_problem.Initialise();
 
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
@@ -441,7 +441,6 @@ public:
         TS_ASSERT_THROWS_NOTHING(monodomain_problem.Initialise());
 
         // bad params
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(-1));
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetCapacitance(-1));
 
         // Throws because EndTime has not been set

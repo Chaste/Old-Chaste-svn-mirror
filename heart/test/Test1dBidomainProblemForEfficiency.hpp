@@ -56,7 +56,7 @@ public:
 
         bidomain_problem.Initialise();
 
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
 
         bidomain_problem.PrintOutput(false);

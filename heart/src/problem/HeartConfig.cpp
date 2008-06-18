@@ -379,6 +379,7 @@ bool HeartConfig::GetIsMediaOrthotropic() const
 
 double HeartConfig::GetSurfaceAreaToVolumeRatio() const
 {
+    /*surface area to volume ratio: 1/cm*/
     return DecideLocation( & mpUserParameters->Physiological().SurfaceAreaToVolumeRatio(),
                            & mpDefaultParameters->Physiological().SurfaceAreaToVolumeRatio(),
                            "SurfaceAreaToVolumeRatio")->get();

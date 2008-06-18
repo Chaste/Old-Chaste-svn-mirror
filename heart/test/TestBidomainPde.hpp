@@ -107,8 +107,7 @@ public:
 
         BidomainPde<1>   bidomain_pde( &cell_factory );
 
-        bidomain_pde.SetSurfaceAreaToVolumeRatio(3.14);
-        TS_ASSERT_DELTA( bidomain_pde.GetSurfaceAreaToVolumeRatio(), 3.14, 1e-10);
+        
 
         bidomain_pde.SetCapacitance(2.718);
         TS_ASSERT_DELTA( bidomain_pde.GetCapacitance(), 2.718, 1e-10);
