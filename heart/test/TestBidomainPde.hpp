@@ -97,22 +97,6 @@ class TestBidomainPde : public CxxTest::TestSuite
 {
 public:
 
-    void TestBidomainPdeGetSet( void )
-    {
-        ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructLinearMesh(1);
-
-        MyCardiacCellFactory cell_factory; // same as cell factory but with extracell stimuli
-        cell_factory.SetMesh(&mesh);
-
-        BidomainPde<1>   bidomain_pde( &cell_factory );
-
-        
-
-        bidomain_pde.SetCapacitance(2.718);
-        TS_ASSERT_DELTA( bidomain_pde.GetCapacitance(), 2.718, 1e-10);
-    }
-
     void TestBidomainPdeSolveCellSystems( void )
     {
         ConformingTetrahedralMesh<1,1> mesh;

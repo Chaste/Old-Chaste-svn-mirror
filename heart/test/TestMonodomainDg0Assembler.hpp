@@ -99,7 +99,7 @@ public:
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
 
@@ -135,7 +135,7 @@ public:
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
         monodomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
 
         monodomain_problem.SetLinearSolverRelativeTolerance(1e-9);
@@ -174,7 +174,7 @@ public:
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
         double atol=1e-1;
         monodomain_problem.SetLinearSolverAbsoluteTolerance(atol/4.0);
         TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverAbsoluteTolerance(),atol/4.0,1e-14);
@@ -219,7 +219,7 @@ public:
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
 
@@ -305,7 +305,7 @@ public:
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
 
@@ -439,9 +439,6 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(monodomain_problem.Initialise());
-
-        // bad params
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetCapacitance(-1));
 
         // Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());

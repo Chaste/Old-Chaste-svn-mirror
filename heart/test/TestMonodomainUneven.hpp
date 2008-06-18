@@ -73,7 +73,7 @@ public:
 
 
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-            monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+            HeartConfig::Instance()->SetCapacitance(1.0);
 
             monodomain_problem.Solve();
 

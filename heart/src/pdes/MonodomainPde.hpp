@@ -105,7 +105,7 @@ public:
 
     double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& )
     {
-        return (HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio())*(this->mCapacitance);
+        return (HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio())*(HeartConfig::Instance()->GetCapacitance());
     }
 };
 

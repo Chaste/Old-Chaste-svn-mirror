@@ -190,7 +190,7 @@ public:
         /* .. and set the surface-area-to-volume ratio and capicitance. 
          */
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
         /* Now we call Solve() to run the simulation. Output will be written
          * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''todo: To visualise...'''*/

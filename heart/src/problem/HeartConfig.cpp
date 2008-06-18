@@ -387,6 +387,7 @@ double HeartConfig::GetSurfaceAreaToVolumeRatio() const
 
 double HeartConfig::GetCapacitance() const
 {
+    //         capacitance                 : uF/cm^2
     return DecideLocation( & mpUserParameters->Physiological().Capacitance(),
                            & mpDefaultParameters->Physiological().Capacitance(),
                            "Capacitance")->get();

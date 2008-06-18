@@ -70,18 +70,6 @@ class AbstractCardiacPde
 {
 protected:
 
-    /**
-     *  Parameters used in mono and bidomain simulations
-     *  UNITS: 
-     *         capacitance                 : uF/cm^2
-     *         conductivity                : mS/cm
-     *
-     *  which means the units of these should be
-     *         Iionic                      : uA/cm^2
-     *         Istimuli                    : uA/cm^3
-     */
-    double mCapacitance;
-
     AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
 
     /** The vector of cells. Distributed. */
@@ -129,8 +117,6 @@ public:
             DistributedVector::SetProblemSize(pCellFactory->GetMesh()->GetNumNodes());
         }
 
-        mCapacitance = 1.0;                          // uF/cm^2
-
         mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
 
         for (DistributedVector::Iterator index = DistributedVector::Begin();
@@ -174,24 +160,6 @@ public:
         }
 
         delete mpIntracellularConductivityTensors;
-    }
-
-
-   
-    void SetCapacitance(double capacitance)
-    {
-        if (capacitance <= 0)
-        {
-            EXCEPTION("Capacitance should be positive");
-        }
-        mCapacitance = capacitance;
-    }
-
-
-
-    double GetCapacitance()
-    {
-        return mCapacitance;
     }
 
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex)

@@ -128,7 +128,7 @@ private:
     {
         // get bidomain parameters
         double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
-        double Cm = mpBidomainPde->GetCapacitance();
+        double Cm = HeartConfig::Instance()->GetCapacitance();
 
         const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpBidomainPde->rGetIntracellularConductivityTensor(pElement->GetIndex());
         const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_e = mpBidomainPde->rGetExtracellularConductivityTensor(pElement->GetIndex());
@@ -188,7 +188,7 @@ private:
     {
         // get bidomain parameters
         double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
-        double Cm = mpBidomainPde->GetCapacitance();
+        double Cm = HeartConfig::Instance()->GetCapacitance();
 
         c_vector<double,2*(ELEMENT_DIM+1)> ret;
 

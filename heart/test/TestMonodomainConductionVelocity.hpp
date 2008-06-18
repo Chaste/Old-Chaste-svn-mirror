@@ -72,7 +72,7 @@ public:
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
         monodomain_problem.Solve();
 
@@ -121,7 +121,7 @@ public:
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
         // the mesh is too coarse, and this simulation will result in cell gating
         // variables going out of range. An exception should be thrown in the
