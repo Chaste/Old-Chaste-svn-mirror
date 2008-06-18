@@ -185,7 +185,9 @@ env = Environment(
          'CHASTE_TEST_OUTPUT':
          os.environ.get('CHASTE_TEST_OUTPUT',
                         '/tmp/'+os.environ['USER']+'/testoutput/'),
-         'LD_LIBRARY_PATH': ':'.join(other_libpaths)})
+         'LD_LIBRARY_PATH': ':'.join(other_libpaths),
+         'HOME': os.environ['HOME']
+        })
 env.Append(CCFLAGS = '-isystem ' + ' -isystem '.join(other_includepaths)
            + ' ' + extra_flags)
 env.Append(LINKFLAGS = link_flags)
