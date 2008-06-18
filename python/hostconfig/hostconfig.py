@@ -56,12 +56,11 @@ import sys
 
 machine_fqdn = socket.getfqdn()
 
-
 if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
     import joe as conf
 elif machine_fqdn in [ "userpc60.comlab.ox.ac.uk", "userpc58.comlab.ox.ac.uk" ]:
     import chaste32 as conf
-elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk" ]:
+elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk", "userpc36.comlab.ox.ac.uk" ]:
     import chaste64 as conf
 elif machine_fqdn == "chaste-bob.comlab.ox.ac.uk":
     import chastebob as conf
