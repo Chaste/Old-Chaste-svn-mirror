@@ -82,7 +82,7 @@ public:
 class TestMonodomainFastSlowPde : public CxxTest::TestSuite
 {
 public:
-    void testMonodomainFastSlowPde() throw (Exception)
+    void TestSimpleMonodomainFastSlowPde() throw (Exception)
     {
         EXIT_IF_PARALLEL;
 

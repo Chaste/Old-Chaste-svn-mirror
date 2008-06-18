@@ -145,3 +145,31 @@ double AbstractCardiacCell::GetIntracellularCalciumConcentration()
 {
     EXCEPTION("AbstractCardiacCell::GetIntracellularCalciumConcentration() called. Either model has no [Ca_i] or method has not been implemented yet");
 }
+
+/*
+ *  METHODS NEEDED BY FAST CARDIAC CELLS
+ */    
+void AbstractCardiacCell::SetState(CellModelState state)
+{
+    EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
+}
+    
+void AbstractCardiacCell::SetSlowValues(const std::vector<double> &rSlowValues)
+{
+    EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
+}
+
+void AbstractCardiacCell::GetSlowValues(std::vector<double>& rSlowValues)
+{
+    EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
+}
+
+bool AbstractCardiacCell::IsFast()
+{
+    EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
+}
+
+unsigned AbstractCardiacCell::GetNumSlowValues()
+{
+    EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
+}

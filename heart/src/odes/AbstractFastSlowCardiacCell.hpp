@@ -31,13 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCell.hpp"
 
-typedef enum _CellModelState
-{
-    STATE_UNSET = 0,
-    FAST,
-    SLOW
-} CellModelState;
-
 /**
  * This class uses the functionality defined in AbstractCardiacCell and
  * also defines the interface for cells which can be run in SLOW (full)
@@ -68,25 +61,6 @@ public:
     {
         mState = STATE_UNSET;
     }
-
-    /**
-     *  Pure method for setting the state of this model. This should
-     *  (i) set the state (ii) initialise the cell (iii) SET mNumberOfStateVariables
-     *  CORRECTLY (as this would not have been known in the constructor
-     */
-    virtual void SetState(CellModelState state)=0;
-
-    /*< Pure method, for setting the slow variables. Should only be valid in fast mode) */
-    virtual void SetSlowValues(const std::vector<double> &rSlowValues)=0;
-
-    /*< Pure method, for getting the slow variables. Should only valid in slow mode. */
-    virtual void GetSlowValues(std::vector<double>& rSlowValues)=0;
-
-    /**
-     *  Pure method for getting the number of slow variables for the cell model
-     *  (irrespective of whether in fast or slow mode
-     */
-    virtual unsigned GetNumSlowValues()=0;
 
     /*< Get whether this cell is a fast or slow version */
     bool IsFast()

@@ -51,13 +51,6 @@ private:
     double mNextSlowCurrentSolveTime;
 
     /**
-     *  The same vector of cells as in the base class, but
-     *  as AbstractFastSlowCardiacCells. Created with
-     *  a static cast in the constructor. Distributed.
-     */
-    std::vector< AbstractFastSlowCardiacCell* > mFastSlowCellsDistributed;
-
-    /**
      *  Assuming the slow cells ODE have just been solved for, this method
      *  interpolates the slow values from the slow cells onto the fine-fast cells
      *  locations and sets them on the fine-fast cells.
@@ -74,7 +67,7 @@ private:
              ++index)
         {
             // if fine-fast..
-            if(mFastSlowCellsDistributed[index.Local]->IsFast())
+            if(this->mCellsDistributed[index.Local]->IsFast())
             {
                 Element<DIM,DIM>* p_coarse_element = r_coarse_mesh.GetACoarseElementForFineNodeIndex(index.Local);
 
@@ -82,7 +75,7 @@ private:
 
                 c_vector<double,DIM+1> weights = p_coarse_element->CalculateInterpolationWeights(r_position_of_fine_node);
 
-                unsigned num_slow_values = mFastSlowCellsDistributed[p_coarse_element->GetNodeGlobalIndex(0)]->GetNumSlowValues();
+                unsigned num_slow_values = this->mCellsDistributed[p_coarse_element->GetNodeGlobalIndex(0)]->GetNumSlowValues();
 
                 // interpolate
                 std::vector<double> interpolated_slow_values(num_slow_values, 0.0);
@@ -91,8 +84,8 @@ private:
                     unsigned coarse_cell_index = p_coarse_element->GetNodeGlobalIndex(i);
                     unsigned corresponding_fine_mesh_index = r_coarse_mesh.rGetCoarseFineNodeMap().GetNewIndex(coarse_cell_index);
 
-                    AbstractFastSlowCardiacCell* p_coarse_node_cell
-                       = mFastSlowCellsDistributed[ corresponding_fine_mesh_index ];
+                    AbstractCardiacCell* p_coarse_node_cell
+                       = this->mCellsDistributed[ corresponding_fine_mesh_index ];
 
                     assert(p_coarse_node_cell->IsFast()==false);
 
@@ -106,7 +99,7 @@ private:
                 }
 
                 // set the interpolated values on the fine-fast cell
-                mFastSlowCellsDistributed[index.Local]->SetSlowValues(interpolated_slow_values);
+                this->mCellsDistributed[index.Local]->SetSlowValues(interpolated_slow_values);
             }
         }
     }
@@ -130,24 +123,6 @@ public:
         mSlowCurrentsTimeStep = slowCurrentsTimeStep;
         mLastSlowCurrentSolveTime = startTime;
         mNextSlowCurrentSolveTime = mLastSlowCurrentSolveTime + mSlowCurrentsTimeStep;
-
-
-        //////////////////////////////////////////////////////////////
-        // Set up the vector of fast/slow cells.
-        // This is the same as the vector of cells in the base
-        // class (copies of pointers to the same objects)
-        // but static_cast to be of type AbstractFastSlowCardiacCell
-        //////////////////////////////////////////////////////////////
-        mFastSlowCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
-
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
-        {
-            mFastSlowCellsDistributed[index.Local]
-              = static_cast<AbstractFastSlowCardiacCell*>(this->mCellsDistributed[index.Local]);
-        }
-
 
         ///////////////////////////////////////////////////////////////////////
         // determine which are slow and fast cells, by looking to be see which
@@ -177,7 +152,7 @@ public:
              ++index)
         {
             CellModelState state = is_fast[index.Local] ? FAST : SLOW;
-            mFastSlowCellsDistributed[index.Local]->SetState(state);
+            this->mCellsDistributed[index.Local]->SetState(state);
         }
 
         /////////////////////////////////////////////
@@ -217,7 +192,7 @@ public:
              ++index)
         {
             // overwrite the voltage with the input value
-            mFastSlowCellsDistributed[index.Local]->SetVoltage( voltage[index] );
+            this->mCellsDistributed[index.Local]->SetVoltage( voltage[index] );
         }
 
         //////////////////////////////////////////////////////
@@ -230,11 +205,11 @@ public:
                  index != DistributedVector::End();
                  ++index)
             {
-                if(!mFastSlowCellsDistributed[index.Local]->IsFast())
+                if(!this->mCellsDistributed[index.Local]->IsFast())
                 {
                     try
                     {
-                        mFastSlowCellsDistributed[index.Local]->ComputeExceptVoltage(mLastSlowCurrentSolveTime, mNextSlowCurrentSolveTime);
+                        this->mCellsDistributed[index.Local]->ComputeExceptVoltage(mLastSlowCurrentSolveTime, mNextSlowCurrentSolveTime);
                     }
                     catch (Exception &e)
                     {
@@ -262,11 +237,11 @@ public:
              index != DistributedVector::End();
              ++index)
         {
-            if(mFastSlowCellsDistributed[index.Local]->IsFast())
+            if(this->mCellsDistributed[index.Local]->IsFast())
             {
                 try
                 {
-                    mFastSlowCellsDistributed[index.Local]->ComputeExceptVoltage(currentTime, nextTime);
+                    this->mCellsDistributed[index.Local]->ComputeExceptVoltage(currentTime, nextTime);
                 }
                 catch (Exception &e)
                 {
