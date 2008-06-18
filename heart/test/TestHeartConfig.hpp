@@ -145,9 +145,11 @@ public :
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 1.0);
 
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimestep(), 0.025);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimestep(), 0.05);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimestep(), 1.0);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimeStep(), 0.05);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimeStep(), 1.0);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseAbsoluteTolerance(), false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-50);
@@ -161,9 +163,9 @@ public :
         HeartConfig::Destroy();
     }
 
-    void TestSetFunctions()
+    void TestSetFunctions() throw(Exception)
     {
-        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");
+        //HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");
 
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
@@ -204,19 +206,35 @@ public :
         HeartConfig::Instance()->SetCapacitance(2.3);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 2.3);
 
-        HeartConfig::Instance()->SetTimesteps(1.1,2.2,4.4);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimestep(), 1.1);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimestep(), 2.2);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimestep(), 4.4);
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(1.1,2.2,4.4);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimeStep(), 2.2);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimeStep(), 4.4);
 
-        HeartConfig::Instance()->SetOdeTimestep(0.1);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimestep(), 0.1);
+        HeartConfig::Instance()->SetOdeTimeStep(0.1);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.1);
 
-        HeartConfig::Instance()->SetPdeTimestep(0.2);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimestep(), 0.2);
+        HeartConfig::Instance()->SetPdeTimeStep(0.2);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimeStep(), 0.2);
 
-        HeartConfig::Instance()->SetPrintingTimestep(0.4);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimestep(), 0.4);
+        HeartConfig::Instance()->SetPrintingTimeStep(0.4);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimeStep(), 0.4);
+        
+        // Test code to check consistency among TimeSteps
+        // throws because argument is negative
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.1,0.1);
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdeTimeStep(0.2));
+        
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,-1,  1));
+
+        //Throws when we try to print more often than the pde time step
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.1));
+         //Throws when printing step is not a multiple of pde time step
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
+        
+		// Throws because ode time step is bigger than pde time step
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
+        
 
         HeartConfig::Instance()->SetTolerances(1e-3, 1e-8, ksp_use_type::absolute);
         TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
@@ -244,16 +262,6 @@ public :
         HeartConfig::Destroy();
     }
 
-    void TestExceptions()
-    {
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml"));
-
-        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
-
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIonicModel());
-        HeartConfig::Destroy();
-    }
 };
 
 #endif /*TESTHEARTCONFIG_HPP_*/

@@ -709,58 +709,58 @@ normal (const normal::type& normal)
 }
 
 
-// timesteps_type
+// time_steps_type
 // 
 
-const timesteps_type::ode::type& timesteps_type::
+const time_steps_type::ode::type& time_steps_type::
 ode () const
 {
   return this->_xsd_ode_.get ();
 }
 
-timesteps_type::ode::type& timesteps_type::
+time_steps_type::ode::type& time_steps_type::
 ode ()
 {
   return this->_xsd_ode_.get ();
 }
 
-void timesteps_type::
+void time_steps_type::
 ode (const ode::type& ode)
 {
   this->_xsd_ode_.set (ode);
 }
 
-const timesteps_type::pde::type& timesteps_type::
+const time_steps_type::pde::type& time_steps_type::
 pde () const
 {
   return this->_xsd_pde_.get ();
 }
 
-timesteps_type::pde::type& timesteps_type::
+time_steps_type::pde::type& time_steps_type::
 pde ()
 {
   return this->_xsd_pde_.get ();
 }
 
-void timesteps_type::
+void time_steps_type::
 pde (const pde::type& pde)
 {
   this->_xsd_pde_.set (pde);
 }
 
-const timesteps_type::printing::type& timesteps_type::
+const time_steps_type::printing::type& time_steps_type::
 printing () const
 {
   return this->_xsd_printing_.get ();
 }
 
-timesteps_type::printing::type& timesteps_type::
+time_steps_type::printing::type& time_steps_type::
 printing ()
 {
   return this->_xsd_printing_.get ();
 }
 
-void timesteps_type::
+void time_steps_type::
 printing (const printing::type& printing)
 {
   this->_xsd_printing_.set (printing);
@@ -1379,34 +1379,34 @@ Capacitance (const Capacitance::container& Capacitance)
 // numerical_type
 // 
 
-const numerical_type::Timesteps::container& numerical_type::
-Timesteps () const
+const numerical_type::TimeSteps::container& numerical_type::
+TimeSteps () const
 {
-  return this->_xsd_Timesteps_;
+  return this->_xsd_TimeSteps_;
 }
 
-numerical_type::Timesteps::container& numerical_type::
-Timesteps ()
+numerical_type::TimeSteps::container& numerical_type::
+TimeSteps ()
 {
-  return this->_xsd_Timesteps_;
-}
-
-void numerical_type::
-Timesteps (const Timesteps::type& Timesteps)
-{
-  this->_xsd_Timesteps_.set (Timesteps);
+  return this->_xsd_TimeSteps_;
 }
 
 void numerical_type::
-Timesteps (const Timesteps::container& Timesteps)
+TimeSteps (const TimeSteps::type& TimeSteps)
 {
-  this->_xsd_Timesteps_ = Timesteps;
+  this->_xsd_TimeSteps_.set (TimeSteps);
 }
 
 void numerical_type::
-Timesteps (::std::auto_ptr< Timesteps::type > Timesteps)
+TimeSteps (const TimeSteps::container& TimeSteps)
 {
-  this->_xsd_Timesteps_.set (Timesteps);
+  this->_xsd_TimeSteps_ = TimeSteps;
+}
+
+void numerical_type::
+TimeSteps (::std::auto_ptr< TimeSteps::type > TimeSteps)
+{
+  this->_xsd_TimeSteps_.set (TimeSteps);
 }
 
 const numerical_type::KSPTolerances::container& numerical_type::
@@ -2896,13 +2896,13 @@ _clone (::xml_schema::flags f,
   return new conductivities_type (*this, f, c);
 }
 
-// timesteps_type
+// time_steps_type
 //
 
-timesteps_type::
-timesteps_type (const ode::type& _xsd_ode,
-                const pde::type& _xsd_pde,
-                const printing::type& _xsd_printing)
+time_steps_type::
+time_steps_type (const ode::type& _xsd_ode,
+                 const pde::type& _xsd_pde,
+                 const printing::type& _xsd_printing)
 : ::xml_schema::type (),
 _xsd_ode_ (_xsd_ode,
            ::xml_schema::flags (),
@@ -2916,27 +2916,27 @@ _xsd_printing_ (_xsd_printing,
 {
 }
 
-timesteps_type::
-timesteps_type (const timesteps_type& _xsd_timesteps_type,
-                ::xml_schema::flags f,
-                ::xml_schema::type* c)
-: ::xml_schema::type (_xsd_timesteps_type, f, c),
-_xsd_ode_ (_xsd_timesteps_type._xsd_ode_,
+time_steps_type::
+time_steps_type (const time_steps_type& _xsd_time_steps_type,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_time_steps_type, f, c),
+_xsd_ode_ (_xsd_time_steps_type._xsd_ode_,
            f | ::xml_schema::flags::not_root,
            this),
-_xsd_pde_ (_xsd_timesteps_type._xsd_pde_,
+_xsd_pde_ (_xsd_time_steps_type._xsd_pde_,
            f | ::xml_schema::flags::not_root,
            this),
-_xsd_printing_ (_xsd_timesteps_type._xsd_printing_,
+_xsd_printing_ (_xsd_time_steps_type._xsd_printing_,
                 f | ::xml_schema::flags::not_root,
                 this)
 {
 }
 
-timesteps_type::
-timesteps_type (const ::xercesc::DOMElement& e,
-                ::xml_schema::flags f,
-                ::xml_schema::type* c)
+time_steps_type::
+time_steps_type (const ::xercesc::DOMElement& e,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
 _xsd_ode_ (f | ::xml_schema::flags::not_root, this),
 _xsd_pde_ (f | ::xml_schema::flags::not_root, this),
@@ -2945,7 +2945,7 @@ _xsd_printing_ (f | ::xml_schema::flags::not_root, this)
   parse (e, f);
 }
 
-void timesteps_type::
+void time_steps_type::
 parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
 {
   ::xsd::cxx::xml::dom::parser< char > p (e);
@@ -3007,11 +3007,11 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   }
 }
 
-timesteps_type* timesteps_type::
+time_steps_type* time_steps_type::
 _clone (::xml_schema::flags f,
         ::xml_schema::type* c) const
 {
-  return new timesteps_type (*this, f, c);
+  return new time_steps_type (*this, f, c);
 }
 
 // ksp_use_type
@@ -3947,7 +3947,7 @@ _clone (::xml_schema::flags f,
 numerical_type::
 numerical_type ()
 : ::xml_schema::type (),
-_xsd_Timesteps_ (::xml_schema::flags (), this),
+_xsd_TimeSteps_ (::xml_schema::flags (), this),
 _xsd_KSPTolerances_ (::xml_schema::flags (), this),
 _xsd_KSPSolver_ (::xml_schema::flags (), this),
 _xsd_KSPPreconditioner_ (::xml_schema::flags (), this)
@@ -3959,7 +3959,7 @@ numerical_type (const numerical_type& _xsd_numerical_type,
                 ::xml_schema::flags f,
                 ::xml_schema::type* c)
 : ::xml_schema::type (_xsd_numerical_type, f, c),
-_xsd_Timesteps_ (_xsd_numerical_type._xsd_Timesteps_,
+_xsd_TimeSteps_ (_xsd_numerical_type._xsd_TimeSteps_,
                  f | ::xml_schema::flags::not_root,
                  this),
 _xsd_KSPTolerances_ (_xsd_numerical_type._xsd_KSPTolerances_,
@@ -3979,7 +3979,7 @@ numerical_type (const ::xercesc::DOMElement& e,
                 ::xml_schema::flags f,
                 ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_Timesteps_ (f | ::xml_schema::flags::not_root, this),
+_xsd_TimeSteps_ (f | ::xml_schema::flags::not_root, this),
 _xsd_KSPTolerances_ (f | ::xml_schema::flags::not_root, this),
 _xsd_KSPSolver_ (f | ::xml_schema::flags::not_root, this),
 _xsd_KSPPreconditioner_ (f | ::xml_schema::flags::not_root, this)
@@ -3996,20 +3996,20 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   {
     const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
 
-    // Timesteps
+    // TimeSteps
     //
     {
-      if (e.name () == "Timesteps" && e.namespace_ ().empty ())
+      if (e.name () == "TimeSteps" && e.namespace_ ().empty ())
       {
-        ::std::auto_ptr< Timesteps::type > r (
-          Timesteps::traits::create (
+        ::std::auto_ptr< TimeSteps::type > r (
+          TimeSteps::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
 
-        if (this->Timesteps ())
+        if (this->TimeSteps ())
           continue;
-        this->Timesteps (r);
+        this->TimeSteps (r);
         continue;
       }
     }

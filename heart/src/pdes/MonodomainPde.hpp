@@ -98,14 +98,14 @@ public:
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         unsigned index = node.GetIndex();
-        return  -(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio())*(this->mIionicCacheReplicated[index])
+        return  -(this->mpConfig->GetSurfaceAreaToVolumeRatio())*(this->mIionicCacheReplicated[index])
                 - this->mIntracellularStimulusCacheReplicated[index];
     }
 
 
     double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& )
     {
-        return (HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio())*(HeartConfig::Instance()->GetCapacitance());
+        return (this->mpConfig->GetSurfaceAreaToVolumeRatio())*(this->mpConfig->GetCapacitance());
     }
 };
 

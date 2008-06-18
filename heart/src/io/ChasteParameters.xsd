@@ -89,7 +89,7 @@
     <xs:attribute name="normal" type="xs:double" use="required"/>        
   </xs:complexType>
 
-  <xs:complexType name="timesteps_type">
+  <xs:complexType name="time_steps_type">
     <xs:attribute name="ode" type="xs:double" use="required"/>
     <xs:attribute name="pde" type="xs:double" use="required"/>
     <xs:attribute name="printing" type="xs:double" use="required"/>        
@@ -173,7 +173,7 @@
 
   <xs:complexType name="numerical_type">
     <xs:all>  
-  	  <xs:element name="Timesteps" type="timesteps_type" minOccurs="0"/>
+  	  <xs:element name="TimeSteps" type="time_steps_type" minOccurs="0"/>
       <xs:element name="KSPTolerances" type="ksp_tolerances_type" minOccurs="0"/>
       <xs:element name="KSPSolver" type="ksp_solver_type" minOccurs="0"/>
       <xs:element name="KSPPreconditioner" type="ksp_preconditioner_type" minOccurs="0"/>

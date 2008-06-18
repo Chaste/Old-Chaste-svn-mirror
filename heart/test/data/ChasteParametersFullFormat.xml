@@ -124,7 +124,7 @@
 	</Physiological>
 
 	<Numerical>
-		<Timesteps ode="0.025" pde="0.05" printing="1.0"/>
+		<TimeSteps ode="0.025" pde="0.05" printing="1.0"/>
 		<KSPTolerances use="relative">
 			<KSPRelative>1e-6</KSPRelative>
 			<KSPAbsolute>1e-50</KSPAbsolute>			

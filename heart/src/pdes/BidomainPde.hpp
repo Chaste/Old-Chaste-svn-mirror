@@ -73,7 +73,7 @@ public:
     {
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         
-        if (HeartConfig::Instance()->GetIsMediaOrthotropic())
+        if (this->mpConfig->GetIsMediaOrthotropic())
         {
             mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
         }
@@ -83,7 +83,7 @@ public:
         }
 
         c_vector<double, SPACE_DIM> extra_conductivities;
-        HeartConfig::Instance()->GetExtracellularConductivities(extra_conductivities);
+        this->mpConfig->GetExtracellularConductivities(extra_conductivities);
 
         mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
         mpExtracellularConductivityTensors->Init();

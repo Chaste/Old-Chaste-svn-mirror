@@ -41,6 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class HeartConfig
 {
+private:
+	void CheckTimeSteps() const;
+	
 public:
     /**
      * Call this method to access the global parameters holder.
@@ -83,9 +86,9 @@ public:
     double GetCapacitance() const;
 
     // Numerical
-    double GetOdeTimestep() const;
-    double GetPdeTimestep() const;
-    double GetPrintingTimestep() const;
+    double GetOdeTimeStep() const;
+    double GetPdeTimeStep() const;
+    double GetPrintingTimeStep() const;
 
     bool GetUseAbsoluteTolerance() const;
     double GetAbsoluteTolerance() const;
@@ -121,10 +124,10 @@ public:
     void SetCapacitance(double capacitance);
 
     // Numerical
-    void SetTimesteps(double odeTimestep, double pdeTimestep, double printingTimestep);
-    void SetOdeTimestep(double odeTimestep);
-    void SetPdeTimestep(double pdeTimestep);
-    void SetPrintingTimestep(double printingTimestep);
+    void SetOdePdeAndPrintingTimeSteps(double odeTimeStep, double pdeTimeStep, double printingTimeStep);
+    void SetOdeTimeStep(double odeTimeStep);
+    void SetPdeTimeStep(double pdeTimeStep);
+    void SetPrintingTimeStep(double printingTimeStep);
 
     void SetTolerances(double relativeTolerance, double absoluteTolerance, ksp_use_type use);
     void SetUseRelativeTolerance(void);

@@ -89,6 +89,8 @@ protected:
      *  the voltage at node j and phi_j is the extracellular potential at node j.
      */
     const unsigned mStride;
+    
+    HeartConfig* mpConfig;
 
 
 public:
@@ -133,7 +135,9 @@ public:
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         
-        if (HeartConfig::Instance()->GetIsMediaOrthotropic())
+        mpConfig = HeartConfig::Instance();
+        
+        if (mpConfig->GetIsMediaOrthotropic())
         {
             mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
         }
@@ -143,7 +147,8 @@ public:
         }
         
         c_vector<double, SPACE_DIM> intra_conductivities; 
-        HeartConfig::Instance()->GetIntracellularConductivities(intra_conductivities);
+        
+        mpConfig->GetIntracellularConductivities(intra_conductivities);
         
         mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
         mpIntracellularConductivityTensors->Init();        

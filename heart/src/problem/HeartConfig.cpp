@@ -50,6 +50,7 @@ HeartConfig::HeartConfig()
     mpUserParameters=NULL;
     mpDefaultParameters = ReadFile("ChasteDefaults.xml");
     mpUserParameters = mpDefaultParameters;
+    //CheckTimeSteps(); // necessity of this line of code is not tested -- remove with caution!
 }
 
 HeartConfig::~HeartConfig()
@@ -76,6 +77,7 @@ void HeartConfig::SetDefaultsFile(std::string fileName)
     {
         mpUserParameters = mpDefaultParameters;
     }
+    CheckTimeSteps();
 }
 std::string GetOutputDirectory();
 chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
@@ -393,25 +395,25 @@ double HeartConfig::GetCapacitance() const
                            "Capacitance")->get();
 }
 
-double HeartConfig::GetOdeTimestep() const
+double HeartConfig::GetOdeTimeStep() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().Timesteps(),
-                           & mpDefaultParameters->Numerical().Timesteps(),
-                           "ode timestep")->get().ode();
+    return DecideLocation( & mpUserParameters->Numerical().TimeSteps(),
+                           & mpDefaultParameters->Numerical().TimeSteps(),
+                           "ode TimeStep")->get().ode();
 }
 
-double HeartConfig::GetPdeTimestep() const
+double HeartConfig::GetPdeTimeStep() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().Timesteps(),
-                           & mpDefaultParameters->Numerical().Timesteps(),
-                           "pde timestep")->get().pde();
+    return DecideLocation( & mpUserParameters->Numerical().TimeSteps(),
+                           & mpDefaultParameters->Numerical().TimeSteps(),
+                           "pde TimeStep")->get().pde();
 }
 
-double HeartConfig::GetPrintingTimestep() const
+double HeartConfig::GetPrintingTimeStep() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().Timesteps(),
-                           & mpDefaultParameters->Numerical().Timesteps(),
-                           "printing timestep")->get().printing();
+    return DecideLocation( & mpUserParameters->Numerical().TimeSteps(),
+                           & mpDefaultParameters->Numerical().TimeSteps(),
+                           "printing TimeStep")->get().printing();
 }
 
 bool HeartConfig::GetUseAbsoluteTolerance() const
@@ -563,32 +565,56 @@ void HeartConfig::SetCapacitance(double capacitance)
 
 
 // Numerical
-void HeartConfig::SetTimesteps(double odeTimestep, double pdeTimestep, double printingTimestep)
+void HeartConfig::SetOdePdeAndPrintingTimeSteps(double odeTimeStep, double pdeTimeStep, double printingTimeStep)
 {
-    timesteps_type timesteps(odeTimestep, pdeTimestep, printingTimestep);
-
-    mpUserParameters->Numerical().Timesteps().set(timesteps);
+    time_steps_type TimeSteps(odeTimeStep, pdeTimeStep, printingTimeStep);
+    mpUserParameters->Numerical().TimeSteps().set(TimeSteps);
+    CheckTimeSteps();
 }
 
-void HeartConfig::SetOdeTimestep(double odeTimestep)
+void HeartConfig::SetOdeTimeStep(double odeTimeStep)
 {
-    timesteps_type timesteps(odeTimestep, GetPdeTimestep(), GetPrintingTimestep());
-
-    mpUserParameters->Numerical().Timesteps().set(timesteps);
+    SetOdePdeAndPrintingTimeSteps(odeTimeStep, GetPdeTimeStep(), GetPrintingTimeStep());
 }
 
-void HeartConfig::SetPdeTimestep(double pdeTimestep)
+void HeartConfig::SetPdeTimeStep(double pdeTimeStep)
 {
-    timesteps_type timesteps(GetOdeTimestep(), pdeTimestep, GetPrintingTimestep());
-
-    mpUserParameters->Numerical().Timesteps().set(timesteps);
+    SetOdePdeAndPrintingTimeSteps(GetOdeTimeStep(), pdeTimeStep, GetPrintingTimeStep());
 }
 
-void HeartConfig::SetPrintingTimestep(double printingTimestep)
+void HeartConfig::SetPrintingTimeStep(double printingTimeStep)
 {
-    timesteps_type timesteps(GetOdeTimestep(), GetPdeTimestep(), printingTimestep);
+    SetOdePdeAndPrintingTimeSteps(GetOdeTimeStep(), GetPdeTimeStep(), printingTimeStep);
+}
 
-    mpUserParameters->Numerical().Timesteps().set(timesteps);
+void HeartConfig::CheckTimeSteps() const
+{
+	    if (GetPdeTimeStep() <= 0)
+        {
+            EXCEPTION("Pde time-step should be positive");
+        }
+        if (GetPrintingTimeStep() <= 0.0)
+        {
+            EXCEPTION("Printing time-step should be positive");
+        }
+        if (GetPdeTimeStep()>GetPrintingTimeStep())
+        {
+            EXCEPTION("Printing time-step should not be smaller than PDE time step");
+        }
+
+        //If pde divides printing then the floating remainder ought to be close to
+        //zero(+a smidge) or pde-a smidge
+        double remainder=fmod(GetPrintingTimeStep(), GetPdeTimeStep());
+
+        if ( remainder > DBL_EPSILON && remainder < GetPdeTimeStep()-DBL_EPSILON)
+        {
+            EXCEPTION("Printing time-step should a multiple of PDE time step");
+        }
+        
+        if ( GetOdeTimeStep() > GetPdeTimeStep() )
+        {
+        	EXCEPTION("Ode time-step should not be greater than pde time-step");
+        }
 }
 
 void HeartConfig::SetTolerances(double relativeTolerance, double absoluteTolerance, ksp_use_type use)

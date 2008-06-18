@@ -210,7 +210,7 @@ class conductivity_heterogeneity_type;
 class slab_type;
 class mesh_type;
 class conductivities_type;
-class timesteps_type;
+class time_steps_type;
 class ksp_use_type;
 class ksp_tolerances_type;
 class ksp_solver_type;
@@ -1230,11 +1230,11 @@ class conductivities_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< normal::type > _xsd_normal_;
 };
 
-class timesteps_type: public ::xml_schema::type
+class time_steps_type: public ::xml_schema::type
 {
   public:
 
-  struct _xsd_timesteps_type
+  struct _xsd_time_steps_type
   {
     typedef ::xml_schema::type base_;
   };
@@ -1296,19 +1296,19 @@ class timesteps_type: public ::xml_schema::type
   // Constructors.
   //
   public:
-  timesteps_type (const ode::type&,
-                  const pde::type&,
-                  const printing::type&);
+  time_steps_type (const ode::type&,
+                   const pde::type&,
+                   const printing::type&);
 
-  timesteps_type (const ::xercesc::DOMElement&,
-                  ::xml_schema::flags = 0,
-                  ::xml_schema::type* = 0);
+  time_steps_type (const ::xercesc::DOMElement&,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
 
-  timesteps_type (const timesteps_type&,
-                  ::xml_schema::flags = 0,
-                  ::xml_schema::type* = 0);
+  time_steps_type (const time_steps_type&,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
 
-  virtual timesteps_type*
+  virtual time_steps_type*
   _clone (::xml_schema::flags = 0,
           ::xml_schema::type* = 0) const;
 
@@ -2160,30 +2160,30 @@ class numerical_type: public ::xml_schema::type
     typedef ::xml_schema::type base_;
   };
 
-  // Timesteps
+  // TimeSteps
   // 
   public:
-  struct Timesteps
+  struct TimeSteps
   {
-    typedef ::timesteps_type type;
+    typedef ::time_steps_type type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
     typedef ::xsd::cxx::tree::optional< type > container;
   };
 
-  const Timesteps::container&
-  Timesteps () const;
+  const TimeSteps::container&
+  TimeSteps () const;
 
-  Timesteps::container&
-  Timesteps ();
-
-  void
-  Timesteps (const Timesteps::type&);
+  TimeSteps::container&
+  TimeSteps ();
 
   void
-  Timesteps (const Timesteps::container&);
+  TimeSteps (const TimeSteps::type&);
 
   void
-  Timesteps (::std::auto_ptr< Timesteps::type >);
+  TimeSteps (const TimeSteps::container&);
+
+  void
+  TimeSteps (::std::auto_ptr< TimeSteps::type >);
 
   // KSPTolerances
   // 
@@ -2283,7 +2283,7 @@ class numerical_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
-  ::xsd::cxx::tree::optional< Timesteps::type > _xsd_Timesteps_;
+  ::xsd::cxx::tree::optional< TimeSteps::type > _xsd_TimeSteps_;
   ::xsd::cxx::tree::optional< KSPTolerances::type > _xsd_KSPTolerances_;
   ::xsd::cxx::tree::optional< KSPSolver::type > _xsd_KSPSolver_;
   ::xsd::cxx::tree::optional< KSPPreconditioner::type > _xsd_KSPPreconditioner_;
