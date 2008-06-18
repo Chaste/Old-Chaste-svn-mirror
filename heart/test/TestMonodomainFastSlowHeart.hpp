@@ -29,6 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTMONODOMAINFASTSLOWHEART_HPP_
 #define TESTMONODOMAINFASTSLOWHEART_HPP_
 
+#include "UblasCustomFunctions.hpp"
+#include "PetscSetupAndFinalize.hpp"
+#include "SimpleStimulus.hpp"
+#include "FastSlowLuoRudyIModel1991.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "MonodomainFastSlowProblem.hpp"
+
 class StimulateApexCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
