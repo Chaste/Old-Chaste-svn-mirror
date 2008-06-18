@@ -279,7 +279,7 @@ void MixedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetrahe
             #define COVERAGE_IGNORE
             catch (Exception &e)
             {
-                EXCEPTION("Fine mesh contains an element which does not overlap any coarse mesh element");
+                //EXCEPTION("Fine mesh contains an element which does not overlap any coarse mesh element");
             }
             #undef COVERAGE_IGNORE
         }

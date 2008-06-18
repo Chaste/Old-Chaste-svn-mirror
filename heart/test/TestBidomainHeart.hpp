@@ -50,7 +50,7 @@ private:
 public:
     PointStimulusHeartCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
     {
-        mpStimulus = new SimpleStimulus(-1000.0*1000, 0.5);
+        mpStimulus = new SimpleStimulus(-1000.0*500, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
