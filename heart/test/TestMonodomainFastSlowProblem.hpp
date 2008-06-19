@@ -109,8 +109,11 @@ public:
         double coarse_ds = 0.1; //cm
         double fine_ds = 0.01;
         
-        unsigned num_coarse_elem_each_dir = width/coarse_ds;
-        unsigned num_fine_elem_each_dir = width/fine_ds;
+        unsigned num_coarse_elem_each_dir = unsigned(width/coarse_ds + 0.5);
+        unsigned num_fine_elem_each_dir = unsigned(width/fine_ds + 0.5);
+        
+        TS_ASSERT_EQUALS(num_coarse_elem_each_dir, 20U);
+        TS_ASSERT_EQUALS(num_fine_elem_each_dir, 200U);
 
         //////////////////////////////////////////////////
         // solve a mixed mesh, fast/slow problem
