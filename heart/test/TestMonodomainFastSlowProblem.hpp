@@ -46,7 +46,7 @@ private:
     bool mFastSlow;
 
 public:
-    MyCellFactory(bool fastSlow) : AbstractCardiacCellFactory<2>(0.0025)
+    MyCellFactory(double odeTimeStep, bool fastSlow) : AbstractCardiacCellFactory<2>(odeTimeStep) // ode timestep
     {
         mpStimulus = new SimpleStimulus(-10000*500.0, 0.5);
         mFastSlow = fastSlow;
@@ -98,7 +98,11 @@ public:
     {
         EXIT_IF_PARALLEL;
 
-        double simulation_time = 10; //ms
+        double simulation_time = 1; //ms
+        double pde_timestep = 0.01; //ms
+        
+        double fast_ode_timestep = 0.01;
+        double slow_ode_timestep = 0.1;
 
         double width = 2; //cm
         double heigth = 2; //cm
@@ -117,10 +121,11 @@ public:
         {
 
     
-            MyCellFactory cell_factory(true);
+            MyCellFactory cell_factory(fast_ode_timestep, true);
     
-            MonodomainFastSlowProblem<2> monodomain_fast_slow_prob( &cell_factory, mixed_mesh, 1.0 );
+            MonodomainFastSlowProblem<2> monodomain_fast_slow_prob( &cell_factory, mixed_mesh, slow_ode_timestep );
     
+            monodomain_fast_slow_prob.SetPdeAndPrintingTimeSteps(pde_timestep, pde_timestep);
             monodomain_fast_slow_prob.SetEndTime(simulation_time);   // ms
             monodomain_fast_slow_prob.SetOutputDirectory("MonodomainFastSlow");
             monodomain_fast_slow_prob.SetOutputFilenamePrefix("res");
@@ -142,11 +147,12 @@ public:
         //////////////////////////////////////////////////
         ReplicatableVector voltage_normal;
         {
-            MyCellFactory cell_factory_normal(false);
+            MyCellFactory cell_factory_normal(fast_ode_timestep, false);
     
             MonodomainProblem<2> monodomain_prob( &cell_factory_normal);
             monodomain_prob.SetMesh(mixed_mesh.GetFineMesh());
-    
+
+            monodomain_prob.SetPdeAndPrintingTimeSteps(pde_timestep, pde_timestep);    
             monodomain_prob.SetEndTime(simulation_time);   // ms
             monodomain_prob.SetOutputDirectory("MonodomainNormalToCompareWithFastSlow");
             monodomain_prob.SetOutputFilenamePrefix("res");
