@@ -10,7 +10,6 @@ TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
-TestMixedMeshOdes.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
