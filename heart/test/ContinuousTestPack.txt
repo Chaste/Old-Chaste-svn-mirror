@@ -6,7 +6,6 @@ TestConductivityTensors.hpp
 TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
 TestFaberRudyAgainstLimpet.hpp
-TestFastSlowLuoRudyIModel1991.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
@@ -16,8 +15,6 @@ TestMonodomainConductionVelocity.hpp
 TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestMonodomainPde.hpp
-TestMonodomainFastSlowPde.hpp
-TestMonodomainFastSlowProblem.hpp
 TestMonodomainUneven.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestNeumannStimulus.hpp

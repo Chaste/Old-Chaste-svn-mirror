@@ -123,6 +123,7 @@ SConsignFile('.sconsign')
 # in the order given here.
 comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'dealii': ['heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+             'notforrelease': ['heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'heart': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'pde': ['mesh', 'linalg', 'io', 'global'],
              'mesh': ['linalg', 'global'],
@@ -132,7 +133,7 @@ comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'global': [],
              'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
 SConsTools.comp_deps = comp_deps
-components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde', 'heart', 'cancer']
+components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde', 'heart', 'cancer', 'notforrelease']
 if build.using_dealii:
     components = components + ['dealii']
 Export('components', 'comp_deps')
