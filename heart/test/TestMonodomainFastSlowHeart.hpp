@@ -43,7 +43,7 @@ private:
     bool mFastSlow;
     
 public:
-    StimulateApexCellFactory(bool fastSlow) : AbstractCardiacCellFactory<3>(0.0025)
+    StimulateApexCellFactory(double odeTimeStep, bool fastSlow) : AbstractCardiacCellFactory<3>(odeTimeStep)
     {
         mpStimulus = new SimpleStimulus(-1000.0*500, 0.5);
         mFastSlow = fastSlow;
@@ -85,7 +85,11 @@ public:
     {
         EXIT_IF_PARALLEL;
 
-        double simulation_time = 0.0001;
+        double simulation_time = 10; //ms
+        double pde_timestep = 0.01; //ms
+        
+        double fast_ode_timestep = 0.001;
+        double slow_ode_timestep = 0.01;        
 
         /*
          *  Read meshes from disk
@@ -108,10 +112,11 @@ public:
         {
 
     
-            StimulateApexCellFactory cell_factory(true);
+            StimulateApexCellFactory cell_factory(fast_ode_timestep, true);
     
-            MonodomainFastSlowProblem<3> monodomain_fast_slow_prob( &cell_factory, mixed_mesh, 1.0 );
+            MonodomainFastSlowProblem<3> monodomain_fast_slow_prob( &cell_factory, mixed_mesh, slow_ode_timestep);
     
+            monodomain_fast_slow_prob.SetPdeAndPrintingTimeSteps(pde_timestep, pde_timestep);
             monodomain_fast_slow_prob.SetEndTime(simulation_time);   // ms
             monodomain_fast_slow_prob.SetOutputDirectory("HeartMonodomainFastSlow");
             monodomain_fast_slow_prob.SetOutputFilenamePrefix("res");
@@ -133,11 +138,12 @@ public:
         //////////////////////////////////////////////////
         ReplicatableVector voltage_normal;
         {
-            StimulateApexCellFactory cell_factory_normal(false);
+            StimulateApexCellFactory cell_factory_normal(fast_ode_timestep, false);
     
             MonodomainProblem<3> monodomain_prob( &cell_factory_normal);
             monodomain_prob.SetMesh(mixed_mesh.GetFineMesh());
-    
+
+            monodomain_prob.SetPdeAndPrintingTimeSteps(pde_timestep, pde_timestep);    
             monodomain_prob.SetEndTime(simulation_time);   // ms
             monodomain_prob.SetOutputDirectory("HeartMonodomainNormalToCompareWithFastSlow");
             monodomain_prob.SetOutputFilenamePrefix("res");
