@@ -136,6 +136,11 @@ SConsTools.comp_deps = comp_deps
 components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde', 'heart', 'cancer', 'notforrelease']
 if build.using_dealii:
     components = components + ['dealii']
+# Ignore non-existent components
+# e.g. notforrelease wont appear in a release version
+for comp in components[:]:
+    if not os.path.isdir(comp):
+        components.remove(comp)
 Export('components', 'comp_deps')
 
 Alias('core', Split('global io linalg mesh ode pde'))
