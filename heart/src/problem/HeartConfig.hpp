@@ -63,6 +63,15 @@ public:
     double GetSimulationDuration() const;
     domain_type GetDomain() const;
     ionic_model_type GetIonicModel() const;
+    
+    bool GetCreateSlab() const;
+    bool GetLoadMesh() const;
+     
+    void GetSlabDimensions(c_vector<double, 3>& slabDimensions) const;    
+    double GetInterNodeSpace() const;
+    
+    std::string GetMeshName() const;
+    
     void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
     							std::vector<double>& scaleFactorGks,

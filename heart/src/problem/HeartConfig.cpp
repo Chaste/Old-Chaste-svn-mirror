@@ -162,6 +162,51 @@ ionic_model_type HeartConfig::GetIonicModel() const
                            "IonicModel")->get();
 }
 
+bool HeartConfig::GetCreateSlab() const
+{
+    return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                            & mpDefaultParameters->Simulation().Mesh(),
+                            "Slab")->get().Slab() != NULL);
+}
+
+bool HeartConfig::GetLoadMesh() const
+{
+    return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                            & mpDefaultParameters->Simulation().Mesh(),
+                            "Slab")->get().LoadMesh() != NULL);
+}
+ 
+void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
+{
+    assert(GetCreateSlab());
+    
+    optional<slab_type, false> slab_dimensions = DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                                                  & mpDefaultParameters->Simulation().Mesh(),
+                                                                  "Slab")->get().Slab();
+    
+    slabDimensions[0] = slab_dimensions->SlabX();
+    slabDimensions[1] = slab_dimensions->SlabY();
+    slabDimensions[2] = slab_dimensions->SlabZ();
+}
+
+double HeartConfig::GetInterNodeSpace() const
+{
+    assert(GetCreateSlab());
+
+    return DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                           & mpDefaultParameters->Simulation().Mesh(),
+                           "Slab")->get().Slab()->InterNodeSpace();
+}
+
+std::string HeartConfig::GetMeshName() const
+{
+    assert(GetLoadMesh());
+    
+    return DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                           & mpDefaultParameters->Simulation().Mesh(),
+                           "LoadMesh")->get().LoadMesh()->name();
+}
+
 void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const
 {
 

@@ -63,20 +63,12 @@ std::string parameter_file;
 
 // User-modifiable parameters.  Real values will be read from a config file.
 double simulation_duration = -1; // ms
-double slab_x = -1;          // mm
-double slab_y = -1;          // mm
-double slab_z = -1;          // mm
-double inter_node_space = -1;    // mm
-
-double intra_x_cond;
-double intra_y_cond;
-double intra_z_cond;
+c_vector<double, 3> slab_dimensions; //cm
+double inter_node_space = -1;        //cm
 
 std::string mesh_file_prefix;
-anisotropic_type media = anisotropic_type::Orthotropic;
 
 std::string  output_directory = "/";      // Location to put simulation results
-std::string  mesh_output_directory = "/"; // Location for generated mesh files
 domain_type domain = domain_type::Mono;
 ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
 
@@ -93,15 +85,9 @@ std::vector<ChasteCuboid> conductivity_heterogeneity_areas;
 bool create_slab;
 bool load_mesh;
 
-// Parameters fixed at compile time
-const std::string  output_filename_prefix = "Run";
-const double ode_time_step = 0.005;     // ms
-const double pde_time_step = 0.02;     // ms
-const double printing_time_step = 1; // ms
-
-// Scale factor because Chaste code expects lengths in cm, but params use mm.
-const double scale_factor = 1/10.0;
-
+double ode_time_step = -1.0;     // ms
+double pde_time_step = -1.0;     // ms
+double printing_time_step = -1.0; // ms
 
 class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -184,96 +170,50 @@ public:
 
 void ReadParametersFromFile()
 {
+    HeartConfig::Instance()->SetParametersFile(parameter_file);
+            
+    simulation_duration = HeartConfig::Instance()->GetSimulationDuration();
+
+    create_slab = HeartConfig::Instance()->GetCreateSlab();
+    load_mesh = HeartConfig::Instance()->GetLoadMesh();
+
+    if (create_slab)
+    {           
+        HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
+        inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+    }
+    else // (load_mesh)
+    {
+        mesh_file_prefix = HeartConfig::Instance()->GetMeshName();
+    }
+
+    output_directory = HeartConfig::Instance()->GetOutputDirectory();
+
+    domain = HeartConfig::Instance()->GetDomain();
+    ionic_model = HeartConfig::Instance()->GetIonicModel();
+
+    // Read and store Stimuli
+    HeartConfig::Instance()->GetStimuli(stimuli_applied, stimuled_areas);
+
+    // Read and store Cell Heterogeneities
     try
     {
-        std::auto_ptr<chaste_parameters_type> p_params(ChasteParameters(parameter_file));
-
-        simulation_type simulation_params = p_params->Simulation();
-        physiological_type physiological_params = p_params->Physiological();
-
-        simulation_duration = simulation_params.SimulationDuration().get();
-
-        create_slab = simulation_params.Mesh().get().Slab() != NULL;
-        load_mesh = simulation_params.Mesh().get().LoadMesh() != NULL;
-
-        if (create_slab)
-        {
-            slab_x = simulation_params.Mesh().get().Slab()->SlabX();     // mm
-            slab_y = simulation_params.Mesh().get().Slab()->SlabY();   // mm
-            slab_z = simulation_params.Mesh().get().Slab()->SlabZ();   // mm
-            inter_node_space = simulation_params.Mesh().get().Slab()->InterNodeSpace(); // mm
-        }
-        else // (load_mesh)
-        {
-            mesh_file_prefix = simulation_params.Mesh().get().LoadMesh()->name();
-            media = simulation_params.Mesh().get().LoadMesh()->media();
-        }
-
-        intra_x_cond = physiological_params.IntracellularConductivities().get().longi();
-        intra_y_cond = physiological_params.IntracellularConductivities().get().trans();
-        intra_z_cond = physiological_params.IntracellularConductivities().get().normal();
-        output_directory = simulation_params.OutputDirectory().get();
-        mesh_output_directory = simulation_params.MeshOutputDirectory().get();
-        domain = simulation_params.Domain().get();
-        ionic_model = simulation_params.IonicModel().get();
-
-        // Read and store Stimuli
-        simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
-             stimuli = simulation_params.Stimuli().get().Stimulus();
-        for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
-             i != stimuli.end();
-             ++i)
-        {
-            stimulus_type stimulus(*i);
-            point_type point_a = stimulus.Location().CornerA();
-            point_type point_b = stimulus.Location().CornerB();
-
-            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(),
-                                           scale_factor* point_a.y(),
-                                           scale_factor* point_a.z());
-
-            ChastePoint<3> chaste_point_b (scale_factor* point_b.x(),
-                                           scale_factor* point_b.y(),
-                                           scale_factor* point_b.z());
-
-            stimuli_applied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
-            stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
-        }
-
-        // Read and store Cell Heterogeneities
-        simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
-            hts = simulation_params.CellHeterogeneities().get().CellHeterogeneity();
-        for (simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::iterator i = hts.begin();
-             i != hts.end();
-             ++i)
-        {
-            cell_heterogeneity_type ht(*i);
-            point_type point_a = ht.Location().CornerA();
-            point_type point_b = ht.Location().CornerB();
-
-            // method get() should be called for Y and Z since they have been defined optional in the schema
-            // {Y,Z}.present() can be called to know if they have been defined
-            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(),
-                                           scale_factor* point_a.y(),
-                                           scale_factor* point_a.z());
-
-            ChastePoint<3> chaste_point_b (scale_factor* point_b.x(),
-                                           scale_factor* point_b.y(),
-                                           scale_factor* point_b.z());
-
-            scale_factor_gks.push_back (ht.ScaleFactorGks());
-            scale_factor_ito.push_back (ht.ScaleFactorIto());
-            cell_heterogeneity_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
-        }
-
-        // Read and store Conductivity Heterogeneities
-
+        HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                        scale_factor_gks,
+                                                        scale_factor_ito);
     }
-    catch (const xml_schema::exception& e)
+    catch(Exception& e)
     {
-         std::cerr << e << std::endl;
-         EXCEPTION("XML parsing error");
-    }
+        // Ignore the exception
+    }               
+    
+    // Read and store Conductivity Heterogeneities
+
+
+    ode_time_step = HeartConfig::Instance()->GetOdeTimeStep();
+    pde_time_step = HeartConfig::Instance()->GetPdeTimeStep();     // ms
+    printing_time_step = HeartConfig::Instance()->GetPrintingTimeStep(); // ms
+    
 }
 
 template<unsigned PROBLEM_DIM>
@@ -288,31 +228,32 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
     if (load_mesh)
     {
         std::string fibre_file = mesh_file_prefix + ".fibres";
-        rProblem.SetFibreOrientation(fibre_file);
+        //rProblem.SetFibreOrientation(fibre_file);
+        EXCEPTION("Fibre orientation not supported yet");
     }
-
-    rProblem.SetIntracellularConductivities(Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond));
 }
 
 
 void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
 {
     // construct mesh. Note that mesh is measured in cm
-    unsigned slab_nodes_x = (unsigned)round(slab_x/inter_node_space);
-    unsigned slab_nodes_y = (unsigned)round(slab_y/inter_node_space);
-    unsigned slab_nodes_z = (unsigned)round(slab_z/inter_node_space);
+    unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
+    unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
+    unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
 
     pMesh->ConstructCuboid(slab_nodes_x,
-                         slab_nodes_y,
-                         slab_nodes_z,
-                         true);
+                           slab_nodes_y,
+                           slab_nodes_z,
+                           true);
     // place at origin
     pMesh->Translate(-(double)slab_nodes_x/2.0,
-                   -(double)slab_nodes_y/2.0,
-                   -(double)slab_nodes_z/2.0);
+                     -(double)slab_nodes_y/2.0,
+                     -(double)slab_nodes_z/2.0);
+                     
     // scale
-    double mesh_scale_factor = inter_node_space*scale_factor;
+    double mesh_scale_factor = inter_node_space;
     pMesh->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
+                     
 
     OutputFileHandler handler(output_directory,false);
     std::string output_dir_full_path = handler.GetOutputDirectoryFullPath();
@@ -372,13 +313,11 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
         ChasteSlabCellFactory cell_factory;
         ConformingTetrahedralMesh<3,3> mesh;
 
-        bool orthotropic = (media == anisotropic_type::Orthotropic);
-
         switch(domain)
         {
             case domain_type::Mono :
             {
-                MonodomainProblem<3> mono_problem( &cell_factory, orthotropic );
+                MonodomainProblem<3> mono_problem( &cell_factory);
 
                 SetupProblem(mono_problem);
 
@@ -400,10 +339,9 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
 
             case domain_type::Bi :
             {
-                BidomainProblem<3> bi_problem( &cell_factory, orthotropic );
+                BidomainProblem<3> bi_problem( &cell_factory);
 
                 SetupProblem(bi_problem);
-                bi_problem.SetExtracellularConductivities(Create_c_vector(6.2, 2.4, 2.4));
 
                 if (create_slab)
                 {

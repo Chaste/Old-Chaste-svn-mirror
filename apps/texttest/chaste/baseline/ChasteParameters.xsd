@@ -18,7 +18,7 @@
     </xs:restriction>
   </xs:simpleType>
   
-  <xs:simpleType name="anisotropic_type">
+  <xs:simpleType name="media_type">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Orthotropic"/>
       <xs:enumeration value="Axisymmetric"/>
@@ -56,12 +56,11 @@
   </xs:complexType>
 
   <xs:complexType name="conductivity_heterogeneity_type">
-    <xs:sequence>
-      <xs:element name="Longitudinal" type="xs:double"/>
-      <xs:element name="Transverse" type="xs:double"/>
-      <xs:element name="Normal" type="xs:double"/>
+    <xs:all>      
+      <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
+      <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="Location" type="box_type"/>
-    </xs:sequence>
+    </xs:all>
   </xs:complexType>
 
   <xs:complexType name="slab_type">
@@ -79,7 +78,6 @@
       <xs:element name="LoadMesh">
       	<xs:complexType>
       		<xs:attribute name="name" type="xs:string" use="required"/>
-      		<xs:attribute name="media" type="anisotropic_type" default="Orthotropic"/>
       	</xs:complexType>
       </xs:element>
     </xs:choice>
@@ -91,7 +89,7 @@
     <xs:attribute name="normal" type="xs:double" use="required"/>        
   </xs:complexType>
 
-  <xs:complexType name="timesteps_type">
+  <xs:complexType name="time_steps_type">
     <xs:attribute name="ode" type="xs:double" use="required"/>
     <xs:attribute name="pde" type="xs:double" use="required"/>
     <xs:attribute name="printing" type="xs:double" use="required"/>        
@@ -129,35 +127,57 @@
   </xs:simpleType>   
       
   <xs:complexType name="simulation_type">
-    <xs:sequence>
-      <xs:element name="SimulationDuration" type="xs:decimal"/>
-      <xs:element name="Domain" type="domain_type"/>
-      <xs:element name="IonicModel" type="ionic_model_type"/>
-      <xs:element name="Mesh" type="mesh_type"/>
-      <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
-	  <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />
-	  <xs:element name="ConductivityHeterogeneity" type="conductivity_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />
-	  <xs:element name="OutputDirectory" type="xs:string"/>
-      <xs:element name="MeshOutputDirectory" type="xs:string"/>
-    </xs:sequence>
+    <xs:all>
+      <xs:element name="SimulationDuration" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="Domain" type="domain_type" minOccurs="0"/>
+      <xs:element name="IonicModel" type="ionic_model_type" minOccurs="0"/>
+      <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>
+      
+      <xs:element name="Stimuli" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="CellHeterogeneities" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+		    <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />            
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="ConductivityHeterogeneities" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+  	        <xs:element name="ConductivityHeterogeneity" type="conductivity_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />            
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+	  <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
+    </xs:all>
   </xs:complexType>    
 
   <xs:complexType name="physiological_type">
-    <xs:sequence>
-      <xs:element name="IntracellularConductivities" type="conductivities_type"/>
-      <xs:element name="ExtracellularConductivities" type="conductivities_type" />
-      <xs:element name="SurfaceAreaToVolumeRatio" type="xs:decimal"/>
-      <xs:element name="Capacitance" type="xs:decimal"/>
-    </xs:sequence>      
+    <xs:all>
+      <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
+      <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
+      <xs:element name="ConductivityMedia" type="media_type" minOccurs="0"/>
+      <xs:element name="SurfaceAreaToVolumeRatio" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="Capacitance" type="xs:decimal" minOccurs="0"/>
+    </xs:all>      
   </xs:complexType>    
 
   <xs:complexType name="numerical_type">
-    <xs:sequence>  
-  	  <xs:element name="Timesteps" type="timesteps_type"/>
-      <xs:element name="KSPTolerances" type="ksp_tolerances_type"/>
-      <xs:element name="KSPSolver" type="ksp_solver_type"/>
-      <xs:element name="KSPPreconditioner" type="ksp_preconditioner_type"/>
-    </xs:sequence>      
+    <xs:all>  
+  	  <xs:element name="TimeSteps" type="time_steps_type" minOccurs="0"/>
+      <xs:element name="KSPTolerances" type="ksp_tolerances_type" minOccurs="0"/>
+      <xs:element name="KSPSolver" type="ksp_solver_type" minOccurs="0"/>
+      <xs:element name="KSPPreconditioner" type="ksp_preconditioner_type" minOccurs="0"/>
+    </xs:all>      
   </xs:complexType>    
   
   <xs:complexType name="chaste_parameters_type">

@@ -87,6 +87,19 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(),
                           ionic_model_type::FaberRudy2000Version3);
 
+        TS_ASSERT(HeartConfig::Instance()->GetCreateSlab());
+        TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
+
+        c_vector<double, 3> slab_dimensions;
+        HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
+        
+        TS_ASSERT_EQUALS(slab_dimensions[0], 4.0);
+        TS_ASSERT_EQUALS(slab_dimensions[1], 0.1);
+        TS_ASSERT_EQUALS(slab_dimensions[2], 2.0);
+        
+        double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+        TS_ASSERT_EQUALS(inter_node_space, 0.1);
+
         std::vector<SimpleStimulus> stimuli_applied;
         std::vector<ChasteCuboid> stimulated_areas;
         HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
@@ -159,6 +172,12 @@ public :
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), ksp_solver_type::gmres);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), ksp_preconditioner_type::ilu);
+
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
+
+        TS_ASSERT(!HeartConfig::Instance()->GetCreateSlab());
+        TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(), "foo");
 
         HeartConfig::Destroy();
     }

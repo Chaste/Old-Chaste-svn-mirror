@@ -88,7 +88,7 @@
 	</Physiological>
 
 	<Numerical>
-		<Timesteps ode="0.01" pde="0.01" printing="0.01"/>
+		<TimeSteps ode="0.01" pde="0.01" printing="0.01"/>
 		<KSPTolerances use="relative">
 			<KSPRelative>1e-6</KSPRelative>
 			<KSPAbsolute>1e-50</KSPAbsolute>			
