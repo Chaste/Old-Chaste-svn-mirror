@@ -85,6 +85,9 @@ private:
 
     /**
      * Actually calculate APD.
+     * 
+     * APD is taken to be the time from the max-upstroke-velocity to 'percentage' of the 
+     * 'AP global max potential'--'Potential from just before the start of the AP' range.
      *
      * @param percentage  The percentage of the amplitude to calculate for.
      * @param onset  The time at which the upstroke reaches the threshold.
