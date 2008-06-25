@@ -345,7 +345,7 @@ public:
      * and is useful in testing. By default the script is called.
      * In performance testing for example it desirable to disable the script.
      */
-    void SetCallChaste2Meshalyzer(bool call)
+    void ConvertOutputToMeshalyzerFormat(bool call = true)
     {
         mCallChaste2Meshalyzer=call;
     }

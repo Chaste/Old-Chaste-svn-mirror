@@ -62,7 +62,6 @@ public:
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
-
         bidomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -307,7 +306,7 @@ public:
             monodomain_problem.SetEndTime(1);   // 1 ms
             monodomain_problem.SetOutputDirectory("Monodomain1d");
             monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
-            monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
+            monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
 
             monodomain_problem.Initialise();
 

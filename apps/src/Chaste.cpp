@@ -223,7 +223,7 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
     rProblem.SetPdeTimeStepAndPrintEveryNthTimeStep(pde_time_step, (int) (printing_time_step/pde_time_step));
     rProblem.SetOutputDirectory(output_directory+"/results");
     rProblem.SetOutputFilenamePrefix("Chaste");
-    rProblem.SetCallChaste2Meshalyzer(false);
+    rProblem.ConvertOutputToMeshalyzerFormat(false);
 
     if (load_mesh)
     {

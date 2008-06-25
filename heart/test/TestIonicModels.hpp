@@ -58,6 +58,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3.cpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
+#include "NobleVargheseKohlNoble1998.hpp"
+
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
 
@@ -450,6 +452,51 @@ public:
         TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(3))
         TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
     }
+    
+//    void TestOdeSolverForN98WithSimpleStimulus(void)
+//    {
+//        clock_t ck_start, ck_end;
+//
+//        // Set stimulus
+//        double magnitude_stimulus = 0.0;  // uA/cm2
+//        double duration_stimulus = 0.5;  // ms
+//        double start_stimulus = 10.0;   // ms
+//        SimpleStimulus stimulus(magnitude_stimulus,
+//                                 duration_stimulus,
+//                                 start_stimulus);
+//        EulerIvpOdeSolver solver;
+//        double time_step = 0.01;
+//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(&solver, time_step, &stimulus);
+//
+//        std::vector<double> dY(22);
+//
+//        n98_ode_system.EvaluateYDerivatives(0, n98_ode_system.rGetStateVariables(), dY);
+//        
+//        for (unsigned i = 0; i < dY.size(); ++i)
+//        {
+//            std::cout << dY[i] << "\n";
+//        }
+//
+//        // Solve and write to file
+//        ck_start = clock();
+//        RunOdeSolverWithIonicModel(&n98_ode_system,
+//                                   150.0,
+//                                   "N98RegResult");
+//        ck_end = clock();
+//        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+//        std::cout << "\n\tForward: " << forward << std::endl;
+//
+//        //CheckCellModelResults("HH52RegResult");
+//
+//        // test GetIionic: (the GetIionic method was first manually tested
+//        // by changing the EvaluateYDerivatives() code to call it, this verified
+//        // that GetIionic has no errors, therefore we can test here against
+//        // a hardcoded result
+//        //RunOdeSolverWithIonicModel(&hh52_ode_system,
+//        //                           15.0,
+//        //                           "HhGetIIonic");
+//        //TS_ASSERT_DELTA( hh52_ode_system.GetIIonic(), 40.6341, 1e-3);
+//    }
 
 private:
     void TryTestLr91WithVoltageDrop(unsigned ratio) //throw (Exception)
