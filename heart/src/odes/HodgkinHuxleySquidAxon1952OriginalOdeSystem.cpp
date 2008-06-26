@@ -35,10 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(
     AbstractIvpOdeSolver *pOdeSolver,
-    double dt,
     AbstractStimulusFunction *pIntracellularStimulus,
     AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pOdeSolver,4,0,dt,pIntracellularStimulus,pExtracellularStimulus)
+        : AbstractCardiacCell(pOdeSolver,4,0,pIntracellularStimulus,pExtracellularStimulus)
 {
     /*
      * State variables

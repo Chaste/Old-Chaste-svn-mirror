@@ -49,7 +49,7 @@ class FhnEdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
 private:
     SimpleStimulus *mpStimulus;
 public:
-    FhnEdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>(0.01)
+    FhnEdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>()
     {
         mpStimulus = new SimpleStimulus(-10.0, 0.5);
     }
@@ -58,11 +58,11 @@ public:
     {
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            return new FitzHughNagumo1961OdeSystem(mpSolver, mTimeStep, mpStimulus);
+            return new FitzHughNagumo1961OdeSystem(mpSolver, mpStimulus);
         }
         else
         {
-            return new FitzHughNagumo1961OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+            return new FitzHughNagumo1961OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
 

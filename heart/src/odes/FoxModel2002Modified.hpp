@@ -18,10 +18,10 @@
 class FoxModel2002Modified : public AbstractCardiacCell
 {
 public:
-    FoxModel2002Modified(AbstractIvpOdeSolver *pSolver, double dt,
+    FoxModel2002Modified(AbstractIvpOdeSolver *pSolver,
                        AbstractStimulusFunction *pIntracellularStimulus,
                        AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 13, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractCardiacCell(pSolver, 13, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: millisecond
 

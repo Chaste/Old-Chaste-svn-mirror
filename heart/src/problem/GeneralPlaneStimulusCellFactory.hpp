@@ -40,7 +40,7 @@ private:
     SimpleStimulus* mpStimulus;
 
 public:
-    GeneralPlaneStimulusCellFactory(double timeStep, unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false) : AbstractCardiacCellFactory<DIM>(timeStep)
+    GeneralPlaneStimulusCellFactory(unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false) : AbstractCardiacCellFactory<DIM>()
     {
         ///\todo The useMeshWidth is temporary, while we are sorting out
         ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
@@ -89,11 +89,11 @@ public:
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
         if (x*x<=1e-10)
         {
-            return new CELL(this->mpSolver, this->mTimeStep, this->mpStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpStimulus, this->mpZeroStimulus);
         }
         else
         {
-            return new CELL(this->mpSolver, this->mTimeStep, this->mpZeroStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
         }
     }
 

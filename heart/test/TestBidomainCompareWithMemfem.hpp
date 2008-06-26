@@ -48,7 +48,7 @@ class BidomainPointStimulusCellFactory : public AbstractCardiacCellFactory<3>
 private:
     SimpleStimulus *mpStimulus;
 public:
-    BidomainPointStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.001)
+    BidomainPointStimulusCellFactory() : AbstractCardiacCellFactory<3>()
     {
         mpStimulus = new SimpleStimulus(-1000.0*1000, 1);
     }
@@ -57,11 +57,11 @@ public:
     {
         if (node==19)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpZeroStimulus);
         }
     }
 
@@ -79,6 +79,7 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.19, 0.19, 1.79));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));                        
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);
         
         BidomainPointStimulusCellFactory bidomain_cell_factory;
 

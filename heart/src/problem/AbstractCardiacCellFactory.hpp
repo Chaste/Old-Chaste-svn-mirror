@@ -54,7 +54,6 @@ template<unsigned SPACE_DIM>
 class AbstractCardiacCellFactory
 {
 protected:
-    double mTimeStep;
     ZeroStimulus* mpZeroStimulus;
     AbstractIvpOdeSolver* mpSolver;
 
@@ -72,10 +71,8 @@ public:
         return mpMesh->GetNumNodes();
     }
 
-    AbstractCardiacCellFactory(double timeStep,
-                               AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver)
+    AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver)
     {
-        mTimeStep = timeStep;
         mpMesh = NULL;
         mpSolver = pSolver;
         mpZeroStimulus = new ZeroStimulus;

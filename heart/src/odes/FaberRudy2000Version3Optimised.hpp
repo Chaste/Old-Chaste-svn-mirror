@@ -554,10 +554,10 @@ FaberRudy2000Version3OptimisedLookupTables* FaberRudy2000Version3OptimisedLookup
 class FaberRudy2000Version3Optimised : public AbstractCardiacCell
 {
 public:
-    FaberRudy2000Version3Optimised(AbstractIvpOdeSolver *pSolver, double dt,
+    FaberRudy2000Version3Optimised(AbstractIvpOdeSolver *pSolver,
                                      AbstractStimulusFunction *pIntracellularStimulus,
                                      AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 25, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractCardiacCell(pSolver, 25, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: second
 

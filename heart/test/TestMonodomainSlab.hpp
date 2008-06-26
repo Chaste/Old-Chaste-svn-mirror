@@ -52,7 +52,7 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         
-        PlaneStimulusCellFactory<3> cell_factory(0.01, -600.0*1000);
+        PlaneStimulusCellFactory<3> cell_factory(-600.0*1000);
 
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 

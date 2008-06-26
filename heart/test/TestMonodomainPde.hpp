@@ -50,7 +50,7 @@ private:
 
 public:
 
-    MyCardiacCellFactory() : AbstractCardiacCellFactory<1>(0.01)
+    MyCardiacCellFactory() : AbstractCardiacCellFactory<1>()
     {
         mpStimulus = new SimpleStimulus(-80.0, 0.5);
     }
@@ -59,11 +59,11 @@ public:
     {
         if (node==0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
         else if (node==1)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
         else
         {
@@ -97,7 +97,6 @@ public:
 
         double start_time = 0;
         double big_time_step = 0.5;
-        double small_time_step = 0.01;
 
         AbstractIvpOdeSolver* solver = new EulerIvpOdeSolver;
         MyCardiacCellFactory cell_factory;
@@ -121,7 +120,7 @@ public:
         // Check results by solving ODE systems directly
         // Check node 0
         double value_pde = monodomain_pde.rGetIionicCacheReplicated()[0];
-        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, small_time_step, stimulus);
+        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, stimulus);
         ode_system_stimulated.ComputeExceptVoltage(start_time, start_time + big_time_step);
         double value_ode = ode_system_stimulated.GetIIonic();
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
@@ -131,7 +130,7 @@ public:
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
 
         // Check node 1
-        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, small_time_step, zero_stim);
+        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, zero_stim);
         value_pde = monodomain_pde.rGetIionicCacheReplicated()[1];
         ode_system_not_stim.ComputeExceptVoltage(start_time, start_time + big_time_step);
         value_ode = ode_system_not_stim.GetIIonic();

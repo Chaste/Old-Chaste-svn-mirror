@@ -48,7 +48,7 @@ class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
 private:
     SimpleStimulus *mpStimulus;
 public:
-    PointStimulusHeartCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
+    PointStimulusHeartCellFactory() : AbstractCardiacCellFactory<3>()
     {
         mpStimulus = new SimpleStimulus(-1000.0*500, 0.5);
     }
@@ -58,11 +58,11 @@ public:
         // Stimulate the apex
         if (mpMesh->GetNode(node)->rGetLocation()[0] > 0.94)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver,mpStimulus, mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver,mpZeroStimulus, mpZeroStimulus);
         }
     }
 
@@ -82,14 +82,14 @@ public:
     void TestBidomainDg0Heart() throw (Exception)
     {
         double pde_time_step = 0.005;  // ms
-        double ode_time_step = 0.0025; // ms
         double end_time = 100;        // ms
         double printing_time_step = 0.1;
 
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
+        HeartConfig::Instance()->SetOdeTimeStep(0.0025);                
 
-        PointStimulusHeartCellFactory cell_factory(ode_time_step);
+        PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
 
         bidomain_problem.SetMeshFilename("heart/test/data/halfheart");
@@ -137,14 +137,14 @@ public:
         EXIT_IF_SEQUENTIAL;
         
         double pde_time_step = 0.005;  // ms
-        double ode_time_step = 0.0025; // ms
         double end_time = 100;        // ms
         double printing_time_step = 0.1;
 
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
+        HeartConfig::Instance()->SetOdeTimeStep(0.0025);
 
-        PointStimulusHeartCellFactory cell_factory(ode_time_step);
+        PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
 
         // Data created in TestPermuteWithMetisBinaries

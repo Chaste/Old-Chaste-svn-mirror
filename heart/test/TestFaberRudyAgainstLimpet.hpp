@@ -46,9 +46,8 @@ public:
                                  0.0);     // start time ms
 
         EulerIvpOdeSolver solver;
-        double time_step = 0.001;
-
-        FaberRudy2000Version3Optimised cell_model(&solver, time_step, &stimulus);
+		HeartConfig::Instance()->SetOdeTimeStep(0.001);
+        FaberRudy2000Version3Optimised cell_model(&solver, &stimulus);
 
 
         //OdeSolution solution =

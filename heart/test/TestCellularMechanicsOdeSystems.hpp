@@ -56,7 +56,7 @@ public :
 
         // the following is just to get a realistic Ca_I value
         ZeroStimulus zero_stimulus;
-        LuoRudyIModel1991OdeSystem lr91(&euler_solver, 0.01, &zero_stimulus);
+        LuoRudyIModel1991OdeSystem lr91(&euler_solver, &zero_stimulus);
         unsigned Ca_i_index = lr91.GetStateVariableNumberByName("CaI");
         double Ca_I = lr91.rGetStateVariables()[Ca_i_index];
 

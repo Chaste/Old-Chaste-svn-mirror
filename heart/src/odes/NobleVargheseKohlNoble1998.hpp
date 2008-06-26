@@ -603,10 +603,10 @@ public:
         return var_membrane__i_Stim;
     }
 
-    CML_noble_varghese_kohl_noble_1998_basic_pe_lut(AbstractIvpOdeSolver *pSolver, double dt,
+    CML_noble_varghese_kohl_noble_1998_basic_pe_lut(AbstractIvpOdeSolver *pSolver,
                                                     AbstractStimulusFunction *pIntracellularStimulus,
                                                     AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 22, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractCardiacCell(pSolver, 22, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: second
         // 

@@ -45,14 +45,14 @@ class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
 private:
     SimpleStimulus *mpStimulus;
 public:
-    PointStimulusHeartCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
+    PointStimulusHeartCellFactory() : AbstractCardiacCellFactory<3>()
     {
         mpStimulus = new SimpleStimulus(-1000*1000, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
     }
 
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
@@ -139,14 +139,14 @@ public:
         // Solve
         ///////////////////////////////////////////////////////////////////////
         double pde_time_step = 0.01;  // ms
-        double ode_time_step = 0.01/3.0; // ms
         double end_time = 10.0;        // ms
 
         double printing_time_step = end_time/100;
         
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));                                
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        HeartConfig::Instance()->SetOdeTimeStep(0.01/3.0);                                
 
-        PointStimulusHeartCellFactory cell_factory(ode_time_step);
+        PointStimulusHeartCellFactory cell_factory;
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("heart/test/data/HeartApex"); // note that this is the full heart mesh (not fifthheart)

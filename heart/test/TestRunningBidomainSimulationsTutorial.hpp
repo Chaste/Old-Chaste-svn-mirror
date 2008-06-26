@@ -96,7 +96,7 @@ public:
      * {{{AbstractCardiacCellFactory}}} with 0.01 - this is what {{{mTimestep}}} will be set
      * to. We also initialise the stimulus to have magnitude -6000 and duration 0.5ms.
      */
-    PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>(0.01)
+    PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>()
     {
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
@@ -116,14 +116,14 @@ public:
             /* '''Note:''' As this is going to be used in a bidomain simulation, two
              * stimuli, the intra- and extra-cellular stimuli need to be given. We give the
              * cell a non-zero intra and zero extra-cellular stimulus. */
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpZeroStimulus);
             /* For monodomain simulations we could have just done */
             //return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
         else
         {
             /* The other cells have zero stimuli for both the intra and extra-cellular spaces. */
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpZeroStimulus);
         }
     }
 

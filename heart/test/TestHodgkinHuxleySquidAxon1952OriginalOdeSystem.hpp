@@ -53,7 +53,7 @@ public:
                                  duration_stimulus,
                                  start_stimulus);
 
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, 0.01, &stimulus);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, &stimulus);
 
         double v_singularity[2];
         v_singularity[0]=-65;

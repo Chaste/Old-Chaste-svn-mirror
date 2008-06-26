@@ -48,7 +48,6 @@ private:
 public:
     // Constructor
     FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
-                                double dt,
                                 AbstractStimulusFunction *pIntracelullarStimulus,
                                 AbstractStimulusFunction *pExtracelullarStimulus=NULL);
                                 

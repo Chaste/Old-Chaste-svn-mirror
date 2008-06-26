@@ -38,10 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Constructor
  */
 BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
-    double dt,
     AbstractStimulusFunction *pIntracellularStimulus,
     AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractBackwardEulerCardiacCell<1>(8, 4, dt, pIntracellularStimulus,
+        : AbstractBackwardEulerCardiacCell<1>(8, 4, pIntracellularStimulus,
                                               pExtracellularStimulus)
 {
     Init();
@@ -53,10 +52,9 @@ BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
  */
 BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
    AbstractIvpOdeSolver *pSolver,
-   double dt,
    AbstractStimulusFunction *pIntracellularStimulus,
    AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractBackwardEulerCardiacCell<1>(8, 4, dt, pIntracellularStimulus,
+        : AbstractBackwardEulerCardiacCell<1>(8, 4, pIntracellularStimulus,
                                               pExtracellularStimulus)
 {
     Init();

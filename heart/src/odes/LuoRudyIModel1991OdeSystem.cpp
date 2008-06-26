@@ -35,10 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Constructor
  */
 LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                                       double dt,
                                                        AbstractStimulusFunction *pIntracellularStimulus,
                                                        AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractCardiacCell(pSolver, 8, 4, pIntracellularStimulus, pExtracellularStimulus)
 {
     // set the final paramter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *

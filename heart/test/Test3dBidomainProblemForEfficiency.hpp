@@ -50,7 +50,7 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
-        
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );

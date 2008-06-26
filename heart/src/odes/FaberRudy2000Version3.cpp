@@ -19,10 +19,10 @@ private:
     double mScaleFactorGks;
     double mScaleFactorIto;
 public:
-    FaberRudy2000Version3(AbstractIvpOdeSolver *pSolver, double dt,
+    FaberRudy2000Version3(AbstractIvpOdeSolver *pSolver,
                               AbstractStimulusFunction *pIntracellularStimulus,
                               AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 25, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractCardiacCell(pSolver, 25, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
 
         mScaleFactorGks=1.0;

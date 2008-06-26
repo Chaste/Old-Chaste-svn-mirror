@@ -69,7 +69,7 @@ private:
     SimpleStimulus* mpStimulus;
     double mMeshWidth;
 public:
-    QuarterStimulusCellFactory(double timeStep, double meshWidth) : AbstractCardiacCellFactory<DIM>(timeStep)
+    QuarterStimulusCellFactory(double meshWidth) : AbstractCardiacCellFactory<DIM>()
     {
         mpStimulus = new SimpleStimulus(-1000000, 0.5);
         mMeshWidth=meshWidth;
@@ -80,11 +80,11 @@ public:
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
         if (x<=mMeshWidth*0.25+1e-10)
         {
-            return new CELL(this->mpSolver, this->mTimeStep, this->mpStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpStimulus, this->mpZeroStimulus);
         }
         else
         {
-            return new CELL(this->mpSolver, this->mTimeStep, this->mpZeroStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
         }
     }
 
@@ -264,12 +264,13 @@ public:
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
 
             AbstractCardiacCellFactory<DIM>* p_cell_factory=NULL;
+            HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
 
             switch (this->Stimulus)
             {
                 case NEUMANN:
                 {
-                    p_cell_factory = new ZeroStimulusCellFactory<CELL, DIM>(this->OdeTimeStep);
+                    p_cell_factory = new ZeroStimulusCellFactory<CELL, DIM>();
                     break;
                 }
                 case PLANE:
@@ -277,18 +278,18 @@ public:
                     if (this->UseAbsoluteStimulus)
                     {
                         #define COVERAGE_IGNORE
-                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, 0, this->AbsoluteStimulus, true);
+                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(0, this->AbsoluteStimulus, true);
                         #undef COVERAGE_IGNORE
                     }
                     else
                     {
-                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, num_ele_across, constructor.GetWidth());
+                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(num_ele_across, constructor.GetWidth());
                     }
                     break;
                 }
                 case REGION:
                 {
-                    p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, constructor.GetWidth());
+                    p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(constructor.GetWidth());
                     break;
                 }
             }

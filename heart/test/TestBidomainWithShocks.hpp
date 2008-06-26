@@ -51,7 +51,7 @@ private:
     SimpleStimulus* mpExtraStimulus, *mpExtraStimulusNeg;
 
 public:
-    PointStimulusWithShockCellFactory() : AbstractCardiacCellFactory<1>(0.01)
+    PointStimulusWithShockCellFactory() : AbstractCardiacCellFactory<1>()
     {
         mpIntraStimulus = new SimpleStimulus(  -600000, 0.5);
         mpExtraStimulus = new SimpleStimulus( -6000000, 0.5, 10.0); // switches on at 10ms
@@ -70,7 +70,7 @@ public:
         mpMesh->GetNode(node)->GetPoint()[0] == 0.0   ?
         extra_stim = mpExtraStimulus  :  extra_stim = mpZeroStimulus;
 
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, intra_stim, extra_stim);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, intra_stim, extra_stim);
     }
 
     ~PointStimulusWithShockCellFactory(void)
@@ -89,7 +89,7 @@ private:
     SimpleStimulus* mpIntraStimulus;
     SimpleStimulus* mpExtraStimulus;
 public:
-    CornerStim2dBidomainCellFactory() : AbstractCardiacCellFactory<2>(0.01)
+    CornerStim2dBidomainCellFactory() : AbstractCardiacCellFactory<2>()
     {
         mpIntraStimulus = new SimpleStimulus(-6000000, 0.5);
         mpExtraStimulus = new SimpleStimulus(-6000000, 0.5, 2);
@@ -105,7 +105,7 @@ public:
         node_is_012 ? intra_stim = mpIntraStimulus : intra_stim = mpZeroStimulus;
         node_is_012 ? extra_stim = mpExtraStimulus : extra_stim = mpZeroStimulus;
 
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, intra_stim, extra_stim);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, intra_stim, extra_stim);
     }
 
     ~CornerStim2dBidomainCellFactory(void)
@@ -123,7 +123,7 @@ private:
     SimpleStimulus* mpIntraStimulus;
     SimpleStimulus* mpExtraStimulus;
 public:
-    PointStimulusCellFactory3D() : AbstractCardiacCellFactory<3>(0.001)
+    PointStimulusCellFactory3D() : AbstractCardiacCellFactory<3>()
     {
         mpIntraStimulus = new SimpleStimulus(-1000*1000, 0.5);
         mpExtraStimulus = new SimpleStimulus(-1000*1000, 0.5, 5); // switches on at 5ms
@@ -139,7 +139,7 @@ public:
         // extracellular stimulus applied to whole of front face
         node <  36 ? extra_stim = mpExtraStimulus : extra_stim = mpZeroStimulus;
 
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, intra_stim, extra_stim);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, intra_stim, extra_stim);
     }
 
     ~PointStimulusCellFactory3D(void)
@@ -335,7 +335,8 @@ public:
     void TestBidomain3dWithShock()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                        
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);                        
         
         // initial stimulus at a single node in centre of front face at t=0,
         // extracellular stimulus at whole of front face at t=5ms

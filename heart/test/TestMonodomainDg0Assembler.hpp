@@ -50,7 +50,7 @@ private:
     SimpleStimulus *mpStimulus;
     unsigned mNodeNum;
 public:
-    PointStimulus2dCellFactory(int nodeNum) : AbstractCardiacCellFactory<2>(0.01)
+    PointStimulus2dCellFactory(int nodeNum) : AbstractCardiacCellFactory<2>()
     {
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
         mNodeNum = nodeNum;
@@ -60,11 +60,11 @@ public:
     {
         if (node == mNodeNum)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
 

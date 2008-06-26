@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystem.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "HeartConfig.hpp"
 
 #include <vector>
 
@@ -64,7 +65,6 @@ public:
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                         unsigned numberOfStateVariables,
                         unsigned voltageIndex,
-                        double dt,
                         AbstractStimulusFunction* intracellularStimulus,
                         AbstractStimulusFunction* extracellularStimulus = NULL);
 

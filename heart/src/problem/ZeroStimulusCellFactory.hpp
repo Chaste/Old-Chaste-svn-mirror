@@ -37,13 +37,13 @@ class ZeroStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 
 public:
-    ZeroStimulusCellFactory(double timeStep=0.01) : AbstractCardiacCellFactory<DIM>(timeStep)
+    ZeroStimulusCellFactory() : AbstractCardiacCellFactory<DIM>()
     {
     }
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        return new CELL(this->mpSolver, this->mTimeStep, this->mpZeroStimulus, this->mpZeroStimulus);
+        return new CELL(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
     }
 
     ~ZeroStimulusCellFactory(void)

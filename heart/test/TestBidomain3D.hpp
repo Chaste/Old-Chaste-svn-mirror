@@ -51,7 +51,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
                 
-        PlaneStimulusCellFactory<3> bidomain_cell_factory(0.01, -600.0*1000);
+        PlaneStimulusCellFactory<3> bidomain_cell_factory(-600.0*1000);
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
 
@@ -126,7 +126,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
-        PlaneStimulusCellFactory<3> cell_factory(0.01, -600.0*1000);
+        PlaneStimulusCellFactory<3> cell_factory(-600.0*1000);
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");

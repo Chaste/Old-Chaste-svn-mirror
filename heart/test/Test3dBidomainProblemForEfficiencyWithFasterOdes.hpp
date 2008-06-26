@@ -53,7 +53,7 @@ private:
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.01 as backward Euler should be stable
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
+    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>()
     {
         mpStimulus = new SimpleStimulus(-900.0*1000, 0.5);
         mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
@@ -64,11 +64,11 @@ public:
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
-            return new BackwardEulerLuoRudyIModel1991(mTimeStep, mpRegStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mpRegStimulus, mpZeroStimulus);
         }
         else
         {
-            return new BackwardEulerLuoRudyIModel1991(mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mpZeroStimulus, mpZeroStimulus);
         }
     }
 

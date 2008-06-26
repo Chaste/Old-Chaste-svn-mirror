@@ -48,13 +48,13 @@ private:
     SimpleStimulus* mpStimulus;
 
 public:
-    HeterogeneousCellFactory() : AbstractCardiacCellFactory<1>(0.005)//Ode timestep
+    HeterogeneousCellFactory() : AbstractCardiacCellFactory<1>()//Ode timestep
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(-600, 0.5);
     }
 
-    HeterogeneousCellFactory(double timeStep, double stimulusMagnitude) : AbstractCardiacCellFactory<1>(timeStep)
+    HeterogeneousCellFactory(double stimulusMagnitude) : AbstractCardiacCellFactory<1>()
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
@@ -67,7 +67,6 @@ public:
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             cell = new FaberRudy2000Version3(this->mpSolver,
-                                             this->mTimeStep,
                                              mpStimulus,
                                              this->mpZeroStimulus);
 
@@ -75,7 +74,6 @@ public:
         else
         {
             cell = new FaberRudy2000Version3(this->mpSolver,
-                                             this->mTimeStep,
                                              this->mpZeroStimulus,
                                              this->mpZeroStimulus);
         }

@@ -45,14 +45,14 @@ class CornerStimulusCellFactory : public AbstractCardiacCellFactory<3>
 private:
     SimpleStimulus *mpStimulus;
 public:
-    CornerStimulusCellFactory(double timeStep = 0.01) : AbstractCardiacCellFactory<3>(timeStep)
+    CornerStimulusCellFactory() : AbstractCardiacCellFactory<3>()
     {
         mpStimulus = new SimpleStimulus(-600.0*1000, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
     }
 
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)

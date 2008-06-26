@@ -45,12 +45,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ZeroStimulusCellFactory : public AbstractCardiacCellFactory<1>
 {
 public:
-    ZeroStimulusCellFactory(double timeStep) : AbstractCardiacCellFactory<1>(timeStep)
+    ZeroStimulusCellFactory() : AbstractCardiacCellFactory<1>()
     {}
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
 
     }
 };
@@ -71,7 +71,7 @@ public:
 
     void TestZeroStimulus()
     {
-        ZeroStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
+        ZeroStimulusCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");

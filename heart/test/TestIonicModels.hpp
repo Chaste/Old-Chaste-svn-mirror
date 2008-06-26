@@ -78,8 +78,7 @@ public:
                                  duration_stimulus,
                                  start_stimulus);
         EulerIvpOdeSolver solver;
-        double time_step = 0.01;
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, time_step, &stimulus);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, &stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -116,8 +115,7 @@ public:
                                  start_stimulus);
 
         EulerIvpOdeSolver solver;
-        double time_step = 0.01;
-        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, time_step, &stimulus);
+        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, &stimulus);
 
         // fhn has no [Ca_i]
         TS_ASSERT_THROWS_ANYTHING(fhn61_ode_system.GetIntracellularCalciumConcentration());
@@ -143,7 +141,7 @@ public:
         SimpleStimulus another_stimulus(-200,1.0, 0.0);
         SimpleStimulus intra_stimulus(-100,1.0, 0.0);
         SimpleStimulus extra_stimulus(-50, 1.0, 0.0);
-        FitzHughNagumo1961OdeSystem another_fhn61_ode_system(&solver, time_step, &stimulus);
+        FitzHughNagumo1961OdeSystem another_fhn61_ode_system(&solver, &stimulus);
 
         another_fhn61_ode_system.SetStimulusFunction(&another_stimulus);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -200, 1e-12);
@@ -169,10 +167,9 @@ public:
         SimpleStimulus stimulus(magnitude, duration, when);
 
         double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.01;  //1e-5 seconds in milliseconds
 
         EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
         TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 4u); // For coverage
 
         // Solve and write to file
@@ -206,10 +203,9 @@ public:
         RegularStimulus stimulus(magnitude, duration, period, start);
 
         double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.01;  //1e-5 seconds in milliseconds
 
         EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
 
         // cover get intracellular calcium
         TS_ASSERT_DELTA(lr91_ode_system.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
@@ -232,10 +228,11 @@ public:
         SimpleStimulus stimulus(magnitude, duration, when);
 
         double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.01;  //1e-5 seconds in milliseconds
+
+		HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Solve using backward euler
-        BackwardEulerLuoRudyIModel1991 lr91_backward_euler(time_step, &stimulus);
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler(&stimulus);
 
         // cover get intracellular calcium
         TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
@@ -249,7 +246,7 @@ public:
 
         // Solve using forward Euler
         EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
@@ -266,7 +263,8 @@ public:
 
         // (Use alternative contructor for coverage. This is a hack -see ticket:451 )
         EulerIvpOdeSolver* p_solver = new EulerIvpOdeSolver();
-        BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(p_solver ,time_step*50, &stimulus);
+		HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.5, 0.5, 0.5);
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(p_solver, &stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler2,
                                    end_time,
@@ -281,14 +279,15 @@ public:
 
 
         // cover and check GetIIonic() match for normal and backward euler lr91
-        LuoRudyIModel1991OdeSystem lr91(&solver, 0.01, &stimulus);
-        BackwardEulerLuoRudyIModel1991 backward_lr91(0.01, &stimulus);
+		HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+        LuoRudyIModel1991OdeSystem lr91(&solver, &stimulus);
+        BackwardEulerLuoRudyIModel1991 backward_lr91(&stimulus);
         // calc IIonic using initial conditions
         TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-12);
 
         // cover alternative constructor
         EulerIvpOdeSolver solver2;
-        BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, time_step, &stimulus);
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, &stimulus);
     }
 
     void TestOdeSolverForFR2000WithDelayedSimpleStimulus(void)
@@ -302,11 +301,11 @@ public:
         SimpleStimulus stimulus(magnitude, duration, when);
 
         double end_time = 1000.0; //ms
-        double time_step = 0.007;
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.007, 0.007, 0.007);
 
         EulerIvpOdeSolver solver;
-        FaberRudy2000Version3Optimised fr2000_ode_system_opt(&solver, time_step, &stimulus);
-        FaberRudy2000Version3 fr2000_ode_system(&solver, time_step, &stimulus);
+        FaberRudy2000Version3Optimised fr2000_ode_system_opt(&solver, &stimulus);
+        FaberRudy2000Version3 fr2000_ode_system(&solver, &stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -349,10 +348,10 @@ public:
         SimpleStimulus stimulus(magnitude, duration, when);
 
         double end_time = 1000.0; //ms
-        double time_step = 0.007;
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.007, 0.007, 0.007);
 
         EulerIvpOdeSolver solver;
-        FaberRudy2000Version3 fr2000_ode_system_endo(&solver, time_step, &stimulus);
+        FaberRudy2000Version3 fr2000_ode_system_endo(&solver, &stimulus);
         fr2000_ode_system_endo.SetScaleFactorGks(0.462);
         fr2000_ode_system_endo.SetScaleFactorIto(0.0);
 
@@ -364,7 +363,7 @@ public:
 
         CheckCellModelResults("FR2000Endo");
 
-        FaberRudy2000Version3 fr2000_ode_system_mid(&solver, time_step, &stimulus);
+        FaberRudy2000Version3 fr2000_ode_system_mid(&solver, &stimulus);
         fr2000_ode_system_mid.SetScaleFactorGks(1.154);
         fr2000_ode_system_mid.SetScaleFactorIto(0.85);
 
@@ -376,7 +375,7 @@ public:
 
         CheckCellModelResults("FR2000Mid");
 
-        FaberRudy2000Version3 fr2000_ode_system_epi(&solver, time_step, &stimulus);
+        FaberRudy2000Version3 fr2000_ode_system_epi(&solver, &stimulus);
         fr2000_ode_system_epi.SetScaleFactorGks(1.154);
         fr2000_ode_system_epi.SetScaleFactorIto(1.0);
 
@@ -402,12 +401,14 @@ public:
         RegularStimulus stimulus(magnitude, duration, period, start);
 
         double end_time = 200.0;  // milliseconds
-        double time_step = 0.002; //2e-6 seconds in milliseconds
-                            // 0.005 leads to NaNs.
+                            
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.002, 0.002, 0.002); // 0.005 leads to NaNs.
 
         EulerIvpOdeSolver solver;
-        FoxModel2002Modified fox_ode_system(&solver, time_step, &stimulus);
-        BackwardEulerFoxModel2002Modified backward_system(time_step*5, &stimulus);
+        FoxModel2002Modified fox_ode_system(&solver, &stimulus);
+        
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+        BackwardEulerFoxModel2002Modified backward_system(&stimulus);
 
         // Mainly for coverage, and to test consistency of GetIIonic
         TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
@@ -501,18 +502,18 @@ public:
 private:
     void TryTestLr91WithVoltageDrop(unsigned ratio) //throw (Exception)
     {
-        double pde_time_step = 0.01;  // ms (not used, but here to replicate TestMonodomainHeart)
-        double ode_time_step = pde_time_step/ratio; // ms
         double end_time = 10;        // ms
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01/ratio, 0.01, 0.01);
+        
         SimpleStimulus zero_stimulus(0,0,0);
         EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, ode_time_step, &zero_stimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &zero_stimulus);
         double time=0.0;
         double start_voltage=-83.853;
         double end_voltage=-100;
         while (time<end_time)
         {
-            double next_time=time+pde_time_step;
+            double next_time=time + HeartConfig::Instance()->GetPdeTimeStep();
             lr91_ode_system.SetVoltage( start_voltage + (end_voltage-start_voltage)*time/end_time );
             lr91_ode_system.ComputeExceptVoltage(time, next_time);
             time=next_time;

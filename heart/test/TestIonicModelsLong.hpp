@@ -64,11 +64,12 @@ public:
         RegularStimulus stimulus(magnitude, duration, period, start);
 
         double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.002;  //2e-6 seconds in milliseconds
-                            // 0.005 leads to NaNs.
+
+                            
+        HeartConfig::Instance()->SetOdeTimeStep(0.002); // 0.005 leads to NaNs.
 
         EulerIvpOdeSolver solver;
-        FoxModel2002Modified fox_ode_system(&solver, time_step, &stimulus);
+        FoxModel2002Modified fox_ode_system(&solver, &stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -82,7 +83,8 @@ public:
         CheckCellModelResults("FoxRegularStimLong");
 
         // Solve using Backward Euler
-        BackwardEulerFoxModel2002Modified backward_system(time_step*5, &stimulus);
+        HeartConfig::Instance()->SetOdeTimeStep(0.01);
+        BackwardEulerFoxModel2002Modified backward_system(&stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&backward_system,
                                    end_time,

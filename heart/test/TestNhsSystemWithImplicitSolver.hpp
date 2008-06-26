@@ -44,7 +44,7 @@ private:
     {
         EulerIvpOdeSolver euler_solver;
         ZeroStimulus zero_stimulus;
-        LuoRudyIModel1991OdeSystem lr91(&euler_solver, 0.01, &zero_stimulus);
+        LuoRudyIModel1991OdeSystem lr91(&euler_solver, &zero_stimulus);
         return lr91.rGetStateVariables()[lr91.GetStateVariableNumberByName("CaI")];
     }
 

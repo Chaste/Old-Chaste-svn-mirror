@@ -57,7 +57,7 @@ private:
     AbstractStimulusFunction* mpExtracellularStimulus2;
 public:
 
-    MyCardiacCellFactory() : AbstractCardiacCellFactory<1>(0.01)
+    MyCardiacCellFactory() : AbstractCardiacCellFactory<1>()
     {
         mpStimulus = new SimpleStimulus(-80.0, 0.5);
         mpExtracellularStimulus1 = new SimpleStimulus(-150,0.5);
@@ -68,16 +68,16 @@ public:
     {
         if (node==0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpExtracellularStimulus1);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpExtracellularStimulus1);
         }
         else if (node==1)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpExtracellularStimulus2);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpExtracellularStimulus2);
         }
         else
         {
             assert(0);
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpExtracellularStimulus1);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpExtracellularStimulus1);
         }
     }
 

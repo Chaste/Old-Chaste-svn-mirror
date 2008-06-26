@@ -44,7 +44,7 @@ private:
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.001 (10:1)
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.001)
+    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>()
     {
         mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
     }
@@ -53,11 +53,11 @@ public:
     {
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpRegStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpRegStimulus, mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpZeroStimulus);
         }
     }
 

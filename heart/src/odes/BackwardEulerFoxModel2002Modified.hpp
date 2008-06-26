@@ -19,10 +19,9 @@
 class BackwardEulerFoxModel2002Modified : public AbstractBackwardEulerCardiacCell<3>
 {
 public:
-    BackwardEulerFoxModel2002Modified(double dt,
-                       AbstractStimulusFunction *pIntracellularStimulus,
-                       AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractBackwardEulerCardiacCell<3>(13, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
+    BackwardEulerFoxModel2002Modified( AbstractStimulusFunction *pIntracellularStimulus,
+                       				   AbstractStimulusFunction *pExtracellularStimulus=NULL)
+        : AbstractBackwardEulerCardiacCell<3>(13, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: millisecond
 

@@ -48,12 +48,12 @@ template <int SPACE_DIM>
 class ZeroStimCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>
 {
 public:
-    ZeroStimCellFactory() : AbstractCardiacCellFactory<SPACE_DIM>(0.01)
+    ZeroStimCellFactory() : AbstractCardiacCellFactory<SPACE_DIM>()
     {}
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mTimeStep, this->mpZeroStimulus);
+        return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus);
     }
 };
 

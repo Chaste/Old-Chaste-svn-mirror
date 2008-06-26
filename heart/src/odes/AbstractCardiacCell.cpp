@@ -32,8 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                                          unsigned numberOfStateVariables,
-                                         unsigned voltageIndex,
-                                         double dt,
+                                         unsigned voltageIndex,	
                                          AbstractStimulusFunction* intracellularStimulus,
                                          AbstractStimulusFunction* extracellularStimulus)
         : AbstractOdeSystem(numberOfStateVariables),
@@ -42,8 +41,7 @@ AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
     mpOdeSolver = pOdeSolver;
 
     assert(voltageIndex < mNumberOfStateVariables);
-    assert(dt>0);
-    mDt=dt;
+    mDt=HeartConfig::Instance()->GetOdeTimeStep();
 
     mpIntracellularStimulus = intracellularStimulus;
     mpExtracellularStimulus = extracellularStimulus;

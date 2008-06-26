@@ -42,14 +42,14 @@ private:
     SimpleStimulus* mpStimulus;
 
 public:
-    PlaneStimulusCellFactory() : AbstractCardiacCellFactory<DIM>(0.01)//Ode timestep
+    PlaneStimulusCellFactory() : AbstractCardiacCellFactory<DIM>()
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(-600, 0.5);
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus(-600, 0.5)\n");
     }
 
-    PlaneStimulusCellFactory(double timeStep, double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>(timeStep)
+    PlaneStimulusCellFactory(double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>()
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
@@ -61,14 +61,12 @@ public:
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver,
-                                                  this->mTimeStep,
                                                   mpStimulus,
                                                   this->mpZeroStimulus);
         }
         else
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver,
-                                                  this->mTimeStep,
                                                   this->mpZeroStimulus,
                                                   this->mpZeroStimulus);
         }
