@@ -46,8 +46,6 @@ HeartConfig::HeartConfig()
 {
     assert(mpInstance == NULL);
 
-    mpDefaultParameters=NULL;
-    mpUserParameters=NULL;
     mpDefaultParameters = ReadFile("ChasteDefaults.xml");
     mpUserParameters = mpDefaultParameters;
     //CheckTimeSteps(); // necessity of this line of code is not tested -- remove with caution!
@@ -60,17 +58,14 @@ HeartConfig::~HeartConfig()
         delete mpUserParameters;
     }
 
-    delete mpDefaultParameters;
+    delete mpDefaultParameters;    
 }
 
 void HeartConfig::SetDefaultsFile(std::string fileName)
 {
     bool same_target = (mpUserParameters == mpDefaultParameters);
-
     
     delete mpDefaultParameters;
-   
-    mpDefaultParameters = NULL;
     mpDefaultParameters = ReadFile(fileName);
 
     if (same_target)
@@ -79,7 +74,7 @@ void HeartConfig::SetDefaultsFile(std::string fileName)
     }
     CheckTimeSteps();
 }
-std::string GetOutputDirectory();
+
 chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
 {
     // get the parameters using the method 'ChasteParameters(filename)',
@@ -100,7 +95,11 @@ chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
 
 void HeartConfig::SetParametersFile(std::string fileName)
 {
-    mpUserParameters = NULL;
+    // handles multiple calls to the method in the same context
+    if (mpUserParameters != mpDefaultParameters)
+    {        
+        delete mpUserParameters;         
+    }
     mpUserParameters = ReadFile(fileName);
 }
 
