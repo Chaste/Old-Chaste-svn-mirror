@@ -58,7 +58,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3.cpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
-#include "NobleVargheseKohlNoble1998.hpp"
+//#include "NobleVargheseKohlNoble1998.hpp"
+//#include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
@@ -453,7 +454,9 @@ public:
         TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(3))
         TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
     }
-    
+
+//    Uncomment the includes for the models too
+//    
 //    void TestOdeSolverForN98WithSimpleStimulus(void)
 //    {
 //        clock_t ck_start, ck_end;
@@ -465,9 +468,11 @@ public:
 //        SimpleStimulus stimulus(magnitude_stimulus,
 //                                 duration_stimulus,
 //                                 start_stimulus);
-//        EulerIvpOdeSolver solver;
-//        double time_step = 0.01;
-//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(&solver, time_step, &stimulus);
+//
+//		// Solve forward
+//		HeartConfig::Instance()->SetOdeTimeStep(0.0005);
+//        EulerIvpOdeSolver solver;        
+//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(&solver, &stimulus);
 //
 //        std::vector<double> dY(22);
 //
@@ -478,25 +483,35 @@ public:
 //            std::cout << dY[i] << "\n";
 //        }
 //
-//        // Solve and write to file
 //        ck_start = clock();
 //        RunOdeSolverWithIonicModel(&n98_ode_system,
 //                                   150.0,
 //                                   "N98RegResult");
 //        ck_end = clock();
 //        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-//        std::cout << "\n\tForward: " << forward << std::endl;
 //
-//        //CheckCellModelResults("HH52RegResult");
+//		TS_ASSERT( !isnan( n98_ode_system.GetIIonic() ) );
 //
-//        // test GetIionic: (the GetIionic method was first manually tested
-//        // by changing the EvaluateYDerivatives() code to call it, this verified
-//        // that GetIionic has no errors, therefore we can test here against
-//        // a hardcoded result
-//        //RunOdeSolverWithIonicModel(&hh52_ode_system,
-//        //                           15.0,
-//        //                           "HhGetIIonic");
-//        //TS_ASSERT_DELTA( hh52_ode_system.GetIIonic(), 40.6341, 1e-3);
+//        // Solve backward
+//		HeartConfig::Instance()->SetOdeTimeStep(0.1);       
+//		CML_noble_varghese_kohl_noble_1998_basic_pe_lut_be n98_be_ode_system(&stimulus);
+//
+//        ck_start = clock();
+//        RunOdeSolverWithIonicModel(&n98_be_ode_system,
+//                                   150.0,
+//                                   "BeN98RegResult");
+//        ck_end = clock();
+//        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+//
+//		TS_ASSERT( !isnan( n98_be_ode_system.GetIIonic() ) );
+//
+//        CompareCellModelResults("N98RegResult", "BeN98RegResult", 0.2);
+//
+//        std::cout << "Run times:\n\tForward: " << forward
+//                  << "\n\tBackward: " << backward
+//                  << std::endl;
+//
+//
 //    }
 
 private:
