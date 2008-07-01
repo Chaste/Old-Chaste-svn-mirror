@@ -47,7 +47,7 @@ private:
     RegularStimulus* mpStimulus;
 
 public:
-    MyCellFactory() : AbstractCardiacCellFactory<2>(0.01)//Ode timestep
+    MyCellFactory() : AbstractCardiacCellFactory<2>()
     {
         mpStimulus = new RegularStimulus(-600, 0.5, 100000, 0.0);
         LOG(1, "Using RegularStimulus(-600, 0.5, 100000, 0.0)\n");
@@ -58,14 +58,12 @@ public:
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver,
-                                                  this->mTimeStep,
                                                   mpStimulus,
                                                   this->mpZeroStimulus);
         }
         else
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver,
-                                                  this->mTimeStep,
                                                   this->mpZeroStimulus,
                                                   this->mpZeroStimulus);
         }

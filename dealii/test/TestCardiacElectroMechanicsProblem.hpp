@@ -47,7 +47,7 @@ public:
     {
         EventHandler::Disable();
 
-        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+        PlaneStimulusCellFactory<2> cell_factory(-1000*1000);
 
         CardiacElectroMechanicsProblem<2> problem(&cell_factory,
                                                   1, /* end time */
@@ -83,7 +83,7 @@ public:
     // We only test the implicit solver as the explicit is not expected to work for very long
     void Test2dImplicit() throw(Exception)
     {
-        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+        PlaneStimulusCellFactory<2> cell_factory(-1000*1000);
 
         CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
                                                            10, /* end time */
