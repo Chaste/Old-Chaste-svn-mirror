@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ZeroStimulus.hpp"
+#include "HeartConfigSetupAndFinalize.hpp"
 
 
 class TestNhsSystemWithImplicitSolver : public CxxTest::TestSuite

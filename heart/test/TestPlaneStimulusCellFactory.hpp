@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ConformingTetrahedralMesh.hpp"
 #include "PlaneStimulusCellFactory.hpp"
+#include "HeartConfigSetupAndFinalize.hpp"
 
 class TestPlaneStimulusCellFactory : public CxxTest::TestSuite
 {

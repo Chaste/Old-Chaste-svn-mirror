@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleStimulus.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
+#include "HeartConfigSetupAndFinalize.hpp"
 
 class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
 {

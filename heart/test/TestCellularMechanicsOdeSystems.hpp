@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
+#include "HeartConfigSetupAndFinalize.hpp"
 
 class TestCellularMechanicsOdeSystems : public CxxTest::TestSuite
 {

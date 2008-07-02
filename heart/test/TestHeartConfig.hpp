@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "HeartConfig.hpp"
+#include "HeartConfigSetupAndFinalize.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {

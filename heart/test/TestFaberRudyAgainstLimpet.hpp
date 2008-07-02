@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RegularStimulus.hpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 #include "EulerIvpOdeSolver.hpp"
+#include "HeartConfigSetupAndFinalize.hpp"
 
 class TestFaberRudyAgainstLimpet : public CxxTest::TestSuite
 {
