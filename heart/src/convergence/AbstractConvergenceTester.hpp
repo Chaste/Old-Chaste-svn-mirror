@@ -226,9 +226,9 @@ public:
         unsigned file_num=0;
 
         // Create a file for storing conduction velocity and AP data and write the header
-       OutputFileHandler conv_info_handler("ConvergencePlots", false);
-       out_stream p_conv_info_file;
-       if (conv_info_handler.IsMaster())
+        OutputFileHandler conv_info_handler("ConvergencePlots", false);
+        out_stream p_conv_info_file;
+        if (conv_info_handler.IsMaster())
         {
             p_conv_info_file = conv_info_handler.OpenOutputFile(nameOfTest+"_info.csv");
             (*p_conv_info_file) << "#Abcisa\t"
@@ -255,6 +255,10 @@ public:
         {
             CuboidMeshConstructor<DIM> constructor;
 
+            assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
+            HeartConfig::Instance()->SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files            
+            HeartConfig::Instance()->SetPdeTimeStep(this->PdeTimeStep);
+            HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);            
 
             if (this->MeshNum!=prev_mesh_num)
             {
@@ -264,7 +268,6 @@ public:
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
 
             AbstractCardiacCellFactory<DIM>* p_cell_factory=NULL;
-            HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
 
             switch (this->Stimulus)
             {
@@ -311,9 +314,6 @@ public:
             {
                 cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
             }
-
-            assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
-            cardiac_problem.SetPdeAndPrintingTimeSteps(this->PdeTimeStep, 0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
 
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;

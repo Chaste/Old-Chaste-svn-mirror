@@ -138,12 +138,11 @@ public:
         ///////////////////////////////////////////////////////////////////////
         // Solve
         ///////////////////////////////////////////////////////////////////////
-        double pde_time_step = 0.01;  // ms
         double end_time = 10.0;        // ms
-
-        double printing_time_step = end_time/100;
         
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        HeartConfig::Instance()->SetPrintingTimeStep(end_time/100);        
+        HeartConfig::Instance()->SetPdeTimeStep(0.01);        
         HeartConfig::Instance()->SetOdeTimeStep(0.01/3.0);                                
 
         PointStimulusHeartCellFactory cell_factory;
@@ -154,7 +153,6 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_HeartApex");
 
         monodomain_problem.SetEndTime(end_time);
-        monodomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
 
         monodomain_problem.SetWriteInfo();
 

@@ -633,32 +633,33 @@ void HeartConfig::SetPrintingTimeStep(double printingTimeStep)
 
 void HeartConfig::CheckTimeSteps() const
 {
-	    if (GetPdeTimeStep() <= 0)
-        {
-            EXCEPTION("Pde time-step should be positive");
-        }
-        if (GetPrintingTimeStep() <= 0.0)
-        {
-            EXCEPTION("Printing time-step should be positive");
-        }
-        if (GetPdeTimeStep()>GetPrintingTimeStep())
-        {
-            EXCEPTION("Printing time-step should not be smaller than PDE time step");
-        }
+    if (GetPdeTimeStep() <= 0)
+    {
+        EXCEPTION("Pde time-step should be positive");
+    }
+    if (GetPrintingTimeStep() <= 0.0)
+    {
+        EXCEPTION("Printing time-step should be positive");
+    }
+    if (GetPdeTimeStep()>GetPrintingTimeStep())
+    {
+        EXCEPTION("Printing time-step should not be smaller than PDE time step");
+    }
 
-        //If pde divides printing then the floating remainder ought to be close to
-        //zero(+a smidge) or pde-a smidge
-        double remainder=fmod(GetPrintingTimeStep(), GetPdeTimeStep());
+    //If pde divides printing then the floating remainder ought to be close to
+    //zero(+a smidge) or pde-a smidge
+    double remainder=fmod(GetPrintingTimeStep(), GetPdeTimeStep());
 
-        if ( remainder > DBL_EPSILON && remainder < GetPdeTimeStep()-DBL_EPSILON)
-        {
-            EXCEPTION("Printing time-step should a multiple of PDE time step");
-        }
-        
-        if ( GetOdeTimeStep() > GetPdeTimeStep() )
-        {
-        	EXCEPTION("Ode time-step should not be greater than pde time-step");
-        }
+    if ( remainder > DBL_EPSILON && remainder < GetPdeTimeStep()-DBL_EPSILON)
+    {
+        EXCEPTION("Printing time-step should a multiple of PDE time step");
+    }
+    
+    if ( GetOdeTimeStep() > GetPdeTimeStep() )
+    {
+        std::cout << "ODE: " << GetOdeTimeStep() << " PDE: " << GetPdeTimeStep() << std::endl;
+    	EXCEPTION("Ode time-step should not be greater than pde time-step");
+    }
 }
 
 void HeartConfig::SetTolerances(double relativeTolerance, double absoluteTolerance, ksp_use_type use)

@@ -60,8 +60,6 @@ protected:
      */
     double mStartTime;
     double mEndTime;
-    double mPdeTimeStep;
-    double mPrintingTimeStep;
     bool mWriteInfo;
     bool mPrintOutput;
     bool mCallChaste2Meshalyzer;
@@ -128,9 +126,7 @@ public:
               mpWriter(NULL)
     {
         mStartTime        = 0.0;  // ms
-        mPdeTimeStep      = 0.01; // ms
         mEndTime          = -1;   // negative so can check has been set
-        mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
         mWriteInfo = false;
         mPrintOutput = true;
         mCallChaste2Meshalyzer = false;
@@ -238,7 +234,6 @@ public:
                 EXCEPTION("Either explicitly specify not to print output (call PrintOutput(false)) or specify the output directory and filename prefix");
             }
         }
-        assert(  mPrintingTimeStep >= mPdeTimeStep);
     }
 
     // Perhaps this should be a method of AbstractCardiacPde??)
@@ -284,61 +279,6 @@ public:
     {
         mEndTime = rEndTime;
     }
-
-
-    /**
-     *  Sets both the PDE timestep and the printing time step.
-     *  Does all the necessary checks to ensure that the timestepping
-     *  logic in the Solve method works correctly
-     */
-    void SetPdeAndPrintingTimeSteps(double pdeTimeStep, double printingTimeStep=0.0)
-    {
-        if (pdeTimeStep <= 0)
-        {
-            EXCEPTION("Pde time step should be positive");
-        }
-        if (printingTimeStep <= 0.0)
-        {
-            EXCEPTION("Printing time step should be positive");
-        }
-        if (pdeTimeStep>printingTimeStep)
-        {
-            EXCEPTION("Printing time step should not be smaller than PDE time step");
-        }
-
-        //If pde divides printing then the floating remainder ought to be close to
-        //zero(+a smidge) or pde-a smidge
-        double remainder=fmod(printingTimeStep, pdeTimeStep);
-
-        if ( remainder > DBL_EPSILON && remainder < pdeTimeStep-DBL_EPSILON)
-        {
-            EXCEPTION("Printing time step should a multiple of PDE time step");
-        }
-        mPdeTimeStep = pdeTimeStep;
-        mPrintingTimeStep = printingTimeStep;
-
-    }
-
-
-    /** Set the simulation to print every n timesteps.
-     */
-    void SetPdeTimeStepAndPrintEveryNthTimeStep(double pdeTimeStep, unsigned n=1)
-    {
-        if (pdeTimeStep <= 0)
-        {
-            EXCEPTION("Pde time step should be positive");
-        }
-        assert(n!=0);
-        mPdeTimeStep = pdeTimeStep;
-        mPrintingTimeStep = n*mPdeTimeStep;
-    }
-
-
-    double GetPdeTimeStep()
-    {
-        return mPdeTimeStep;
-    }
-
 
     /** Set whether to call the Chaste2Meshalyzer script.
      * This script gets everything ready to visualize the results with meshalyser
@@ -451,7 +391,7 @@ public:
         mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
         Vec initial_condition = CreateInitialCondition();
 
-        TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
+        TimeStepper stepper(mStartTime, mEndTime, HeartConfig::Instance()->GetPrintingTimeStep());
         if (mPrintOutput)
         {
             EventHandler::BeginEvent(WRITE_OUTPUT);
@@ -469,7 +409,7 @@ public:
         while ( !stepper.IsTimeAtEnd() )
         {
             // solve from now up to the next printing time
-            mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
+            mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
             mpAssembler->SetInitialCondition( initial_condition );
 
             try

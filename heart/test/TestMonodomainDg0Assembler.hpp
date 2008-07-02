@@ -351,6 +351,8 @@ public:
     ///////////////////////////////////////////////////////////////////
     void TestMonodomainProblemPrintsOnlyAtRequestedTimes()
     {
+        HeartConfig::Instance()->SetPrintingTimeStep(0.1);
+        
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
@@ -363,9 +365,7 @@ public:
 
         p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
 
-
         p_monodomain_problem->SetEndTime(0.30);          // ms
-        p_monodomain_problem->SetPdeAndPrintingTimeSteps(0.01, 0.1);  // ms
 
         p_monodomain_problem->SetOutputDirectory("MonoDg01d");
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
@@ -385,32 +385,6 @@ public:
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
         TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
 
-        // run testing PrintEveryNthTimeStep
-        p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
-
-        p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        p_monodomain_problem->SetEndTime(0.50);   // ms
-        p_monodomain_problem->SetOutputDirectory("MonoDg01d");
-        p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
-
-        p_monodomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 17);  // every 17 timesteps
-
-        p_monodomain_problem->SetWriteInfo(); // just to have SetWriteInfo() covered in the tests
-
-        p_monodomain_problem->Initialise();
-        p_monodomain_problem->Solve();
-
-        // read data entries for the time file and check correct
-        Hdf5DataReader data_reader2("MonoDg01d", "mono_testPrintTimes");
-        times = data_reader2.GetUnlimitedDimensionValues();
-
-        TS_ASSERT_EQUALS( times.size(), 4u);
-        TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
-        TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
-        TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
-        TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
-
-        delete p_monodomain_problem;
     }
 
 
@@ -421,15 +395,6 @@ public:
 
         // Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
-
-        //Makes sure that Weekly test won't throw
-        monodomain_problem.SetPdeAndPrintingTimeSteps(0.01,  1);
-
-        // throws because argument is negative
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeAndPrintingTimeSteps(-1,  1));
-
-        // throws because argument is negative
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeAndPrintingTimeSteps( 1, -1));
 
         // Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());

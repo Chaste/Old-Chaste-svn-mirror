@@ -387,7 +387,10 @@ public:
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
 
         p_bidomain_problem->SetEndTime(0.3);          // ms
-        p_bidomain_problem->SetPdeAndPrintingTimeSteps(0.01, 0.1);  //ms
+//        p_bidomain_problem->SetPdeAndPrintingTimeSteps(0.01, 0.1);  //ms
+HeartConfig::Instance()->SetPdeTimeStep(0.01);        
+HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
+
 
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
@@ -438,7 +441,9 @@ public:
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
-        p_bidomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 17);  // every 17 timesteps
+//        p_bidomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 17);  // every 17 timesteps
+HeartConfig::Instance()->SetPdeTimeStep(0.01);        
+HeartConfig::Instance()->SetPrintingTimeStep(0.17);        
 
         // for coverage:
         p_bidomain_problem->SetWriteInfo();
@@ -460,7 +465,11 @@ public:
         // Now check that we can turn off output printing
         // Output should be the same as above: printing every 17th time step
         // because even though we set to print every time step...
-        p_bidomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 1);
+//        p_bidomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 1);
+HeartConfig::Instance()->SetPdeTimeStep(0.01);        
+HeartConfig::Instance()->SetPrintingTimeStep(1);        
+
+
         // ...we have output turned off
         p_bidomain_problem->PrintOutput(false);
         p_bidomain_problem->Initialise();
@@ -486,16 +495,6 @@ public:
 
         //Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-
-        // throws because argument is negative
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(-1,  1));
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps( 1));
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeTimeStepAndPrintEveryNthTimeStep(-1));
-
-        //Throws when we try to print more often than the pde time step
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(0.2, 0.1));
-         //Throws when printing step is not a multiple of pde time step
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(0.2, 0.3));
 
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());

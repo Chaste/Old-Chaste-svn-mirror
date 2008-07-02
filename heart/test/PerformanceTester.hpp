@@ -112,7 +112,10 @@ public:
         cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
 
         assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );
-        cardiac_problem.SetPdeAndPrintingTimeSteps(PdeTimeStep, PrintingTimeStep);
+
+        HeartConfig::Instance()->SetPdeTimeStep(PdeTimeStep);       
+        HeartConfig::Instance()->SetPrintingTimeStep(PrintingTimeStep);        
+
         cardiac_problem.Initialise();
 
         //// use this to get some info printed out

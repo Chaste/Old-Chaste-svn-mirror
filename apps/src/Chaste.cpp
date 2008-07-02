@@ -85,14 +85,10 @@ std::vector<ChasteCuboid> conductivity_heterogeneity_areas;
 bool create_slab;
 bool load_mesh;
 
-double ode_time_step = -1.0;     // ms
-double pde_time_step = -1.0;     // ms
-double printing_time_step = -1.0; // ms
-
 class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
 {
 public:
-    ChasteSlabCellFactory() : AbstractCardiacCellFactory<3>(ode_time_step)
+    ChasteSlabCellFactory() : AbstractCardiacCellFactory<3>()
     {
     }
 
@@ -102,20 +98,20 @@ public:
         switch(ionic_model)
         {
             case(ionic_model_type::LuoRudyIModel1991OdeSystem):
-                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
+                return new LuoRudyIModel1991OdeSystem(mpSolver, intracellularStimulus, mpZeroStimulus);
                 break;
 
             case(ionic_model_type::BackwardEulerLuoRudyIModel1991):
-                return new BackwardEulerLuoRudyIModel1991(mTimeStep, intracellularStimulus, mpZeroStimulus);
+                return new BackwardEulerLuoRudyIModel1991(intracellularStimulus, mpZeroStimulus);
                 break;
 
             case(ionic_model_type::BackwardEulerFoxModel2002Modified):
-                return new BackwardEulerFoxModel2002Modified(mTimeStep, intracellularStimulus, mpZeroStimulus);
+                return new BackwardEulerFoxModel2002Modified(intracellularStimulus, mpZeroStimulus);
                 break;
 
             case(ionic_model_type::FaberRudy2000Version3):
                 {
-                    FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
+                    FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, intracellularStimulus, mpZeroStimulus);
 
                     for (unsigned ht_index = 0;
                          ht_index < cell_heterogeneity_areas.size();
@@ -133,7 +129,7 @@ public:
                 }
 
             case(ionic_model_type::FaberRudy2000Version3Optimised):
-                return new FaberRudy2000Version3Optimised(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
+                return new FaberRudy2000Version3Optimised(mpSolver, intracellularStimulus, mpZeroStimulus);
                 break;
 
             default:
@@ -207,20 +203,14 @@ void ReadParametersFromFile()
         // Ignore the exception
     }               
     
-    // Read and store Conductivity Heterogeneities
+    // TODO: Read and store Conductivity Heterogeneities
 
-
-    ode_time_step = HeartConfig::Instance()->GetOdeTimeStep();
-    pde_time_step = HeartConfig::Instance()->GetPdeTimeStep();     // ms
-    printing_time_step = HeartConfig::Instance()->GetPrintingTimeStep(); // ms
-    
 }
 
 template<unsigned PROBLEM_DIM>
 void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
 {
     rProblem.SetEndTime(simulation_duration);   // ms
-    rProblem.SetPdeTimeStepAndPrintEveryNthTimeStep(pde_time_step, (int) (printing_time_step/pde_time_step));
     rProblem.SetOutputDirectory(output_directory+"/results");
     rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.ConvertOutputToMeshalyzerFormat(false);
