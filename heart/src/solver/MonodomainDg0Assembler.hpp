@@ -115,6 +115,19 @@ protected:
         mpMonodomainPde->SolveCellSystems(currentSolution, currentTime, currentTime+this->mDt);
     }
 
+    
+    void InitialiseForSolve(Vec initialSolution)
+    {
+        BaseClassType::InitialiseForSolve(initialSolution);
+        if(HeartConfig::Instance()->GetUseAbsoluteTolerance())
+        {
+            this->mpLinearSystem->SetAbsoluteTolerance(HeartConfig::Instance()->GetAbsoluteTolerance());
+        }
+        else
+        {
+            this->mpLinearSystem->SetRelativeTolerance(HeartConfig::Instance()->GetRelativeTolerance());
+        }
+    }
 
 
 public:

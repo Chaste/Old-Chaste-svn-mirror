@@ -104,6 +104,19 @@ private:
         mIExtracellularStimulus=0;
     }
 
+    void InitialiseForSolve(Vec initialSolution)
+    {
+        BaseClassType::InitialiseForSolve(initialSolution);
+        if(HeartConfig::Instance()->GetUseAbsoluteTolerance())
+        {
+            this->mpLinearSystem->SetAbsoluteTolerance(mpConfig->GetAbsoluteTolerance());
+        }
+        else
+        {
+            this->mpLinearSystem->SetRelativeTolerance(mpConfig->GetRelativeTolerance());
+        }
+    }
+
 
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
     {

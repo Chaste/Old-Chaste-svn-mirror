@@ -87,6 +87,8 @@ public:
         HeartConfig::Instance()->SetPdeTimeStep(0.005);       
         HeartConfig::Instance()->SetOdeTimeStep(0.0025);                
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
+        HeartConfig::Instance()->SetUseRelativeTolerance();
+        HeartConfig::Instance()->SetRelativeTolerance(5e-5);
         
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -95,7 +97,6 @@ public:
         bidomain_problem.SetOutputDirectory("BiDg0Heart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
 
-        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");
@@ -139,7 +140,8 @@ public:
         HeartConfig::Instance()->SetPdeTimeStep(0.005);       
         HeartConfig::Instance()->SetOdeTimeStep(0.0025);
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
-
+        HeartConfig::Instance()->SetUseRelativeTolerance();
+        HeartConfig::Instance()->SetRelativeTolerance(5e-5);
 
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -154,7 +156,6 @@ public:
         bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
 
-        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");

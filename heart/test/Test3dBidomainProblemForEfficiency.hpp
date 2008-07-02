@@ -52,6 +52,8 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         HeartConfig::Instance()->SetSimulationDuration(150.0);
+        HeartConfig::Instance()->SetUseRelativeTolerance();
+        HeartConfig::Instance()->SetRelativeTolerance(1e-7);
 
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
 
@@ -59,7 +61,6 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         bidomain_problem.PrintOutput(false);
-        bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
 
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");

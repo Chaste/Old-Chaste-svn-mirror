@@ -125,6 +125,11 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetUseRelativeTolerance();
+        HeartConfig::Instance()->SetRelativeTolerance(1e-9);
+
         
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -133,14 +138,6 @@ public:
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
-
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        HeartConfig::Instance()->SetCapacitance(1.0);
-        monodomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
-
-        monodomain_problem.SetLinearSolverRelativeTolerance(1e-9);
-        TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverRelativeTolerance(),1e-9,1e-14);
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetLinearSolverAbsoluteTolerance());
 
         monodomain_problem.Solve();
 
@@ -162,8 +159,13 @@ public:
 
     void TestMonodomainDg01DWithAbsoluteTolerance() throw (Exception)
     {
+        double atol = 1e-1;
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetAbsoluteTolerance(atol/4.0);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance();
         
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -172,13 +174,6 @@ public:
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
-
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        HeartConfig::Instance()->SetCapacitance(1.0);
-        double atol=1e-1;
-        monodomain_problem.SetLinearSolverAbsoluteTolerance(atol/4.0);
-        TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverAbsoluteTolerance(),atol/4.0,1e-14);
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetLinearSolverRelativeTolerance());
 
         monodomain_problem.Solve();
 

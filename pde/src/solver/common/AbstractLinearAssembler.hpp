@@ -44,8 +44,6 @@ class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPAC
 {
 private:
     bool mMatrixIsConstant;
-    double mLinearSolverTolerance;
-    bool mUseLinearSolverAbsoluteTolerance;
 
 protected:
 
@@ -68,7 +66,7 @@ protected:
      *
      * Can use an initial solution as PETSc template, or base it on the mesh size.
      */
-    void InitialiseForSolve(Vec initialSolution)
+    virtual void InitialiseForSolve(Vec initialSolution)
     {
         if (this->mpLinearSystem == NULL)
         {
@@ -93,14 +91,6 @@ protected:
             }
 
             this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);
-            if(mUseLinearSolverAbsoluteTolerance)
-            {
-                this->mpLinearSystem->SetAbsoluteTolerance(mLinearSolverTolerance);
-            }
-            else
-            {
-                this->mpLinearSystem->SetRelativeTolerance(mLinearSolverTolerance);
-            }
         }
     }
 
@@ -144,9 +134,7 @@ protected:
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2) :
             AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints),
-            mMatrixIsConstant(true),
-            mLinearSolverTolerance(1e-6),
-            mUseLinearSolverAbsoluteTolerance(false)
+            mMatrixIsConstant(true)
     {
     }
 
@@ -177,20 +165,6 @@ public:
         return this->StaticSolve(currentSolutionOrGuess, currentTime);
     }
 
-
-    void SetLinearSolverRelativeTolerance(double relativeTolerance)
-    {
-        assert(this->mpLinearSystem==NULL);
-        mUseLinearSolverAbsoluteTolerance = false;
-        mLinearSolverTolerance = relativeTolerance;
-    }
-
-    void SetLinearSolverAbsoluteTolerance(double absoluteTolerance)
-    {
-        assert(this->mpLinearSystem==NULL);
-        mUseLinearSolverAbsoluteTolerance = true;
-        mLinearSolverTolerance = absoluteTolerance;
-    }
 
     /*
     void DebugWithSolution(Vec sol)

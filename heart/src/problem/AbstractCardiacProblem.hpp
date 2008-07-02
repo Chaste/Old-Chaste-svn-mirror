@@ -72,8 +72,8 @@ protected:
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
     Vec mVoltage; // Current solution
-    double mLinearSolverTolerance;
-    bool mUseLinearSolverAbsoluteTolerance;
+//    double mLinearSolverTolerance;
+//    bool mUseLinearSolverAbsoluteTolerance;
 
 
     /**
@@ -123,8 +123,8 @@ public:
         mpCardiacPde = NULL;
         mpAssembler = NULL;
         mVoltage = NULL;
-        mLinearSolverTolerance=1e-6;
-        mUseLinearSolverAbsoluteTolerance = false;
+//        mLinearSolverTolerance=1e-6;
+//        mUseLinearSolverAbsoluteTolerance = false;
         mAllocatedMemoryForMesh = false;
         assert(mNodesToOutput.empty());
 
@@ -173,38 +173,6 @@ public:
     void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc)
     {
         this->mpBoundaryConditionsContainer = bcc;
-    }
-
-    void SetLinearSolverRelativeTolerance(const double &rRelTol)
-    {
-        mLinearSolverTolerance = rRelTol;
-        mUseLinearSolverAbsoluteTolerance = false;
-    }
-
-    double GetLinearSolverRelativeTolerance()
-    {
-        if (mUseLinearSolverAbsoluteTolerance)
-        {
-            EXCEPTION("No relative tolerance because absolute tolerance set");
-        }
-
-        return mLinearSolverTolerance;
-    }
-
-    void SetLinearSolverAbsoluteTolerance(const double &rAbsTol)
-    {
-        mLinearSolverTolerance = rAbsTol;
-        mUseLinearSolverAbsoluteTolerance = true;
-    }
-
-    double GetLinearSolverAbsoluteTolerance()
-    {
-        if (!mUseLinearSolverAbsoluteTolerance)
-        {
-            EXCEPTION("No absolute tolerance because relative tolerance set");
-        }
-
-        return mLinearSolverTolerance;
     }
 
     void PreSolveChecks()

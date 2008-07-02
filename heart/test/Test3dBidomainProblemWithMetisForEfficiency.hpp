@@ -58,7 +58,6 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular_metis");
         bidomain_problem.PrintOutput(false);
-        bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
 
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");

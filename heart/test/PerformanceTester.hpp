@@ -82,6 +82,8 @@ public:
     {
         HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
         HeartConfig::Instance()->SetSimulationDuration(SimTime);        
+        HeartConfig::Instance()->SetRelativeTolerance(KspRtol);
+        HeartConfig::Instance()->SetUseRelativeTolerance();
 
         // Create the meshes on which the test will be based
         const std::string mesh_dir = "ConvergenceMesh";
@@ -109,7 +111,8 @@ public:
         cardiac_problem.SetOutputDirectory ("Convergence");
         cardiac_problem.SetOutputFilenamePrefix ("Results");
 
-        cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
+//        cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
+
 
         assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );
 

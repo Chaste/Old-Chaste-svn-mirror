@@ -306,11 +306,17 @@ public:
 
             if (mUseKspAbsoluteTolerance)
             {
-                cardiac_problem.SetLinearSolverAbsoluteTolerance(this->mKspTolerance);
+                HeartConfig::Instance()->SetAbsoluteTolerance(this->mKspTolerance);
+                HeartConfig::Instance()->SetUseAbsoluteTolerance();
+                
+//                cardiac_problem.SetLinearSolverAbsoluteTolerance(this->mKspTolerance);
             }
             else
             {
-                cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
+                HeartConfig::Instance()->SetRelativeTolerance(this->mKspTolerance);
+                HeartConfig::Instance()->SetUseRelativeTolerance();
+
+//                cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
             }
 
             // Calculate positions of nodes 1/4 and 3/4 through the mesh

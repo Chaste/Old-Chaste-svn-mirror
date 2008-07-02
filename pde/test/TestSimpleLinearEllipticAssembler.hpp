@@ -177,9 +177,6 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
 
-        // set the relative tolerance (for coverage)
-        assembler.SetLinearSolverRelativeTolerance(1e-5);
-
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
 
@@ -191,27 +188,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, 0.001);
         }
 
-        // create a new assembler where we set the absolute tolerance
-        SimpleLinearEllipticAssembler<1,1> assembler_abs(&mesh,&pde,&bcc);
-
-        // set the absolute tolerance (for coverage)
-        assembler_abs.SetLinearSolverAbsoluteTolerance(1.2e-2); // very high tol - |r0| ~= 3e-2
-
-        Vec result_abs = assembler_abs.Solve();
-        ReplicatableVector result_abs_repl(result_abs);
-
-        // Solution should be u = 0.5*x*(3-x)
-        for (unsigned i=0; i<result_abs_repl.size(); i++)
-        {
-            double x = mesh.GetNode(i)->GetPoint()[0];
-            double u = 0.5*x*(3-x);
-            // much higher tolerance than above as the absolute tolerance is very
-            // high
-            TS_ASSERT_DELTA(result_abs_repl[i], u, 0.2);
-        }
-
         VecDestroy(result);
-        VecDestroy(result_abs);
     }
 
     void TestWithHeatEquation2()

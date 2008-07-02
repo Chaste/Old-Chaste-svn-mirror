@@ -62,16 +62,6 @@ public:
                                                             mpMonodomainPde,
                                                             this->mpBoundaryConditionsContainer,
                                                             2);
-
-        if (this->mUseLinearSolverAbsoluteTolerance)
-        {
-            p_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);
-        }
-        else
-        {
-            p_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverTolerance);
-        }
-
         return p_assembler;
     }
 

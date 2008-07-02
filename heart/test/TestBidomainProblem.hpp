@@ -149,6 +149,10 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        HeartConfig::Instance()->SetUseAbsoluteTolerance();
+
+        // Final values to test against have been produced with ksp_rtol=1e-9
+        HeartConfig::Instance()->SetAbsoluteTolerance(1e-5);
         
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
@@ -159,8 +163,6 @@ public:
         PetscOptionsSetValue("-options_table", "");
         */
 
-        // Final values to test against have been produced with ksp_rtol=1e-9
-        bidomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
@@ -238,9 +240,6 @@ public:
                     // test against hardcoded value to check nothing has changed
                     TS_ASSERT_DELTA(phi_e[index], phi_e_test_values[index.Global], 7e-3);
                 }
-
-
-
             }
 
             // check mean of extracellular potential is 0
@@ -401,10 +400,11 @@ public:
         nodes_to_be_output.push_back(10);
         p_bidomain_problem->SetOutputNodes(nodes_to_be_output);
 
+        // for coverage:
+        p_bidomain_problem->SetWriteInfo();
+
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
-
-        delete p_bidomain_problem;
 
         // read data entries for the time file and check correct
         Hdf5DataReader data_reader1("Bidomain1d", "bidomain_testPrintTimes");
@@ -431,6 +431,12 @@ public:
         //Can't read back this node as it wasn't written
         TS_ASSERT_THROWS_ANYTHING( data_reader1.GetVariableOverTime("V", 1));
 
+        delete p_bidomain_problem;
+
+        p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
+        p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        p_bidomain_problem->SetOutputDirectory("Bidomain1d");
+        p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
         // Now check that we can turn off output printing
         // Output should be the same as above: printing every 10th time step

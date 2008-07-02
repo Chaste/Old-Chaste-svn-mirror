@@ -72,15 +72,6 @@ protected:
                                                             2);
         try
         {
-            if (this->mUseLinearSolverAbsoluteTolerance)
-            {
-                p_bidomain_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);
-            }
-            else
-            {
-                p_bidomain_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverTolerance);
-            }
-
             p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
             p_bidomain_assembler->SetRowForMeanPhiEToZero(mRowMeanPhiEZero);
         }
