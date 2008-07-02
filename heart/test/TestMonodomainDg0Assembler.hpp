@@ -88,12 +88,12 @@ public:
     void TestMonodomainDg01D()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(2.0); //ms        
         
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
@@ -124,12 +124,12 @@ public:
     void TestMonodomainDg01DWithRelativeTolerance()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
@@ -163,12 +163,12 @@ public:
     void TestMonodomainDg01DWithAbsoluteTolerance() throw (Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(2); //ms
         
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.Initialise();
@@ -204,6 +204,7 @@ public:
     void TestMonodomainDg02DWithEdgeStimulus( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(2); //ms
         
         static double test_tolerance=1e-10;
         PlaneStimulusCellFactory<2> cell_factory;
@@ -212,7 +213,6 @@ public:
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
-        monodomain_problem.SetEndTime(2);   // 2 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
 
@@ -286,6 +286,7 @@ public:
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(1.3); //ms - needs to be 1.3 ms to pass test
         
         // To time the solve
         time_t start,end;
@@ -298,7 +299,6 @@ public:
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
-        monodomain_problem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulus");
 
@@ -352,6 +352,7 @@ public:
     void TestMonodomainProblemPrintsOnlyAtRequestedTimes()
     {
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);
+        HeartConfig::Instance()->SetSimulationDuration(0.3); //ms
         
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
@@ -364,9 +365,6 @@ public:
 //        p_monodomain_problem->SetMesh(&mesh);
 
         p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-
-        p_monodomain_problem->SetEndTime(0.30);          // ms
-
         p_monodomain_problem->SetOutputDirectory("MonoDg01d");
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
 
@@ -390,6 +388,8 @@ public:
 
     void TestMonodomainProblemExceptions() throw (Exception)
     {
+        HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
+        
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -404,10 +404,6 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(monodomain_problem.Initialise());
-
-        // Throws because EndTime has not been set
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
-        monodomain_problem.SetEndTime(1);  // ms
 
         // Throws because output directory has not been set
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());

@@ -62,7 +62,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 std::string parameter_file;
 
 // User-modifiable parameters.  Real values will be read from a config file.
-double simulation_duration = -1; // ms
 c_vector<double, 3> slab_dimensions; //cm
 double inter_node_space = -1;        //cm
 
@@ -167,8 +166,6 @@ public:
 void ReadParametersFromFile()
 {
     HeartConfig::Instance()->SetParametersFile(parameter_file);
-            
-    simulation_duration = HeartConfig::Instance()->GetSimulationDuration();
 
     create_slab = HeartConfig::Instance()->GetCreateSlab();
     load_mesh = HeartConfig::Instance()->GetLoadMesh();
@@ -210,7 +207,6 @@ void ReadParametersFromFile()
 template<unsigned PROBLEM_DIM>
 void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
 {
-    rProblem.SetEndTime(simulation_duration);   // ms
     rProblem.SetOutputDirectory(output_directory+"/results");
     rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.ConvertOutputToMeshalyzerFormat(false);

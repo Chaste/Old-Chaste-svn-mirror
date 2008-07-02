@@ -80,6 +80,9 @@ public:
 
     void Run()
     {
+        HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
+        HeartConfig::Instance()->SetSimulationDuration(SimTime);        
+
         // Create the meshes on which the test will be based
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
@@ -99,8 +102,6 @@ public:
         }
 
         unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2);
-        HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
-        
         GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(num_ele_across, mMeshWidth);
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
 
@@ -108,7 +109,6 @@ public:
         cardiac_problem.SetOutputDirectory ("Convergence");
         cardiac_problem.SetOutputFilenamePrefix ("Results");
 
-        cardiac_problem.SetEndTime(SimTime);   // ms
         cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
 
         assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );

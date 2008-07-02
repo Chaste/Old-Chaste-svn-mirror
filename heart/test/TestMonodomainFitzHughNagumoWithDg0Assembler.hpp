@@ -86,14 +86,14 @@ public:
     void TestMonodomainFitzHughNagumoWithEdgeStimulus( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.01, 0.01));
-        
+        HeartConfig::Instance()->SetSimulationDuration(1.2); //ms
+
         FhnEdgeStimulusCellFactory cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
-        monodomain_problem.SetEndTime(1.2);   // 1.2 ms
         monodomain_problem.SetOutputDirectory("FhnWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
 
@@ -146,12 +146,6 @@ public:
                 TS_ASSERT_DELTA(voltage_replicated[i], 0.1394, 1e-4);
             }
         }
-
-
-
     }
-
-
-
 };
 #endif //_TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_

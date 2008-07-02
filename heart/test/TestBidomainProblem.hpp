@@ -53,12 +53,12 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
@@ -144,11 +144,11 @@ public:
 
     void TestBidomainDg01DMeanPhiEOverDifferentRows()
     {
-
         EventHandler::Disable();
         
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
@@ -163,7 +163,6 @@ public:
         bidomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
@@ -288,6 +287,8 @@ public:
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+
         Vec monodomain_results;
 
         PlaneStimulusCellFactory<1> cell_factory;
@@ -303,7 +304,6 @@ public:
             MonodomainProblem<1> monodomain_problem( &cell_factory );
 
             monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-            monodomain_problem.SetEndTime(1);   // 1 ms
             monodomain_problem.SetOutputDirectory("Monodomain1d");
             monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
             monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
@@ -333,7 +333,6 @@ public:
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("Bidomain1d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain1d");
 
@@ -380,17 +379,17 @@ public:
     void TestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
     {
         EventHandler::Disable();
+
+        HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
+        HeartConfig::Instance()->SetPdeTimeStep(0.01);
+        HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
+
+
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
 
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-
-        p_bidomain_problem->SetEndTime(0.3);          // ms
-//        p_bidomain_problem->SetPdeAndPrintingTimeSteps(0.01, 0.1);  //ms
-HeartConfig::Instance()->SetPdeTimeStep(0.01);        
-HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
-
 
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
@@ -433,45 +432,13 @@ HeartConfig::Instance()->SetPrintingTimeStep(0.1);
         TS_ASSERT_THROWS_ANYTHING( data_reader1.GetVariableOverTime("V", 1));
 
 
-        // run testing PrintEveryNthTimeStep
-        p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-
-        p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        p_bidomain_problem->SetEndTime(0.50);   // ms
-        p_bidomain_problem->SetOutputDirectory("Bidomain1d");
-        p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
-
-//        p_bidomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 17);  // every 17 timesteps
-HeartConfig::Instance()->SetPdeTimeStep(0.01);        
-HeartConfig::Instance()->SetPrintingTimeStep(0.17);        
-
-        // for coverage:
-        p_bidomain_problem->SetWriteInfo();
-
-        p_bidomain_problem->Initialise();
-        p_bidomain_problem->Solve();
-
-        // read data entries for the time file and check correct
-        Hdf5DataReader data_reader2("Bidomain1d", "bidomain_testPrintTimes");
-        times = data_reader2.GetUnlimitedDimensionValues();
-
-        TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
-        TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
-        TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
-        TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
-        TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
-
-
         // Now check that we can turn off output printing
-        // Output should be the same as above: printing every 17th time step
+        // Output should be the same as above: printing every 10th time step
         // because even though we set to print every time step...
-//        p_bidomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 1);
-HeartConfig::Instance()->SetPdeTimeStep(0.01);        
-HeartConfig::Instance()->SetPrintingTimeStep(1);        
-
-
+        HeartConfig::Instance()->SetPrintingTimeStep(1);        
         // ...we have output turned off
         p_bidomain_problem->PrintOutput(false);
+
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
 
@@ -480,9 +447,9 @@ HeartConfig::Instance()->SetPrintingTimeStep(1);
 
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
-        TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
-        TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
-        TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
+        TS_ASSERT_DELTA( times[1], 0.10,  1e-12);
+        TS_ASSERT_DELTA( times[2], 0.20,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.30,  1e-12);
 
         delete p_bidomain_problem;
         EventHandler::Enable();
@@ -490,6 +457,8 @@ HeartConfig::Instance()->SetPrintingTimeStep(1);
 
     void TestBidomainProblemExceptions() throw (Exception)
     {
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
@@ -502,14 +471,9 @@ HeartConfig::Instance()->SetPrintingTimeStep(1);
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
 
-        //Throws because EndTime has not been set
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-        bidomain_problem.SetEndTime(1);  // ms
-
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
         bidomain_problem.SetOutputDirectory("temp");
         bidomain_problem.SetOutputFilenamePrefix("temp");
-
 
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;
@@ -525,6 +489,8 @@ HeartConfig::Instance()->SetPrintingTimeStep(1);
 
     void TestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
     {
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        
         PlaneStimulusCellFactory<3> cell_factory;
 
         ///////////////////////////////////////////////////////////////////
@@ -534,7 +500,6 @@ HeartConfig::Instance()->SetPrintingTimeStep(1);
         BidomainProblem<3> orthotropic_bido( &cell_factory );
 
         orthotropic_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
-        orthotropic_bido.SetEndTime(1);   // 1 ms
         orthotropic_bido.SetOutputDirectory("OrthotropicBidomain");
         orthotropic_bido.SetOutputFilenamePrefix("ortho3d");
 
@@ -549,7 +514,6 @@ HeartConfig::Instance()->SetPrintingTimeStep(1);
         BidomainProblem<3> axisymmetric_bido( &cell_factory);
 
         axisymmetric_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
-        axisymmetric_bido.SetEndTime(1);   // 1 ms
         axisymmetric_bido.SetOutputDirectory("AxisymmetricBidomain");
         axisymmetric_bido.SetOutputFilenamePrefix("axi3d");
 
@@ -575,9 +539,7 @@ HeartConfig::Instance()->SetPrintingTimeStep(1);
             TS_ASSERT_DELTA(ortho_voltage[index], axi_voltage[index], 1e-11);
             TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-11);
         }
-
     }
-
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/

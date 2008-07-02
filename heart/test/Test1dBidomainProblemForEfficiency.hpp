@@ -46,12 +46,12 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.00005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.00005));               
+        HeartConfig::Instance()->SetSimulationDuration(1.0);
         
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_1000_elements");
-        bidomain_problem.SetEndTime(1);   // ms
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
 
         bidomain_problem.Initialise();

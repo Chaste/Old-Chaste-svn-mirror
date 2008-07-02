@@ -56,14 +56,14 @@ public:
     void TestMonodomainTwoUnevenProcessors()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
-        
+        HeartConfig::Instance()->SetSimulationDuration(2); //ms
+                
         PlaneStimulusCellFactory<1> cell_factory;
 
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetNodesPerProcessorFilename("heart/test/data/11_nodes_2_processors.txt");
-        monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonodomainUneven");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
 

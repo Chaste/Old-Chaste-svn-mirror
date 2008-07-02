@@ -81,13 +81,12 @@ public:
 
     void TestBidomainDg0Heart() throw (Exception)
     {
-        double end_time = 100;        // ms
-
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
         HeartConfig::Instance()->SetPdeTimeStep(0.005);       
         HeartConfig::Instance()->SetOdeTimeStep(0.0025);                
+        HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
         
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -95,8 +94,6 @@ public:
         bidomain_problem.SetMeshFilename("heart/test/data/halfheart");
         bidomain_problem.SetOutputDirectory("BiDg0Heart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
-
-        bidomain_problem.SetEndTime(end_time);
 
         bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);
         //PetscOptionsSetValue("-ksp_type", "symmlq");
@@ -135,14 +132,14 @@ public:
     {
         EXIT_IF_SEQUENTIAL;
         
-        double end_time = 100;        // ms
-
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
 
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
         HeartConfig::Instance()->SetPdeTimeStep(0.005);       
         HeartConfig::Instance()->SetOdeTimeStep(0.0025);
+        HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
+
 
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -156,8 +153,6 @@ public:
         bidomain_problem.SetNodesPerProcessorFilename(nodes_file);
         bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
-
-        bidomain_problem.SetEndTime(end_time);
 
         bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);
         //PetscOptionsSetValue("-ksp_type", "symmlq");

@@ -112,13 +112,13 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetPdeTimeStep(0.01);        
-        HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
-
+        HeartConfig::Instance()->SetPrintingTimeStep(0.1);
+        HeartConfig::Instance()->SetSimulationDuration(300.0);
+        
         HeterogeneousCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        monodomain_problem.SetEndTime(300);   // ms
 
         monodomain_problem.SetOutputDirectory("FibreWithHeterogeneity");
         monodomain_problem.SetOutputFilenamePrefix("Monodomain1d");

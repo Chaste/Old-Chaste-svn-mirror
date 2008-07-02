@@ -160,21 +160,21 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0));                
-                
+        HeartConfig::Instance()->SetSimulationDuration(20); //ms
+                        
         // cell factory with an initial stimulus at node 0 and a shock (also applied
         // at node zero, although it affects everywhere instantaneously) at 10ms
         PointStimulusWithShockCellFactory bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        bidomain_problem.SetEndTime(20);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain1d_with_shock");
         bidomain_problem.SetOutputFilenamePrefix("bidomain1d_with_shock");
 
         // as we are applying an extracellular stimulus we need to have a dirichlet
         // boundary condition. Fix phi_e to be zero at the end node (node 100)
         std::vector<unsigned> fixed;
-    fixed.push_back(100);
+        fixed.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
 
         bidomain_problem.Initialise();
@@ -256,7 +256,7 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0));                
-        
+        HeartConfig::Instance()->SetSimulationDuration(3); //ms        
         
         CornerStim2dBidomainCellFactory cell_factory;
 
@@ -265,7 +265,6 @@ public:
         BidomainProblem<2> bidomain_problem( &cell_factory );
 
         bidomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
-        bidomain_problem.SetEndTime(3);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain2d_with_shock");
         bidomain_problem.SetOutputFilenamePrefix("bidomain2d_with_shock");
 
@@ -337,7 +336,8 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
         HeartConfig::Instance()->SetOdeTimeStep(0.001);                        
-        
+        HeartConfig::Instance()->SetSimulationDuration(10); //ms
+                
         // initial stimulus at a single node in centre of front face at t=0,
         // extracellular stimulus at whole of front face at t=5ms
         PointStimulusCellFactory3D cell_factory;
@@ -352,8 +352,6 @@ public:
             fixed_nodes.push_back(i);
         }
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
-
-        bidomain_problem.SetEndTime(10);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d_WithShock");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
 

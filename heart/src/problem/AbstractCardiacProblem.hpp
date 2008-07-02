@@ -54,20 +54,12 @@ protected:
     bool mAllocatedMemoryForMesh;
     std::string mNodesPerProcessorFilename;
 
-    /**
-     *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
-     *  end time is not defaulted and must be set
-     */
-    double mStartTime;
-    double mEndTime;
     bool mWriteInfo;
     bool mPrintOutput;
     bool mCallChaste2Meshalyzer;
     std::vector<unsigned> mNodesToOutput;
 
     AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
-
-
 
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
@@ -125,8 +117,6 @@ public:
               mpMesh(NULL),
               mpWriter(NULL)
     {
-        mStartTime        = 0.0;  // ms
-        mEndTime          = -1;   // negative so can check has been set
         mWriteInfo = false;
         mPrintOutput = true;
         mCallChaste2Meshalyzer = false;
@@ -223,9 +213,9 @@ public:
         {
             EXCEPTION("Pde is null, Initialise() probably hasn't been called");
         }
-        if ( mStartTime > mEndTime )
+        if ( HeartConfig::Instance()->GetSimulationDuration() <= 0.0)
         {
-            EXCEPTION("Start time should be no more than end time");
+            EXCEPTION("End time should be greater than 0");
         }
         if (mPrintOutput==true)
         {
@@ -268,16 +258,6 @@ public:
         ic.Restore();
 
         return initial_condition;
-    }
-
-    void SetStartTime(const double &rStartTime)
-    {
-        mStartTime = rStartTime;
-    }
-
-    void SetEndTime(const double &rEndTime)
-    {
-        mEndTime = rEndTime;
     }
 
     /** Set whether to call the Chaste2Meshalyzer script.
@@ -391,7 +371,9 @@ public:
         mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
         Vec initial_condition = CreateInitialCondition();
 
-        TimeStepper stepper(mStartTime, mEndTime, HeartConfig::Instance()->GetPrintingTimeStep());
+        TimeStepper stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), 
+                            HeartConfig::Instance()->GetPrintingTimeStep());
+
         if (mPrintOutput)
         {
             EventHandler::BeginEvent(WRITE_OUTPUT);

@@ -52,7 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "StimulusBoundaryCondition.hpp"
 
-const double simulation_time = 8.0; //ms
 
 typedef enum StimulusType_
 {
@@ -258,7 +257,8 @@ public:
             assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
             HeartConfig::Instance()->SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files            
             HeartConfig::Instance()->SetPdeTimeStep(this->PdeTimeStep);
-            HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);            
+            HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
+            HeartConfig::Instance()->SetSimulationDuration(8.0);
 
             if (this->MeshNum!=prev_mesh_num)
             {
@@ -303,8 +303,6 @@ public:
             cardiac_problem.SetMeshFilename(mesh_pathname);
             cardiac_problem.SetOutputDirectory ("Convergence");
             cardiac_problem.SetOutputFilenamePrefix ("Results");
-
-            cardiac_problem.SetEndTime(simulation_time);   // ms
 
             if (mUseKspAbsoluteTolerance)
             {

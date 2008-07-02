@@ -152,7 +152,10 @@ public:
      * might not get printed out. */
     void TestSimpleSimulation() throw(Exception)
     {
-        /* First, we have to create a cell factory of the type we defined above. */
+        /* '''TODO - fill in comments on using HeartConfig''' */
+        HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
+        
+        /* Next, we have to create a cell factory of the type we defined above. */
         PointStimulus2dCellFactory cell_factory;
 
         /* Now we create a problem class using (a pointer to) the cell factory. */
@@ -161,8 +164,7 @@ public:
         /* Next, some things which have to be set: the mesh filename, and the end time
          * (in ms). */
         bidomain_problem.SetMeshFilename("mesh/test/data/square_128_elements");
-        bidomain_problem.SetEndTime(1);   // 1 ms
-
+ 
         /* If we want output to be written we need to set the output directory and output
          * file prefix.
          */

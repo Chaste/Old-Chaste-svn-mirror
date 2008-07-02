@@ -80,6 +80,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.19, 0.19, 1.79));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));                        
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
+        HeartConfig::Instance()->SetSimulationDuration(50.0);  //ms
         
         BidomainPointStimulusCellFactory bidomain_cell_factory;
 
@@ -95,8 +96,6 @@ public:
         }
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
 
-
-        bidomain_problem.SetEndTime(50);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d_CompareWithMemfem");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetWriteInfo();
