@@ -268,7 +268,6 @@ public:
                             bidomain_problem.GetBidomainPde(),
                             p_container,
                             2);
-        p_bidomain_assembler->SetLinearSolverRelativeTolerance(1e-9);
 
         TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
 
