@@ -522,8 +522,8 @@ class MemoryTesting(GccDebug):
         log_prefix = self.GetTestReportDir() + test_suite
         cmd = ' '.join([self.tools['valgrind'], self._valgrind_flags % log_prefix,
                                         exefile, exeflags, self._petsc_flags,
-                                        ';', self.tools['cat'], log_prefix + '.*',
-                                        ';', self.tools['rm'], log_prefix + '.*'])
+                                        ';', self.tools['cat'], log_prefix + '*',
+                                        ';', self.tools['rm'], log_prefix + '*'])
         return cmd
     
     def SetNumProcesses(self, np):
