@@ -255,9 +255,11 @@ public:
             CuboidMeshConstructor<DIM> constructor;
 
             assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
-            HeartConfig::Instance()->SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files            
-            HeartConfig::Instance()->SetPdeTimeStep(this->PdeTimeStep);
-            HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
+            //HeartConfig::Instance()->SetPrintingTimeStep(0.04);              
+            //HeartConfig::Instance()->SetPdeTimeStep(this->PdeTimeStep);
+            //HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
+            //Otherwise we can't take the timestep down to machine precision without generating thousands of output files            
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, 0.04);
             HeartConfig::Instance()->SetSimulationDuration(8.0);
 
             if (this->MeshNum!=prev_mesh_num)
@@ -369,9 +371,8 @@ public:
             std::vector<unsigned> nodes_to_be_output;
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
-            //cardiac_problem.SetOutputNodes(nodes_to_be_output);
-            ///\todo We need to back this out at some point to see if it makes much speed difference
-
+            cardiac_problem.SetOutputNodes(nodes_to_be_output);
+            ///\todo #606 Added back in about r4058
 
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set

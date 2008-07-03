@@ -56,7 +56,6 @@ class TestConvergenceEfficiency : public CxxTest::TestSuite
 public:
     void Test3DSpace10() throw(Exception)
     {
-        ///\todo Remove line 367 <-- Doing so now (#606)
         ///cardiac_problem.SetOutputNodes(nodes_to_be_output);
         ///from AbstractConvergenceTester.hpp
         ///to see if it made a difference
