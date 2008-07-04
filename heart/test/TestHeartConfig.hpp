@@ -281,7 +281,14 @@ public :
 
         HeartConfig::Destroy();
     }
-
+    
+   void TestExceptions() 
+   { 
+       //We might want to remove SetDefaultsFile()
+       TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml")); 
+       TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteWrong.xml")); 
+       HeartConfig::Destroy(); 
+   }
 };
 
 #endif /*TESTHEARTCONFIG_HPP_*/
