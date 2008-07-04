@@ -321,9 +321,11 @@ void HoneycombMeshGenerator::Make2dPeriodicCryptMesh(double width, unsigned ghos
 
     // Wait for the new mesh to be available
 #ifndef SPECIAL_SERIAL
-        PetscTools::Barrier();
+    PetscTools::Barrier();
 #endif //SPECIAL_SERIAL
+#define COVERAGE_IGNORE
 }
+#undef COVERAGE_IGNORE
 
 
 #endif //HONEYCOMBMESHGENERATOR_CPP_

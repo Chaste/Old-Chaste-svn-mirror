@@ -462,7 +462,6 @@ public:
 
     void TestBidomainProblemExceptions() throw (Exception)
     {
-        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
@@ -475,6 +474,11 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename(""));
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
+
+        //Negative simulation duration
+        HeartConfig::Instance()->SetSimulationDuration(-1.0);  //ms
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
         bidomain_problem.SetOutputDirectory("temp");

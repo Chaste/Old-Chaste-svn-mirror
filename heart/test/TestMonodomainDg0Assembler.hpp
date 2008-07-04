@@ -364,6 +364,8 @@ public:
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
 
         p_monodomain_problem->Initialise();
+        p_monodomain_problem->SetWriteInfo();
+        
         p_monodomain_problem->Solve();
 
         delete p_monodomain_problem;
