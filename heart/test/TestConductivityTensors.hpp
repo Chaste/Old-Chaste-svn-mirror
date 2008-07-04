@@ -77,13 +77,17 @@ public:
 
     void TestTensorException() throw (Exception)
     {
-        c_vector<double, 2> constant_conductivities(Create_c_vector(2.1, 0.8));
+        c_vector<double, 1> constant_conductivities_1d(Create_c_vector(2.1));
+        c_vector<double, 2> constant_conductivities_2d(Create_c_vector(2.1, 0.8)); 
+        c_vector<double, 3> constant_conductivities_3d(Create_c_vector(2.1, 0.8, 0.0));
 
         OrthotropicConductivityTensors<1> ortho_1d_tensors;
-        TS_ASSERT_THROWS_ANYTHING(ortho_1d_tensors.SetConstantConductivities(constant_conductivities));
+        TS_ASSERT_THROWS_ANYTHING(ortho_1d_tensors.SetConstantConductivities(constant_conductivities_2d));
+        TS_ASSERT_THROWS_ANYTHING(ortho_1d_tensors.SetConstantConductivities(constant_conductivities_3d));
 
         OrthotropicConductivityTensors<3> ortho_3d_tensors;
-        TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities));
+        TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities_1d));
+        TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities_2d));
 
         // AxisymmetricConductivityTensors only makes sense in 3D problems
         TS_ASSERT_THROWS_ANYTHING(AxisymmetricConductivityTensors<2> axi_tensor);
@@ -91,6 +95,7 @@ public:
         // Transversal and longitudinal conductivities should have the same value
         AxisymmetricConductivityTensors<3> axi_3d_tensor;
         TS_ASSERT_THROWS_ANYTHING( axi_3d_tensor.SetConstantConductivities(Create_c_vector(0.5,0.25,0.15)) );
+        
     }
 
     void TestFibreOrientationFileExceptions() throw (Exception)
