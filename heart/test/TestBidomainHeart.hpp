@@ -82,10 +82,8 @@ public:
     void TestBidomainDg0Heart() throw (Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
-        HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
-        HeartConfig::Instance()->SetPdeTimeStep(0.005);       
-        HeartConfig::Instance()->SetOdeTimeStep(0.0025);                
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));     
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);                
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
         HeartConfig::Instance()->SetUseRelativeTolerance();
         HeartConfig::Instance()->SetRelativeTolerance(5e-5);
