@@ -137,7 +137,7 @@ private:
     /**
      * This method should only ever be called by the public ReMesh method.
      */
-    void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
+    //void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
 
     friend class boost::serialization::access;
     template<class Archive>

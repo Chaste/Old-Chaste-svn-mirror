@@ -238,7 +238,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
 
-        // Test to see whether triangle/ tetgen is renumbering the nodes
+        // Test to see whether triangle is renumbering the nodes
 
         for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
         {
@@ -296,6 +296,46 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
         TS_ASSERT_DELTA(mesh.CalculateVolume(), area, 1e-6);
+    }
+    
+    void TestRemeshWithMethod3D() throw (Exception)
+    {
+        
+        // Create conforming tetrahedral mesh which is Delaunay
+        std::vector<Node<3> *> nodes;
+
+        nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0,  1.0,  0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0,  0.0,  1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
+
+        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        double area = mesh.CalculateVolume();
+
+        unsigned num_nodes_before = mesh.GetNumNodes();
+        unsigned num_elements_before = mesh.GetNumElements();
+        unsigned num_boundary_elements_before = mesh.GetNumBoundaryElements();
+
+        mesh.DeleteNode(4);
+        TS_ASSERT_DELTA(area, mesh.CalculateVolume(), 1e-6);
+
+        NodeMap map(1);
+        mesh.ReMesh(map);
+
+        TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes()+1);//one node removed during remesh
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-3);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), area, 1e-6);
+        
+        mesh.DeleteNode(3);
+        TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
     }
 
 

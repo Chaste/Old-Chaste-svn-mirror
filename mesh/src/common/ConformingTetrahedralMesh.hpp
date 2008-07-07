@@ -1696,7 +1696,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             int return_value = system(command.c_str());
             if (return_value != 0)
             {
-                EXCEPTION("The tetgen mesher did not succeed in remeshing.");
+                NEVER_REACHED;
+                //EXCEPTION("The tetgen mesher did not succeed in remeshing.");
             }
         }
         // Wait for the new mesh to be available and communicate its name
