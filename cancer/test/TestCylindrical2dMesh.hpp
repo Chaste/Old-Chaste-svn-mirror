@@ -737,7 +737,7 @@ public:
          */
     }
 
-    void CheckIfThisCodeIsStillNeeded_TestGenerateVectorsOfElementsStraddlingPeriodicBoundaries()
+    void TestGenerateVectorsOfElementsStraddlingPeriodicBoundaries()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/bad_cylindrical_9_1");
         Cylindrical2dMesh mesh(9.1);

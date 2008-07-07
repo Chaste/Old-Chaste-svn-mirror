@@ -180,12 +180,16 @@ public :
         TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(), "foo");
 
+
+        //Try reading through an empty parameters file into a fully-populated default
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteParametersFullFormat.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         HeartConfig::Destroy();
     }
 
     void TestSetFunctions() throw(Exception)
     {
-        //HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");
 
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
@@ -288,6 +292,7 @@ public :
    { 
        //We might want to remove SetDefaultsFile()
        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml")); 
+       TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml")); 
        //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml")); 
        HeartConfig::Destroy(); 
    }

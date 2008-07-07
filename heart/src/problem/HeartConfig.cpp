@@ -129,11 +129,11 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     {
         return ptr1;
     }
-    else
+    if (ptr2->present())
     {
-        assert(ptr2->present());
         return ptr2;
     }
+    NEVER_REACHED
 
 }
 
