@@ -133,8 +133,7 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     {
         return ptr2;
     }
-    NEVER_REACHED
-
+    NEVER_REACHED;
 }
 
 double HeartConfig::GetSimulationDuration() const
