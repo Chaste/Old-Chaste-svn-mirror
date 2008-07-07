@@ -166,8 +166,6 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimeStep(), 1.0);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseAbsoluteTolerance(), false);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-50);
-
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseRelativeTolerance(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-6);
 
@@ -262,20 +260,11 @@ public :
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
         
 
-        HeartConfig::Instance()->SetTolerances(1e-3, 1e-8, ksp_use_type::absolute);
-        TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-3);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-8);
-
-        HeartConfig::Instance()->SetUseRelativeTolerance();
-        HeartConfig::Instance()->SetRelativeTolerance(1e-4);
-        HeartConfig::Instance()->SetAbsoluteTolerance(1e-10);
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-4);
 
-        HeartConfig::Instance()->SetUseAbsoluteTolerance();
-        HeartConfig::Instance()->SetRelativeTolerance(1e-5);
-        HeartConfig::Instance()->SetAbsoluteTolerance(1e-11);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-11);
         TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-11);
 

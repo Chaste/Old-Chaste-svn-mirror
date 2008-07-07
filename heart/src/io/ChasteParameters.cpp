@@ -803,16 +803,16 @@ operator= (_xsd_ksp_use_type v)
 // ksp_tolerances_type
 // 
 
-const ksp_tolerances_type::KSPRelative::type& ksp_tolerances_type::
+const ksp_tolerances_type::KSPRelative::container& ksp_tolerances_type::
 KSPRelative () const
 {
-  return this->_xsd_KSPRelative_.get ();
+  return this->_xsd_KSPRelative_;
 }
 
-ksp_tolerances_type::KSPRelative::type& ksp_tolerances_type::
+ksp_tolerances_type::KSPRelative::container& ksp_tolerances_type::
 KSPRelative ()
 {
-  return this->_xsd_KSPRelative_.get ();
+  return this->_xsd_KSPRelative_;
 }
 
 void ksp_tolerances_type::
@@ -821,16 +821,22 @@ KSPRelative (const KSPRelative::type& KSPRelative)
   this->_xsd_KSPRelative_.set (KSPRelative);
 }
 
-const ksp_tolerances_type::KSPAbsolute::type& ksp_tolerances_type::
-KSPAbsolute () const
+void ksp_tolerances_type::
+KSPRelative (const KSPRelative::container& KSPRelative)
 {
-  return this->_xsd_KSPAbsolute_.get ();
+  this->_xsd_KSPRelative_ = KSPRelative;
 }
 
-ksp_tolerances_type::KSPAbsolute::type& ksp_tolerances_type::
+const ksp_tolerances_type::KSPAbsolute::container& ksp_tolerances_type::
+KSPAbsolute () const
+{
+  return this->_xsd_KSPAbsolute_;
+}
+
+ksp_tolerances_type::KSPAbsolute::container& ksp_tolerances_type::
 KSPAbsolute ()
 {
-  return this->_xsd_KSPAbsolute_.get ();
+  return this->_xsd_KSPAbsolute_;
 }
 
 void ksp_tolerances_type::
@@ -839,28 +845,10 @@ KSPAbsolute (const KSPAbsolute::type& KSPAbsolute)
   this->_xsd_KSPAbsolute_.set (KSPAbsolute);
 }
 
-const ksp_tolerances_type::use::type& ksp_tolerances_type::
-use () const
-{
-  return this->_xsd_use_.get ();
-}
-
-ksp_tolerances_type::use::type& ksp_tolerances_type::
-use ()
-{
-  return this->_xsd_use_.get ();
-}
-
 void ksp_tolerances_type::
-use (const use::type& use)
+KSPAbsolute (const KSPAbsolute::container& KSPAbsolute)
 {
-  this->_xsd_use_.set (use);
-}
-
-void ksp_tolerances_type::
-use (::std::auto_ptr< use::type > use)
-{
-  this->_xsd_use_.set (use);
+  this->_xsd_KSPAbsolute_ = KSPAbsolute;
 }
 
 
@@ -3088,19 +3076,10 @@ _xsd_ksp_use_type_indexes_[2] =
 //
 
 ksp_tolerances_type::
-ksp_tolerances_type (const KSPRelative::type& _xsd_KSPRelative,
-                     const KSPAbsolute::type& _xsd_KSPAbsolute,
-                     const use::type& _xsd_use)
+ksp_tolerances_type ()
 : ::xml_schema::type (),
-_xsd_KSPRelative_ (_xsd_KSPRelative,
-                   ::xml_schema::flags (),
-                   this),
-_xsd_KSPAbsolute_ (_xsd_KSPAbsolute,
-                   ::xml_schema::flags (),
-                   this),
-_xsd_use_ (_xsd_use,
-           ::xml_schema::flags (),
-           this)
+_xsd_KSPRelative_ (::xml_schema::flags (), this),
+_xsd_KSPAbsolute_ (::xml_schema::flags (), this)
 {
 }
 
@@ -3114,10 +3093,7 @@ _xsd_KSPRelative_ (_xsd_ksp_tolerances_type._xsd_KSPRelative_,
                    this),
 _xsd_KSPAbsolute_ (_xsd_ksp_tolerances_type._xsd_KSPAbsolute_,
                    f | ::xml_schema::flags::not_root,
-                   this),
-_xsd_use_ (_xsd_ksp_tolerances_type._xsd_use_,
-           f | ::xml_schema::flags::not_root,
-           this)
+                   this)
 {
 }
 
@@ -3127,8 +3103,7 @@ ksp_tolerances_type (const ::xercesc::DOMElement& e,
                      ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
 _xsd_KSPRelative_ (f | ::xml_schema::flags::not_root, this),
-_xsd_KSPAbsolute_ (f | ::xml_schema::flags::not_root, this),
-_xsd_use_ (f | ::xml_schema::flags::not_root, this)
+_xsd_KSPAbsolute_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -3147,7 +3122,7 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "KSPRelative" && e.namespace_ ().empty ())
       {
-        if (_xsd_KSPRelative_.present ())
+        if (this->KSPRelative ())
           continue;
         this->KSPRelative (
           KSPRelative::traits::create (
@@ -3163,7 +3138,7 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "KSPAbsolute" && e.namespace_ ().empty ())
       {
-        if (_xsd_KSPAbsolute_.present ())
+        if (this->KSPAbsolute ())
           continue;
         this->KSPAbsolute (
           KSPAbsolute::traits::create (
@@ -3173,44 +3148,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         continue;
       }
     }
-  }
-
-  if (!_xsd_KSPRelative_.present ())
-  {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "KSPRelative",
-      "");
-  }
-
-  if (!_xsd_KSPAbsolute_.present ())
-  {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "KSPAbsolute",
-      "");
-  }
-
-  while (p.more_attributes ())
-  {
-    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
-
-    if (a.name () == "use" && a.namespace_ ().empty ())
-    {
-      ::std::auto_ptr< use::type > r (
-        use::traits::create (
-          a.dom_attribute (),
-          f | ::xml_schema::flags::not_root,
-          this));
-
-      this->use (r);
-      continue;
-    }
-  }
-
-  if (!_xsd_use_.present ())
-  {
-    throw ::xsd::cxx::tree::expected_attribute< char > (
-      "use",
-      "");
   }
 }
 

@@ -82,8 +82,7 @@ public:
     {
         HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
         HeartConfig::Instance()->SetSimulationDuration(SimTime);        
-        HeartConfig::Instance()->SetRelativeTolerance(KspRtol);
-        HeartConfig::Instance()->SetUseRelativeTolerance();
+        HeartConfig::Instance()->SetUseRelativeTolerance(KspRtol);
 
         // Create the meshes on which the test will be based
         const std::string mesh_dir = "ConvergenceMesh";

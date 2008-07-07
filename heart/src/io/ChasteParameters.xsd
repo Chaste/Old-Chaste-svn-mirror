@@ -103,11 +103,10 @@
   </xs:simpleType>
 
   <xs:complexType name="ksp_tolerances_type">
-    <xs:sequence>
+    <xs:choice>
       <xs:element name="KSPRelative" type="xs:double"/>
       <xs:element name="KSPAbsolute" type="xs:double"/>
-    </xs:sequence>
-    <xs:attribute name="use" type="ksp_use_type" use="required"/>
+    </xs:choice>
   </xs:complexType>
   
   <xs:simpleType name="ksp_solver_type">

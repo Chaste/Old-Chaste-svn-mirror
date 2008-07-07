@@ -138,11 +138,8 @@ public:
     void SetPdeTimeStep(double pdeTimeStep);
     void SetPrintingTimeStep(double printingTimeStep);
 
-    void SetTolerances(double relativeTolerance, double absoluteTolerance, ksp_use_type use);
-    void SetUseRelativeTolerance(void);
-    void SetUseAbsoluteTolerance(void);
-    void SetRelativeTolerance(double relativeTolerance);
-    void SetAbsoluteTolerance(double absoluteTolerance);
+    void SetUseRelativeTolerance(double relativeTolerance);
+    void SetUseAbsoluteTolerance(double absoluteTolerance);
 
     void SetKSPSolver(ksp_solver_type kspSolver);
     void SetKSPPreconditioner(ksp_preconditioner_type kspPreconditioner);

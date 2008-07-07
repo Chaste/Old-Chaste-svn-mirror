@@ -127,8 +127,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-        HeartConfig::Instance()->SetUseRelativeTolerance();
-        HeartConfig::Instance()->SetRelativeTolerance(1e-9);
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-9);
 
         
         PlaneStimulusCellFactory<1> cell_factory;
@@ -164,8 +163,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-        HeartConfig::Instance()->SetAbsoluteTolerance(atol/4.0);
-        HeartConfig::Instance()->SetUseAbsoluteTolerance();
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(atol/4.0);
         
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );

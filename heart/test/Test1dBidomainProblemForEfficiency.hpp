@@ -47,8 +47,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.00005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.00005));               
         HeartConfig::Instance()->SetSimulationDuration(1.0);
-        HeartConfig::Instance()->SetUseRelativeTolerance();
-        HeartConfig::Instance()->SetRelativeTolerance(1e-7);
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-7);
         
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );

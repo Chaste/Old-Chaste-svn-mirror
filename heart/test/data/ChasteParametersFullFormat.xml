@@ -125,9 +125,8 @@
 
 	<Numerical>
 		<TimeSteps ode="0.025" pde="0.05" printing="1.0"/>
-		<KSPTolerances use="relative">
+		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
-			<KSPAbsolute>1e-50</KSPAbsolute>			
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>ilu</KSPPreconditioner>

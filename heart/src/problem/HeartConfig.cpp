@@ -458,34 +458,34 @@ double HeartConfig::GetPrintingTimeStep() const
 
 bool HeartConfig::GetUseAbsoluteTolerance() const
 {
-    ksp_use_type use_value = DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+     return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                                              & mpDefaultParameters->Numerical().KSPTolerances(),
-                                             "KSPTolerances")->get().use();
-
-    return (use_value == ksp_use_type::absolute);
+                                             "KSPTolerances")->get().KSPAbsolute().present();
 }
 
 double HeartConfig::GetAbsoluteTolerance() const
 {
+	assert(GetUseAbsoluteTolerance());
+	
     return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                            & mpDefaultParameters->Numerical().KSPTolerances(),
-                           "KSPTolerances")->get().KSPAbsolute();
+                           "KSPTolerances")->get().KSPAbsolute().get();
 }
 
 bool HeartConfig::GetUseRelativeTolerance() const
 {
-    ksp_use_type use_value = DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+     return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                                              & mpDefaultParameters->Numerical().KSPTolerances(),
-                                             "KSPTolerances")->get().use();
-
-    return (use_value == ksp_use_type::relative);
+                                             "KSPTolerances")->get().KSPRelative().present();
 }
 
 double HeartConfig::GetRelativeTolerance() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+	assert(GetUseRelativeTolerance());
+	
+	return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                            & mpDefaultParameters->Numerical().KSPTolerances(),
-                           "KSPTolerances")->get().KSPRelative();
+                           "KSPTolerances")->get().KSPRelative().get();
 }
 
 ksp_solver_type HeartConfig::GetKSPSolver() const
@@ -657,58 +657,19 @@ void HeartConfig::CheckTimeSteps() const
     
     if ( GetOdeTimeStep() > GetPdeTimeStep() )
     {
-        std::cout << "ODE: " << GetOdeTimeStep() << " PDE: " << GetPdeTimeStep() << std::endl;
     	EXCEPTION("Ode time-step should not be greater than pde time-step");
     }
 }
 
-void HeartConfig::SetTolerances(double relativeTolerance, double absoluteTolerance, ksp_use_type use)
-{
-    ksp_tolerances_type tolerances(relativeTolerance, absoluteTolerance, use);
 
-    mpUserParameters->Numerical().KSPTolerances().set(tolerances);
+void HeartConfig::SetUseRelativeTolerance(double relativeTolerance)
+{
+    mpUserParameters->Numerical().KSPTolerances().get().KSPRelative().set(relativeTolerance);
 }
 
-void HeartConfig::SetUseRelativeTolerance(void)
+void HeartConfig::SetUseAbsoluteTolerance(double absoluteTolerance)
 {
-    ksp_tolerances_type tolerances(GetRelativeTolerance(), GetAbsoluteTolerance(), ksp_use_type::relative);
-
-    mpUserParameters->Numerical().KSPTolerances().set(tolerances);
-}
-
-void HeartConfig::SetUseAbsoluteTolerance(void)
-{
-    ksp_tolerances_type tolerances(GetRelativeTolerance(), GetAbsoluteTolerance(), ksp_use_type::absolute);
-
-    mpUserParameters->Numerical().KSPTolerances().set(tolerances);
-}
-
-void HeartConfig::SetRelativeTolerance(double relativeTolerance)
-{
-    ksp_use_type use(ksp_use_type::relative);
-
-    if (GetUseAbsoluteTolerance())
-    {
-        use =  ksp_use_type::absolute;
-    }
-
-    ksp_tolerances_type tolerances(relativeTolerance, GetAbsoluteTolerance(), use);
-
-    mpUserParameters->Numerical().KSPTolerances().set(tolerances);
-}
-
-void HeartConfig::SetAbsoluteTolerance(double absoluteTolerance)
-{
-    ksp_use_type use(ksp_use_type::absolute);
-
-    if (GetUseRelativeTolerance())
-    {
-        use =  ksp_use_type::relative;
-    }
-
-    ksp_tolerances_type tolerances(GetRelativeTolerance(), absoluteTolerance, use);
-
-    mpUserParameters->Numerical().KSPTolerances().set(tolerances);
+    mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().set(absoluteTolerance);
 }
 
 void HeartConfig::SetKSPSolver(ksp_solver_type kspSolver)

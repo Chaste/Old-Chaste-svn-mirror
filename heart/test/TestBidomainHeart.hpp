@@ -85,8 +85,7 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));     
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);                
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
-        HeartConfig::Instance()->SetUseRelativeTolerance();
-        HeartConfig::Instance()->SetRelativeTolerance(5e-5);
+        HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
         
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -138,8 +137,7 @@ public:
         HeartConfig::Instance()->SetPdeTimeStep(0.005);       
         HeartConfig::Instance()->SetOdeTimeStep(0.0025);
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
-        HeartConfig::Instance()->SetUseRelativeTolerance();
-        HeartConfig::Instance()->SetRelativeTolerance(5e-5);
+        HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
 
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);

@@ -308,15 +308,13 @@ public:
 
             if (mUseKspAbsoluteTolerance)
             {
-                HeartConfig::Instance()->SetAbsoluteTolerance(this->mKspTolerance);
-                HeartConfig::Instance()->SetUseAbsoluteTolerance();
+                HeartConfig::Instance()->SetUseAbsoluteTolerance(this->mKspTolerance);
                 
 //                cardiac_problem.SetLinearSolverAbsoluteTolerance(this->mKspTolerance);
             }
             else
             {
-                HeartConfig::Instance()->SetRelativeTolerance(this->mKspTolerance);
-                HeartConfig::Instance()->SetUseRelativeTolerance();
+                HeartConfig::Instance()->SetUseRelativeTolerance(this->mKspTolerance);
 
 //                cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
             }

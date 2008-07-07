@@ -1391,16 +1391,20 @@ class ksp_tolerances_type: public ::xml_schema::type
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
   };
 
-  const KSPRelative::type&
+  const KSPRelative::container&
   KSPRelative () const;
 
-  KSPRelative::type&
+  KSPRelative::container&
   KSPRelative ();
 
   void
   KSPRelative (const KSPRelative::type&);
+
+  void
+  KSPRelative (const KSPRelative::container&);
 
   // KSPAbsolute
   // 
@@ -1409,44 +1413,25 @@ class ksp_tolerances_type: public ::xml_schema::type
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
   };
 
-  const KSPAbsolute::type&
+  const KSPAbsolute::container&
   KSPAbsolute () const;
 
-  KSPAbsolute::type&
+  KSPAbsolute::container&
   KSPAbsolute ();
 
   void
   KSPAbsolute (const KSPAbsolute::type&);
 
-  // use
-  // 
-  public:
-  struct use
-  {
-    typedef ::ksp_use_type type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-  };
-
-  const use::type&
-  use () const;
-
-  use::type&
-  use ();
-
   void
-  use (const use::type&);
-
-  void
-  use (::std::auto_ptr< use::type >);
+  KSPAbsolute (const KSPAbsolute::container&);
 
   // Constructors.
   //
   public:
-  ksp_tolerances_type (const KSPRelative::type&,
-                       const KSPAbsolute::type&,
-                       const use::type&);
+  ksp_tolerances_type ();
 
   ksp_tolerances_type (const ::xercesc::DOMElement&,
                        ::xml_schema::flags = 0,
@@ -1466,9 +1451,8 @@ class ksp_tolerances_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
-  ::xsd::cxx::tree::one< KSPRelative::type > _xsd_KSPRelative_;
-  ::xsd::cxx::tree::one< KSPAbsolute::type > _xsd_KSPAbsolute_;
-  ::xsd::cxx::tree::one< use::type > _xsd_use_;
+  ::xsd::cxx::tree::optional< KSPRelative::type > _xsd_KSPRelative_;
+  ::xsd::cxx::tree::optional< KSPAbsolute::type > _xsd_KSPAbsolute_;
 };
 
 class ksp_solver_type: public ::xml_schema::string

@@ -52,8 +52,7 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         HeartConfig::Instance()->SetSimulationDuration(150.0);
-        HeartConfig::Instance()->SetUseRelativeTolerance();
-        HeartConfig::Instance()->SetRelativeTolerance(1e-7);
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-7);
 
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
 

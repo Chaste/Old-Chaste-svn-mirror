@@ -149,10 +149,9 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        HeartConfig::Instance()->SetUseAbsoluteTolerance();
 
         // Final values to test against have been produced with ksp_rtol=1e-9
-        HeartConfig::Instance()->SetAbsoluteTolerance(1e-5);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
         
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
