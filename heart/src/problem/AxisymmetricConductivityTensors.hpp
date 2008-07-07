@@ -71,8 +71,7 @@ public:
 
     void SetConstantConductivities(c_vector<double, 3> constantConductivities)
     {
-        assert(SPACE_DIM == 3);//Otherwise constructor would have thrown 
-      
+        //assert(SPACE_DIM == 3);//Otherwise constructor would have thrown 
         if (constantConductivities[1] != constantConductivities[2])
         {
             EXCEPTION("Axisymmetric media defined: transversal and normal conductivities should have the same value");

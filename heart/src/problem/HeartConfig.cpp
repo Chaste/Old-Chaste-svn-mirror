@@ -89,6 +89,9 @@ chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
     catch (const xml_schema::exception& e)
     {
          std::cerr << e << std::endl;
+         //More clunky memory management
+         mpUserParameters = NULL;
+         mpDefaultParameters = NULL;
          EXCEPTION("XML parsing error in configuration file: " + fileName);
     }
 }
@@ -128,14 +131,8 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     }
     else
     {
-        if (ptr2->present())
-        {
-            return ptr2;
-        }
-        else
-        {
-            EXCEPTION("No " + nameParameter + " provided (neither default nor user defined)");
-        }
+        assert(ptr2->present());
+        return ptr2;
     }
 
 }
@@ -633,6 +630,10 @@ void HeartConfig::SetPrintingTimeStep(double printingTimeStep)
 
 void HeartConfig::CheckTimeSteps() const
 {
+    if (GetOdeTimeStep() <= 0)
+    {
+        EXCEPTION("Ode time-step should be positive");
+    }
     if (GetPdeTimeStep() <= 0)
     {
         EXCEPTION("Pde time-step should be positive");
