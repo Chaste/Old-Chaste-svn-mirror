@@ -82,8 +82,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <lac/sparse_direct.h>
 
 
-
-
 /**
  *  Abstract assembler with common functionality for most assemblers.
  *
