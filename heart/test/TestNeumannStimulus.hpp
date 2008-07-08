@@ -59,11 +59,11 @@ public:
         // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
-        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+                
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetOutputDirectory("MonoNeumannConst");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         
@@ -112,11 +112,11 @@ public:
         // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms        
-
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetOutputDirectory("MonoNeumannSquare");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         
@@ -166,11 +166,11 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
+		HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
                 
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
-
-        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+      
         bidomain_problem.SetOutputDirectory("BiNeuman1d");
         bidomain_problem.SetOutputFilenamePrefix("results");
 
@@ -224,11 +224,11 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2,6.2));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
-        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_200_elements");
+                
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         BidomainProblem<2> bidomain_problem( &cell_factory );
 
-        bidomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_200_elements");
         bidomain_problem.SetOutputDirectory("BiNeuman2d");
         bidomain_problem.SetOutputFilenamePrefix("results");
 

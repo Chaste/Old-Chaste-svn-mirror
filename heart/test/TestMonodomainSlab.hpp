@@ -52,12 +52,12 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetSimulationDuration(4); //ms
-        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
+                
         PlaneStimulusCellFactory<3> cell_factory(-600.0*1000);
 
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomain_problem.SetOutputDirectory("MonoDg03dWithFaceStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_3dWithFaceStimulus");
 

@@ -152,7 +152,22 @@ public:
     {
         if (mpMesh==NULL)
         {
-            EXCEPTION("SetMesh() or SetMeshFilename() was not set");
+        	// If no mesh has been passed, we get it from the configuration file
+        	if (HeartConfig::Instance()->GetLoadMesh())
+        	{
+		        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
+		        mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+		        mAllocatedMemoryForMesh = true;
+		
+		        EventHandler::BeginEvent(READ_MESH);
+		        mpMesh->ConstructFromMeshReader(mesh_reader);
+		        EventHandler::EndEvent(READ_MESH);        		
+        	}
+        	else
+        	{
+        		// Change message        	
+            	EXCEPTION("SetMesh() or SetMeshFilename() was not set");
+        	}
         }
         mpCellFactory->SetMesh( mpMesh );
 
@@ -238,28 +253,6 @@ public:
         mCallChaste2Meshalyzer=call;
     }
 
-    void SetMeshFilename(const std::string &rMeshFilename)
-    {
-        // If this fails the mesh has already been set. We assert rather throw an exception
-        // to avoid a memory leak when checking it throws correctly
-        assert(mpMesh==NULL);
-
-        if ( rMeshFilename=="" )
-        {
-            EXCEPTION("Mesh filename was passed in empty");
-        }
-
-        mMeshFilename = rMeshFilename;
-
-        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
-        mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
-        mAllocatedMemoryForMesh = true;
-
-        EventHandler::BeginEvent(READ_MESH);
-        mpMesh->ConstructFromMeshReader(mesh_reader);
-        EventHandler::EndEvent(READ_MESH);
-    }
-
     void SetMesh(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
     {
         // If this fails the mesh has already been set. We assert rather throw an exception
@@ -313,6 +306,7 @@ public:
 
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
     {
+    	assert (mpMesh);    	
         return *mpMesh;
     }
 

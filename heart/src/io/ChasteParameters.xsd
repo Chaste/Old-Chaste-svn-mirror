@@ -72,14 +72,15 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="load_mesh_type">
+	  <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
   <xs:complexType name="mesh_type">
   	<xs:choice>
       <xs:element name="Slab" type="slab_type"/>
-      <xs:element name="LoadMesh">
-      	<xs:complexType>
-      		<xs:attribute name="name" type="xs:string" use="required"/>
-      	</xs:complexType>
-      </xs:element>
+      <xs:element name="LoadMesh" type="load_mesh_type"/>
     </xs:choice>
   </xs:complexType>
   

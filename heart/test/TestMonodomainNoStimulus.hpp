@@ -72,11 +72,11 @@ public:
     void TestZeroStimulus()
     {
         HeartConfig::Instance()->SetSimulationDuration(30); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_20_elements");
         
         ZeroStimulusCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
-
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
+        
         monodomain_problem.SetOutputDirectory("MonoNoStim");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainNoStimLR91_1d");
         monodomain_problem.Initialise();

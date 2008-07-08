@@ -81,12 +81,11 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));                        
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         HeartConfig::Instance()->SetSimulationDuration(50.0);  //ms
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/memfem_mesh/simple");
         
         BidomainPointStimulusCellFactory bidomain_cell_factory;
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
-
-        bidomain_problem.SetMeshFilename("heart/test/data/memfem_mesh/simple");
 
         // set the back face (nodes 468-506) to have phi_e fixed to zero
         std::vector<unsigned> fixed_nodes;

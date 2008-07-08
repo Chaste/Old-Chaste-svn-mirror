@@ -133,7 +133,7 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     {
         return ptr2;
     }
-    NEVER_REACHED;
+    EXCEPTION("No " + nameParameter + " provided (neither default nor user defined)");
 }
 
 double HeartConfig::GetSimulationDuration() const
@@ -161,14 +161,14 @@ bool HeartConfig::GetCreateSlab() const
 {
     return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
                             & mpDefaultParameters->Simulation().Mesh(),
-                            "Slab")->get().Slab() != NULL);
+                            "Mesh")->get().Slab().present());
 }
 
 bool HeartConfig::GetLoadMesh() const
 {
     return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
                             & mpDefaultParameters->Simulation().Mesh(),
-                            "Slab")->get().LoadMesh() != NULL);
+                            "Mesh")->get().LoadMesh().present());
 }
  
 void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
@@ -520,6 +520,18 @@ void HeartConfig::SetDomain(domain_type domain)
 void HeartConfig::SetIonicModel(ionic_model_type ionicModel)
 {
     mpUserParameters->Simulation().IonicModel().set(ionicModel);
+}
+
+void HeartConfig::SetMeshFileName(std::string meshPrefix)
+{
+	if ( ! mpUserParameters->Simulation().Mesh().present())
+	{
+		mesh_type mesh_to_load;	
+		mpUserParameters->Simulation().Mesh().set(mesh_to_load);	
+	}
+	
+	mesh_type::LoadMesh::type mesh_prefix(meshPrefix);	
+	mpUserParameters->Simulation().Mesh().get().LoadMesh().set(mesh_prefix);
 }
 
 void HeartConfig::SetOutputDirectory(std::string outputDirectory)

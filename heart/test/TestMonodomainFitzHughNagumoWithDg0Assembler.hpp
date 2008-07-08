@@ -87,13 +87,13 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.01, 0.01));
         HeartConfig::Instance()->SetSimulationDuration(1.2); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
 
         FhnEdgeStimulusCellFactory cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetOutputDirectory("FhnWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
 

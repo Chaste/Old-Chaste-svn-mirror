@@ -81,16 +81,14 @@ public:
 
     void TestBidomainDg0Heart() throw (Exception)
     {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));     
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);                
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
         HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
-        
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/halfheart");
+                
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
 
-        bidomain_problem.SetMeshFilename("heart/test/data/halfheart");
         bidomain_problem.SetOutputDirectory("BiDg0Heart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
 
@@ -147,7 +145,7 @@ public:
         std::string metis_mesh = handler.GetOutputDirectoryFullPath("") + "halfheart_metis";
         std::string nodes_file = handler.GetOutputDirectoryFullPath("") + "metis.mesh.nodesperproc";
 
-        bidomain_problem.SetMeshFilename(metis_mesh);//"heart/test/data/halfheart_metis");
+        HeartConfig::Instance()->SetMeshFileName(metis_mesh);//"heart/test/data/halfheart_metis");
         bidomain_problem.SetNodesPerProcessorFilename(nodes_file);
         bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");

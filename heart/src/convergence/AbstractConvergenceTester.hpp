@@ -241,8 +241,6 @@ public:
         SetInitialConvergenceParameters();
 
         unsigned prev_mesh_num=9999;
-        std::string mesh_pathname;
-        std::string mesh_filename;
 
         double prev_apd90_first_qn=0.0;
         double prev_apd90_third_qn=0.0;
@@ -264,7 +262,7 @@ public:
 
             if (this->MeshNum!=prev_mesh_num)
             {
-                mesh_pathname = constructor.Construct(this->MeshNum, mMeshWidth);
+                HeartConfig::Instance()->SetMeshFileName( constructor.Construct(this->MeshNum, mMeshWidth) );
                 prev_mesh_num = this->MeshNum;
             }
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
@@ -302,7 +300,6 @@ public:
 
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
 
-            cardiac_problem.SetMeshFilename(mesh_pathname);
             cardiac_problem.SetOutputDirectory ("Convergence");
             cardiac_problem.SetOutputFilenamePrefix ("Results");
 
@@ -353,18 +350,6 @@ public:
 
             double mesh_width=constructor.GetWidth();
 
-            #ifndef NDEBUG
-            Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
-            Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
-            assert(fqn->rGetLocation()[0]==0.25*mesh_width);
-            assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
-            for (unsigned coord=1; coord<DIM; coord++)
-            {
-                assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
-                assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
-            }
-            #endif
-
             // We only need the output of these two nodes
             std::vector<unsigned> nodes_to_be_output;
             nodes_to_be_output.push_back(first_quadrant_node);
@@ -378,6 +363,18 @@ public:
             SetConductivities(cardiac_problem);
 
             cardiac_problem.Initialise();
+
+            #ifndef NDEBUG
+            Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
+            Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
+            assert(fqn->rGetLocation()[0]==0.25*mesh_width);
+            assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
+            for (unsigned coord=1; coord<DIM; coord++)
+            {
+                assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
+                assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
+            }
+            #endif
 
             BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
             SimpleStimulus stim(4000.0, 0.5);

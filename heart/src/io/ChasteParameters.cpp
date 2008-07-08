@@ -559,6 +559,34 @@ InterNodeSpace (const InterNodeSpace::type& InterNodeSpace)
 }
 
 
+// load_mesh_type
+// 
+
+const load_mesh_type::name::type& load_mesh_type::
+name () const
+{
+  return this->_xsd_name_.get ();
+}
+
+load_mesh_type::name::type& load_mesh_type::
+name ()
+{
+  return this->_xsd_name_.get ();
+}
+
+void load_mesh_type::
+name (const name::type& name)
+{
+  this->_xsd_name_.set (name);
+}
+
+void load_mesh_type::
+name (::std::auto_ptr< name::type > name)
+{
+  this->_xsd_name_.set (name);
+}
+
+
 // mesh_type
 // 
 
@@ -591,34 +619,6 @@ Slab (::std::auto_ptr< Slab::type > Slab)
 {
   this->_xsd_Slab_.set (Slab);
 }
-
-// mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh
-// 
-
-const mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::name::type& mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-name () const
-{
-  return this->_xsd_name_.get ();
-}
-
-mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::name::type& mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-name ()
-{
-  return this->_xsd_name_.get ();
-}
-
-void mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-name (const name::type& name)
-{
-  this->_xsd_name_.set (name);
-}
-
-void mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-name (::std::auto_ptr< name::type > name)
-{
-  this->_xsd_name_.set (name);
-}
-
 
 const mesh_type::LoadMesh::container& mesh_type::
 LoadMesh () const
@@ -2606,14 +2606,11 @@ _clone (::xml_schema::flags f,
   return new slab_type (*this, f, c);
 }
 
-// mesh_type
+// load_mesh_type
 //
 
-// mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh
-//
-
-mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-LoadMesh (const name::type& _xsd_name)
+load_mesh_type::
+load_mesh_type (const name::type& _xsd_name)
 : ::xml_schema::type (),
 _xsd_name_ (_xsd_name,
             ::xml_schema::flags (),
@@ -2621,28 +2618,28 @@ _xsd_name_ (_xsd_name,
 {
 }
 
-mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-LoadMesh (const LoadMesh& _xsd_LoadMesh,
-          ::xml_schema::flags f,
-          ::xml_schema::type* c)
-: ::xml_schema::type (_xsd_LoadMesh, f, c),
-_xsd_name_ (_xsd_LoadMesh._xsd_name_,
+load_mesh_type::
+load_mesh_type (const load_mesh_type& _xsd_load_mesh_type,
+                ::xml_schema::flags f,
+                ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_load_mesh_type, f, c),
+_xsd_name_ (_xsd_load_mesh_type._xsd_name_,
             f | ::xml_schema::flags::not_root,
             this)
 {
 }
 
-mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
-LoadMesh (const ::xercesc::DOMElement& e,
-          ::xml_schema::flags f,
-          ::xml_schema::type* c)
+load_mesh_type::
+load_mesh_type (const ::xercesc::DOMElement& e,
+                ::xml_schema::flags f,
+                ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
 _xsd_name_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
 
-void mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
+void load_mesh_type::
 parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
 {
   ::xsd::cxx::xml::dom::parser< char > p (e);
@@ -2672,12 +2669,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   }
 }
 
-mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh* mesh_type::LoadMesh::_xsd_LoadMesh_::LoadMesh::
+load_mesh_type* load_mesh_type::
 _clone (::xml_schema::flags f,
         ::xml_schema::type* c) const
 {
-  return new LoadMesh (*this, f, c);
+  return new load_mesh_type (*this, f, c);
 }
+
+// mesh_type
+//
 
 mesh_type::
 mesh_type ()

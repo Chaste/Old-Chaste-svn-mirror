@@ -56,11 +56,11 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(30); //ms
-                
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+                        
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
 
@@ -110,11 +110,11 @@ public:
 
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1); //ms
-        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_20_elements");
+                
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
 

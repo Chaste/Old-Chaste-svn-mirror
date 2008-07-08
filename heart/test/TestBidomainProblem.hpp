@@ -54,11 +54,11 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+                
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
-        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
@@ -149,7 +149,8 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+        
         // Final values to test against have been produced with ksp_rtol=1e-9
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
         
@@ -163,17 +164,18 @@ public:
         */
 
 
-        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
-        // Check rows 1, 51, 101, 151, 201, ...
-        for (unsigned row_to_mean_phi=1; row_to_mean_phi<2*bidomain_problem.rGetMesh().GetNumNodes(); row_to_mean_phi=row_to_mean_phi+50)
-        {
             bidomain_problem.Initialise();
 
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
+
+
+        // Check rows 1, 51, 101, 151, 201, ...
+        for (unsigned row_to_mean_phi=1; row_to_mean_phi<2*bidomain_problem.rGetMesh().GetNumNodes(); row_to_mean_phi=row_to_mean_phi+50)
+        {
 
             // First line is for coverage
             TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi-1));
@@ -256,7 +258,8 @@ public:
             TS_ASSERT_EQUALS (ierr, MPI_SUCCESS)
 
             TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
-
+            
+            bidomain_problem.Initialise();
         }
 
         // Coverage of the exception in the assembler itself
@@ -285,7 +288,8 @@ public:
     void TestCompareBidomainProblemWithMonodomain()
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+            
         Vec monodomain_results;
 
         PlaneStimulusCellFactory<1> cell_factory;
@@ -300,7 +304,6 @@ public:
 
             MonodomainProblem<1> monodomain_problem( &cell_factory );
 
-            monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
             monodomain_problem.SetOutputDirectory("Monodomain1d");
             monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
             monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
@@ -329,7 +332,6 @@ public:
         
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
-        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetOutputDirectory("Bidomain1d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain1d");
 
@@ -380,13 +382,11 @@ public:
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
         HeartConfig::Instance()->SetPdeTimeStep(0.01);
         HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
-
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
 
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-
-        p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
 
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
@@ -432,7 +432,6 @@ public:
         delete p_bidomain_problem;
 
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-        p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
@@ -470,8 +469,7 @@ public:
 
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename(""));
-        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
 
         //Negative simulation duration
@@ -498,7 +496,8 @@ public:
     void TestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
+                
         PlaneStimulusCellFactory<3> cell_factory;
 
         ///////////////////////////////////////////////////////////////////
@@ -507,7 +506,6 @@ public:
 
         BidomainProblem<3> orthotropic_bido( &cell_factory );
 
-        orthotropic_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         orthotropic_bido.SetOutputDirectory("OrthotropicBidomain");
         orthotropic_bido.SetOutputFilenamePrefix("ortho3d");
 
@@ -521,7 +519,6 @@ public:
         
         BidomainProblem<3> axisymmetric_bido( &cell_factory);
 
-        axisymmetric_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         axisymmetric_bido.SetOutputDirectory("AxisymmetricBidomain");
         axisymmetric_bido.SetOutputFilenamePrefix("axi3d");
 

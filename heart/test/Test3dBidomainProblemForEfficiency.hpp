@@ -53,12 +53,12 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         HeartConfig::Instance()->SetSimulationDuration(150.0);
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-7);
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
 
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
 
-        bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         bidomain_problem.PrintOutput(false);
 
         PetscOptionsSetValue("-ksp_type", "symmlq");

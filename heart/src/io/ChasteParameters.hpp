@@ -208,6 +208,7 @@ class stimulus_type;
 class cell_heterogeneity_type;
 class conductivity_heterogeneity_type;
 class slab_type;
+class load_mesh_type;
 class mesh_type;
 class conductivities_type;
 class time_steps_type;
@@ -992,6 +993,62 @@ class slab_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< InterNodeSpace::type > _xsd_InterNodeSpace_;
 };
 
+class load_mesh_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_load_mesh_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // name
+  // 
+  public:
+  struct name
+  {
+    typedef ::xml_schema::string type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const name::type&
+  name () const;
+
+  name::type&
+  name ();
+
+  void
+  name (const name::type&);
+
+  void
+  name (::std::auto_ptr< name::type >);
+
+  // Constructors.
+  //
+  public:
+  load_mesh_type (const name::type&);
+
+  load_mesh_type (const ::xercesc::DOMElement&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+  load_mesh_type (const load_mesh_type&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+  virtual load_mesh_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< name::type > _xsd_name_;
+};
+
 class mesh_type: public ::xml_schema::type
 {
   public:
@@ -1031,66 +1088,7 @@ class mesh_type: public ::xml_schema::type
   public:
   struct LoadMesh
   {
-    struct _xsd_LoadMesh_
-    {
-      class LoadMesh: public ::xml_schema::type
-      {
-        public:
-
-        struct _xsd_LoadMesh
-        {
-          typedef ::xml_schema::type base_;
-        };
-
-        // name
-        // 
-        public:
-        struct name
-        {
-          typedef ::xml_schema::string type;
-          typedef ::xsd::cxx::tree::traits< type, char > traits;
-        };
-
-        const name::type&
-        name () const;
-
-        name::type&
-        name ();
-
-        void
-        name (const name::type&);
-
-        void
-        name (::std::auto_ptr< name::type >);
-
-        // Constructors.
-        //
-        public:
-        LoadMesh (const name::type&);
-
-        LoadMesh (const ::xercesc::DOMElement&,
-                  ::xml_schema::flags = 0,
-                  ::xml_schema::type* = 0);
-
-        LoadMesh (const LoadMesh&,
-                  ::xml_schema::flags = 0,
-                  ::xml_schema::type* = 0);
-
-        virtual LoadMesh*
-        _clone (::xml_schema::flags = 0,
-                ::xml_schema::type* = 0) const;
-
-        // Implementation.
-        //
-        private:
-        void
-        parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
-
-        ::xsd::cxx::tree::one< name::type > _xsd_name_;
-      };
-    };
-
-    typedef _xsd_LoadMesh_::LoadMesh type;
+    typedef ::load_mesh_type type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
     typedef ::xsd::cxx::tree::optional< type > container;
   };

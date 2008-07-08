@@ -81,12 +81,12 @@ public:
     void TestMonodomainSlabLongWithCornerNodesStimulated( void ) throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(200); //ms
-        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
+                
         CornerStimulusCellFactory cell_factory;
 
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomain_problem.SetOutputDirectory("MonoDg03dSlabLong");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_3dSlabLong");
 

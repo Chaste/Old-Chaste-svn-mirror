@@ -92,12 +92,12 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSimulationDuration(500); //ms
-
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
+        
         PointStimulus2dCellFactory cell_factory(60); // Central node
 
         MonodomainProblem<2> monodomain_problem(&cell_factory);
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulusLong");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulusLong");
         monodomain_problem.Initialise();

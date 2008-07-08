@@ -312,10 +312,6 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
                     CreateSlab(&mesh);
                     mono_problem.SetMesh(&mesh);
                 }
-                else // (load_mesh)
-                {
-                    mono_problem.SetMeshFilename(mesh_file_prefix);
-                }
 
                 mono_problem.Initialise();
                 mono_problem.Solve();
@@ -333,10 +329,6 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
                 {
                     CreateSlab(&mesh);
                     bi_problem.SetMesh(&mesh);
-                }
-                else // (load_mesh)
-                {
-                    bi_problem.SetMeshFilename(mesh_file_prefix);
                 }
 
                 bi_problem.Initialise();

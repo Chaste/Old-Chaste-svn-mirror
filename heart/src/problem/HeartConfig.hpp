@@ -116,6 +116,7 @@ public:
     void SetSimulationDuration(double simulationDuration);
     void SetDomain(domain_type domain);
     void SetIonicModel(ionic_model_type ionicModel);
+    void SetMeshFileName(std::string meshPrefix);
     void SetOutputDirectory(std::string outputDirectory);
 
     // Physiological

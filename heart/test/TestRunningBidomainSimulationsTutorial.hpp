@@ -163,7 +163,7 @@ public:
 
         /* Next, some things which have to be set: the mesh filename, and the end time
          * (in ms). */
-        bidomain_problem.SetMeshFilename("mesh/test/data/square_128_elements");
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/square_128_elements");
  
         /* If we want output to be written we need to set the output directory and output
          * file prefix.

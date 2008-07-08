@@ -106,7 +106,7 @@ public:
         GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(num_ele_across, mMeshWidth);
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
 
-        cardiac_problem.SetMeshFilename(mesh_pathname);
+        HeartConfig::Instance()->SetMeshFileName(mesh_pathname);
         cardiac_problem.SetOutputDirectory ("Convergence");
         cardiac_problem.SetOutputFilenamePrefix ("Results");
 

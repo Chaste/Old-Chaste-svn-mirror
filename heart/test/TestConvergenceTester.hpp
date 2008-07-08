@@ -50,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestConvergenceTester : public CxxTest::TestSuite
 {
 public:
+
     void Test1DOdeTime() throw(Exception)
     {
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
