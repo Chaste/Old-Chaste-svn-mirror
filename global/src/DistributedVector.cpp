@@ -37,9 +37,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 unsigned DistributedVector::mLo=0;
 unsigned DistributedVector::mHi=0;
 unsigned DistributedVector::mGlobalHi=0;
+bool DistributedVector::mPetscStatusKnown=false;
+
+
+void DistributedVector::CheckForPetsc()
+{
+    assert(mPetscStatusKnown==false);
+    PetscTruth petsc_is_initialised;
+    PetscInitialized(&petsc_is_initialised);
+    
+    //Tripping this assertion means that PETSc and MPI weren't intialised
+    //A unit test should include the global fixture:
+    //#include "PetscSetupAndFinalize.hpp"
+    assert(petsc_is_initialised);
+    mPetscStatusKnown=true;
+}
 
 void DistributedVector::SetProblemSizePerProcessor(unsigned size, PetscInt local)
 {
+#ifndef NDEBUG
+    if (!mPetscStatusKnown)
+    {
+        CheckForPetsc();
+    }
+#endif
     Vec vec;
     VecCreate(PETSC_COMM_WORLD, &vec);
     VecSetSizes(vec, local, size);
@@ -55,6 +76,12 @@ void DistributedVector::SetProblemSize(unsigned size)
 
 void DistributedVector::SetProblemSize(Vec vec)
 {
+#ifndef NDEBUG
+    if (!mPetscStatusKnown)
+    {
+        CheckForPetsc();
+    }
+#endif
     // calculate my range
     PetscInt petsc_lo, petsc_hi;
     VecGetOwnershipRange(vec,&petsc_lo,&petsc_hi);

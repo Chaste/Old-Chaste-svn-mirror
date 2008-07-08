@@ -46,9 +46,16 @@ private:
     static unsigned mLo;
     static unsigned mHi;
     static unsigned mGlobalHi;
+    static bool mPetscStatusKnown;
     unsigned mStride;
     Vec mVec;
     double *mpVec;
+private:
+    /**
+     * Double check (in debug code) that PETSc has been initialised properly
+     */
+    static void CheckForPetsc();
+        
 public:
 
     /**
