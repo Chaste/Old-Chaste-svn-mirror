@@ -36,12 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestStreeterFibreGenerator : public CxxTest::TestSuite
 {
 public:
+  
     void TestSimpleOrthotropic() throw (Exception)
     {
-        MemfemMeshReader<3,3> mesh_reader("heart/test/data/point50_heart_mesh/point50");
-        std::string epi_face_file = "heart/test/data/point50_heart_mesh/epi.tri";
-        std::string rv_face_file = "heart/test/data/point50_heart_mesh/rv.tri";
-        std::string lv_face_file = "heart/test/data/point50_heart_mesh/lv.tri";
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/cube_3_nodes_side/Cube3");
+        std::string epi_face_file = "heart/test/data/cube_3_nodes_side/Cube3LeftFaceFrom1.tri";
+        std::string rv_face_file = "heart/test/data/cube_3_nodes_side/Cube3RightFaceFrom1.tri";
+        std::string lv_face_file = "heart/test/data/cube_3_nodes_side/Cube3RightFaceFrom1.tri";
 
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -49,12 +50,12 @@ public:
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file);
 
-        fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "ortho.fibres", true);
+        fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "ortho.fibres", true);
 
-        OutputFileHandler handler("streeter", false);
+        OutputFileHandler handler("shorter_streeter", false);
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "ortho.fibres";
 
-        NumericFileComparison comp(fibre_file,"heart/test/data/streeter_point50_heart_mesh.ortho");
+        NumericFileComparison comp(fibre_file,"heart/test/data/streeter_cube3.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
 

@@ -13,3 +13,4 @@ TestMonodomainSlab.hpp
 TestPerformance.hpp
 TestPerformanceOfAssembly.hpp
 TestRunningBidomainSimulationsTutorial.hpp
+TestStreeterFibreGeneratorNightly.hpp
