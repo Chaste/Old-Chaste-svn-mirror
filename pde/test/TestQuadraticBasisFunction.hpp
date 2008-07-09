@@ -93,9 +93,9 @@ public:
         evaluation_points.push_back(&zero);
         evaluation_points.push_back(&onezero);
         evaluation_points.push_back(&zeroone);
-        evaluation_points.push_back(&halfzero);
-        evaluation_points.push_back(&zerohalf);
         evaluation_points.push_back(&halfhalf);
+        evaluation_points.push_back(&zerohalf);
+        evaluation_points.push_back(&halfzero);        
         
         QuadraticBasisFunction<2> basis_func;
         
@@ -108,23 +108,23 @@ public:
         TS_ASSERT_DELTA(derivatives(0,0), 1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,1), 3, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,2), 0, 1e-12);
-        TS_ASSERT_DELTA(derivatives(0,3), -4, 1e-12);
+        TS_ASSERT_DELTA(derivatives(0,3), 0, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,4), 0, 1e-12);
-        TS_ASSERT_DELTA(derivatives(0,5), 0, 1e-12);
+        TS_ASSERT_DELTA(derivatives(0,5), -4, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,0), 1, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,1), 0, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,2), -1, 1e-12);
-        TS_ASSERT_DELTA(derivatives(1,3), -4, 1e-12);
+        TS_ASSERT_DELTA(derivatives(1,3), 4, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,4), 0, 1e-12);
-        TS_ASSERT_DELTA(derivatives(1,5), 4, 1e-12);
+        TS_ASSERT_DELTA(derivatives(1,5), -4, 1e-12);
         
         basis_func.ComputeBasisFunctionDerivatives(zero, derivatives);
         TS_ASSERT_DELTA(derivatives(0,0), -3, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,1), -1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,2), 0, 1e-12);
-        TS_ASSERT_DELTA(derivatives(0,3), 4, 1e-12);
+        TS_ASSERT_DELTA(derivatives(0,3), 0, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,4), 0, 1e-12);
-        TS_ASSERT_DELTA(derivatives(0,5), 0, 1e-12);
+        TS_ASSERT_DELTA(derivatives(0,5), 4, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,0), -3, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,1), 0, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,2), -1, 1e-12);
@@ -136,9 +136,9 @@ public:
         TS_ASSERT_DELTA(derivatives(0,0), 1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,1), -1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,2), 0, 1e-12);
-        TS_ASSERT_DELTA(derivatives(0,3), 0, 1e-12);
+        TS_ASSERT_DELTA(derivatives(0,3), 4, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,4), -4, 1e-12);
-        TS_ASSERT_DELTA(derivatives(0,5), 4, 1e-12);
+        TS_ASSERT_DELTA(derivatives(0,5), 0, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,0), 1, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,1), 0, 1e-12);
         TS_ASSERT_DELTA(derivatives(1,2), 3, 1e-12);
@@ -238,12 +238,12 @@ public:
         TS_ASSERT_DELTA(trans_deriv(1,1),0.04, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(0,2),-0.28, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(1,2),0.56, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(0,3),-0.08, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(1,3),-0.64, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,3),0.72, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(1,3),0.96, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(0,4),-0.56, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(1,4),-1.28, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(0,5),0.72, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(1,5),0.96, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,5),-0.08, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(1,5),-0.64, 1e-12);
         
         // Free nodes
         for (unsigned i=0; i<nodes.size(); i++)

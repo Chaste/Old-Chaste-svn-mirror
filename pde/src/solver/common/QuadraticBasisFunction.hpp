@@ -103,13 +103,13 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
                 return 2.0*y*(y-0.5);
                 break;
             case 3:
-                return 4.0 * (1.0 - x - y) * x;
+                return 4.0 * y * x;            
                 break;
             case 4:
                 return 4.0 * (1.0 - x - y) * y;
                 break;
             case 5:
-                return 4.0 * y * x;
+                return 4.0 * (1.0 - x - y) * x;
                 break;
             default:
                 NEVER_REACHED;
@@ -217,16 +217,16 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 gradN(1) = 4.0*y - 1.0;
                 break;
             case 3:
-                gradN(0) = 4.0-8.0*x-4.0*y;
-                gradN(1) = -4.0*x;
+                gradN(0) = 4.0*y;
+                gradN(1) = 4.0*x;            
                 break;
             case 4:
                 gradN(0) = -4.0*y;
                 gradN(1) = 4.0-4.0*x-8.0*y;
                 break;
             case 5:
-                gradN(0) = 4.0*y;
-                gradN(1) = 4.0*x;
+                gradN(0) = 4.0-8.0*x-4.0*y;
+                gradN(1) = -4.0*x;
                 break;
             default:
                 assert (false);
