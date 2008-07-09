@@ -59,16 +59,18 @@ public:
 
         bidomain_problem.PrintOutput(false);
 
-        RandomNumberGenerator::Instance();
-        bidomain_problem.rGetMesh().PermuteNodes();
-        RandomNumberGenerator::Destroy();
-
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         PetscOptionsSetValue("-log_summary", "");
 
         bidomain_problem.Initialise();
+        
+        //Mesh isn't actually loaded until initialise method is called
+        RandomNumberGenerator::Instance();
+        bidomain_problem.rGetMesh().PermuteNodes();
+        RandomNumberGenerator::Destroy();
+
         bidomain_problem.Solve();
 
         Vec voltage=bidomain_problem.GetVoltage();
