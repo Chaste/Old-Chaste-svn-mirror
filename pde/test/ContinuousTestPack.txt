@@ -6,6 +6,7 @@ TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestNonlinearHeatEquationPde.hpp
 TestPdeSimulationTime.hpp
+TestQuadraticBasisFunction.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
 TestSimpleNonlinearEllipticAssembler.hpp

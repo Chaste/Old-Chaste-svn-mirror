@@ -70,7 +70,7 @@ public:
         evaluation_points.push_back(&one);
 
         BasisFunctionsCheckers<1> checker;
-        checker.checkBasisFunctions(evaluation_points);
+        checker.checkLinearBasisFunctions(evaluation_points);
 
         // Derivatives
         c_matrix<double, 1, 2> derivatives;
@@ -91,7 +91,7 @@ public:
         evaluation_points.push_back(&zeroone);
 
         BasisFunctionsCheckers<2> checker;
-        checker.checkBasisFunctions(evaluation_points);
+        checker.checkLinearBasisFunctions(evaluation_points);
 
         // Derivatives
         c_matrix<double, 2, 3> derivatives;
@@ -116,7 +116,7 @@ public:
         evaluation_points.push_back(&zerozeroone);
 
         BasisFunctionsCheckers<3> checker;
-        checker.checkBasisFunctions(evaluation_points);
+        checker.checkLinearBasisFunctions(evaluation_points);
 
         // Derivatives
         c_matrix<double, 3, 4> derivatives;

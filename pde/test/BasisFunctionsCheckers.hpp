@@ -29,25 +29,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _BASISFUNCTIONSCHECKERS_HPP_
 #include <cxxtest/TestSuite.h>
 #include "LinearBasisFunction.hpp"
+#include "QuadraticBasisFunction.hpp"
 #include <vector>
 
-template <int SPACE_DIM>
+
+
+/* 
+ *  Test whether the basis functions are correctly equal to 1 or 0 at the nodes of the canonical element.
+ *  
+ *  NOTE: This is a badly written test, because it assumes evaluationPoints are the nodes in the canonical element, in the correct
+ *  order. 
+ */
+template <unsigned ELEM_DIM>
 class BasisFunctionsCheckers
 {
 public:
-    void checkBasisFunctions(std::vector<ChastePoint<SPACE_DIM>*> evaluationPoints)
+    void checkLinearBasisFunctions(std::vector<ChastePoint<ELEM_DIM>*> evaluationPoints)
     {
-        int size = evaluationPoints.size();        // number of evalutation points and basis functions too
+        unsigned size = evaluationPoints.size();        // number of evalutation points and basis functions too
+
+        assert(size==ELEM_DIM+1);
+
         std::vector<double> basis_function_vector; // store results of evalutation
 
         double expected_evaluation;
 
-        for (int point_index=0; point_index<size; point_index++)
+        for (unsigned point_index=0; point_index<size; point_index++)
         {
-            c_vector<double, SPACE_DIM+1> basis_function_vector;
-            LinearBasisFunction<SPACE_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
+            c_vector<double, ELEM_DIM+1> basis_function_vector;
+            LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
 
-            for (int func_index=0; func_index<size; func_index ++)
+            for (unsigned func_index=0; func_index<size; func_index ++)
             {
                 if (func_index==point_index)
                 {
@@ -62,11 +74,49 @@ public:
                                 1e-12);
 
 
-                TS_ASSERT_DELTA(LinearBasisFunction<SPACE_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
+                TS_ASSERT_DELTA(LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
                                 expected_evaluation,
                                 1e-12);
             }
         }
     }
+
+    void checkQuadraticBasisFunctions(std::vector<ChastePoint<ELEM_DIM>*> evaluationPoints)
+    {
+        unsigned size = evaluationPoints.size();        // number of evalutation points and basis functions too
+        
+        assert(size==(ELEM_DIM+1)*(ELEM_DIM+2)/2);
+        
+        std::vector<double> basis_function_vector; // store results of evalutation
+
+        double expected_evaluation;
+
+        for (unsigned point_index=0; point_index<size; point_index++)
+        {
+            c_vector<double, (ELEM_DIM+1)*(ELEM_DIM+2)/2> basis_function_vector;
+            QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
+
+            for (unsigned func_index=0; func_index<size; func_index ++)
+            {
+                if (func_index==point_index)
+                {
+                    expected_evaluation=1.0;
+                }
+                else
+                {
+                    expected_evaluation = 0.0;
+                }
+                TS_ASSERT_DELTA(basis_function_vector(func_index),
+                                expected_evaluation,
+                                1e-12);
+
+
+                TS_ASSERT_DELTA(QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
+                                expected_evaluation,
+                                1e-12);
+            }
+        }
+    }
+
 };
 #endif //_BASISFUNCTIONSCHECKERS_HPP_
