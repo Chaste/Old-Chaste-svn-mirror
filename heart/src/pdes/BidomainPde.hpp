@@ -72,16 +72,35 @@ public:
             :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
     {
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
-        
-        if (this->mpConfig->GetIsMediaOrthotropic())
+
+        if (this->mpConfig->GetIsMeshProvided() && this->mpConfig->GetLoadMesh())
         {
-            mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        	switch (this->mpConfig->GetConductivityMedia())
+        	{
+        		case media_type::Orthotropic:
+            		mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+            		mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".fibres");        		
+        			break;
+        			
+        		case media_type::Axisymmetric:
+		            mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+		            mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".fibres");
+        			break;
+
+        		case media_type::NoFibreOrientation:
+            		mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;        		
+        			break;
+        			
+	            default :
+    	            NEVER_REACHED;    			        		
+        	}        	
         }
-        else
+        else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
         {
-            mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+            mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;       	
         }
 
+        
         c_vector<double, SPACE_DIM> extra_conductivities;
         this->mpConfig->GetExtracellularConductivities(extra_conductivities);
 

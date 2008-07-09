@@ -342,7 +342,8 @@ class media_type: public ::xml_schema::string
   enum _xsd_media_type
   {
     Orthotropic,
-    Axisymmetric
+    Axisymmetric,
+    NoFibreOrientation
   };
 
   media_type (_xsd_media_type);
@@ -384,8 +385,8 @@ class media_type: public ::xml_schema::string
   _xsd_media_type_convert () const;
 
   public:
-  static const char* const _xsd_media_type_literals_[2];
-  static const _xsd_media_type _xsd_media_type_indexes_[2];
+  static const char* const _xsd_media_type_literals_[3];
+  static const _xsd_media_type _xsd_media_type_indexes_[3];
 };
 
 class point_type: public ::xml_schema::type
@@ -1023,10 +1024,32 @@ class load_mesh_type: public ::xml_schema::type
   void
   name (::std::auto_ptr< name::type >);
 
+  // conductivity_media
+  // 
+  public:
+  struct conductivity_media
+  {
+    typedef ::media_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const conductivity_media::type&
+  conductivity_media () const;
+
+  conductivity_media::type&
+  conductivity_media ();
+
+  void
+  conductivity_media (const conductivity_media::type&);
+
+  void
+  conductivity_media (::std::auto_ptr< conductivity_media::type >);
+
   // Constructors.
   //
   public:
-  load_mesh_type (const name::type&);
+  load_mesh_type (const name::type&,
+                  const conductivity_media::type&);
 
   load_mesh_type (const ::xercesc::DOMElement&,
                   ::xml_schema::flags = 0,
@@ -1047,6 +1070,7 @@ class load_mesh_type: public ::xml_schema::type
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
   ::xsd::cxx::tree::one< name::type > _xsd_name_;
+  ::xsd::cxx::tree::one< conductivity_media::type > _xsd_conductivity_media_;
 };
 
 class mesh_type: public ::xml_schema::type
@@ -2034,31 +2058,6 @@ class physiological_type: public ::xml_schema::type
   void
   ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
 
-  // ConductivityMedia
-  // 
-  public:
-  struct ConductivityMedia
-  {
-    typedef ::media_type type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-    typedef ::xsd::cxx::tree::optional< type > container;
-  };
-
-  const ConductivityMedia::container&
-  ConductivityMedia () const;
-
-  ConductivityMedia::container&
-  ConductivityMedia ();
-
-  void
-  ConductivityMedia (const ConductivityMedia::type&);
-
-  void
-  ConductivityMedia (const ConductivityMedia::container&);
-
-  void
-  ConductivityMedia (::std::auto_ptr< ConductivityMedia::type >);
-
   // SurfaceAreaToVolumeRatio
   // 
   public:
@@ -2128,7 +2127,6 @@ class physiological_type: public ::xml_schema::type
 
   ::xsd::cxx::tree::optional< IntracellularConductivities::type > _xsd_IntracellularConductivities_;
   ::xsd::cxx::tree::optional< ExtracellularConductivities::type > _xsd_ExtracellularConductivities_;
-  ::xsd::cxx::tree::optional< ConductivityMedia::type > _xsd_ConductivityMedia_;
   ::xsd::cxx::tree::optional< SurfaceAreaToVolumeRatio::type > _xsd_SurfaceAreaToVolumeRatio_;
   ::xsd::cxx::tree::optional< Capacitance::type > _xsd_Capacitance_;
 };

@@ -586,6 +586,30 @@ name (::std::auto_ptr< name::type > name)
   this->_xsd_name_.set (name);
 }
 
+const load_mesh_type::conductivity_media::type& load_mesh_type::
+conductivity_media () const
+{
+  return this->_xsd_conductivity_media_.get ();
+}
+
+load_mesh_type::conductivity_media::type& load_mesh_type::
+conductivity_media ()
+{
+  return this->_xsd_conductivity_media_.get ();
+}
+
+void load_mesh_type::
+conductivity_media (const conductivity_media::type& conductivity_media)
+{
+  this->_xsd_conductivity_media_.set (conductivity_media);
+}
+
+void load_mesh_type::
+conductivity_media (::std::auto_ptr< conductivity_media::type > conductivity_media)
+{
+  this->_xsd_conductivity_media_.set (conductivity_media);
+}
+
 
 // mesh_type
 // 
@@ -1285,36 +1309,6 @@ ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type 
   this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
 }
 
-const physiological_type::ConductivityMedia::container& physiological_type::
-ConductivityMedia () const
-{
-  return this->_xsd_ConductivityMedia_;
-}
-
-physiological_type::ConductivityMedia::container& physiological_type::
-ConductivityMedia ()
-{
-  return this->_xsd_ConductivityMedia_;
-}
-
-void physiological_type::
-ConductivityMedia (const ConductivityMedia::type& ConductivityMedia)
-{
-  this->_xsd_ConductivityMedia_.set (ConductivityMedia);
-}
-
-void physiological_type::
-ConductivityMedia (const ConductivityMedia::container& ConductivityMedia)
-{
-  this->_xsd_ConductivityMedia_ = ConductivityMedia;
-}
-
-void physiological_type::
-ConductivityMedia (::std::auto_ptr< ConductivityMedia::type > ConductivityMedia)
-{
-  this->_xsd_ConductivityMedia_.set (ConductivityMedia);
-}
-
 const physiological_type::SurfaceAreaToVolumeRatio::container& physiological_type::
 SurfaceAreaToVolumeRatio () const
 {
@@ -1757,11 +1751,11 @@ _xsd_media_type_convert () const
   ::xsd::cxx::tree::enum_comparator< char > c (_xsd_media_type_literals_);
   const _xsd_media_type* i (::std::lower_bound (
                               _xsd_media_type_indexes_,
-                              _xsd_media_type_indexes_ + 2,
+                              _xsd_media_type_indexes_ + 3,
                               *this,
                               c));
 
-  if (i == _xsd_media_type_indexes_ + 2 || _xsd_media_type_literals_[*i] != *this)
+  if (i == _xsd_media_type_indexes_ + 3 || _xsd_media_type_literals_[*i] != *this)
   {
     throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
   }
@@ -1770,16 +1764,18 @@ _xsd_media_type_convert () const
 }
 
 const char* const media_type::
-_xsd_media_type_literals_[2] =
+_xsd_media_type_literals_[3] =
 {
   "Orthotropic",
-  "Axisymmetric"
+  "Axisymmetric",
+  "NoFibreOrientation"
 };
 
 const media_type::_xsd_media_type media_type::
-_xsd_media_type_indexes_[2] =
+_xsd_media_type_indexes_[3] =
 {
   ::media_type::Axisymmetric,
+  ::media_type::NoFibreOrientation,
   ::media_type::Orthotropic
 };
 
@@ -2610,11 +2606,15 @@ _clone (::xml_schema::flags f,
 //
 
 load_mesh_type::
-load_mesh_type (const name::type& _xsd_name)
+load_mesh_type (const name::type& _xsd_name,
+                const conductivity_media::type& _xsd_conductivity_media)
 : ::xml_schema::type (),
 _xsd_name_ (_xsd_name,
             ::xml_schema::flags (),
-            this)
+            this),
+_xsd_conductivity_media_ (_xsd_conductivity_media,
+                          ::xml_schema::flags (),
+                          this)
 {
 }
 
@@ -2625,7 +2625,10 @@ load_mesh_type (const load_mesh_type& _xsd_load_mesh_type,
 : ::xml_schema::type (_xsd_load_mesh_type, f, c),
 _xsd_name_ (_xsd_load_mesh_type._xsd_name_,
             f | ::xml_schema::flags::not_root,
-            this)
+            this),
+_xsd_conductivity_media_ (_xsd_load_mesh_type._xsd_conductivity_media_,
+                          f | ::xml_schema::flags::not_root,
+                          this)
 {
 }
 
@@ -2634,7 +2637,8 @@ load_mesh_type (const ::xercesc::DOMElement& e,
                 ::xml_schema::flags f,
                 ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_name_ (f | ::xml_schema::flags::not_root, this)
+_xsd_name_ (f | ::xml_schema::flags::not_root, this),
+_xsd_conductivity_media_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -2659,12 +2663,31 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       this->name (r);
       continue;
     }
+
+    if (a.name () == "conductivity_media" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< conductivity_media::type > r (
+        conductivity_media::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->conductivity_media (r);
+      continue;
+    }
   }
 
   if (!_xsd_name_.present ())
   {
     throw ::xsd::cxx::tree::expected_attribute< char > (
       "name",
+      "");
+  }
+
+  if (!_xsd_conductivity_media_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "conductivity_media",
       "");
   }
 }
@@ -3731,7 +3754,6 @@ physiological_type ()
 : ::xml_schema::type (),
 _xsd_IntracellularConductivities_ (::xml_schema::flags (), this),
 _xsd_ExtracellularConductivities_ (::xml_schema::flags (), this),
-_xsd_ConductivityMedia_ (::xml_schema::flags (), this),
 _xsd_SurfaceAreaToVolumeRatio_ (::xml_schema::flags (), this),
 _xsd_Capacitance_ (::xml_schema::flags (), this)
 {
@@ -3748,9 +3770,6 @@ _xsd_IntracellularConductivities_ (_xsd_physiological_type._xsd_IntracellularCon
 _xsd_ExtracellularConductivities_ (_xsd_physiological_type._xsd_ExtracellularConductivities_,
                                    f | ::xml_schema::flags::not_root,
                                    this),
-_xsd_ConductivityMedia_ (_xsd_physiological_type._xsd_ConductivityMedia_,
-                         f | ::xml_schema::flags::not_root,
-                         this),
 _xsd_SurfaceAreaToVolumeRatio_ (_xsd_physiological_type._xsd_SurfaceAreaToVolumeRatio_,
                                 f | ::xml_schema::flags::not_root,
                                 this),
@@ -3767,7 +3786,6 @@ physiological_type (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f, c),
 _xsd_IntracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ExtracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
-_xsd_ConductivityMedia_ (f | ::xml_schema::flags::not_root, this),
 _xsd_SurfaceAreaToVolumeRatio_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Capacitance_ (f | ::xml_schema::flags::not_root, this)
 {
@@ -3815,24 +3833,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (this->ExtracellularConductivities ())
           continue;
         this->ExtracellularConductivities (r);
-        continue;
-      }
-    }
-
-    // ConductivityMedia
-    //
-    {
-      if (e.name () == "ConductivityMedia" && e.namespace_ ().empty ())
-      {
-        ::std::auto_ptr< ConductivityMedia::type > r (
-          ConductivityMedia::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-
-        if (this->ConductivityMedia ())
-          continue;
-        this->ConductivityMedia (r);
         continue;
       }
     }

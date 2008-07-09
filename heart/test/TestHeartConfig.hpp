@@ -153,12 +153,9 @@ public :
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
         
-        TS_ASSERT(HeartConfig::Instance()->GetIsMediaOrthotropic());
-
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 1.0);
-
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
@@ -177,13 +174,26 @@ public :
         TS_ASSERT(!HeartConfig::Instance()->GetCreateSlab());
         TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(), "foo");
-
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetConductivityMedia(), media_type::NoFibreOrientation);
 
         //Try reading through an empty parameters file into a fully-populated default
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteParametersFullFormat.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         HeartConfig::Destroy();
+    }
+    
+    void TestGetIsMeshProvided()
+    {
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
+		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), false);
+		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetLoadMesh())
+		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateSlab())
+		
+		HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
+		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), true);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetLoadMesh(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateSlab(), false);    	
     }
 
     void TestSetFunctions() throw(Exception)
@@ -215,12 +225,6 @@ public :
         TS_ASSERT_EQUALS(extra[0], -3.0);
         TS_ASSERT_EQUALS(extra[1], -2.0);
         TS_ASSERT_EQUALS(extra[2], -1.0);
-
-        HeartConfig::Instance()->SetMediaIsOrthotropic();
-        TS_ASSERT(HeartConfig::Instance()->GetIsMediaOrthotropic());
-
-        HeartConfig::Instance()->SetMediaIsAxisymmetric();
-        TS_ASSERT(!HeartConfig::Instance()->GetIsMediaOrthotropic());
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2000);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 2000);

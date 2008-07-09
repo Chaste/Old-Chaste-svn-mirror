@@ -165,8 +165,7 @@ public:
         	}
         	else
         	{
-        		// Change message        	
-            	EXCEPTION("SetMesh() or SetMeshFilename() was not set");
+        		EXCEPTION("No mesh given: define in XML parameters file or call SetMesh()");
         	}
         }
         mpCellFactory->SetMesh( mpMesh );

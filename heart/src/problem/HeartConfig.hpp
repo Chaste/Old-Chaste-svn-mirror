@@ -64,6 +64,7 @@ public:
     domain_type GetDomain() const;
     ionic_model_type GetIonicModel() const;
     
+    bool GetIsMeshProvided() const;
     bool GetCreateSlab() const;
     bool GetLoadMesh() const;
      
@@ -71,7 +72,8 @@ public:
     double GetInterNodeSpace() const;
     
     std::string GetMeshName() const;
-    
+    media_type GetConductivityMedia() const;
+        
     void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
     							std::vector<double>& scaleFactorGks,
@@ -90,7 +92,6 @@ public:
     void GetExtracellularConductivities(c_vector<double, 2>& extraConductivities) const;    
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
 
-    bool GetIsMediaOrthotropic() const;
     double GetSurfaceAreaToVolumeRatio() const;
     double GetCapacitance() const;
 
@@ -116,7 +117,7 @@ public:
     void SetSimulationDuration(double simulationDuration);
     void SetDomain(domain_type domain);
     void SetIonicModel(ionic_model_type ionicModel);
-    void SetMeshFileName(std::string meshPrefix);
+    void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
     void SetOutputDirectory(std::string outputDirectory);
 
     // Physiological
@@ -128,8 +129,6 @@ public:
     void SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities);
     void SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities);
     
-    void SetMediaIsOrthotropic();
-    void SetMediaIsAxisymmetric();
     void SetSurfaceAreaToVolumeRatio(double ratio);
     void SetCapacitance(double capacitance);
 

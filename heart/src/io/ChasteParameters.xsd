@@ -22,6 +22,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="Orthotropic"/>
       <xs:enumeration value="Axisymmetric"/>
+      <xs:enumeration value="NoFibreOrientation"/>
     </xs:restriction>
   </xs:simpleType>
   
@@ -74,6 +75,7 @@
 
   <xs:complexType name="load_mesh_type">
 	  <xs:attribute name="name" type="xs:string" use="required"/>
+	  <xs:attribute name="conductivity_media" type="media_type" use="required"/>
   </xs:complexType>
 
 
@@ -165,7 +167,6 @@
     <xs:all>
       <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
-      <xs:element name="ConductivityMedia" type="media_type" minOccurs="0"/>
       <xs:element name="SurfaceAreaToVolumeRatio" type="xs:decimal" minOccurs="0"/>
       <xs:element name="Capacitance" type="xs:decimal" minOccurs="0"/>
     </xs:all>      

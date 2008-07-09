@@ -157,6 +157,21 @@ ionic_model_type HeartConfig::GetIonicModel() const
                            "IonicModel")->get();
 }
 
+bool HeartConfig::GetIsMeshProvided() const
+{
+	try
+	{
+    	DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                    	& mpDefaultParameters->Simulation().Mesh(),
+                    	"Mesh");                    	
+    	return true;
+	}
+	catch (Exception& e)
+	{			
+		return false;
+	}
+}	
+
 bool HeartConfig::GetCreateSlab() const
 {
     return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
@@ -166,9 +181,9 @@ bool HeartConfig::GetCreateSlab() const
 
 bool HeartConfig::GetLoadMesh() const
 {
-    return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                            & mpDefaultParameters->Simulation().Mesh(),
-                            "Mesh")->get().LoadMesh().present());
+	return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                        	& mpDefaultParameters->Simulation().Mesh(),
+                        	"Mesh")->get().LoadMesh().present());
 }
  
 void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
@@ -200,6 +215,15 @@ std::string HeartConfig::GetMeshName() const
     return DecideLocation( & mpUserParameters->Simulation().Mesh(),
                            & mpDefaultParameters->Simulation().Mesh(),
                            "LoadMesh")->get().LoadMesh()->name();
+}
+
+media_type HeartConfig::GetConductivityMedia() const
+{
+    assert(GetLoadMesh());
+
+    return DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                           & mpDefaultParameters->Simulation().Mesh(),
+                           "LoadMesh")->get().LoadMesh()->conductivity_media();           
 }
 
 void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const
@@ -410,15 +434,6 @@ void HeartConfig::GetExtracellularConductivities(c_vector<double, 1>& extraCondu
     extraConductivities[0] = extra_x_cond;
 }
 
-bool HeartConfig::GetIsMediaOrthotropic() const
-{
-    media_type media_defined = DecideLocation( & mpUserParameters->Physiological().ConductivityMedia(),
-                                               & mpDefaultParameters->Physiological().ConductivityMedia(),
-                                               "ConductivityMedia")->get();    
-    
-    return (media_defined == media_type::Orthotropic);    
-}
-
 double HeartConfig::GetSurfaceAreaToVolumeRatio() const
 {
     /*surface area to volume ratio: 1/cm*/
@@ -522,7 +537,7 @@ void HeartConfig::SetIonicModel(ionic_model_type ionicModel)
     mpUserParameters->Simulation().IonicModel().set(ionicModel);
 }
 
-void HeartConfig::SetMeshFileName(std::string meshPrefix)
+void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefinition)
 {
 	if ( ! mpUserParameters->Simulation().Mesh().present())
 	{
@@ -530,7 +545,7 @@ void HeartConfig::SetMeshFileName(std::string meshPrefix)
 		mpUserParameters->Simulation().Mesh().set(mesh_to_load);	
 	}
 	
-	mesh_type::LoadMesh::type mesh_prefix(meshPrefix);	
+	mesh_type::LoadMesh::type mesh_prefix(meshPrefix, fibreDefinition);	
 	mpUserParameters->Simulation().Mesh().get().LoadMesh().set(mesh_prefix);
 }
 
@@ -593,16 +608,6 @@ void HeartConfig::SetExtracellularConductivities(const c_vector<double, 1>& extr
                               DBL_MAX);
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
-}
-
-void HeartConfig::SetMediaIsOrthotropic()
-{
-    mpUserParameters->Physiological().ConductivityMedia().set(media_type::Orthotropic);    
-}
-
-void HeartConfig::SetMediaIsAxisymmetric()
-{
-    mpUserParameters->Physiological().ConductivityMedia().set(media_type::Axisymmetric);    
 }
 
 void HeartConfig::SetSurfaceAreaToVolumeRatio(double ratio)

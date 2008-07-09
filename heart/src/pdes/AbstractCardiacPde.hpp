@@ -136,16 +136,37 @@ public:
         mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         
         mpConfig = HeartConfig::Instance();
-        
-        if (mpConfig->GetIsMediaOrthotropic())
+
+        if (mpConfig->GetIsMeshProvided() && mpConfig->GetLoadMesh())
         {
-            mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        	switch (mpConfig->GetConductivityMedia())
+        	{
+        		case media_type::Orthotropic:
+            		mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+            		mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".fibres");        		
+        			break;
+        			
+        		case media_type::Axisymmetric:
+		            mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+		            mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".fibres");
+        			break;
+
+        		case media_type::NoFibreOrientation:
+        			/// \todo: Create a class defining constant tensors to be used when no fibre orientation is provided
+            		mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;        		
+        			break;
+        			
+	            default :
+    	            NEVER_REACHED;    			        		
+        	}        	
         }
-        else
+        else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
         {
-            mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+        	// See previous todo.
+            mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;       	
         }
-        
+        std::cout << "after if" << std::endl;
+                
         c_vector<double, SPACE_DIM> intra_conductivities; 
         
         mpConfig->GetIntracellularConductivities(intra_conductivities);

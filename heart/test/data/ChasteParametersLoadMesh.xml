@@ -15,7 +15,7 @@
 			Mesh definition 
 		-->
 		<Mesh>
-			<LoadMesh name="foo"/>    
+			<LoadMesh name="foo" conductivity_media="NoFibreOrientation"/>    
 	  	</Mesh>
 	
 	    <!-- 
