@@ -165,7 +165,6 @@ public:
         	// See previous todo.
             mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;       	
         }
-        std::cout << "after if" << std::endl;
                 
         c_vector<double, SPACE_DIM> intra_conductivities; 
         
