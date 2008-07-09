@@ -44,4 +44,5 @@ blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
 
-tools = {}
+tools = {'texttest': '../../../texttest-3.9.1/source/bin/texttest.py'}
+ 
