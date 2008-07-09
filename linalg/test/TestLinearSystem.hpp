@@ -525,7 +525,80 @@ public:
 
 
     }
+    
+    void TestGetSetKSP() throw (Exception)
+    {
+    	/////////////////////////
+    	// Set relative tolerance before first solve
+    	/////////////////////////
+        LinearSystem ls = LinearSystem(5);
+		ls.SetRelativeTolerance(1e-3);
+		ls.SetKspType("cg");
+		ls.SetPcType("jacobi");
+		ls.AssembleFinalLinearSystem();
+		ls.Solve();
+		PetscReal rtol, atol, dtol;
+		int maxits;
+		KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
+		TS_ASSERT_EQUALS(rtol, 1e-3);
+		// others should be their petsc defaults
+		TS_ASSERT_EQUALS(atol, 1e-50);
+		TS_ASSERT_EQUALS(dtol, 10000.0); 
+		TS_ASSERT_EQUALS(maxits, 10000);
+		
+		KSPType solver;
+		PCType pc;
+		PC prec;
+		KSPGetType(ls.mKspSolver, &solver);
+		KSPGetPC(ls.mKspSolver, &prec);
+		PCGetType(prec, &pc);
+		TS_ASSERT( strcmp(solver,"cg")==0 );
+		TS_ASSERT( strcmp(pc,"jacobi")==0 );
 
-
+		
+		/////////////////////////////////
+		// Set relative tolerance after first solve
+		/////////////////////////////////
+		ls.SetRelativeTolerance(1e-4);
+		KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
+		TS_ASSERT_EQUALS(rtol, 1e-4);
+		TS_ASSERT_EQUALS(atol, 1e-50);
+		TS_ASSERT_EQUALS(dtol, 10000.0); 
+		TS_ASSERT_EQUALS(maxits, 10000);
+		
+        /////////////////////////////////
+        // Set abs tolerance before first solve
+        //////////////////////////////////
+		LinearSystem ls2 = LinearSystem(5);
+		ls2.SetAbsoluteTolerance(1e-3);
+    	ls2.AssembleFinalLinearSystem();
+		ls2.Solve();
+		KSPGetTolerances(ls2.mKspSolver, &rtol, &atol, &dtol, &maxits);
+		TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
+		TS_ASSERT_EQUALS(atol, 1e-3);
+		TS_ASSERT_EQUALS(dtol, 10000.0); 
+		TS_ASSERT_EQUALS(maxits, 10000);
+		
+		///////////////////////////////////
+		// Set abs tolerance after first solve
+		////////////////////////////////////
+		ls2.SetAbsoluteTolerance(1e-2);
+		ls2.Solve();
+		KSPGetTolerances(ls2.mKspSolver, &rtol, &atol, &dtol, &maxits);
+		TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
+		TS_ASSERT_EQUALS(atol, 1e-2);
+		TS_ASSERT_EQUALS(dtol, 10000.0); 
+		TS_ASSERT_EQUALS(maxits, 10000);
+		
+    }
+    
+    // this test should be the last in the suite
+    void TestSetFromOptions()
+    {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+    	
+    }
+    // the above test should be last in the suite
 };
 #endif //_TESTLINEARSYSTEM_HPP_

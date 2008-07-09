@@ -106,8 +106,8 @@ public:
     bool GetUseRelativeTolerance() const;
     double GetRelativeTolerance() const;
 
-    ksp_solver_type GetKSPSolver() const;
-    ksp_preconditioner_type GetKSPPreconditioner() const;
+    const char* GetKSPSolver() const;
+    const char* GetKSPPreconditioner() const;
 
 
     /*
@@ -141,8 +141,8 @@ public:
     void SetUseRelativeTolerance(double relativeTolerance);
     void SetUseAbsoluteTolerance(double absoluteTolerance);
 
-    void SetKSPSolver(ksp_solver_type kspSolver);
-    void SetKSPPreconditioner(ksp_preconditioner_type kspPreconditioner);
+    void SetKSPSolver(const char* kspSolver);
+    void SetKSPPreconditioner(const char* kspPreconditioner);
 
 protected:
     // Only to be accesed by the tests

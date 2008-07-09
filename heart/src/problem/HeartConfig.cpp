@@ -503,18 +503,41 @@ double HeartConfig::GetRelativeTolerance() const
                            "KSPTolerances")->get().KSPRelative().get();
 }
 
-ksp_solver_type HeartConfig::GetKSPSolver() const
+const char* HeartConfig::GetKSPSolver() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().KSPSolver(),
-                           & mpDefaultParameters->Numerical().KSPSolver(),
-                           "KSPSolver")->get();
+    switch ( DecideLocation( & mpUserParameters->Numerical().KSPSolver(),
+                             & mpDefaultParameters->Numerical().KSPSolver(),
+                            "KSPSolver")->get() )
+    {
+    	case ksp_solver_type::gmres :
+    		return "gmres";
+		case ksp_solver_type::cg :
+			return "cg";
+		case ksp_solver_type::symmlq :
+			return "symmlq";
+    }
+#define COVERAGE_IGNORE
+    EXCEPTION("Unknown ksp solver");
+#undef COVERAGE_IGNORE
 }
 
-ksp_preconditioner_type HeartConfig::GetKSPPreconditioner() const
+const char* HeartConfig::GetKSPPreconditioner() const
 {
-    return DecideLocation( & mpUserParameters->Numerical().KSPPreconditioner(),
-                           & mpDefaultParameters->Numerical().KSPPreconditioner(),
-                           "KSPPreconditioner")->get();
+    switch ( DecideLocation( & mpUserParameters->Numerical().KSPPreconditioner(),
+                             & mpDefaultParameters->Numerical().KSPPreconditioner(),
+                             "KSPPreconditioner")->get() )
+    {
+    	case ksp_preconditioner_type::ilu :
+    		return "ilu";
+    	case ksp_preconditioner_type::jacobi :
+    		return "jacobi";
+    	case ksp_preconditioner_type::bjacobi :
+    		return "bjacobi";
+    	
+    }
+#define COVERAGE_IGNORE
+    EXCEPTION("Unknown ksp preconditioner");
+#undef COVERAGE_IGNORE
 }
 
 
@@ -689,12 +712,44 @@ void HeartConfig::SetUseAbsoluteTolerance(double absoluteTolerance)
     mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().set(absoluteTolerance);
 }
 
-void HeartConfig::SetKSPSolver(ksp_solver_type kspSolver)
+void HeartConfig::SetKSPSolver(const char* kspSolver)
 {
-    mpUserParameters->Numerical().KSPSolver().set(kspSolver);
+	if ( strcmp(kspSolver, "gmres") == 0)
+	{
+		mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::gmres);
+		return;
+	}
+	if ( strcmp(kspSolver, "cg") == 0)
+	{
+		mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::cg);
+		return;
+	}
+	if ( strcmp(kspSolver, "symmlq") == 0)
+	{
+		mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::symmlq);
+		return;
+	}
+	
+	EXCEPTION("Unknown solver type provided");
 }
 
-void HeartConfig::SetKSPPreconditioner(ksp_preconditioner_type kspPreconditioner)
+void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 {
-    mpUserParameters->Numerical().KSPPreconditioner().set(kspPreconditioner);
+	if ( strcmp(kspPreconditioner, "ilu") == 0)
+	{
+        mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::ilu);
+		return;
+	}
+	if ( strcmp(kspPreconditioner, "jacobi") == 0)
+	{
+        mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::jacobi);
+		return;
+	}
+	if ( strcmp(kspPreconditioner, "bjacobi") == 0)
+	{
+        mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::bjacobi);
+		return;
+	}
+	
+	EXCEPTION("Unknown preconditioner type provided");
 }

@@ -44,6 +44,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class LinearSystem
 {
+	friend class TestLinearSystem;
+
 private:
     Mat mLhsMatrix;
     Vec mRhsVector;
@@ -66,6 +68,9 @@ private:
     bool mMatrixIsConstant;
     double mTolerance;
     bool mUseAbsoluteTolerance;
+    char mKspType[30];
+    char mPcType[30];
+    
 public:
     LinearSystem(PetscInt lhsVectorSize);
     LinearSystem(Vec templateVector);
@@ -87,6 +92,8 @@ public:
     void SetMatrixIsConstant(bool matrixIsConstant);
     void SetRelativeTolerance(double relativeTolerance);
     void SetAbsoluteTolerance(double absoluteTolerance);
+    void SetKspType(const char*);
+    void SetPcType(const char*);
     void DisplayMatrix();
     void DisplayRhs();
     void SetMatrixRow(PetscInt row, double value);

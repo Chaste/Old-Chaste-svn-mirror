@@ -58,6 +58,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize)
     mSize = lhsVectorSize;
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
+    strcpy(mKspType, "gmres");
+    strcpy(mPcType, "jacobi");
 }
 
 /**
@@ -81,6 +83,9 @@ LinearSystem::LinearSystem(Vec templateVector)
     PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
 
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, (MatType) MATMPIAIJ, local_size, local_size);
+    strcpy(mKspType, "gmres");
+    strcpy(mPcType, "jacobi");
+    
 }
 
 /**
@@ -118,6 +123,9 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
         MatGetOwnershipRange(mLhsMatrix, &mOwnershipRangeLo, &mOwnershipRangeHi);
     }
     assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
+    strcpy(mKspType, "gmres");
+    strcpy(mPcType, "jacobi");
+    
 }
 
 LinearSystem::~LinearSystem()
@@ -377,6 +385,26 @@ void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
 
 }
 
+void LinearSystem::SetKspType(const char *kspType)
+{
+	strcpy(mKspType, kspType);
+	if (mKspIsSetup)
+	{
+		KSPSetType(mKspSolver, kspType);
+	}
+}
+
+void LinearSystem::SetPcType(const char *pcType)
+{
+	strcpy(mPcType, pcType);
+	if (mKspIsSetup)
+	{
+		PC prec;
+	    KSPGetPC(mKspSolver, &prec);
+		PCSetType(prec, pcType);
+	}
+}
+
 Vec LinearSystem::Solve(Vec lhsGuess)
 {
     /* The following lines are very useful for debugging
@@ -418,15 +446,19 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         }
 
-        // Turn off pre-conditioning if the system size is very small
+        // set ksp and pc types
+		KSPSetType(mKspSolver, mKspType);
         KSPGetPC(mKspSolver, &prec);
-        if (mSize <= 4)
+ 
+        
+        // Turn off pre-conditioning if the system size is very small
+       if (mSize <= 4)
         {
             PCSetType(prec, PCNONE);
         }
         else
         {
-            PCSetType(prec, PCJACOBI);
+            PCSetType(prec, mPcType);
         }
 
         if (mMatNullSpace)

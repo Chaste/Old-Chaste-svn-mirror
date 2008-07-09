@@ -166,8 +166,8 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseRelativeTolerance(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-6);
 
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), ksp_solver_type::gmres);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), ksp_preconditioner_type::ilu);
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
 
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
 
@@ -181,7 +181,7 @@ public :
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteParametersFullFormat.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         HeartConfig::Destroy();
-    }
+    }    
     
     void TestGetIsMeshProvided()
     {
@@ -272,11 +272,16 @@ public :
         TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-11);
 
-        HeartConfig::Instance()->SetKSPSolver(ksp_solver_type::cg);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), ksp_solver_type::cg);
+        HeartConfig::Instance()->SetKSPSolver("cg");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg")==0);
 
-        HeartConfig::Instance()->SetKSPPreconditioner(ksp_preconditioner_type::jacobi);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), ksp_preconditioner_type::jacobi);
+		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPSolver("foobar"));
+
+        HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "jacobi")==0);
+        
+		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
+        
 
         HeartConfig::Destroy();
     }
