@@ -15,7 +15,7 @@ mesh_ele:ChasteResults/mesh/Slab.ele
 results_h5:h5dump
 
 [checkout_location]
-Chaste:/home/miqueloscar/eclipse/workspace/Chaste
+Chaste:/home/chaste/eclipse/workspace/Chaste
 
 [batch_use_collection]
 default:true
