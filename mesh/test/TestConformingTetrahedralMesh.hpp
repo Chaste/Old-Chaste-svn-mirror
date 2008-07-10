@@ -1991,6 +1991,7 @@ public:
      */
     void TestArchiveConformingTetrahedralMesh()
     {
+        EXIT_IF_PARALLEL;
         OutputFileHandler handler("archive", false);    // do not clean folder
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "conf_mesh.arch";
