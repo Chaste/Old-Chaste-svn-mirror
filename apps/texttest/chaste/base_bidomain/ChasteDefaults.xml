@@ -7,24 +7,23 @@
 	    <Domain>Mono</Domain>
 	    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
 		<OutputDirectory>ChasteResults</OutputDirectory>
+		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 	</Simulation>
 	
 	<Physiological>
 	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
 	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
-	    <ConductivityMedia>Orthotropic</ConductivityMedia>
 	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>
 	    <Capacitance> 1.0 </Capacitance>
 	</Physiological>
 
 	<Numerical>
 		<TimeSteps ode="0.01" pde="0.01" printing="0.01"/>
-		<KSPTolerances use="relative">
+		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
-			<KSPAbsolute>1e-50</KSPAbsolute>			
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>ilu</KSPPreconditioner>
+		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
 			    
 </ChasteParameters>

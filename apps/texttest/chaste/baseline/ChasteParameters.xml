@@ -51,6 +51,7 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
+		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>		
     </Simulation>
 	
 	<Physiological>
@@ -65,12 +66,11 @@
 
 	<Numerical>
 		<TimeSteps ode="0.01" pde="0.1" printing="0.1"/>
-		<KSPTolerances use="relative">
+		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
-			<KSPAbsolute>1e-50</KSPAbsolute>			
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>ilu</KSPPreconditioner>
+		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>		
     
 </ChasteParameters>

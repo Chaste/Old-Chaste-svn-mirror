@@ -22,6 +22,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="Orthotropic"/>
       <xs:enumeration value="Axisymmetric"/>
+      <xs:enumeration value="NoFibreOrientation"/>
     </xs:restriction>
   </xs:simpleType>
   
@@ -72,14 +73,16 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="load_mesh_type">
+	  <xs:attribute name="name" type="xs:string" use="required"/>
+	  <xs:attribute name="conductivity_media" type="media_type" use="required"/>
+  </xs:complexType>
+
+
   <xs:complexType name="mesh_type">
   	<xs:choice>
       <xs:element name="Slab" type="slab_type"/>
-      <xs:element name="LoadMesh">
-      	<xs:complexType>
-      		<xs:attribute name="name" type="xs:string" use="required"/>
-      	</xs:complexType>
-      </xs:element>
+      <xs:element name="LoadMesh" type="load_mesh_type"/>
     </xs:choice>
   </xs:complexType>
   
@@ -103,11 +106,10 @@
   </xs:simpleType>
 
   <xs:complexType name="ksp_tolerances_type">
-    <xs:sequence>
+    <xs:choice>
       <xs:element name="KSPRelative" type="xs:double"/>
       <xs:element name="KSPAbsolute" type="xs:double"/>
-    </xs:sequence>
-    <xs:attribute name="use" type="ksp_use_type" use="required"/>
+    </xs:choice>
   </xs:complexType>
   
   <xs:simpleType name="ksp_solver_type">
@@ -158,6 +160,7 @@
       </xs:element>
 
 	  <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
+	  <xs:element name="OutputFilenamePrefix" type="xs:string" minOccurs="0"/>	  
     </xs:all>
   </xs:complexType>    
 
@@ -165,7 +168,6 @@
     <xs:all>
       <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
-      <xs:element name="ConductivityMedia" type="media_type" minOccurs="0"/>
       <xs:element name="SurfaceAreaToVolumeRatio" type="xs:decimal" minOccurs="0"/>
       <xs:element name="Capacitance" type="xs:decimal" minOccurs="0"/>
     </xs:all>      

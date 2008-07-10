@@ -201,16 +201,7 @@ void ReadParametersFromFile()
 template<unsigned PROBLEM_DIM>
 void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
 {
-    rProblem.SetOutputDirectory(output_directory+"/results");
-    rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.ConvertOutputToMeshalyzerFormat(false);
-
-    if (load_mesh)
-    {
-        std::string fibre_file = HeartConfig::Instance()->GetMeshName() + ".fibres";
-        //rProblem.SetFibreOrientation(fibre_file);
-        EXCEPTION("Fibre orientation not supported yet");
-    }
 }
 
 
@@ -237,7 +228,10 @@ void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
 
     OutputFileHandler handler(output_directory,false);
     std::string output_dir_full_path = handler.GetOutputDirectoryFullPath();
+}
 
+void WriteSlab(ConformingTetrahedralMesh<3,3>* pMesh)
+{
 
     // write out the mesh that was used if we are the master process
     if (PetscTools::AmMaster())
@@ -246,7 +240,7 @@ void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
         //MeshalyzerMeshWriter<3,3> mesh_writer(output_directory+"/mesh", "Slab", false);
         //mesh_writer.WriteFilesUsingMesh(mesh);
         // Triangles output format
-        TrianglesMeshWriter<3,3> triangles_writer(output_directory+"/mesh", "Slab", false);
+        TrianglesMeshWriter<3,3> triangles_writer(output_directory, "Slab", false);
         triangles_writer.WriteFilesUsingMesh(*pMesh);
 
         // copy input parameters file to results directory
@@ -334,7 +328,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
             default :
                 EXCEPTION("Unknown domain type!!!");
         }
-
+        
+    	WriteSlab(&mesh);
     }
     catch(Exception& e)
     {
@@ -342,8 +337,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
         return 1;
     }
 
-    Hdf5ToMeshalyzerConverter converter(output_directory+"/results", "Chaste");
-
+    Hdf5ToMeshalyzerConverter converter(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix());
+    
     EventHandler::Headings();
     EventHandler::Report();
 
