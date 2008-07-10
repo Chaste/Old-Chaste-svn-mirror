@@ -593,7 +593,7 @@ public:
     }
     
     // this test should be the last in the suite
-    void TestSetFromOptions()
+    void xTestSetFromOptions()
     {
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");

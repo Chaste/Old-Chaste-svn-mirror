@@ -142,7 +142,7 @@ public:
     }
 
 
-    void xTestBidomainDg01DMeanPhiEOverDifferentRows()
+    void TestBidomainDg01DMeanPhiEOverDifferentRows()
     {
         EventHandler::Disable();
         
@@ -285,7 +285,7 @@ public:
      * sigma_i) in a bidomain simulation it should agree with a monodomain
      * simulation with the same parameters.
      */
-    void xTestCompareBidomainProblemWithMonodomain()
+    void TestCompareBidomainProblemWithMonodomain()
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
@@ -375,7 +375,7 @@ public:
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
     ///////////////////////////////////////////////////////////////////
-    void xTestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
+    void TestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
     {
         EventHandler::Disable();
 
@@ -458,7 +458,7 @@ public:
         EventHandler::Enable();
     }
 
-    void xTestBidomainProblemExceptions() throw (Exception)
+    void TestBidomainProblemExceptions() throw (Exception)
     {
 
         PlaneStimulusCellFactory<1> cell_factory;
