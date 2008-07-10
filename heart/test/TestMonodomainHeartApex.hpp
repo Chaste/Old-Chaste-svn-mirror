@@ -146,12 +146,12 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.01/3.0);                                
         HeartConfig::Instance()->SetSimulationDuration(end_time); 
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/HeartApex"); // note that this is the full heart mesh (not fifthheart)
+        HeartConfig::Instance()->SetOutputDirectory("MonoDg0HeartApex");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_HeartApex");
         
         PointStimulusHeartCellFactory cell_factory;
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 
-        monodomain_problem.SetOutputDirectory("MonoDg0HeartApex");
-        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_HeartApex");
         monodomain_problem.SetWriteInfo();
 
         monodomain_problem.Initialise();

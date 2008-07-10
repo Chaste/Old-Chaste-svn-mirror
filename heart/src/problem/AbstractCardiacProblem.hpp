@@ -150,6 +150,9 @@ public:
      */
     void Initialise()
     {
+    	mOutputDirectory = HeartConfig::Instance()->GetOutputDirectory();
+		mOutputFilenamePrefix = HeartConfig::Instance()->GetOutputFilenamePrefix();
+    	
         if (mpMesh==NULL)
         {
         	// If no mesh has been passed, we get it from the configuration file
@@ -165,7 +168,7 @@ public:
         	}
         	else
         	{
-        		EXCEPTION("No mesh given: define in XML parameters file or call SetMesh()");
+        		EXCEPTION("No mesh given: define it in XML parameters file or call SetMesh()");
         	}
         }
         mpCellFactory->SetMesh( mpMesh );
@@ -260,16 +263,6 @@ public:
         mAllocatedMemoryForMesh = false;
         assert(pMesh!=NULL);
         mpMesh = pMesh;
-    }
-
-    void SetOutputDirectory(const std::string& rOutputDirectory)
-    {
-        mOutputDirectory = rOutputDirectory;
-    }
-
-    void SetOutputFilenamePrefix(const std::string& rOutputFilenamePrefix)
-    {
-        mOutputFilenamePrefix = rOutputFilenamePrefix;
     }
 
     /**

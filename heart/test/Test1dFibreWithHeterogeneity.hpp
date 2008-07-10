@@ -115,12 +115,11 @@ public:
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);
         HeartConfig::Instance()->SetSimulationDuration(300.0);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+        HeartConfig::Instance()->SetOutputDirectory("FibreWithHeterogeneity");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("Monodomain1d");
         
         HeterogeneousCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
-
-        monodomain_problem.SetOutputDirectory("FibreWithHeterogeneity");
-        monodomain_problem.SetOutputFilenamePrefix("Monodomain1d");
 
         monodomain_problem.Initialise();
 

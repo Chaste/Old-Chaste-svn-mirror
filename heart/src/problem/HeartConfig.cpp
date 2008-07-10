@@ -352,6 +352,13 @@ std::string HeartConfig::GetOutputDirectory() const
                            "OutputDirectory")->get();
 }
 
+std::string HeartConfig::GetOutputFilenamePrefix() const
+{
+    return DecideLocation( & mpUserParameters->Simulation().OutputFilenamePrefix(),
+                           & mpDefaultParameters->Simulation().OutputFilenamePrefix(),
+                           "OutputFilenamePrefix")->get();	
+}
+
 void HeartConfig::GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const
 {
     optional<conductivities_type, false>* intra_conductivities  = DecideLocation( & mpUserParameters->Physiological().IntracellularConductivities(),
@@ -575,6 +582,11 @@ void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefini
 void HeartConfig::SetOutputDirectory(std::string outputDirectory)
 {
     mpUserParameters->Simulation().OutputDirectory().set(outputDirectory);
+}
+
+void HeartConfig::SetOutputFilenamePrefix(std::string outputFilenamePrefix)
+{
+    mpUserParameters->Simulation().OutputFilenamePrefix().set(outputFilenamePrefix);
 }
 
 

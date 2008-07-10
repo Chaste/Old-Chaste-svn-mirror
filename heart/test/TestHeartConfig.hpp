@@ -142,6 +142,7 @@ public :
         TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "SimulationResults");
 
         c_vector<double, 3> intra_conductivities;
         HeartConfig::Instance()->GetIntracellularConductivities(intra_conductivities);
@@ -210,6 +211,9 @@ public :
 
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
+
+        HeartConfig::Instance()->SetOutputFilenamePrefix("NewSimulation");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "NewSimulation");
 
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(-6.0, -5.0, -4.0));
         

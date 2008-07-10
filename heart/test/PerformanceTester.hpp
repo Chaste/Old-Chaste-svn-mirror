@@ -107,8 +107,8 @@ public:
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
 
         HeartConfig::Instance()->SetMeshFileName(mesh_pathname);
-        cardiac_problem.SetOutputDirectory ("Convergence");
-        cardiac_problem.SetOutputFilenamePrefix ("Results");
+        HeartConfig::Instance()->SetOutputDirectory ("Convergence");
+        HeartConfig::Instance()->SetOutputFilenamePrefix ("Results");
 
 //        cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
 

@@ -168,8 +168,8 @@ public:
         /* If we want output to be written we need to set the output directory and output
          * file prefix.
          */
-        bidomain_problem.SetOutputDirectory("BidomainTutorial");
-        bidomain_problem.SetOutputFilenamePrefix("results");
+        HeartConfig::Instance()->SetOutputDirectory("BidomainTutorial");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
 
         /* If this was enough setup, we could then call {{{Initialise()}}}
          * and {{{Solve()}}} to run the simulation... */

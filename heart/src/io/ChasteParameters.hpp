@@ -1966,6 +1966,31 @@ class simulation_type: public ::xml_schema::type
   void
   OutputDirectory (::std::auto_ptr< OutputDirectory::type >);
 
+  // OutputFilenamePrefix
+  // 
+  public:
+  struct OutputFilenamePrefix
+  {
+    typedef ::xml_schema::string type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const OutputFilenamePrefix::container&
+  OutputFilenamePrefix () const;
+
+  OutputFilenamePrefix::container&
+  OutputFilenamePrefix ();
+
+  void
+  OutputFilenamePrefix (const OutputFilenamePrefix::type&);
+
+  void
+  OutputFilenamePrefix (const OutputFilenamePrefix::container&);
+
+  void
+  OutputFilenamePrefix (::std::auto_ptr< OutputFilenamePrefix::type >);
+
   // Constructors.
   //
   public:
@@ -1997,6 +2022,7 @@ class simulation_type: public ::xml_schema::type
   ::xsd::cxx::tree::optional< CellHeterogeneities::type > _xsd_CellHeterogeneities_;
   ::xsd::cxx::tree::optional< ConductivityHeterogeneities::type > _xsd_ConductivityHeterogeneities_;
   ::xsd::cxx::tree::optional< OutputDirectory::type > _xsd_OutputDirectory_;
+  ::xsd::cxx::tree::optional< OutputFilenamePrefix::type > _xsd_OutputFilenamePrefix_;
 };
 
 class physiological_type: public ::xml_schema::type

@@ -65,8 +65,6 @@ std::string parameter_file;
 c_vector<double, 3> slab_dimensions; //cm
 double inter_node_space = -1;        //cm
 
-std::string mesh_file_prefix;
-
 std::string  output_directory = "/";      // Location to put simulation results
 domain_type domain = domain_type::Mono;
 ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
@@ -170,14 +168,10 @@ void ReadParametersFromFile()
     create_slab = HeartConfig::Instance()->GetCreateSlab();
     load_mesh = HeartConfig::Instance()->GetLoadMesh();
 
-    if (create_slab)
+    if (create_slab) /// \todo: move this code to AbstractCardiacProblem
     {           
         HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
         inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
-    }
-    else // (load_mesh)
-    {
-        mesh_file_prefix = HeartConfig::Instance()->GetMeshName();
     }
 
     output_directory = HeartConfig::Instance()->GetOutputDirectory();
@@ -200,7 +194,7 @@ void ReadParametersFromFile()
         // Ignore the exception
     }               
     
-    // TODO: Read and store Conductivity Heterogeneities
+    /// \todo: Read and store Conductivity Heterogeneities
 
 }
 
@@ -213,7 +207,7 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
 
     if (load_mesh)
     {
-        std::string fibre_file = mesh_file_prefix + ".fibres";
+        std::string fibre_file = HeartConfig::Instance()->GetMeshName() + ".fibres";
         //rProblem.SetFibreOrientation(fibre_file);
         EXCEPTION("Fibre orientation not supported yet");
     }
@@ -307,7 +301,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
 
                 SetupProblem(mono_problem);
 
-                if (create_slab)
+                if (create_slab)/// \todo: move this code to AbstractCardiacProblem
                 {
                     CreateSlab(&mesh);
                     mono_problem.SetMesh(&mesh);

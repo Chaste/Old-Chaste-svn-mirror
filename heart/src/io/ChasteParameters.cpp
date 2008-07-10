@@ -1245,6 +1245,36 @@ OutputDirectory (::std::auto_ptr< OutputDirectory::type > OutputDirectory)
   this->_xsd_OutputDirectory_.set (OutputDirectory);
 }
 
+const simulation_type::OutputFilenamePrefix::container& simulation_type::
+OutputFilenamePrefix () const
+{
+  return this->_xsd_OutputFilenamePrefix_;
+}
+
+simulation_type::OutputFilenamePrefix::container& simulation_type::
+OutputFilenamePrefix ()
+{
+  return this->_xsd_OutputFilenamePrefix_;
+}
+
+void simulation_type::
+OutputFilenamePrefix (const OutputFilenamePrefix::type& OutputFilenamePrefix)
+{
+  this->_xsd_OutputFilenamePrefix_.set (OutputFilenamePrefix);
+}
+
+void simulation_type::
+OutputFilenamePrefix (const OutputFilenamePrefix::container& OutputFilenamePrefix)
+{
+  this->_xsd_OutputFilenamePrefix_ = OutputFilenamePrefix;
+}
+
+void simulation_type::
+OutputFilenamePrefix (::std::auto_ptr< OutputFilenamePrefix::type > OutputFilenamePrefix)
+{
+  this->_xsd_OutputFilenamePrefix_.set (OutputFilenamePrefix);
+}
+
 
 // physiological_type
 // 
@@ -3533,7 +3563,8 @@ _xsd_Mesh_ (::xml_schema::flags (), this),
 _xsd_Stimuli_ (::xml_schema::flags (), this),
 _xsd_CellHeterogeneities_ (::xml_schema::flags (), this),
 _xsd_ConductivityHeterogeneities_ (::xml_schema::flags (), this),
-_xsd_OutputDirectory_ (::xml_schema::flags (), this)
+_xsd_OutputDirectory_ (::xml_schema::flags (), this),
+_xsd_OutputFilenamePrefix_ (::xml_schema::flags (), this)
 {
 }
 
@@ -3565,7 +3596,10 @@ _xsd_ConductivityHeterogeneities_ (_xsd_simulation_type._xsd_ConductivityHeterog
                                    this),
 _xsd_OutputDirectory_ (_xsd_simulation_type._xsd_OutputDirectory_,
                        f | ::xml_schema::flags::not_root,
-                       this)
+                       this),
+_xsd_OutputFilenamePrefix_ (_xsd_simulation_type._xsd_OutputFilenamePrefix_,
+                            f | ::xml_schema::flags::not_root,
+                            this)
 {
 }
 
@@ -3581,7 +3615,8 @@ _xsd_Mesh_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Stimuli_ (f | ::xml_schema::flags::not_root, this),
 _xsd_CellHeterogeneities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ConductivityHeterogeneities_ (f | ::xml_schema::flags::not_root, this),
-_xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this)
+_xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this),
+_xsd_OutputFilenamePrefix_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -3733,6 +3768,24 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (this->OutputDirectory ())
           continue;
         this->OutputDirectory (r);
+        continue;
+      }
+    }
+
+    // OutputFilenamePrefix
+    //
+    {
+      if (e.name () == "OutputFilenamePrefix" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< OutputFilenamePrefix::type > r (
+          OutputFilenamePrefix::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (this->OutputFilenamePrefix ())
+          continue;
+        this->OutputFilenamePrefix (r);
         continue;
       }
     }

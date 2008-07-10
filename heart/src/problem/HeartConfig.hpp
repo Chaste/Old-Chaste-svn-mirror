@@ -82,6 +82,7 @@ public:
 				  					 	std::vector< c_vector<double,3> >& intraConductivities,
 										std::vector< c_vector<double,3> >& extraConductivities) const;
     std::string GetOutputDirectory() const;
+    std::string GetOutputFilenamePrefix() const;
 
     // Physiological
     void GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const;
@@ -119,6 +120,7 @@ public:
     void SetIonicModel(ionic_model_type ionicModel);
     void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
     void SetOutputDirectory(std::string outputDirectory);
+	void SetOutputFilenamePrefix(std::string outputFilenamePrefix);    
 
     // Physiological
     void SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities);

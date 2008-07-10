@@ -160,6 +160,7 @@
       </xs:element>
 
 	  <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
+	  <xs:element name="OutputFilenamePrefix" type="xs:string" minOccurs="0"/>	  
     </xs:all>
   </xs:complexType>    
 

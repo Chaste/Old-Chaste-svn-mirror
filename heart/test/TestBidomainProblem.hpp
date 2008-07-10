@@ -55,12 +55,11 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+        HeartConfig::Instance()->SetOutputDirectory("bidomainDg01d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
                 
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
-
-        bidomain_problem.SetOutputDirectory("bidomainDg01d");
-        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
         bidomain_problem.Initialise();
 
@@ -150,6 +149,8 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+        HeartConfig::Instance()->SetOutputDirectory("bidomainDg01d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
         
         // Final values to test against have been produced with ksp_rtol=1e-9
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
@@ -163,14 +164,10 @@ public:
         PetscOptionsSetValue("-options_table", "");
         */
 
+        bidomain_problem.Initialise();
 
-        bidomain_problem.SetOutputDirectory("bidomainDg01d");
-        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
-
-            bidomain_problem.Initialise();
-
-            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-            HeartConfig::Instance()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
 
         // Check rows 1, 51, 101, 151, 201, ...
@@ -287,8 +284,11 @@ public:
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+        HeartConfig::Instance()->SetOutputDirectory("Monodomain1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
             
         Vec monodomain_results;
 
@@ -300,12 +300,8 @@ public:
             ///////////////////////////////////////////////////////////////////
             // monodomain
             ///////////////////////////////////////////////////////////////////
-            HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
-
             MonodomainProblem<1> monodomain_problem( &cell_factory );
 
-            monodomain_problem.SetOutputDirectory("Monodomain1d");
-            monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
             monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
 
             monodomain_problem.Initialise();
@@ -325,15 +321,13 @@ public:
         // bidomain
         ///////////////////////////////////////////////////////////////////
 
-        // set the intra conductivity to be the same as monodomain
+        // keep the intra conductivity to be the same as monodomain
         // and the extra conductivity to be very large in comparison
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1));        
+        HeartConfig::Instance()->SetOutputDirectory("Bidomain1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain1d");
         
         BidomainProblem<1> bidomain_problem( &cell_factory );
-
-        bidomain_problem.SetOutputDirectory("Bidomain1d");
-        bidomain_problem.SetOutputFilenamePrefix("bidomain1d");
 
         bidomain_problem.Initialise();
 
@@ -383,13 +377,12 @@ public:
         HeartConfig::Instance()->SetPdeTimeStep(0.01);
         HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetOutputDirectory("Bidomain1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-
-        p_bidomain_problem->SetOutputDirectory("Bidomain1d");
-        p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
         //Restrict the number of nodes
         std::vector<unsigned> nodes_to_be_output;
@@ -432,8 +425,6 @@ public:
         delete p_bidomain_problem;
 
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-        p_bidomain_problem->SetOutputDirectory("Bidomain1d");
-        p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
         // Now check that we can turn off output printing
         // Output should be the same as above: printing every 10th time step
@@ -478,8 +469,8 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
-        bidomain_problem.SetOutputDirectory("temp");
-        bidomain_problem.SetOutputFilenamePrefix("temp");
+        HeartConfig::Instance()->SetOutputDirectory("temp");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("temp");
 
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;
@@ -497,6 +488,8 @@ public:
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular", media_type::Orthotropic);
+        HeartConfig::Instance()->SetOutputDirectory("OrthotropicBidomain");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("ortho3d");
                 
         PlaneStimulusCellFactory<3> cell_factory;
 
@@ -506,9 +499,6 @@ public:
 
         BidomainProblem<3> orthotropic_bido( &cell_factory );
 
-        orthotropic_bido.SetOutputDirectory("OrthotropicBidomain");
-        orthotropic_bido.SetOutputFilenamePrefix("ortho3d");
-
         orthotropic_bido.Initialise();
         orthotropic_bido.Solve();
 
@@ -516,11 +506,10 @@ public:
         // axisymmetric
         ///////////////////////////////////////////////////////////////////
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular", media_type::Axisymmetric);
+        HeartConfig::Instance()->SetOutputDirectory("AxisymmetricBidomain");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("axi3d");
                 
         BidomainProblem<3> axisymmetric_bido( &cell_factory);
-
-        axisymmetric_bido.SetOutputDirectory("AxisymmetricBidomain");
-        axisymmetric_bido.SetOutputFilenamePrefix("axi3d");
 
         axisymmetric_bido.Initialise();
         axisymmetric_bido.Solve();

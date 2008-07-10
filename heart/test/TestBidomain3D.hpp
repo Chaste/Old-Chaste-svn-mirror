@@ -52,13 +52,12 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
         HeartConfig::Instance()->SetSimulationDuration(4.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
+        HeartConfig::Instance()->SetOutputDirectory("Bidomain3d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
                         
         PlaneStimulusCellFactory<3> bidomain_cell_factory(-600.0*1000);
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
-
-        bidomain_problem.SetOutputDirectory("Bidomain3d");
-        bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
 
         bidomain_problem.Initialise();
 
@@ -123,6 +122,8 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(17500, 17500, 17500));                
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
+        HeartConfig::Instance()->SetOutputDirectory("Monodomain3d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain3d");
                 
         ///////////////////////////////////////////////////////////////////
         // monodomain
@@ -130,28 +131,18 @@ public:
         PlaneStimulusCellFactory<3> cell_factory(-600.0*1000);
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
-        monodomain_problem.SetOutputDirectory("Monodomain3d");
-        monodomain_problem.SetOutputFilenamePrefix("monodomain3d");
-
         monodomain_problem.Initialise();
-
-        // now solve
         monodomain_problem.Solve();
-
 
         ///////////////////////////////////////////////////////////////////
         // bidomain
         ///////////////////////////////////////////////////////////////////
+        HeartConfig::Instance()->SetOutputDirectory("Bidomain3d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
+
         BidomainProblem<3> bidomain_problem( &cell_factory );
-
-        bidomain_problem.SetOutputDirectory("Bidomain3d");
-        bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
-
         bidomain_problem.Initialise();
-
-        // now solve
         bidomain_problem.Solve();
-
 
         ///////////////////////////////////////////////////////////////////
         // compare

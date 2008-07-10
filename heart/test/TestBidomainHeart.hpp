@@ -85,12 +85,11 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
         HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/halfheart");
+        HeartConfig::Instance()->SetOutputDirectory("BiDg0Heart");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_Heart");
                 
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
-
-        bidomain_problem.SetOutputDirectory("BiDg0Heart");
-        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
 
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
@@ -136,6 +135,8 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.0025);
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
         HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
+        HeartConfig::Instance()->SetOutputDirectory("BiDg0HeartMetis");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
 
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -147,8 +148,6 @@ public:
 
         HeartConfig::Instance()->SetMeshFileName(metis_mesh);//"heart/test/data/halfheart_metis");
         bidomain_problem.SetNodesPerProcessorFilename(nodes_file);
-        bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
-        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
 
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");

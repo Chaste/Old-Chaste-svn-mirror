@@ -82,6 +82,8 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         HeartConfig::Instance()->SetSimulationDuration(50.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/memfem_mesh/simple");
+        HeartConfig::Instance()->SetOutputDirectory("Bidomain3d_CompareWithMemfem");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
         
         BidomainPointStimulusCellFactory bidomain_cell_factory;
 
@@ -95,8 +97,6 @@ public:
         }
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
 
-        bidomain_problem.SetOutputDirectory("Bidomain3d_CompareWithMemfem");
-        bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetWriteInfo();
 
         bidomain_problem.Initialise();
