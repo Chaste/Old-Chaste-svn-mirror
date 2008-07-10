@@ -115,6 +115,9 @@ private:
         {
             this->mpLinearSystem->SetRelativeTolerance(mpConfig->GetRelativeTolerance());
         }
+        
+        this->mpLinearSystem->SetKspType(mpConfig->GetKSPSolver());
+        this->mpLinearSystem->SetPcType(mpConfig->GetKSPPreconditioner());
     }
 
 

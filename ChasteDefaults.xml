@@ -22,7 +22,7 @@
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>ilu</KSPPreconditioner>
+		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
 			    
 </ChasteParameters>
