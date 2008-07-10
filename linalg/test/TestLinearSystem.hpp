@@ -556,7 +556,14 @@ public:
 		PCGetType(prec, &pc);
 		TS_ASSERT( strcmp(solver,"cg")==0 );
 		TS_ASSERT( strcmp(pc,"jacobi")==0 );
-
+        ls.SetKspType("gmres");
+        ls.SetPcType("ilu");
+        //Test that we can change the solver type after its first use
+        KSPGetType(ls.mKspSolver, &solver);
+        PCGetType(prec, &pc);
+        TS_ASSERT( strcmp(solver,"gmres")==0 );
+        TS_ASSERT( strcmp(pc,"ilu")==0 );
+        
 		
 		/////////////////////////////////
 		// Set relative tolerance after first solve
