@@ -24,7 +24,7 @@ num_nodes=`head -n 1 $original_file`
 echo "$num_nodes 3 0 0" > $new_file
 
 # Coordinates in um should be converted to cm. Add index starting from 0
-awk '{if (NF == 3) printf("%d %f %f %f\n", NR-2, $1/10000, $2/10000, $3/10000)}' $original_file >> $new_file
+cat $original_file | grep -v ^$ | awk '{if (NF == 3) printf("%d %f %f %f\n", NR-2, $1/10000, $2/10000, $3/10000)}' >> $new_file
 
 
 #
@@ -44,15 +44,14 @@ num_nodes=`head -n 1 $original_file`
 echo "$num_nodes 4 0" > $new_file
 
 # Add index starting from 0
-awk '{if (NF == 4) printf("%d %d %d %d %d\n", NR-2, $1, $2, $3, $4)}' $original_file >> $new_file
-
+cat $original_file | grep -v ^$ | awk '{if (NF == 4) printf("%d %d %d %d %d\n", NR-2, $1, $2, $3, $4)}' >> $new_file
 
 #
-# Create empty .face file
+# Create .face file
 #
-new_file=${mesh_prefix}.face
-
-echo "0" > $new_file
+../../../bin/tetgen -r Cubic075mm
+mv ${mesh_prefix}.1.face ${mesh_prefix}.face
+rm ${mesh_prefix}.1.*
 
 #
 # Create .fibres file
