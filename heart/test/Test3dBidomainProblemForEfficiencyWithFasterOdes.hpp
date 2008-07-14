@@ -96,9 +96,6 @@ public:
 
         bidomain_problem.PrintOutput(false);
 
-        // This is default PetscOptionsSetValue("-ksp_type", "gmres");
-        PetscOptionsSetValue("-pc_type", "jacobi");
-        PetscOptionsSetValue("-options_table", "");
         PetscOptionsSetValue("-log_summary", "");
 
         bidomain_problem.Initialise();

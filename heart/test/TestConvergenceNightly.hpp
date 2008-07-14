@@ -142,9 +142,8 @@ public:
     //This is much longer (1 hour?) with default ksp
     void Test2DSpaceSymmLq() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.SetKspRelativeTolerance(5e-8);
         tester.Converge(__FUNCTION__);
@@ -157,9 +156,8 @@ public:
 
     void Test2DSpaceSymmLqWithNeumannStimulus() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.SetKspRelativeTolerance(1e-9);
         tester.Stimulus = NEUMANN;

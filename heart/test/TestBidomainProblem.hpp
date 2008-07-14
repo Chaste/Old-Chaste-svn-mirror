@@ -158,12 +158,6 @@ public:
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
-        /* Can we get it to work with a different pre-conditioner and solver?
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
-        */
-
         bidomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);

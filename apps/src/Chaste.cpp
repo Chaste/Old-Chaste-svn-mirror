@@ -270,11 +270,6 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
     {
         PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
 
-        // solver and preconditioner options
-        //PetscOptionsSetValue("-ksp_type", "cg");
-        //PetscOptionsSetValue("-pc_type", "bjacobi");
-        //PetscOptionsSetValue("-options_table", "");
-
         if (argc<2)
         {
             std::cout  << "Usage: Chaste parameters_file\n";

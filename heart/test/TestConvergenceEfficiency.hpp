@@ -56,12 +56,8 @@ class TestConvergenceEfficiency : public CxxTest::TestSuite
 public:
     void Test3DSpace10() throw(Exception)
     {
-        ///cardiac_problem.SetOutputNodes(nodes_to_be_output);
-        ///from AbstractConvergenceTester.hpp
-        ///to see if it made a difference
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-10);
         tester.OdeTimeStep /= 2.0;

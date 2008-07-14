@@ -91,10 +91,6 @@ public:
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
 
-        //PetscOptionsSetValue("-ksp_type", "symmlq");
-        //PetscOptionsSetValue("-pc_type", "bjacobi");
-        //PetscOptionsSetValue("-log_summary", "");
-        //PetscOptionsSetValue("-ksp_monitor", "");
         PetscOptionsSetValue("-options_table", "");
 
         bidomain_problem.SetWriteInfo();

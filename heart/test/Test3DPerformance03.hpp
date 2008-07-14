@@ -51,9 +51,9 @@ public:
     void TestPerf() throw(Exception)
     {
         // solver and preconditioner options
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
+        PetscOptionsSetValue("-log_summary", "");
 
         // write headings
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3>::DisplayHeadings();

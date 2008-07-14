@@ -79,9 +79,9 @@ public:
     //Copied from projects/jmpf
     void Test3DSpace10() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
+        PetscOptionsSetValue("-log_summary", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-10);
         tester.OdeTimeStep /= 2.0;

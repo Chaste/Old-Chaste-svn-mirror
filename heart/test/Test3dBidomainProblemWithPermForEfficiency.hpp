@@ -59,9 +59,8 @@ public:
 
         bidomain_problem.PrintOutput(false);
 
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         PetscOptionsSetValue("-log_summary", "");
 
         bidomain_problem.Initialise();
