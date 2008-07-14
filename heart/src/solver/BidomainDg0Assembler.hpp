@@ -115,6 +115,8 @@ private:
         {
             this->mpLinearSystem->SetRelativeTolerance(mpConfig->GetRelativeTolerance());
         }
+        this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
+        this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
     }
 
 

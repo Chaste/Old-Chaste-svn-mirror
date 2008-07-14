@@ -387,22 +387,24 @@ void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
 
 void LinearSystem::SetKspType(const char *kspType)
 {
-	strcpy(mKspType, kspType);
-	if (mKspIsSetup)
-	{
-		KSPSetType(mKspSolver, kspType);
-	}
+    strcpy(mKspType, kspType);
+    if (mKspIsSetup)
+    {
+    KSPSetType(mKspSolver, kspType);
+        KSPSetFromOptions(mKspSolver);
+    }
 }
 
 void LinearSystem::SetPcType(const char *pcType)
 {
-	strcpy(mPcType, pcType);
+    strcpy(mPcType, pcType);
 	if (mKspIsSetup)
-	{
-		PC prec;
-	    KSPGetPC(mKspSolver, &prec);
-		PCSetType(prec, pcType);
-	}
+    {
+        PC prec;
+        KSPGetPC(mKspSolver, &prec);
+        PCSetType(prec, pcType);
+        KSPSetFromOptions(mKspSolver);
+    }
 }
 
 Vec LinearSystem::Solve(Vec lhsGuess)
