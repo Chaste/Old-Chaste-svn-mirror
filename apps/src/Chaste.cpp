@@ -324,7 +324,10 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
                 EXCEPTION("Unknown domain type!!!");
         }
         
-    	WriteSlab(&mesh);
+        if (create_slab)
+        {        
+    	   WriteSlab(&mesh);
+        }
     }
     catch(Exception& e)
     {
@@ -332,7 +335,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
         return 1;
     }
 
-    Hdf5ToMeshalyzerConverter converter(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix());
+    Hdf5ToMeshalyzerConverter converter(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix());        
     
     EventHandler::Headings();
     EventHandler::Report();

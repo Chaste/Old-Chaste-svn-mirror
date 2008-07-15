@@ -49,8 +49,9 @@ cat $original_file | grep -v ^$ | awk '{if (NF == 4) printf("%d %d %d %d %d\n", 
 #
 # Create .face file
 #
+rm -f ${mesh_prefix}.face
 ../../../bin/tetgen -r Cubic075mm
-mv ${mesh_prefix}.1.face ${mesh_prefix}.face
+awk '{if (NR == 1) print $1" "0; else print $1" "$2" "$3" "$4}' ${mesh_prefix}.1.face > ${mesh_prefix}.face
 rm ${mesh_prefix}.1.*
 
 #

@@ -15,42 +15,41 @@
 			Mesh definition 
 		-->    
 		<Mesh>
-			<LoadMesh name="../simulations/upf-mesh/Cubic075mm" media="Axisymmetric"/> 
+			<LoadMesh name="apps/simulations/upf-mesh/Cubic075mm" conductivity_media="Axisymmetric"/> 
 	  	</Mesh>
 		
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
 	   	-->
-	  	<Stimulus> <!-- #1 -->
-			<Strength>-35500.0</Strength>
-			<Duration>0.5</Duration>
-			<Delay>0</Delay>
-			<Location>
-				<CornerA X="-9" Y="-2.5" Z="-1.5"/>
-				<CornerB X="-8" Y="-1.5" Z="-0.5"/>
-			</Location>
-		</Stimulus>	
+	   	<Stimuli>
+		  	<Stimulus> <!-- #1 -->
+				<Strength>-35500.0</Strength>
+				<Duration>0.5</Duration>
+				<Delay>0</Delay>
+				<Location>
+					<CornerA x="-9" y="-2.5" z="-1.5"/>
+					<CornerB x="-8" y="-1.5" z="-0.5"/>
+				</Location>
+			</Stimulus>
+		</Stimuli>	
 	
 		
 		<!-- 
 			Output 
 		-->
 		<OutputDirectory>Ticket671</OutputDirectory>
-	    <MeshOutputDirectory>Slab</MeshOutputDirectory>
 	</Simulation>	    
 
 	<Physiological>
-	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
-	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
-	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>
-	    <Capacitance> 1.0 </Capacitance>
 	</Physiological>
 
 	<Numerical>
-		<Timesteps ode="0.01" pde="0.01" printing="0.01"/>
-		<KSPTolerances relative="1e-6" absolute="1e-50"/>
+		<TimeSteps ode="0.02" pde="0.02" printing="0.02"/>
+		<KSPTolerances>
+			<KSPRelative>1e-6</KSPRelative>
+		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>ilu</KSPPreconditioner>
+		<KSPPreconditioner>jacobi</KSPPreconditioner>	
 	</Numerical>		
 	
 </ChasteParameters>
