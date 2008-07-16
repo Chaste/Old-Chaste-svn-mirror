@@ -62,6 +62,9 @@ public:
     std::vector<double> GetValues(std::string variableName);
     std::vector<double> GetValues(std::string variableName, int fixedDimension);
     std::vector<double> GetUnlimitedDimensionValues();
+    
+    /** Returns true if the data file has entries for the variableName. */
+    bool HasValues(const std::string& variableName);
     //std::vector<double> GetFixedDimensionValues();
 
 };

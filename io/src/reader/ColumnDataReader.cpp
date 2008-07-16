@@ -328,3 +328,10 @@ void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
 
     mValues.push_back(d_value);
 }
+
+bool ColumnDataReader::HasValues(const std::string& variableName)
+{
+    std::map<std::string, int>::iterator col = mVariablesToColumns.find(variableName);
+    
+    return !(col == mVariablesToColumns.end());
+}

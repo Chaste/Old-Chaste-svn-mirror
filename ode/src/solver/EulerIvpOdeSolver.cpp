@@ -62,7 +62,7 @@ void EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSyste
 
     const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
 
-    // Yes, this looks wierd, but it makes good use of memory!
+    // Yes, this looks weird, but it makes good use of memory!
     pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, nextYValues);
 
     for (unsigned i=0;i<num_equations; i++)
