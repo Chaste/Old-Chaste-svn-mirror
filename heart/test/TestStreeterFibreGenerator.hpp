@@ -39,10 +39,10 @@ public:
   
     void TestSimpleOrthotropic() throw (Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/cube_3_nodes_side/Cube3");
-        std::string epi_face_file = "heart/test/data/cube_3_nodes_side/Cube3LeftFaceFrom1.tri";
-        std::string rv_face_file = "heart/test/data/cube_3_nodes_side/Cube3RightFaceFrom1.tri";
-        std::string lv_face_file = "heart/test/data/cube_3_nodes_side/Cube3RightFaceFrom1.tri";
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
+        std::string epi_face_file = "heart/test/data/box_shaped_heart/epi.tri";
+        std::string rv_face_file = "heart/test/data/box_shaped_heart/rv.tri";
+        std::string lv_face_file = "heart/test/data/box_shaped_heart/lv.tri";
 
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -55,7 +55,7 @@ public:
         OutputFileHandler handler("shorter_streeter", false);
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "ortho.fibres";
 
-        NumericFileComparison comp(fibre_file,"heart/test/data/streeter_cube3.ortho");
+        NumericFileComparison comp(fibre_file,"heart/test/data/streeter_box_heart.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
 

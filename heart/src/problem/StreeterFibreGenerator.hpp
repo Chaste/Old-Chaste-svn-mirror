@@ -143,7 +143,7 @@ private:
     }
 
 
-    inline void ProcessLine(const std::string& line, std::set<unsigned>& surfaceElements) const
+    inline void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const
     {
         unsigned num_nodes = 0;
         std::stringstream line_stream(line);
@@ -153,7 +153,7 @@ private:
             unsigned item;
             line_stream >> item;
             // Shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
-            surfaceElements.insert(item-1);
+            surfaceNodeIndexSet.insert(item-1);
 
             num_nodes++;
         }
@@ -177,28 +177,28 @@ private:
         }
 
         // Temporal storage for the nodes, helps discarting repeated values
-        std::set<unsigned> surface_elements;
+        std::set<unsigned> surface_node_index_set;
 
         // Loop over all the triangles and add node indexes to the set
         std::string line;
         getline(file_stream, line);
         do
         {
-            ProcessLine(line, surface_elements);
+            ProcessLine(line, surface_node_index_set);
 
             getline(file_stream, line);
         }
         while(!file_stream.eof());
 
         // Make vector big enough
-        surfaceVector.reserve(surface_elements.size());
+        surfaceVector.reserve(surface_node_index_set.size());
 
         // Copy the node indexes from the set to the vector
-        for(std::set<unsigned>::iterator element_it=surface_elements.begin();
-            element_it != surface_elements.end();
-            element_it++)
+        for(std::set<unsigned>::iterator node_index_it=surface_node_index_set.begin();
+            node_index_it != surface_node_index_set.end();
+            node_index_it++)
         {
-            surfaceVector.push_back(*element_it);
+            surfaceVector.push_back(*node_index_it);
         }
 
         file_stream.close();
@@ -312,6 +312,8 @@ public:
         GetNodesAtSurface(mEpiFile, mEpiSurface);
         GetNodesAtSurface(mRVFile, mRVSurface);
         GetNodesAtSurface(mLVFile, mLVSurface);
+        
+        CheckVentricleAlignment();
 
         // Compute the distance map of each surface
         mpDistanceCalculator->ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
@@ -528,10 +530,14 @@ public:
             /// \todo Use LU factorisation to solve this system
             c_vector<double, SPACE_DIM> rotated_longitude_direction = prod( inv_fibre_space_matrix, rotation_rhs);
 
-            assert(rotated_longitude_direction[0] != longitude_direction[0] &&
+            /*This assertion is not valid if the rotation is around a coordinate axis
+             * ie. if grad_ave_wall_thickness (u in the paper) is aligned with the z-axis then the z 
+             * component of the rotated vector will not change.
+             * 
+             assert(rotated_longitude_direction[0] != longitude_direction[0] &&
                    rotated_longitude_direction[1] != longitude_direction[1] &&
                    rotated_longitude_direction[2] != longitude_direction[2] );
-
+            */
             /*
              *  Output the direction of the myofibre, the transverse to it in the plane of the myocite laminae and the normal to this laminae (in that order)
              *
@@ -555,7 +561,65 @@ public:
             p_grad_thickness_file->close();
         }
     }
+    
+    /** 
+     * Check that the two ventricles are separated in the y-axis
+     * The heart ought to have
+     * x: apex to base
+     * y: right to left
+     * z: front to back
+     * 
+     */ 
+    void CheckVentricleAlignment()
+    {
+        double min_y_rv=DBL_MAX;
+        double max_y_rv=-DBL_MAX;
+        double average_y_rv=0.0;
+        for (unsigned i=0; i<mRVSurface.size(); i++)
+        {
+            double y=mrMesh.GetNode(mRVSurface[i])->rGetLocation()[1];
+            average_y_rv += y;
+            if (y<min_y_rv)
+            {
+                min_y_rv=y;
+            }
+    
+            if (y>max_y_rv)
+            {
+                max_y_rv=y;
+            }
+        }
+        average_y_rv /= mRVSurface.size();
 
+        double min_y_lv=DBL_MAX;
+        double max_y_lv=-DBL_MAX;
+        double average_y_lv=0.0;
+        for (unsigned i=0; i<mLVSurface.size(); i++)
+        {
+            double y=mrMesh.GetNode(mLVSurface[i])->rGetLocation()[1];
+            average_y_lv += y;
+            if (y<min_y_lv)
+            {
+                min_y_lv=y;
+            }
+    
+            if (y>max_y_lv)
+            {
+                max_y_lv=y;
+            }
+        }
+        average_y_lv /= mLVSurface.size();
+
+        //If these assertions trip then it means that the heart is not aligned correctly.
+        //See the comment above the method signature.
+        
+        //Check that LV average is not inside the RV interval
+        assert(average_y_lv < min_y_rv  || average_y_lv > max_y_rv);
+
+        //Check that RV average is not inside the LV interval
+        assert(average_y_rv < min_y_lv  || average_y_rv > max_y_lv);
+    }
+ 
 };
 
 #endif /*STREETERFIBREGENERATOR_HPP_*/
