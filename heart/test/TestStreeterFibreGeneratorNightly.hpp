@@ -49,12 +49,12 @@ public:
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file);
 
-        fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "ortho.fibres", true);
+        fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "point50.ortho", true);
 
         OutputFileHandler handler("streeter", false);
-        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "ortho.fibres";
+        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "point50.ortho";
 
-        NumericFileComparison comp(fibre_file,"heart/test/data/streeter_point50_heart_mesh.ortho");
+        NumericFileComparison comp(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
 

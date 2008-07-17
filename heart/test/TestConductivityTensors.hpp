@@ -137,6 +137,35 @@ public:
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,2), constant_conductivities[2]);
         }
     }
+    
+    void TestCompareOrthotropicAxisymmetricTensors()
+    {
+        c_vector<double, 3> constant_conductivities(Create_c_vector(7.0,3.5,3.5));
+
+        OrthotropicConductivityTensors<3> ortho_tensors;
+        ortho_tensors.SetConstantConductivities(constant_conductivities);
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/box_shaped_heart/box_heart.ortho");
+        ortho_tensors.Init();
+
+        AxisymmetricConductivityTensors<3> axi_tensors;
+        axi_tensors.SetConstantConductivities(constant_conductivities);
+        axi_tensors.SetFibreOrientationFile("heart/test/data/box_shaped_heart/box_heart.axi");
+        axi_tensors.Init();
+
+        for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
+        {
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](0,0), axi_tensors[tensor_index](0,0), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](0,1), axi_tensors[tensor_index](0,1), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](0,2), axi_tensors[tensor_index](0,2), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](1,0), axi_tensors[tensor_index](1,0), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](1,1), axi_tensors[tensor_index](1,1), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](1,2), axi_tensors[tensor_index](1,2), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](2,0), axi_tensors[tensor_index](2,0), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](2,1), axi_tensors[tensor_index](2,1), 1e-5);
+            TS_ASSERT_DELTA(ortho_tensors[tensor_index](2,2), axi_tensors[tensor_index](2,2), 1e-5);
+        }
+        
+    }
 
     void TestFibreOrientationAxisymmetric3D()
     {

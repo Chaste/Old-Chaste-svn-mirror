@@ -143,12 +143,12 @@ public:
         	{
         		case media_type::Orthotropic:
             		mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
-            		mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".fibres");        		
+            		mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".ortho");        		
         			break;
         			
         		case media_type::Axisymmetric:
 		            mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
-		            mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".fibres");
+		            mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".axi");
         			break;
 
         		case media_type::NoFibreOrientation:

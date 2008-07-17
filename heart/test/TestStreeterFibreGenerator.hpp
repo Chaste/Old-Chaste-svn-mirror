@@ -50,18 +50,18 @@ public:
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file);
 
-        fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "ortho.fibres", true);
+        fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "box_heart.ortho", true);
 
         OutputFileHandler handler("shorter_streeter", false);
-        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "ortho.fibres";
+        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "box_heart.ortho";
 
-        NumericFileComparison comp(fibre_file,"heart/test/data/streeter_box_heart.ortho");
+        NumericFileComparison comp(fibre_file,"heart/test/data/box_shaped_heart/box_heart.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
 
     void TestExceptions()
     {
-        MemfemMeshReader<3,3> mesh_reader("heart/test/data/point50_heart_mesh/point50");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
 
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);

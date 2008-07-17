@@ -452,6 +452,8 @@ public:
             c_matrix<double, SPACE_DIM+1, SPACE_DIM> temp;
             noalias(temp) = prod (basis_functions, *p_element->GetInverseJacobian() );
             noalias(grad_ave_wall_thickness) = prod(elem_nodes_ave_thickness, temp);
+            
+            grad_ave_wall_thickness /= norm_2(grad_ave_wall_thickness);
 
             if (logInfo)
             {
@@ -530,14 +532,17 @@ public:
             /// \todo Use LU factorisation to solve this system
             c_vector<double, SPACE_DIM> rotated_longitude_direction = prod( inv_fibre_space_matrix, rotation_rhs);
 
-            /*This assertion is not valid if the rotation is around a coordinate axis
-             * ie. if grad_ave_wall_thickness (u in the paper) is aligned with the z-axis then the z 
-             * component of the rotated vector will not change.
-             * 
-             assert(rotated_longitude_direction[0] != longitude_direction[0] &&
-                   rotated_longitude_direction[1] != longitude_direction[1] &&
-                   rotated_longitude_direction[2] != longitude_direction[2] );
-            */
+            /*
+             * Test the orthonormality of the basis
+             */
+            assert( fabs(norm_2(rotated_fibre_direction) - 1) < 100*DBL_EPSILON );
+            assert( fabs(norm_2(grad_ave_wall_thickness) - 1) < 100*DBL_EPSILON );
+            assert( fabs(norm_2(rotated_longitude_direction) - 1) < 100*DBL_EPSILON );
+
+            assert( fabs(inner_prod(rotated_fibre_direction, grad_ave_wall_thickness)) < 100*DBL_EPSILON );
+            assert( fabs(inner_prod(rotated_fibre_direction, rotated_longitude_direction)) < 100*DBL_EPSILON);
+            assert( fabs(inner_prod(grad_ave_wall_thickness, rotated_longitude_direction)) < 100*DBL_EPSILON);
+
             /*
              *  Output the direction of the myofibre, the transverse to it in the plane of the myocite laminae and the normal to this laminae (in that order)
              *
@@ -546,9 +551,7 @@ public:
              */
             *p_fibre_file << rotated_fibre_direction[0]     << " " << rotated_fibre_direction[1]     << " "  << rotated_fibre_direction[2]     << " "
                           << grad_ave_wall_thickness[0]     << " " << grad_ave_wall_thickness[1]     << " "  << grad_ave_wall_thickness[2]     << " "
-                          << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << " "
-                          << std::endl;
-
+                          << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << std::endl;            
         }
 
         p_fibre_file->close();
@@ -569,6 +572,7 @@ public:
      * y: right to left
      * z: front to back
      * 
+     * Note this method only covers some of the possible missalignments of the mesh
      */ 
     void CheckVentricleAlignment()
     {

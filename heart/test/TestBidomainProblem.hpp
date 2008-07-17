@@ -477,11 +477,10 @@ public:
     }
 
 
-	/// \todo: Generate fibre orientation info for 3D_0_to_.5mm_1889_elements_irregular and uncomment the test.
-    void xTestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
+    void TestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular", media_type::Orthotropic);
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Orthotropic);
         HeartConfig::Instance()->SetOutputDirectory("OrthotropicBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("ortho3d");
                 
@@ -499,7 +498,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // axisymmetric
         ///////////////////////////////////////////////////////////////////
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular", media_type::Axisymmetric);
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Axisymmetric);
         HeartConfig::Instance()->SetOutputDirectory("AxisymmetricBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("axi3d");
                 
@@ -524,8 +523,8 @@ public:
              index != DistributedVector::End();
              ++index)
         {
-            TS_ASSERT_DELTA(ortho_voltage[index], axi_voltage[index], 1e-11);
-            TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-11);
+            TS_ASSERT_DELTA(ortho_voltage[index], axi_voltage[index], 1e-7);
+            TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-7);
         }
     }
 };

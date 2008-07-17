@@ -79,12 +79,12 @@ public:
         	{
         		case media_type::Orthotropic:
             		mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
-            		mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".fibres");        		
+            		mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".ortho");        		
         			break;
         			
         		case media_type::Axisymmetric:
 		            mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
-		            mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".fibres");
+		            mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".axi");
         			break;
 
         		case media_type::NoFibreOrientation:

@@ -135,6 +135,12 @@ public:
                  *  g_l = laminar/transverse conductivity (constant or element specific)
                  *  g_n = normal conductivity (constant or element specific)
                  *
+                 * 
+                 *  For axisymmetric anisotropic media (g_l = g_n) we can simplify previous expression to
+                 * 
+                 * 
+                 *  tensor = g_l * I + (g_f - g_l) * a_f * a_f' 
+                 * 
                  */
 
                 if (this->mUseNonConstantConductivities)
