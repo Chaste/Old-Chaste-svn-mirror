@@ -46,7 +46,7 @@ class TestBidomainProblem : public CxxTest::TestSuite
 public:
     void tearDown()
     {
-        HeartConfig::Destroy();   
+        HeartConfig::Reset();   
     }
 
     void TestBidomainDg01DPinned()

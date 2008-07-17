@@ -78,7 +78,7 @@ public:
 
     void tearDown()
     {
-        HeartConfig::Destroy();   
+        HeartConfig::Reset();   
     }
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left

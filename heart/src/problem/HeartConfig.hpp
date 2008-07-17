@@ -54,7 +54,7 @@ public:
 
     void SetDefaultsFile(std::string fileName);
     void SetParametersFile(std::string fileName);
-    static void Destroy();
+    static void Reset();
 
     /*
      *  Get methods
@@ -146,6 +146,7 @@ public:
     void SetKSPSolver(const char* kspSolver);
     void SetKSPPreconditioner(const char* kspPreconditioner);
 
+    ~HeartConfig();
 protected:
     // Only to be accesed by the tests
     friend class TestHeartConfig;
@@ -156,13 +157,12 @@ protected:
 
 private:
     HeartConfig();
-    ~HeartConfig();
 
     chaste_parameters_type* mpUserParameters;
     chaste_parameters_type* mpDefaultParameters;
 
     /** The single instance of the class */
-    static HeartConfig* mpInstance;
+    static std::auto_ptr<HeartConfig> mpInstance;
 
     // Misc
     template<class TYPE>

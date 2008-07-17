@@ -58,8 +58,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3.cpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
-#include "HeartConfigSetupAndFinalize.hpp"
-
 #include "NobleVargheseKohlNoble1998.hpp"
 #include "NobleVargheseKohlNoble1998Optimised.hpp"
 //#include "BackwardEulerNobleVargheseKohlNoble1998.hpp"

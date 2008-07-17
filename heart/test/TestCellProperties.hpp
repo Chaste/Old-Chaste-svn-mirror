@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "HeartConfigSetupAndFinalize.hpp"
 
 class TestCellProperties : public CxxTest::TestSuite
 {

@@ -31,21 +31,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace xsd::cxx::tree;
 
-HeartConfig* HeartConfig::mpInstance = NULL;
+std::auto_ptr<HeartConfig> HeartConfig::mpInstance;
 
 HeartConfig* HeartConfig::Instance()
 {
-    if (mpInstance == NULL)
+    if (mpInstance.get() == NULL)
     {
-        mpInstance = new HeartConfig;
+        mpInstance.reset(new HeartConfig);
     }
-    return mpInstance;
+    return mpInstance.get();
 }
 
 HeartConfig::HeartConfig()
 {
-    assert(mpInstance == NULL);
-
+    assert(mpInstance.get() == NULL);
+    mpDefaultParameters = NULL;
+    mpUserParameters = NULL;
     mpDefaultParameters = ReadFile("ChasteDefaults.xml");
     mpUserParameters = mpDefaultParameters;
     //CheckTimeSteps(); // necessity of this line of code is not tested -- remove with caution!
@@ -116,10 +117,12 @@ chaste_parameters_type* HeartConfig::DefaultParameters()
     return mpDefaultParameters;
 }
 
-void HeartConfig::Destroy()
+void HeartConfig::Reset()
 {
-    delete mpInstance;
-    mpInstance = NULL;
+    //Throw it away
+    mpInstance.reset(0);
+    //Make a new one
+    mpInstance.reset(new HeartConfig);
 }
 
 template<class TYPE>

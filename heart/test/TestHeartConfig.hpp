@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "HeartConfig.hpp"
-#include "HeartConfigSetupAndFinalize.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
@@ -55,8 +54,6 @@ public :
 
         TS_ASSERT_EQUALS(conductivity_1, 1.75);
         TS_ASSERT_EQUALS(conductivity_2, 7.0);
-
-        HeartConfig::Destroy();
     }
 
     void TestUserProvidedDifferentFromDefault()
@@ -72,8 +69,7 @@ public :
         ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel();
         TS_ASSERT_EQUALS(user_ionic_model, get_ionic_model);
 
-        HeartConfig::Destroy();
-    }
+     }
 
     void TestGetFunctions()
     {
@@ -181,7 +177,7 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteParametersFullFormat.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
-        HeartConfig::Destroy();
+        HeartConfig::Instance()->Reset();
     }    
     
     void TestGetIsMeshProvided()
@@ -287,17 +283,16 @@ public :
 		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
         
 
-        HeartConfig::Destroy();
-    }
+     }
     
    void TestExceptions() throw (Exception)
    { 
        //We might want to remove SetDefaultsFile()
+       HeartConfig::Instance()->Reset();
        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml")); 
        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml")); 
        //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml")); 
-       HeartConfig::Destroy(); 
-   }
+    }
 };
 
 #endif /*TESTHEARTCONFIG_HPP_*/

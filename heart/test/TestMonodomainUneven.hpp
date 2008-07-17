@@ -49,7 +49,7 @@ class TestMonodomainUneven : public CxxTest::TestSuite
 public:
     void tearDown()
     {
-        HeartConfig::Destroy();   
+        HeartConfig::Reset();   
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
