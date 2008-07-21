@@ -156,8 +156,9 @@ public:
         if (mpMesh==NULL)
         {
         	// If no mesh has been passed, we get it from the configuration file
-        	if (HeartConfig::Instance()->GetLoadMesh())
+            try
         	{
+                /// \todo: Only considering <LoadMesh/> definition. Consider <Slab/> too
 		        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
 		        mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
 		        mAllocatedMemoryForMesh = true;
@@ -166,7 +167,7 @@ public:
 		        mpMesh->ConstructFromMeshReader(mesh_reader);
 		        EventHandler::EndEvent(READ_MESH);        		
         	}
-        	else
+        	catch (Exception& e)
         	{
         		EXCEPTION("No mesh given: define it in XML parameters file or call SetMesh()");
         	}
