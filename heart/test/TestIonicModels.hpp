@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "NobleVargheseKohlNoble1998.hpp"
 #include "NobleVargheseKohlNoble1998Optimised.hpp"
-//#include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
+#include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
@@ -130,35 +130,35 @@ public:
         CheckCellModelResults("N98RegResult");
     }
     
-//    void xTestOdeSolveForBackwardNoble98WithSimpleStimulus(void)
-//    {   
-//        clock_t ck_start, ck_end;
-//
-//        // Set stimulus
-//        double magnitude_stimulus = -3;  // uA/cm2
-//        double duration_stimulus = 3;  // ms
-//        double start_stimulus = 10.0;   // ms
-//        SimpleStimulus stimulus(magnitude_stimulus,
-//                                 duration_stimulus,
-//                                 start_stimulus);
-//        
-//        double time_step = 0.1;
-//        
-//        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
-//        
-//        CML_noble_varghese_kohl_noble_1998_basic_backward n98_backward_system(&stimulus);
-//
-//        // Solve and write to file
-//        ck_start = clock();
-//        RunOdeSolverWithIonicModel(&n98_backward_system,
-//                                   150.0,
-//                                   "N98BackwardResult");
-//        ck_end = clock();
-//        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-//        std::cout << "\n\tBackward: " << backward << std::endl;
-//        
-//        //CheckCellModelResults("N98RegResult");
-//    }
+    void TestOdeSolveForBackwardNoble98WithSimpleStimulus(void)
+    {   
+        clock_t ck_start, ck_end;
+
+        // Set stimulus
+        double magnitude_stimulus = -3;  // uA/cm2
+        double duration_stimulus = 3;  // ms
+        double start_stimulus = 10.0;   // ms
+        SimpleStimulus stimulus(magnitude_stimulus,
+                                 duration_stimulus,
+                                 start_stimulus);
+        
+        double time_step = 0.01;
+        
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+        
+        CML_noble_varghese_kohl_noble_1998_basic_backward n98_backward_system(&stimulus);
+
+        // Solve and write to file
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&n98_backward_system,
+                                   150.0,
+                                   "N98BackwardResult");
+        ck_end = clock();
+        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tBackward: " << backward << std::endl;
+        
+        CheckCellModelResults("N98BackwardResult");
+    }
 
     void TestOdeSolverForHH52WithSimpleStimulus(void)
     {
