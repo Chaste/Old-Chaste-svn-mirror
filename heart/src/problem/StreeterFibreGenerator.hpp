@@ -371,11 +371,13 @@ public:
 
             if (isnan(wall_thickness[node_index]))
             {
+                #define COVERAGE_IGNORE
                 /*
-                 *  A node on both epicardium and lv (or rv) surfaces has wall thickness 0/0.
+                 *  A node contained on both epicardium and lv (or rv) surfaces has wall thickness 0/0.
                  *  By setting its value to 0 we consider it contained only on the lv (or rv) surface.
                  */
                 wall_thickness[node_index] = 0;
+                #undef COVERAGE_IGNORE
             }
 
             if (logInfo)

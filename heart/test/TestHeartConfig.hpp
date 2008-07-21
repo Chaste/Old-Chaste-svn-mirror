@@ -275,10 +275,22 @@ public :
         HeartConfig::Instance()->SetKSPSolver("cg");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg")==0);
 
+        HeartConfig::Instance()->SetKSPSolver("gmres");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
+
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "symmlq")==0);
+
 		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPSolver("foobar"));
 
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "jacobi")==0);
+
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi")==0);
+
+        HeartConfig::Instance()->SetKSPPreconditioner("ilu");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
         
 		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
         
