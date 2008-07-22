@@ -466,11 +466,12 @@ public:
              *   Normal to the gradient (v in Streeter paper) which is then the circumferential direction
              * (it will be the fibre direction after rotation)
              *
-             *  Computed as the cross product with the x-axis)
+             *  Computed as the cross product with the x-axis (assuming base-apex axis is x). The output vector is not normal,
+             * since the angle between them may be != 90, normalise it.
              */
-             /// \todo Assuming the base-apex axis is x
-            c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, Create_c_vector(1.0, 0.0, 0.0));
-
+            c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, Create_c_vector(1.0, 0.0, 0.0));			
+			fibre_direction /= norm_2(fibre_direction);
+			
             /*
              *  Longitude direction (w in Streeter paper)
              */
@@ -486,53 +487,32 @@ public:
             double alpha = GetFibreMaxAngle(elem_nodes_region) * pow( (1 - 2*element_averaged_thickness), 3 );
 
             /*
-             *  Apply alpha rotation to fibre_direction vector. Solve the system
+             *  Apply alpha rotation about the u axis to the orthonormal basis
              *
-             *   ( v(1) v(2) v(3) ) * ( f(1) )   (     ||v||*cos(alpha)    )
-             *   ( u(1) u(2) u(3) )   ( f(2) ) = (           0           )
-             *   ( w(1) w(2) w(3) )   ( f(3) )   ( ||w||*cos(PI/2 - alpha) )
+             *               ( u(1) v(1) w(1) )
+             *   (u, v, w) = ( u(2) v(2) w(2) )
+             *               ( u(3) v(3) w(3) )
+             * 
+             *  The following matrix defines a rotation about the u axis
+             * 
+             *                 ( 1        0           0      ) (u')
+             *   R = (u, v, w) ( 0    cos(alpha) -sin(alpha) ) (v')
+             *                 ( 0    sin(alpha)  cos(alpha) ) (w')
              *
+             *  The rotated basis is computed like:
+             * 
+             *                                             ( 1        0           0      )
+             *  (u, v_r, w_r ) = R * (u, v, w) = (u, v, w) ( 0    cos(alpha) -sin(alpha) )
+             *                                             ( 0    sin(alpha)  cos(alpha) )
+             * 
+             *  Which simplifies to:
+             * 
+             *   v_r =  v*cos(alpha) + w*sin(alpha)
+             *   w_r = -v*sin(alpha) + w*cos(alpha)
              */
-            c_matrix<double, SPACE_DIM, SPACE_DIM> fibre_space_matrix;
-            for(unsigned column_index=0; column_index<SPACE_DIM; column_index++)
-            {
-                fibre_space_matrix(0,column_index) = fibre_direction(column_index);
-                fibre_space_matrix(1,column_index) = grad_ave_wall_thickness(column_index);
-                fibre_space_matrix(2,column_index) = longitude_direction(column_index);
-            }
+			c_vector<double, SPACE_DIM> rotated_fibre_direction = fibre_direction*cos(alpha) + longitude_direction*sin(alpha);
+			c_vector<double, SPACE_DIM> rotated_longitude_direction = -fibre_direction*sin(alpha) + longitude_direction*cos(alpha);
 
-            c_matrix<double, SPACE_DIM, SPACE_DIM> inv_fibre_space_matrix = Inverse(fibre_space_matrix);
-
-            double norm_v = sqrt(   fibre_direction[0] * fibre_direction[0]
-                                  + fibre_direction[1] * fibre_direction[1]
-                                  + fibre_direction[2] * fibre_direction[2] );
-
-            double norm_w = sqrt(   longitude_direction[0] * longitude_direction[0]
-                                  + longitude_direction[1] * longitude_direction[1]
-                                  + longitude_direction[2] * longitude_direction[2] );
-
-            c_vector<double, SPACE_DIM> rotation_rhs(Create_c_vector( norm_v*cos(alpha),
-                                                                      0.0,
-                                                                      norm_w*cos( M_PI/2 - alpha )));
-
-            /// \todo Use LU factorisation to solve this system
-            c_vector<double, SPACE_DIM> rotated_fibre_direction = prod( inv_fibre_space_matrix, rotation_rhs);
-
-
-            /*
-             *  Apply alpha rotation to longitude_direction vector. Solve the system
-             *
-             *   ( v(1) v(2) v(3) ) * ( l(1) )   ( ||v||*cos(PI/2 + alpha) )
-             *   ( u(1) u(2) u(3) )   ( l(2) ) = (         0        )
-             *   ( w(1) w(2) w(3) )   ( l(3) )   ( ||w||*cos(alpha) )
-             *
-             */
-            rotation_rhs = Create_c_vector( norm_v*cos( M_PI/2 + alpha),
-                                            0.0,
-                                            norm_w*cos( alpha ));
-
-            /// \todo Use LU factorisation to solve this system
-            c_vector<double, SPACE_DIM> rotated_longitude_direction = prod( inv_fibre_space_matrix, rotation_rhs);
 
             /*
              * Test the orthonormality of the basis
