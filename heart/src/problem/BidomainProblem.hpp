@@ -48,8 +48,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
 {
-private:
+protected:
     BidomainPde<SPACE_DIM>* mpBidomainPde;
+private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     unsigned mExtracelluarColumnId;
 
