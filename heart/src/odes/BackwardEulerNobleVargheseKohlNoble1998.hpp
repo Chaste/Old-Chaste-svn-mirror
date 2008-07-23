@@ -15,6 +15,8 @@
 
 class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCardiacCell<12>
 {
+friend class TestFastSlowBackwardEulerNoble98; // Friend class for the purposes of testing    
+    
 public:
     BackwardEulerNobleVargheseKohlNoble1998(AbstractStimulusFunction *pIntracellularStimulus,
                                                       AbstractStimulusFunction *pExtracellularStimulus=NULL)
