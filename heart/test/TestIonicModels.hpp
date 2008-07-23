@@ -146,7 +146,7 @@ public:
         
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
         
-        CML_noble_varghese_kohl_noble_1998_basic_backward n98_backward_system(&stimulus);
+        BackwardEulerNobleVargheseKohlNoble1998 n98_backward_system(&stimulus);
 
         // Solve and write to file
         ck_start = clock();
