@@ -47,7 +47,7 @@ private:
     static unsigned mHi;
     static unsigned mGlobalHi;
     static bool mPetscStatusKnown;
-    unsigned mStride;
+    unsigned mNumChunks;
     Vec mVec;
     double *mpVec;
 private:
@@ -148,7 +148,7 @@ public:
 
         Stripe(DistributedVector parallelVec, unsigned stripe)
         {
-            mStride=parallelVec.mStride;
+            mStride=parallelVec.mNumChunks;
             mStripe=stripe;
             assert(mStripe<mStride);
             mpVec=parallelVec.mpVec;
@@ -177,6 +177,53 @@ public:
         double& operator[](Iterator index) throw (DistributedVectorException)
         {
             return mpVec[index.Local*mStride+mStripe];
+        }
+
+    };
+
+    class Chunk
+    {
+    public:
+        //unsigned mChunk;
+        unsigned mOffset;  //The start of this chunk within the locally-owned part of the vector
+        double *mpVec;
+       /***
+        * Constructor
+        * @param parallelVec chunked vector
+        * @param chunk number of this chunk within the vector starting from 0
+        */
+
+        Chunk(DistributedVector parallelVec, unsigned chunk)
+        {
+            assert(chunk<parallelVec.mNumChunks);
+            mOffset = chunk*(parallelVec.mHi - parallelVec.mLo);
+            mpVec=parallelVec.mpVec;
+        }
+
+       /**
+        * Access a particular element of the chunk if on this processor
+        * @param globalIndex index within the chunk
+        * @return value of striped vector
+        * For use in tests.
+        * Will throw a DistributedVectorException if the specified element is not on this process.
+        */
+        double& operator[](unsigned globalIndex) throw (DistributedVectorException)
+        {
+            if (mLo<=globalIndex && globalIndex <mHi)
+            {
+            	//localIndex = globalIndex - mLo
+            	return mpVec[mOffset + globalIndex - mLo];
+            }
+            throw DistributedVectorException();
+         }
+
+        /**
+        * @param index
+        * @return value of striped distributed vector pointed to by index.
+        */
+        double& operator[](Iterator index) throw (DistributedVectorException)
+        {
+            return mpVec[mOffset + index.Local];
         }
 
     };

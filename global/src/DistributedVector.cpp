@@ -124,13 +124,13 @@ DistributedVector::DistributedVector(Vec vec) : mVec(vec)
     VecGetArray(vec, &mpVec);
     PetscInt size;
     VecGetSize(vec, &size);
-    mStride = (unsigned) size / mGlobalHi;
-    assert ((mStride * mGlobalHi) == (unsigned)size);
+    mNumChunks = (unsigned) size / mGlobalHi;
+    assert ((mNumChunks * mGlobalHi) == (unsigned)size);
 }
 
 double& DistributedVector::operator[](unsigned globalIndex) throw (DistributedVectorException)
 {
-    assert(mStride==1);
+    assert(mNumChunks==1);
     if (mLo<=globalIndex && globalIndex <mHi)
     {
         return mpVec[globalIndex - mLo];
@@ -175,7 +175,7 @@ DistributedVector::Iterator DistributedVector::End()
 
 double& DistributedVector::operator[](Iterator index) throw (DistributedVectorException)
 {
-    assert(mStride==1);
+    assert(mNumChunks==1);
     return mpVec[index.Local];
 }
 

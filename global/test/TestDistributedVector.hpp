@@ -140,25 +140,32 @@ public:
         // create a 10 element petsc vector
         DistributedVector::SetProblemSize(10);
         Vec striped=DistributedVector::CreateVec(2);
+        Vec chunked=DistributedVector::CreateVec(2);
         Vec petsc_vec=DistributedVector::CreateVec();
 
         DistributedVector distributed_vector(petsc_vec);
-        DistributedVector distributed_vector2(striped);
-        DistributedVector::Stripe linear(distributed_vector2,0);
-        DistributedVector::Stripe quadratic(distributed_vector2,1);
+        DistributedVector distributed_vector_striped(striped);
+        DistributedVector distributed_vector_chunked(chunked);
+        DistributedVector::Stripe linear(distributed_vector_striped, 0);
+        DistributedVector::Stripe quadratic(distributed_vector_striped, 1);
+        DistributedVector::Chunk linear_chunk(distributed_vector_chunked, 0);
+        DistributedVector::Chunk quadratic_chunk(distributed_vector_chunked, 1);
         // write some values
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index!= DistributedVector::End();
              ++index)
         {
             distributed_vector[index] =  -(double)(index.Local*index.Global);
-            linear[index] =  1;
+            linear[index] =  -1;
             quadratic[index] =  index.Local+1;
+            linear_chunk[index] = -1;
+            quadratic_chunk[index] =  index.Global+1;
         }
 
         distributed_vector.Restore();
-        distributed_vector2.Restore();
-
+        distributed_vector_striped.Restore();
+		distributed_vector_chunked.Restore();
+        
         //READ VECTOR
         // calculate my range
         PetscInt petsc_lo, petsc_hi;
@@ -168,18 +175,46 @@ public:
         // read some values
         double* p_striped;
         VecGetArray(striped, &p_striped);
+        double* p_chunked;
+        VecGetArray(chunked, &p_chunked);
         double* p_vec;
         VecGetArray(petsc_vec, &p_vec);
         for (unsigned global_index=lo; global_index<hi; global_index++)
         {
             unsigned local_index = global_index - lo;
             TS_ASSERT_EQUALS(p_vec[local_index], -(double)local_index*global_index);
-            TS_ASSERT_EQUALS(p_striped[2*local_index], (double)1);
+            TS_ASSERT_EQUALS(p_striped[2*local_index], -1.0);
             TS_ASSERT_EQUALS(p_striped[2*local_index+1], local_index+1);
+
+            TS_ASSERT_EQUALS(linear[global_index], -1.0);
+            TS_ASSERT_EQUALS(quadratic[global_index], local_index+1);
+            
+            TS_ASSERT_EQUALS(p_chunked[local_index], -1.0);
+            TS_ASSERT_EQUALS(p_chunked[ (hi - lo) + local_index], global_index+1);
+            
+            TS_ASSERT_EQUALS(linear_chunk[global_index], -1.0);
+            TS_ASSERT_EQUALS(quadratic_chunk[global_index], global_index+1);
+        }
+        
+        //Read item 2 from the distributed vectors (for coverage)
+        if (lo<=2 && 2<hi)
+        {
+            TS_ASSERT(DistributedVector::IsGlobalIndexLocal(2));
+            TS_ASSERT_EQUALS(linear[2], -1.0);
+            TS_ASSERT_EQUALS(quadratic[2], 3.0 - lo);
+            TS_ASSERT_EQUALS(linear_chunk[2], -1.0);
+            TS_ASSERT_EQUALS(quadratic_chunk[2], 3.0);
+        }
+        else
+        {
+            TS_ASSERT(!DistributedVector::IsGlobalIndexLocal(2));
+            TS_ASSERT_THROWS_ANYTHING(linear[2]);
+            TS_ASSERT_THROWS_ANYTHING(linear_chunk[2]);
         }
 
         VecDestroy(petsc_vec);
         VecDestroy(striped);
+        VecDestroy(chunked);
     }
 
     void TestException()
