@@ -57,7 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // ie "class AbstractCardiacPde : public virtual AbstractPde"
 // because AbstractPde will be the top class in a 'dreaded diamond':
 //      A
-//     / \     A = AbstractPde, B = AbstractCardiac, C = AbtractLinearParabolic (etc)
+//     / \     A = AbstractPde, B = AbstractCardiac, C = AbstractLinearParabolic (etc)
 //    B   C    D = MonodomainPde
 //     \ /
 //      D

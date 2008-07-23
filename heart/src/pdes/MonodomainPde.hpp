@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Note that default values of A, C and sigma_i are stored in the parent class
  */
 template <unsigned SPACE_DIM>
-class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>, public AbstractLinearParabolicPde<SPACE_DIM>
+class MonodomainPde : public virtual AbstractCardiacPde<SPACE_DIM>, public AbstractLinearParabolicPde<SPACE_DIM>
 {
 private:
     friend class TestMonodomainPde;

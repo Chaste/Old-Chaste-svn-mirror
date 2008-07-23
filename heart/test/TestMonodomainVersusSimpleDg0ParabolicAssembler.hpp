@@ -99,7 +99,8 @@ public:
     }
 
     FischerPde(ZeroStimCellFactory<SPACE_DIM>* pCellFactory)
-            : MonodomainPde<SPACE_DIM>(pCellFactory)
+            : AbstractCardiacPde<SPACE_DIM>(pCellFactory), // as MonodomainPde now uses virtual inheritence, need to explicitly call this constructor here
+              MonodomainPde<SPACE_DIM>(pCellFactory)
     {}
 };
 

@@ -58,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *       I_extra_stim is the external stimulus (a shock)                (uA/cm^3).
  */
 template <unsigned SPACE_DIM>
-class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
+class BidomainPde : public virtual AbstractCardiacPde<SPACE_DIM>
 {
 
 private:
