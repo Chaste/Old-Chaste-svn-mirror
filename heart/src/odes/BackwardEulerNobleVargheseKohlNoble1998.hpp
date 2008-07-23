@@ -13,16 +13,16 @@
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
 
-class CML_noble_varghese_kohl_noble_1998_basic_backward : public AbstractBackwardEulerCardiacCell<12>
+class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCardiacCell<12>
 {
 public:
-    CML_noble_varghese_kohl_noble_1998_basic_backward(AbstractStimulusFunction *pIntracellularStimulus,
+    BackwardEulerNobleVargheseKohlNoble1998(AbstractStimulusFunction *pIntracellularStimulus,
                                                       AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: second
         // 
-        mVariableNames.push_back("V");
+        mVariableNames.push_back("V");  //Fast
         mVariableUnits.push_back("millivolt");
         mInitialConditions.push_back(-92.849333);
 
@@ -38,11 +38,11 @@ public:
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.001302);
 
-        mVariableNames.push_back("m");
+        mVariableNames.push_back("m");  //Fast
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.0016203);
 
-        mVariableNames.push_back("h");
+        mVariableNames.push_back("h");  //Fast
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9944036);
 
@@ -78,11 +78,11 @@ public:
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.4068154);
 
-        mVariableNames.push_back("Na_i");
+        mVariableNames.push_back("Na_i");  //Slow
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(7.3321223);
 
-        mVariableNames.push_back("K_i");
+        mVariableNames.push_back("K_i");//Slow
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(136.5644281);
 
@@ -114,7 +114,7 @@ public:
 
     }
 
-    ~CML_noble_varghese_kohl_noble_1998_basic_backward(void)
+    ~BackwardEulerNobleVargheseKohlNoble1998(void)
     {
     }
 
