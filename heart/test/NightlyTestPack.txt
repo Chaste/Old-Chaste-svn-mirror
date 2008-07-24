@@ -6,7 +6,7 @@ TestConvergenceNeumannStimulus.hpp
 TestConvergenceNightly.hpp
 TestElectroMechanicCellularModels.hpp
 TestIonicModelsLong.hpp
-TestMonodomainDg0AssemblerLong.hpp
+TestMonodomainProblemLong.hpp
 TestMonodomainHeartApex.hpp
 TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp

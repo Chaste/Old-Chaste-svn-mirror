@@ -120,13 +120,23 @@ public:
         assert (ELEMENT_DIM == SPACE_DIM);
         c_vector <double, ELEMENT_DIM> rhs;
 
+        c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian_matrix;
+    
+        for (unsigned i=0; i<SPACE_DIM; i++)
+        {
+            for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0U (#186: pointless comparison of unsigned integer with zero)
+            {
+                jacobian_matrix(i,j) = this->GetNodeLocation(j+1,i) - this->GetNodeLocation(0,i);
+            }
+        }
+
         for (unsigned j=0; j<ELEMENT_DIM; j++)
         {
             double squared_location=0.0;
             for (unsigned i=0; i<SPACE_DIM; i++)
             {
-                //mJacobian(i,j) is the i-th component of j-th vertex (relative to vertex 0)
-                squared_location += this->mJacobian(i,j)*this->mJacobian(i,j);
+                //jacobian_matrix(i,j) is the i-th component of j-th vertex (relative to vertex 0)
+                squared_location += jacobian_matrix(i,j)*jacobian_matrix(i,j);
             }
             rhs[j]=squared_location/2.0;
         }

@@ -1,5 +1,5 @@
 TestBidomainProblem.hpp
 TestMonodomainConductionVelocity.hpp
-TestMonodomainDg0Assembler.hpp
+TestMonodomainProblem.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestMonodomainPde.hpp

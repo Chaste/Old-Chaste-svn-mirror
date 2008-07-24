@@ -11,7 +11,7 @@ TestHeartConfig.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp
-TestMonodomainDg0Assembler.hpp
+TestMonodomainProblem.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestMonodomainPde.hpp
 TestMonodomainUneven.hpp

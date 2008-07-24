@@ -72,8 +72,6 @@ protected:
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
     Vec mVoltage; // Current solution
-//    double mLinearSolverTolerance;
-//    bool mUseLinearSolverAbsoluteTolerance;
 
 
     /**
@@ -123,8 +121,6 @@ public:
         mpCardiacPde = NULL;
         mpAssembler = NULL;
         mVoltage = NULL;
-//        mLinearSolverTolerance=1e-6;
-//        mUseLinearSolverAbsoluteTolerance = false;
         mAllocatedMemoryForMesh = false;
         assert(mNodesToOutput.empty());
 
@@ -212,7 +208,7 @@ public:
         }
     }
 
-    // Perhaps this should be a method of AbstractCardiacPde??)
+    // Perhaps this should be a method of AbstractCardiacPde??
 
     Vec CreateInitialCondition()
     {
@@ -246,10 +242,11 @@ public:
         return initial_condition;
     }
 
-    /** Set whether to call the Chaste2Meshalyzer script.
-     * This script gets everything ready to visualize the results with meshalyser
-     * and is useful in testing. By default the script is called.
-     * In performance testing for example it desirable to disable the script.
+    /** 
+     *  Set whether to call the Chaste2Meshalyzer script.
+     *  This script gets everything ready to visualize the results with meshalyser
+     *  and is useful in testing. By default the script is called.
+     *  In performance testing for example it desirable to disable the script.
      */
     void ConvertOutputToMeshalyzerFormat(bool call = true)
     {
@@ -283,9 +280,9 @@ public:
     }
 
     /**
-     * Get the final solution vector. This vector is distributed over all processes.
+     *  Get the final solution vector. This vector is distributed over all processes.
      *
-     * In case of Bidomain, this is of length 2*numNodes, and of the form
+     *  In case of Bidomain, this is of length 2*numNodes, and of the form
      *  (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N).
      *  where V_j is the voltage at node j and phi_j is the
      *  extracellular potential at node j.

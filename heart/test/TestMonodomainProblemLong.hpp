@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _TESTMONODOMAINDG0ASSEMBLERLONG_HPP_
-#define _TESTMONODOMAINDG0ASSEMBLERLONG_HPP_
+#ifndef _TESTMONODOMAINPROBLEMLONG_HPP_
+#define _TESTMONODOMAINPROBLEMLONG_HPP_
 
 
 
@@ -79,7 +79,7 @@ public:
 };
 
 
-class TestMonodomainDg0AssemblerLong : public CxxTest::TestSuite
+class TestMonodomainProblemLong : public CxxTest::TestSuite
 {
 public:
 
@@ -88,12 +88,12 @@ public:
     // We run for 500 ms and then check that all the voltages at the final time
     // have returned to the resting potential of -84.5
     // test should take about 30mins (or less)
-    void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
+    void TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSimulationDuration(500); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
-        HeartConfig::Instance()->SetOutputDirectory("MonoDg02dWithPointStimulusLong");
+        HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dWithPointStimulusLong");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulusLong");
         
         PointStimulus2dCellFactory cell_factory(60); // Central node
@@ -137,4 +137,4 @@ public:
 
     }
 };
-#endif //_TESTMONODOMAINDG0ASSEMBLERLONG_HPP_
+#endif //_TESTMONODOMAINPROBLEMLONG_HPP_
