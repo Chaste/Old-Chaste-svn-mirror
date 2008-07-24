@@ -71,9 +71,11 @@ QuadraticMesh::QuadraticMesh(const std::string& fileName)
 }
 
 QuadraticMesh::QuadraticMesh()
-{}
+{
+}
 
 void QuadraticMesh::ConvertToQuadratic()
-{}
+{
+}
 
 #endif /*QUADRATICMESH_HPP_*/
