@@ -327,8 +327,8 @@ public :
         {
             mOutputDirectory = outputDirectory;
             mDeformationOutputDirectory = mOutputDirectory + "/deformation";
-            mpMonodomainProblem->SetOutputDirectory(mOutputDirectory + "/electrics");
-            mpMonodomainProblem->SetOutputFilenamePrefix("voltage");
+            HeartConfig::Instance()->SetOutputDirectory(mOutputDirectory + "/electrics");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("voltage");
         }
         else
         {
@@ -658,7 +658,7 @@ public :
                 system(chaste_2_meshalyzer.c_str());
             }
 
-            HeartConfig::Instance()->Destroy();
+            HeartConfig::Instance()->Reset();
             mpMonodomainProblem->mpWriter->Close();
             delete mpMonodomainProblem->mpWriter;
             
