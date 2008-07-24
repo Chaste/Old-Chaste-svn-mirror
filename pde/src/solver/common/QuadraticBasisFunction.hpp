@@ -229,7 +229,7 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 gradN(1) = -4.0*x;
                 break;
             default:
-                assert (false);
+                NEVER_REACHED;
         }
         break;
         
