@@ -64,6 +64,8 @@ elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk", "u
     import chaste64 as conf
 elif machine_fqdn == "chaste-bob.comlab.ox.ac.uk":
     import chastebob as conf
+elif machine_fqdn == "userpc36.comlab.ox.ac.uk":
+    import migb as conf
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
     import zuse as conf
 elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
