@@ -28,8 +28,8 @@
 	   	-->
 	   	<Stimuli>
 		  	<Stimulus> <!-- #1 -->
-				<Strength>-35500.0</Strength>
-				<Duration>0.5</Duration>
+				<Strength>-25500.0</Strength>
+				<Duration>2.0</Duration>
 				<Delay>0</Delay>
 				<Location>
 					<CornerA x="-2.0" y="-0.1" z="-1.0"/>
@@ -88,7 +88,7 @@
 	</Physiological>
 
 	<Numerical>
-		<TimeSteps ode="0.01" pde="0.01" printing="0.01"/>
+		<TimeSteps ode="0.005" pde="0.01" printing="0.1"/>
 		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
