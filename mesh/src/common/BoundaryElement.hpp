@@ -57,6 +57,7 @@ public:
         // Store Node pointer
         this->mNodes.push_back(node);
 
+        this->mJacobian(0,0) = 1.0;
         this->mInverseJacobian(0,0) = 1.0;
         this->mWeightedDirection(0) = 1.0;
         this->mJacobianDeterminant = 1.0;

@@ -29,9 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _ABSTRACTELEMENT_HPP_
 #define _ABSTRACTELEMENT_HPP_
-/**
- * This class defines an Element for use in FEM.
- */
 
 #include "Node.hpp"
 #include "ChastePoint.hpp"
@@ -48,15 +45,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 const unsigned INDEX_IS_NOT_USED=0;
 
 
+/**
+ * This class defines an Element for use in the Finite Element Method.
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractElement
 {
 protected:
     unsigned mIndex;
     std::vector<Node<SPACE_DIM>*> mNodes;
-    //c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
-    c_vector<double, SPACE_DIM> mWeightedDirection; //Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM
+    
+    /*< Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM */
+    c_vector<double, SPACE_DIM> mWeightedDirection; 
     double mJacobianDeterminant;
     bool mIsDeleted;
     bool mOwnership;
@@ -77,7 +79,7 @@ protected:
         // in the vector contained in ConformingTetrahedralMesh.
 
         mJacobianDeterminant = element.mJacobianDeterminant;
-//        mJacobian = element.mJacobian;
+        mJacobian = element.mJacobian;
         mInverseJacobian = element.mInverseJacobian;
         mWeightedDirection = element.mWeightedDirection;
 
@@ -182,16 +184,14 @@ public:
         mNodes.push_back(node);
     }
 
-//    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobian(void) const
-//    {
-//        return &mJacobian;
-//    }
-    
+    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobian(void) const
+    {
+        return &mJacobian;
+    }
     const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobian(void) const
     {
         return &mInverseJacobian;
     }
-    
     double GetJacobianDeterminant(void) const
     {
         return mJacobianDeterminant;
@@ -364,7 +364,6 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroJacobianDeterminant(void)
 {
     mJacobianDeterminant=0.0;
 }
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
 {
@@ -378,21 +377,18 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
     {
         EXCEPTION("Attempting to Refresh a deleted element");
     }
-
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian_matrix;
-    
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
         for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0U (#186: pointless comparison of unsigned integer with zero)
         {
-            jacobian_matrix(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
+            mJacobian(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
         }
     }
 
 
     if (ELEMENT_DIM == SPACE_DIM)
     {
-        mJacobianDeterminant = Determinant(jacobian_matrix);
+        mJacobianDeterminant = Determinant(mJacobian);
         if (mJacobianDeterminant <= DBL_EPSILON)
         {
             std::stringstream string_stream;
@@ -401,7 +397,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
                           << " for element " << mIndex;
             EXCEPTION(string_stream.str());
         }
-        mInverseJacobian   = Inverse(jacobian_matrix);
+        mInverseJacobian   = Inverse(mJacobian);
         return;
     }
 
@@ -429,14 +425,14 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
         case 1:
             // Linear edge in a 2D plane or in 3D
 
-            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(jacobian_matrix,0);
+            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(mJacobian,0);
             break;
         case 2:
             // Surface triangle in a 3d mesh
             assert(SPACE_DIM == 3);
-            weighted_direction(0)=-SubDeterminant(jacobian_matrix,0,2);
-            weighted_direction(1)= SubDeterminant(jacobian_matrix,1,2);
-            weighted_direction(2)=-SubDeterminant(jacobian_matrix,2,2);
+            weighted_direction(0)=-SubDeterminant(mJacobian,0,2);
+            weighted_direction(1)= SubDeterminant(mJacobian,1,2);
+            weighted_direction(2)=-SubDeterminant(mJacobian,2,2);
             break;
         default:
            ; // Not going to happen
@@ -460,7 +456,5 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
         mWeightedDirection = weighted_direction;
     }
 }
-
-
 
 #endif //_ABSTRACTELEMENT_HPP_
