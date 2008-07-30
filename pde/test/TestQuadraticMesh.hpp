@@ -34,9 +34,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestQuadraticMesh : public CxxTest::TestSuite 
 {
 public:
-    void testQuadraticMesh()
+    void testQuadraticMesh() throw(Exception)
     {
-        QuadraticMesh mesh("mesh/test/data/square_128_elements");   
+        QuadraticMesh mesh("mesh/test/data/square_128_elements_quadratics");
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 289u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 128u);
+
+        // node 3 (ie fourth) of element 0 
+        TS_ASSERT_EQUALS(mesh.GetElementNode(0, 3), 82u);
+        // node 4 (ie fifth) of element 0 
+        TS_ASSERT_EQUALS(mesh.GetElementNode(0, 4), 83u);
+        // node 5 (ie last) of element 0 
+        TS_ASSERT_EQUALS(mesh.GetElementNode(0, 5), 81u);
     }
 };
 

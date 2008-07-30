@@ -49,14 +49,14 @@ typedef TrianglesMeshReader<3,3> READER_3D;
 typedef TrianglesMeshReader<0,1> READER_0D_IN_1D;
 
 
-class TestTrianglesMeshReaders : public CxxTest::TestSuite
+class TestTrianglesMeshReader : public CxxTest::TestSuite
 {
 public:
 
     /**
      * Check that input files are opened correctly.
      */
-    void TestFilesOpen(void)
+    void TestFilesOpen(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new READER_2D("mesh/test/data/disk_522_elements");
@@ -68,7 +68,7 @@ public:
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing nodes) then an exception is thrown.
      */
-    void TestNodesDataRead(void)
+    void TestNodesDataRead(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<2,2>(
@@ -88,7 +88,7 @@ public:
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing elements) then an exception is thrown.
      */
-    void TestElementsDataRead(void)
+    void TestElementsDataRead(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<2,2>(
@@ -108,7 +108,7 @@ public:
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing faces) then an exception is thrown.
      */
-    void TestFacesDataRead(void)
+    void TestFacesDataRead(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<2,2>(
@@ -131,7 +131,7 @@ public:
      * as the previously considered (2-d) Triangles files. Checks that the
      * element output vector for a given input file is the correct length.
      */
-    void Test3dDataRead(void)
+    void Test3dDataRead(void) throw(Exception)
     {
         AbstractMeshReader<3,3> *p_mesh_reader;
         p_mesh_reader=new READER_3D("mesh/test/data/slab_138_elements");
@@ -146,7 +146,7 @@ public:
      * indexed from zero and checks that the output file also is. Uses methods
      * GetMaxNodeIndex() and GetMinNodeIndex().
      */
-    void TestIndexFromZero(void)
+    void TestIndexFromZero(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new READER_2D("mesh/test/data/disk_522_elements");
@@ -163,7 +163,7 @@ public:
      * indexed from one and checks that the output file also is. Uses methods
      * GetMaxNodeIndex() and GetMinNodeIndex().
      */
-    void TestIndexFromOne(void)
+    void TestIndexFromOne(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new READER_2D(
@@ -183,7 +183,7 @@ public:
      * number is only stored as the index of the vector in which the coordinates
      * are stored.)
      */
-    void TestPermutedNodesFail(void)
+    void TestPermutedNodesFail(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         TS_ASSERT_THROWS_ANYTHING(
@@ -197,7 +197,7 @@ public:
      * node than the dimension of the mesh). If quadratic basis functions are
      * required this should be dealt with elsewhere.
      */
-    void TestOrder2ElementsFail(void)
+    void TestOrder2ElementsFail(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         TS_ASSERT_THROWS_ANYTHING(
@@ -212,7 +212,7 @@ public:
      * values, checks that no errors are thrown for the remaining nodes and
      * that an error is thrown if we try to call the function too many times.
      */
-    void TestGetNextNode(void)
+    void TestGetNextNode(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<2,2>("mesh/test/data/disk_984_elements");
@@ -247,7 +247,7 @@ public:
      * all of the elements and that an error is thrown if we try to call the
      * function too many times.
      */
-    void TestGetNextElement(void)
+    void TestGetNextElement(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<2,2>("mesh/test/data/disk_984_elements");
@@ -269,7 +269,7 @@ public:
      * all of the edges and that an error is thrown if we try to call the
      * function too many times.
      */
-    void TestGetNextEdge(void)
+    void TestGetNextEdge(void) throw(Exception)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<2,2>("mesh/test/data/disk_984_elements");
@@ -293,7 +293,7 @@ public:
      * Check that the 1D data are read correctly. Check that the output vector
      * for a given input file is the correct length.
      */
-    void Test1DMeshRead(void)
+    void Test1DMeshRead(void) throw(Exception)
     {
         AbstractMeshReader<1,1> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<1,1>("mesh/test/data/trivial_1d_mesh");
@@ -309,7 +309,7 @@ public:
     }
 
 
-    void Test0DMeshIn1DSpaceFails()
+    void Test0DMeshIn1DSpaceFails() throw(Exception)
     {
         AbstractMeshReader<0,1> *p_mesh_reader;
         TS_ASSERT_THROWS_ANYTHING(  p_mesh_reader=new READER_0D_IN_1D(
@@ -318,7 +318,7 @@ public:
     }
 
 
-    void Test1DMeshIn2DSpace()
+    void Test1DMeshIn2DSpace() throw(Exception)
     {
         AbstractMeshReader<1,2> *p_mesh_reader;
 
@@ -334,7 +334,7 @@ public:
     }
 
 
-    void Test2DMeshIn3DSpace()
+    void Test2DMeshIn3DSpace() throw(Exception)
     {
         AbstractMeshReader<2,3> *p_mesh_reader;
 
@@ -357,12 +357,51 @@ public:
     }
 
 
-    void TestExceptions()
+    void TestOtherExceptions() throw(Exception)
     {
         // this should fail because a 3D reader is attempting to read a 2D mesh
         TS_ASSERT_THROWS_ANYTHING( READER_3D mesh_reader("mesh/test/data/disk_984_elements") );
     }
 
+    ////////////////////////////////////////////////////////
+    // quadratic tests
+    ////////////////////////////////////////////////////////
+    void TestReadingQuadraticMesh1d() throw(Exception)
+    {
+        TS_ASSERT_THROWS_ANYTHING( READER_1D wrong_reader("mesh/test/data/1D_0_to_1_10_elements_quadratics", 1));
+
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratics", 2);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 21u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
+    
+        for(unsigned i=0; i<10; i++)
+        {
+            TS_ASSERT_EQUALS(mesh_reader.mElementData[i].size(), 3u);
+        }
+        
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][0], 0u);   // left node
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][1], 1u);   // right node
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][2], 11u);  // middle node
+    }    
+    
+    void TestReadingQuadraticMesh2d() throw(Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratics", 2);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 17u*17u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 128u);
+    
+        for(unsigned i=0; i<128; i++)
+        {
+            TS_ASSERT_EQUALS(mesh_reader.mElementData[i].size(), 6u);
+        }
+        
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][0], 53u);
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][1], 0u);
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][2], 54u);
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][3], 82u); // opposite to 53
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][4], 83u); // opposite to 0
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0][5], 81u); // opposite to 54
+    }
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

@@ -45,6 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
+    friend class TestTrianglesMeshReader;
+
 private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
         std::vector<std::string> rawData);
@@ -66,7 +68,7 @@ private:
     void ReadEdgesAsFaces(std::string pathBaseName);
 
 public:
-    TrianglesMeshReader(std::string pathBaseName);
+    TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements=1);
 
     virtual ~TrianglesMeshReader();
 };
@@ -85,8 +87,22 @@ public:
  * Also calls the superclass AbstractMeshReader's constructor
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName)
+TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements /*=1*/)
 {
+    assert(orderOfElements==1 || orderOfElements==2);
+    unsigned expected_num_nodes_per_elem;
+    if(orderOfElements==1)
+    {
+        expected_num_nodes_per_elem = ELEMENT_DIM+1;
+    }
+    else
+    {
+        assert(ELEMENT_DIM==1 || ELEMENT_DIM==2); // TODO: 3D
+        
+        assert(SPACE_DIM==ELEMENT_DIM);
+        expected_num_nodes_per_elem = (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2;
+    }
+    
     //Open node file and store the lines as a vector of strings (minus the comments)
     std::string nodeFileName=pathBaseName+".node";
     this->mNodeRawData=this->GetRawDataFromFile(nodeFileName);
@@ -114,9 +130,9 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     {
         // ignored from coverage because otherwise would have to create files
         // for a bad mesh just to test this line
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         EXCEPTION("Number of nodes does not match expected number declared in header");
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
 
     if (ELEMENT_DIM < SPACE_DIM)
@@ -139,19 +155,24 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     unsigned num_elements;
     element_header_stream >> num_elements >> this->mNumElementNodes >> this->mNumElementAttributes;
 
-    //Only order 1 triangles or tetrahedra are currently supported
-    if (this->mNumElementNodes != ELEMENT_DIM+1)
+
+    if( this->mNumElementNodes != expected_num_nodes_per_elem )
     {
-        // ignored from coverage because otherwise would have to create files
-        // for a bad mesh just to test this line
-#define COVERAGE_IGNORE
-        EXCEPTION("Number of nodes per element is not supported");
-#undef COVERAGE_IGNORE
+        std::stringstream error;
+        error << "Number of nodes per elem, " << this->mNumElementNodes << ", does not match "
+              << "expected number, " << expected_num_nodes_per_elem << " (which is calculated given "
+              << "the order of elements chosen, " << orderOfElements << " (1=linear, 2=quadratics)";
+        EXCEPTION(error.str());
     }
 
+
     assert(this->mMaxFaceBdyMarker == 0);
+
     // Read the rest of the element data using TokenizeStringsToInts method
-    this->mElementData = TokenizeStringsToInts(this->mElementRawData,ELEMENT_DIM+1);
+
+//    this->mElementData = TokenizeStringsToInts(this->mElementRawData,ELEMENT_DIM+1);
+this->mElementData = TokenizeStringsToInts(this->mElementRawData, expected_num_nodes_per_elem);
+
     this->mpElementIterator = this->mElementData.begin();
 
     //Check that the size of the data matches the information in the header
@@ -159,12 +180,12 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     {
         // ignored from coverage because otherwise would have to create files
         // for a bad mesh just to test this line
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         EXCEPTION("Number of elements does not match expected number declared in header");
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
 
-    /*Open face file and store the lines as a vector of strings (minus the comments)
+    /* Open face file and store the lines as a vector of strings (minus the comments)
      * Note that the Triangles equivalent of a face file is an edge file.
      * The two file formats are similar.  We store edges as "faces" but the superclass
      * provides a GetNextEdge method which queries this data.
@@ -268,11 +289,11 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
                         // ignored from coverage because otherwise would have to create files
                         // for a bad mesh just to test this line - note that it is tested for
                         // below in the case that the nodes are indexed from 1
-#define COVERAGE_IGNORE
+                        #define COVERAGE_IGNORE
                         std::stringstream item_number_as_string;
                         item_number_as_string << item_number;
                         EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
-#undef COVERAGE_IGNORE
+                        #undef COVERAGE_IGNORE
                     }
                 }
                 else
@@ -297,7 +318,6 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
                 tokenized_data.push_back(current_coords);
             }
         }
-
     }
 
     return tokenized_data;
@@ -344,7 +364,7 @@ std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>:
             if (line_stream >> item_number)
             {
 
-                for (unsigned i = 0; i < dimensionOfObject; i++)
+                for (unsigned i=0; i < dimensionOfObject; i++)
                 {
                     unsigned item_index;
                     line_stream >> item_index;
@@ -413,9 +433,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
     {
         // ignored from coverage because otherwise would have to create files
         // for a bad mesh just to test this line
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         EXCEPTION("Number of elements does not match expected number declared in header");
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
 }
 
@@ -426,7 +446,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string pathBaseName)
 {
-
     if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
     {
         //There is no file
@@ -444,9 +463,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
     }
 
     //Gcov is confused by this assertion
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 3 && ELEMENT_DIM == 2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     std::string face_file_name;
     face_file_name=pathBaseName+".edge";
@@ -471,9 +490,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
     {
         // ignored from coverage because otherwise would have to create files
         // for a bad mesh just to test this line
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         EXCEPTION("Number of faces does not match expected number declared in header");
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
 }
 
@@ -482,6 +501,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::~TrianglesMeshReader()
-{}
+{
+}
 
 #endif //_TRIANGLESMESHREADER_H_

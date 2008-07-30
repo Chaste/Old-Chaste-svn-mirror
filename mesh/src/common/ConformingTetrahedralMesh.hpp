@@ -537,8 +537,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     {
         std::vector<unsigned> node_indices = rMeshReader.GetNextElement();
         std::vector<Node<SPACE_DIM>*> nodes;
-        unsigned nodes_size = node_indices.size();
-        for (unsigned j=0; j<nodes_size; j++)
+
+// NOTE: currently just reading element vertices from mesh reader - even if it
+// does contain information about internal nodes (ie for quadratics) this is
+// ignored here and used elsewhere
+
+        // unsigned nodes_size = node_indices.size();
+        for (unsigned j=0; j<ELEMENT_DIM+1; j++) // num vertices=ELEMENT_DIM+1, may not be equal to nodes_size.
         {
             assert(node_indices[j] <  mNodes.size());
             nodes.push_back(mNodes[node_indices[j]]);

@@ -39,7 +39,7 @@ class QuadraticMesh : public ConformingTetrahedralMesh<2,2>
 {
 private:
     bool mIsPrepared;
-    std::vector<std::vector<double> > mLNods;
+    std::vector<std::vector<unsigned> > mLnods;
     
 public:
     /**
@@ -58,24 +58,55 @@ public:
      * Calculates the extra nodes and information needed to use a mesh with quadratic basis functions
      */
     void ConvertToQuadratic();
+    
+    unsigned GetElementNode(unsigned elemIndex, unsigned nodeIndex)
+    {
+        assert(mIsPrepared);
+        assert(elemIndex<this->GetNumElements());
+        assert(nodeIndex>=3 && nodeIndex<6);
+        return mLnods[elemIndex][(unsigned)(nodeIndex-3)];
+    }
 };
 
 
 
 QuadraticMesh::QuadraticMesh(const std::string& fileName)
 {
-    TrianglesMeshReader<2,2> mesh_reader(fileName);
+    TrianglesMeshReader<2,2> mesh_reader(fileName, 2);
     ConstructFromMeshReader(mesh_reader);
     
-    mIsPrepared = false;
+    mesh_reader.Reset();
+    
+    mLnods.resize(this->GetNumElements());
+    for(unsigned i=0; i<mLnods.size(); i++)
+    {
+        std::vector<unsigned> node_indices = mesh_reader.GetNextElement();
+        
+        mLnods[i].push_back( node_indices[3] );
+        mLnods[i].push_back( node_indices[4] );
+        mLnods[i].push_back( node_indices[5] );
+    }
+    
+    mIsPrepared = true;
 }
+
 
 QuadraticMesh::QuadraticMesh()
 {
+    mIsPrepared = false;
 }
 
 void QuadraticMesh::ConvertToQuadratic()
 {
+    #define COVERAGE_IGNORE
+    // not implemented yet..
+    assert(false);
+
+    // do conversion here
+
+    mIsPrepared = true;
+    #undef COVERAGE_IGNORE
+
 }
 
 #endif /*QUADRATICMESH_HPP_*/
