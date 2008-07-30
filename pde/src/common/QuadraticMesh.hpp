@@ -39,7 +39,13 @@ class QuadraticMesh : public ConformingTetrahedralMesh<2,2>
 {
 private:
     bool mIsPrepared;
-    std::vector<std::vector<unsigned> > mLnods;
+    
+    ///\todo: move this info into element?
+    // Note, the mesh currently has as data:
+    //   CTM: /all/ the nodes (including non-vertex)
+    //        elements each withknowledge of their vertices only
+    //   QM:  extra nodes for each element 
+    std::vector<std::vector<unsigned> > mLnods; 
     
 public:
     /**
