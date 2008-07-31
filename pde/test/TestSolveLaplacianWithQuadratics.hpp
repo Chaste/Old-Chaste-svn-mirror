@@ -321,7 +321,7 @@ public:
         mBeta = 1.0;
     }
     
-    ~QuadraticLaplacianAssembler()
+    virtual ~QuadraticLaplacianAssembler()
     {
         delete mpLinearSystem;
         delete mpQuadRule;        
