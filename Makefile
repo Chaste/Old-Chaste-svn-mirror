@@ -11,6 +11,8 @@ INCS += -I/opt/boost/include/boost-1_33_1
 
 LIBS=cancer/src/common/CancerParameters.o \
 cancer/src/common/CancerEventHandler.o \
+cancer/src/mesh/Cylindrical2dMesh.o \
+cancer/src/mesh/HoneycombMeshGenerator.o \
 cancer/src/tissue/statistics/AbstractCryptStatistics.o \
 cancer/src/tissue/statistics/CryptStatistics.o \
 cancer/src/tissue/cell/cycle/AbstractCellCycleModel.o \
@@ -24,6 +26,7 @@ cancer/src/tissue/cell/cycle/StochasticCellCycleModel.o \
 cancer/src/tissue/cell/cycle/StochasticWntCellCycleModel.o \
 cancer/src/tissue/cell/cycle/FixedCellCycleModel.o \
 cancer/src/tissue/cell/cycle/WntCellCycleModel.o \
+cancer/src/tissue/cell/cycle/WntConcentration.o \
 cancer/src/tissue/cell/cycle/IngeWntSwatCellCycleModel.o \
 cancer/src/tissue/cell/TissueCell.o \
 cancer/src/tissue/killers/RadialSloughingCellKiller.o \
@@ -32,7 +35,6 @@ cancer/src/tissue/mechanics/CryptProjectionSpringSystem.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
 cancer/src/odes/IngeWntSwatCellCycleOdeSystem.o \
 cancer/src/odes/TysonNovak2001OdeSystem.o \
-cancer/src/tissue/cell/cycle/WntConcentration.o \
 global/src/LogFile.o \
 global/src/Exception.o  \
 global/src/OutputFileHandler.o \
@@ -141,8 +143,8 @@ TestCryptSimulation2dRunner: TestCryptSimulation2dRunner.o ${LIBS}
 	
 # This runs the test which generates MeinekeLabellingExperiment data.
 
-TestMeinekeLabellingExperimentsRunner.cpp:	projects/GaryM/test/TestMeinekeLabellingExperimentsOwenData.hpp
-	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingExperimentsRunner.cpp projects/GaryM/test/TestMeinekeLabellingExperimentsOwenData.hpp
+TestMeinekeLabellingExperimentsRunner.cpp:	projects/GaryM/test/TestMeinekeLabellingExperimentsSunterData.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingExperimentsRunner.cpp projects/GaryM/test/TestMeinekeLabellingExperimentsSunterData.hpp
 
 TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o ${LIBS}
 	g++ TestMeinekeLabellingExperimentsRunner.o ${LIBS} -o TestMeinekeLabellingExperimentsRunner ${LDFLAGS};\
