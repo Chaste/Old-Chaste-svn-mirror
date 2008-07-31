@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-// currently just 2d
-class QuadraticMesh : public ConformingTetrahedralMesh<2,2>
+template<unsigned DIM>
+class QuadraticMesh : public ConformingTetrahedralMesh<DIM, DIM>
 {
 private:
     bool mIsPrepared;
@@ -69,18 +69,31 @@ public:
     {
         assert(mIsPrepared);
         assert(elemIndex<this->GetNumElements());
-        assert(nodeIndex>=3 && nodeIndex<6);
-        return mLnods[elemIndex][(unsigned)(nodeIndex-3)];
+        if(DIM==1)
+        {
+            assert(nodeIndex==2);
+            return mLnods[elemIndex][0]; //ie 2-2
+        }
+        else if(DIM==2)
+        {
+            assert(nodeIndex>=3 && nodeIndex<6);
+            return mLnods[elemIndex][(unsigned)(nodeIndex-3)];
+        }
+        else
+        {
+            assert(DIM==3);
+            assert(0); // not implemented yet..
+        }
     }
 };
 
 
-
-QuadraticMesh::QuadraticMesh(const std::string& fileName)
+template<unsigned DIM>
+QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
 {
-    TrianglesMeshReader<2,2> mesh_reader(fileName, 2);
+    TrianglesMeshReader<DIM,DIM> mesh_reader(fileName, 2); // 2=quadratic mesh
     ConstructFromMeshReader(mesh_reader);
-    
+
     mesh_reader.Reset();
     
     mLnods.resize(this->GetNumElements());
@@ -88,21 +101,34 @@ QuadraticMesh::QuadraticMesh(const std::string& fileName)
     {
         std::vector<unsigned> node_indices = mesh_reader.GetNextElement();
         
-        mLnods[i].push_back( node_indices[3] );
-        mLnods[i].push_back( node_indices[4] );
-        mLnods[i].push_back( node_indices[5] );
+        if(DIM==1)
+        {
+            mLnods[i].push_back( node_indices[2] );
+        }
+        else if(DIM==2)
+        {
+            mLnods[i].push_back( node_indices[3] );
+            mLnods[i].push_back( node_indices[4] );
+            mLnods[i].push_back( node_indices[5] );
+        }
+        else
+        {
+            assert(DIM==3);
+            assert(0);
+        }
     }
     
     mIsPrepared = true;
 }
 
-
-QuadraticMesh::QuadraticMesh()
+template<unsigned DIM>
+QuadraticMesh<DIM>::QuadraticMesh()
 {
     mIsPrepared = false;
 }
 
-void QuadraticMesh::ConvertToQuadratic()
+template<unsigned DIM>
+void QuadraticMesh<DIM>::ConvertToQuadratic()
 {
     #define COVERAGE_IGNORE
     // not implemented yet..
@@ -112,7 +138,6 @@ void QuadraticMesh::ConvertToQuadratic()
 
     mIsPrepared = true;
     #undef COVERAGE_IGNORE
-
 }
 
 #endif /*QUADRATICMESH_HPP_*/

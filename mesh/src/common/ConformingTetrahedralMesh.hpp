@@ -595,7 +595,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             //If the following assertion is thrown, it means that the .edge/.face file does not
             //match the .ele file -- they were generated at separate times.  Simply remove the internal
             //edges/faces by hand.
-            assert(containing_element_indices.size() != 0);
+//            assert(containing_element_indices.size() != 0);
+// NOTE: JOEREADTHIS: the above assertion doesn't apply to quadratic meshes, and
+// causes 1D quad meshes to not load - removed as not sure what to do with it..
+
 
             if(containing_element_indices.size() > 1)
             {

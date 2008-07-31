@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * diffusion term.
  */
 template <int SPACE_DIM>
-class SimplePoissonEquation:public AbstractLinearEllipticPde<SPACE_DIM>
+class SimplePoissonEquation : public AbstractLinearEllipticPde<SPACE_DIM>
 {
 public:
     double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& )

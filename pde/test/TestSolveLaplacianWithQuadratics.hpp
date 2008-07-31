@@ -43,24 +43,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "GaussianQuadratureRule.hpp"
+#include "EllipticPdeWithLinearSource.hpp"
+#include "SimpleLinearEllipticAssembler.hpp"
 
-
-
+template<unsigned DIM>
 class QuadraticLaplacianAssembler
 {
 private:
-    double mAlpha;
-    double mBeta;
+    double mCoeffOfU;
+    double mConstant;
     
     LinearSystem* mpLinearSystem;
-    QuadraticMesh* mpQuadMesh;
-    BoundaryConditionsContainer<2,2,1>* mpBoundaryConditions;
-    GaussianQuadratureRule<2> *mpQuadRule;
+    QuadraticMesh<DIM>* mpQuadMesh;
+    BoundaryConditionsContainer<DIM,DIM,1>* mpBoundaryConditions;
+    GaussianQuadratureRule<DIM>* mpQuadRule;
 
-    static const unsigned NUM_BASES_PER_ELEMENT = 6;
-    static const unsigned STENCIL_SIZE = 6;
+    static const unsigned NUM_BASES_PER_ELEMENT = (DIM+1)*(DIM+2)/2;
+    static const unsigned STENCIL_SIZE = NUM_BASES_PER_ELEMENT; // multiplied by PROBLEM_DIM
 
-    virtual void AssembleOnElement( Element<2,2> &rElement,
+    virtual void AssembleOnElement( Element<DIM, DIM> &rElement,
                                     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE > &rAElem,
                                     c_vector<double, STENCIL_SIZE> &rBElem,
                                     bool assembleVector,
@@ -71,7 +72,7 @@ private:
          * This is true for linear basis functions, but not for any other type of
          * basis function. <--- not true, as we don't have curvilinear elements!
          */
-        const c_matrix<double, 2, 2>* p_inverse_jacobian = NULL;
+        const c_matrix<double, DIM, DIM>* p_inverse_jacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
 
         // Initialise element contributions to zero
@@ -92,26 +93,26 @@ private:
 
         // allocate memory for the basis functions values and derivative values
         c_vector<double, NUM_BASES_PER_ELEMENT> phi;
-        c_matrix<double, 2, NUM_BASES_PER_ELEMENT> grad_phi;
+        c_matrix<double, DIM, NUM_BASES_PER_ELEMENT> grad_phi;
 
         // loop over Gauss points
         for (unsigned quad_index=0; quad_index < mpQuadRule->GetNumQuadPoints(); quad_index++)
         {
-            const ChastePoint<2>& quad_point = mpQuadRule->rGetQuadPoint(quad_index);
+            const ChastePoint<DIM>& quad_point = mpQuadRule->rGetQuadPoint(quad_index);
 
-            QuadraticBasisFunction<2>::ComputeBasisFunctions(quad_point, phi);
+            QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quad_point, phi);
 
             if ( assembleMatrix )
             {
-                QuadraticBasisFunction<2>::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, grad_phi);
+                QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, grad_phi);
             }
 
             // Location of the gauss point in the original element will be stored in x
             // Where applicable, u will be set to the value of the current solution at x
-            ChastePoint<2> x(0,0,0);
+            ChastePoint<DIM> x(0,0,0);
 
             c_vector<double,1> u = zero_vector<double>(1);
-            c_matrix<double,1,2> grad_u = zero_matrix<double>(1,2);
+            c_matrix<double,1,DIM> grad_u = zero_matrix<double>(1,DIM);
 
 //            // allow the concrete version of the assembler to interpolate any
 //            // desired quantities
@@ -163,7 +164,6 @@ private:
 //                // desired quantities
 //                static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
 //            }
-
             double wJ = jacobian_determinant * mpQuadRule->GetWeight(quad_index);
 
             ////////////////////////////////////////////////////////////
@@ -176,21 +176,21 @@ private:
 
             if (assembleVector)
             {
-               // noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
+                noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             }
         }
     }
 
     virtual c_matrix<double,STENCIL_SIZE,STENCIL_SIZE> ComputeMatrixTerm(
         c_vector<double, NUM_BASES_PER_ELEMENT> &rPhi,
-        c_matrix<double, 2, NUM_BASES_PER_ELEMENT> &rGradPhi,
-        ChastePoint<2> &rX,
+        c_matrix<double, DIM, NUM_BASES_PER_ELEMENT> &rGradPhi,
+        ChastePoint<DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,2> &rGradU,
-        Element<2,2>* pElement)
+        c_matrix<double,1,DIM> &rGradU,
+        Element<DIM,DIM>* pElement)
     {
             return   prod( trans(rGradPhi), rGradPhi )
-                   - mAlpha*outer_prod(rPhi,rPhi);
+                   - mCoeffOfU*outer_prod(rPhi,rPhi);
 
 //        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
 //
@@ -209,13 +209,13 @@ private:
 
     virtual c_vector<double,STENCIL_SIZE> ComputeVectorTerm(
         c_vector<double, NUM_BASES_PER_ELEMENT> &rPhi,
-        c_matrix<double, 2, NUM_BASES_PER_ELEMENT> &rGradPhi,
-        ChastePoint<2> &rX,
+        c_matrix<double, DIM, NUM_BASES_PER_ELEMENT> &rGradPhi,
+        ChastePoint<DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,2> &rGradU,
-        Element<2,2>* pElement)
+        c_matrix<double,1,DIM> &rGradU,
+        Element<DIM,DIM>* pElement)
     {
-        return mBeta * rPhi;
+        return mConstant * rPhi;
     }
 
 
@@ -237,21 +237,18 @@ private:
         }
 
         // Get an iterator over the elements of the mesh
-        ConformingTetrahedralMesh<2, 2>::ElementIterator
+        typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
             iter = mpQuadMesh->GetElementIteratorBegin();
 
-//        const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2;
-        const size_t STENCIL_SIZE = 6;
         c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
         c_vector<double, STENCIL_SIZE> b_elem;
-
 
         ////////////////////////////////////////////////////////
         // loop over elements
         ////////////////////////////////////////////////////////
         while (iter != mpQuadMesh->GetElementIteratorEnd())
         {
-            Element<2,2>& element = **iter;
+            Element<DIM,DIM>& element = **iter;
 
             if (element.GetOwnership() == true)
             {
@@ -261,10 +258,24 @@ private:
                 //element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
 
                 unsigned p_indices[STENCIL_SIZE];
-                for(unsigned i=0; i<3; i++)
+                if(DIM==1)
                 {
-                    p_indices[i] = element.GetNodeGlobalIndex(i);
-                    p_indices[i+3] = mpQuadMesh->GetElementNode(element.GetIndex(), i+3);
+                    p_indices[0] = element.GetNodeGlobalIndex(0);
+                    p_indices[1] = element.GetNodeGlobalIndex(1);
+                    p_indices[2] = mpQuadMesh->GetElementNode(element.GetIndex(), 2);
+                }
+                else if(DIM==2)
+                {
+                    for(unsigned i=0; i<3; i++)
+                    {
+                        p_indices[i] = element.GetNodeGlobalIndex(i);
+                        p_indices[i+3] = mpQuadMesh->GetElementNode(element.GetIndex(), i+3);
+                    }
+                }
+                else
+                {
+                    assert(DIM==3);
+                    assert(0); // not implemented yet..
                 }
                 
                 if (assembleMatrix)
@@ -307,7 +318,7 @@ private:
 
 
 public:
-    QuadraticLaplacianAssembler(QuadraticMesh* pMesh, BoundaryConditionsContainer<2,2,1>* pBcc)
+    QuadraticLaplacianAssembler(QuadraticMesh<DIM>* pMesh, BoundaryConditionsContainer<DIM,DIM,1>* pBcc)
         : mpQuadMesh(pMesh),
           mpBoundaryConditions(pBcc)
     {
@@ -315,10 +326,10 @@ public:
         assert(pBcc);
         
         mpLinearSystem = new LinearSystem(mpQuadMesh->GetNumNodes());
-        mpQuadRule = new GaussianQuadratureRule<2>(3);
+        mpQuadRule = new GaussianQuadratureRule<DIM>(3);
         
-        mAlpha = 1.0;
-        mBeta = 1.0;
+        mCoeffOfU = 0.0;
+        mConstant = 1.0;
     }
     
     virtual ~QuadraticLaplacianAssembler()
@@ -334,6 +345,11 @@ public:
         return mpLinearSystem->Solve();
     }
     
+    void SetPdeConstants(double coeffOfU, double constant)
+    {
+        mCoeffOfU = coeffOfU;
+        mConstant = constant;
+    }
 };
 
 
@@ -342,14 +358,16 @@ public:
 class TestSolveLaplacianWithQuadratics : public CxxTest::TestSuite
 {
 public:
-    void testSolveLaplacianWithQuadratics() throw (Exception)
+    // solve u'' + 1 = 0
+    void TestSolveLaplacianWithQuadratics1d() throw (Exception)
     {
-        QuadraticMesh quad_mesh("mesh/test/data/square_128_elements_quadratics");
+        QuadraticMesh<1> quad_mesh("mesh/test/data/1D_0_to_1_10_elements_quadratics");
 
-        BoundaryConditionsContainer<2,2,1> bcc;
+        BoundaryConditionsContainer<1,1,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
         
-        QuadraticLaplacianAssembler assembler(&quad_mesh, &bcc);
+        QuadraticLaplacianAssembler<1> assembler(&quad_mesh, &bcc);
+        assembler.SetPdeConstants(0.0, 1.0);
         
         Vec solution = assembler.Solve();
         ReplicatableVector sol_repl(solution);
@@ -357,11 +375,60 @@ public:
         for(unsigned i=0; i<quad_mesh.GetNumNodes(); i++)
         {
             double x = quad_mesh.GetNode(i)->rGetLocation()[0];
-            double y = quad_mesh.GetNode(i)->rGetLocation()[1];
             double u = sol_repl[i];
+            double u_correct = 0.5*x*(1-x);
             
-            std::cout << x << " " << y << " " << u << "\n";
+            std::cout << x << ": " << u << " " << u_correct << "\n";
+        } 
+    }
+
+
+    void TestSolveLaplacianWithQuadratics2d() throw (Exception)
+    {
+        // Solve using quadratics..
+        QuadraticMesh<2> quad_mesh("mesh/test/data/square_128_elements_quadratics");
+
+        BoundaryConditionsContainer<2,2,1> bcc_quads;
+        bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
+        
+        QuadraticLaplacianAssembler<2> assembler_quads(&quad_mesh, &bcc_quads);
+        assembler_quads.SetPdeConstants(1.0, 1.0);
+        
+        Vec solution_quads = assembler_quads.Solve();
+        ReplicatableVector sol_quads_repl(solution_quads);
+        
+        // Solve using linears
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        EllipticPdeWithLinearSource<2> pde(1.0, 1.0);
+
+        BoundaryConditionsContainer<2,2,1> bcc_lin;
+        bcc_lin.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
+
+        SimpleLinearEllipticAssembler<2,2> assembler_lin(&mesh,&pde,&bcc_lin);
+
+        Vec solution_lin = assembler_lin.Solve();
+        ReplicatableVector sol_lin_repl(solution_lin);
+
+        
+        // compare results - the following assumes the vertex nodes in the
+        // quad mesh are nodes 0-63, i.e. they come before all the internal
+        // nodes
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNode(i)->rGetLocation()[0];
+            double y = mesh.GetNode(i)->rGetLocation()[1];
+            double u_1 = sol_lin_repl[i];
+            double u_2 = sol_quads_repl[i];
+            
+            std::cout << x << " " << y << " " << u_1 << " " << u_2 << " " << fabs(u_1-u_2) << "\n";
+            
+            //// currently failing..
+            //TS_ASSERT_DELTA(u_1, u_2, 0.08*1e-2);
         }
+
     }
 };
 #endif /*TESTSOLVELAPLACIANWITHQUADRATICS_HPP_*/
