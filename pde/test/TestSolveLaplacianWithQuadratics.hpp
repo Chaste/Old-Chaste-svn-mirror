@@ -379,7 +379,9 @@ public:
             double u_correct = 0.5*x*(1-x);
             
             std::cout << x << ": " << u << " " << u_correct << "\n";
-        } 
+        }
+        
+        VecDestroy(solution);
     }
 
 
@@ -429,6 +431,8 @@ public:
             //TS_ASSERT_DELTA(u_1, u_2, 0.08*1e-2);
         }
 
+        VecDestroy(solution_lin);
+        VecDestroy(solution_quads);
     }
 };
 #endif /*TESTSOLVELAPLACIANWITHQUADRATICS_HPP_*/
