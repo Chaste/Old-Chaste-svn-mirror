@@ -74,7 +74,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     if (mWriteStats)
     {
         std::cout << "Newton's method:\n  Initial ||residual||/N = " << scaled_residual_norm
-        << "\n  Attempting to solve to tolerance " << mTolerance << "..\n";
+                  << "\n  Attempting to solve to tolerance " << mTolerance << "..\n";
     }
 
     double old_scaled_residual_norm;

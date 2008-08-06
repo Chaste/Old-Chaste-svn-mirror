@@ -73,10 +73,16 @@ public:
         const double eps = 1e-6; // JonW tolerance
         double norm = 2*eps;
 
+        // check that the initial guess that was given gives a valid residual
+        rCell.ComputeResidual(rCurrentGuess, mResidual);
+        for (unsigned i=0; i<SIZE; i++)
+        {
+            assert(!isnan(mResidual[i]));
+        }
+
         while (norm > eps)
         {
-            // Calculate Jacobian and mResidual for current guess
-            rCell.ComputeResidual(rCurrentGuess, mResidual);
+            // Calculate Jacobian for current guess
             rCell.ComputeJacobian(rCurrentGuess, mJacobian);
 
 //            // Update norm (our style)
@@ -88,16 +94,93 @@ public:
             // Update norm (JonW style)
             norm = ComputeNorm(mUpdate);
 
-            // Update current guess
+            // Update current guess and recalculate residual
             for (unsigned i=0; i<SIZE; i++)
             {
                 rCurrentGuess[i] -= mUpdate[i];
             }
+            rCell.ComputeResidual(rCurrentGuess, mResidual);
 
             counter++;
             assert(counter < 15); // avoid infinite loops
         }
     }
+
+/////// Alternative version of Solve which uses damping factors - may be 
+/////// needed in the future if a system which is difficult to solve and
+/////// Newton diverges. THINK THIS IS NOT CURRENTLY WORKING - compare
+/////// with above solve before use.
+////
+////    void Solve(AbstractBackwardEulerCardiacCell<SIZE> &rCell,
+////               double rCurrentGuess[SIZE])
+////    {
+////        unsigned counter = 0;
+////        double TOL = 1e-3;// * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
+////
+////        rCell.ComputeResidual(rCurrentGuess, mResidual);
+////        for (unsigned i=0; i<SIZE; i++)
+////        {
+////            assert(!isnan(mResidual[i]));
+////        }
+////        
+////        double norm = ComputeNorm(mResidual);
+////
+////        std::vector<double> damping_values;
+////        damping_values.push_back(-0.1);
+////        for (unsigned i=1; i<=12; i++)
+////        {
+////            double val = double(i)/10;
+////            damping_values.push_back(val);
+////        }
+////
+////        while (norm > TOL)
+////        {
+////            // Calculate Jacobian and mResidual for current guess
+////            rCell.ComputeJacobian(rCurrentGuess, mJacobian);
+////
+////            // Solve Newton linear system
+////            SolveLinearSystem();
+////        
+////            // go through all the possible damping values and 
+////            // choose the one which gives the smallest residual-norm
+////            double best_damping_value = 1;
+////            double best_residual_norm = DBL_MAX;
+////            for (unsigned j=0; j<damping_values.size(); j++)
+////            {
+////                double test_vec[SIZE];
+////                for (unsigned i=0; i<SIZE; i++)
+////                {
+////                    assert(!isnan( mUpdate[i] ));
+////                    test_vec[i] = rCurrentGuess[i] - damping_values[j]*mUpdate[i];
+////                }
+////                double test_resid[SIZE];
+////                rCell.ComputeResidual(test_vec, test_resid);
+////                double test_vec_residual_norm = ComputeNorm(test_resid);
+////                // std::cout << "s,|r|,|old resid|= " << damping_values[j] << " " << test_vec_residual_norm << " " << norm << std::endl;
+////                if(test_vec_residual_norm <= best_residual_norm)
+////                {
+////                    best_damping_value = damping_values[j];
+////                    best_residual_norm = test_vec_residual_norm;
+////                }
+////            }
+////            
+////            // check best residual norm was smaller than previous
+////            // norm
+////            assert(best_residual_norm < norm);
+////            
+////            // apply update
+////            for (unsigned i=0; i<SIZE; i++)
+////            {
+////                rCurrentGuess[i] -= best_damping_value*mUpdate[i];
+////            }            
+////            norm = best_residual_norm;
+////            rCell.ComputeResidual(rCurrentGuess, mResidual);
+////
+////            counter++;
+////            assert(counter < 15); // avoid infinite loops
+////        }
+////    }
+
 
 protected:
     CardiacNewtonSolver()

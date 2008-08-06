@@ -13,6 +13,7 @@
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
 
+
 class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCardiacCell<12>
 {
 friend class TestFastSlowBackwardEulerNoble98; // Friend class for the purposes of testing    
@@ -23,40 +24,44 @@ public:
         : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: second
-        // 
+        //
+        // Variables are:        
+        // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
+        // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
+        //
         mVariableNames.push_back("V");  //Fast
         mVariableUnits.push_back("millivolt");
         mInitialConditions.push_back(-92.849333);
 
-        mVariableNames.push_back("xr1");
+        mVariableNames.push_back("xr1"); // gating variable (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(1.03e-5);
 
-        mVariableNames.push_back("xr2");
+        mVariableNames.push_back("xr2"); // gating variable (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(2e-7);
 
-        mVariableNames.push_back("xs");
+        mVariableNames.push_back("xs"); // gating variable (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.001302);
 
-        mVariableNames.push_back("m");  //Fast
+        mVariableNames.push_back("m");  //Fast, gating var (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.0016203);
 
-        mVariableNames.push_back("h");  //Fast
+        mVariableNames.push_back("h");  //Fast, gating var (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9944036);
 
-        mVariableNames.push_back("d");
+        mVariableNames.push_back("d"); // gating variable (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0);
 
-        mVariableNames.push_back("f");
+        mVariableNames.push_back("f"); // gating variable (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(1);
 
-        mVariableNames.push_back("f2");
+        mVariableNames.push_back("f2"); 
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9349197);
 
@@ -64,11 +69,11 @@ public:
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9651958);
 
-        mVariableNames.push_back("s");
+        mVariableNames.push_back("s"); // gating variable (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9948645);
 
-        mVariableNames.push_back("r");
+        mVariableNames.push_back("r"); // gating variable (check)
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0);
 
@@ -120,8 +125,58 @@ public:
     {
     }
 
-    void VerifyGatingVariables() {}
-    void VerifyStateVariables() {}
+    void VerifyGatingVariables() 
+    {
+        // The variables are:
+        // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
+        // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
+        assert(rGetStateVariables()[1]>=0); // xr1
+        assert(rGetStateVariables()[1]<=1);
+        
+        assert(rGetStateVariables()[2]>=0); // xr2
+        assert(rGetStateVariables()[2]<=1); 
+
+        assert(rGetStateVariables()[3]>=0); // xs
+        assert(rGetStateVariables()[3]<=1);
+
+        assert(rGetStateVariables()[4]>=0); // m
+        assert(rGetStateVariables()[4]<=1);
+
+        assert(rGetStateVariables()[5]>=0); // h
+        assert(rGetStateVariables()[5]<=1);
+
+        assert(rGetStateVariables()[6]>=0); // d
+        assert(rGetStateVariables()[6]<=1);
+
+        assert(rGetStateVariables()[7]>=0); // f
+        assert(rGetStateVariables()[7]<=1);
+
+        assert(rGetStateVariables()[10]>=0); // s
+        assert(rGetStateVariables()[10]<=1);
+
+        assert(rGetStateVariables()[11]>=0); // r
+        assert(rGetStateVariables()[11]<=1);
+        
+    }
+
+    void VerifyStateVariables() 
+    {
+        VerifyGatingVariables();
+        
+        // The variables are:
+        // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
+        // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
+        assert(rGetStateVariables()[14]>=0);
+        assert(rGetStateVariables()[15]>=0);
+        assert(rGetStateVariables()[16]>=0);
+        assert(rGetStateVariables()[17]>=0);
+        assert(rGetStateVariables()[18]>=0);
+        assert(rGetStateVariables()[19]>=0);
+        assert(rGetStateVariables()[20]>=0);
+        assert(rGetStateVariables()[21]>=0);
+    }
+
+
 
     double GetIIonic()
     {
@@ -1049,7 +1104,7 @@ protected:
         rY[10] = (rY[10] + _g_8*dt) / (1 - _h_8*dt);
         rY[11] = (rY[11] + _g_7*dt) / (1 - _h_7*dt);
         
-        double _guess[12] = {rY[8],rY[9],rY[12],rY[13],rY[14],rY[15],rY[16],rY[17],rY[18],rY[19],rY[20],rY[21]};
+        double _guess[12] = {rY[8],rY[9],rY[12],rY[13],rY[20],rY[21],rY[17],rY[16],rY[19],rY[18],rY[15],rY[14]};
         CardiacNewtonSolver<12> *_solver = CardiacNewtonSolver<12>::Instance();
         _solver->Solve(*this, _guess);
         rY[8] = _guess[0];
