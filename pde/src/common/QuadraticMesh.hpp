@@ -36,9 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 class QuadraticMesh : public ConformingTetrahedralMesh<DIM, DIM>
-{
-friend class TestQuadraticMesh;
-    
+{    
 private:
     bool mIsPrepared;
     

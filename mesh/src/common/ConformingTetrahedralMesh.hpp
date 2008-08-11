@@ -592,12 +592,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
         if(cullInternalFaces)
         {
-            //If the following assertion is thrown, it means that the .edge/.face file does not
-            //match the .ele file -- they were generated at separate times.  Simply remove the internal
-            //edges/faces by hand.
+            // only if not 1D as this assertion does not apply to quadratic 1D meshes
             if(ELEMENT_DIM!=1)
             {
-                // only if not 1D as this assertion does not to quadratic 1D meshes
+                //If the following assertion is thrown, it means that the .edge/.face file does not
+                //match the .ele file -- they were generated at separate times.  Simply remove the internal
+                //edges/faces by hand.
                 assert(containing_element_indices.size() != 0);
             }
 
