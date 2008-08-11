@@ -129,19 +129,14 @@ public:
     {
         PetscInt matrix_row_indices[MATRIX_SIZE];
         PetscInt num_rows_owned=0;
-        unsigned num_values_owned=0;
+		PetscInt global_row;
 
-        double values[MATRIX_SIZE*MATRIX_SIZE];
         for (unsigned row = 0; row<MATRIX_SIZE; row++)
         {
-            PetscInt global_row = matrixRowAndColIndices[row];
+            global_row = matrixRowAndColIndices[row];
             if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
             {
                 matrix_row_indices[num_rows_owned++] = global_row;
-                for (unsigned col=0; col<MATRIX_SIZE; col++)
-                {
-                    values[num_values_owned++] = smallMatrix(row,col);
-                }
             }
         }
 
@@ -150,7 +145,7 @@ public:
                      matrix_row_indices,
                      MATRIX_SIZE,
                      (PetscInt*) matrixRowAndColIndices,
-                     values,
+                     smallMatrix.data(),
                      ADD_VALUES);
     };
 
@@ -168,23 +163,21 @@ public:
     {
         PetscInt indices_owned[VECTOR_SIZE];
         PetscInt num_indices_owned=0;
+		PetscInt global_row;
 
-        double values[VECTOR_SIZE];
         for (unsigned row = 0; row<VECTOR_SIZE; row++)
         {
-            PetscInt global_row = VectorIndices[row];
+            global_row = VectorIndices[row];
             if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
             {
-                indices_owned[num_indices_owned] = global_row;
-                values[num_indices_owned] = smallVector(row);
-                num_indices_owned++;
+                indices_owned[num_indices_owned++] = global_row;
             }
         }
 
         VecSetValues(mRhsVector,
                      num_indices_owned,
                      indices_owned,
-                     values,
+                     smallVector.data(),
                      ADD_VALUES);
     }
 };
