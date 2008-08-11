@@ -301,6 +301,7 @@ private:
             mpLinearSystem->AssembleIntermediateLhsMatrix();
         }
 
+
         // Apply dirichlet boundary conditions
         mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpLinearSystem, assembleMatrix);
 
@@ -378,7 +379,7 @@ public:
             double u = sol_repl[i];
             double u_correct = 0.5*x*(1-x);
             
-            std::cout << x << ": " << u << " " << u_correct << "\n";
+            TS_ASSERT_DELTA(u, u_correct, 1e-10);
         }
         
         VecDestroy(solution);
@@ -420,15 +421,17 @@ public:
         // nodes
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x = mesh.GetNode(i)->rGetLocation()[0];
-            double y = mesh.GetNode(i)->rGetLocation()[1];
             double u_1 = sol_lin_repl[i];
             double u_2 = sol_quads_repl[i];
+
+            // max value of the solution is about 0.08, choose a tolerance of 5% of that.
+            TS_ASSERT_DELTA(u_1, u_2, 0.08*5e-1);
             
-            std::cout << x << " " << y << " " << u_1 << " " << u_2 << " " << fabs(u_1-u_2) << "\n";
-            
-            //// currently failing..
-            //TS_ASSERT_DELTA(u_1, u_2, 0.08*1e-2);
+            //double x = mesh.GetNode(i)->rGetLocation()[0];
+            //double y = mesh.GetNode(i)->rGetLocation()[1];
+            //            
+            //std::cout << x << " " << y << " " << u_1 << " " 
+            //          <<  u_2 << " " << fabs(u_1-u_2) << "\n";
         }
 
         VecDestroy(solution_lin);

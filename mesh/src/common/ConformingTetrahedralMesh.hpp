@@ -558,8 +558,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
     {
         std::vector<unsigned> node_indices = rMeshReader.GetNextFace();
-        bool is_boundary_face = true;
 
+        bool is_boundary_face = true;
 
         // Determine if this is a boundary face
         std::set<unsigned> containing_element_indices; // Elements that contain this face
@@ -595,12 +595,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             //If the following assertion is thrown, it means that the .edge/.face file does not
             //match the .ele file -- they were generated at separate times.  Simply remove the internal
             //edges/faces by hand.
-//            assert(containing_element_indices.size() != 0);
-// NOTE: JOEREADTHIS: the above assertion doesn't apply to quadratic meshes, and
-// causes 1D quad meshes to not load - removed as not sure what to do with it..
+            if(ELEMENT_DIM!=1)
+            {
+                // only if not 1D as this assertion does not to quadratic 1D meshes
+                assert(containing_element_indices.size() != 0);
+            }
 
-
+            // if num_containing_elements is greater than 1, it is not an boundary face
             if(containing_element_indices.size() > 1)
+            {
+                is_boundary_face = false;
+            }
+            
+            // in 1D QUADRATICS, all nodes are faces, so internal nodes which don't have any
+            // containing elements must also be unmarked as a boundary face
+            if( (ELEMENT_DIM==1) && (containing_element_indices.size()==0))
             {
                 is_boundary_face = false;
             }
