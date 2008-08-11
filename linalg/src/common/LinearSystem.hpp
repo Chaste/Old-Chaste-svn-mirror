@@ -139,14 +139,43 @@ public:
                 matrix_row_indices[num_rows_owned++] = global_row;
             }
         }
-
-        MatSetValues(mLhsMatrix,
-                     num_rows_owned,
-                     matrix_row_indices,
-                     MATRIX_SIZE,
-                     (PetscInt*) matrixRowAndColIndices,
-                     smallMatrix.data(),
-                     ADD_VALUES);
+        
+        if ( num_rows_owned == MATRIX_SIZE)
+        {
+	        MatSetValues(mLhsMatrix,
+	                     num_rows_owned,
+	                     matrix_row_indices,
+	                     MATRIX_SIZE,
+	                     (PetscInt*) matrixRowAndColIndices,
+	                     smallMatrix.data(),
+	                     ADD_VALUES);
+        }
+        else
+        {
+        	// We need continuous data, if some of the rows do not belong to the processor their values
+        	// are not passed to MatSetValues 
+        	double values[MATRIX_SIZE*MATRIX_SIZE];
+        	unsigned num_values_owned = 0;
+			for (unsigned row = 0; row<MATRIX_SIZE; row++)
+			{
+				global_row = matrixRowAndColIndices[row];
+				if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
+				{
+					for (unsigned col=0; col<MATRIX_SIZE; col++)
+					{
+						values[num_values_owned++] = smallMatrix(row,col);
+					}
+				}
+			}
+			
+	        MatSetValues(mLhsMatrix,
+	                     num_rows_owned,
+	                     matrix_row_indices,
+	                     MATRIX_SIZE,
+	                     (PetscInt*) matrixRowAndColIndices,
+	                     values,
+	                     ADD_VALUES);			
+        }
     };
 
 
@@ -173,12 +202,37 @@ public:
                 indices_owned[num_indices_owned++] = global_row;
             }
         }
-
-        VecSetValues(mRhsVector,
-                     num_indices_owned,
-                     indices_owned,
-                     smallVector.data(),
-                     ADD_VALUES);
+        
+        if (num_indices_owned == VECTOR_SIZE)
+        {
+	        VecSetValues(mRhsVector,
+	                     num_indices_owned,
+	                     indices_owned,
+	                     smallVector.data(),
+	                     ADD_VALUES);
+        }
+        else
+        {
+        	// We need continuous data, if some of the rows do not belong to the processor their values
+        	// are not passed to MatSetValues 
+        	double values[VECTOR_SIZE];
+        	unsigned num_values_owned = 0;
+        	
+	        for (unsigned row = 0; row<VECTOR_SIZE; row++)
+    	    {
+	            global_row = VectorIndices[row];
+	            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
+	            {
+	                values[num_values_owned++] = smallVector(row);
+	            }
+	        }
+	        
+	        VecSetValues(mRhsVector,
+	                     num_indices_owned,
+	                     indices_owned,
+	                     values,
+	                     ADD_VALUES);	        			        	
+        }
     }
 };
 
