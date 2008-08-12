@@ -408,7 +408,7 @@ public:
         EllipticPdeWithLinearSource<2> pde(1.0, 1.0);
 
         BoundaryConditionsContainer<2,2,1> bcc_lin;
-        bcc_lin.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
+        bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);               
 
         SimpleLinearEllipticAssembler<2,2> assembler_lin(&mesh,&pde,&bcc_lin);
 
