@@ -84,10 +84,10 @@ public:
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
           = mesh.GetBoundaryElementIteratorBegin();
         // the first edge has nodes 53 and 0, according to the edge file..
-        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(0), 53u); 
-        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(1), 0u);  
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(0), 53u);
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(1), 0u); 
         // .. the midnode has to be computed (found) by the QuadraticMesh class
-        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(2), 81u);  
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(2), 81u); 
 
             
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -116,16 +116,39 @@ public:
             TS_ASSERT_EQUALS(mesh.GetNode(i)->IsBoundaryNode(), true);
         }
   
-        QuadraticMesh<3> mesh2("mesh/test/data/cube_136_elements_quadratic");
-        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 285u);
-        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 136u);
+        // lots of internal and boundary nodes in this mesh..
+        QuadraticMesh<3> mesh2("mesh/test/data/cube_1626_elements_quadratic");
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 2570u);
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 1626u);
 
         // each element should have 10 nodes
         for(unsigned i=0; i<mesh2.GetNumElements(); i++)
         {
             TS_ASSERT_EQUALS(mesh2.GetElement(i)->GetNumNodes(), 10u);
         }
+        
+        // each boundary element should have 6 nodes
+        for(ConformingTetrahedralMesh<3,3>::BoundaryElementIterator iter
+              = mesh2.GetBoundaryElementIteratorBegin();
+            iter != mesh2.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            TS_ASSERT_EQUALS((*iter)->GetNumNodes(), 6u);
+        }
 
+        ConformingTetrahedralMesh<3,3>::BoundaryElementIterator iter
+          = mesh2.GetBoundaryElementIteratorBegin();
+        // the first boundary elem has these nodes, according to the edge file..
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(0), 177u);
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(1), 43u);
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(2), 85u);
+        // .. the internal nodes have to be computed (found) by the QuadraticMesh.
+        // The nodes 177,43,85 are all in the third element in the ele file, and 
+        // they are nodes 1,3,2 respectively. Therefore, the internals are the local
+        // nodes 9,5,8 respectively (look the the ordering picture), so.. 
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(3), 392u);
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(4), 388u);
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(5), 391u);
 
         for(unsigned i=0; i<mesh2.GetNumNodes(); i++)
         {

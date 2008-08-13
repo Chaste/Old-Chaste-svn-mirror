@@ -41,9 +41,38 @@ private:
     bool mIsPrepared;
     std::vector<bool> mIsInternalNode;
 
+    /**
+     *  This method adds the given node (defined by an element and a node index)
+     *  to the given boundary element, and also sets the node as a boundary
+     *  element and adds it to the std::vector of boundary elements
+     */
+    void AddNodeToBoundaryElement(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
+                                  Element<DIM,DIM>* pElement,
+                                  unsigned internalNode);
+
+    /** Given a face in an element (defined by giving an element and the opposite
+     *  node number to the face) that corresponds to a given boundary element,
+     *  this method adds in the face's internal nodes to the boundary element
+     *  (in the correct order).
+     */
     void AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
                                Element<DIM,DIM>* pElement,
                                unsigned nodeIndexOppositeToFace);
+
+
+    // Nasty helper method for AddNodeToBoundaryElement() in 3D. See below for comments
+    void HelperMethod1(unsigned boundaryElemNode0, unsigned boundaryElemNode1,
+                       Element<DIM,DIM>* pElement,
+                       unsigned node0, unsigned node1, unsigned node2,
+                       unsigned& rOffset,
+                       bool& rReverse);
+    // Nasty helper method for AddNodeToBoundaryElement() in 3D. See below for comments
+    void HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
+                       Element<DIM,DIM>* pElement,
+                       unsigned internalNode0, unsigned internalNode1, unsigned internalNode2,
+                       unsigned offset,
+                       bool reverse);
+    
     
 public:
     /**
@@ -98,7 +127,6 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
     
     // Loop over all boundary elements, find the equivalent face from all
     // the elements, and add the extra nodes to the boundary element
-//    unsigned counter = 0;
     if(DIM>1)
     {
         for(typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
@@ -106,8 +134,6 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
             iter != this->GetBoundaryElementIteratorEnd();
             ++iter)
         {
-    //        std::cout << "\n\nCounter="<< counter++ << std::endl;
-    
             // collect the nodes of this boundary element in a set        
             std::set<unsigned> boundary_element_node_indices;
             for(unsigned i=0; i<DIM; i++)
@@ -115,15 +141,8 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
                 boundary_element_node_indices.insert( (*iter)->GetNodeGlobalIndex(i) );
             }
     
-    //        std::cout << "\nLooking for:\n";        
-    //        for(std::set<unsigned>::iterator kk=boundary_element_node_indices.begin();
-    //            kk!=boundary_element_node_indices.end(); kk++)
-    //        {
-    //            std::cout << *kk << std::endl;
-    //        }
-    
-    
             bool found_this_boundary_element = false;
+
             // loop over elements
             for(unsigned i=0; i<this->GetNumElements(); i++)
             {
@@ -143,15 +162,9 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
                     }
     
                     assert(node_indices.size()==DIM);
-                    
-    //                std::cout << "This face is:\n";
-    //                for(std::set<unsigned>::iterator kk=node_indices.begin();
-    //                    kk!=node_indices.end(); kk++)
-    //                {
-    //                    std::cout << *kk << std::endl;
-    //                }
-                
-                    // see if this face matches the boundary element        
+
+                    // see if this face matches the boundary element,
+                    // and call AddExtraBoundaryNodes() if so
                     if(node_indices==boundary_element_node_indices)
                     {
                         AddExtraBoundaryNodes(*iter, p_element, face);
@@ -198,7 +211,7 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
     /// HACK!!! HACK!!! HACK!!! HACK!!!!!!!!!!!!!!!!!!!!!!!!
     ///////////////////////////////////////////////////////////////////////////////
 
-    if(DIM==3)
+    if(DIM>3)
     {
         for(unsigned i=0; i<this->GetNumNodes(); i++)
         {
@@ -243,6 +256,27 @@ void QuadraticMesh<DIM>::ConvertToQuadratic()
 }
 
 template<unsigned DIM>
+void QuadraticMesh<DIM>::AddNodeToBoundaryElement(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
+                                                  Element<DIM,DIM>* pElement,
+                                                  unsigned internalNode)
+{
+    assert(DIM>1);
+    assert(internalNode >= DIM+1);
+    assert(internalNode < (DIM+1)*(DIM+2)/2);
+    Node<DIM>* p_internal_node = pElement->GetNode(internalNode);
+
+    // add node to the boundary node list   
+    if(!p_internal_node->IsBoundaryNode())
+    {
+        p_internal_node->SetAsBoundaryNode();
+        this->mBoundaryNodes.push_back(p_internal_node);
+    }
+
+    pBoundaryElement->AddNode( p_internal_node );        
+}
+
+
+template<unsigned DIM>
 void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
                                                Element<DIM,DIM>* pElement,
                                                unsigned nodeIndexOppositeToFace)
@@ -252,21 +286,147 @@ void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoun
     {
         assert(nodeIndexOppositeToFace<3);
         // the single internal node of the elements face will be numbered 'face+3'
-        Node<DIM>* p_internal_node = pElement->GetNode(nodeIndexOppositeToFace+3);
-    
-        // add node to the boundary node list   
-        if(!p_internal_node->IsBoundaryNode())
-        {
-            p_internal_node->SetAsBoundaryNode();
-            this->mBoundaryNodes.push_back(p_internal_node);
-        }
-
-        pBoundaryElement->AddNode( p_internal_node );
+        AddNodeToBoundaryElement(pBoundaryElement, pElement, nodeIndexOppositeToFace+3);
     }        
     else
     {
-        assert(DIM==3);
+        assert(DIM==3);        
+
+        unsigned b_elem_n0 = pBoundaryElement->GetNodeGlobalIndex(0);
+        unsigned b_elem_n1 = pBoundaryElement->GetNodeGlobalIndex(1);
+
+        unsigned offset;
+        bool reverse;
+
+        if(nodeIndexOppositeToFace==0)
+        {
+            // face opposite to node 0 = {1,2,3}, with corresponding internals {9,8,5}
+            HelperMethod1(b_elem_n0, b_elem_n1, pElement, 1, 2, 3, offset, reverse);
+            HelperMethod2(pBoundaryElement, pElement, 9, 8, 5, offset, reverse);
+        }
+        else if(nodeIndexOppositeToFace==1)
+        {
+            // face opposite to node 1 = {2,0,3}, with corresponding internals {7,9,6}
+            HelperMethod1(b_elem_n0, b_elem_n1, pElement, 2, 0, 3, offset, reverse);
+            HelperMethod2(pBoundaryElement, pElement, 7, 9, 6, offset, reverse);
+        }
+        else if(nodeIndexOppositeToFace==2)
+        {
+            // face opposite to node 2 = {0,1,3}, with corresponding internals {8,7,4}
+            HelperMethod1(b_elem_n0, b_elem_n1, pElement, 0, 1, 3, offset, reverse);
+            HelperMethod2(pBoundaryElement, pElement, 8, 7, 4, offset, reverse);
+        }
+        else
+        {
+            assert(nodeIndexOppositeToFace==3);
+            // face opposite to node 3 = {0,1,2}, with corresponding internals {5,6,4}
+            HelperMethod1(b_elem_n0, b_elem_n1, pElement, 0, 1, 2, offset, reverse);
+            HelperMethod2(pBoundaryElement, pElement, 5, 6, 4, offset, reverse);
+        }
     }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// two unpleasant helper methods for AddExtraBoundaryNodes()
+///////////////////////////////////////////////////////////////////////////////
+
+/** This methods takes in the three vertices of a face which match the given boundary
+ *  element, and figure out if the order of the nodes in the face is reversed in
+ *  the boundary element (returned in the bool 'rReverse'). Also, the offset between
+ *  the first node in the face (as given to this method) and the first node in
+ *  the boundary element is computed (returned in the variable 'rOffset'. Offset
+ *  should then be applied before reverse to match the face nodes to the boundary
+ *  element nodes.
+ */
+template<unsigned DIM>
+void QuadraticMesh<DIM>::HelperMethod1(unsigned boundaryElemNode0, unsigned boundaryElemNode1,
+                                       Element<DIM,DIM>* pElement,
+                                       unsigned node0, unsigned node1, unsigned node2,
+                                       unsigned& rOffset,
+                                       bool& rReverse)
+{
+    if(pElement->GetNodeGlobalIndex(node0)==boundaryElemNode0)
+    {
+        rOffset = 0;
+        if(pElement->GetNodeGlobalIndex(node1)==boundaryElemNode1)
+        {
+            rReverse = false;
+        }
+        else
+        {
+            assert(pElement->GetNodeGlobalIndex(node2)==boundaryElemNode1);
+            rReverse = true;
+        }
+    }
+    else if(pElement->GetNodeGlobalIndex(node1)==boundaryElemNode0)
+    {
+        rOffset = 1;
+        if(pElement->GetNodeGlobalIndex(node2)==boundaryElemNode1)
+        {
+            rReverse = false;
+        }
+        else 
+        {
+            assert(pElement->GetNodeGlobalIndex(node0)==boundaryElemNode1);
+            rReverse = true;
+        }
+    }
+    else
+    {
+        assert(pElement->GetNodeGlobalIndex(node2)==boundaryElemNode0);
+        rOffset = 2;
+        if(pElement->GetNodeGlobalIndex(node0)==boundaryElemNode1)
+        {
+            rReverse = false;
+        }
+        else
+        {
+            assert(pElement->GetNodeGlobalIndex(node1)==boundaryElemNode1);
+            rReverse = true;
+        }
+    }
+}
+
+
+/**
+ *  This method takes the three internal nodes for some face in some element,
+ *  applies the given offset and reverse (see HelperMethod1) to them, to get 
+ *  the ordered internal nodes which should given to the boundary element.
+ *  It then calls AddNodeToBoundaryElement with each of the three internal nodes.
+ */
+template<unsigned DIM>
+void QuadraticMesh<DIM>::HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
+                                       Element<DIM,DIM>* pElement,
+                                       unsigned internalNode0, unsigned internalNode1, unsigned internalNode2,
+                                       unsigned offset,
+                                       bool reverse)
+{
+    if(offset==1)
+    {
+        unsigned temp = internalNode0;
+        internalNode0 = internalNode1;
+        internalNode1 = internalNode2;
+        internalNode2 = temp;
+    }
+    else if(offset == 2)
+    {
+        unsigned temp = internalNode0;
+        internalNode0 = internalNode2;
+        internalNode2 = internalNode1;
+        internalNode1 = temp;
+    }
+    
+    if(reverse)
+    {
+        unsigned temp = internalNode1;
+        internalNode1 = internalNode2;
+        internalNode2 = temp;
+    }
+    
+    AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode0);
+    AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode1);
+    AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode2);
 }
                                                
 #endif /*QUADRATICMESH_HPP_*/
