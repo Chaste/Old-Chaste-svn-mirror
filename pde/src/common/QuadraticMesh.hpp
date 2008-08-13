@@ -189,50 +189,6 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
         }
     }
 
-    
-    
-    ////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////
-    /// HACK!!! HACK!!! HACK!!! HACK!!!!!!
-    /// HACK!!! HACK!!! HACK!!! HACK!!!!!!
-    /// HACK!!! HACK!!! HACK!!! HACK!!!!!!
-    ///
-    /// see Ticket:777
-    ///
-    /// This hack is because .edge files created by "triangle -o2" do not give all 
-    /// three nodes of an edge (in 2d), just the 2 vertices, therefore the reader
-    /// does not give all three nodes for boundary faces, and internal nodes which
-    /// are also on the boundary of the mesh are incorrectly labelled as not boundary
-    /// nodes.
-    ///
-    /// We hack round this here, to get tests to pass, by assuming the mesh is the 
-    /// unit square. 
-    ///
-    /// HACK!!! HACK!!! HACK!!! HACK!!!!!!!!!!!!!!!!!!!!!!!!
-    ///////////////////////////////////////////////////////////////////////////////
-
-    if(DIM>3)
-    {
-        for(unsigned i=0; i<this->GetNumNodes(); i++)
-        {
-            if(mIsInternalNode[i])
-            {
-                for(unsigned j=0; j<DIM; j++)
-                {
-                    if( (this->GetNode(i)->rGetLocation()[j]==0) || (this->GetNode(i)->rGetLocation()[j]==1) )
-                    {
-                        if(!this->GetNode(i)->IsBoundaryNode())
-                        {
-                            this->GetNode(i)->SetAsBoundaryNode();
-                            this->mBoundaryNodes.push_back(this->GetNode(i));
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }   
-    
     mIsPrepared = true;
 }
 
@@ -335,7 +291,7 @@ void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoun
  *  element, and figure out if the order of the nodes in the face is reversed in
  *  the boundary element (returned in the bool 'rReverse'). Also, the offset between
  *  the first node in the face (as given to this method) and the first node in
- *  the boundary element is computed (returned in the variable 'rOffset'. Offset
+ *  the boundary element is computed (returned in the variable 'rOffset'). Offset
  *  should then be applied before reverse to match the face nodes to the boundary
  *  element nodes.
  */
