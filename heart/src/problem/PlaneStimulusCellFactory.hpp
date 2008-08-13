@@ -30,11 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLANESTIMULUSCELLFACTORY_HPP_
 #define PLANESTIMULUSCELLFACTORY_HPP_
 
-#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LogFile.hpp"
 
-template<unsigned DIM>
+template<class CELL, unsigned DIM>
 class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
@@ -60,15 +59,11 @@ public:
     {
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver,
-                                                  mpStimulus,
-                                                  this->mpZeroStimulus);
+            return new CELL(this->mpSolver, mpStimulus, this->mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver,
-                                                  this->mpZeroStimulus,
-                                                  this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
         }
     }
 

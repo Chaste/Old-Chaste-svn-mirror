@@ -93,7 +93,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -132,7 +132,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -167,7 +167,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -202,7 +202,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
        
         static double test_tolerance=1e-10;
-        PlaneStimulusCellFactory<2> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );
@@ -348,7 +348,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("mono_testPrintTimes");
         
         // run testing PrintingTimeSteps
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
 
         p_monodomain_problem->Initialise();
@@ -374,7 +374,7 @@ public:
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
         
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         // Throws because we've not called initialise

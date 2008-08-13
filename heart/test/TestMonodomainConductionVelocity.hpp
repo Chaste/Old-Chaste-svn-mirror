@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "CheckMonoLr91Vars.hpp"
 #include "PlaneStimulusCellFactory.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 
 class TestMonodomainConductionVelocity : public CxxTest::TestSuite
@@ -60,7 +61,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoConductionVel");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
                         
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
         std::vector<unsigned> output_nodes;
@@ -113,7 +114,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoConductionVel");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
                 
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
         monodomain_problem.Initialise();

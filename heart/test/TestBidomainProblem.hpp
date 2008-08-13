@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
+#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
 #include "Hdf5DataReader.hpp"
@@ -58,7 +59,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("bidomainDg01d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
                 
-        PlaneStimulusCellFactory<1> bidomain_cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
         bidomain_problem.Initialise();
@@ -155,7 +156,7 @@ public:
         // Final values to test against have been produced with ksp_rtol=1e-9
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
         
-        PlaneStimulusCellFactory<1> bidomain_cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
         bidomain_problem.Initialise();
@@ -286,7 +287,7 @@ public:
             
         Vec monodomain_results;
 
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
 
         // To avoid an issue with the Event handler only one simulation should be
         // in existance at a time: therefore monodomain simulation is defined in a block
@@ -375,7 +376,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
         // run testing PrintingTimeSteps
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
 
         //Restrict the number of nodes
@@ -446,7 +447,7 @@ public:
     void TestBidomainProblemExceptions() throw (Exception)
     {
 
-        PlaneStimulusCellFactory<1> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
         //Throws because we've not called initialise
@@ -484,7 +485,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("OrthotropicBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("ortho3d");
                 
-        PlaneStimulusCellFactory<3> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory;
 
         ///////////////////////////////////////////////////////////////////
         // orthotropic

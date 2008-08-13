@@ -45,8 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
-//#include "StimulusConvergenceTester.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 
 
 class TestConvergenceNightly : public CxxTest::TestSuite
@@ -122,6 +122,16 @@ public:
 
 public:
 
+//    void TestConvergencein1DWithN98() throw(Exception)
+//    {
+//         SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+//        tester.Converge(__FUNCTION__);
+//        TS_ASSERT(tester.Converged);
+//        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
+//        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
+//        exit(1);
+//    }
+    
     void TestStimulatePlanein1D() throw(Exception)
     {
         ConvergeInVarious(PLANE);
