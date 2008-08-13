@@ -79,7 +79,7 @@ public:
                     break;
                 }
             }
-            //std::cout<<"Mag is "<<stimulus_magnitude<<"\n";
+            std::cout<<"Mag is "<<stimulus_magnitude<<"\n";
             mpStimulus = new SimpleStimulus(stimulus_magnitude, 0.5);
         }
     }

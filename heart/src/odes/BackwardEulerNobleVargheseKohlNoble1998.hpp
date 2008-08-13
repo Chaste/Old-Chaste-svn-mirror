@@ -19,9 +19,23 @@ class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCard
 friend class TestFastSlowBackwardEulerNoble98; // Friend class for the purposes of testing    
     
 public:
+    BackwardEulerNobleVargheseKohlNoble1998(AbstractIvpOdeSolver *pSolver, AbstractStimulusFunction *pIntracellularStimulus,
+                                                      AbstractStimulusFunction *pExtracellularStimulus=NULL)
+          : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus, pExtracellularStimulus)                                             
+    {
+        MakeVars();
+    }
+
+
     BackwardEulerNobleVargheseKohlNoble1998(AbstractStimulusFunction *pIntracellularStimulus,
                                                       AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus, pExtracellularStimulus)
+    {
+        MakeVars();
+    }
+
+private:
+    void MakeVars()
     {
         // Time units: second
         //
@@ -120,7 +134,7 @@ public:
         Init();
 
     }
-
+public:
     ~BackwardEulerNobleVargheseKohlNoble1998(void)
     {
     }

@@ -122,15 +122,26 @@ public:
 
 public:
 
-//    void TestConvergencein1DWithN98() throw(Exception)
-//    {
-//         SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
-//        tester.Converge(__FUNCTION__);
-//        TS_ASSERT(tester.Converged);
-//        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
-//        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
-//        exit(1);
-//    }
+    void xTestConvergencein1DWithLR91() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991,  MonodomainProblem<1>, 1, 1> tester;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
+        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
+        
+    }
+    void xTestConvergencein1DWithN98() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+        tester.UseAbsoluteStimulus=true;
+        tester.AbsoluteStimulus=-1e6;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
+        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
+        exit(1);
+    }
     
     void TestStimulatePlanein1D() throw(Exception)
     {
