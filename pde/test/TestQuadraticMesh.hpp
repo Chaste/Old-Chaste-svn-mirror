@@ -40,8 +40,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
 
-        // node 2 (ie middle) of element 0 
-        TS_ASSERT_EQUALS(mesh.GetElementNode(0, 2), 11u);
+        // node 2 (ie middle) of element 0
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(2), 11u);
         TS_ASSERT_DELTA(mesh.GetNode(11)->rGetLocation()[0], 0.05, 1e-12);
         
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -59,11 +59,11 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 128u);
 
         // node 3 (ie fourth) of element 0 
-        TS_ASSERT_EQUALS(mesh.GetElementNode(0, 3), 82u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(3), 82u);
         // node 4 (ie fifth) of element 0 
-        TS_ASSERT_EQUALS(mesh.GetElementNode(0, 4), 83u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(4), 83u);
         // node 5 (ie last) of element 0 
-        TS_ASSERT_EQUALS(mesh.GetElementNode(0, 5), 81u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(5), 81u);
 
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -83,7 +83,7 @@ public:
         // check getting global numbers of nodes 4-9 (in non-vertices)
         for(unsigned i=4; i<10; i++)
         {
-            TS_ASSERT_EQUALS(mesh.GetElementNode(0, i), i);
+            TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(i), i);
         }
 
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)

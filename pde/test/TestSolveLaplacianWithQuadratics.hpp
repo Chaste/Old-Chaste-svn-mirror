@@ -258,32 +258,11 @@ private:
                 //element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
 
                 unsigned p_indices[STENCIL_SIZE];
-                if(DIM==1)
+                for(unsigned i=0; i<STENCIL_SIZE; i++)
                 {
-                    p_indices[0] = element.GetNodeGlobalIndex(0);
-                    p_indices[1] = element.GetNodeGlobalIndex(1);
-                    p_indices[2] = mpQuadMesh->GetElementNode(element.GetIndex(), 2);
+                    p_indices[i] = element.GetNodeGlobalIndex(i);
                 }
-                else if(DIM==2)
-                {
-                    for(unsigned i=0; i<3; i++)
-                    {
-                        p_indices[i] = element.GetNodeGlobalIndex(i);
-                        p_indices[i+3] = mpQuadMesh->GetElementNode(element.GetIndex(), i+3);
-                    }
-                }
-                else
-                {
-                    assert(DIM==3);
-                    for(unsigned i=0; i<4; i++)
-                    {
-                        p_indices[i] = element.GetNodeGlobalIndex(i);
-                    }
-                    for(unsigned i=4; i<10; i++)
-                    {
-                        p_indices[i] = mpQuadMesh->GetElementNode(element.GetIndex(), i);
-                    }
-                }
+
                 
                 if (assembleMatrix)
                 {

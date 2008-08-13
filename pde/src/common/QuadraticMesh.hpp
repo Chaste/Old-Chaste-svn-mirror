@@ -39,18 +39,6 @@ class QuadraticMesh : public ConformingTetrahedralMesh<DIM, DIM>
 {    
 private:
     bool mIsPrepared;
-    
-    ///\todo: move this info into element?
-    // Note, the mesh currently has as data:
-    //   CTM: /all/ the nodes (including non-vertex)
-    //        elements each withknowledge of their vertices only
-    //   QM:  extra nodes for each element 
-    std::vector<std::vector<unsigned> > mLnods; 
-    
-    
-    //TODO: mBoundaryLnods, or change element classes....
-    
-    
     std::vector<bool> mIsInternalNode;
     
 public:
@@ -70,28 +58,6 @@ public:
      * Calculates the extra nodes and information needed to use a mesh with quadratic basis functions
      */
     void ConvertToQuadratic();
-    
-    unsigned GetElementNode(unsigned elemIndex, unsigned nodeIndex)
-    {
-        assert(mIsPrepared);
-        assert(elemIndex<this->GetNumElements());
-        if(DIM==1)
-        {
-            assert(nodeIndex==2);
-            return mLnods[elemIndex][0]; //ie 2-2
-        }
-        else if(DIM==2)
-        {
-            assert(nodeIndex>=3 && nodeIndex<6);
-            return mLnods[elemIndex][(unsigned)(nodeIndex-3)];
-        }
-        else
-        {
-            assert(DIM==3);
-            assert(nodeIndex>=4 && nodeIndex<10);
-            return mLnods[elemIndex][(unsigned)(nodeIndex-4)];
-        }
-    }
 };
 
 
@@ -115,29 +81,14 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
     
     mesh_reader.Reset();
     
-    mLnods.resize(this->GetNumElements());
-    for(unsigned i=0; i<mLnods.size(); i++)
+    // add the extra nodes (1 extra node in 1D, 3 in 2D, 6 in 3D) to the element
+    // data.
+    for(unsigned i=0; i<this->GetNumElements(); i++)
     {
         std::vector<unsigned> node_indices = mesh_reader.GetNextElement();
-        
-        if(DIM==1)
+        for(unsigned j=DIM+1; j<(DIM+1)*(DIM+2)/2; j++)
         {
-            mLnods[i].push_back( node_indices[2] );
-        }
-        else if(DIM==2)
-        {
-            for(unsigned j=3; j<=5; j++)
-            {
-                mLnods[i].push_back( node_indices[j] );
-            }
-        }
-        else
-        {
-            assert(DIM==3);
-            for(unsigned j=4; j<=9; j++)
-            {
-                mLnods[i].push_back( node_indices[j] );
-            }
+            this->GetElement(i)->AddNode( this->GetNode(node_indices[j]) );
         }
     }
     
@@ -147,7 +98,7 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
     /// HACK!!! HACK!!! HACK!!! HACK!!!!!!
     /// HACK!!! HACK!!! HACK!!! HACK!!!!!!
     ///
-    /// see Ticket:FILL_IN_TICKET_NUMBER
+    /// see Ticket:777
     ///
     /// This hack is because .edge files created by "triangle -o2" do not give all 
     /// three nodes of an edge (in 2d), just the 2 vertices, therefore the reader
