@@ -58,6 +58,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 289u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 128u);
 
+        // each element should have 6 nodes
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 6u);
+        }
+
         // node 3 (ie fourth) of element 0 
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(3), 82u);
         // node 4 (ie fifth) of element 0 
@@ -65,6 +71,25 @@ public:
         // node 5 (ie last) of element 0 
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(5), 81u);
 
+        // each boundary element should have three nodes
+        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            TS_ASSERT_EQUALS((*iter)->GetNumNodes(), 3u);
+        }
+
+
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+          = mesh.GetBoundaryElementIteratorBegin();
+        // the first edge has nodes 53 and 0, according to the edge file..
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(0), 53u); 
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(1), 0u);  
+        // .. the midnode has to be computed (found) by the QuadraticMesh class
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(2), 81u);  
+
+            
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
@@ -94,6 +119,13 @@ public:
         QuadraticMesh<3> mesh2("mesh/test/data/cube_136_elements_quadratic");
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 285u);
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 136u);
+
+        // each element should have 10 nodes
+        for(unsigned i=0; i<mesh2.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh2.GetElement(i)->GetNumNodes(), 10u);
+        }
+
 
         for(unsigned i=0; i<mesh2.GetNumNodes(); i++)
         {

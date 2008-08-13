@@ -40,6 +40,10 @@ class QuadraticMesh : public ConformingTetrahedralMesh<DIM, DIM>
 private:
     bool mIsPrepared;
     std::vector<bool> mIsInternalNode;
+
+    void AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
+                               Element<DIM,DIM>* pElement,
+                               unsigned nodeIndexOppositeToFace);
     
 public:
     /**
@@ -92,6 +96,88 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
         }
     }
     
+    // Loop over all boundary elements, find the equivalent face from all
+    // the elements, and add the extra nodes to the boundary element
+//    unsigned counter = 0;
+    if(DIM>1)
+    {
+        for(typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+              = this->GetBoundaryElementIteratorBegin();
+            iter != this->GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+    //        std::cout << "\n\nCounter="<< counter++ << std::endl;
+    
+            // collect the nodes of this boundary element in a set        
+            std::set<unsigned> boundary_element_node_indices;
+            for(unsigned i=0; i<DIM; i++)
+            {
+                boundary_element_node_indices.insert( (*iter)->GetNodeGlobalIndex(i) );
+            }
+    
+    //        std::cout << "\nLooking for:\n";        
+    //        for(std::set<unsigned>::iterator kk=boundary_element_node_indices.begin();
+    //            kk!=boundary_element_node_indices.end(); kk++)
+    //        {
+    //            std::cout << *kk << std::endl;
+    //        }
+    
+    
+            bool found_this_boundary_element = false;
+            // loop over elements
+            for(unsigned i=0; i<this->GetNumElements(); i++)
+            {
+                Element<DIM,DIM>* p_element = this->GetElement(i);
+                
+                // for each element, loop over faces (the opposites to a node)
+                for(unsigned face=0; face<DIM+1; face++)
+                {
+                    // collect the node indices for this face
+                    std::set<unsigned> node_indices;
+                    for(unsigned local_node_index=0; local_node_index<DIM+1; local_node_index++)
+                    {  
+                        if(local_node_index!=face)
+                        {
+                            node_indices.insert( p_element->GetNodeGlobalIndex(local_node_index) );
+                        }
+                    }
+    
+                    assert(node_indices.size()==DIM);
+                    
+    //                std::cout << "This face is:\n";
+    //                for(std::set<unsigned>::iterator kk=node_indices.begin();
+    //                    kk!=node_indices.end(); kk++)
+    //                {
+    //                    std::cout << *kk << std::endl;
+    //                }
+                
+                    // see if this face matches the boundary element        
+                    if(node_indices==boundary_element_node_indices)
+                    {
+                        AddExtraBoundaryNodes(*iter, p_element, face);
+                        
+                        found_this_boundary_element = true;
+                        break;
+                    }
+                }
+    
+                if(found_this_boundary_element)
+                {
+                    break;
+                }
+            }
+            
+            if(!found_this_boundary_element)
+            {
+                #define COVERAGE_IGNORE
+                EXCEPTION("Unable to find a face of an element which matches one of the boundary elements");
+                #undef COVERAGE_IGNORE
+            }
+        }
+    }
+
+    
+    
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
     /// HACK!!! HACK!!! HACK!!! HACK!!!!!!
@@ -111,25 +197,28 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
     ///
     /// HACK!!! HACK!!! HACK!!! HACK!!!!!!!!!!!!!!!!!!!!!!!!
     ///////////////////////////////////////////////////////////////////////////////
-    for(unsigned i=0; i<this->GetNumNodes(); i++)
+
+    if(DIM==3)
     {
-        if(mIsInternalNode[i])
+        for(unsigned i=0; i<this->GetNumNodes(); i++)
         {
-            for(unsigned j=0; j<DIM; j++)
+            if(mIsInternalNode[i])
             {
-                if( (this->GetNode(i)->rGetLocation()[j]==0) || (this->GetNode(i)->rGetLocation()[j]==1) )
+                for(unsigned j=0; j<DIM; j++)
                 {
-                    if(!this->GetNode(i)->IsBoundaryNode())
+                    if( (this->GetNode(i)->rGetLocation()[j]==0) || (this->GetNode(i)->rGetLocation()[j]==1) )
                     {
-                        this->GetNode(i)->SetAsBoundaryNode();
-                        this->mBoundaryNodes.push_back(this->GetNode(i));
+                        if(!this->GetNode(i)->IsBoundaryNode())
+                        {
+                            this->GetNode(i)->SetAsBoundaryNode();
+                            this->mBoundaryNodes.push_back(this->GetNode(i));
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
-    }
-    
+    }   
     
     mIsPrepared = true;
 }
@@ -153,4 +242,31 @@ void QuadraticMesh<DIM>::ConvertToQuadratic()
     #undef COVERAGE_IGNORE
 }
 
+template<unsigned DIM>
+void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
+                                               Element<DIM,DIM>* pElement,
+                                               unsigned nodeIndexOppositeToFace)
+{
+    assert(DIM!=1);
+    if(DIM==2)
+    {
+        assert(nodeIndexOppositeToFace<3);
+        // the single internal node of the elements face will be numbered 'face+3'
+        Node<DIM>* p_internal_node = pElement->GetNode(nodeIndexOppositeToFace+3);
+    
+        // add node to the boundary node list   
+        if(!p_internal_node->IsBoundaryNode())
+        {
+            p_internal_node->SetAsBoundaryNode();
+            this->mBoundaryNodes.push_back(p_internal_node);
+        }
+
+        pBoundaryElement->AddNode( p_internal_node );
+    }        
+    else
+    {
+        assert(DIM==3);
+    }
+}
+                                               
 #endif /*QUADRATICMESH_HPP_*/
