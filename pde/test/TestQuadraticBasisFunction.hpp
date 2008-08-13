@@ -166,9 +166,9 @@ public:
         evaluation_points.push_back(&zeroonezero);
         evaluation_points.push_back(&zerozeroone);
         evaluation_points.push_back(&halfzerozero);
+        evaluation_points.push_back(&halfhalfzero);
         evaluation_points.push_back(&zerohalfzero);
         evaluation_points.push_back(&zerozerohalf);
-        evaluation_points.push_back(&halfhalfzero);
         evaluation_points.push_back(&halfzerohalf);
         evaluation_points.push_back(&zerohalfhalf);
 
@@ -290,15 +290,15 @@ public:
         TS_ASSERT_DELTA(trans_deriv(0,4),0.4, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(1,4),0.2, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(2,4),-0.6, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(0,5),-0.4, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(1,5),0.6, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(2,5),-0.2, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(0,6),-0.16, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(1,6),-1.2, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(2,6),0.72, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(0,7),-0.08, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(1,7),0.8, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(2,7),-0.24, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,5),-0.08, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(1,5),0.8, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(2,5),-0.24, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,6),-0.4, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(1,6),0.6, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(2,6),-0.2, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,7),-0.16, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(1,7),-1.2, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(2,7),0.72, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(0,8),0.32, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(1,8),-0.2, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(2,8),0.36, 1e-12);

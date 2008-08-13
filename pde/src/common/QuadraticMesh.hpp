@@ -88,7 +88,8 @@ public:
         else
         {
             assert(DIM==3);
-            assert(0); // not implemented yet..
+            assert(nodeIndex>=4 && nodeIndex<10);
+            return mLnods[elemIndex][(unsigned)(nodeIndex-4)];
         }
     }
 };
@@ -125,14 +126,18 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
         }
         else if(DIM==2)
         {
-            mLnods[i].push_back( node_indices[3] );
-            mLnods[i].push_back( node_indices[4] );
-            mLnods[i].push_back( node_indices[5] );
+            for(unsigned j=3; j<=5; j++)
+            {
+                mLnods[i].push_back( node_indices[j] );
+            }
         }
         else
         {
             assert(DIM==3);
-            assert(0);
+            for(unsigned j=4; j<=9; j++)
+            {
+                mLnods[i].push_back( node_indices[j] );
+            }
         }
     }
     

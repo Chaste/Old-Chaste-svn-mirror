@@ -97,8 +97,6 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     }
     else
     {
-        assert(ELEMENT_DIM==1 || ELEMENT_DIM==2); // TODO: 3D
-        
         assert(SPACE_DIM==ELEMENT_DIM);
         expected_num_nodes_per_elem = (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2;
     }
@@ -170,8 +168,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 
     // Read the rest of the element data using TokenizeStringsToInts method
 
-//    this->mElementData = TokenizeStringsToInts(this->mElementRawData,ELEMENT_DIM+1);
-this->mElementData = TokenizeStringsToInts(this->mElementRawData, expected_num_nodes_per_elem);
+    this->mElementData = TokenizeStringsToInts(this->mElementRawData, expected_num_nodes_per_elem);
 
     this->mpElementIterator = this->mElementData.begin();
 

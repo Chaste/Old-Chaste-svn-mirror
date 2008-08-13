@@ -93,22 +93,22 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
         y = rPoint[1];
         switch (basisIndex)
         {
-            case 0:
+            case 0: // the node at (0,0)
                 return 2.0 * (1.0 - x - y) * (0.5 - x - y);
                 break;
-            case 1:
+            case 1: // the node at (1,0)
                 return 2.0*x*(x-0.5);
                 break;
-            case 2:
+            case 2: // the node at (0,1)
                 return 2.0*y*(y-0.5);
                 break;
-            case 3:
+            case 3: // the node opposite 0, which is (1/2,1/2)
                 return 4.0 * y * x;            
                 break;
-            case 4:
+            case 4: // the node opposite 1, which is (0,1/2)
                 return 4.0 * (1.0 - x - y) * y;
                 break;
-            case 5:
+            case 5: // the node opposite 2, which is (1/2,0)
                 return 4.0 * (1.0 - x - y) * x;
                 break;
             default:
@@ -122,34 +122,34 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
         z = rPoint[2];
         switch (basisIndex)
         {
-            case 0:
+            case 0: // the node at (0,0,0)
                 return 2.0 * (1.0 - x - y - z) * (0.5 - x - y - z);
                 break;
-            case 1:
+            case 1: // the node at (1,0,0)
                 return 2.0*x*(x-0.5);
                 break;
-            case 2:
+            case 2: // the node at (0,1,0)
                 return 2.0*y*(y-0.5);
                 break;
-            case 3:
+            case 3: // the node at (0,0,1)
                 return 2.0*z*(z-0.5);
                 break;
-            case 4:
+            case 4: // our (tetgen convention), node4 is between nodes 0 and 1, (1/2,0,0)
                 return 4.0 * (1.0 - x - y - z) * x;
                 break;
-            case 5:
+            case 5: // our (tetgen convention), node5 is between nodes 1 and 2, (1/2,1/2,0)
+                return 4 * x * y;
+                break;
+            case 6: // our (tetgen convention), node6 is between nodes 0 and 2, (0,1/2,0)
                 return 4.0 * (1.0 - x - y - z) * y;
                 break;
-            case 6:
+            case 7: // our (tetgen convention), node7 is between nodes 0 and 3, (0,0,1/2)
                 return 4.0 * (1.0 - x - y - z) * z;
                 break;
-            case 7:
-                return 4.0 * y * x;
-                break;
-            case 8:
+            case 8: // our (tetgen convention), node8 is between nodes 1 and 3, (1/2,0,1/2)
                 return 4.0 * x * z;
                 break;
-            case 9:
+            case 9: // our (tetgen convention), node9 is between nodes 2 and 3, (0,1/2,1/2)
                 return 4.0 * y * z;
                 break;
             default:
@@ -265,19 +265,19 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 gradN(2) =  -4.0*x;
                 break;
             case 5:
+                gradN(0) =  4.0*y;
+                gradN(1) =  4.0*x;
+                gradN(2) =  0.0;
+                break;
+            case 6: 
                 gradN(0) =  -4.0*y;
                 gradN(1) =  4.0-4.0*x-8.0*y-4.0*z;
                 gradN(2) =  -4.0*y; 
                 break;
-            case 6: 
+            case 7:
                 gradN(0) =  -4.0*z;
                 gradN(1) =  -4.0*z;
                 gradN(2) =  4.0-4.0*x-4.0*y-8.0*z;
-                break;
-            case 7:
-                gradN(0) =  4.0*y;
-                gradN(1) =  4.0*x;
-                gradN(2) =  0.0;
                 break;
             case 8:   
                 gradN(0) =  4.0*z;

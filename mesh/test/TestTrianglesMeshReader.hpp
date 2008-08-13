@@ -370,7 +370,7 @@ public:
     {
         TS_ASSERT_THROWS_ANYTHING( READER_1D wrong_reader("mesh/test/data/1D_0_to_1_10_elements_quadratics", 1));
 
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratics", 2);
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratic", 2);
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
     
@@ -386,7 +386,7 @@ public:
     
     void TestReadingQuadraticMesh2d() throw(Exception)
     {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratics", 2);
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic", 2);
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 17u*17u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 128u);
     
@@ -401,6 +401,20 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.mElementData[0][3], 82u); // opposite to 53
         TS_ASSERT_EQUALS(mesh_reader.mElementData[0][4], 83u); // opposite to 0
         TS_ASSERT_EQUALS(mesh_reader.mElementData[0][5], 81u); // opposite to 54
+    }
+    
+    void TestReadingQuadraticMesh3d() throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element_quadratic", 2);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 10u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1u);
+    
+        TS_ASSERT_EQUALS(mesh_reader.mElementData[0].size(), 10u);
+        
+        for(unsigned i=0; i<10; i++)
+        {
+            TS_ASSERT_EQUALS(mesh_reader.mElementData[0][i], i);
+        }
     }
 };
 

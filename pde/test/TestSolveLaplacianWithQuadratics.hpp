@@ -275,7 +275,14 @@ private:
                 else
                 {
                     assert(DIM==3);
-                    assert(0); // not implemented yet..
+                    for(unsigned i=0; i<4; i++)
+                    {
+                        p_indices[i] = element.GetNodeGlobalIndex(i);
+                    }
+                    for(unsigned i=4; i<10; i++)
+                    {
+                        p_indices[i] = mpQuadMesh->GetElementNode(element.GetIndex(), i);
+                    }
                 }
                 
                 if (assembleMatrix)
@@ -362,7 +369,7 @@ public:
     // solve u'' + 1 = 0
     void TestSolveLaplacianWithQuadratics1d() throw (Exception)
     {
-        QuadraticMesh<1> quad_mesh("mesh/test/data/1D_0_to_1_10_elements_quadratics");
+        QuadraticMesh<1> quad_mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic");
 
         BoundaryConditionsContainer<1,1,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
@@ -389,7 +396,7 @@ public:
     void TestSolveLaplacianWithQuadratics2d() throw (Exception)
     {
         // Solve using quadratics..
-        QuadraticMesh<2> quad_mesh("mesh/test/data/square_128_elements_quadratics");
+        QuadraticMesh<2> quad_mesh("mesh/test/data/square_128_elements_quadratic");
 
         BoundaryConditionsContainer<2,2,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
@@ -424,8 +431,9 @@ public:
             double u_1 = sol_lin_repl[i];
             double u_2 = sol_quads_repl[i];
 
-            // max value of the solution is about 0.08, choose a tolerance of 5% of that.
-            TS_ASSERT_DELTA(u_1, u_2, 0.08*5e-1);
+            // max value of the solution is about 0.08, choose a tolerance of 
+            // 5% of that (wouldn't expect them to be exactly the same).
+            TS_ASSERT_DELTA(u_1, u_2, 0.08*5e-2);
             
             //double x = mesh.GetNode(i)->rGetLocation()[0];
             //double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -437,5 +445,59 @@ public:
         VecDestroy(solution_lin);
         VecDestroy(solution_quads);
     }
+
+
+    void TestSolveLaplacianWithQuadratics3d() throw (Exception)
+    {
+        // Solve using quadratics..
+        QuadraticMesh<3> quad_mesh("mesh/test/data/cube_1626_elements_quadratic");
+
+        BoundaryConditionsContainer<3,3,1> bcc_quads;
+        bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
+        
+        QuadraticLaplacianAssembler<3> assembler_quads(&quad_mesh, &bcc_quads);
+        assembler_quads.SetPdeConstants(1.0, 1.0);
+        
+        Vec solution_quads = assembler_quads.Solve();
+        ReplicatableVector sol_quads_repl(solution_quads);
+        
+        // Solve using linears
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        EllipticPdeWithLinearSource<3> pde(1.0, 1.0);
+
+        BoundaryConditionsContainer<3,3,1> bcc_lin;
+        bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);               
+
+        SimpleLinearEllipticAssembler<3,3> assembler_lin(&mesh,&pde,&bcc_lin);
+
+        Vec solution_lin = assembler_lin.Solve();
+        ReplicatableVector sol_lin_repl(solution_lin);
+        
+        // compare results - the following assumes the vertex nodes in the
+        // quad mesh come before all the internal nodes
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double u_1 = sol_lin_repl[i];
+            double u_2 = sol_quads_repl[i];
+
+            // max value of the solution is about 0.059, choose a tolerance of
+            // 5% of that (wouldn't expect them to be exactly the same).
+            TS_ASSERT_DELTA(u_1, u_2, 0.059*5e-2);
+            
+            //double x = mesh.GetNode(i)->rGetLocation()[0];
+            //double y = mesh.GetNode(i)->rGetLocation()[1];
+            //double z = mesh.GetNode(i)->rGetLocation()[2];
+            //           
+            //std::cout << x << " " << y << " " << z << " " << u_1 << " " 
+            //          <<  u_2 << " " << fabs(u_1-u_2) << "\n";
+        }
+
+        VecDestroy(solution_lin);
+        VecDestroy(solution_quads);
+    }
+
 };
 #endif /*TESTSOLVELAPLACIANWITHQUADRATICS_HPP_*/
