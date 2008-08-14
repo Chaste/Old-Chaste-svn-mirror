@@ -369,6 +369,44 @@ public:
         TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
     }
 
+    void TestMonodomainWithMeshInMemoryToMeshalyzer()
+    {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));        
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("Monodomain2d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+        
+        OutputFileHandler handler("anim", true);
+        std::string check_tri = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"last_simulation.tri ]";
+        std::string check_pts = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"last_simulation.pts ]";
+        
+        TS_ASSERT(system(check_tri.c_str()) != 0); //File does not exist
+        TS_ASSERT(system(check_pts.c_str()) != 0); //File does not exist
+        
+        
+        ///////////////////////////////////////////////////////////////////
+        // monodomain
+        ///////////////////////////////////////////////////////////////////
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
+
+        monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(10, 10, true);
+        mesh.Scale(0.01,0.01); //To get 1mm x 1mm
+        monodomain_problem.SetMesh(&mesh);
+        monodomain_problem.Initialise();
+
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
+        // now solve
+        monodomain_problem.Solve();
+        TS_ASSERT_EQUALS(system(check_tri.c_str()), 0); //File exists
+        TS_ASSERT_EQUALS(system(check_pts.c_str()), 0); //File exists
+    }
+
 
     void TestMonodomainProblemExceptions() throw (Exception)
     {
@@ -400,6 +438,8 @@ public:
         // throws because output dir and filename are both ""        
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
     }
+    
+    
 };
 
 #endif //_TESTMONODOMAINPROBLEM_HPP_
