@@ -435,7 +435,7 @@ public:
                     chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
                                       + space_dim.str() + " "       // argument 1 is the dimension.
                                       + mesh_pathname + " "         // arg 2 is mesh prefix, path relative to Chaste directory
-                                      + "last_simulation";          // arg 3 is the output prefix, relative to
+                                      + mOutputDirectory+"_"+mOutputFilenamePrefix;          // arg 3 is the output prefix, relative to
                                                                     // anim folder.
                     //std::cout<<chaste_2_meshalyzer<<"\n";
                     system(chaste_2_meshalyzer.c_str());

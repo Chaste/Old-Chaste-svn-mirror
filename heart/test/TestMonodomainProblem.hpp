@@ -379,8 +379,8 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         
         OutputFileHandler handler("anim", true);
-        std::string check_tri = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"last_simulation.tri ]";
-        std::string check_pts = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"last_simulation.pts ]";
+        std::string check_tri = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"Monodomain2d_monodomain2d.tri ]";
+        std::string check_pts = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"Monodomain2d_monodomain2d.pts ]";
         
         TS_ASSERT(system(check_tri.c_str()) != 0); //File does not exist
         TS_ASSERT(system(check_pts.c_str()) != 0); //File does not exist
