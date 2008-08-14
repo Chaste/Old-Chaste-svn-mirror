@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "DistributedVector.hpp"
 #include "PlaneStimulusCellFactory.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 class TestBidomain3D :  public CxxTest::TestSuite
 {
@@ -55,7 +56,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("Bidomain3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
                         
-        PlaneStimulusCellFactory<3> bidomain_cell_factory(-600.0*1000);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> bidomain_cell_factory(-600.0*1000);
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
 
@@ -128,7 +129,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
-        PlaneStimulusCellFactory<3> cell_factory(-600.0*1000);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-600.0*1000);
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();

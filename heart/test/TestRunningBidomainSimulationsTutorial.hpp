@@ -55,8 +55,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 /* The {{{PlaneStimulusCellFactory}}} is a useful class to include (see later). */
 #include "PlaneStimulusCellFactory.hpp"
+/* {{{LuoRudyIModel1991OdeSystem}}} is the cell model which will be used in this simulation.*/
+#include "LuoRudyIModel1991OdeSystem.hpp"
 /* All tests which run cardiac simulations (which use Petsc) should include
- * {{{PetscSetupAndFinalize.hpp}}} '''is this true?''' */
+ * {{{PetscSetupAndFinalize.hpp}}}.  This class ensures that {{{PetscInitialise()}}}
+ * is called with the appropriate arguments before any tests in the suite are run. */
 #include "PetscSetupAndFinalize.hpp"
 
 /* EMPTYLINE
