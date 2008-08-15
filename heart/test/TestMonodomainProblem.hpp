@@ -382,6 +382,8 @@ public:
         std::string check_tri = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"Monodomain2d_monodomain2d.tri ]";
         std::string check_pts = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"Monodomain2d_monodomain2d.pts ]";
         
+        //Make sure child processes see the cleam directory
+        PetscTools::Barrier();
         TS_ASSERT(system(check_tri.c_str()) != 0); //File does not exist
         TS_ASSERT(system(check_pts.c_str()) != 0); //File does not exist
         

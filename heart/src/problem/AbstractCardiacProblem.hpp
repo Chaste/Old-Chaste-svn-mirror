@@ -432,7 +432,7 @@ public:
                     std::string chaste_2_meshalyzer;
                     std::stringstream space_dim;
                     space_dim << SPACE_DIM;
-                    chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
+                    chaste_2_meshalyzer = "/bin/bash anim/chaste2meshalyzer "     // the executable.
                                       + space_dim.str() + " "       // argument 1 is the dimension.
                                       + mesh_pathname + " "         // arg 2 is mesh prefix, path relative to Chaste directory
                                       + mOutputDirectory+"_"+mOutputFilenamePrefix;          // arg 3 is the output prefix, relative to
