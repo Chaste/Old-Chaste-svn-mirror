@@ -378,9 +378,9 @@ public:
         
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         
-        OutputFileHandler handler("anim", true);
-        std::string check_tri = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"Monodomain2d_monodomain2d.tri ]";
-        std::string check_pts = "[ -f " + handler.GetOutputDirectoryFullPath("anim")+"/"+"Monodomain2d_monodomain2d.pts ]";
+        OutputFileHandler handler("animations", true);
+        std::string check_tri = "[ -f " + handler.GetOutputDirectoryFullPath("animations")+"/"+"Monodomain2d_monodomain2d.tri ]";
+        std::string check_pts = "[ -f " + handler.GetOutputDirectoryFullPath("animations")+"/"+"Monodomain2d_monodomain2d.pts ]";
         
         //Make sure child processes see the cleam directory
         PetscTools::Barrier();

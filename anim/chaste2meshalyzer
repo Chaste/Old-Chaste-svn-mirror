@@ -4,7 +4,7 @@
 # arguments are:
 #   1. dimension (must be 1,2 or 3)
 #   2. the mesh path and prefix (relative to current directory, or absolute)
-#   3. the output prefix (relative to CHASTE_TEST_OUTPUT/anim or /tmp/<username>/testoutput/anim)
+#   3. the output prefix (relative to CHASTE_TEST_OUTPUT/animations or /tmp/<username>/testoutput/animations)
 
 if [ ${USER} == "bob" ] ; then
     exit
@@ -15,8 +15,10 @@ fi
 #     (May break if ${HOME} != /home/${USER})         
 #############################################################
 # Use the value of $CHASTE_TEST_OUTPUT if set, or a default if not
-TESTOUTPUT_DIR=${CHASTE_TEST_OUTPUT:-"/tmp/"${USER}"/testoutput/"}
-OUTPUT_DIR=${TESTOUTPUT_DIR}"/anim/"
+# (in the same way as it's used in the OutputfileHandler
+#TESTOUTPUT_DIR=${CHASTE_TEST_OUTPUT:-"/tmp/"${USER}"/testoutput/"}
+TESTOUTPUT_DIR=${CHASTE_TEST_OUTPUT:-"."}
+OUTPUT_DIR=${TESTOUTPUT_DIR}"/animations/"
 
 if [ ! -d $TESTOUTPUT_DIR ]; then
 	echo "$TESTOUTPUT_DIR does not exist" 
