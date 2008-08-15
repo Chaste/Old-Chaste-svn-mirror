@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CardiacElectroMechanicsProblem1d.hpp"
 #include "CardiacElectroMechanicsProblem.hpp"
 #include "RegularStimulus.hpp"
-
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 
 class MyCellFactory : public AbstractCardiacCellFactory<2>

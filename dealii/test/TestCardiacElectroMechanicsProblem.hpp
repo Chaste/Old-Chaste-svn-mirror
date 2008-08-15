@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechanicsProblem1d.hpp"
 #include "CardiacElectroMechanicsProblem.hpp"
-//#include "NodewiseData.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
@@ -47,7 +47,7 @@ public:
     {
         EventHandler::Disable();
 
-        PlaneStimulusCellFactory<2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechanicsProblem<2> problem(&cell_factory,
                                                   1, /* end time */
@@ -83,7 +83,7 @@ public:
     // We only test the implicit solver as the explicit is not expected to work for very long
     void Test2dImplicit() throw(Exception)
     {
-        PlaneStimulusCellFactory<2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
                                                            10, /* end time */
