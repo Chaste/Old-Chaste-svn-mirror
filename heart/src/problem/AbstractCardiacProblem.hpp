@@ -442,6 +442,8 @@ public:
                 }
                 //Convert simulation data to Meshalyzer format
                 Hdf5ToMeshalyzerConverter converter(mOutputDirectory, mOutputFilenamePrefix);
+                //Are we all ready - we ought to be, since Hdf5ToMeshalyzerConverter does implict syncronisation
+                //PetscTools::Barrier();
             }
         }
         EventHandler::EndEvent(EVERYTHING);
