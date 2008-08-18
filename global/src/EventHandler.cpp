@@ -29,4 +29,4 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 const char* EventNames::EVENT_NAME[] =  { "InMesh", "AssSys", "Ode",
                                            "Comms", "AssRhs", "NeuBCs", "Ksp",
-                                           "Output", "Total" };
+                                           "Output", "User1", "User2", "Total" };

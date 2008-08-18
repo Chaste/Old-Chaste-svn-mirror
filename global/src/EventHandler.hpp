@@ -42,6 +42,8 @@ typedef enum EventType_
     NEUMANN_BCS,
     SOLVE_LINEAR_SYSTEM,
     WRITE_OUTPUT,
+    USER1,
+    USER2,
     EVERYTHING
 } EventType;
 
@@ -49,9 +51,9 @@ typedef enum EventType_
 class EventNames
 {
     public:
-    const static char* EVENT_NAME[9];
+    const static char* EVENT_NAME[11];
 };
 
-typedef GenericEventHandler<9, EventNames::EVENT_NAME> EventHandler;
+typedef GenericEventHandler<11, EventNames::EVENT_NAME> EventHandler;
 
 #endif /*EVENTHANDLER_HPP_*/

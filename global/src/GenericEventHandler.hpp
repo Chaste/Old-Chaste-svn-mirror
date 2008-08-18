@@ -100,9 +100,12 @@ public:
     static void Report()
     {
         // times are in milliseconds
+        unsigned top_event=NUM_EVENTS-1;
+        double total=mCpuTime[top_event];
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
-            printf("%2.1e\t", mCpuTime[event]);
+            printf("%7.1e ", mCpuTime[event]);
+            printf("(%3.0f%%)  ", mCpuTime[event]*100.0/total);
             mCpuTime[event]=0.0;
         }
         std::cout << "(milliseconds) \n";
@@ -112,7 +115,7 @@ public:
     {
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
-            printf("%6s\t", EVENT_NAME[event]);
+            printf("%14s%2s", EVENT_NAME[event], "");
         }
         std::cout << "\n";
     }
