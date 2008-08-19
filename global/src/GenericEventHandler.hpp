@@ -38,9 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 
-const unsigned MAX_EVENTS=9;
+const unsigned MAX_EVENTS=11;
 
-// we require NUM_EVENTS <= MAX_EVENTS
 template<unsigned NUM_EVENTS, const char** EVENT_NAME>
 class GenericEventHandler
 {
@@ -60,6 +59,7 @@ public:
 
     static void BeginEvent(unsigned event) throw (Exception)
     {
+        assert(NUM_EVENTS <= MAX_EVENTS);
         if (!mEnabled)
         {
             return;
@@ -132,10 +132,10 @@ public:
 };
 
 template<unsigned NUM_EVENTS, const char** EVENT_NAME>
-double GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mCpuTime[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+double GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mCpuTime[] = {  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
 template<unsigned NUM_EVENTS, const char** EVENT_NAME>
-bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mHasBegun[] = { false, false, false, false, false, false, false, false, false};
+bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mHasBegun[] = {  false, false, false, false, false, false, false, false, false, false, false};
 
 template<unsigned NUM_EVENTS, const char** EVENT_NAME>
 bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mEnabled = true;
