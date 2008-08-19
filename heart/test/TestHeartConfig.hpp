@@ -266,12 +266,28 @@ public :
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
+        TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance() == false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-4);
 
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-11);
         TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
+        /** \todo ticket:781
+         *
+        TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance() == false);
+         * 
+         */ 
+       
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-11);
 
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
+        TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
+        /** \todo ticket:781
+         *
+        TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance() == false);
+         * 
+         */ 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-4);
+ 
         HeartConfig::Instance()->SetKSPSolver("cg");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg")==0);
 
