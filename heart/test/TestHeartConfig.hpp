@@ -195,7 +195,7 @@ public :
 
     void TestSetFunctions() throw(Exception)
     {
-
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
 
@@ -271,22 +271,19 @@ public :
 
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-11);
         TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
-        /** \todo ticket:781
-         *
-        TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance() == false);
-         * 
-         */ 
-       
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-11);
+        //Check that relative tolerance is disabled
+        TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance() == false);
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetRelativeTolerance());
+        
+       
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
-        /** \todo ticket:781
-         *
-        TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance() == false);
-         * 
-         */ 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-4);
+        //Check that absolute tolerance is disabled
+        TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance() == false);
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetAbsoluteTolerance());
  
         HeartConfig::Instance()->SetKSPSolver("cg");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg")==0);

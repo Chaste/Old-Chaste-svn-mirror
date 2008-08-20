@@ -483,6 +483,15 @@ double HeartConfig::GetPrintingTimeStep() const
 
 bool HeartConfig::GetUseAbsoluteTolerance() const
 {
+     /*
+      * Note that it may be the case that absolute tolerance exists in the default
+      * parameters file, but has been overridden in the user parameters
+      */
+     if (mpUserParameters->Numerical().KSPTolerances().get().KSPRelative().present() )
+     {
+        return false;
+     }
+
      return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                                              & mpDefaultParameters->Numerical().KSPTolerances(),
                                              "KSPTolerances")->get().KSPAbsolute().present();
@@ -490,8 +499,10 @@ bool HeartConfig::GetUseAbsoluteTolerance() const
 
 double HeartConfig::GetAbsoluteTolerance() const
 {
-	assert(GetUseAbsoluteTolerance());
-	
+	if (!GetUseAbsoluteTolerance())
+    {
+        EXCEPTION("Absolute tolerance is not set in Chaste parameters");
+    }	
     return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                            & mpDefaultParameters->Numerical().KSPTolerances(),
                            "KSPTolerances")->get().KSPAbsolute().get();
@@ -499,6 +510,16 @@ double HeartConfig::GetAbsoluteTolerance() const
 
 bool HeartConfig::GetUseRelativeTolerance() const
 {
+    /*
+      * Note that it may be the case that relative tolerance exists in the default
+      * parameters file, but has been overridden in the user parameters
+      */
+     
+     
+     if (mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().present() )
+     {
+        return false;
+     }
      return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                                              & mpDefaultParameters->Numerical().KSPTolerances(),
                                              "KSPTolerances")->get().KSPRelative().present();
@@ -506,8 +527,11 @@ bool HeartConfig::GetUseRelativeTolerance() const
 
 double HeartConfig::GetRelativeTolerance() const
 {
-	assert(GetUseRelativeTolerance());
-	
+	if (!GetUseRelativeTolerance())
+    {
+        EXCEPTION("Relative tolerance is not set in Chaste parameters");
+    }   
+    
 	return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                            & mpDefaultParameters->Numerical().KSPTolerances(),
                            "KSPTolerances")->get().KSPRelative().get();
@@ -719,11 +743,15 @@ void HeartConfig::CheckTimeSteps() const
 
 void HeartConfig::SetUseRelativeTolerance(double relativeTolerance)
 {
+    //Remove any reference to tolerances is user parameters
+    mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().reset();
     mpUserParameters->Numerical().KSPTolerances().get().KSPRelative().set(relativeTolerance);
 }
 
 void HeartConfig::SetUseAbsoluteTolerance(double absoluteTolerance)
 {
+    //Remove any reference to tolerances is user parameters
+    mpUserParameters->Numerical().KSPTolerances().get().KSPRelative().reset();
     mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().set(absoluteTolerance);
 }
 
