@@ -36,20 +36,20 @@ class KspConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROB
 public:
     void SetInitialConvergenceParameters()
     {
-        this->SetKspRelativeTolerance(1e-2);
+        this->SetKspAbsoluteTolerance(1.0);
     }
     void UpdateConvergenceParameters()
     {
-        this->SetKspRelativeTolerance(this->GetKspRelativeTolerance()*0.1);
+        this->SetKspAbsoluteTolerance(this->GetKspAbsoluteTolerance()*0.1);
 
     }
     bool GiveUpConvergence()
     {
-        return this->GetKspRelativeTolerance()<1e-9;
+        return this->GetKspAbsoluteTolerance()<1e-5;
     }
     double Abscissa()
     {
-        return this->GetKspRelativeTolerance();
+        return this->GetKspAbsoluteTolerance();
     }
 };
 

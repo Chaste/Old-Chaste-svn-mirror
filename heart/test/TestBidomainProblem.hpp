@@ -284,6 +284,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("Monodomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
             
         Vec monodomain_results;
 
@@ -374,6 +375,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("Bidomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_testPrintTimes");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779 
 
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
@@ -406,9 +408,9 @@ public:
         std::vector<double> node_0 = data_reader1.GetVariableOverTime("V", 0);
         TS_ASSERT_EQUALS( node_0.size(), 4U);
         TS_ASSERT_DELTA( node_0[0], -83.853, 1e-10);
-        TS_ASSERT_DELTA( node_0[1], -83.8354, 1e-4);
-        TS_ASSERT_DELTA( node_0[2], -83.8266, 1e-4);
-        TS_ASSERT_DELTA( node_0[3], -83.8201, 1e-4);
+        TS_ASSERT_DELTA( node_0[1], -83.8354, 3e-4);
+        TS_ASSERT_DELTA( node_0[2], -83.8263, 3e-4);
+        TS_ASSERT_DELTA( node_0[3], -83.8197, 3e-4);
         std::vector<double> node_5 = data_reader1.GetVariableOverTime("V", 5);
         TS_ASSERT_EQUALS( node_5.size(), 4U);
         std::vector<double> node_10 = data_reader1.GetVariableOverTime("V", 10);
@@ -466,7 +468,12 @@ public:
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
         HeartConfig::Instance()->SetOutputDirectory("temp");
         HeartConfig::Instance()->SetOutputFilenamePrefix("temp");
-
+        
+        //Exception causes by relative tolerance and no clamping
+        HeartConfig::Instance()->SetUseRelativeTolerance(2e-3); 
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);
+        
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;
         too_large.push_back(4358743);
@@ -484,6 +491,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Orthotropic);
         HeartConfig::Instance()->SetOutputDirectory("OrthotropicBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("ortho3d");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
                 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory;
 

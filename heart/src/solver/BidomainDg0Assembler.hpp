@@ -293,6 +293,14 @@ private:
                 // We're not using the mean phi_e method, hence use a null space
                 if (!mNullSpaceCreated)
                 {
+                    //Need to use the Nullspace method
+                    //Check that the KSP solver isn't going to do anything stupid:
+                    // phi_e is not bounded, so it'd be wrong to use a relative tolerance
+                    if (HeartConfig::Instance()->GetUseRelativeTolerance())
+                    {
+                        EXCEPTION("Bidomain external voltage is not bounded in this simulation - use KSP *absolute* tolerance");                      
+                    }
+                    
                     // No null space set up, so create one and pass it to the linear system
                     Vec nullbasis[1];
                     nullbasis[0]=DistributedVector::CreateVec(2);

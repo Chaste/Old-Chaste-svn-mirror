@@ -167,6 +167,7 @@ public:
 		HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BiNeuman1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779 
                 
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
@@ -224,6 +225,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_200_elements");
         HeartConfig::Instance()->SetOutputDirectory("BiNeuman2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
                 
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         BidomainProblem<2> bidomain_problem( &cell_factory );
@@ -292,14 +294,6 @@ public:
                 TS_ASSERT_DELTA(voltage_replicated[2*node_index], -68.5, 2*atol)
             }
         }
-
-//        TS_ASSERT_DELTA(voltage_replicated[2*1], 23.6028, atol);
-//        TS_ASSERT_DELTA(voltage_replicated[2*3], 23.3720, atol);
-//        TS_ASSERT_DELTA(voltage_replicated[2*5], 23.9703, atol);
-//        TS_ASSERT_DELTA(voltage_replicated[2*7], 20.7020, atol);
-//        TS_ASSERT_DELTA(voltage_replicated[2*9], -41.3815, atol);
-//        TS_ASSERT_DELTA(voltage_replicated[2*10], -60.6728, atol);
-
     }
 };
 

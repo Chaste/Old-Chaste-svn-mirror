@@ -61,6 +61,7 @@ public:
         {
             pTester->MeshNum = 6u;
         }
+        pTester->SetKspAbsoluteTolerance(5e-4);
 
         pTester->Converge("Automated_test");
         TS_ASSERT(pTester->Converged);
@@ -95,11 +96,11 @@ public:
             RunConvergenceTester(&tester, stimulusType);
             if (stimulusType != REGION)
             {
-                TS_ASSERT_DELTA(tester.GetKspRelativeTolerance(), 1e-5, 1e-10);
+                TS_ASSERT_DELTA(tester.GetKspAbsoluteTolerance(), 1e-3, 1e-10);
             }
             else
             {
-                TS_ASSERT_DELTA(tester.GetKspRelativeTolerance(), 1e-6, 1e-10);
+                TS_ASSERT_DELTA(tester.GetKspAbsoluteTolerance(), 1e-4, 1e-10);
             }
         }
 
@@ -166,7 +167,7 @@ public:
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
-        tester.SetKspRelativeTolerance(5e-8);
+        tester.SetKspAbsoluteTolerance(1e-3);
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
@@ -180,7 +181,7 @@ public:
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
-        tester.SetKspRelativeTolerance(1e-9);
+        tester.SetKspAbsoluteTolerance(1e-3);
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
@@ -192,7 +193,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus = REGION;
-        tester.SetKspRelativeTolerance(1e-8);
+        tester.SetKspAbsoluteTolerance(1e-3);
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 6u);
@@ -202,7 +203,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus = NEUMANN;
-        tester.SetKspRelativeTolerance(1e-8);
+        tester.SetKspAbsoluteTolerance(1e-3);
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
@@ -212,7 +213,7 @@ public:
     void Test3DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspRelativeTolerance(1e-8);
+        tester.SetKspAbsoluteTolerance(1e-3);
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
@@ -222,7 +223,7 @@ public:
     void Test3DSpaceWithNeumannStimulus() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspRelativeTolerance(1e-8);
+        tester.SetKspAbsoluteTolerance(1e-3);
         tester.RelativeConvergenceCriterion = 4e-2;//Just to prove the thing works
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
