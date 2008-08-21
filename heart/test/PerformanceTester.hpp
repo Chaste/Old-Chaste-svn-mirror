@@ -71,8 +71,8 @@ public:
     : OdeTimeStep(0.0025),
       PdeTimeStep(0.0025),
       MeshNum(2u),
-      KspRtol(1e-8),
-      RelativeConvergenceCriterion(1e-4),
+      KspAtol(1e-6),
+      //RelativeConvergenceCriterion(1e-4),
       SimTime(8.0),
       PrintingTimeStep(0.04)
     {
@@ -82,7 +82,7 @@ public:
     {
         HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
         HeartConfig::Instance()->SetSimulationDuration(SimTime);        
-        HeartConfig::Instance()->SetUseRelativeTolerance(KspRtol);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(KspAtol);
 
         // Create the meshes on which the test will be based
         const std::string mesh_dir = "ConvergenceMesh";
@@ -157,8 +157,8 @@ public:
     double OdeTimeStep;
     double PdeTimeStep;
     unsigned MeshNum;
-    double KspRtol;
-    double RelativeConvergenceCriterion;
+    double KspAtol;
+    //double RelativeConvergenceCriterion;
     double SimTime;
     double PrintingTimeStep;
 
