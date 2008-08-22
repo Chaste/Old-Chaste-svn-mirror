@@ -188,6 +188,25 @@ public:
         this->mpWriter->PutUnlimitedVariable(time);
         this->mpWriter->PutStripedVector(this->mVoltageColumnId, mExtracelluarColumnId, voltageVec);
     }
+    
+    void PreSolveChecks()
+    {
+        AbstractCardiacProblem<SPACE_DIM, 2>::PreSolveChecks();
+        if (mFixedExtracellularPotentialNodes.empty())
+        {
+            // We're not pinning any nodes.
+            if (mRowMeanPhiEZero==INT_MAX)
+            {
+                // We're not using the mean phi_e method, hence use a null space
+                //Check that the KSP solver isn't going to do anything stupid:
+                // phi_e is not bounded, so it'd be wrong to use a relative tolerance
+                if (HeartConfig::Instance()->GetUseRelativeTolerance())
+                {
+                    EXCEPTION("Bidomain external voltage is not bounded in this simulation - use KSP *absolute* tolerance");                      
+                }    
+            }
+        }
+    }
 
 };
 

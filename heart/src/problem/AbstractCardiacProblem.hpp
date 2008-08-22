@@ -191,7 +191,7 @@ public:
         this->mpBoundaryConditionsContainer = bcc;
     }
 
-    void PreSolveChecks()
+    virtual void PreSolveChecks()
     {
         if ( mpCardiacPde == NULL ) // if pde is NULL, Initialise() probably hasn't been called
         {
