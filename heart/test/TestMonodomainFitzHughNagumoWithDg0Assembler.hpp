@@ -90,7 +90,8 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("FhnWithEdgeStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
-
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);///\todo #779       
+        
         FhnEdgeStimulusCellFactory cell_factory;
 
         // using the criss-cross mesh so wave propagates properly

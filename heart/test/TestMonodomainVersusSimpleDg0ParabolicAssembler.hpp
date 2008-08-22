@@ -163,6 +163,8 @@ public:
         monodomain_assembler.SetInitialCondition( initial_condition_1 );
         simple_assembler.SetInitialCondition( initial_condition_2 );
 
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(6e-5);///\todo #779       
+        
         Vec current_solution_1 = monodomain_assembler.Solve();
         Vec current_solution_2 = simple_assembler.Solve();
 
@@ -186,7 +188,7 @@ public:
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
     }
-
+ 
     void TestMonodomainDg0AssemblerWithFischer2DAgainstSimpleDg0Assembler()
     {
         double t_start = 0;

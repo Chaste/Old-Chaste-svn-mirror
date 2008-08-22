@@ -92,7 +92,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");        
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-        
+         
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -211,7 +211,8 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779       
+        
         monodomain_problem.Solve();
 
         // test whether voltages and gating variables are in correct ranges
@@ -265,7 +266,7 @@ public:
                 // hardcoded result that looks accurate - this is a test to see
                 // that nothing has changeed
                 // assumes endtime = 2ms
-                TS_ASSERT_DELTA(voltage_replicated[i], -59.6495, 4e-4);
+                TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 4e-4);
             }
         }
 
@@ -296,7 +297,7 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-
+        
         monodomain_problem.Solve();
 
         // To time the solve
@@ -329,7 +330,7 @@ public:
 
         // hardcoded result to check nothing has changed
         // assumes endtime = 1.3
-        TS_ASSERT_DELTA(voltage_replicated[0], -34.3493, 1e-3);
+        TS_ASSERT_DELTA(voltage_replicated[0], -34.3481, 1e-3);
 
 //        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
