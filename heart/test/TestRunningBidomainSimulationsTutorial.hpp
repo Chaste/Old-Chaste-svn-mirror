@@ -197,6 +197,8 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
 
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);///\todo #779       
+
         /* Now we call Solve() to run the simulation. Output will be written
          * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''todo: To visualise...'''*/
         bidomain_problem.Solve();
