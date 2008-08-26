@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStimulusFunction.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
+#include "OutputFileHandler.hpp"
 
 class HeartConfig
 {
@@ -54,6 +55,7 @@ public:
 
     void SetDefaultsFile(std::string fileName);
     void SetParametersFile(std::string fileName);
+    void Write(std::string dirName, std::string fileName);
     static void Reset();
 
     /*

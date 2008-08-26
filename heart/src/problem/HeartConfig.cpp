@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "HeartConfig.hpp"
-
 using namespace xsd::cxx::tree;
 
 std::auto_ptr<HeartConfig> HeartConfig::mpInstance;
@@ -76,6 +75,22 @@ void HeartConfig::SetDefaultsFile(std::string fileName)
     CheckTimeSteps();
 }
 
+void HeartConfig::Write(std::string dirName, std::string fileName)
+{
+    //Output file
+    OutputFileHandler output_file_handler(dirName, false);
+    out_stream p_file = output_file_handler.OpenOutputFile(fileName);
+
+    //Schema map
+    //Note - this location is relative to where we are storing the xml
+    xml_schema::namespace_infomap map;
+    char *cwd=getcwd(0,0);
+    std::string absolute_path_to_xsd=cwd;
+    absolute_path_to_xsd += "/heart/src/io/ChasteParameters.xsd";
+    map[""].schema = absolute_path_to_xsd;
+    
+    ChasteParameters(*p_file, *mpUserParameters, map);   
+}
 chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
 {
     // get the parameters using the method 'ChasteParameters(filename)',

@@ -62,6 +62,9 @@
 
 #include <xsd/cxx/tree/parsing.hxx>
 
+#include <xsd/cxx/tree/serialization.hxx>
+#include <xsd/cxx/xml/dom/namespace-infomap.hxx>
+
 namespace xml_schema
 {
   // anyType and anySimpleType.
@@ -181,6 +184,11 @@ namespace xml_schema
   // Error handler interface.
   //
   typedef ::xsd::cxx::xml::error_handler< char > error_handler;
+
+  // Namespace information. Used in serialization functions.
+  //
+  typedef ::xsd::cxx::xml::dom::namespace_info < char > namespace_info;
+  typedef ::xsd::cxx::xml::dom::namespace_infomap < char > namespace_infomap;
 
   // Flags and properties.
   //
@@ -2494,6 +2502,228 @@ ChasteParameters (const ::xercesc::DOMInputSource&,
 ChasteParameters (const ::xercesc::DOMDocument&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+#include <iosfwd> // std::ostream&
+
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMErrorHandler.hpp>
+#include <xercesc/framework/XMLFormatter.hpp>
+
+#include <xsd/cxx/xml/dom/auto-ptr.hxx>
+
+void
+operator<< (::xercesc::DOMElement&,
+            domain_type);
+
+void
+operator<< (::xercesc::DOMAttr&,
+            domain_type);
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >&,
+            domain_type);
+
+void
+operator<< (::xercesc::DOMElement&,
+            ionic_model_type);
+
+void
+operator<< (::xercesc::DOMAttr&,
+            ionic_model_type);
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >&,
+            ionic_model_type);
+
+void
+operator<< (::xercesc::DOMElement&,
+            media_type);
+
+void
+operator<< (::xercesc::DOMAttr&,
+            media_type);
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >&,
+            media_type);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const point_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const box_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const stimulus_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const cell_heterogeneity_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const conductivity_heterogeneity_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const slab_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const load_mesh_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const mesh_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const conductivities_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const time_steps_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            ksp_use_type);
+
+void
+operator<< (::xercesc::DOMAttr&,
+            ksp_use_type);
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >&,
+            ksp_use_type);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const ksp_tolerances_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            ksp_solver_type);
+
+void
+operator<< (::xercesc::DOMAttr&,
+            ksp_solver_type);
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >&,
+            ksp_solver_type);
+
+void
+operator<< (::xercesc::DOMElement&,
+            ksp_preconditioner_type);
+
+void
+operator<< (::xercesc::DOMAttr&,
+            ksp_preconditioner_type);
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >&,
+            ksp_preconditioner_type);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const simulation_type::Stimuli::type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const simulation_type::CellHeterogeneities::type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const simulation_type::ConductivityHeterogeneities::type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const simulation_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const physiological_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const numerical_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const chaste_parameters_type&);
+
+// Serialize to an existing DOM instance.
+//
+void
+ChasteParameters (::xercesc::DOMDocument&,
+                  const ::chaste_parameters_type&,
+                  ::xml_schema::flags = 0);
+
+
+// Serialize to a new DOM instance.
+//
+::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument >
+ChasteParameters (const ::chaste_parameters_type&, 
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >&,
+                  ::xml_schema::flags = 0);
+
+
+// Serialize to XMLFormatTarget.
+//
+void
+ChasteParameters (::xercesc::XMLFormatTarget&,
+                  const ::chaste_parameters_type&, 
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >&,
+                  const ::std::basic_string< char >& = "UTF-8",
+                  ::xml_schema::flags = 0);
+
+
+void
+ChasteParameters (::xercesc::XMLFormatTarget&,
+                  const ::chaste_parameters_type&, 
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >&,
+                  ::xsd::cxx::xml::error_handler< char >&,
+                  const ::std::basic_string< char >& = "UTF-8",
+                  ::xml_schema::flags = 0);
+
+void
+ChasteParameters (::xercesc::XMLFormatTarget&,
+                  const ::chaste_parameters_type&, 
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >&,
+                  ::xercesc::DOMErrorHandler&,
+                  const ::std::basic_string< char >& = "UTF-8",
+                  ::xml_schema::flags = 0);
+
+
+// Serialize to std::ostream.
+//
+void
+ChasteParameters (::std::ostream&,
+                  const ::chaste_parameters_type&, 
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >&,
+                  const ::std::basic_string< char >& = "UTF-8",
+                  ::xml_schema::flags = 0);
+
+
+void
+ChasteParameters (::std::ostream&,
+                  const ::chaste_parameters_type&, 
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >&,
+                  ::xsd::cxx::xml::error_handler< char >&,
+                  const ::std::basic_string< char >& = "UTF-8",
+                  ::xml_schema::flags = 0);
+
+void
+ChasteParameters (::std::ostream&,
+                  const ::chaste_parameters_type&, 
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >&,
+                  ::xercesc::DOMErrorHandler&,
+                  const ::std::basic_string< char >& = "UTF-8",
+                  ::xml_schema::flags = 0);
 
 
 #include <xsd/cxx/post.hxx>

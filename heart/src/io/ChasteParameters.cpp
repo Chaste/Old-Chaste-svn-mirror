@@ -4441,6 +4441,911 @@ ChasteParameters (const ::xercesc::DOMDocument& d,
     "");
 }
 
+#include <ostream>
+#include <xsd/cxx/xml/dom/elements.hxx>
+#include <xsd/cxx/xml/dom/serialization.hxx>
+#include <xsd/cxx/tree/error-handler.hxx>
+
+void
+operator<< (::xercesc::DOMElement& e,
+            domain_type i)
+{
+  e << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMAttr& a,
+            domain_type i)
+{
+  a << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >& l,
+            domain_type i)
+{
+  l << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            ionic_model_type i)
+{
+  e << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMAttr& a,
+            ionic_model_type i)
+{
+  a << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >& l,
+            ionic_model_type i)
+{
+  l << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            media_type i)
+{
+  e << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMAttr& a,
+            media_type i)
+{
+  a << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >& l,
+            media_type i)
+{
+  l << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const point_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "x",
+      e);
+
+    a.dom_attribute () << i.x ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "y",
+      e);
+
+    a.dom_attribute () << i.y ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "z",
+      e);
+
+    a.dom_attribute () << i.z ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const box_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "CornerA",
+      e);
+    s.dom_element () << i.CornerA ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "CornerB",
+      e);
+    s.dom_element () << i.CornerB ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const stimulus_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Strength",
+      e);
+    s.dom_element () << i.Strength ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Duration",
+      e);
+    s.dom_element () << i.Duration ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Delay",
+      e);
+    s.dom_element () << i.Delay ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Location",
+      e);
+    s.dom_element () << i.Location ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const cell_heterogeneity_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "ScaleFactorGks",
+      e);
+    s.dom_element () << i.ScaleFactorGks ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "ScaleFactorIto",
+      e);
+    s.dom_element () << i.ScaleFactorIto ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Location",
+      e);
+    s.dom_element () << i.Location ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const conductivity_heterogeneity_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    if (i.IntracellularConductivities ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "IntracellularConductivities",
+        e);
+      s.dom_element () << *i.IntracellularConductivities ();
+    }
+  }
+
+  {
+    if (i.ExtracellularConductivities ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "ExtracellularConductivities",
+        e);
+      s.dom_element () << *i.ExtracellularConductivities ();
+    }
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Location",
+      e);
+    s.dom_element () << i.Location ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const slab_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "SlabX",
+      e);
+    s.dom_element () << i.SlabX ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "SlabY",
+      e);
+    s.dom_element () << i.SlabY ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "SlabZ",
+      e);
+    s.dom_element () << i.SlabZ ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "InterNodeSpace",
+      e);
+    s.dom_element () << i.InterNodeSpace ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const load_mesh_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "name",
+      e);
+
+    a.dom_attribute () << i.name ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "conductivity_media",
+      e);
+
+    a.dom_attribute () << i.conductivity_media ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const mesh_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    if (i.Slab ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Slab",
+        e);
+      s.dom_element () << *i.Slab ();
+    }
+  }
+
+  {
+    if (i.LoadMesh ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "LoadMesh",
+        e);
+      s.dom_element () << *i.LoadMesh ();
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const conductivities_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "longi",
+      e);
+
+    a.dom_attribute () << i.longi ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "trans",
+      e);
+
+    a.dom_attribute () << i.trans ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "normal",
+      e);
+
+    a.dom_attribute () << i.normal ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const time_steps_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "ode",
+      e);
+
+    a.dom_attribute () << i.ode ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "pde",
+      e);
+
+    a.dom_attribute () << i.pde ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "printing",
+      e);
+
+    a.dom_attribute () << i.printing ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            ksp_use_type i)
+{
+  e << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMAttr& a,
+            ksp_use_type i)
+{
+  a << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >& l,
+            ksp_use_type i)
+{
+  l << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const ksp_tolerances_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    if (i.KSPRelative ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "KSPRelative",
+        e);
+      s.dom_element () << *i.KSPRelative ();
+    }
+  }
+
+  {
+    if (i.KSPAbsolute ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "KSPAbsolute",
+        e);
+      s.dom_element () << *i.KSPAbsolute ();
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            ksp_solver_type i)
+{
+  e << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMAttr& a,
+            ksp_solver_type i)
+{
+  a << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >& l,
+            ksp_solver_type i)
+{
+  l << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            ksp_preconditioner_type i)
+{
+  e << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMAttr& a,
+            ksp_preconditioner_type i)
+{
+  a << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xsd::cxx::tree::list_stream< char >& l,
+            ksp_preconditioner_type i)
+{
+  l << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const simulation_type::Stimuli::type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    for (simulation_type::Stimuli::type::Stimulus::const_iterator
+         b (i.Stimulus ().begin ()), n (i.Stimulus ().end ());
+         b != n; ++b)
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Stimulus",
+        e);
+      s.dom_element () << *b;
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const simulation_type::CellHeterogeneities::type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    for (simulation_type::CellHeterogeneities::type::CellHeterogeneity::const_iterator
+         b (i.CellHeterogeneity ().begin ()), n (i.CellHeterogeneity ().end ());
+         b != n; ++b)
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "CellHeterogeneity",
+        e);
+      s.dom_element () << *b;
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const simulation_type::ConductivityHeterogeneities::type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    for (simulation_type::ConductivityHeterogeneities::type::ConductivityHeterogeneity::const_iterator
+         b (i.ConductivityHeterogeneity ().begin ()), n (i.ConductivityHeterogeneity ().end ());
+         b != n; ++b)
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "ConductivityHeterogeneity",
+        e);
+      s.dom_element () << *b;
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const simulation_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    if (i.SimulationDuration ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "SimulationDuration",
+        e);
+      s.dom_element () << *i.SimulationDuration ();
+    }
+  }
+
+  {
+    if (i.Domain ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Domain",
+        e);
+      s.dom_element () << *i.Domain ();
+    }
+  }
+
+  {
+    if (i.IonicModel ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "IonicModel",
+        e);
+      s.dom_element () << *i.IonicModel ();
+    }
+  }
+
+  {
+    if (i.Mesh ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Mesh",
+        e);
+      s.dom_element () << *i.Mesh ();
+    }
+  }
+
+  {
+    if (i.Stimuli ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Stimuli",
+        e);
+      s.dom_element () << *i.Stimuli ();
+    }
+  }
+
+  {
+    if (i.CellHeterogeneities ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "CellHeterogeneities",
+        e);
+      s.dom_element () << *i.CellHeterogeneities ();
+    }
+  }
+
+  {
+    if (i.ConductivityHeterogeneities ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "ConductivityHeterogeneities",
+        e);
+      s.dom_element () << *i.ConductivityHeterogeneities ();
+    }
+  }
+
+  {
+    if (i.OutputDirectory ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "OutputDirectory",
+        e);
+      s.dom_element () << *i.OutputDirectory ();
+    }
+  }
+
+  {
+    if (i.OutputFilenamePrefix ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "OutputFilenamePrefix",
+        e);
+      s.dom_element () << *i.OutputFilenamePrefix ();
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const physiological_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    if (i.IntracellularConductivities ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "IntracellularConductivities",
+        e);
+      s.dom_element () << *i.IntracellularConductivities ();
+    }
+  }
+
+  {
+    if (i.ExtracellularConductivities ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "ExtracellularConductivities",
+        e);
+      s.dom_element () << *i.ExtracellularConductivities ();
+    }
+  }
+
+  {
+    if (i.SurfaceAreaToVolumeRatio ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "SurfaceAreaToVolumeRatio",
+        e);
+      s.dom_element () << *i.SurfaceAreaToVolumeRatio ();
+    }
+  }
+
+  {
+    if (i.Capacitance ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Capacitance",
+        e);
+      s.dom_element () << *i.Capacitance ();
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const numerical_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    if (i.TimeSteps ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "TimeSteps",
+        e);
+      s.dom_element () << *i.TimeSteps ();
+    }
+  }
+
+  {
+    if (i.KSPTolerances ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "KSPTolerances",
+        e);
+      s.dom_element () << *i.KSPTolerances ();
+    }
+  }
+
+  {
+    if (i.KSPSolver ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "KSPSolver",
+        e);
+      s.dom_element () << *i.KSPSolver ();
+    }
+  }
+
+  {
+    if (i.KSPPreconditioner ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "KSPPreconditioner",
+        e);
+      s.dom_element () << *i.KSPPreconditioner ();
+    }
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const chaste_parameters_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Simulation",
+      e);
+    s.dom_element () << i.Simulation ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Physiological",
+      e);
+    s.dom_element () << i.Physiological ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Numerical",
+      e);
+    s.dom_element () << i.Numerical ();
+  }
+}
+
+void
+ChasteParameters (::xercesc::DOMDocument& d,
+                  const ::chaste_parameters_type& s,
+                  ::xml_schema::flags)
+{
+  ::xsd::cxx::xml::dom::element< char > e (*d.getDocumentElement ());
+
+  if (e.name () == "ChasteParameters" &&
+      e.namespace_ () == "")
+  {
+    e.dom_element () << s;
+  }
+  else
+  {
+    throw ::xsd::cxx::tree::unexpected_element < char > (
+      e.name (),
+      e.namespace_ (),
+      "ChasteParameters",
+      "");
+  }
+}
+
+::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument >
+ChasteParameters (const ::chaste_parameters_type& s,
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >& m,
+                  ::xml_schema::flags f)
+{
+  try
+  {
+    ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+      ::xsd::cxx::xml::dom::serialize< char > (
+        "ChasteParameters",
+        "",
+        m,
+        f));
+    ::ChasteParameters (*d, s, f);
+    return d;
+  }
+  catch (const ::xsd::cxx::xml::dom::mapping< char >& e)
+  {
+    throw ::xsd::cxx::tree::no_namespace_mapping< char > (e.name ());
+  }
+  catch (const ::xsd::cxx::xml::dom::xsi_already_in_use&)
+  {
+    throw ::xsd::cxx::tree::xsi_already_in_use< char > ();
+  }
+}
+
+void
+ChasteParameters (::xercesc::XMLFormatTarget& t,
+                  const ::chaste_parameters_type& s,
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >& m,
+                  const ::std::basic_string< char >& e,
+                  ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::ChasteParameters (s, m, f));
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+  {
+    h.throw_if_failed< ::xsd::cxx::tree::serialization< char > > ();
+  }
+}
+
+void
+ChasteParameters (::xercesc::XMLFormatTarget& t,
+                  const ::chaste_parameters_type& s,
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >& m,
+                  ::xsd::cxx::xml::error_handler< char >& h,
+                  const ::std::basic_string< char >& e,
+                  ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::ChasteParameters (s, m, f));
+  if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+  {
+    throw ::xsd::cxx::tree::serialization< char > ();
+  }
+}
+
+void
+ChasteParameters (::xercesc::XMLFormatTarget& t,
+                  const ::chaste_parameters_type& s,
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >& m,
+                  ::xercesc::DOMErrorHandler& h,
+                  const ::std::basic_string< char >& e,
+                  ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::ChasteParameters (s, m, f));
+  if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+  {
+    throw ::xsd::cxx::tree::serialization< char > ();
+  }
+}
+
+void
+ChasteParameters (::std::ostream& o,
+                  const ::chaste_parameters_type& s,
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >& m,
+                  const ::std::basic_string< char >& e,
+                  ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::ChasteParameters (s, m, f));
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::ostream_format_target t (o);
+  if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+  {
+    h.throw_if_failed< ::xsd::cxx::tree::serialization< char > > ();
+  }
+}
+
+void
+ChasteParameters (::std::ostream& o,
+                  const ::chaste_parameters_type& s,
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >& m,
+                  ::xsd::cxx::xml::error_handler< char >& h,
+                  const ::std::basic_string< char >& e,
+                  ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::ChasteParameters (s, m, f));
+  ::xsd::cxx::xml::dom::ostream_format_target t (o);
+  if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+  {
+    throw ::xsd::cxx::tree::serialization< char > ();
+  }
+}
+
+void
+ChasteParameters (::std::ostream& o,
+                  const ::chaste_parameters_type& s,
+                  const ::xsd::cxx::xml::dom::namespace_infomap< char >& m,
+                  ::xercesc::DOMErrorHandler& h,
+                  const ::std::basic_string< char >& e,
+                  ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::ChasteParameters (s, m, f));
+  ::xsd::cxx::xml::dom::ostream_format_target t (o);
+  if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+  {
+    throw ::xsd::cxx::tree::serialization< char > ();
+  }
+}
+
 #include <xsd/cxx/post.hxx>
 
 // Begin epilogue.

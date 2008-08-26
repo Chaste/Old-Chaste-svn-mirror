@@ -309,14 +309,30 @@ public :
         
 
      }
-    
-   void TestExceptions() throw (Exception)
-   { 
-       //We might want to remove SetDefaultsFile()
-       HeartConfig::Instance()->Reset();
-       TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml")); 
-       TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml")); 
-       //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml")); 
+    void TestWrite() throw(Exception)
+    {
+        OutputFileHandler output_file_handler("Xml", false);
+        HeartConfig::Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(1.1,2.2,4.4);
+        HeartConfig::Instance()->Write("Xml","test.xml");
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
+        HeartConfig::Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
+        //Reload the other XML
+        HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath("Xml")+"test.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
+        
+    }
+    void TestExceptions() throw (Exception)
+    { 
+        //We might want to remove SetDefaultsFile()
+        HeartConfig::Instance()->Reset();
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml")); 
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml")); 
+        //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml")); 
     }
 };
 
