@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ConformingTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "TrianglesMeshWriter.hpp"
+#include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "Hdf5DataWriter.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -365,7 +365,7 @@ public:
                 }
                 PetscTools::ReplicateException(true);
                 // Re-throw
-                //EventHandler::EndEvent(EVERYTHING);
+                EventHandler::Reset();//EndEvent(EVERYTHING);
                 throw e;
             }
             PetscTools::ReplicateException(false);
@@ -404,46 +404,20 @@ public:
             mpWriter->Close();
             delete mpWriter;
 
-            bool am_master = PetscTools::AmMaster();
+            
 
             // Only if results files were written and we are outputting all nodes
             if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
             {
-                
-                if (am_master)
-                {
-                    std::string mesh_pathname;
-                    if (mAllocatedMemoryForMesh)
-                    {
-                        //We were given a mesh filename the mesh exists on disk
-                        mesh_pathname=mMeshFilename;
-                    }
-                    else
-                    {
-                        //The mesh was passed to us in memory
-                        std::string mesh_filename="MyMesh";
-                        TrianglesMeshWriter<SPACE_DIM, SPACE_DIM> writer(mOutputDirectory, mesh_filename, false);
-                        writer.WriteFilesUsingMesh(*mpMesh);
-                        OutputFileHandler handler("", false);
-                        
-                        mesh_pathname= handler.GetOutputDirectoryFullPath(mOutputDirectory) + "/" + mesh_filename;
-                    }
-                    // call shell script which converts the data to meshalyzer format
-                    std::string chaste_2_meshalyzer;
-                    std::stringstream space_dim;
-                    space_dim << SPACE_DIM;
-                    chaste_2_meshalyzer = "/bin/bash anim/chaste2meshalyzer "     // the executable.
-                                      + space_dim.str() + " "       // argument 1 is the dimension.
-                                      + mesh_pathname + " "         // arg 2 is mesh prefix, path relative to Chaste directory
-                                      + mOutputDirectory+"_"+mOutputFilenamePrefix;          // arg 3 is the output prefix, relative to
-                                                                    // anim folder.
-                    //std::cout<<chaste_2_meshalyzer<<"\n";
-                    system(chaste_2_meshalyzer.c_str());
-                }
                 //Convert simulation data to Meshalyzer format
-                Hdf5ToMeshalyzerConverter converter(mOutputDirectory, mOutputFilenamePrefix);
-                //Are we all ready - we ought to be, since Hdf5ToMeshalyzerConverter does implict syncronisation
-                //PetscTools::Barrier();
+                std::string output_directory =  mOutputDirectory + "/output";
+                Hdf5ToMeshalyzerConverter converter(mOutputDirectory, output_directory, mOutputFilenamePrefix);
+                //Write mesh in a suitable form for meshalyzer
+                if (PetscTools::AmMaster())
+                {
+                    MeshalyzerMeshWriter<SPACE_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
+                    mesh_writer.WriteFilesUsingMesh(*mpMesh);
+                }
             }
         }
         EventHandler::EndEvent(EVERYTHING);

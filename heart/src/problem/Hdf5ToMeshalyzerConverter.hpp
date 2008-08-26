@@ -97,17 +97,19 @@ private:
 
 public:
     /** Constructor, which does the conversion.
-     *  @param outputDirectory The output directory, relative to CHASTE_TEST_OUTPUT,
-     *  where the .h5 file is found, and where the output will be place
+     *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT,
+     *  where the .h5 file has been written
+     *  @param outputDirectory  The output directory, relative to CHASTE_TEST_OUTPUT, where the output will be place
      *  @param fileBaseName The base name of the data file.
      */
-    Hdf5ToMeshalyzerConverter(std::string outputDirectory,
+    Hdf5ToMeshalyzerConverter(std::string inputDirectory,
+                              std::string outputDirectory,
                               std::string fileBaseName)
     {
         // store dir and filenames, and create a reader
         mOutputDirectory = outputDirectory;
         mFileBaseName = fileBaseName;
-        mpReader = new Hdf5DataReader(mOutputDirectory, mFileBaseName);
+        mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
 
         // check the data file read has one or two variables (ie V; or V and PhiE)
         std::vector<std::string> variable_names = mpReader->GetVariableNames();
