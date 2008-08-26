@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<ChasteParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters.xsd">
+
+  <Simulation>
+    <SimulationDuration>0.100000000000000006</SimulationDuration>
+    <Domain>Mono</Domain>
+    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
+    <OutputDirectory>Monodomain2d</OutputDirectory>
+    <OutputFilenamePrefix>monodomain2d</OutputFilenamePrefix>
+  </Simulation>
+
+  <Physiological>
+    <IntracellularConductivities longi="0.0005" normal="1.79769313486232e+308" trans="0.0005"/>
+    <ExtracellularConductivities longi="7" normal="7" trans="7"/>
+    <SurfaceAreaToVolumeRatio>1.000000000000000000</SurfaceAreaToVolumeRatio>
+    <Capacitance>1.000000000000000000</Capacitance>
+  </Physiological>
+
+  <Numerical>
+    <TimeSteps ode="0.01" pde="0.01" printing="0.01"/>
+    <KSPTolerances>
+      <KSPRelative>1e-06</KSPRelative>
+    </KSPTolerances>
+    <KSPSolver>gmres</KSPSolver>
+    <KSPPreconditioner>jacobi</KSPPreconditioner>
+  </Numerical>
+
+</ChasteParameters>
