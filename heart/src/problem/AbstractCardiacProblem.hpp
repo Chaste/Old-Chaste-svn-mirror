@@ -415,8 +415,11 @@ public:
                 //Write mesh in a suitable form for meshalyzer
                 if (PetscTools::AmMaster())
                 {
+                    //Write the mesh
                     MeshalyzerMeshWriter<SPACE_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
                     mesh_writer.WriteFilesUsingMesh(*mpMesh);
+                    //Write the parameters out
+                    HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
                 }
             }
         }

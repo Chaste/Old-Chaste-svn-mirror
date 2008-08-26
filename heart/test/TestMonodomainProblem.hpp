@@ -85,7 +85,7 @@ public:
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
-    void xTestMonodomainProblem1D()
+    void TestMonodomainProblem1D()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
@@ -121,7 +121,7 @@ public:
         monodomain_problem.GetPde();
     }
 
-    void xTestMonodomainProblem1DWithRelativeTolerance()
+    void TestMonodomainProblem1DWithRelativeTolerance()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
@@ -155,7 +155,7 @@ public:
 
     }
 
-    void xTestMonodomainProblem1DWithAbsoluteTolerance() throw (Exception)
+    void TestMonodomainProblem1DWithAbsoluteTolerance() throw (Exception)
     {
         double atol = 1e-1;
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -193,7 +193,7 @@ public:
     // edge.
     // Should behave like the 1D case, extrapolated.
     // See also TestMonodomainSlab.hpp (nightly test) for the 3D version.
-    void xTestMonodomainProblem2DWithEdgeStimulus( void )
+    void TestMonodomainProblem2DWithEdgeStimulus( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
@@ -275,7 +275,7 @@ public:
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating in the
     // very centre of the mesh.
-    void xTestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh( void )
+    void TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.3); //ms - needs to be 1.3 ms to pass test
@@ -340,7 +340,7 @@ public:
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
     ///////////////////////////////////////////////////////////////////
-    void xTestMonodomainProblemPrintsOnlyAtRequestedTimes()
+    void TestMonodomainProblemPrintsOnlyAtRequestedTimes()
     {
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);
         HeartConfig::Instance()->SetSimulationDuration(0.3); //ms
@@ -378,17 +378,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
         
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
-        
-        OutputFileHandler handler("Monodomain2d/output", true);
-        std::string check_tri = "[ -f " + handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+"monodomain2d_mesh.tri ]";
-        std::string check_pts = "[ -f " + handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+"monodomain2d_mesh.pts ]";
-        
-        //Make sure child processes see the clean directory
-        PetscTools::Barrier();
-        TS_ASSERT(system(check_tri.c_str()) != 0); //File does not exist
-        TS_ASSERT(system(check_pts.c_str()) != 0); //File does not exist
-        
-        
+             
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
@@ -404,10 +394,34 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
 
+        //Clean previous output
+        OutputFileHandler handler("Monodomain2d/output", true);
+        //Need to find pts, tri, transmembrane, xml
+        char *test_file_names[4]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat", "monodomain2d_parameters.xml"};
+        for (unsigned i=0; i<4; i++)
+        {
+            std::string compare_command = "cmp -s ";
+            compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
+            compare_command += " ";
+            compare_command += "heart/test/data/Monodomain2d/"; 
+            compare_command += test_file_names[i];
+            TS_ASSERT_EQUALS(system(compare_command.c_str()), 512);//Not there
+        }
+         
         // now solve
         monodomain_problem.Solve();
-        TS_ASSERT_EQUALS(system(check_tri.c_str()), 0); //File exists
-        TS_ASSERT_EQUALS(system(check_pts.c_str()), 0); //File exists
+        
+        //Need to find pts, tri, transmebrane, xml
+         for (unsigned i=0; i<4; i++)
+        {
+            std::string compare_command = "cmp ";
+            compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
+            compare_command += " ";
+            compare_command += "heart/test/data/Monodomain2d/"; 
+            compare_command += test_file_names[i];
+             TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
+        }
+        
     }
 
 
