@@ -97,6 +97,7 @@ public:
         std::cout << "\n\tForward: " << forward << std::endl;
         
         CheckCellModelResults("N98RegResult");
+        TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
     }
     
     void TestOdeSolveForOptimisedNoble98WithSimpleStimulus(void)
@@ -128,6 +129,7 @@ public:
         std::cout << "\n\tForward: " << forward << std::endl;
         
         CheckCellModelResults("N98RegResult");
+        TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
     }
     
    
@@ -549,6 +551,8 @@ public:
         std::cout << "\n\tBackward: " << backward << std::endl;
         
         CheckCellModelResults("N98BackwardResult");
+        TS_ASSERT_DELTA( n98_backward_system.GetIIonic(), 0.023, 1e-3);
+        
     }
 
 
