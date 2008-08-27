@@ -396,6 +396,8 @@ public:
 
         //Clean previous output
         OutputFileHandler handler("Monodomain2d/output", true);
+        PetscTools::Barrier();
+        
         //Need to find pts, tri, transmembrane, xml
         char *test_file_names[4]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat", "monodomain2d_parameters.xml"};
         for (unsigned i=0; i<4; i++)
@@ -411,8 +413,9 @@ public:
         // now solve
         monodomain_problem.Solve();
         
+        PetscTools::Barrier();
         //Need to find pts, tri, transmebrane, xml
-         for (unsigned i=0; i<4; i++)
+        for (unsigned i=0; i<4; i++)
         {
             std::string compare_command = "cmp ";
             compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];

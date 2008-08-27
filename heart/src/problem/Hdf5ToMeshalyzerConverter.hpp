@@ -66,9 +66,15 @@ private:
     void Write(std::string type)
     {
         assert(type=="V" || type=="Phi_e");
-
-        OutputFileHandler output_file_handler(mOutputDirectory, false);
-        out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + type + ".dat");
+        
+        out_stream p_file=out_stream(NULL);
+        if (PetscTools::AmMaster())
+        {
+            //Note that we don't want the child processes to create
+            //a fresh directory if it doesn't already exist
+            OutputFileHandler output_file_handler(mOutputDirectory, false);
+            p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + type + ".dat");
+        }
 
         unsigned num_nodes = mpReader->GetNumberOfRows();
         unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
@@ -91,7 +97,10 @@ private:
             }
         }
         VecDestroy(data);
-        p_file->close();
+        if(PetscTools::AmMaster())
+        {
+            p_file->close();
+        }
     }
 
 
