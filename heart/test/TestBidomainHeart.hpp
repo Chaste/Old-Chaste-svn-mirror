@@ -83,12 +83,14 @@ public:
     {
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);                
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
-        HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
+        //HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/halfheart");
         HeartConfig::Instance()->SetOutputDirectory("BiDg0Heart");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_Heart");
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);///\todo #779       
-             
+                                                               ///Works with 1e-6
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
 
@@ -123,7 +125,7 @@ public:
     void TestBidomainDg0HeartMetis() throw (Exception)
     {
         EXIT_IF_SEQUENTIAL;
-        
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
 
@@ -131,10 +133,12 @@ public:
         HeartConfig::Instance()->SetPdeTimeStep(0.005);       
         HeartConfig::Instance()->SetOdeTimeStep(0.0025);
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
-        HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
         HeartConfig::Instance()->SetOutputDirectory("BiDg0HeartMetis");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
-
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);///\todo #779       
+        
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
 
