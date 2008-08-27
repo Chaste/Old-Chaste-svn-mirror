@@ -184,11 +184,14 @@ public:
         assert(rGetStateVariables()[15]>=0);
         assert(rGetStateVariables()[16]>=0);
         //assert(rGetStateVariables()[17]>=0);
+//Debugging code
+#define COVERAGE_IGNORE
         if (rGetStateVariables()[17]<=0)
         {
             std::cout<<"Warning "<<rGetStateVariables()[17]<<"\n";
             //rGetStateVariables()[17]=0;
         }
+#undef COVERAGE_IGNORE
         assert(rGetStateVariables()[18]>=0);
         assert(rGetStateVariables()[19]>=0);
         assert(rGetStateVariables()[20]>=0);

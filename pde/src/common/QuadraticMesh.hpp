@@ -295,6 +295,8 @@ void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoun
  *  should then be applied before reverse to match the face nodes to the boundary
  *  element nodes.
  */
+ 
+ /// \todo These helper methods aren't properly covered
 template<unsigned DIM>
 void QuadraticMesh<DIM>::HelperMethod1(unsigned boundaryElemNode0, unsigned boundaryElemNode1,
                                        Element<DIM,DIM>* pElement,

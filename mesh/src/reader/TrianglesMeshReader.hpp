@@ -97,7 +97,10 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     }
     else
     {
-        assert(SPACE_DIM==ELEMENT_DIM);
+#define COVERAGE_IGNORE
+        assert(SPACE_DIM==ELEMENT_DIM); //Failing coverage?
+#undef COVERAGE_IGNORE
+        
         expected_num_nodes_per_elem = (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2;
     }
     
