@@ -84,8 +84,8 @@ void HeartConfig::Write(std::string dirName, std::string fileName)
     //Schema map
     //Note - this location is relative to where we are storing the xml
     xml_schema::namespace_infomap map;
-    char *cwd=getcwd(0,0);
-    std::string absolute_path_to_xsd=cwd;
+    char buf[10000];
+    std::string absolute_path_to_xsd=getcwd(buf, 10000);
     absolute_path_to_xsd += "/heart/src/io/ChasteParameters.xsd";
     map[""].schema = absolute_path_to_xsd;
     
