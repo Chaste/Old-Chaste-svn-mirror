@@ -417,7 +417,7 @@ public:
         //Need to find pts, tri, transmebrane, xml
         for (unsigned i=0; i<4; i++)
         {
-            std::string compare_command = "cmp ";
+            std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
             compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
             compare_command += " ";
             compare_command += "heart/test/data/Monodomain2d/"; 
