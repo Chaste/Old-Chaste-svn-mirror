@@ -130,6 +130,11 @@ public:
         
         CheckCellModelResults("N98RegResult");
         TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
+        
+        //Stress the lookup table with a silly voltage
+        n98_ode_system.rGetStateVariables()[0] = 70.0;
+        TS_ASSERT_EQUALS(n98_ode_system.GetVoltage(), 70.0);
+        TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
     }
     
    

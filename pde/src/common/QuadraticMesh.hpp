@@ -295,8 +295,8 @@ void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoun
  *  should then be applied before reverse to match the face nodes to the boundary
  *  element nodes.
  */
- 
- /// \todo These helper methods aren't properly covered
+
+#define COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
 template<unsigned DIM>
 void QuadraticMesh<DIM>::HelperMethod1(unsigned boundaryElemNode0, unsigned boundaryElemNode1,
                                        Element<DIM,DIM>* pElement,
@@ -345,6 +345,7 @@ void QuadraticMesh<DIM>::HelperMethod1(unsigned boundaryElemNode0, unsigned boun
         }
     }
 }
+#undef COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
 
 
 /**
@@ -353,6 +354,7 @@ void QuadraticMesh<DIM>::HelperMethod1(unsigned boundaryElemNode0, unsigned boun
  *  the ordered internal nodes which should given to the boundary element.
  *  It then calls AddNodeToBoundaryElement with each of the three internal nodes.
  */
+#define COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
 template<unsigned DIM>
 void QuadraticMesh<DIM>::HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
                                        Element<DIM,DIM>* pElement,
@@ -386,5 +388,6 @@ void QuadraticMesh<DIM>::HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElem
     AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode1);
     AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode2);
 }
+#undef COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
                                                
 #endif /*QUADRATICMESH_HPP_*/
