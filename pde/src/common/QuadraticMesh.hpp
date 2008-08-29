@@ -129,11 +129,11 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
         {
             mNumVertices++;
         }
-        if((vertices_mode = false)  && (mIsInternalNode[i]==false ) )
+        if((vertices_mode == false)  && (mIsInternalNode[i]==false ) )
         {
             EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
         }
-        if( (vertices_mode = true)  && (mIsInternalNode[i]==true) )
+        if( (vertices_mode == true)  && (mIsInternalNode[i]==true) )
         {
             vertices_mode = false;
         }
