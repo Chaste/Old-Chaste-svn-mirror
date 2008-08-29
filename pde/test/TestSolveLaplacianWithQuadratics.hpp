@@ -305,7 +305,8 @@ private:
 
 
 public:
-    QuadraticLaplacianAssembler(QuadraticMesh<DIM>* pMesh, BoundaryConditionsContainer<DIM,DIM,1>* pBcc)
+    QuadraticLaplacianAssembler(QuadraticMesh<DIM>* pMesh,
+                                BoundaryConditionsContainer<DIM,DIM,1>* pBcc)
         : mpQuadMesh(pMesh),
           mpBoundaryConditions(pBcc)
     {

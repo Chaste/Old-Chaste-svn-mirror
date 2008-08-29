@@ -112,6 +112,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,3> &m)
              (m(1,0)*m(2,1) - m(1,1)*m(2,0));
 };
 
+
 /**
  * Return the determinant of a submatrix after removing a particular row and column
  */
@@ -240,8 +241,19 @@ template<class T>
 T SecondInvariant(const c_matrix<T,3,3> &m)
 {
     return    m(0,0)*m(1,1) + m(1,1)*m(2,2) + m(2,2)*m(0,0)
-              - m(1,0)*m(1,0) - m(2,1)*m(2,1) - m(2,0)*m(2,0);
+            - m(1,0)*m(1,0) - m(2,1)*m(2,1) - m(2,0)*m(2,0);
 }
+
+/**
+ *  Second invariant of a 2d matrix, ie the determinant. This funcion
+ *  is mainly here just so that the same code can be used in 2d and 3d.
+ */
+template<class T>
+T SecondInvariant(const c_matrix<T,2,2> &m)
+{
+    return Determinant(m);
+}
+
 
 /**
  * Convenience functions for quickly creating test vectors.

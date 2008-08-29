@@ -203,6 +203,8 @@ public:
         b(0,1) = 3.03;
         b(1,1) = 165;
         TS_ASSERT_DELTA(Trace(b),13.03+165,1e-10);
+        
+        TS_ASSERT_DELTA(SecondInvariant(b), Determinant(b), 1e-12);
 
         // symmetric 3 by 3 matrix.
         c_matrix<double, 3,3> c;

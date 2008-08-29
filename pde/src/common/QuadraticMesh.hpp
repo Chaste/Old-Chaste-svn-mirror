@@ -40,6 +40,7 @@ class QuadraticMesh : public ConformingTetrahedralMesh<DIM, DIM>
 private:
     bool mIsPrepared;
     std::vector<bool> mIsInternalNode;
+    unsigned mNumVertices;
 
     /**
      *  This method adds the given node (defined by an element and a node index)
@@ -91,6 +92,12 @@ public:
      * Calculates the extra nodes and information needed to use a mesh with quadratic basis functions
      */
     void ConvertToQuadratic();
+    
+    unsigned GetNumVertices()
+    {
+        assert(mIsPrepared);
+        return mNumVertices;
+    }
 };
 
 
@@ -111,6 +118,27 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
             mIsInternalNode[ node_index ] = false;
         }
     }
+    
+    // count the number of vertices, and also check all vertices come before the 
+    // rest of the nodes (as this is assumed in other parts of the code)
+    mNumVertices = 0;
+    bool vertices_mode = true;
+    for(unsigned i=0; i<this->GetNumNodes(); i++)
+    {
+        if(mIsInternalNode[i]==false)
+        {
+            mNumVertices++;
+        }
+        if((vertices_mode = false)  && (mIsInternalNode[i]==false ) )
+        {
+            EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
+        }
+        if( (vertices_mode = true)  && (mIsInternalNode[i]==true) )
+        {
+            vertices_mode = false;
+        }
+    }
+        
     
     mesh_reader.Reset();
     

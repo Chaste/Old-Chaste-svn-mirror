@@ -40,6 +40,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
 
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11u);
+
         // node 2 (ie middle) of element 0
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(2), 11u);
         TS_ASSERT_DELTA(mesh.GetNode(11)->rGetLocation()[0], 0.05, 1e-12);
@@ -57,6 +59,8 @@ public:
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 289u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 128u);
+
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 81u);
 
         // each element should have 6 nodes
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
@@ -105,6 +109,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
 
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 4u);
+
         // check getting global numbers of nodes 4-9 (in non-vertices)
         for(unsigned i=4; i<10; i++)
         {
@@ -120,6 +126,8 @@ public:
         QuadraticMesh<3> mesh2("mesh/test/data/cube_1626_elements_quadratic");
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 2570u);
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 1626u);
+
+        TS_ASSERT_EQUALS(mesh2.GetNumVertices(), 375u);
 
         // each element should have 10 nodes
         for(unsigned i=0; i<mesh2.GetNumElements(); i++)
