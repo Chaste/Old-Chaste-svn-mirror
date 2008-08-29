@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
-    void DONT_TestAssembleSystem() throw (Exception)
+    void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
         ExponentialMaterialLaw2<2> law(2,3);
@@ -90,7 +90,7 @@ public:
                 if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                 {
                     // relative error                     
-                    TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);//, std::cout << i << " " << j << ": " << analytic_matrix_val << " " << numerical_matrix_val <<  std::endl);
+                    TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
                 }
                 else
                 {
