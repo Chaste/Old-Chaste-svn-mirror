@@ -406,6 +406,7 @@ public:
 
             
 
+            EventHandler::BeginEvent(USER2); //Temporarily using USER2 to instrument post-processing
             // Only if results files were written and we are outputting all nodes
             if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
             {
@@ -422,6 +423,7 @@ public:
                     HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
                 }
             }
+            EventHandler::EndEvent(USER2); //Temporarily using USER2 to instrument post-processing
         }
         EventHandler::EndEvent(EVERYTHING);
     }

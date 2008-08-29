@@ -135,6 +135,15 @@ public:
         n98_ode_system.rGetStateVariables()[0] = 70.0;
         TS_ASSERT_EQUALS(n98_ode_system.GetVoltage(), 70.0);
         TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
+        n98_ode_system.rGetStateVariables()[0] = 71.0;
+        TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
+        n98_ode_system.rGetStateVariables()[0] = 69.0;
+        TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
+        n98_ode_system.rGetStateVariables()[0] = -100.1;
+        TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
+        n98_ode_system.rGetStateVariables()[0] = -100.0;
+        TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
+ 
     }
     
    

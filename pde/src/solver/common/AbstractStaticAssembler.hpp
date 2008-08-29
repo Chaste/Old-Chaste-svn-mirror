@@ -256,7 +256,8 @@ protected:
                 // desired quantities
                 static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
             }
-
+            
+            EventHandler::BeginEvent(USER1); //Temporarily using USER1 to instrument the Compute.. terms
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
 
             ////////////////////////////////////////////////////////////
@@ -271,6 +272,7 @@ protected:
             {
                 noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             }
+            EventHandler::EndEvent(USER1); //Temporarily using USER1 to instrument the Compute.. terms
         }
     }
 
