@@ -93,14 +93,14 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         for (unsigned i=0;i<SPACE_DIM;i++)
         {
             *p_node_file << current_item[i] << "\t";
-            if (SPACE_DIM==2)
-            {
-                *p_node_file << 0 << "\t";
-            }
-            if (SPACE_DIM==1)
-            {
-                *p_node_file << 0 << "\t" << 0 << "\t";
-            }
+        }
+        if (SPACE_DIM==2)
+        {
+            *p_node_file << 0 << "\t";
+        }
+        if (SPACE_DIM==1)
+        {
+            *p_node_file << 0 << "\t" << 0 << "\t";
         }
         *p_node_file << "\n";
 
