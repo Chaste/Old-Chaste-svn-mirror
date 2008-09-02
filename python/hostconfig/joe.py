@@ -35,8 +35,8 @@ petsc_build_name_optimized = 'linux-gnu-opt'
 petsc_build_name_production = 'linux-intel-opt-mkl'
 dealii_path = None
 metis_path = None
-intel_path = '/opt/intel/cce/9.1.039/'
-icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/x86_64-linux-gnu/ -I/usr/include/c++/4.1.3/'
+intel_path = '/opt/intel/cc/9.1.039/'
+icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/i486-linux-gnu/ -I/usr/include/c++/4.1.3/'
 
 
 other_includepaths = ['/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd', '/home/jmpf/hdf5/include']
