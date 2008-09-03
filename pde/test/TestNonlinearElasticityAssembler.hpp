@@ -73,6 +73,10 @@ public:
         ///////////////////////////////////////////////////////////////////    
         unsigned num_dofs = rhs_vec.size();
         double h = 1e-6;
+        
+        int lo, hi;
+        MatGetOwnershipRange(assembler.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
+        
         for(unsigned j=0; j<num_dofs; j++)
         {
             assembler.mCurrentSolution.clear(); 
@@ -85,21 +89,25 @@ public:
             
             for(unsigned i=0; i<num_dofs; i++)
             {
-                double analytic_matrix_val = assembler.mpLinearSystem->GetMatrixElement(i,j);
-                double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
-                if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                if((lo<=(int)i) && ((int)i<hi))
                 {
-                    // relative error                     
-                    TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
-                }
-                else
-                {
-                    // absolute error
-                    TS_ASSERT_DELTA(analytic_matrix_val, numerical_matrix_val, 1e-2);
+                    double analytic_matrix_val = assembler.mpLinearSystem->GetMatrixElement(i,j);
+                    double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
+                    if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                    {
+                        // relative error                     
+                        TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
+                    }
+                    else
+                    {
+                        // absolute error
+                        TS_ASSERT_DELTA(analytic_matrix_val, numerical_matrix_val, 1e-2);
+                    }
                 }
             }
         }
-        
+        MPI_Barrier(PETSC_COMM_WORLD);
+
         //////////////////////////////////////////////////////////
         // compare numerical and analytic jacobians again, this
         // time using a non-zero displacement, u=lambda x, v = mu y 
@@ -130,17 +138,20 @@ public:
             
             for(unsigned i=0; i<num_dofs; i++)
             {
-                double analytic_matrix_val = assembler.mpLinearSystem->GetMatrixElement(i,j);
-                double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec2[i])/h;
-                if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                if((lo<=(int)i) && ((int)i<hi))
                 {
-                    // relative error                     
-                    TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
-                }
-                else
-                {
-                    // absolute error
-                    TS_ASSERT_DELTA(analytic_matrix_val, numerical_matrix_val, 1e-2);
+                    double analytic_matrix_val = assembler.mpLinearSystem->GetMatrixElement(i,j);
+                    double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec2[i])/h;
+                    if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                    {
+                        // relative error                     
+                        TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
+                    }
+                    else
+                    {
+                        // absolute error
+                        TS_ASSERT_DELTA(analytic_matrix_val, numerical_matrix_val, 1e-2);
+                    }
                 }
             }
             assembler.mCurrentSolution[j] -= h;
@@ -152,6 +163,8 @@ public:
     // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
     void TestWithZeroDisplacement() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+        
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
 
         double c1 = 3.0;
@@ -198,6 +211,8 @@ public:
 
     void TestSolve() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
 
         MooneyRivlinMaterialLaw2<2> law(0.02);

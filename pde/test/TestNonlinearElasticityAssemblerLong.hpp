@@ -41,6 +41,8 @@ class TestNonlinearElasticityAssemblerLong : public CxxTest::TestSuite
 public:
     void TestSolve3d() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+        
         QuadraticMesh<3> mesh("mesh/test/data/cube_136_elements_quadratic");
 
         MooneyRivlinMaterialLaw2<3> law(0.02, 0.0);
