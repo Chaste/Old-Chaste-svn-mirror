@@ -38,10 +38,22 @@ template<unsigned DIM>
 class QuadraticMesh : public ConformingTetrahedralMesh<DIM, DIM>
 {    
 private:
+    /*< Whether the mesh is ready (ie a set up quadratic mesh */
     bool mIsPrepared;
+    /**
+     *  vector of bools, one for one node, saying whether the node is internal 
+     *  (if not, it is a vertex).
+     */
     std::vector<bool> mIsInternalNode;
+
+    /*< Number of vertices, ie non-internal (non-quadratic), nodes. */
     unsigned mNumVertices;
 
+    /**
+     *  Load a quadratic mesh from a file
+     */
+    void LoadFromFile(const std::string& fileName);
+    
     /**
      *  This method adds the given node (defined by an element and a node index)
      *  to the given boundary element, and also sets the node as a boundary
@@ -79,10 +91,17 @@ public:
     /**
      * Constructs a new Quadratic Mesh
      * 
-     * @param fileName The name of the mesh file to load
+     * @param fileName The name of the quadratic mesh file to load
      */
     QuadraticMesh(const std::string& fileName);
     
+    /** 
+     *  Create a quadratic mesh on a rectangle from (0,0) to (xEnd,yEnd)
+     *  with the given number of elements in each direction. This writes
+     *  a temporary node file and uses triangle to mesh this nodefile. 
+     */
+    QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY);
+
     /**
      * Construct a new Quadratic Mesh
      */
@@ -93,6 +112,9 @@ public:
      */
     void ConvertToQuadratic();
     
+    /** 
+     *  Get the number of vertices, ie non-internal (non-quadratic), nodes.
+     */
     unsigned GetNumVertices()
     {
         assert(mIsPrepared);
@@ -103,6 +125,77 @@ public:
 
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
+{
+    LoadFromFile(fileName);
+}
+
+template<unsigned DIM>
+QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY)
+{
+    assert(DIM==2);
+    
+    assert(xEnd>0);
+    assert(yEnd>0);
+    assert(numElemX>0);
+    assert(numElemY>0);
+
+    std::string tempfile_name_stem = "temp_quadmesh";
+
+    ////////////////////////////////////////
+    // write the node file (vertices only)
+    ////////////////////////////////////////
+    OutputFileHandler handler("");
+    out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
+    
+    *p_file << (numElemX+1)*(numElemY+1) << " 2 0 1\n";
+    unsigned node_index = 0;
+    for(unsigned j=0; j<=numElemY; j++)
+    {
+        for(unsigned i=0; i<=numElemX; i++)
+        {
+            double x = xEnd*i/numElemX;
+            double y = yEnd*j/numElemY;
+            
+            bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemX) );
+            *p_file << node_index++ << " " << x << " " << y << " " << (on_boundary?1:0) << "\n";
+        }
+    }
+    p_file->close();
+    
+    ////////////////////////////////////////////////////////////
+    // create the quadratic mesh files using triangle and load
+    ////////////////////////////////////////////////////////////
+    
+    // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
+    std::string command =    "./bin/triangle -Qeo2 " + handler.GetOutputDirectoryFullPath()
+                           + "/" + tempfile_name_stem + ".node"; 
+    system(command.c_str());
+    
+    // move the output files to the chaste directory
+    command =   "mv " + handler.GetOutputDirectoryFullPath() + "/" 
+              + tempfile_name_stem + ".1.* .";
+    system(command.c_str());
+
+    // load
+    LoadFromFile(tempfile_name_stem + ".1");
+    
+    // delete the temporary files
+    command = "rm -f " + handler.GetOutputDirectoryFullPath() + "/" + tempfile_name_stem + ".node";
+    system(command.c_str());
+    system( ("rm -f " + tempfile_name_stem + ".1.node").c_str() );
+    system( ("rm -f " + tempfile_name_stem + ".1.ele" ).c_str() );
+    system( ("rm -f " + tempfile_name_stem + ".1.edge").c_str() );
+}
+
+
+template<unsigned DIM>
+QuadraticMesh<DIM>::QuadraticMesh()
+{
+    mIsPrepared = false;
+}
+
+template<unsigned DIM>
+void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
 {
     TrianglesMeshReader<DIM,DIM> mesh_reader(fileName, 2); // 2=quadratic mesh
     ConstructFromMeshReader(mesh_reader);
@@ -220,11 +313,6 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
     mIsPrepared = true;
 }
 
-template<unsigned DIM>
-QuadraticMesh<DIM>::QuadraticMesh()
-{
-    mIsPrepared = false;
-}
 
 template<unsigned DIM>
 void QuadraticMesh<DIM>::ConvertToQuadratic()

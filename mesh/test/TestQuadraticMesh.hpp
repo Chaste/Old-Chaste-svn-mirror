@@ -168,6 +168,41 @@ public:
         }
     }
     
+    void TestWritingAndReadingMesh() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 4u);
+
+        // each element should have 6 nodes
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 6u);
+        }
+        
+        TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
+
+        QuadraticMesh<2> mesh2(3.14159, 2.71828183, 10, 10);
+
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 21*21u);
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 200u);
+
+        TS_ASSERT_EQUALS(mesh2.GetNumVertices(), 121u);
+
+        // each element should have 6 nodes
+        for(unsigned i=0; i<mesh2.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh2.GetElement(i)->GetNumNodes(), 6u);
+        }
+
+        TS_ASSERT_DELTA( mesh2.GetNode(120)->rGetLocation()[0], 3.14159, 1e-4);
+        TS_ASSERT_DELTA( mesh2.GetNode(120)->rGetLocation()[1], 2.71828183, 1e-5);
+    }
+    
     void TestExceptions() throw(Exception)
     {
         TS_ASSERT_THROWS_ANYTHING(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic"));
