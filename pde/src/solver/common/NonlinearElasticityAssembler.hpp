@@ -682,7 +682,9 @@ public:
         double tol = NEWTON_ABS_TOL;
         if ( tol < NEWTON_REL_TOL*norm_resid )
         {
+            #define COVERAGE_IGNORE
             tol = NEWTON_REL_TOL*norm_resid;
+            #undef COVERAGE_IGNORE
         }
         std::cout << "Solving with tolerance " << tol << "\n";
     
@@ -708,13 +710,17 @@ public:
             counter++;
             if (counter==20)
             {
+                #define COVERAGE_IGNORE
                 EXCEPTION("Not converged after 20 newton iterations, quitting");
+                #undef COVERAGE_IGNORE
             }
         }
     
         if (norm_resid > tol)
         {
+            #define COVERAGE_IGNORE
             EXCEPTION("Failed to converge");
+            #undef COVERAGE_IGNORE
         }
     
         // we have solved for a deformation so note this

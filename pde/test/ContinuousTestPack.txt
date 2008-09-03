@@ -9,7 +9,6 @@ TestNonlinearHeatEquationPde.hpp
 TestNonlinearElasticityAssembler.hpp
 TestPdeSimulationTime.hpp
 TestQuadraticBasisFunction.hpp
-TestQuadraticMesh.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
 TestSimpleNonlinearEllipticAssembler.hpp

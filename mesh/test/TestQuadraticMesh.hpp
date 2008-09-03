@@ -167,6 +167,11 @@ public:
             TS_ASSERT_EQUALS(is_boundary_node,  ((x==0)||(x==1)||(y==0)||(y==1)||(z==0)||(z==1)));
         }
     }
+    
+    void TestExceptions() throw(Exception)
+    {
+        TS_ASSERT_THROWS_ANYTHING(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic"));
+    }
 };
 
 #endif // _TESTQUADRATICMESH_HPP_

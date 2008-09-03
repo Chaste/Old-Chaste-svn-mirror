@@ -843,6 +843,12 @@ public:
         TS_ASSERT_DELTA(T_base(0,1), 0.0, 1e-9);
         TS_ASSERT_DELTA(T_base(1,1), 0.0, 1e-9);
     }
+    
+    void TestExceptions() throw(Exception)
+    {
+        
+    }
+    
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/

@@ -113,10 +113,7 @@ public :
      */
     ExponentialMaterialLaw2(double a, double b)
     {
-        if (DIM!=2 && DIM !=3)
-        {
-            EXCEPTION("Can only have 2 or 3d incompressible Mooney-Rivlin laws");
-        }
+        assert(DIM==2 || DIM ==3);
         if (a<0.0)
         {
             EXCEPTION("a must be positive");

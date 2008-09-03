@@ -12,5 +12,6 @@ TestPoint.hpp
 TestVolumeCalculator.hpp
 TestTransformations.hpp
 TestRemesh.hpp
+TestQuadraticMesh.hpp
 TestVoronoiCell.hpp
 TestVoronoiTessellation.hpp

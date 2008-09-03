@@ -213,7 +213,9 @@ public :
      */
     virtual void ScaleMaterialParameters(double scaleFactor)
     {
+        #define COVERAGE_IGNORE
         EXCEPTION("[the material law you are using]::ScaleMaterialParameters() has not be implemented\n");
+        #undef COVERAGE_IGNORE
     }
 };
 
