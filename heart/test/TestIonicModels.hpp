@@ -97,8 +97,10 @@ public:
         std::cout << "\n\tForward: " << forward << std::endl;
         
         CheckCellModelResults("N98RegResult");
-        TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
-    }
+        //TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
+        //This cell now returns a current density
+        TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.2462, 1e-3);
+     }
     
     void TestOdeSolveForOptimisedNoble98WithSimpleStimulus(void)
     {   
@@ -129,7 +131,9 @@ public:
         std::cout << "\n\tForward: " << forward << std::endl;
         
         CheckCellModelResults("N98RegResult");
-        TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
+        //TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
+        //This cell now returns a current density
+        TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.2462, 1e-3);
         
         //Stress the lookup table with a silly voltage
         n98_ode_system.rGetStateVariables()[0] = 70.0;
