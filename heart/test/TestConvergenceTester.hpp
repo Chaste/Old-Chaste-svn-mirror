@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
+#include "OdePdeConvergenceTester.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 
@@ -69,6 +70,16 @@ public:
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01);
+    }
+
+    void Test1DOdePdeTime() throw(Exception)
+    {
+        OdePdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
+        tester.MeshNum=1;
+        tester.RelativeConvergenceCriterion=7e-4;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.005);
     }
 
     void Test1DPdeTimeRegion() throw(Exception)

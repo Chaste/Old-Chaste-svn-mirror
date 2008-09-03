@@ -45,8 +45,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
+#include "OdePdeConvergenceTester.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
+#include "NobleVargheseKohlNoble1998.hpp"
+#include "NobleVargheseKohlNoble1998Optimised.hpp"
 
 
 class TestConvergenceNightly : public CxxTest::TestSuite
@@ -122,31 +125,6 @@ public:
     }
 
 public:
-
-    void xTestConvergencein1DWithLR91() throw(Exception)
-    {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991,  MonodomainProblem<1>, 1, 1> tester;
-        tester.Converge(__FUNCTION__);
-        TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
-        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
-        exit(1);
-        
-    }
-    void TestConvergencein1DWithN98() throw(Exception)
-    {
-            
-        SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
-        //tester.UseAbsoluteStimulus=true;
-        //tester.AbsoluteStimulus=-1e6;
-        //tester.NeumannStimulus = 10000;
-        //tester.Stimulus = NEUMANN;
-        tester.Converge(__FUNCTION__);
-        TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
-        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
-       
-    }
     
     void TestStimulatePlanein1D() throw(Exception)
     {
@@ -233,6 +211,61 @@ public:
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 2u); ///Just to prove the thing works
+    }
+    
+    void TestSpaceConvergencein1DWithBackwardN98() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+        //tester.UseAbsoluteStimulus=true;
+        //tester.AbsoluteStimulus=-1e6;
+        //tester.NeumannStimulus = 10000;
+        //tester.Stimulus = NEUMANN;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
+        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05); 
+    }
+    
+    void TestOdeConvergencein1DWithBackwardN98() throw(Exception)
+    {
+        OdeConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+        //tester.NeumannStimulus = 5000;
+        //tester.Stimulus = NEUMANN;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);       
+    }
+   
+    void TestOdePdeConvergencein1DWithBackwardN98() throw(Exception)
+    {
+        OdePdeConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+        tester.NeumannStimulus = 5000;
+        tester.Stimulus = NEUMANN;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);       
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.005, 1e-10);       
+    }
+ 
+    void TestOdePdeConvergencein1DWithForwardLookupN98() throw(Exception)
+    {
+        OdePdeConvergenceTester<CML_noble_varghese_kohl_noble_1998_basic_pe_lut,  MonodomainProblem<1>, 1, 1> tester;
+        tester.NeumannStimulus = 5000;
+        tester.Stimulus = NEUMANN;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);       
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.0025, 1e-10);       
+    }
+    void TestOdePdeConvergencein1DWithForwardBasicN98() throw(Exception)
+    {
+        OdePdeConvergenceTester<CML_noble_varghese_kohl_noble_1998_basic,  MonodomainProblem<1>, 1, 1> tester;
+        tester.NeumannStimulus = 5000;
+        tester.Stimulus = NEUMANN;
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);       
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.0025, 1e-10);       
     }
 };
 
