@@ -208,6 +208,46 @@ public:
             TS_ASSERT_DELTA(r_pressures[i], 2*c1, 1e-6);
         }
     }
+    
+    void TestSettingUpHeterogeneousProblem() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+        
+        // two element quad mesh on the square
+        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+
+        MooneyRivlinMaterialLaw2<2> law_1(1.0);
+        MooneyRivlinMaterialLaw2<2> law_2(5.0);
+        std::vector<AbstractIncompressibleMaterialLaw2<2>*> laws;
+        laws.push_back(&law_1);
+        laws.push_back(&law_2);
+        
+        std::vector<unsigned> fixed_nodes;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+            }
+        }
+
+        NonlinearElasticityAssembler<2> assembler(&mesh, 
+                                                  laws, 
+                                                  zero_vector<double>(2),
+                                                  1.0,
+                                                  fixed_nodes,
+                                                  "");
+                                                  
+        TS_ASSERT_EQUALS(assembler.mMaterialLaws.size(), 2u);
+        TS_ASSERT_DELTA(assembler.mMaterialLaws[0]->GetZeroStrainPressure(), 2.0, 1e-6);
+        TS_ASSERT_DELTA(assembler.mMaterialLaws[1]->GetZeroStrainPressure(), 10.0, 1e-6);
+        
+        unsigned num_nodes = 9; 
+        // pressure for node 0 (in elem 0)
+        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 0], 2.0, 1e-6); 
+        // pressure for node 3 (in elem 1)
+        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 3], 10.0, 1e-6); 
+    }
 
     void TestSolve() throw(Exception)
     {

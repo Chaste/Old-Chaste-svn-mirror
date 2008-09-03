@@ -75,10 +75,11 @@ private:
      */
     QuadraticMesh<DIM>* mpQuadMesh;
     /**
-     *  The material law. Currently assume homogeneity but easy to do
-     *  heterogeniety.
+     *  The material laws for each element. This will either be of size
+     *  1 (same material law for all elements, ie homogeneous), or size
+     *  num_elem.
      */
-    AbstractIncompressibleMaterialLaw2<DIM>* mpMaterialLaw;
+    std::vector<AbstractIncompressibleMaterialLaw2<DIM>*> mMaterialLaws;
     /**
      *  The linear system where we store all residual vectors which are calculated
      *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
@@ -184,9 +185,20 @@ private:
         c_vector<double, NUM_NODES_PER_ELEMENT> quad_phi;
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
 
-//        AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
+        // get the material law
+        AbstractIncompressibleMaterialLaw2<DIM>* p_material_law;
+        if(mMaterialLaws.size()==1)
+        {
+            // homogeneous
+            p_material_law = mMaterialLaws[0];
+        }
+        else
+        {
+            // heterogeneous
+            p_material_law = mMaterialLaws[rElement.GetIndex()];
+        }
         
-    
+        
         //////////////////////////////////////////////////
         //////////////////////////////////////////////////
         //// loop over Gauss points
@@ -252,7 +264,7 @@ private:
     
             double detF = Determinant(F);
     
-            mpMaterialLaw->ComputeStressAndStressDerivative(C,inv_C,pressure,T,dTdE,assembleJacobian);
+            p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,dTdE,assembleJacobian);
 
             /////////////////////////////////////////
             // residual vector
@@ -386,17 +398,40 @@ private:
      *  [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
      *  (where there are N total nodes and M vertices)
      *  so the initial guess is
-     *  [0 0 0 0 ... 0 0 p p .. p]
-     *  where p is such that T is zero (depends on material law).
+     *  [0 0 0 0 ... 0 0 p1 p2 .. pM]
+     *  where p_i are such that T is zero (depends on material law).
+     *
+     *  In a homogeneous problem, all p_i are the same. 
+     *  In a heterogeneous problem, p for a given vertex is the 
+     *  zero-strain-pressure for ONE of the elements containing that 
+     *  vertex (which element containing the vertex is reached LAST). In
+     *  this case the initial guess will be close but not exactly the 
+     *  solution given zero body force.
      */
     void FormInitialGuess()
     {
         mCurrentSolution.resize(mNumDofs, 0.0);
-        double zero_strain_pressure = mpMaterialLaw->GetZeroStrainPressure();
         
-        for(unsigned i=0; i<mpQuadMesh->GetNumVertices(); i++)
+        for(unsigned i=0; i<mpQuadMesh->GetNumElements(); i++)
         {
-            mCurrentSolution[ DIM*mpQuadMesh->GetNumNodes() + i ] = zero_strain_pressure;
+            double zero_strain_pressure;
+            if(mMaterialLaws.size()==1)
+            {
+                // homogeneous
+                zero_strain_pressure = mMaterialLaws[0]->GetZeroStrainPressure();
+            }
+            else
+            {
+                // heterogeneous
+                zero_strain_pressure = mMaterialLaws[i]->GetZeroStrainPressure();
+            }
+            
+            // loop over vertices and set pressure solution to be zero-strain-pressure
+            for(unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
+            {
+                unsigned index = mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j);
+                mCurrentSolution[ DIM*mpQuadMesh->GetNumNodes() + index ] = zero_strain_pressure;
+            }
         }
     }
     
@@ -620,6 +655,28 @@ private:
         }
     }
 
+    void Initialise()
+    {
+        assert(DIM==2 || DIM==3);
+        assert(mpQuadMesh);
+        assert(mDensity > 0);
+        
+        assert(mrFixedNodes.size()>0);
+        for(unsigned i=0; i<mrFixedNodes.size(); i++)
+        {
+            assert(mrFixedNodes[i] < mpQuadMesh->GetNumNodes());
+        }
+
+        mWriteOutput = (mOutputDirectory != "");
+        
+        mNumDofs = DIM*mpQuadMesh->GetNumNodes()+mpQuadMesh->GetNumVertices();
+        mpLinearSystem = new LinearSystem(mNumDofs);
+
+        mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
+        
+        FormInitialGuess();
+    }
+
 
 public:
     /** 
@@ -634,31 +691,42 @@ public:
                                  std::vector<unsigned>& rFixedNodes,
                                  std::string outputDirectory = "")
         : mpQuadMesh(pQuadMesh),
-          mpMaterialLaw(pMaterialLaw),
           mBodyForce(bodyForce),
           mDensity(density),
           mrFixedNodes(rFixedNodes),
           mOutputDirectory(outputDirectory)
     {
-        assert(DIM==2 || DIM==3);
-        assert(pQuadMesh);
-        assert(density > 0);
+        assert(pMaterialLaw != NULL);
+        mMaterialLaws.push_back(pMaterialLaw);
+
+        Initialise();
+    }
+
+
+    NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
+                                 std::vector<AbstractIncompressibleMaterialLaw2<DIM>*>& rMaterialLaws,
+                                 c_vector<double,DIM> bodyForce,
+                                 double density,
+                                 std::vector<unsigned>& rFixedNodes,
+                                 std::string outputDirectory = "")
+        : mpQuadMesh(pQuadMesh),
+          mBodyForce(bodyForce),
+          mDensity(density),
+          mrFixedNodes(rFixedNodes),
+          mOutputDirectory(outputDirectory)
+    {
+        assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
         
-        assert(rFixedNodes.size()>0);
-        for(unsigned i=0; i<rFixedNodes.size(); i++)
+        mMaterialLaws.resize(pQuadMesh->GetNumElements(), NULL);
+        for(unsigned i=0; i<mMaterialLaws.size(); i++)
         {
-            assert(mrFixedNodes[i] < pQuadMesh->GetNumNodes());
+            assert(rMaterialLaws[i] != NULL);
+            mMaterialLaws[i] = rMaterialLaws[i];
         }
 
-        mWriteOutput = (outputDirectory != "");
-        
-        mNumDofs = DIM*mpQuadMesh->GetNumNodes()+mpQuadMesh->GetNumVertices();
-        mpLinearSystem = new LinearSystem(mNumDofs);
-
-        mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
-        
-        FormInitialGuess();
+        Initialise();
     }
+
     
     ~NonlinearElasticityAssembler()
     {
