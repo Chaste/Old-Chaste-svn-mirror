@@ -115,6 +115,7 @@ public:
     bool Converged;
     //bool StimulateRegion;
     StimulusType Stimulus;
+    double NeumannStimulus;
 
     AbstractUntemplatedConvergenceTester()
     : mMeshWidth(0.2),//cm
@@ -132,7 +133,8 @@ public:
       //UseNeumannStimulus(false),
       Converged(false),
       //StimulateRegion(false)
-      Stimulus(PLANE)
+      Stimulus(PLANE),
+      NeumannStimulus(4000)
     {
     }
 
@@ -373,7 +375,7 @@ public:
             #endif
 
             BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
-            SimpleStimulus stim(4000.0, 0.5);
+            SimpleStimulus stim(NeumannStimulus, 0.5);
             if (Stimulus==NEUMANN)
             {
 

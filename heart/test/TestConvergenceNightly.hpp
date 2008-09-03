@@ -130,18 +130,22 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
+        exit(1);
         
     }
-    void xTestConvergencein1DWithN98() throw(Exception)
+    void TestConvergencein1DWithN98() throw(Exception)
     {
+            
         SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
-        tester.UseAbsoluteStimulus=true;
-        tester.AbsoluteStimulus=-1e6;
+        //tester.UseAbsoluteStimulus=true;
+        //tester.AbsoluteStimulus=-1e6;
+        //tester.NeumannStimulus = 10000;
+        //tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
-        exit(1);
+       
     }
     
     void TestStimulatePlanein1D() throw(Exception)

@@ -565,7 +565,9 @@ public:
         std::cout << "\n\tBackward: " << backward << std::endl;
         
         CheckCellModelResults("N98BackwardResult");
-        TS_ASSERT_DELTA( n98_backward_system.GetIIonic(), 0.023, 1e-3);
+        //TS_ASSERT_DELTA( n98_backward_system.GetIIonic(), 0.023, 1e-3);
+        //This cell now returns a current density
+        TS_ASSERT_DELTA( n98_backward_system.GetIIonic(), 0.2462, 1e-3);
         
     }
 
