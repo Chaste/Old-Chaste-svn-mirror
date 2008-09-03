@@ -147,34 +147,6 @@ public:
         }
     }
     
-    void TestSolve()
-    {
-        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
-        ExponentialMaterialLaw2<2> law(2,3);
-        
-        std::vector<unsigned> fixed_nodes;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
-            {
-                fixed_nodes.push_back(i);
-            }
-        }
-        c_vector<double,2> body_force;
-        body_force(0) = 1;
-        body_force(1) = 0.0;
-        
-        NonlinearElasticityAssembler<2> assembler(&mesh, 
-                                                  &law, 
-                                                  body_force,
-                                                  7.0,
-                                                  fixed_nodes,
-                                                  "simple_nonlin_elas");
-                                                  
-        assembler.Solve();
-    }
-
-
     // A test where the solution should be zero displacement
     // It mainly tests that the initial guess was set up correctly to
     // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
@@ -222,6 +194,71 @@ public:
         {
             TS_ASSERT_DELTA(r_pressures[i], 2*c1, 1e-6);
         }
+    }
+
+    void TestSolve() throw(Exception)
+    {
+        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
+
+        MooneyRivlinMaterialLaw2<2> law(0.02);
+        c_vector<double,2> body_force;
+        body_force(0) = 0.06;
+        body_force(1) = 0.0;
+        
+        std::vector<unsigned> fixed_nodes;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+            }
+        }
+        
+        NonlinearElasticityAssembler<2> assembler(&mesh, 
+                                                  &law, 
+                                                  body_force,
+                                                  1.0,
+                                                  fixed_nodes,
+                                                  "simple_nonlin_elas");
+                                                  
+        assembler.Solve();
+        
+        std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
+        
+        double xend = 1.17199;
+        double yend = 0.01001;
+        
+        ///////////////////////////////////////////////////////////
+        // compare the solution at the corners with the values 
+        // obtained using the dealii finite elasticity assembler
+        //        
+        // Results have been visually checked to see they agree 
+        // (they do, virtually or completely overlapping.
+        ///////////////////////////////////////////////////////////
+
+        // bottom lhs corner should still be at (0,0)
+        assert( fabs(mesh.GetNode(0)->rGetLocation()[0] - 0) < 1e-9 );
+        assert( fabs(mesh.GetNode(0)->rGetLocation()[1] - 0) < 1e-9 );
+        TS_ASSERT_DELTA( r_solution[0](0), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( r_solution[0](1), 0.0, 1e-6 );
+        
+        // top lhs corner should still be at (0,1)
+        assert( fabs(mesh.GetNode(3)->rGetLocation()[0] - 0) < 1e-9 );
+        assert( fabs(mesh.GetNode(3)->rGetLocation()[1] - 1) < 1e-9 );
+        TS_ASSERT_DELTA( r_solution[3](0), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( r_solution[3](1), 1.0, 1e-6 );
+
+        // DEALII value for bottom rhs corner is (1.17199,0.01001)
+        assert( fabs(mesh.GetNode(1)->rGetLocation()[0] - 1) < 1e-9 );
+        assert( fabs(mesh.GetNode(1)->rGetLocation()[1] - 0) < 1e-9 );
+        TS_ASSERT_DELTA( r_solution[1](0), xend, 1e-3 );
+        TS_ASSERT_DELTA( r_solution[1](1), yend, 1e-3 );
+
+        // DEALII value for top rhs corner is (1.17199,0.98999)
+        assert( fabs(mesh.GetNode(2)->rGetLocation()[0] - 1) < 1e-9 );
+        assert( fabs(mesh.GetNode(2)->rGetLocation()[1] - 1) < 1e-9 );
+        TS_ASSERT_DELTA( r_solution[2](0), xend,   1e-3 );
+        TS_ASSERT_DELTA( r_solution[2](1), 1-yend, 1e-3 );
     }
 };
 

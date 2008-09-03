@@ -444,12 +444,12 @@ private:
     void TakeNewtonStep()
     {
         // compute Jacobian
-//        Timer::Reset();
+        //Timer::Reset();
         AssembleSystem(true, true);
-//        Timer::PrintAndReset("AssembleSystem");
+        //Timer::PrintAndReset("AssembleSystem");
 
-      //  Vec solution = mpLinearSystem->Solve();
-//        Timer::PrintAndReset("Solve");
+        //Vec solution = mpLinearSystem->Solve();
+        //Timer::PrintAndReset("Solve");
 
         // solve explicity with Petsc's GMRES method.
         KSP solver;
@@ -526,6 +526,9 @@ private:
         {
             mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
         }
+        
+        VecDestroy(solution);
+        KSPDestroy(solver);
     }
 
     /**
@@ -658,6 +661,11 @@ public:
         FormInitialGuess();
     }
     
+    ~NonlinearElasticityAssembler()
+    {
+        delete mpLinearSystem;
+        delete mpQuadratureRule;
+    }
     
     /** 
      *  Solve the problem

@@ -448,6 +448,7 @@ public:
 
         c_matrix<double,2,2> C;
         C(0,0) = 1;
+        C(0,1) = C(1,0) = 0;
         C(1,1) = 1;
         c_matrix<double,2,2> invC = Inverse(C);
 
@@ -601,14 +602,14 @@ public:
         PoleZeroMaterialLaw2<3> pole_zero_law(k,a,b);
 
         c_matrix<double,3,3> C;
-        c_matrix<double,3,3> invC;
         C(0,0) = 2;
         C(0,1) = C(1,0) = 2;
         C(0,2) = C(2,0) = 3;
         C(1,1) = 5;
-        C(1,2) = C(1,2) = 4;
+        C(1,2) = C(2,1) = 4;
         C(2,2) = 3;
-        invC = Inverse(C);
+
+        c_matrix<double,3,3> invC = Inverse(C);
 
         c_matrix<double,3,3> T;
         FourthOrderTensor2<3> dTdE;
@@ -674,7 +675,7 @@ public:
         C(0,1) = C(1,0) = 0.1;
         C(0,2) = C(2,0) = 0.3;
         C(1,1) = 1.1;
-        C(1,2) = C(1,2) = -0.1;
+        C(1,2) = C(2,1) = -0.1;
         C(2,2) = 1.3;
         invC = Inverse(C);
 
@@ -710,7 +711,6 @@ public:
         // have been entered a Pa or KPa)
         TS_ASSERT_DELTA(T(0,0),2.0902,1e-3);
     }
-
 
     void TestDerivateInPoleZeroLaw2d() throw(Exception)
     {
@@ -843,12 +843,6 @@ public:
         TS_ASSERT_DELTA(T_base(0,1), 0.0, 1e-9);
         TS_ASSERT_DELTA(T_base(1,1), 0.0, 1e-9);
     }
-    
-    void TestExceptions() throw(Exception)
-    {
-        
-    }
-    
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/
