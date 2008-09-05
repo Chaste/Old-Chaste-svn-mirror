@@ -167,17 +167,17 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     ////////////////////////////////////////////////////////////
     
     // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
-    std::string command =    "./bin/triangle -Qeo2 " + handler.GetOutputDirectoryFullPath()
+    std::string command =    "./bin/triangle -eo2 " + handler.GetOutputDirectoryFullPath()
                            + "/" + tempfile_name_stem + ".node"; 
     system(command.c_str());
-    
+    system(("ls -ltr "+ handler.GetOutputDirectoryFullPath()).c_str());
     // move the output files to the chaste directory
     command =   "mv " + handler.GetOutputDirectoryFullPath() + "/" 
               + tempfile_name_stem + ".1.* .";
     system(command.c_str());
-
+    system("ls -ltr ");
     // load
-    LoadFromFile(tempfile_name_stem + ".1");
+    LoadFromFile( tempfile_name_stem + ".1");
     
     // delete the temporary files
     command = "rm -f " + handler.GetOutputDirectoryFullPath() + "/" + tempfile_name_stem + ".node";
