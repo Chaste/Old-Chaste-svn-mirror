@@ -31,21 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // NOTE: would prefer to call this finite elasticity assembler but that is the name
 // of the finite elasticity assembler in the dealii folder.
 
-
-//more tests
 //factor out Dof handling?
 
-#include "ConformingTetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
-#include "BoundaryConditionsContainer.hpp"
 #include "PetscTools.hpp"
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include "QuadraticMesh.hpp"
 #include "LinearSystem.hpp"
-#include "BoundaryConditionsContainer.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractIncompressibleMaterialLaw2.hpp"
 
@@ -122,9 +117,10 @@ private:
     unsigned mNumNewtonIterations;
     
     /*< Absolute tolerance for newton solve  */
-    static const double NEWTON_ABS_TOL = 1e-8;
+    static const double MAX_NEWTON_ABS_TOL = 1e-8;
+    static const double MIN_NEWTON_ABS_TOL = 1e-12;
     /*< Relative tolerance for newton solve  */
-    static const double NEWTON_REL_TOL = 1e-6;
+    static const double NEWTON_REL_TOL = 1e-4;
     
     /*< Deformed position: mDeformedPosition[i](j) = x_j for node i */
     std::vector<c_vector<double,DIM> > mDeformedPosition;
@@ -754,13 +750,17 @@ public:
     
         // use the larger of the tolerances formed from the absolute or
         // relative possibilities
-        double tol = NEWTON_ABS_TOL;
-        if ( tol < NEWTON_REL_TOL*norm_resid )
+        double tol = NEWTON_REL_TOL*norm_resid;
+        if(tol > MAX_NEWTON_ABS_TOL)
         {
-            #define COVERAGE_IGNORE
-            tol = NEWTON_REL_TOL*norm_resid;
-            #undef COVERAGE_IGNORE
+            tol = MAX_NEWTON_ABS_TOL;
         }
+        if(tol < MIN_NEWTON_ABS_TOL)
+        {
+            tol = MIN_NEWTON_ABS_TOL;
+        }
+        if ( tol < NEWTON_REL_TOL*norm_resid )
+
         std::cout << "Solving with tolerance " << tol << "\n";
     
         while (norm_resid > tol)
