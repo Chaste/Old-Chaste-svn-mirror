@@ -76,25 +76,35 @@ public:
 
 class TestBidomainHeart : public CxxTest::TestSuite
 {
-
-public:
-
-    void TestBidomainDg0Heart() throw (Exception)
+private:
+    void SetParameters()
     {
+        HeartConfig::Instance()->Reset();
+        //The conductivities were in the Metis test (not the plain test)
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
+        
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);                
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
-        //HeartConfig::Instance()->SetUseRelativeTolerance(5e-5);
-        HeartConfig::Instance()->SetMeshFileName("heart/test/data/halfheart");
-        HeartConfig::Instance()->SetOutputDirectory("BiDg0Heart");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_Heart");
+
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);///\todo #779       
                                                                ///Works with 1e-6
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91HalfHeart");
+        PetscOptionsSetValue("-options_table", "");
+    }
+public:
+
+    void TestBidomainDg0Heart() throw (Exception)
+    {
+        SetParameters();
+
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/halfheart");
+        HeartConfig::Instance()->SetOutputDirectory("BiDg0Heart");
+        
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
-
-        PetscOptionsSetValue("-options_table", "");
 
         bidomain_problem.SetWriteInfo();
 
@@ -125,19 +135,9 @@ public:
     void TestBidomainDg0HeartMetis() throw (Exception)
     {
         EXIT_IF_SEQUENTIAL;
-        HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
+        SetParameters();
 
-        HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
-        HeartConfig::Instance()->SetPdeTimeStep(0.005);       
-        HeartConfig::Instance()->SetOdeTimeStep(0.0025);
-        HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BiDg0HeartMetis");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
-        HeartConfig::Instance()->SetKSPSolver("symmlq");
-        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);///\todo #779       
         
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -150,14 +150,8 @@ public:
         HeartConfig::Instance()->SetMeshFileName(metis_mesh);//"heart/test/data/halfheart_metis");
         bidomain_problem.SetNodesPerProcessorFilename(nodes_file);
 
-        //PetscOptionsSetValue("-ksp_type", "symmlq");
-        //PetscOptionsSetValue("-pc_type", "bjacobi");
-        //PetscOptionsSetValue("-log_summary", "");
-        //PetscOptionsSetValue("-ksp_monitor", "");
-        PetscOptionsSetValue("-options_table", "");
 
         bidomain_problem.SetWriteInfo();
-
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
