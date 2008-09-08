@@ -191,7 +191,9 @@ private:
         else
         {
             // heterogeneous
+            #define COVERAGE_IGNORE // not going to have tests in cts for everything
             p_material_law = mMaterialLaws[rElement.GetIndex()];
+            #undef COVERAGE_IGNORE
         }
         
         
@@ -751,6 +753,8 @@ public:
         // use the larger of the tolerances formed from the absolute or
         // relative possibilities
         double tol = NEWTON_REL_TOL*norm_resid;
+
+        #define COVERAGE_IGNORE // not going to have tests in cts for everything
         if(tol > MAX_NEWTON_ABS_TOL)
         {
             tol = MAX_NEWTON_ABS_TOL;
@@ -759,7 +763,7 @@ public:
         {
             tol = MIN_NEWTON_ABS_TOL;
         }
-        if ( tol < NEWTON_REL_TOL*norm_resid )
+        #undef COVERAGE_IGNORE
 
         std::cout << "Solving with tolerance " << tol << "\n";
     
