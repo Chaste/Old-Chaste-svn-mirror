@@ -157,7 +157,6 @@ public:
             try
         	{
                 /// \todo: Only considering <LoadMesh/> definition. Consider <Slab/> too
-                std::cout<<"Here "<<HeartConfig::Instance()->GetMeshName()<<"\n";
 		        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
 		        mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
 		        mAllocatedMemoryForMesh = true;
