@@ -141,6 +141,7 @@ public:
             std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
 
             // Write out the time series for the node at third quadrant
+            OutputFileHandler results_handler("FibreWithHeterogeneity", false); 
             if (results_handler.IsMaster())
             {
                 OutputFileHandler plot_file_handler("HeterogeneityPlots", false);
