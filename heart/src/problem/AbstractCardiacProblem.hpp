@@ -468,5 +468,10 @@ public:
     {
         mNodesToOutput = nodesToOutput;
     }
+    
+    Hdf5DataReader GetDataReader()
+    {
+        return Hdf5DataReader(mOutputDirectory, mOutputFilenamePrefix);
+    }
 };
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

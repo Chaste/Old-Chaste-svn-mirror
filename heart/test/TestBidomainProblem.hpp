@@ -395,7 +395,7 @@ public:
         p_bidomain_problem->Solve();
 
         // read data entries for the time file and check correct
-        Hdf5DataReader data_reader1("Bidomain1d", "bidomain_testPrintTimes");
+        Hdf5DataReader data_reader1=p_bidomain_problem->GetDataReader();
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
 
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
@@ -433,7 +433,7 @@ public:
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
 
-        Hdf5DataReader data_reader3("Bidomain1d", "bidomain_testPrintTimes");
+        Hdf5DataReader data_reader3=p_bidomain_problem->GetDataReader();
         times = data_reader3.GetUnlimitedDimensionValues();
 
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);

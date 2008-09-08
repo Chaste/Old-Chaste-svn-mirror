@@ -360,7 +360,9 @@ public:
         delete p_monodomain_problem;
 
         // read data entries for the time file and check correct
-        Hdf5DataReader data_reader1("MonoProblem1d", "mono_testPrintTimes");
+        //Hdf5DataReader data_reader1("MonoProblem1d", "mono_testPrintTimes");
+        Hdf5DataReader data_reader1= p_monodomain_problem->GetDataReader();
+        
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
 
         TS_ASSERT_EQUALS( times.size(), 4u);
@@ -368,6 +370,8 @@ public:
         TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
         TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
+        
+        
     }
 
     void TestMonodomainWithMeshInMemoryToMeshalyzer()
@@ -449,6 +453,9 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("");
 
         monodomain_problem.Initialise();
+        
+        //Throws because the HDF5 slab isn't on the disk 
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetDataReader());
 
         // throw because end time is negative
         HeartConfig::Instance()->SetSimulationDuration(-1.0); //ms

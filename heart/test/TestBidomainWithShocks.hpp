@@ -187,8 +187,8 @@ public:
             std::cout << e.GetMessage() << std::endl << std::flush;
         }
 
-        Hdf5DataReader data_reader("Bidomain1d_with_shock","bidomain1d_with_shock");
-
+        Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
+        
         std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
         std::vector<double> voltage_values_at_node_0   = data_reader.GetVariableOverTime("V", 0);
         std::vector<double> phi_e_values_at_node_0     = data_reader.GetVariableOverTime("Phi_e", 0);
@@ -269,7 +269,7 @@ public:
         // as we are applying an extracellular stimulus we need to have a dirichlet
         // boundary condition. Fix phi_e to be zero at a boundary node
         std::vector<unsigned> fixed;
-    fixed.push_back(120);
+        fixed.push_back(120);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
 
         bidomain_problem.Initialise();
@@ -285,7 +285,7 @@ public:
         }
 
 
-        Hdf5DataReader data_reader("Bidomain2d_with_shock","bidomain2d_with_shock");
+        Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
         std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
         std::vector<double> voltage_values_at_node_0   = data_reader.GetVariableOverTime("V", 0);
         std::vector<double> phi_e_values_at_node_0     = data_reader.GetVariableOverTime("Phi_e", 0);

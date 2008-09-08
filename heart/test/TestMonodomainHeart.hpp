@@ -143,8 +143,8 @@ public:
         // nodes was actually stimulated, and that the propagation spread to
         // a nearby node
         ///////////////////////////////////////////////////////////////////////
-        Hdf5DataReader data_reader("MonoDg0Heart","MonodomainLR91_Heart");
-
+        Hdf5DataReader monodomain_problem.GetDataReader();
+        
         // get the voltage values at stimulated node
         std::vector<double> voltage_values_at_node_37483 = data_reader.GetVariableOverTime("V", 37484-1);
         // get the voltage values at a nearby unstimulated node

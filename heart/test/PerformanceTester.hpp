@@ -44,7 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "Hdf5DataReader.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "CuboidMeshConstructor.hpp"
 

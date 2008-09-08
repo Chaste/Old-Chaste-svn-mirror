@@ -80,8 +80,8 @@ public:
         CheckMonoLr91Vars<1>(monodomain_problem);
 
         // Calculate the conduction velocity
-        Hdf5DataReader simulation_data("MonoConductionVel",
-                                       "MonodomainLR91_1d");
+        Hdf5DataReader simulation_data=monodomain_problem.GetDataReader();
+        
         PropagationPropertiesCalculator ppc(&simulation_data);
         double velocity=0.0;
 

@@ -420,7 +420,7 @@ public:
             std::cout << "Time to solve = "<<MPI_Wtime()-time_before<<" seconds\n";
 
             OutputFileHandler results_handler("Convergence", false);
-            Hdf5DataReader results_reader("Convergence", "Results");
+            Hdf5DataReader results_reader = cardiac_problem.GetDataReader();
 
             {
                 std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", third_quadrant_node);

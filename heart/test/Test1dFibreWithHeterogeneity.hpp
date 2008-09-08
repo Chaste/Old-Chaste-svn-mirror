@@ -130,8 +130,8 @@ public:
 
 
         // write out results for node 20 (and 50 and 80)
-        OutputFileHandler results_handler("FibreWithHeterogeneity", false);
-        Hdf5DataReader results_reader(results_handler.GetOutputDirectoryFullPath(), "Monodomain1d", false);
+        
+        Hdf5DataReader results_reader=monodomain_problem.GetDataReader();
 
         unsigned relevant_nodes[3]={20,50,80};
 
