@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTNONLINEARELASTICITYASSEMBLERLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include "UblasCustomFunctions.hpp"
 #include "NonlinearElasticityAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ExponentialMaterialLaw2.hpp"
