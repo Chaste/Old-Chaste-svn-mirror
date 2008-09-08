@@ -168,7 +168,7 @@ public:
         }
     }
     
-    void TestWritingAndReadingMesh() throw(Exception)
+    void TestWritingAndReadingMesh1() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
 
@@ -186,6 +186,10 @@ public:
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[0], 1.0, 1e-6);
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
 
+    }
+    
+    void TestWritingAndReadingMesh2() throw(Exception)
+    {
         QuadraticMesh<2> mesh2(3.14159, 2.71828183, 10, 10);
 
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 21*21u);
