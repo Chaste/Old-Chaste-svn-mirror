@@ -53,8 +53,8 @@ public:
                                                   &law, 
                                                   zero_vector<double>(2),
                                                   1.0,
-                                                  fixed_nodes,
-                                                  "");
+                                                  "",
+                                                  fixed_nodes);
         assembler.AssembleSystem(true, true);
         
         ///////////////////////////////////////////////////////////////////    
@@ -184,8 +184,8 @@ public:
                                                   &mooney_rivlin_law,
                                                   zero_vector<double>(2),
                                                   1.0,
-                                                  fixed_nodes,
-                                                  "");
+                                                  "",
+                                                  fixed_nodes);
 
         assembler.Solve();
 
@@ -236,8 +236,8 @@ public:
                                                   laws, 
                                                   zero_vector<double>(2),
                                                   1.0,
-                                                  fixed_nodes,
-                                                  "");
+                                                  "",
+                                                  fixed_nodes);
                                                   
         TS_ASSERT_EQUALS(assembler.mMaterialLaws.size(), 2u);
         TS_ASSERT_DELTA(assembler.mMaterialLaws[0]->GetZeroStrainPressure(), 2.0, 1e-6);
@@ -274,8 +274,8 @@ public:
                                                   &law, 
                                                   body_force,
                                                   1.0,
-                                                  fixed_nodes,
-                                                  "simple_nonlin_elas");
+                                                  "simple_nonlin_elas",
+                                                  fixed_nodes);
                                                   
         assembler.Solve();
         
@@ -315,6 +315,108 @@ public:
         assert( fabs(mesh.GetNode(2)->rGetLocation()[1] - 1) < 1e-9 );
         TS_ASSERT_DELTA( r_solution[2](0), xend,   1e-3 );
         TS_ASSERT_DELTA( r_solution[2](1), 1-yend, 1e-3 );
+    }
+
+
+
+    /**
+     *  Solve a problem with non-zero dirichlet boundary conditions 
+     *  and non-zero tractions. THIS TEST COMPARES AGAINST AN EXACT SOLUTION.
+     * 
+     *  Choosing the deformation x=X/lambda, y=lambda*Y, with a 
+     *  Mooney-Rivlin material, then
+     *   F = [1/lam 0; 0 lam], T = [2*c1-p*lam^2, 0; 0, 2*c1-p/lam^2], 
+     *   sigma = [2*c1/lam^2-p, 0; 0, 2*c1*lam^2-p].
+     *  Choosing p=2*c1*lam^2, then sigma = [2*c1/lam^2-p 0; 0 0].
+     *  The surface tractions are then 
+     *   TOP and BOTTOM SURFACE: 0
+     *   RHS: s = SN = J*invF*sigma*N = [lam 0; 0 1/lam]*sigma*[1,0] 
+     *          = [2*c1(1/lam-lam^3), 0]
+     * 
+     *  So, we have to specify displacement boundary conditions (y=lam*Y) on 
+     *  the LHS (X=0), and traction bcs (s=the above) on the RHS (X=1), and can
+     *  compare the computed displacement and pressure against the true solution.  
+     * 
+     */
+    void TestSolveWithNonZeroBoundaryConditions() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
+        double lambda = 0.85;
+        double c1 = 0.02;
+        c_vector<double,2> body_force = zero_vector<double>(2);
+        unsigned num_elem = 5;
+        
+        QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
+        MooneyRivlinMaterialLaw2<2> law(c1);
+        
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,2> > locations;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+                c_vector<double,2> new_position;
+                new_position(0) = 0;
+                new_position(1) = lambda*mesh.GetNode(i)->rGetLocation()[1];
+                locations.push_back(new_position);
+            }
+        }
+        
+        std::vector<BoundaryElement<1,2>*> boundary_elems;
+        std::vector<c_vector<double,2> > tractions;
+        c_vector<double,2> traction;
+        traction(0) = 2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
+        traction(1) = 0;
+        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter 
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            if(fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+                tractions.push_back(traction);
+            }
+        }
+        assert(boundary_elems.size()==num_elem);
+
+        NonlinearElasticityAssembler<2> assembler(&mesh, 
+                                                  &law, 
+                                                  body_force,
+                                                  1.0,
+                                                  "nonlin_elas_non_zero_bcs",
+                                                  fixed_nodes,
+                                                  &locations);
+
+        assembler.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
+                                                  
+        assembler.Solve();
+        
+        std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
+        
+        for(unsigned i=0; i<fixed_nodes.size(); i++)
+        {
+            unsigned index = fixed_nodes[i];
+            TS_ASSERT_DELTA(r_solution[index](0), locations[i](0), 1e-8);
+            TS_ASSERT_DELTA(r_solution[index](1), locations[i](1), 1e-8);
+        }
+        
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double exact_x = (1.0/lambda)*mesh.GetNode(i)->rGetLocation()[0];
+            double exact_y = lambda*mesh.GetNode(i)->rGetLocation()[1];
+            
+            TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-6 );
+            TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-6 );
+        }
+        
+        for(unsigned i=0; i<mesh.GetNumVertices(); i++)
+        {
+            TS_ASSERT_DELTA( assembler.rGetPressures()[i], 2*c1*lambda*lambda, 1e-6 );
+        } 
     }
 };
 

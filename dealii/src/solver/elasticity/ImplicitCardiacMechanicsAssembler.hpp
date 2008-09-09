@@ -275,7 +275,7 @@ private:
             }
             catch (Exception& e)
             {
-                LOG(1, "\nCAUGHT EXCEPTION!!\n");
+                LOG(2, "\nCAUGHT EXCEPTION!!\n");
                 active_tension = 1e10;
                 if(assembleJacobian) EXCEPTION("Failed");
             }
@@ -316,7 +316,7 @@ private:
             }
             catch (Exception& e)
             {
-                LOG(1, "WARNING!\n");
+                LOG(2, "WARNING!\n");
                 active_tension = 1e10;
                 // should have done something abouve..
             }

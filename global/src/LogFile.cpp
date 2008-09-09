@@ -38,6 +38,7 @@ LogFile::LogFile()
     mFileSet = false;
     mLevel = 0;
     mInitTime = time(NULL);
+    mPrecision = 6;
 }
 
 
@@ -118,4 +119,11 @@ void LogFile::WriteElapsedTime(std::string pre)
 bool LogFile::IsFileSet()
 {
     return mFileSet;
+}
+
+
+void LogFile::SetPrecision(unsigned precision)
+{
+    assert(precision>0);
+    mPrecision = precision;
 }

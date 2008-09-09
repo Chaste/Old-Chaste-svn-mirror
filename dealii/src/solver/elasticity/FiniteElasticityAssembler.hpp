@@ -266,7 +266,7 @@ public:
      *  @param whether to write output (which will be the solution at the end of every
      *  Newton iteration) to the output directory (if one exists). Defaults to true.
      */
-    virtual void StaticSolve(bool writeOutput=true);
+    virtual void StaticSolve(bool writeOutput=true, double tol = -1.0);
 
 
     /**

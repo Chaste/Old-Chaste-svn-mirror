@@ -803,7 +803,7 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians(double tol)
 
 
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput)
+void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput, double tol)
 {
     if (mMaterialLaws.size()==0)
     {
@@ -833,13 +833,16 @@ void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput)
 
     // use the larger of the tolerances formed from the absolute or
     // relative possibilities
-    double tol = NEWTON_ABS_TOL;
-    if ( tol < NEWTON_REL_TOL*norm_resid )
+    if(tol<0) // ie if wasn't passed in as a parameter
     {
-        tol = NEWTON_REL_TOL*norm_resid;
+        tol = NEWTON_ABS_TOL;
+        if ( tol < NEWTON_REL_TOL*norm_resid )
+        {
+            tol = NEWTON_REL_TOL*norm_resid;
+        }
     }
+    
     std::cout << "Solving with tolerance " << tol << "\n";
-
 
     while (norm_resid > tol)
     {

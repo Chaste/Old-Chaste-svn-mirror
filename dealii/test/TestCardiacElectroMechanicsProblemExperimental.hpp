@@ -50,7 +50,7 @@ public:
     MyCellFactory() : AbstractCardiacCellFactory<2>()
     {
         mpStimulus = new RegularStimulus(-600, 0.5, 100000, 0.0);
-        LOG(1, "Using RegularStimulus(-600, 0.5, 100000, 0.0)\n");
+        LOG(2, "Using RegularStimulus(-600, 0.5, 100000, 0.0)\n");
     }
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

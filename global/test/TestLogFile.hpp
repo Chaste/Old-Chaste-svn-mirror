@@ -84,6 +84,9 @@ public:
 
         (*p_log_file) << ".. and another bit\n";
 
+        p_log_file->SetPrecision(9);
+        (*p_log_file) << M_PI << "\n";
+
         (*LogFile::Instance()) << "..and one final bit\n";
         LogFile::Close();
 

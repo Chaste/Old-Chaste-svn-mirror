@@ -186,6 +186,32 @@ public:
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[0], 1.0, 1e-6);
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
 
+        // test boundary elements
+        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            TS_ASSERT_EQUALS((*iter)->GetNumNodes(), 3u);
+
+            bool all_x_zero =     (fabs((*iter)->GetNode(0)->rGetLocation()[0])<1e-6)
+                               && (fabs((*iter)->GetNode(1)->rGetLocation()[0])<1e-6)
+                               && (fabs((*iter)->GetNode(2)->rGetLocation()[0])<1e-6);
+
+            bool all_x_one  =     (fabs((*iter)->GetNode(0)->rGetLocation()[0] - 1.0)<1e-6)
+                               && (fabs((*iter)->GetNode(1)->rGetLocation()[0] - 1.0)<1e-6)
+                               && (fabs((*iter)->GetNode(2)->rGetLocation()[0] - 1.0)<1e-6);
+
+            bool all_y_zero =     (fabs((*iter)->GetNode(0)->rGetLocation()[1])<1e-6)
+                               && (fabs((*iter)->GetNode(1)->rGetLocation()[1])<1e-6)
+                               && (fabs((*iter)->GetNode(2)->rGetLocation()[1])<1e-6);
+
+            bool all_y_one  =     (fabs((*iter)->GetNode(0)->rGetLocation()[1] - 1.0)<1e-6)
+                               && (fabs((*iter)->GetNode(1)->rGetLocation()[1] - 1.0)<1e-6)
+                               && (fabs((*iter)->GetNode(2)->rGetLocation()[1] - 1.0)<1e-6);
+        
+            TS_ASSERT_EQUALS(true, all_x_zero || all_x_one || all_y_zero || all_y_one);
+        }
     }
     
     void TestWritingAndReadingMesh2() throw(Exception)

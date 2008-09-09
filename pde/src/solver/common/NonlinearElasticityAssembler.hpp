@@ -60,9 +60,18 @@ class NonlinearElasticityAssembler
 friend class TestNonlinearElasticityAssembler;
     
 private:
+    /*< Maximum absolute tolerance for newton solve  */
+    static const double MAX_NEWTON_ABS_TOL = 1e-8;
+    /*< Minimum absolute tolerance for newton solve  */
+    static const double MIN_NEWTON_ABS_TOL = 1e-12;
+    /*< Relative tolerance for newton solve  */
+    static const double NEWTON_REL_TOL = 1e-4;
+
     static const unsigned NUM_VERTICES_PER_ELEMENT = DIM+1;
     static const unsigned NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
     static const unsigned STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT; 
+    static const unsigned NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
+    static const unsigned BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM; 
 
     /**
      *  The mesh to be solved on. Requires 6 nodes per triangle (or 10 per tetrahedron)
@@ -85,10 +94,14 @@ private:
     c_vector<double,DIM> mBodyForce;
     /*< Mass density of the undeformed body (equal to the density of deformed body) */
     double mDensity;
-    /*< All nodes (including non-vertices) which are fixed */
-    std::vector<unsigned>& mrFixedNodes;
+
     /*< Where to write output, relative to CHASTE_TESTOUTPUT */
     std::string mOutputDirectory;
+    /*< All nodes (including non-vertices) which are fixed */
+    std::vector<unsigned> mFixedNodes;
+    /*< The displacements of those nodes with displacement boundary conditions */
+    std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
+
     /*< Whether to write any output */
     bool mWriteOutput;
     
@@ -100,6 +113,7 @@ private:
     std::vector<double> mCurrentSolution;
     
     GaussianQuadratureRule<DIM>* mpQuadratureRule;
+    GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
     
     /** 
      * Number of degrees of freedom, equal to DIM*N + M,
@@ -116,11 +130,6 @@ private:
     /*< Number of newton iterations taken in last solve */
     unsigned mNumNewtonIterations;
     
-    /*< Absolute tolerance for newton solve  */
-    static const double MAX_NEWTON_ABS_TOL = 1e-8;
-    static const double MIN_NEWTON_ABS_TOL = 1e-12;
-    /*< Relative tolerance for newton solve  */
-    static const double NEWTON_REL_TOL = 1e-4;
     
     /*< Deformed position: mDeformedPosition[i](j) = x_j for node i */
     std::vector<c_vector<double,DIM> > mDeformedPosition;
@@ -130,6 +139,14 @@ private:
      *  vertex i).
      */
     std::vector<double> mPressures;
+
+    /*< Boundary elements with (non-zero) surface tractions defined on them */
+    std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
+    /**
+     *  The surface tractions (which should really be non-zero) 
+     *  for the boundary elements in mBoundaryElements
+     */
+    std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
     /** 
      *  Assemble residual or jacobian on an element, using the current solution
@@ -387,7 +404,44 @@ private:
                 }
             }
         }
-    }                           
+    }
+    
+    /**
+     *  Compute the term from the surface integral of s*phi, where s is
+     *  a specified non-zero surface traction (ie Neumann boundary condition)
+     *  to be added to the Rhs vector.
+     */
+    void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
+                                   c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
+                                   c_vector<double,DIM>& rTraction)
+    {
+        rBelem.clear();
+
+        c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
+
+        for (unsigned quad_index=0; quad_index<mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
+        {
+            double jacobian_determinant = rBoundaryElement.GetJacobianDeterminant();
+            double wJ = jacobian_determinant * mpBoundaryQuadratureRule->GetWeight(quad_index);
+
+            const ChastePoint<DIM-1>& quad_point = mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
+
+            QuadraticBasisFunction<DIM-1>::ComputeBasisFunctions(quad_point, phi);
+            
+            for(unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
+            {
+                unsigned spatial_dim = index%DIM;
+                unsigned node_index = (index-spatial_dim)/DIM;
+
+                assert(node_index < NUM_NODES_PER_BOUNDARY_ELEMENT);
+
+                rBelem(index) -=    rTraction(spatial_dim)
+                                  * phi(node_index)
+                                  * wJ;
+            }
+        }
+
+    }
 
 
     /**
@@ -435,22 +489,24 @@ private:
     
     
     /**
-     *  Apply the boundary conditions to the linear system
+     *  Apply the dirichlet boundary conditions to the linear system
      */   
     void ApplyBoundaryConditions(bool applyToMatrix)
     {
+        assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
+        
         // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values
         // on the boundary nodes. However:
         // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
         // u the negative update vector and f is the residual is
         // u=current_soln-boundary_values on the boundary nodes
-        for(unsigned i=0; i<mrFixedNodes.size(); i++)
+        for(unsigned i=0; i<mFixedNodes.size(); i++)
         {
-            unsigned node_index = mrFixedNodes[i];
+            unsigned node_index = mFixedNodes[i];
             for(unsigned j=0; j<DIM; j++)
             {
                 unsigned dof_index = DIM*node_index+j;
-                double value = mCurrentSolution[dof_index] - 0.0;
+                double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
                 if (applyToMatrix)
                 {
                     mpLinearSystem->ZeroMatrixRow(dof_index);
@@ -630,7 +686,45 @@ private:
     
             iter++;
         }
-    
+        
+        ////////////////////////////////////////////////////////////
+        // loop over specified boundary elements and compute
+        // surface traction terms 
+        ////////////////////////////////////////////////////////////
+        c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
+        if(assembleResidual && mBoundaryElements.size()>0)
+        {
+            for(unsigned i=0; i<mBoundaryElements.size(); i++)
+            {
+                BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mBoundaryElements[i]);
+                AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, mSurfaceTractions[i]);
+
+                unsigned p_indices[BOUNDARY_STENCIL_SIZE];
+                for(unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
+                {
+                    for(unsigned j=0; j<DIM; j++)
+                    {
+                        p_indices[DIM*i+j] = DIM*r_boundary_element.GetNodeGlobalIndex(i) + j;
+                    }
+                }
+
+                for(unsigned i=0; i<DIM /*vertices per boundary elem */; i++)
+                {
+                    p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
+                }
+
+                mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
+                
+                // some extra checking
+                if(DIM==2)
+                {   
+                    assert(8==BOUNDARY_STENCIL_SIZE);
+                    assert(b_boundary_elem(6)==0);
+                    assert(b_boundary_elem(7)==0);
+                }
+            }
+        }
+
         if (assembleResidual)
         {
             mpLinearSystem->AssembleRhsVector();
@@ -653,16 +747,16 @@ private:
         }
     }
 
-    void Initialise()
+    void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
     {
         assert(DIM==2 || DIM==3);
         assert(mpQuadMesh);
         assert(mDensity > 0);
         
-        assert(mrFixedNodes.size()>0);
-        for(unsigned i=0; i<mrFixedNodes.size(); i++)
+        assert(mFixedNodes.size()>0);
+        for(unsigned i=0; i<mFixedNodes.size(); i++)
         {
-            assert(mrFixedNodes[i] < mpQuadMesh->GetNumNodes());
+            assert(mFixedNodes[i] < mpQuadMesh->GetNumNodes());
         }
 
         mWriteOutput = (mOutputDirectory != "");
@@ -671,8 +765,32 @@ private:
         mpLinearSystem = new LinearSystem(mNumDofs);
 
         mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
+        mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
         
         FormInitialGuess();
+
+        // compute the displacements at each of the fixed nodes, given the
+        // fixed nodes locations.
+        if(pFixedNodeLocations == NULL)
+        {
+            mFixedNodeDisplacements.clear();
+            for(unsigned i=0; i<mFixedNodes.size(); i++)
+            {
+                mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
+            }
+        }
+        else
+        {
+            assert(pFixedNodeLocations->size()==mFixedNodes.size());
+            for(unsigned i=0; i<mFixedNodes.size(); i++)
+            {
+                unsigned index = mFixedNodes[i];
+                c_vector<double,DIM> displacement = (*pFixedNodeLocations)[i]-mpQuadMesh->GetNode(index)->rGetLocation();
+                mFixedNodeDisplacements.push_back(displacement);
+            }
+        }
+        assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
+
     }
 
 
@@ -686,18 +804,20 @@ public:
                                  AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw,
                                  c_vector<double,DIM> bodyForce,
                                  double density,
-                                 std::vector<unsigned>& rFixedNodes,
-                                 std::string outputDirectory = "")
+                                 std::string outputDirectory,
+                                 std::vector<unsigned>& fixedNodes,
+                                 std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL)
         : mpQuadMesh(pQuadMesh),
           mBodyForce(bodyForce),
           mDensity(density),
-          mrFixedNodes(rFixedNodes),
-          mOutputDirectory(outputDirectory)
+          mOutputDirectory(outputDirectory),
+          mFixedNodes(fixedNodes)
     {
         assert(pMaterialLaw != NULL);
         mMaterialLaws.push_back(pMaterialLaw);
 
-        Initialise();
+        Initialise(pFixedNodeLocations);
+
     }
 
 
@@ -705,13 +825,14 @@ public:
                                  std::vector<AbstractIncompressibleMaterialLaw2<DIM>*>& rMaterialLaws,
                                  c_vector<double,DIM> bodyForce,
                                  double density,
-                                 std::vector<unsigned>& rFixedNodes,
-                                 std::string outputDirectory = "")
+                                 std::string outputDirectory,
+                                 std::vector<unsigned>& fixedNodes,
+                                 std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL)
         : mpQuadMesh(pQuadMesh),
           mBodyForce(bodyForce),
           mDensity(density),
-          mrFixedNodes(rFixedNodes),
-          mOutputDirectory(outputDirectory)
+          mOutputDirectory(outputDirectory),
+          mFixedNodes(fixedNodes)
     {
         assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
         
@@ -722,7 +843,7 @@ public:
             mMaterialLaws[i] = rMaterialLaws[i];
         }
 
-        Initialise();
+        Initialise(pFixedNodeLocations);
     }
 
     
@@ -730,6 +851,20 @@ public:
     {
         delete mpLinearSystem;
         delete mpQuadratureRule;
+        delete mpBoundaryQuadratureRule;
+    }
+    
+    /**
+     *  Specify traction boundary conditions (if this is not called zero surface
+     *  tractions are assumed. This method takes in a list of boundary elements
+     *  and a corresponding list of surface tractions
+     */
+    void SetSurfaceTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
+                                              std::vector<c_vector<double,DIM> >& rSurfaceTractions)
+    {
+        assert(rBoundaryElements.size()==rSurfaceTractions.size());
+        mBoundaryElements = rBoundaryElements;
+        mSurfaceTractions = rSurfaceTractions;
     }
     
     /** 
@@ -794,7 +929,7 @@ public:
                 #undef COVERAGE_IGNORE
             }
         }
-    
+
         if (norm_resid > tol)
         {
             #define COVERAGE_IGNORE

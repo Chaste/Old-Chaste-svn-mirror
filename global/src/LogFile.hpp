@@ -32,7 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include "OutputFileHandler.hpp"
+#include <iostream>
 #include <cassert>
+#include <iomanip>
 
 /**
  *  A singleton log file class. Allows the user to define log file in the test, which
@@ -80,6 +82,9 @@ private:
     /** the max level of logging */
     static const unsigned mMaxLoggingLevel = 2;
 
+    /** the precision with which to output data */
+    unsigned mPrecision;
+
     /**
      *  Constructor. Should never be called directly, call LogFile::Instance() instead.
      */
@@ -109,6 +114,12 @@ public:
 
     /** Get the maximum allowed logging level */
     static unsigned MaxLoggingLevel();
+    
+    /**
+     *  Set the precision to write data (the 'decimal precision', look up 
+     *  documentation for std::setprecision()).
+     */
+    void SetPrecision(unsigned precision);
 
     /**
      *  Write a header in the log file, stating the (given) type of simulation and the
@@ -144,7 +155,7 @@ public:
     {
         if(mFileSet)
         {
-            (*mpOutStream) << message << std::flush;
+            (*mpOutStream) << std::setprecision((int)mPrecision) << message << std::flush;
         }
 
         return *this;

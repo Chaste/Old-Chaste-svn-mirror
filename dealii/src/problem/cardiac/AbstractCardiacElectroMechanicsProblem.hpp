@@ -213,7 +213,7 @@ protected :
         }
         else
         {
-            LOG_AND_COUT(1,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
+            LOG_AND_COUT(2,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
             mWatchedElectricsNodeIndex = node_index;
         }
 
@@ -257,7 +257,7 @@ protected :
         }
         else
         {
-            LOG_AND_COUT(1,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
+            LOG_AND_COUT(2,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
             mWatchedMechanicsNodeIndex = node_index;
         }
 
@@ -344,12 +344,12 @@ public :
         // Create the Logfile (note we have to do this after the output dir has been
         // created, else the log file might get cleaned away
         std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
-        LogFile::Instance()->Set(1, mOutputDirectory);
+        LogFile::Instance()->Set(2, mOutputDirectory);
         LogFile::Instance()->WriteHeader("Electromechanics");
-        LOG(1, DIM << "d Implicit CardiacElectroMechanics Simulation:");
-        LOG(1, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
-        LOG(1, "Nhs ode timestep " << mNhsOdeTimeStep);
-        LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
+        LOG(2, DIM << "d Implicit CardiacElectroMechanics Simulation:");
+        LOG(2, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
+        LOG(2, "Nhs ode timestep " << mNhsOdeTimeStep);
+        LOG(2, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
 
         // by default we don't use the direct solver, as not all machines are
         // set up to use UMFPACK yet. However, it is MUCH better than GMRES.
@@ -382,7 +382,7 @@ public :
      */
     void Initialise()
     {
-        LOG(1, "Initialising meshes and cardiac mechanics assembler..");
+        LOG(2, "Initialising meshes and cardiac mechanics assembler..");
 
         assert(mpElectricsMesh==NULL);
         assert(mpMechanicsMesh==NULL);
@@ -521,10 +521,10 @@ public :
 
         while (!stepper.IsTimeAtEnd())
         {
-            LOG(1, "\nCurrent time = " << stepper.GetTime());
+            LOG(2, "\nCurrent time = " << stepper.GetTime());
             std::cout << "\n\n ** Current time = " << stepper.GetTime();
 
-            LOG(1, "  Solving electrics");
+            LOG(2, "  Solving electrics");
             for(unsigned i=0; i<mNumElecStepsPerMechStep; i++)
             {
                 double current_time = stepper.GetTime() + i*mElectricsTimeStep;
@@ -541,11 +541,11 @@ public :
                 VecMin(voltage,PETSC_NULL,&min_voltage);
                 if(i==0)
                 {
-                    LOG(1, "  minimum and maximum voltage is " << min_voltage <<", "<<max_voltage);
+                    LOG(2, "  minimum and maximum voltage is " << min_voltage <<", "<<max_voltage);
                 }
                 else if(i==1)
                 {
-                    LOG(1, "  ..");
+                    LOG(2, "  ..");
                 }
 
                 VecDestroy(initial_voltage);
@@ -560,7 +560,7 @@ public :
             //   Explicit: Set Ca_I on the nhs systems and solve them to get the active tension
             //   Implicit: Set Ca_I on the mechanics solver
 
-            LOG(1, "  Interpolating Ca_I\n  (and solving NHS models if explicit)");
+            LOG(2, "  Interpolating Ca_I\n  (and solving NHS models if explicit)");
             for(unsigned i=0; i<mElementAndWeightsForQuadPoints.size(); i++)
             {
                 double interpolated_Ca_I = 0;
@@ -577,7 +577,7 @@ public :
                 forcing_quantity[i] = interpolated_Ca_I;
             }
 
-            LOG(1, "  Setting Ca_I. max value = " << Max(forcing_quantity));
+            LOG(2, "  Setting Ca_I. max value = " << Max(forcing_quantity));
 
             // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
             // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
@@ -586,12 +586,12 @@ public :
             mpCardiacMechAssembler->SetForcingQuantity(forcing_quantity);
 
             // solve the mechanics
-            LOG(1, "  Solving mechanics ");
+            LOG(2, "  Solving mechanics ");
             //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
             mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
 
             unsigned num_iters = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->GetNumNewtonIterations();
-            LOG(1, "    Number of newton iterations = " << num_iters);
+            LOG(2, "    Number of newton iterations = " << num_iters);
 
             PostSolve(stepper.GetTime());
 
@@ -604,7 +604,7 @@ public :
             // output the results
             if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
             {
-                LOG(1, "  Writing output");
+                LOG(2, "  Writing output");
                 // write deformed position
                 mech_writer_counter++;
                 dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);

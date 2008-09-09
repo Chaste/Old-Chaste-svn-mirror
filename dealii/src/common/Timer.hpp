@@ -50,7 +50,7 @@ public:
     {
         double time = (std::clock() - StartTime)/(CLOCKS_PER_SEC+0.0); //0.0 is to ensure double division
         std::cout << message << " time is " << time << "s\n" << std::flush;
-        LOG(1,"    " << message << " time is "<< time <<"s");
+        LOG(2,"    " << message << " time is "<< time <<"s");
     }
 
     static void PrintAndReset(std::string message)

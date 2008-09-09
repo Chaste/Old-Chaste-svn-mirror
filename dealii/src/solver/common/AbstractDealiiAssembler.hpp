@@ -375,18 +375,6 @@ protected:
     }
 
     /**
-     *  Compute the L2 norm of the current residual vector divided by it's length.
-     *
-     *  This method obviously only makes sense if the assembler is for a nonlinear
-     *  PDE, and assumes mRhsVector is the residual vector.
-     *
-     */
-    double CalculateResidualNorm()
-    {
-        return sqrt(mRhsVector.norm_sqr())/mDofHandler.n_dofs();
-    }
-
-    /**
      *  Take one Newton step.
      *
      *  This method obviously only makes sense if the assembler is for a nonlinear
@@ -814,6 +802,19 @@ public :
      {
         mUseDirectSolver = true;
      }
+
+
+    /**
+     *  Compute the L2 norm of the current residual vector divided by it's length.
+     *
+     *  This method obviously only makes sense if the assembler is for a nonlinear
+     *  PDE, and assumes mRhsVector is the residual vector.
+     *
+     */
+    double CalculateResidualNorm()
+    {
+        return sqrt(mRhsVector.norm_sqr())/mDofHandler.n_dofs();
+    }
 };
 
 #endif /*ABSTRACTDEALIIASSEMBLER_HPP_*/

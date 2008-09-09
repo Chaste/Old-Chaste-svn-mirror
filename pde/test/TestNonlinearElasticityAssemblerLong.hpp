@@ -65,8 +65,8 @@ public:
                                                   &law, 
                                                   body_force,
                                                   1.0,
-                                                  fixed_nodes,
-                                                  "simple_nonlin_elas_3d");
+                                                  "simple_nonlin_elas_3d",
+                                                  fixed_nodes);
                                                   
         assembler.Solve();
         

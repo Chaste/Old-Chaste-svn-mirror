@@ -100,8 +100,8 @@ public:
 
         GridGenerator::subdivided_hyper_rectangle(*(this->mpMechanicsMesh), repetitions, zero, opposite_corner);
 
-        LOG(1, "Width of meshes is " << width);
-        LOG(1, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->n_vertices() << "\n");
+        LOG(2, "Width of meshes is " << width);
+        LOG(2, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->n_vertices() << "\n");
     }
 
 
