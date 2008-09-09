@@ -32,17 +32,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // of the finite elasticity assembler in the dealii folder.
 
 //factor out Dof handling?
-
-#include <petsc.h>
-#include <vector>
-#include <cmath>
-#include "PetscTools.hpp"
+#include "AbstractNonlinearElasticityAssembler.hpp"
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include "QuadraticMesh.hpp"
-#include "LinearSystem.hpp"
-#include "GaussianQuadratureRule.hpp"
-#include "AbstractIncompressibleMaterialLaw2.hpp"
 
 /**
  *  Finite elasticity assembler. Solves static incompressible nonlinear elasticity 
@@ -55,18 +48,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  tractions on the rest of the boundary.
  */ 
 template<unsigned DIM>
-class NonlinearElasticityAssembler
+class NonlinearElasticityAssembler : public AbstractNonlinearElasticityAssembler<DIM>
 {
 friend class TestNonlinearElasticityAssembler;
     
 private:
-    /*< Maximum absolute tolerance for newton solve  */
-    static const double MAX_NEWTON_ABS_TOL = 1e-8;
-    /*< Minimum absolute tolerance for newton solve  */
-    static const double MIN_NEWTON_ABS_TOL = 1e-12;
-    /*< Relative tolerance for newton solve  */
-    static const double NEWTON_REL_TOL = 1e-4;
-
     static const unsigned NUM_VERTICES_PER_ELEMENT = DIM+1;
     static const unsigned NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
     static const unsigned STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT; 
@@ -78,75 +64,10 @@ private:
      *  as quadratic bases are used.
      */
     QuadraticMesh<DIM>* mpQuadMesh;
-    /**
-     *  The material laws for each element. This will either be of size
-     *  1 (same material law for all elements, ie homogeneous), or size
-     *  num_elem.
-     */
-    std::vector<AbstractIncompressibleMaterialLaw2<DIM>*> mMaterialLaws;
-    /**
-     *  The linear system where we store all residual vectors which are calculated
-     *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
-     *  methods explicitly (in order to easily set num restarts etc). In the future
-     *  it'll be solved using the UMFPACK direct method */ 
-    LinearSystem* mpLinearSystem;
-    /*< Body force vector */
-    c_vector<double,DIM> mBodyForce;
-    /*< Mass density of the undeformed body (equal to the density of deformed body) */
-    double mDensity;
 
-    /*< Where to write output, relative to CHASTE_TESTOUTPUT */
-    std::string mOutputDirectory;
-    /*< All nodes (including non-vertices) which are fixed */
-    std::vector<unsigned> mFixedNodes;
-    /*< The displacements of those nodes with displacement boundary conditions */
-    std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
-
-    /*< Whether to write any output */
-    bool mWriteOutput;
-    
-    /** 
-     *  The current solution, in the form (in 2d)
-     *  [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
-     *  where there are N total nodes and M vertices
-     */
-    std::vector<double> mCurrentSolution;
-    
-    GaussianQuadratureRule<DIM>* mpQuadratureRule;
-    GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
-    
-    /** 
-     * Number of degrees of freedom, equal to DIM*N + M,
-     * where there are N total nodes and M vertices
-     */ 
-    unsigned mNumDofs;
-
-    /** 
-     *  Storage space for a 4th order tensor used in assembling the 
-     *  Jacobian (to avoid repeated memory allocation)
-     */
-    FourthOrderTensor2<DIM> dTdE;
-    
-    /*< Number of newton iterations taken in last solve */
-    unsigned mNumNewtonIterations;
-    
-    
-    /*< Deformed position: mDeformedPosition[i](j) = x_j for node i */
-    std::vector<c_vector<double,DIM> > mDeformedPosition;
-
-    /** 
-     *  The solution pressures. mPressures[i] = pressure at node i (ie
-     *  vertex i).
-     */
-    std::vector<double> mPressures;
 
     /*< Boundary elements with (non-zero) surface tractions defined on them */
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
-    /**
-     *  The surface tractions (which should really be non-zero) 
-     *  for the boundary elements in mBoundaryElements
-     */
-    std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
     /** 
      *  Assemble residual or jacobian on an element, using the current solution
@@ -181,7 +102,7 @@ private:
         {
             for(unsigned JJ=0; JJ<DIM; JJ++)
             {
-                element_current_displacements(JJ,II) = mCurrentSolution[DIM*rElement.GetNodeGlobalIndex(II) + JJ];
+                element_current_displacements(JJ,II) = this->mCurrentSolution[DIM*rElement.GetNodeGlobalIndex(II) + JJ];
             }
         }
 
@@ -190,7 +111,7 @@ private:
         ///////////////////////////////////////////////
         for(unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
         {
-            element_current_pressures(II) = mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
+            element_current_pressures(II) = this->mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
         }
 
         // allocate memory for the basis functions values and derivative values
@@ -200,16 +121,16 @@ private:
 
         // get the material law
         AbstractIncompressibleMaterialLaw2<DIM>* p_material_law;
-        if(mMaterialLaws.size()==1)
+        if(this->mMaterialLaws.size()==1)
         {
             // homogeneous
-            p_material_law = mMaterialLaws[0];
+            p_material_law = this->mMaterialLaws[0];
         }
         else
         {
             // heterogeneous
             #define COVERAGE_IGNORE // not going to have tests in cts for everything
-            p_material_law = mMaterialLaws[rElement.GetIndex()];
+            p_material_law = this->mMaterialLaws[rElement.GetIndex()];
             #undef COVERAGE_IGNORE
         }
         
@@ -219,11 +140,11 @@ private:
         //// loop over Gauss points
         //////////////////////////////////////////////////
         //////////////////////////////////////////////////
-        for (unsigned quadrature_index=0; quadrature_index < mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
+        for (unsigned quadrature_index=0; quadrature_index < this->mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
         {
-            double wJ = jacobian_determinant * mpQuadratureRule->GetWeight(quadrature_index);
+            double wJ = jacobian_determinant * this->mpQuadratureRule->GetWeight(quadrature_index);
 
-            const ChastePoint<DIM>& quadrature_point = mpQuadratureRule->rGetQuadPoint(quadrature_index);
+            const ChastePoint<DIM>& quadrature_point = this->mpQuadratureRule->rGetQuadPoint(quadrature_index);
 
             //////////////////////////////////////
             // set up basis function info
@@ -279,7 +200,7 @@ private:
     
             double detF = Determinant(F);
     
-            p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,dTdE,assembleJacobian);
+            p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
 
             /////////////////////////////////////////
             // residual vector
@@ -293,8 +214,8 @@ private:
 
                     assert(node_index < NUM_NODES_PER_ELEMENT);
 
-                    rBElem(index) +=  - mDensity 
-                                      * mBodyForce(spatial_dim)
+                    rBElem(index) +=  - this->mDensity 
+                                      * this->mBodyForce(spatial_dim)
                                       * quad_phi(node_index)
                                       * wJ;
 
@@ -349,7 +270,7 @@ private:
                                     for (unsigned Q=0; Q<DIM; Q++)
                                     {
                                         rAElem(index1,index2)  +=   0.5
-                                                                  * dTdE(M,N,P,Q)
+                                                                  * this->dTdE(M,N,P,Q)
                                                                   * (
                                                                       grad_quad_phi(P,node_index2)
                                                                     * F(spatial_dim2,Q)
@@ -419,12 +340,12 @@ private:
 
         c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
 
-        for (unsigned quad_index=0; quad_index<mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
+        for (unsigned quad_index=0; quad_index<this->mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
         {
             double jacobian_determinant = rBoundaryElement.GetJacobianDeterminant();
-            double wJ = jacobian_determinant * mpBoundaryQuadratureRule->GetWeight(quad_index);
+            double wJ = jacobian_determinant * this->mpBoundaryQuadratureRule->GetWeight(quad_index);
 
-            const ChastePoint<DIM-1>& quad_point = mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
+            const ChastePoint<DIM-1>& quad_point = this->mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
 
             QuadraticBasisFunction<DIM-1>::ComputeBasisFunctions(quad_point, phi);
             
@@ -462,162 +383,32 @@ private:
      */
     void FormInitialGuess()
     {
-        mCurrentSolution.resize(mNumDofs, 0.0);
+        this->mCurrentSolution.resize(this->mNumDofs, 0.0);
         
         for(unsigned i=0; i<mpQuadMesh->GetNumElements(); i++)
         {
             double zero_strain_pressure;
-            if(mMaterialLaws.size()==1)
+            if(this->mMaterialLaws.size()==1)
             {
                 // homogeneous
-                zero_strain_pressure = mMaterialLaws[0]->GetZeroStrainPressure();
+                zero_strain_pressure = this->mMaterialLaws[0]->GetZeroStrainPressure();
             }
             else
             {
                 // heterogeneous
-                zero_strain_pressure = mMaterialLaws[i]->GetZeroStrainPressure();
+                zero_strain_pressure = this->mMaterialLaws[i]->GetZeroStrainPressure();
             }
             
             // loop over vertices and set pressure solution to be zero-strain-pressure
             for(unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
             {
                 unsigned index = mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j);
-                mCurrentSolution[ DIM*mpQuadMesh->GetNumNodes() + index ] = zero_strain_pressure;
+                this->mCurrentSolution[ DIM*mpQuadMesh->GetNumNodes() + index ] = zero_strain_pressure;
             }
         }
     }
     
     
-    /**
-     *  Apply the dirichlet boundary conditions to the linear system
-     */   
-    void ApplyBoundaryConditions(bool applyToMatrix)
-    {
-        assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
-        
-        // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values
-        // on the boundary nodes. However:
-        // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
-        // u the negative update vector and f is the residual is
-        // u=current_soln-boundary_values on the boundary nodes
-        for(unsigned i=0; i<mFixedNodes.size(); i++)
-        {
-            unsigned node_index = mFixedNodes[i];
-            for(unsigned j=0; j<DIM; j++)
-            {
-                unsigned dof_index = DIM*node_index+j;
-                double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
-                if (applyToMatrix)
-                {
-                    mpLinearSystem->ZeroMatrixRow(dof_index);
-                    mpLinearSystem->SetMatrixElement(dof_index,dof_index,1);
-                }
-                mpLinearSystem->SetRhsVectorElement(dof_index, value);
-            }
-        }
-    }
-
-    /*< Calculate |r|_2 / length(r), where r is the current residual vector */
-    double CalculateResidualNorm()
-    {
-        double norm;
-        VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
-        return norm/mNumDofs;
-    }
-
-    /** 
-     *  Take one newton step, by solving the linear system -Ju=f, (J the jacobian, f
-     *  the residual, u the update), and picking s such that a_new = a_old + su (a
-     *  the current solution) such |f(a)| is the smallest.
-     */
-    void TakeNewtonStep()
-    {
-        // compute Jacobian
-        //Timer::Reset();
-        AssembleSystem(true, true);
-        //Timer::PrintAndReset("AssembleSystem");
-
-        //Vec solution = mpLinearSystem->Solve();
-        //Timer::PrintAndReset("Solve");
-
-        // solve explicity with Petsc's GMRES method.
-        KSP solver;
-        Vec solution;
-        VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
-        Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
-
-        KSPCreate(MPI_COMM_SELF,&solver);
-        KSPSetOperators(solver, r_jac, r_jac, SAME_NONZERO_PATTERN);
-
-        // set max iterations
-        KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000);
-        KSPSetType(solver,KSPGMRES);
-        KSPGMRESSetRestart(solver,100); // gmres num restarts
-
-        KSPSetFromOptions(solver);
-        KSPSetUp(solver);
-
-        KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
-
-        ReplicatableVector update(solution);
-
-        std::vector<double> old_solution(mNumDofs);
-        for(unsigned i=0; i<mNumDofs; i++)
-        {
-            old_solution[i] = mCurrentSolution[i];
-        }
-
-        double best_norm_resid = DBL_MAX;
-        double best_damping_value = 0.0;
-
-        std::vector<double> damping_values;
-        damping_values.reserve(12);
-        damping_values.push_back(0.0);
-        damping_values.push_back(0.05);
-        for (unsigned i=1; i<=10; i++)
-        {
-            damping_values.push_back((double)i/10.0);
-        }
-
-        for (unsigned i=0; i<damping_values.size(); i++)
-        {
-            for(unsigned j=0; j<mNumDofs; j++)
-            {
-                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update[j];
-            }
-
-            // compute residual
-            AssembleSystem(true, false);
-            double norm_resid = CalculateResidualNorm();
-
-            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
-            if (norm_resid < best_norm_resid)
-            {
-                best_norm_resid = norm_resid;
-                best_damping_value = damping_values[i];
-            }
-        }
-
-        if (best_damping_value == 0.0)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("Residual does not decrease in newton direction, quitting");
-            #undef COVERAGE_IGNORE
-        }
-        else
-        {
-            std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
-        }
-
-        // implement best update and recalculate residual
-        for(unsigned j=0; j<mNumDofs; j++)
-        {
-            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
-        }
-        
-        VecDestroy(solution);
-        KSPDestroy(solver);
-    }
 
     /**
      *  Assemble the residual vector (using the current solution stored
@@ -629,16 +420,16 @@ private:
     {
         // Check we've actually been asked to do something!
         assert(assembleResidual || assembleJacobian);
-        assert(mCurrentSolution.size()==mNumDofs);
+        assert(this->mCurrentSolution.size()==this->mNumDofs);
     
         // Zero the matrix/vector if it is to be assembled
         if (assembleResidual)
         {
-            mpLinearSystem->ZeroRhsVector();
+            this->mpLinearSystem->ZeroRhsVector();
         }
         if (assembleJacobian)
         {
-            mpLinearSystem->ZeroLhsMatrix();
+            this->mpLinearSystem->ZeroLhsMatrix();
         }
     
         // Get an iterator over the elements of the mesh
@@ -675,12 +466,12 @@ private:
     
                 if (assembleJacobian)
                 {
-                    mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
+                    this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
                 }
     
                 if (assembleResidual)
                 {
-                    mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
+                    this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
                 }
             }
     
@@ -697,7 +488,7 @@ private:
             for(unsigned i=0; i<mBoundaryElements.size(); i++)
             {
                 BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mBoundaryElements[i]);
-                AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, mSurfaceTractions[i]);
+                AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, this->mSurfaceTractions[i]);
 
                 unsigned p_indices[BOUNDARY_STENCIL_SIZE];
                 for(unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
@@ -713,7 +504,7 @@ private:
                     p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
                 }
 
-                mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
+                this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
                 
                 // some extra checking
                 if(DIM==2)
@@ -727,45 +518,37 @@ private:
 
         if (assembleResidual)
         {
-            mpLinearSystem->AssembleRhsVector();
+            this->mpLinearSystem->AssembleRhsVector();
         }
         if (assembleJacobian)
         {
-            mpLinearSystem->AssembleIntermediateLhsMatrix();
+            this->mpLinearSystem->AssembleIntermediateLhsMatrix();
         }
 
         // Apply dirichlet boundary conditions
-        ApplyBoundaryConditions(assembleJacobian);
+        this->ApplyBoundaryConditions(assembleJacobian);
     
         if (assembleResidual)
         {
-            mpLinearSystem->AssembleRhsVector();
+            this->mpLinearSystem->AssembleRhsVector();
         }
         if (assembleJacobian)
         {
-            mpLinearSystem->AssembleFinalLhsMatrix();
+            this->mpLinearSystem->AssembleFinalLhsMatrix();
         }
     }
 
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
     {
-        assert(DIM==2 || DIM==3);
         assert(mpQuadMesh);
-        assert(mDensity > 0);
-        
-        assert(mFixedNodes.size()>0);
-        for(unsigned i=0; i<mFixedNodes.size(); i++)
+
+        for(unsigned i=0; i<this->mFixedNodes.size(); i++)
         {
-            assert(mFixedNodes[i] < mpQuadMesh->GetNumNodes());
+            assert(this->mFixedNodes[i] < mpQuadMesh->GetNumNodes());
         }
 
-        mWriteOutput = (mOutputDirectory != "");
-        
-        mNumDofs = DIM*mpQuadMesh->GetNumNodes()+mpQuadMesh->GetNumVertices();
-        mpLinearSystem = new LinearSystem(mNumDofs);
-
-        mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
-        mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
+        this->mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
+        this->mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
         
         FormInitialGuess();
 
@@ -773,24 +556,23 @@ private:
         // fixed nodes locations.
         if(pFixedNodeLocations == NULL)
         {
-            mFixedNodeDisplacements.clear();
-            for(unsigned i=0; i<mFixedNodes.size(); i++)
+            this->mFixedNodeDisplacements.clear();
+            for(unsigned i=0; i<this->mFixedNodes.size(); i++)
             {
-                mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
+                this->mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
             }
         }
         else
         {
-            assert(pFixedNodeLocations->size()==mFixedNodes.size());
-            for(unsigned i=0; i<mFixedNodes.size(); i++)
+            assert(pFixedNodeLocations->size()==this->mFixedNodes.size());
+            for(unsigned i=0; i<this->mFixedNodes.size(); i++)
             {
-                unsigned index = mFixedNodes[i];
+                unsigned index = this->mFixedNodes[i];
                 c_vector<double,DIM> displacement = (*pFixedNodeLocations)[i]-mpQuadMesh->GetNode(index)->rGetLocation();
-                mFixedNodeDisplacements.push_back(displacement);
+                this->mFixedNodeDisplacements.push_back(displacement);
             }
         }
-        assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
-
+        assert(this->mFixedNodeDisplacements.size()==this->mFixedNodes.size());
     }
 
 
@@ -807,17 +589,12 @@ public:
                                  std::string outputDirectory,
                                  std::vector<unsigned>& fixedNodes,
                                  std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL)
-        : mpQuadMesh(pQuadMesh),
-          mBodyForce(bodyForce),
-          mDensity(density),
-          mOutputDirectory(outputDirectory),
-          mFixedNodes(fixedNodes)
+        : AbstractNonlinearElasticityAssembler<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
+                                                    pMaterialLaw, bodyForce, density,
+                                                    outputDirectory, fixedNodes),
+          mpQuadMesh(pQuadMesh)
     {
-        assert(pMaterialLaw != NULL);
-        mMaterialLaws.push_back(pMaterialLaw);
-
         Initialise(pFixedNodeLocations);
-
     }
 
 
@@ -828,30 +605,17 @@ public:
                                  std::string outputDirectory,
                                  std::vector<unsigned>& fixedNodes,
                                  std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL)
-        : mpQuadMesh(pQuadMesh),
-          mBodyForce(bodyForce),
-          mDensity(density),
-          mOutputDirectory(outputDirectory),
-          mFixedNodes(fixedNodes)
+        : AbstractNonlinearElasticityAssembler<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
+                                                    rMaterialLaws, bodyForce, density,
+                                                    outputDirectory, fixedNodes),
+          mpQuadMesh(pQuadMesh)
     {
         assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
-        
-        mMaterialLaws.resize(pQuadMesh->GetNumElements(), NULL);
-        for(unsigned i=0; i<mMaterialLaws.size(); i++)
-        {
-            assert(rMaterialLaws[i] != NULL);
-            mMaterialLaws[i] = rMaterialLaws[i];
-        }
-
         Initialise(pFixedNodeLocations);
     }
 
-    
     ~NonlinearElasticityAssembler()
     {
-        delete mpLinearSystem;
-        delete mpQuadratureRule;
-        delete mpBoundaryQuadratureRule;
     }
     
     /**
@@ -864,82 +628,20 @@ public:
     {
         assert(rBoundaryElements.size()==rSurfaceTractions.size());
         mBoundaryElements = rBoundaryElements;
-        mSurfaceTractions = rSurfaceTractions;
+        this->mSurfaceTractions = rSurfaceTractions;
     }
     
-    /** 
-     *  Solve the problem
-     */    
-    void Solve()
+    
+    std::vector<double>& rGetPressures()
     {
-        if(mWriteOutput)
+        this->mPressures.clear();
+        this->mPressures.resize(mpQuadMesh->GetNumVertices());
+        
+        for(unsigned i=0; i<mpQuadMesh->GetNumVertices(); i++)
         {
-            WriteOutput(0);
+            this->mPressures[i] = this->mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + i];
         }
-    
-        // compute residual
-        AssembleSystem(true, false);
-        double norm_resid = this->CalculateResidualNorm();
-        std::cout << "\nNorm of residual is " << norm_resid << "\n";
-    
-        mNumNewtonIterations = 0;
-        unsigned counter = 1;
-    
-        // use the larger of the tolerances formed from the absolute or
-        // relative possibilities
-        double tol = NEWTON_REL_TOL*norm_resid;
-
-        #define COVERAGE_IGNORE // not going to have tests in cts for everything
-        if(tol > MAX_NEWTON_ABS_TOL)
-        {
-            tol = MAX_NEWTON_ABS_TOL;
-        }
-        if(tol < MIN_NEWTON_ABS_TOL)
-        {
-            tol = MIN_NEWTON_ABS_TOL;
-        }
-        #undef COVERAGE_IGNORE
-
-        std::cout << "Solving with tolerance " << tol << "\n";
-    
-        while (norm_resid > tol)
-        {
-            std::cout <<  "\n-------------------\n"
-                      <<   "Newton iteration " << counter
-                      << ":\n-------------------\n";
-    
-            TakeNewtonStep();
-
-            AssembleSystem(true, false);
-            norm_resid = CalculateResidualNorm();
-    
-            std::cout << "Norm of residual is " << norm_resid << "\n";    
-            if(mWriteOutput)
-            {
-                WriteOutput(counter);
-            }
-    
-            mNumNewtonIterations = counter;
-    
-            counter++;
-            if (counter==20)
-            {
-                #define COVERAGE_IGNORE
-                EXCEPTION("Not converged after 20 newton iterations, quitting");
-                #undef COVERAGE_IGNORE
-            }
-        }
-
-        if (norm_resid > tol)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("Failed to converge");
-            #undef COVERAGE_IGNORE
-        }
-    
-        // we have solved for a deformation so note this
-        //mADeformedHasBeenSolved = true;
-            
+        return this->mPressures;
     }
     
     /**
@@ -947,61 +649,15 @@ public:
      */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition()
     {
-        mDeformedPosition.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
+        this->mDeformedPosition.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
         for(unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
         {
             for(unsigned j=0; j<DIM; j++)
             {
-                mDeformedPosition[i](j) = mpQuadMesh->GetNode(i)->rGetLocation()[j] + mCurrentSolution[DIM*i+j];
+                this->mDeformedPosition[i](j) = mpQuadMesh->GetNode(i)->rGetLocation()[j] + this->mCurrentSolution[DIM*i+j];
             }
         }
-        return mDeformedPosition;
-    }
-
-    /**
-     *  Write the current solution for the file outputdir/solution_[counter].nodes
-     */
-    void WriteOutput(unsigned counter)
-    {
-        // only write output if the flag mWriteOutput has been set
-        if (!mWriteOutput)
-        {
-            return;
-        }
-
-        OutputFileHandler output_file_handler(mOutputDirectory, (counter==0));
-        std::stringstream file_name;
-        file_name << "/solution_" << counter << ".nodes";
-
-        out_stream p_file = output_file_handler.OpenOutputFile(file_name.str());
-
-        std::vector<c_vector<double,DIM> >& r_deformed_position = rGetDeformedPosition();
-        for(unsigned i=0; i<r_deformed_position.size(); i++)
-        {
-            for(unsigned j=0; j<DIM; j++)
-            {
-                *p_file << r_deformed_position[i](j) << " ";
-            } 
-            *p_file << "\n";
-        }
-        p_file->close();
-    }
-    
-    unsigned GetNumNewtonIterations()
-    {
-        return mNumNewtonIterations;
-    }
-    
-    std::vector<double>& rGetPressures()
-    {
-        mPressures.clear();
-        mPressures.resize(mpQuadMesh->GetNumVertices());
-        
-        for(unsigned i=0; i<mpQuadMesh->GetNumVertices(); i++)
-        {
-            mPressures[i] = mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + i];
-        }
-        return mPressures;
+        return this->mDeformedPosition;
     }
 };
 
