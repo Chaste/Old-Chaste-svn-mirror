@@ -147,7 +147,13 @@ public:
         TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
         n98_ode_system.rGetStateVariables()[0] = -100.0;
         TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
- 
+        
+        n98_ode_system.rGetStateVariables()[0] = -100.1;
+        TS_ASSERT_THROWS_ANYTHING(RunOdeSolverWithIonicModel(&n98_ode_system,
+                                   150.0,
+                                   "DoNotRun"));
+        
+        
     }
     
    

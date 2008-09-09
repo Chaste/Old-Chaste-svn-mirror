@@ -471,6 +471,10 @@ public:
     
     Hdf5DataReader GetDataReader()
     {
+        if( (mOutputDirectory=="") || (mOutputFilenamePrefix==""))
+        {
+            EXCEPTION("Data reader invalid as data writer cannot be initialised");
+        }
         return Hdf5DataReader(mOutputDirectory, mOutputFilenamePrefix);
     }
 };

@@ -357,11 +357,11 @@ public:
         
         p_monodomain_problem->Solve();
 
-        delete p_monodomain_problem;
 
         // read data entries for the time file and check correct
         //Hdf5DataReader data_reader1("MonoProblem1d", "mono_testPrintTimes");
         Hdf5DataReader data_reader1= p_monodomain_problem->GetDataReader();
+        delete p_monodomain_problem;
         
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
 
