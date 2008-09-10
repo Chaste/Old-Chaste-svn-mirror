@@ -171,3 +171,9 @@ unsigned AbstractCardiacCell::GetNumSlowValues()
 {
     EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
 }
+
+void AbstractCardiacCell::AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues)
+{
+    EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
+}
+

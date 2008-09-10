@@ -145,6 +145,8 @@ public:
     
     /*< Get whether this cell is a fast or slow version */
     virtual bool IsFast();
+    
+    virtual void AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues);
 
     /**
      *  Pure method for getting the number of slow variables for the cell model
