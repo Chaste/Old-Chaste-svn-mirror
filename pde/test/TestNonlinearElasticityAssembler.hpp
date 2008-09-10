@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
-    void dontTestAssembleSystem() throw (Exception)
+    void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
         ExponentialMaterialLaw2<2> law(2,3);
@@ -162,7 +162,7 @@ public:
     // A test where the solution should be zero displacement
     // It mainly tests that the initial guess was set up correctly to
     // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
-    void dontTestWithZeroDisplacement() throw(Exception)
+    void TestWithZeroDisplacement() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -210,7 +210,7 @@ public:
         }
     }
     
-    void dontTestSettingUpHeterogeneousProblem() throw(Exception)
+    void TestSettingUpHeterogeneousProblem() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -250,7 +250,7 @@ public:
         TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 3], 10.0, 1e-6); 
     }
 
-    void dontTestSolve() throw(Exception)
+    void TestSolve() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -368,7 +368,7 @@ public:
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         std::vector<c_vector<double,2> > tractions;
         c_vector<double,2> traction;
-        traction(0) = 0.01; //2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
+        traction(0) = 2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
         traction(1) = 0;
         for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter 
               = mesh.GetBoundaryElementIteratorBegin();
@@ -389,8 +389,8 @@ public:
                                                   body_force,
                                                   1.0,
                                                   "nonlin_elas_non_zero_bcs",
-                                                  fixed_nodes);//,
-//                                                  &locations);
+                                                  fixed_nodes,
+                                                  &locations);
 
         assembler.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
                                                   

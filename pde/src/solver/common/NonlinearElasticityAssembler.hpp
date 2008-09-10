@@ -503,13 +503,6 @@ private:
                 {
                     p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
                 }
- 
-                for(unsigned i=0; i<BOUNDARY_STENCIL_SIZE; i++)
-                {
-                    std::cout << p_indices[i]  << " ";
-                }
-                std::cout <<"\n";
-                std::cout << b_boundary_elem <<"\n";
 
                 this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
                 
@@ -544,8 +537,7 @@ private:
             this->mpLinearSystem->AssembleFinalLhsMatrix();
         }
     }
-//2 3 6 7 14 15 19 21 
-//[8](-0.00166667,0,-0.00166667,0,-0.00666667,0,0,0)
+
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
     {
         assert(mpQuadMesh);
