@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include "QuadraticMesh.hpp"
+#include "GaussianQuadratureRule.hpp"
 
 /**
  *  Finite elasticity assembler. Solves static incompressible nonlinear elasticity 
@@ -69,6 +70,9 @@ private:
     /*< Boundary elements with (non-zero) surface tractions defined on them */
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
 
+    GaussianQuadratureRule<DIM>* mpQuadratureRule;
+    GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
+    
     /** 
      *  Assemble residual or jacobian on an element, using the current solution
      *  stored in mCurrrentSolution. The ordering assumed is (in 2d)
@@ -616,6 +620,8 @@ public:
 
     ~NonlinearElasticityAssembler()
     {
+        delete mpQuadratureRule;
+        delete mpBoundaryQuadratureRule;
     }
     
     /**

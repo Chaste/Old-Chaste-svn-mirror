@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include "PetscTools.hpp"
 #include "LinearSystem.hpp"
-#include "GaussianQuadratureRule.hpp"
 #include "AbstractIncompressibleMaterialLaw2.hpp"
 #include "OutputFileHandler.hpp"
 
@@ -89,10 +88,6 @@ protected:
      */
     std::vector<double> mCurrentSolution;
     
-    GaussianQuadratureRule<DIM>* mpQuadratureRule;
-    GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
-    
-
     /** 
      *  Storage space for a 4th order tensor used in assembling the 
      *  Jacobian (to avoid repeated memory allocation)
@@ -310,8 +305,6 @@ public:
     virtual ~AbstractNonlinearElasticityAssembler()
     {
         delete mpLinearSystem;
-        delete mpQuadratureRule;
-        delete mpBoundaryQuadratureRule;
     }
     
 

@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestAssembleSystem() throw (Exception)
+    void dontTestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
         ExponentialMaterialLaw2<2> law(2,3);
@@ -162,7 +162,7 @@ public:
     // A test where the solution should be zero displacement
     // It mainly tests that the initial guess was set up correctly to
     // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
-    void TestWithZeroDisplacement() throw(Exception)
+    void dontTestWithZeroDisplacement() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -210,7 +210,7 @@ public:
         }
     }
     
-    void TestSettingUpHeterogeneousProblem() throw(Exception)
+    void dontTestSettingUpHeterogeneousProblem() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -250,7 +250,7 @@ public:
         TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 3], 10.0, 1e-6); 
     }
 
-    void TestSolve() throw(Exception)
+    void dontTestSolve() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -345,8 +345,7 @@ public:
         double lambda = 0.85;
         double c1 = 0.02;
         c_vector<double,2> body_force = zero_vector<double>(2);
-        unsigned num_elem = 1;
-//5;
+        unsigned num_elem = 5;
         
         QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
         MooneyRivlinMaterialLaw2<2> law(c1);
