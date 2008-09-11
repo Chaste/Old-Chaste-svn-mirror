@@ -42,8 +42,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FiniteElasticityTools.hpp"
 
-
-// todos: proper test of answers
+// class for non-zero dirichlet boundary conditions
+class MyFunction : public Function<2>
+{
+private:
+    double mLambda;
+public:
+    MyFunction(double lambda)
+     : Function<2>(3),
+       mLambda(lambda)
+    {
+    }
+    
+    void vector_value(const Point<2>& p, Vector<double> &values) const
+    {
+        assert(values.size()==3);
+        values(0) = 0.0;
+        values(1) = (mLambda-1)*p(1);
+        values(2) = 0.0;
+    }
+};
+    
 
 
 class TestFiniteElasticityAssembler : public CxxTest::TestSuite
@@ -217,7 +236,6 @@ public :
         mesh.refine_global(3);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
 
-
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
                                                        &mooney_rivlin_law,
                                                        body_force,
@@ -298,6 +316,137 @@ public :
         }
 
         TS_ASSERT_DELTA(deformed_volume, 1.0, 1e-2);
+    }
+    
+    
+    /**
+     *  Solve a problem with non-zero dirichlet boundary conditions 
+     *  and non-zero tractions. THIS TEST COMPARES AGAINST AN EXACT SOLUTION.
+     * 
+     *  Choosing the deformation x=X/lambda, y=lambda*Y, with a 
+     *  Mooney-Rivlin material, then
+     *   F = [1/lam 0; 0 lam], T = [2*c1-p*lam^2, 0; 0, 2*c1-p/lam^2], 
+     *   sigma = [2*c1/lam^2-p, 0; 0, 2*c1*lam^2-p].
+     *  Choosing p=2*c1*lam^2, then sigma = [2*c1/lam^2-p 0; 0 0].
+     *  The surface tractions are then 
+     *   TOP and BOTTOM SURFACE: 0
+     *   RHS: s = SN = J*invF*sigma*N = [lam 0; 0 1/lam]*sigma*[1,0] 
+     *          = [2*c1(1/lam-lam^3), 0]
+     * 
+     *  So, we have to specify displacement boundary conditions (y=lam*Y) on 
+     *  the LHS (X=0), and traction bcs (s=the above) on the RHS (X=1), and can
+     *  compare the computed displacement and pressure against the true solution.  
+     * 
+     */
+    void TestSolveWithNonZeroBoundaryConditions() throw(Exception)
+    {
+        double lambda = 0.85;
+        double c1 = 0.02;
+        Vector<double> body_force(2);
+        MooneyRivlinMaterialLaw<2> law(c1);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(3);
+
+  
+        ////////////////////////////////////////////////////////
+        // define dirichlet (X=0) and Neumann (X=1) boundaries
+        ////////////////////////////////////////////////////////
+        unsigned component = 0;
+        double value = 1.0;
+        Triangulation<2>::cell_iterator element_iter = mesh.begin_active();
+        while (element_iter!=mesh.end())
+        {
+            for (unsigned face_index=0; face_index<GeometryInfo<2>::faces_per_cell; face_index++)
+            {
+                if (element_iter->face(face_index)->at_boundary())
+                {
+                    double component_val = element_iter->face(face_index)->center()(component);
+                    if (fabs(component_val)<1e-4)
+                    {
+                        // X=0, label as dirichlet boundary
+                        element_iter->face(face_index)->set_boundary_indicator(DIRICHLET_BOUNDARY);
+                    }
+                    else if (fabs(component_val - value)<1e-4)
+                    {
+                        // X=1, label as neumann boundary
+                        element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
+                    }
+                }
+            }
+            element_iter++;
+        }
+
+        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
+                                                       &law,
+                                                       body_force,
+                                                       1.0,
+                                                       "finite_elas/dealii_non_zero_bcs");
+
+        // apply traction
+        Vector<double> traction(2);
+        traction(0) = 2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
+        traction(1) = 0;
+        finite_elasticity.SetConstantSurfaceTraction(traction);
+
+        //////////////////////////////////////////////////
+        // define non-zero dirichlet boundary conditions
+        //////////////////////////////////////////////////
+        std::map<unsigned,double> boundary_values;
+
+        std::vector<bool> component_mask(2+1); // dim+1
+        component_mask[0] = true;
+        component_mask[1] = true;
+        component_mask[2] = false;
+
+        DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
+        VectorTools::interpolate_boundary_values(dof_handler,
+                                                 DIRICHLET_BOUNDARY,
+                                                 MyFunction(lambda),
+                                                 boundary_values,
+                                                 component_mask);
+
+        assert(!boundary_values.empty());
+        finite_elasticity.SetBoundaryValues(boundary_values);
+
+
+        // solve
+        finite_elasticity.StaticSolve();
+                
+                
+        // compare                            
+        std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
+        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
+        
+        for(unsigned i=0; i < r_deformed_position[0].size(); i++)
+        {
+            double X = r_undeformed_position[0](i);
+            double Y = r_undeformed_position[1](i);
+            double exact_x = (1.0/lambda)*X;
+            double exact_y = lambda*Y;
+            
+            double tol = 1e-6;
+            if(fabs(X)<1e-6)
+            {
+                tol = 1e-9;
+            }
+            
+            TS_ASSERT_DELTA( r_deformed_position[0](i), exact_x, tol );
+            TS_ASSERT_DELTA( r_deformed_position[1](i), exact_y, tol );
+        }
+        
+        // check the final pressure
+        Vector<double>& full_solution = finite_elasticity.rGetCurrentSolution();
+        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
+
+        while (!vertex_iter.ReachedEnd())
+        {
+            // get the pressure at this node
+            double pressure = full_solution(vertex_iter.GetDof(2));
+            TS_ASSERT_DELTA(pressure, 2*c1*lambda*lambda, 1e-6);
+            vertex_iter.Next();
+        }
     }
 };
 #endif /*TESTFINITEELASTICITYASSEMBLER_HPP_*/

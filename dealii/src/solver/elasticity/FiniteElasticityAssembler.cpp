@@ -51,6 +51,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
         mFeSystem(FE_Q<DIM>(degreeOfBasesForPosition), DIM, FE_Q<DIM>(1), degreeOfBasesForPressure),
         mBodyForce(bodyForce),
         mDensity(density),
+        mConstantSurfaceTraction(DIM),
         PRESSURE_COMPONENT_INDEX(DIM) // ie if DIM=2, the space indices are 0 and 1, pressure index is 2
 {
     // distribute dofs
@@ -94,7 +95,8 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
             // essentially checks whether face->boundary_indicator()==255.
             if (element_iter->face(face_index)->at_boundary())
             {
-                if (element_iter->face(face_index)->boundary_indicator()==FIXED_BOUNDARY)
+                if (   element_iter->face(face_index)->boundary_indicator()==FIXED_BOUNDARY 
+                    || element_iter->face(face_index)->boundary_indicator()==DIRICHLET_BOUNDARY)
                 {
                     found_fixed_boundary = true;
                 }
@@ -255,6 +257,13 @@ void FiniteElasticityAssembler<DIM>::SetBoundaryValues(std::map<unsigned,double>
     assert(!mBoundaryValues.empty());
 }
 
+
+template<unsigned DIM>
+void FiniteElasticityAssembler<DIM>::SetConstantSurfaceTraction(Vector<double> traction)
+{
+    assert(traction.size()==DIM);
+    mConstantSurfaceTraction = traction;
+}
 
 template<unsigned DIM>
 AbstractIncompressibleMaterialLaw<DIM>* FiniteElasticityAssembler<DIM>::GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter)
@@ -490,17 +499,13 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 
                 for (unsigned q_point=0; q_point<n_face_q_points; q_point++)
                 {
-                    Vector<double> neumann_traction(DIM); // zeros
-
-                    neumann_traction(1)=0.0;
-
                     for (unsigned i=0; i<dofs_per_element; i++)
                     {
                         const unsigned component_i = mFeSystem.system_to_component_index(i).first;
 
                         if (component_i < PRESSURE_COMPONENT_INDEX)
                         {
-                            elementRhs(i) +=   neumann_traction(component_i)
+                            elementRhs(i) -=   mConstantSurfaceTraction(component_i)
                                              * fe_face_values.shape_value(i,q_point)
                                              * fe_face_values.JxW(q_point);
                         }

@@ -43,8 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
-// TODO: better tests against other code. esp 2d or against other code using quadratics
-
 // fix heterogeneity: !form Initial guess just works with one mat law!
 // then cover heterogeniety
 
@@ -137,6 +135,9 @@ protected:
     Vector<double>       mBodyForce;
     /*< Mass density of the material (currently as if homogeneous material) */
     double               mDensity;
+
+    /*< Constant surface traction for boundary defined as NEUMANN_BOUNDARY */     
+    Vector<double>       mConstantSurfaceTraction;
 
     /*< just set to be DIM, ie if DIM==2 the spatial indices are 0 and 1, the pressure index is 2 */
     const unsigned       PRESSURE_COMPONENT_INDEX;
@@ -276,6 +277,12 @@ public:
      *  difference between the two jacobians.
      */
     void CompareJacobians(double tol=1e-8);
+    
+    /**
+     *  Set a constant surface traction for boundary defined as 
+     *  NEUMANN_BOUNDARY
+     */     
+    void SetConstantSurfaceTraction(Vector<double> traction);
 };
 
 
