@@ -63,6 +63,53 @@ public:
 
         TS_ASSERT_DELTA(ppc.CalculateActionPotentialDuration(50,5),0,0.001);
     }
+    
+    void TestConductionBidomain3D() throw (Exception)
+    {
+        //Note: these data files (from notforrelease/test/TestCardiacFastSlowProblem3D.hpp) are incomplete.
+        unsigned middle_index = 14895U;
+        // unsigned rhs_index = 14910U;
+   
+        
+        Hdf5DataReader simulation_data_fs("heart/test/data/BidomainFastSlow3D",
+                                       "res", false);
+        PropagationPropertiesCalculator properties_fs(&simulation_data_fs);
+
+        /*
+         * From Raf's Matlab/Octave script
+        r4256_Bi_FastSlow_3d
+        Mid APD90: 229.7
+        Mid dv/dt_max: 180.28
+        Mid dv/dt time: 3.2
+        RHS dv/dt time: 5.8
+        CV: 0.057692
+        *
+        */
+        //Failing #785 TS_ASSERT_DELTA(properties_fs.CalculateActionPotentialDuration(90,middle_index), 229.7, 0.1);
+        //Failing #785 TS_ASSERT_DELTA(properties_fs.CalculateConductionVelocity(middle_index, rhs_index, 0.1), 0.057692, 0.001);
+        TS_ASSERT_DELTA(properties_fs.CalculateMaximumUpstrokeVelocity(middle_index), 180.28, 0.01);
+    
+
+        Hdf5DataReader simulation_data_bw("heart/test/data/BidomainBackwardToCompareWithFastSlow3D",
+                                       "res", false);
+        PropagationPropertiesCalculator properties_bw(&simulation_data_bw);
+        /*
+         * From Raf's Matlab/Octave script
+        r4256_Bi_Back_3d
+        Mid APD90: 229.2
+        Mid dv/dt_max: 173.02
+        Mid dv/dt time: 3.3
+        RHS dv/dt time: 6
+        CV: 0.055556
+        *
+        */        
+        //Failing #785 TS_ASSERT_DELTA(properties_bw.CalculateActionPotentialDuration(90,middle_index), 229.2, 0.1);
+        //Failing #785 TS_ASSERT_DELTA(properties_bw.CalculateConductionVelocity(middle_index, rhs_index, 0.1), 0.055556, 0.001);
+        TS_ASSERT_DELTA(properties_bw.CalculateMaximumUpstrokeVelocity(middle_index), 173.02, 0.01);
+        
+        
+        
+    }
 };
 
 #endif //_TESTPROPAGATIONPROPERTIESCALCULATOR_HPP_
