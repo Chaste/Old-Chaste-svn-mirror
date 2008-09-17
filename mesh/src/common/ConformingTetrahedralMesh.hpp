@@ -360,6 +360,21 @@ public:
     std::set<unsigned> CalculateBoundaryOfFlaggedRegion();
 
     /**
+     * Returns distance between two nodes
+     *
+     * @param indexA a node index
+     * @param indexB a node index
+     *
+     * @return straight line distance between two nodes.
+     *
+     * N.B. This calls GetDistanceBetweenNodes which can be overridden 
+     * in daughter classes e.g. Cylindrical2dMesh.  Therefore the distance
+     * is not necessarily Euclidean
+     *
+     */
+    double GetDistanceBetweenNodes(unsigned indexA, unsigned indexB);
+
+    /**
      * Returns a vector between two points in space
      *
      * @param rLocationA a c_vector of co-ordinates
@@ -367,7 +382,7 @@ public:
      *
      * @return vector from location A to location B.
      *
-     * N.B. This can be overwritten in daughter classes
+     * N.B. This can be overridden in daughter classes
      * e.g. Cylindrical2dMesh.
      *
      */
@@ -2587,6 +2602,14 @@ std::set<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateB
 
     return boundary_of_flagged_region;
 }
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
+{
+    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(mNodes[indexA]->rGetLocation(), mNodes[indexB]->rGetLocation());
+    return norm_2(vector);
+}
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB)

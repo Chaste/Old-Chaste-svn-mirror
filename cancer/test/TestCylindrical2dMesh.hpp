@@ -331,12 +331,15 @@ public:
         c_vector<double, 2> vector = p_mesh->GetVectorFromAtoB(location1, location2);
         TS_ASSERT_DELTA(vector[0], 0.5, 1e-7);
         TS_ASSERT_DELTA(vector[1], sqrt(3.0)/2.0, 1e-4);
+        TS_ASSERT_DELTA(norm_2(vector), 1.0, 1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetDistanceBetweenNodes(1, 4), 1.0, 1e-7);
         
         // ...and the opposite vector
         vector = p_mesh->GetVectorFromAtoB(location2, location1);
         TS_ASSERT_DELTA(vector[0], -0.5, 1e-7);
         TS_ASSERT_DELTA(vector[1], -sqrt(3.0)/2.0, 1e-4);
-
+        
+        
         // Test a periodic calculation
         location1[0] = 0.5;
         location1[1] = 3.0;

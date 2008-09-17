@@ -1581,6 +1581,7 @@ public:
         TS_ASSERT_DELTA(vector[1], 0.2, 1e-7);
         TS_ASSERT_DELTA(vector[2], 0.0, 1e-7)
         TS_ASSERT_DELTA(norm_2(vector), sqrt(0.08), 1e-7);
+        TS_ASSERT_DELTA(mesh.GetDistanceBetweenNodes(0, 2), sqrt(0.08), 1e-7);
 
         // and the opposite vector
         vector = mesh.GetVectorFromAtoB(location2, location1);
