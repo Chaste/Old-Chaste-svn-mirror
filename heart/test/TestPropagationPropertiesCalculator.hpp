@@ -68,7 +68,7 @@ public:
     {
         //Note: these data files (from notforrelease/test/TestCardiacFastSlowProblem3D.hpp) are incomplete.
         unsigned middle_index = 14895U;
-        // unsigned rhs_index = 14910U;
+        unsigned rhs_index = 14910U;
    
         
         Hdf5DataReader simulation_data_fs("heart/test/data/BidomainFastSlow3D",
@@ -86,7 +86,7 @@ public:
         *
         */
         //Failing #785 TS_ASSERT_DELTA(properties_fs.CalculateActionPotentialDuration(90,middle_index), 229.7, 0.1);
-        //Failing #785 TS_ASSERT_DELTA(properties_fs.CalculateConductionVelocity(middle_index, rhs_index, 0.1), 0.057692, 0.001);
+        TS_ASSERT_DELTA(properties_fs.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.057692, 0.001);
         TS_ASSERT_DELTA(properties_fs.CalculateMaximumUpstrokeVelocity(middle_index), 180.28, 0.01);
     
 
@@ -104,7 +104,7 @@ public:
         *
         */        
         //Failing #785 TS_ASSERT_DELTA(properties_bw.CalculateActionPotentialDuration(90,middle_index), 229.2, 0.1);
-        //Failing #785 TS_ASSERT_DELTA(properties_bw.CalculateConductionVelocity(middle_index, rhs_index, 0.1), 0.055556, 0.001);
+        TS_ASSERT_DELTA(properties_bw.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.055556, 0.001);
         TS_ASSERT_DELTA(properties_bw.CalculateMaximumUpstrokeVelocity(middle_index), 173.02, 0.01);
         
         
