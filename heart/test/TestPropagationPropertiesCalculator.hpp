@@ -85,7 +85,7 @@ public:
         CV: 0.057692
         *
         */
-        //Failing #785 TS_ASSERT_DELTA(properties_fs.CalculateActionPotentialDuration(90,middle_index), 229.7, 0.1);
+        TS_ASSERT_DELTA(properties_fs.CalculateActionPotentialDuration(90, middle_index), 229.7, 0.25);
         TS_ASSERT_DELTA(properties_fs.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.057692, 0.001);
         TS_ASSERT_DELTA(properties_fs.CalculateMaximumUpstrokeVelocity(middle_index), 180.28, 0.01);
     
@@ -103,7 +103,7 @@ public:
         CV: 0.055556
         *
         */        
-        //Failing #785 TS_ASSERT_DELTA(properties_bw.CalculateActionPotentialDuration(90,middle_index), 229.2, 0.1);
+        TS_ASSERT_DELTA(properties_bw.CalculateActionPotentialDuration(90, middle_index), 229.2, 0.25);
         TS_ASSERT_DELTA(properties_bw.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.055556, 0.001);
         TS_ASSERT_DELTA(properties_bw.CalculateMaximumUpstrokeVelocity(middle_index), 173.02, 0.01);
         
