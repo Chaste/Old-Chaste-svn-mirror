@@ -498,6 +498,10 @@ public:
         //TS_ASSERT_DELTA( times.back(), 0.3,  1e-12);//For normal stimulation
         TS_ASSERT_DELTA( times.back(), 0.21,  1e-12);//For over stimulation
         
+        //Make sure that there's time for the files to be written
+        //(most files are only written by the master)
+        PetscTools::Barrier();
+        
         //Test for post-processed output
         OutputFileHandler handler(""); 
         std::string filename;
