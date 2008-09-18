@@ -208,10 +208,10 @@ public:
 
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
 
-        MooneyRivlinMaterialLaw<2> law1(MATERIAL);
+        MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
 
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
-                                                       NULL,
+                                                       &law,
                                                        body_force,
                                                        1.0,
                                                        "dealii_finite_elas/functional");
@@ -235,8 +235,19 @@ public:
             double exact_x = X + 0.5*ALPHA*X*X;
             double exact_y = Y/(1+ALPHA*X);
              
-            TS_ASSERT_DELTA( r_deformed_position[0](i), exact_X, 1e-4 );
-            TS_ASSERT_DELTA( r_deformed_position[1](i), exact_y, 1e-4 );
+            TS_ASSERT_DELTA( r_deformed_position[0](i), exact_x, 1e-3 );
+            TS_ASSERT_DELTA( r_deformed_position[1](i), exact_y, 1e-3 );
+        }
+
+        // check the final pressure
+        Vector<double>& full_solution = finite_elasticity.rGetCurrentSolution();
+        DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
+        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
+        while (!vertex_iter.ReachedEnd())
+        {
+            double pressure = full_solution(vertex_iter.GetDof(2));
+            TS_ASSERT_DELTA(pressure/(2*MATERIAL_PARAM), 1.0, 1.3e-3);
+            vertex_iter.Next();
         }
     }
 
