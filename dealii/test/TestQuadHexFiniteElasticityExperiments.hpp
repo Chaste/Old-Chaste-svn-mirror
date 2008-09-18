@@ -198,6 +198,50 @@ public:
     }
 
 
+    void TestWithFunctionalData() throw(Exception)
+    {
+        Vector<double> body_force(2);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(4);
+
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
+
+        MooneyRivlinMaterialLaw<2> law1(MATERIAL);
+
+        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
+                                                       NULL,
+                                                       body_force,
+                                                       1.0,
+                                                       "dealii_finite_elas/functional");
+
+        finite_elasticity.SetFunctionalTractionBoundaryCondition(MyTraction);
+        finite_elasticity.SetFunctionalBodyForce(MyBodyForce);
+
+        // solve
+        finite_elasticity.StaticSolve();
+                
+                
+        // compare                            
+        std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
+        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
+        
+        for(unsigned i=0; i < r_deformed_position[0].size(); i++)
+        {
+            double X = r_undeformed_position[0](i);
+            double Y = r_undeformed_position[1](i);
+    
+            double exact_x = X + 0.5*ALPHA*X*X;
+            double exact_y = Y/(1+ALPHA*X);
+             
+            TS_ASSERT_DELTA( r_deformed_position[0](i), exact_X, 1e-4 );
+            TS_ASSERT_DELTA( r_deformed_position[1](i), exact_y, 1e-4 );
+        }
+    }
+
+
+
     void dontTestConvergence() throw(Exception)
     {
         unsigned num_sims = 6;
