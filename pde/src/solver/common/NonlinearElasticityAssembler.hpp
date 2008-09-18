@@ -78,9 +78,9 @@ private:
      *  stored in mCurrrentSolution. The ordering assumed is (in 2d)
      *  rBelem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
      */
-    void AssembleOnElement(Element<DIM, DIM> &rElement,
-                           c_matrix<double, STENCIL_SIZE, STENCIL_SIZE > &rAElem,
-                           c_vector<double, STENCIL_SIZE> &rBElem,
+    void AssembleOnElement(Element<DIM, DIM>& rElement,
+                           c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
+                           c_vector<double, STENCIL_SIZE>& rBElem,
                            bool assembleResidual,
                            bool assembleJacobian)
     {
@@ -157,6 +157,27 @@ private:
             QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
             QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, *p_inverse_jacobian, grad_quad_phi);
             
+
+            ////////////////////////////////////////////////////
+            // get the body force, interpolating X if necessary
+            ////////////////////////////////////////////////////
+            c_vector<double,DIM> body_force;
+
+            if(this->mUsingBodyForceFunction)
+            {
+                c_vector<double,DIM> X = zero_vector<double>(DIM);
+                // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
+                for(unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+                {
+                    X += linear_phi(node_index)*mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                }
+                body_force = (*(this->mpBodyForceFunction))(X);
+            }
+            else
+            {
+                body_force = this->mBodyForce;
+            }
+
             //////////////////////////////////////
             // interpolate grad_u and p
             //////////////////////////////////////
@@ -219,7 +240,7 @@ private:
                     assert(node_index < NUM_NODES_PER_ELEMENT);
 
                     rBElem(index) +=  - this->mDensity 
-                                      * this->mBodyForce(spatial_dim)
+                                      * body_force(spatial_dim)
                                       * quad_phi(node_index)
                                       * wJ;
 
@@ -352,7 +373,25 @@ private:
             const ChastePoint<DIM-1>& quad_point = this->mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
 
             QuadraticBasisFunction<DIM-1>::ComputeBasisFunctions(quad_point, phi);
-            
+
+            // get the required traction, interpolating X (slightly inefficiently, as interpolating
+            // using quad bases) if necessary.
+            c_vector<double,DIM> traction = zero_vector<double>(DIM);
+            if(this->mUsingTractionBoundaryConditionFunction)
+            {
+                c_vector<double,DIM> X = zero_vector<double>(DIM);
+                for(unsigned node_index=0; node_index<NUM_NODES_PER_BOUNDARY_ELEMENT; node_index++)
+                {
+                    X += phi(node_index)*mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                }
+                traction = (*(this->mpTractionBoundaryConditionFunction))(X);
+            }
+            else
+            {
+                traction = rTraction;
+            }
+
+
             for(unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
             {
                 unsigned spatial_dim = index%DIM;
@@ -360,7 +399,7 @@ private:
 
                 assert(node_index < NUM_NODES_PER_BOUNDARY_ELEMENT);
 
-                rBelem(index) -=    rTraction(spatial_dim)
+                rBelem(index) -=    traction(spatial_dim)
                                   * phi(node_index)
                                   * wJ;
             }
@@ -635,6 +674,18 @@ public:
         assert(rBoundaryElements.size()==rSurfaceTractions.size());
         mBoundaryElements = rBoundaryElements;
         this->mSurfaceTractions = rSurfaceTractions;
+    }
+
+    /**
+      * Set a function which gives the surface traction as a function of X (undeformed position),
+      * together with the surface elements which make up the Neumann part of the boundary.
+      */
+    void SetFunctionalTractionBoundaryCondition(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
+                                                c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
+    {
+        mBoundaryElements = rBoundaryElements;
+        this->mUsingTractionBoundaryConditionFunction = true;
+        this->mpTractionBoundaryConditionFunction = pFunction;
     }
     
     

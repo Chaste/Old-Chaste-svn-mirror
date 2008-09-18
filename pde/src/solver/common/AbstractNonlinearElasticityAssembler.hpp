@@ -112,6 +112,18 @@ protected:
      */
     std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
+    /*< An optionally provided (pointer to a) function, giving body force as a function of undeformed position */ 
+    c_vector<double,2> (*mpBodyForceFunction)(c_vector<double,2>&);
+    /** An optionally provided (pointer to a) function, giving the surface traction as a function of 
+      * undeformed position
+      */ 
+    c_vector<double,2> (*mpTractionBoundaryConditionFunction)(c_vector<double,2>&);
+    /*< Whether the functional version of the body force is being used or not */
+    bool mUsingBodyForceFunction;
+    /*< Whether the functional version of the surface traction is being used or not */
+    bool mUsingTractionBoundaryConditionFunction;
+
+
 
     virtual void FormInitialGuess()=0;
     virtual void AssembleSystem(bool assembleResidual, bool assembleJacobian)=0;
@@ -260,7 +272,9 @@ public:
           mBodyForce(bodyForce),
           mDensity(density),
           mOutputDirectory(outputDirectory),
-          mFixedNodes(fixedNodes)
+          mFixedNodes(fixedNodes),
+          mUsingBodyForceFunction(false),
+          mUsingTractionBoundaryConditionFunction(false)
     {
         assert(pMaterialLaw != NULL);
         mMaterialLaws.push_back(pMaterialLaw);
@@ -284,7 +298,9 @@ public:
           mBodyForce(bodyForce),
           mDensity(density),
           mOutputDirectory(outputDirectory),
-          mFixedNodes(fixedNodes)
+          mFixedNodes(fixedNodes),
+          mUsingBodyForceFunction(false),
+          mUsingTractionBoundaryConditionFunction(false)
     {
         mMaterialLaws.resize(rMaterialLaws.size(), NULL);
         for(unsigned i=0; i<mMaterialLaws.size(); i++)
@@ -417,6 +433,16 @@ public:
     unsigned GetNumNewtonIterations()
     {
         return mNumNewtonIterations;
+    }
+
+    /**
+      * Set a function which gives body force as a function of X (undeformed position)
+      * Whatever body force was provided in the constructor will now be ignored
+      */
+    void SetFunctionalBodyForce(c_vector<double,2> (*pFunction)(c_vector<double,2>&))
+    {
+        mUsingBodyForceFunction = true;
+        mpBodyForceFunction = pFunction;
     }
 };
 

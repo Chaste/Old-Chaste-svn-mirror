@@ -37,7 +37,48 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ExponentialMaterialLaw2.hpp"
 #include "MooneyRivlinMaterialLaw2.hpp"
 
-//#define TS_ASSERT_DELTA_DEBUG(a,b,c,d) TS_ASSERT_DELTA((a),(b),(c));if(fabs((a)-(b))>(c)){d;};
+double MATERIAL_PARAM = 0.05;
+double ALPHA = 0.2;
+
+c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
+{
+    assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1);
+
+    c_vector<double,2> body_force;
+    double lam = 1+ALPHA*X(0);
+    body_force(0) = -2*MATERIAL_PARAM * ALPHA;
+    body_force(1) = -2*MATERIAL_PARAM * 2*ALPHA*ALPHA*X(1)/(lam*lam*lam);
+    return body_force;
+}
+
+c_vector<double,2> MyTraction(c_vector<double,2>& X)
+{
+    c_vector<double,2> traction = zero_vector<double>(2);
+    
+    double lam = 1+ALPHA*X(0);
+    if(X(0)==1)
+    {
+        traction(0) =  2*MATERIAL_PARAM * (lam - 1.0/lam);
+        traction(1) = -2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
+    }
+    else if(X(1)==0)
+    {
+        traction(0) =  2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
+        traction(1) = -2*MATERIAL_PARAM * (-lam + 1.0/lam);
+    }
+    else if(X(1)==1)
+    {
+        traction(0) = -2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
+        traction(1) =  2*MATERIAL_PARAM * (-lam + 1.0/lam);
+    }
+    else
+    {
+        NEVER_REACHED;
+    }
+    return traction;
+}
+
+
 
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
@@ -417,6 +458,89 @@ public:
         {
             TS_ASSERT_DELTA( assembler.rGetPressures()[i], 2*c1*lambda*lambda, 1e-6 );
         } 
+    }
+
+    /** 
+     *  Test with functional (rather than constant) body force and surface traction, against a known
+     *  solution. Since a non-zero body force is used here and a known solution, this is the MOST
+     *  IMPORTANT TEST.
+     *
+     *  Choose x=X+0.5*alpha*X*X, y=Y/(1+alpha*X), p=2c, then F has determinant 1, and S can be shown to
+     *  be, where lam = 1 +alpha X (ie dx/dX)
+     *    S = 2c[lam-1/lam,   -Y*alpha*lam^{-2}; -Y*alpha*lam^{-2}, 1/lam - lam]
+     *  in which case the required body force and surface traction can be computed to be
+     *
+     *  b = 2c/density [ -alpha, -2*Y*alpha^2 * lam^{-3} ]
+     *  s = 2c[lam-1/lam, -Y*alpha/(lam^2)] on X=1
+     *  s = 2c[0, lam - 1/lam]              on Y=0
+     *  s = 2c[Y*alpha/lam^2, 1/lam - lam]  on Y=1
+     * 
+     */
+    void TestWithFunctionalData() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
+        c_vector<double,2> body_force = zero_vector<double>(2);
+
+        unsigned num_elem = 5;
+        QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
+
+        MooneyRivlinMaterialLaw2<2> law(MATERIAL_PARAM);
+        
+        std::vector<unsigned> fixed_nodes;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+            }
+        }
+
+        std::vector<BoundaryElement<1,2>*> boundary_elems;
+        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter 
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            // get all boundary elems except those on X=0
+            if(fabs((*iter)->CalculateCentroid()[0])>1e-6)
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+            }
+        }
+        assert(boundary_elems.size()==3*num_elem);
+
+        NonlinearElasticityAssembler<2> assembler(&mesh, 
+                                                  &law, 
+                                                  body_force,
+                                                  1.0,
+                                                  "nonlin_elas_functional_data",
+                                                  fixed_nodes);
+
+        assembler.SetFunctionalBodyForce(MyBodyForce);
+        assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
+        
+        assembler.Solve();
+        
+        std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
+	
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double X = mesh.GetNode(i)->rGetLocation()[0];
+            double Y = mesh.GetNode(i)->rGetLocation()[1];
+
+            double exact_x = X + 0.5*ALPHA*X*X;
+            double exact_y = Y/(1+ALPHA*X);
+
+            TS_ASSERT_DELTA(r_solution[i](0), exact_x, 1e-4);
+            TS_ASSERT_DELTA(r_solution[i](1), exact_y, 1e-4);
+        }
+        
+        for(unsigned i=0; i<assembler.rGetPressures().size(); i++)
+        {
+            TS_ASSERT_DELTA( assembler.rGetPressures()[i]/(2*MATERIAL_PARAM), 1.0, 1e-3);
+        }
     }
 };
 
