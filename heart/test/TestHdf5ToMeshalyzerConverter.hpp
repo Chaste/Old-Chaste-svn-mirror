@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTHDF5TOMESHALYZERCONVERTER_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
 
