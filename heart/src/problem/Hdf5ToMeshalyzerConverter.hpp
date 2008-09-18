@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Hdf5DataReader.hpp"
 #include "PetscTools.hpp"
+#include "HeartConfig.hpp"
 
 /**
  *  This class converts from Hdf5 format to meshalyzer format, ie, for
@@ -152,8 +153,28 @@ public:
             Write("V");
             Write("Phi_e");
         }
-
+        
         MPI_Barrier(PETSC_COMM_WORLD);
+       if (PetscTools::AmMaster())
+        {
+            //Note that we don't want the child processes to create
+            //a fresh directory if it doesn't already exist
+            OutputFileHandler output_file_handler(mOutputDirectory, false);
+            out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_times.info");
+            unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
+            *p_file << "Number of timesteps "<<num_timesteps<<"\n";
+            *p_file << "timestep "<<HeartConfig::Instance()->GetPrintingTimeStep()<<"\n";
+            double first_timestep=mpReader->GetUnlimitedDimensionValues().front();
+            *p_file << "First timestep "<<first_timestep<<"\n";
+            double last_timestep=mpReader->GetUnlimitedDimensionValues().back();
+            *p_file << "Last timestep "<<last_timestep<<"\n";
+            
+            p_file->close();
+            
+        }
+
+
+
     }
 
     ~Hdf5ToMeshalyzerConverter()

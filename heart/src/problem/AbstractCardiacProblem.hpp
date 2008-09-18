@@ -357,15 +357,12 @@ public:
                 // Free memory.
                 delete mpAssembler;
                 //VecDestroy(initial_condition);
-                // Close files
-                if (mPrintOutput)
-                {
-                    mpWriter->Close();
-                    delete mpWriter;
-                }
+                
                 PetscTools::ReplicateException(true);
                 // Re-throw
                 EventHandler::Reset();//EndEvent(EVERYTHING);
+                
+                CloseFilesAndPostProcess();
                 throw e;
             }
             PetscTools::ReplicateException(false);
@@ -399,34 +396,45 @@ public:
         delete mpAssembler;
 
         // close the file that stores voltage values
-        if (mPrintOutput)
-        { 
-            mpWriter->Close();
-            delete mpWriter;
-
-            
-
-            EventHandler::BeginEvent(USER2); //Temporarily using USER2 to instrument post-processing
-            // Only if results files were written and we are outputting all nodes
-            if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
-            {
-                //Convert simulation data to Meshalyzer format
-                std::string output_directory =  mOutputDirectory + "/output";
-                Hdf5ToMeshalyzerConverter converter(mOutputDirectory, output_directory, mOutputFilenamePrefix);
-                //Write mesh in a suitable form for meshalyzer
-                if (PetscTools::AmMaster())
-                {
-                    //Write the mesh
-                    MeshalyzerMeshWriter<SPACE_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
-                    mesh_writer.WriteFilesUsingMesh(*mpMesh);
-                    //Write the parameters out
-                    HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
-                }
-            }
-            EventHandler::EndEvent(USER2); //Temporarily using USER2 to instrument post-processing
-        }
+        CloseFilesAndPostProcess();
         EventHandler::EndEvent(EVERYTHING);
     }
+
+
+            
+    void CloseFilesAndPostProcess()
+    {
+        // Close files
+        if (!mPrintOutput)
+        { 
+            //Nothing to do
+            return;
+        }
+        mpWriter->Close();
+        delete mpWriter;
+
+        EventHandler::BeginEvent(USER2); //Temporarily using USER2 to instrument post-processing
+        // Only if results files were written and we are outputting all nodes
+        if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
+        {
+            //Convert simulation data to Meshalyzer format
+            std::string output_directory =  mOutputDirectory + "/output";
+            Hdf5ToMeshalyzerConverter converter(mOutputDirectory, output_directory, mOutputFilenamePrefix);
+            
+            //Write mesh in a suitable form for meshalyzer
+            if (PetscTools::AmMaster())
+            {
+                //Write the mesh
+                MeshalyzerMeshWriter<SPACE_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
+                mesh_writer.WriteFilesUsingMesh(*mpMesh);
+                
+                //Write the parameters out
+                HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
+            }
+        }
+        EventHandler::EndEvent(USER2); //Temporarily using USER2 to instrument post-processing
+    }
+
 
     virtual void WriteInfo(double time) =0;
 

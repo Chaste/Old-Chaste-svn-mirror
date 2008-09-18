@@ -41,6 +41,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
 #include "EventHandler.hpp"
+//#include <iostream>
+
+class DelayedTotalStimCellFactory : public AbstractCardiacCellFactory<1>
+{
+private:
+    // define a new stimulus
+    SimpleStimulus* mpIntraStimulus;
+ 
+public:
+    DelayedTotalStimCellFactory(double mag) : AbstractCardiacCellFactory<1>()
+    {
+        mpIntraStimulus = new SimpleStimulus(  mag, 0.1, 0.1); 
+    }
+
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    {
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mpIntraStimulus, mpZeroStimulus);
+    }
+
+    ~DelayedTotalStimCellFactory(void)
+    {
+        delete mpIntraStimulus;
+     }
+};
 
 class TestBidomainProblem : public CxxTest::TestSuite
 {
@@ -445,6 +469,83 @@ public:
         delete p_bidomain_problem;
         EventHandler::Enable();
     }
+    
+    void TestBidomainFallsOverProducesOutput()
+    {
+        HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+        HeartConfig::Instance()->SetOutputDirectory("BidomainFallsOver");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("res");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
+        
+        //Something happens at 0.1ms        
+        
+        //DelayedTotalStimCellFactory bidomain_cell_factory(-6e5); //Normal stimulus
+        DelayedTotalStimCellFactory bidomain_cell_factory(-6e6); //Takes sodium out of range
+        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
+
+        bidomain_problem.Initialise();
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        
+        //Test for regular output
+        Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
+        std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
+        //TS_ASSERT_EQUALS( times.size(),  31U);//For normal stimulation
+        TS_ASSERT_EQUALS( times.size(),  22U);//For over stimulation
+        TS_ASSERT_DELTA( times[1], 0.01,  1e-12);
+        //TS_ASSERT_DELTA( times.back(), 0.3,  1e-12);//For normal stimulation
+        TS_ASSERT_DELTA( times.back(), 0.21,  1e-12);//For over stimulation
+        
+        //Test for post-processed output
+        OutputFileHandler handler(""); 
+        std::string filename;
+        std::ifstream * p_file;
+        //Mesh points
+        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
+                         + "/res_mesh.pts";
+        p_file = new std::ifstream(filename.c_str());
+        TS_ASSERT(p_file->is_open());
+        p_file->close();
+        
+        //Mesh triangles
+        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
+                         + "/res_mesh.tri";
+        p_file = new std::ifstream(filename.c_str());
+        TS_ASSERT(p_file->is_open());
+        p_file->close();
+        
+        //XML parameters
+        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
+                         + "/res_parameters.xml";
+        p_file = new std::ifstream(filename.c_str());
+        TS_ASSERT(p_file->is_open());
+        p_file->close();
+        
+        //Extracellular voltage
+        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
+                         + "/res_Phi_e.dat";
+        p_file = new std::ifstream(filename.c_str());
+        TS_ASSERT(p_file->is_open());
+        p_file->close();
+        
+        //Transmembrane
+        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
+                         + "/res_V.dat";
+        p_file = new std::ifstream(filename.c_str());
+        TS_ASSERT(p_file->is_open());
+        p_file->close();
+
+        //Information about times
+        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
+                         + "/res_times.info";
+        p_file = new std::ifstream(filename.c_str());
+        TS_ASSERT(p_file->is_open());
+        p_file->close();
+        
+    }
+    
 
     void TestBidomainProblemExceptions() throw (Exception)
     {

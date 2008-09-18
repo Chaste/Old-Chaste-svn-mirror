@@ -63,11 +63,14 @@ public :
 
         // convert
         Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "TestHdf5ToMeshalyzerConverter/out", "MonodomainLR91_1d");
-        system("ls -lR /tmp/jmpf/testoutput/TestHdf5ToMeshalyzerConverter*");
+
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/MonodomainLR91_1d_V.dat "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/MonodomainLR91_1d_time.info "
+                                     + "heart/test/data/Monodomain1d/MonodomainLR91_1d_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
@@ -93,6 +96,11 @@ public :
         // compare the Phi_e file
         command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/bidomain_Phi_e.dat "
                          + "heart/test/data/Bidomain1d/bidomain_Phi_e.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+ 
+       // compare the time information file
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/bidomain_times.info "
+                         + "heart/test/data/Bidomain1d/bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
