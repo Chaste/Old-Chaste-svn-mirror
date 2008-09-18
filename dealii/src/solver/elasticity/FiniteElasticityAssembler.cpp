@@ -52,7 +52,9 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
         mBodyForce(bodyForce),
         mDensity(density),
         mConstantSurfaceTraction(DIM),
-        PRESSURE_COMPONENT_INDEX(DIM) // ie if DIM=2, the space indices are 0 and 1, pressure index is 2
+        PRESSURE_COMPONENT_INDEX(DIM), // ie if DIM=2, the space indices are 0 and 1, pressure index is 2
+        mUsingBodyForceFunction(false),
+        mUsingTractionBoundaryConditionFunction(false)
 {
     // distribute dofs
     DistributeDofs();
@@ -292,8 +294,6 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                                       )
 {
     static QGauss<DIM>   quadrature_formula(3);
-
-
     static QGauss<DIM-1> face_quadrature_formula(3);
 
     const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
@@ -305,7 +305,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     FEValues<DIM> fe_values(mFeSystem, quadrature_formula,
                             UpdateFlags(update_values    |
                                         update_gradients |
-                                        update_q_points  |     // needed for interpolating u and u' on the quad point
+                                        update_q_points  |     // update_quadrature_points in new dealii
                                         update_JxW_values));
 
     // would want this to be static too (slight speed up), but causes errors
@@ -355,6 +355,19 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 
     for (unsigned q_point=0; q_point<n_q_points; q_point++)
     {
+        Vector<double> body_force(DIM);
+        // get body force
+        if(mUsingBodyForceFunction)
+        {
+            const Point<DIM>& X = fe_values.quadrature_point(q_point);
+            body_force = (*mpBodyForceFunction)(X);
+        }
+        else
+        {
+            body_force = mBodyForce;
+        }
+
+
         const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
 
         double p = local_solution_values[q_point](PRESSURE_COMPONENT_INDEX);
@@ -460,7 +473,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
             {
                 if (component_i<PRESSURE_COMPONENT_INDEX)
                 {
-                    elementRhs(i) += - mDensity * mBodyForce(component_i)
+                    elementRhs(i) += - mDensity * body_force(component_i)
                                      * fe_values.shape_value(i,q_point)
                                      * fe_values.JxW(q_point);
 
@@ -499,13 +512,24 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 
                 for (unsigned q_point=0; q_point<n_face_q_points; q_point++)
                 {
+                    Vector<double> traction(DIM);
+                    if(mUsingTractionBoundaryConditionFunction)
+                    {
+                        const Point<DIM>& X = fe_face_values.quadrature_point(q_point);
+                        traction = (*mpTractionBoundaryConditionFunction)(X);
+                    }
+                    else
+                    {
+                        traction = mConstantSurfaceTraction;
+                    }
+
                     for (unsigned i=0; i<dofs_per_element; i++)
                     {
                         const unsigned component_i = mFeSystem.system_to_component_index(i).first;
 
                         if (component_i < PRESSURE_COMPONENT_INDEX)
                         {
-                            elementRhs(i) -=   mConstantSurfaceTraction(component_i)
+                            elementRhs(i) -=   traction(component_i)
                                              * fe_face_values.shape_value(i,q_point)
                                              * fe_face_values.JxW(q_point);
                         }

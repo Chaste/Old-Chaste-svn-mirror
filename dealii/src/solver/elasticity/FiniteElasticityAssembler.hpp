@@ -156,6 +156,20 @@ protected:
      */
     bool mADeformedHasBeenSolved;
 
+    /*< An optionally provided (pointer to a) function, giving body force as a function of undeformed position */ 
+    Vector<double> (*mpBodyForceFunction)(const Point<DIM>&);
+    /** An optionally provided (pointer to a) function, giving the surface traction as a function of 
+      * undeformed position
+      */ 
+    Vector<double> (*mpTractionBoundaryConditionFunction)(const Point<DIM>&);
+    /*< Whether the functional version of the body force is being used or not */
+    bool mUsingBodyForceFunction;
+    /*< Whether the functional version of the surface traction is being used or not */
+    bool mUsingTractionBoundaryConditionFunction;
+
+
+
+
     virtual void WriteStresses(unsigned counter);
 
     /**
@@ -283,8 +297,23 @@ public:
      *  NEUMANN_BOUNDARY
      */     
     void SetConstantSurfaceTraction(Vector<double> traction);
-};
 
+    /**
+      * Set a function which gives body force as a function of X (undeformed position)
+      * Whatever body force was provided in the constructor will now be ignored
+      */
+    void SetFunctionalBodyForce(Vector<double> (*pFunction)(const Point<DIM>&))
+    {
+        mUsingBodyForceFunction = true;
+        mpBodyForceFunction = pFunction;
+    }
+    
+    void SetFunctionalTractionBoundaryCondition(Vector<double> (*pFunction)(const Point<DIM>&))
+    {
+        mUsingTractionBoundaryConditionFunction = true;
+        mpTractionBoundaryConditionFunction = pFunction;
+    }
+};
 
 
 
