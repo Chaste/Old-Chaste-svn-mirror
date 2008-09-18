@@ -154,8 +154,7 @@ public:
             Write("Phi_e");
         }
         
-        MPI_Barrier(PETSC_COMM_WORLD);
-       if (PetscTools::AmMaster())
+        if (PetscTools::AmMaster())
         {
             //Note that we don't want the child processes to create
             //a fresh directory if it doesn't already exist
@@ -173,6 +172,7 @@ public:
             
         }
 
+        MPI_Barrier(PETSC_COMM_WORLD);
 
 
     }

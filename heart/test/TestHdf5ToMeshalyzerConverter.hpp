@@ -69,10 +69,10 @@ public :
         std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/MonodomainLR91_1d_V.dat "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/MonodomainLR91_1d_time.info "
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/MonodomainLR91_1d_times.info "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-    }
+        }
 
 
     void TestBidomainConversion() throw(Exception)

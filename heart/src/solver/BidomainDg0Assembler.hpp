@@ -106,6 +106,10 @@ private:
 
     void InitialiseForSolve(Vec initialSolution)
     {
+        if (this->mpLinearSystem != NULL)
+        {
+            return;
+        }
         BaseClassType::InitialiseForSolve(initialSolution);
         if(HeartConfig::Instance()->GetUseAbsoluteTolerance())
         {
