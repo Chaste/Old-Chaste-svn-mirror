@@ -113,11 +113,11 @@ protected:
     std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
     /*< An optionally provided (pointer to a) function, giving body force as a function of undeformed position */ 
-    c_vector<double,2> (*mpBodyForceFunction)(c_vector<double,2>&);
+    c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>&);
     /** An optionally provided (pointer to a) function, giving the surface traction as a function of 
       * undeformed position
       */ 
-    c_vector<double,2> (*mpTractionBoundaryConditionFunction)(c_vector<double,2>&);
+    c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>&);
     /*< Whether the functional version of the body force is being used or not */
     bool mUsingBodyForceFunction;
     /*< Whether the functional version of the surface traction is being used or not */
@@ -439,7 +439,7 @@ public:
       * Set a function which gives body force as a function of X (undeformed position)
       * Whatever body force was provided in the constructor will now be ignored
       */
-    void SetFunctionalBodyForce(c_vector<double,2> (*pFunction)(c_vector<double,2>&))
+    void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
     {
         mUsingBodyForceFunction = true;
         mpBodyForceFunction = pFunction;
