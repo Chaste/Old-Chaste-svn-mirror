@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 double MATERIAL_PARAM = 0.05;
 double ALPHA = 0.2;
 
+// Body force corresponding to the deformation
+// x = X+0.5*alpha*X^2, y=Y/(1+alpha*X), with p=2c
 c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
 {
     assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1);
@@ -51,6 +53,8 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
     return body_force;
 }
 
+// Surface traction on three sides of a cube, corresponding to
+// x = X+0.5*alpha*X^2, y=Y/(1+alpha*X), with p=2c
 c_vector<double,2> MyTraction(c_vector<double,2>& X)
 {
     c_vector<double,2> traction = zero_vector<double>(2);

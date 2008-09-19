@@ -40,6 +40,105 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FiniteElasticityTools.hpp"
 #include "UblasCustomFunctions.hpp"
 
+
+ 
+
+class DealiiModelProblem3
+{
+    static const double d = 0.1;
+    static const double k = 10;
+public:
+    static const double c1 = 0.1;
+    static double Mu(double X)
+    {
+        double t = tanh(k*(X-0.5));
+        return (d/2)*(t+1);
+    }
+    static double MuDash(double X)
+    {
+        double t = tanh(k*(X-0.5));
+        return (d*k/2)*(1-t*t);
+    }
+    static double MuDashDash(double X)
+    {
+        double t = tanh(k*(X-0.5));
+        return (d*k*k/2)*(-2*t + 2*t*t*t);
+    }
+    static double MuDashDashDash(double X)
+    {
+        double t = tanh(k*(X-0.5));
+        return (d*k*k*k/2)*(-2 + 8*t*t - 6*t*t*t*t);
+    }
+
+    static Vector<double> GetBodyForce(const Point<2>& X)
+    {
+        assert(X[0]>=0 && X[0]<=1 && X[1]>=0 && X[1]<=1);
+    
+        Vector<double> body_force(2);
+    
+        double lam = 1+MuDash(X[0]);
+        double ddmu = MuDashDash(X[0]);
+        double dddmu = MuDashDashDash(X[0]);
+    
+        body_force(0) =  -2*c1*ddmu;
+        body_force(1) =  2*c1*(X[1]*dddmu/(lam*lam) - 2*ddmu*ddmu*X[1]/(lam*lam*lam));
+        return body_force;
+    }
+
+    static Vector<double> GetTraction(const Point<2>& X)
+    {
+        Vector<double> traction(2);
+    
+        double lam = 1+MuDash(X[0]);
+        if(X[0]==1)
+        {
+            traction(0) =  2*c1*(lam - 1.0/lam);
+            traction(1) = -2*c1*X[1]*MuDashDash(1)/(lam*lam);
+        }
+        else if(X[1]==0)
+        {
+            traction(1) =  2*c1*(lam - 1.0/lam);
+        }
+        else if(X[1]==1)
+        {
+            traction(0) = -2*c1*MuDashDash(X[0])/(lam*lam); //*Y where Y=1
+            traction(1) =  2*c1*(-lam + 1.0/lam);
+        }
+        else
+        {
+            NEVER_REACHED;
+        }
+        return traction;
+    }
+};
+
+
+
+// class for non-zero dirichlet boundary conditions
+class ModelProblem3DirichletValue : public Function<2>
+{
+public:
+    ModelProblem3DirichletValue()
+     : Function<2>(3)
+    {
+    }
+    
+    // Note: here we provide displacement..
+    void vector_value(const Point<2>& p, Vector<double> &values) const
+    {
+        assert(values.size()==3);
+        double exact_u = DealiiModelProblem3::Mu(p[0]);
+        double exact_v = p[1] - p[1]/(1+DealiiModelProblem3::MuDash(p[0]));
+
+        values(0) = exact_u;
+        values(1) = exact_v;
+        values(2) = 0.0;
+    }
+};
+
+
+
+
 double MATERIAL_PARAM = 0.05;
 double ALPHA = 0.2;
 
@@ -163,14 +262,10 @@ public:
                                                        "dealii_finite_elas/mixed_shears");
 
         finite_elasticity.SetMaterialLawsForHeterogeneousProblem(laws, material_ids);
-
         finite_elasticity.SetFunctionalTractionBoundaryCondition(TractionForMixedShears);
-//        finite_elasticity.SetFunctionalBodyForce(MyBodyForce);
-
 
         // solve
         finite_elasticity.StaticSolve();
-                
                 
         // compare                            
         std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
@@ -197,7 +292,10 @@ public:
         //  if quad-hex is like quad-tet they won't be anywhere near...
     }
 
-
+    //
+    // Test using the body force and surface tractions corresponding
+    // to x = X+0.5*alpha*X^2, y=Y/(1+alpha*X)
+    //
     void TestWithFunctionalData() throw(Exception)
     {
         Vector<double> body_force(2);
@@ -221,8 +319,8 @@ public:
 
         // solve
         finite_elasticity.StaticSolve();
-                
-                
+
+
         // compare                            
         std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
         std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
@@ -251,6 +349,104 @@ public:
         }
     }
 
+
+
+    //
+    // Test using MODEL PROBLEM 3
+    //
+    void TestWithModelProblem3() throw(Exception)
+    {
+        Vector<double> body_force(2);
+        MooneyRivlinMaterialLaw<2> law(DealiiModelProblem3::c1);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(4);
+
+        ////////////////////////////////////////////////////////
+        // define dirichlet (X=0) and Neumann (X!=0) boundaries
+       ////////////////////////////////////////////////////////
+        Triangulation<2>::cell_iterator element_iter = mesh.begin_active();
+        while (element_iter!=mesh.end())
+        {
+            for (unsigned face_index=0; face_index<GeometryInfo<2>::faces_per_cell; face_index++)
+            {
+                if (element_iter->face(face_index)->at_boundary())
+                {
+                    double component_val = element_iter->face(face_index)->center()(0);
+                    if (fabs(component_val)<1e-6)
+                    {
+                        // X=0, label as dirichlet boundary
+                        element_iter->face(face_index)->set_boundary_indicator(DIRICHLET_BOUNDARY);
+                    }
+                    else
+                    {
+                        // X!=0, label as neumann boundary
+                        element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
+                    }
+                }
+            }
+            element_iter++;
+        }
+        
+        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
+                                                       &law,
+                                                       body_force,
+                                                       1.0,
+                                                       "dealii_finite_elas/modelprob3");
+
+        // define boundary values
+        std::map<unsigned,double> boundary_values;
+        std::vector<bool> component_mask(2+1); // dim+1
+        component_mask[0] = true;
+        component_mask[1] = true;
+        component_mask[2] = false;
+
+        ModelProblem3DirichletValue dirich_func;
+
+        DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
+        VectorTools::interpolate_boundary_values(dof_handler,
+                                                 DIRICHLET_BOUNDARY,
+                                                 dirich_func,
+                                                 boundary_values,
+                                                 component_mask);
+
+        assert(!boundary_values.empty());        
+
+        // set body force, traction and boundary values..
+        finite_elasticity.SetFunctionalTractionBoundaryCondition(DealiiModelProblem3::GetTraction);
+        finite_elasticity.SetFunctionalBodyForce(DealiiModelProblem3::GetBodyForce);
+        finite_elasticity.SetBoundaryValues(boundary_values);
+
+        // solve
+        finite_elasticity.StaticSolve();
+
+        // compare                            
+        std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
+        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
+        
+        for(unsigned i=0; i < r_deformed_position[0].size(); i++)
+        {
+            double X = r_undeformed_position[0](i);
+            double Y = r_undeformed_position[1](i);
+    
+            double exact_x = X + DealiiModelProblem3::Mu(X);
+            double exact_y = Y/(1+DealiiModelProblem3::MuDash(X));
+             
+            TS_ASSERT_DELTA( r_deformed_position[0](i), exact_x, 1e-3 );
+            TS_ASSERT_DELTA( r_deformed_position[1](i), exact_y, 1e-3 );
+        }
+
+        // check the final pressure
+        Vector<double>& full_solution = finite_elasticity.rGetCurrentSolution();
+        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
+        while (!vertex_iter.ReachedEnd())
+        {
+            double pressure = full_solution(vertex_iter.GetDof(2));
+            TS_ASSERT_DELTA(pressure/(2*DealiiModelProblem3::c1), 1.0, 5e-3);
+            vertex_iter.Next();
+        }
+    }
 
 
     void dontTestConvergence() throw(Exception)
