@@ -512,6 +512,7 @@ public:
         p_file = new std::ifstream(filename.c_str());
         TS_ASSERT(p_file->is_open());
         p_file->close();
+        delete p_file;
         
         //Mesh triangles
         filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
@@ -519,6 +520,7 @@ public:
         p_file = new std::ifstream(filename.c_str());
         TS_ASSERT(p_file->is_open());
         p_file->close();
+        delete p_file;
         
         //XML parameters
         filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
@@ -526,6 +528,7 @@ public:
         p_file = new std::ifstream(filename.c_str());
         TS_ASSERT(p_file->is_open());
         p_file->close();
+        delete p_file;
         
         //Extracellular voltage
         filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
@@ -533,6 +536,7 @@ public:
         p_file = new std::ifstream(filename.c_str());
         TS_ASSERT(p_file->is_open());
         p_file->close();
+        delete p_file;
         
         //Transmembrane
         filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
@@ -540,13 +544,15 @@ public:
         p_file = new std::ifstream(filename.c_str());
         TS_ASSERT(p_file->is_open());
         p_file->close();
-
+        delete p_file;
+        
         //Information about times
         filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
                          + "/res_times.info";
         p_file = new std::ifstream(filename.c_str());
         TS_ASSERT(p_file->is_open());
         p_file->close();
+        delete p_file;
         
     }
     

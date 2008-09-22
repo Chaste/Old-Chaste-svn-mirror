@@ -70,7 +70,7 @@ public:
     : OdeTimeStep(0.0025),
       PdeTimeStep(0.0025),
       MeshNum(2u),
-      KspAtol(1e-6),
+      KspAtol(5e-5),
       //RelativeConvergenceCriterion(1e-4),
       SimTime(8.0),
       PrintingTimeStep(0.04)
