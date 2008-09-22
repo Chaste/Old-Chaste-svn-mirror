@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<ChasteParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="SOME_PATH_TO/Chaste/heart/src/io/ChasteParameters.xsd">
+<ChasteParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters.xsd">
 
   <Simulation>
     <SimulationDuration>0.100000000000000006</SimulationDuration>
@@ -19,7 +19,7 @@
   <Numerical>
     <TimeSteps ode="0.01" pde="0.01" printing="0.01"/>
     <KSPTolerances>
-      <KSPRelative>1e-06</KSPRelative>
+      <KSPAbsolute>0.0002</KSPAbsolute>
     </KSPTolerances>
     <KSPSolver>gmres</KSPSolver>
     <KSPPreconditioner>jacobi</KSPPreconditioner>
