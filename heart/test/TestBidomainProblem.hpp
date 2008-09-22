@@ -503,57 +503,21 @@ public:
         PetscTools::Barrier();
         
         //Test for post-processed output
-        OutputFileHandler handler(""); 
-        std::string filename;
-        std::ifstream * p_file;
-        //Mesh points
-        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
-                         + "/res_mesh.pts";
-        p_file = new std::ifstream(filename.c_str());
-        TS_ASSERT(p_file->is_open());
-        p_file->close();
-        delete p_file;
+        OutputFileHandler handler("");
         
-        //Mesh triangles
-        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
-                         + "/res_mesh.tri";
-        p_file = new std::ifstream(filename.c_str());
-        TS_ASSERT(p_file->is_open());
-        p_file->close();
-        delete p_file;
+        std::string files[6] = {"res_mesh.pts","res_mesh.tri","res_parameters.xml",
+                                "res_Phi_e.dat","res_V.dat","res_times.info"};
+                          
+        for(unsigned i=0; i<6; i++)
+        {
+            std::string filename =   handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
+                                   + files[i];
         
-        //XML parameters
-        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
-                         + "/res_parameters.xml";
-        p_file = new std::ifstream(filename.c_str());
-        TS_ASSERT(p_file->is_open());
-        p_file->close();
-        delete p_file;
-        
-        //Extracellular voltage
-        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
-                         + "/res_Phi_e.dat";
-        p_file = new std::ifstream(filename.c_str());
-        TS_ASSERT(p_file->is_open());
-        p_file->close();
-        delete p_file;
-        
-        //Transmembrane
-        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
-                         + "/res_V.dat";
-        p_file = new std::ifstream(filename.c_str());
-        TS_ASSERT(p_file->is_open());
-        p_file->close();
-        delete p_file;
-        
-        //Information about times
-        filename = handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
-                         + "/res_times.info";
-        p_file = new std::ifstream(filename.c_str());
-        TS_ASSERT(p_file->is_open());
-        p_file->close();
-        delete p_file;
-        
+            std::ifstream * p_file = new std::ifstream(filename.c_str());
+            TS_ASSERT(p_file->is_open());
+            p_file->close();
+            delete p_file;
+        }
     }
     
 
