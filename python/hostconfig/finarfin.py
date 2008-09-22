@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
 petsc_2_2_path = None
-petsc_2_3_path = '/home/jonc/work/dphil/petsc-2.3.1-p19/'
+petsc_2_3_path = '/home/jonc/work/dphil/petsc-2.3.3-p14/'
 petsc_build_name = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = None
@@ -35,8 +35,8 @@ intel_path = '/opt/intel_cc_80'
 icpc='icpc'
 
 other_includepaths = []
-other_libpaths = ['/usr/lib/atlas/sse2']
+other_libpaths = []
 blas_lapack = ['lapack', 'blas']
-other_libraries = ['boost_serialization', 'xerces-c']
+other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
 
 tools = {}

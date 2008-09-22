@@ -513,10 +513,9 @@ public:
             std::string filename =   handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
                                    + files[i];
         
-            std::ifstream * p_file = new std::ifstream(filename.c_str());
-            TS_ASSERT(p_file->is_open());
-            p_file->close();
-            delete p_file;
+            std::ifstream file(filename.c_str());
+            TS_ASSERT(file.is_open());
+            file.close();
         }
     }
     

@@ -151,8 +151,13 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     }
 
     //Replicate the data
+#if (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)
+    VecScatterBegin(mToAll, vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd  (mToAll, vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD);
+#else
     VecScatterBegin(vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
     VecScatterEnd  (vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
+#endif
 
     //Information is now in mReplicated PETSc vector
     //Copy into mData

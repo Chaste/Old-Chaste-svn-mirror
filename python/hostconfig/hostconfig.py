@@ -72,7 +72,7 @@ elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
     import comlab as conf
 elif machine_fqdn.endswith(".dtc.ox.ac.uk"):
     import dtc as conf
-elif machine_fqdn.startswith('finarfin'):
+elif machine_fqdn.lower().startswith('finarfin'):
     import finarfin as conf
 elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
     import nottingham as conf
