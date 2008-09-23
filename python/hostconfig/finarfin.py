@@ -25,6 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
+_mpibase = '/home/jonc/work/dphil/mpi/'
+
 petsc_2_2_path = None
 petsc_2_3_path = '/home/jonc/work/dphil/petsc-2.3.3-p14/'
 petsc_build_name = 'linux-gnu'
@@ -34,9 +36,10 @@ metis_path = None
 intel_path = '/opt/intel_cc_80'
 icpc='icpc'
 
-other_includepaths = []
-other_libpaths = []
+other_includepaths = [_mpibase+'include']
+other_libpaths = [_mpibase+'lib']
 blas_lapack = ['lapack', 'blas']
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
 
-tools = {}
+tools = {'mpirun': _mpibase + 'bin/mpirun',
+         'mpicxx': _mpibase + 'bin/mpicxx'}
