@@ -119,8 +119,8 @@ public:
 
     AbstractUntemplatedConvergenceTester()
     : mMeshWidth(0.2),//cm
-      mKspTolerance(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
-      mUseKspAbsoluteTolerance(false),
+      mKspTolerance(2e-4),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
+      mUseKspAbsoluteTolerance(true),
       OdeTimeStep(0.0025),//Justification from 1D test with this->PdeTimeStep held at 0.01 (allowing two hits at convergence)
       PdeTimeStep(0.005),//Justification from 1D test with this->OdeTimeStep held at 0.0025
       MeshNum(5u),//Justification from 1D test

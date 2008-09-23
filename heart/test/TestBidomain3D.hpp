@@ -55,7 +55,6 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
         HeartConfig::Instance()->SetOutputDirectory("Bidomain3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779               
         
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> bidomain_cell_factory(-600.0*1000);
 
@@ -126,8 +125,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
         HeartConfig::Instance()->SetOutputDirectory("Monodomain3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain3d");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779       
-
+ 
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////

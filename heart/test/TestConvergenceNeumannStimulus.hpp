@@ -54,7 +54,7 @@ class TestConvergenceNeumannStimulus : public CxxTest::TestSuite
 {
 public:
 
-    void xTestConvergenceMonodomain1d()
+    void TestConvergenceMonodomain1d()
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.Stimulus=NEUMANN;
@@ -63,7 +63,7 @@ public:
         TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
     }
 
-    void xTestConvergenceBidomain1d()
+    void TestConvergenceBidomain1d()
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.Stimulus=NEUMANN;
@@ -72,7 +72,7 @@ public:
         TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
     }
 
-    void xTestSpaceConvergence1d()
+    void TestSpaceConvergence1d()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.Stimulus=NEUMANN;
@@ -81,7 +81,7 @@ public:
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
     }
 
-    void xTestSpaceConvergence2d()
+    void TestSpaceConvergence2d()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
         tester.Stimulus=NEUMANN;
@@ -94,8 +94,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus=NEUMANN;
-        tester.SetKspAbsoluteTolerance(5e-4);///\todo #779   
-        
+         
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);

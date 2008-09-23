@@ -84,7 +84,6 @@ public:
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/memfem_mesh/simple");
         HeartConfig::Instance()->SetOutputDirectory("Bidomain3d_CompareWithMemfem");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779       
         
         BidomainPointStimulusCellFactory bidomain_cell_factory;
 

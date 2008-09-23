@@ -178,7 +178,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
         
         // Final values to test against have been produced with ksp_rtol=1e-9
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-8);
         
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
