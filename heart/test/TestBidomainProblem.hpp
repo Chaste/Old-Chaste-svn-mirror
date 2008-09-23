@@ -308,7 +308,6 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("Monodomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
             
         Vec monodomain_results;
 
@@ -399,8 +398,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("Bidomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_testPrintTimes");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779 
-
+   
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
@@ -476,8 +474,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainFallsOver");
         HeartConfig::Instance()->SetOutputFilenamePrefix("res");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
-        
+         
         //Something happens at 0.1ms        
         
         //DelayedTotalStimCellFactory bidomain_cell_factory(-6e5); //Normal stimulus
@@ -565,7 +562,6 @@ public:
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Orthotropic);
         HeartConfig::Instance()->SetOutputDirectory("OrthotropicBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("ortho3d");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
                 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory;
 

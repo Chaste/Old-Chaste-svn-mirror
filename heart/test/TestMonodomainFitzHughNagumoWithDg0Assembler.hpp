@@ -90,8 +90,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("FhnWithEdgeStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);///\todo #779       
-        
+         
         FhnEdgeStimulusCellFactory cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
@@ -143,8 +142,8 @@ public:
                     TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 1e-10);
                 }
 
-                TS_ASSERT_DELTA(voltage_replicated[i], 0.1394, 1e-4);
-            }
+                TS_ASSERT_DELTA(voltage_replicated[i], 0.139426, 2e-3);
+             }
         }
     }
 };

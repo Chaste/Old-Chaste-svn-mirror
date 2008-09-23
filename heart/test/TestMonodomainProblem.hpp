@@ -211,8 +211,7 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779       
-        
+         
         monodomain_problem.Solve();
 
         // test whether voltages and gating variables are in correct ranges
@@ -266,7 +265,7 @@ public:
                 // hardcoded result that looks accurate - this is a test to see
                 // that nothing has changeed
                 // assumes endtime = 2ms
-                TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 4e-4);
+                TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 5e-4);
             }
         }
 
@@ -426,7 +425,7 @@ public:
             compare_command += " ";
             compare_command += "heart/test/data/Monodomain2d/"; 
             compare_command += test_file_names[i];
-             TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
+            TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
         }
         
     }

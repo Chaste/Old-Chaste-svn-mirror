@@ -167,7 +167,6 @@ public:
 		HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BiNeuman1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779 
                 
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
@@ -225,7 +224,6 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_200_elements");
         HeartConfig::Instance()->SetOutputDirectory("BiNeuman2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);///\todo #779 
                 
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         BidomainProblem<2> bidomain_problem( &cell_factory );
