@@ -63,7 +63,6 @@ public:
 
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);///\todo #779       
         
 
         bidomain_problem.Initialise();

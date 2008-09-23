@@ -58,8 +58,7 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-       HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);///\todo #779       
-
+ 
         bidomain_problem.PrintOutput(false);
 
         try

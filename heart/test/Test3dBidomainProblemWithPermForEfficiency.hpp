@@ -52,7 +52,6 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                        
         HeartConfig::Instance()->SetSimulationDuration(150.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);///\todo #779       
                 
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
 
