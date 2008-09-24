@@ -4,6 +4,7 @@ TestFemlabMeshReader.hpp
 TestFace.hpp
 TestInventorVoronoiWriter.hpp
 TestMemfemMeshReader.hpp
+TestMemoryFriendlyTrianglesMeshReader.hpp
 TestMeshWriters.hpp
 TestTrianglesMeshReader.hpp
 TestElement.hpp
