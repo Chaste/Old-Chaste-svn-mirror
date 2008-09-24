@@ -363,7 +363,7 @@ if ARGUMENTS.get('exe', 0):
         env.Execute(Delete(os.path.join(env['ENV']['CHASTE_TEST_OUTPUT'], 'texttest_output')))
         env.Command(output, exes,
                     [texttest + ' -b -c ' + checkout_dir,
-                     texttest + ' -s batch.GenerateHistoricalReport default',
+                     texttest + ' -c ' + checkout_dir + ' -s batch.GenerateHistoricalReport default',
                      Delete(output),
                      Copy(output, env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste')])
         env.Depends('apps', output)

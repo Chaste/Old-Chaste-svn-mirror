@@ -170,7 +170,12 @@ def _recent(req, type=None, start=0):
   builds.sort()
   builds.reverse()
 
-  output = ["""\
+  output = []
+  if start > 0:
+    output.append(_linkRecent('Previous page', type, start=start-20) + " ")
+  if total_num_of_builds > start+20:
+    output.append(_linkRecent('Next page', type, start=start+20))
+  output.append("""\
   <table border="1">
     <tr>
       <th>Date</th>
@@ -179,7 +184,7 @@ def _recent(req, type=None, start=0):
       <th>Machine</th>
       <th>Status</th>
     </tr>
-"""]
+""")
   old_revision = -1
 
   # Just show a subset
@@ -198,7 +203,10 @@ def _recent(req, type=None, start=0):
       buildTypesModule = _importBuildTypesModule(revision)
       old_revision = revision
       bgcol_index = 1 - bgcol_index
-    build = buildTypesModule.GetBuildType(buildType)
+    if buildType == 'acceptance':
+      build = buildTypesModule.GetBuildType('default')
+    else:
+      build = buildTypesModule.GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
     overall_status, colour = _getTestSummary(test_set_dir, build)
     subs = {'bgcol': bgcols[bgcol_index], 'status_col': colour,
