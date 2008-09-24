@@ -268,7 +268,10 @@ def _summary(req, type, revision, machine=None, buildType=None):
     build = _build
   else:
     buildTypesModule = _importBuildTypesModule(revision)
-    build = buildTypesModule.GetBuildType(buildType)
+    if buildType == 'acceptance':
+      build = buildTypesModule.GetBuildType('default')
+    else:
+      build = buildTypesModule.GetBuildType(buildType)
   testsuite_status, overall_status, colour, runtime, graphs = _getTestStatus(test_set_dir, build)
 
   # Get the timestamp on the directory
@@ -354,7 +357,10 @@ def buildType(req, buildType, revision=None):
   else:
     rev_text = ' at revision %s' % revision
   BuildTypes = _importBuildTypesModule(revision)
-  build = BuildTypes.GetBuildType(buildType)
+  if buildType == 'acceptance':
+    build = BuildTypes.GetBuildType('default')
+  else:
+    build = BuildTypes.GetBuildType(buildType)
   test_packs = ', '.join(build.TestPacks())
   # How test suites are run
   testsuite_exe = "testsuite.exe"
@@ -371,6 +377,12 @@ def buildType(req, buildType, revision=None):
 """ % (buildType, rev_text, build.CompilerType(),
        build.CcFlags(), build.LinkFlags(),
        test_packs, testsuite_exe, testsuite_cmd)
+  if buildType == 'acceptance':
+    page_body += """
+    <p>
+    This build was actually used just to run the acceptance tests.
+    </p>
+"""
   return _header() + page_body + _footer()
 
 

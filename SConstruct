@@ -357,6 +357,9 @@ if ARGUMENTS.get('exe', 0):
         print "Running acceptance tests", map(str, exes)
         checkout_dir = Dir('#').abspath
         texttest = build.tools['texttest'] + ' -d ' + checkout_dir + '/apps/texttest/chaste'
+        # Currently we don't parse texttest results, so the status is hardcoded to 'unknown'.
+        # To fix this, we need to change 'output' to point to texttest's output and remove the Copy
+        # command below, then add in an extra parse&copy step.
         output = build.output_dir + '/chaste.unknown.0'
         # The next 2 lines make sure the acceptance tests will get run, and the right results stored
         env.Execute(Delete(output))
