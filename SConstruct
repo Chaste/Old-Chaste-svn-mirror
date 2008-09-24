@@ -384,7 +384,7 @@ if ARGUMENTS.get('exe', 0):
             for oldfile in oldfiles:
                 os.remove(oldfile)
             # Copy results and update summary dependencies
-            env.Execute(Copy(to_file_name, source[0]))
+            env.Execute(Copy(to_file_name, str(source[0])))
             if test_summary:
                 env.Depends(summary_index, to_file_name)
             return None
