@@ -354,10 +354,13 @@ if ARGUMENTS.get('exe', 0):
 
     if not compile_only:
         # Run acceptance tests
-        print "Running acceptance tests", exes
+        print "Running acceptance tests", map(str, exes)
         checkout_dir = Dir('#').abspath
         texttest = build.tools['texttest'] + ' -d ' + checkout_dir + '/apps/texttest/chaste'
         output = build.output_dir + '/chaste.unknown.0'
+        # The next 2 lines make sure the acceptance tests will get run, and the right results stored
+        env.Execute(Delete(output))
+        env.Execute(Delete(os.path.join(env['ENV']['CHASTE_TEST_OUTPUT'], 'texttest_output')))
         env.Command(output, exes,
                     [texttest + ' -b -c ' + checkout_dir,
                      texttest + ' -s batch.GenerateHistoricalReport default',

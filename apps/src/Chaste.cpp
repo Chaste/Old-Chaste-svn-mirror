@@ -201,7 +201,7 @@ void ReadParametersFromFile()
 template<unsigned PROBLEM_DIM>
 void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
 {
-    rProblem.ConvertOutputToMeshalyzerFormat(false);
+    rProblem.ConvertOutputToMeshalyzerFormat(true);
 }
 
 
@@ -335,8 +335,6 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
         return 1;
     }
 
-    Hdf5ToMeshalyzerConverter converter(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix());        
-    
     EventHandler::Headings();
     EventHandler::Report();
 
