@@ -28,20 +28,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Concrete version of the AbstractMeshReader class.
+ * Concrete version of the AbstractCachedMeshReader class.
  * A FemlabMeshReader takes the file names of a set of Femlab mesh files.
- * Once constructed the public methods of the AbstractMeshReader
+ * Once constructed the public methods of the AbstractCachedMeshReader
  * (std::vector<double> GetNextNode(); etc) can be called to interrogate the
  * data
  */
 #ifndef _FEMLABMESHREADER_H_
 #define _FEMLABMESHREADER_H_
 
-#include "AbstractMeshReader.hpp"
+#include "AbstractCachedMeshReader.hpp"
 #include "Exception.hpp"
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class FemlabMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
+class FemlabMeshReader : public AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
@@ -62,12 +62,11 @@ public:
  * (ie. the node, elements and face files (in that order) and allows the data to
  * be queried.
  * Typical use:
- *    AbstractMeshReader *spMeshReader=new FemlabMeshReader(
+ *    AbstractMeshReader *pMeshReader=new FemlabMeshReader(
  *                        "pdes/tests/meshdata/",
  *                        "femlab_lshape_nodes.dat",
  *                        "femlab_lshape_elements.dat",
  *                        "femlab_lshape_edges.dat",);
- * Also calls the superclass AbstractMeshReader's constructor
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBaseName,

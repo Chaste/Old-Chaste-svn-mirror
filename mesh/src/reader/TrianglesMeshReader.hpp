@@ -28,22 +28,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Concrete version of the AbstractMeshReader class.
+ * Concrete version of the AbstractCachedMeshReader class.
  * A TrianglesMeshReader takes the base name of a set of Triangles or
  * Tetgen mesh files (ie. the path and name of the files without the suffices).
- * Once constructed the public methods of the AbstractMeshReader
+ * Once constructed the public methods of the AbstractCachedMeshReader
  * (std::vector<double> GetNextNode(); etc) can be called to interrogate the
  * data
  */
 #ifndef _TRIANGLESMESHREADER_H_
 #define _TRIANGLESMESHREADER_H_
 
-#include "AbstractMeshReader.hpp"
+#include "AbstractCachedMeshReader.hpp"
 #include "Exception.hpp"
 #include <cassert>
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
+class TrianglesMeshReader : public AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestTrianglesMeshReader;
 
@@ -82,9 +82,8 @@ public:
  * Tetgen mesh files (ie. the path and name of the files without the suffices)
  * and allows the data to be queried.
  * Typical use:
- *    AbstractMeshReader *spMeshReader=new TrianglesMeshReader(
+ *    AbstractMeshReader *pMeshReader=new TrianglesMeshReader(
  *                        "pdes/tests/meshdata/disk_522_elements");
- * Also calls the superclass AbstractMeshReader's constructor
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements /*=1*/)

@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 #include <cassert>
+#include "AbstractMeshReader.hpp"
 
 const static char* NODES_FILE_EXTENSION = ".node";
 const static char* ELEMENTS_FILE_EXTENSION = ".ele";
@@ -41,21 +42,9 @@ const static char* FACES_FILE_EXTENSION = ".face";
 const static char* EDGES_FILE_EXTENSION = ".edge";
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MemoryFriendlyTrianglesMeshReader
+class MemoryFriendlyTrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>
 {
 private:
-
-//    std::vector<std::string> mNodeRawData;  /**< Contents of node input file with comments removed */
-//    std::vector<std::string> mElementRawData;  /**< Contents of element input file with comments removed */
-//    std::vector<std::string> mFaceRawData;  /**< Contents of face (or edge) input file with comments removed */
-//
-//    std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
-//    std::vector< std::vector<unsigned> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
-//    std::vector< std::vector<unsigned> > mFaceData; /**< Is an array of the nodes in each face ((i,j)th entry is the jth node of face i) */
-//
-//    std::vector< std::vector<double> >::iterator mpNodeIterator; /**< Is an iterator for the node data */
-//    std::vector< std::vector<unsigned> >::iterator mpElementIterator; /**< Is an iterator for the element data */
-//    std::vector< std::vector<unsigned> >::iterator mpFaceIterator; /**< Is an iterator for the face data */
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 
@@ -174,7 +163,12 @@ public:
     }
     
     /**< Resets pointers to beginning*/
-//    void Reset(); 
+    void Reset()
+    {
+        CloseFiles();
+        OpenFiles();
+        ReadHeaders();
+    } 
   
   	/**< Returns a vector of the nodes of each element in turn */
     std::vector<unsigned> GetNextElement()
@@ -198,11 +192,10 @@ public:
 		}
 
         unsigned node_index;
-    	
 	    for (unsigned i = 0; i < mNodesPerElement; i++)
         {
 	        buffer_stream >> node_index;
-	        ret_indices.push_back(node_index);
+	        ret_indices.push_back(node_index - offset);
         }
                 
         mElementsRead++;
@@ -221,9 +214,13 @@ public:
 		}
 		else
 		{
+            unsigned offset = mIndexFromZero ? 0 : 1;
+            
             unsigned is_boundary;
             do
-            {            
+            {       
+                ret_indices.clear();
+                     
 		        std::string buffer;		
 				GetNextLineFromStream(mFacesFile, buffer);
 		
@@ -236,12 +233,12 @@ public:
 			    for (unsigned i = 0; i<ELEMENT_DIM; i++)
 		        {
 			        buffer_stream >> node_index;
-			        ret_indices.push_back(node_index);
+			        ret_indices.push_back(node_index-offset);
 		        }
 
                 buffer_stream >> is_boundary; 
             }
-            while(is_boundary!=1);
+            while((mMaxFaceBdyMarker==1) && (is_boundary!=1));
 		}
 	                
         mFacesRead++;
@@ -407,6 +404,7 @@ private:
 		{
 			GetNextLineFromStream(mFacesFile, buffer);		
 			std::stringstream buffer_stream3(buffer);
+
 		    buffer_stream3 >> mNumFaces >> mMaxFaceBdyMarker;
 		    assert(mMaxFaceBdyMarker==0 || mMaxFaceBdyMarker==1);
 		    
@@ -420,6 +418,7 @@ private:
                 {
                     try
                     {
+                        std::cout << "h " << std::endl;
     					GetNextFace();
                         num_boundary_faces++;
                     }
@@ -438,25 +437,33 @@ private:
 		}		
 	}
 	
+    void CloseFiles()
+    {
+        mNodesFile.close();
+        mElementsFile.close();
+        mFacesFile.close();                
+    }
+    
 	void GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
 	{
 		bool line_is_blank;
-		bool line_is_comment;
 		
 		do
 		{
 	    	getline(fileStream, rawLine);
-	    	
+
 	    	if (fileStream.eof())
 	    	{
 	    		/// \todo: improve this error message
 	    		EXCEPTION("File contains incomplete data");
 	    	}
 	
-            line_is_comment = (rawLine.find('#',0) != std::string::npos);
+            // Get rid of any comment
+            rawLine = rawLine.substr(0,rawLine.find('#',0));
+            
             line_is_blank = (rawLine.find_first_not_of(" \t",0) == std::string::npos);	
 		}
-		while ( line_is_blank || line_is_comment);		
+		while (line_is_blank);		
 	}    
 };
 

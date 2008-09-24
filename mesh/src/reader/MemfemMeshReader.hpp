@@ -31,19 +31,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _MEMFEMMESHREADER_HPP_
 
 /**
- * Concrete version of the AbstractMeshReader class.
+ * Concrete version of the AbstractCachedMeshReader class.
  * A MemfemMeshReader takes the base name of a set of Memfem
  * mesh files (ie. the path and name of the files without the suffices).
- * Once constructed the public methods of the AbstractMeshReader
+ * Once constructed the public methods of the AbstractCachedMeshReader
  * (std::vector<double> GetNextNode(); etc) can be called to interrogate the
  * data
  */
 
-#include "AbstractMeshReader.hpp"
+#include "AbstractCachedMeshReader.hpp"
 #include "Exception.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MemfemMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
+class MemfemMeshReader : public AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
@@ -66,14 +66,12 @@ public:
  * mesh files (ie. the path and name of the files without the suffices)
  * and allows the data to be queried.
  * Typical use:
- *    AbstractMeshReader *spMeshReader=new MemfemMeshReader(
+ *    AbstractMeshReader *pMeshReader=new MemfemMeshReader(
  *                        "pdes/tests/meshdata/Memfem_slab");
- * Also calls the superclass AbstractMeshReader's constructor
  */
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseName)
-        : AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>()
 {
 
     //Open node file and store the lines as a vector of strings (minus the comments)

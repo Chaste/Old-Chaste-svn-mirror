@@ -148,7 +148,7 @@ public:
      */
     void TestIndexFromZero(void) throw(Exception)
     {
-        AbstractMeshReader<2,2> *p_mesh_reader;
+        AbstractCachedMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new READER_2D("mesh/test/data/disk_522_elements");
 
         TS_ASSERT_EQUALS(p_mesh_reader->GetMaxNodeIndex(), p_mesh_reader->GetNumNodes() - 1);
@@ -165,7 +165,7 @@ public:
      */
     void TestIndexFromOne(void) throw(Exception)
     {
-        AbstractMeshReader<2,2> *p_mesh_reader;
+        AbstractCachedMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new READER_2D(
                             "mesh/test/data/disk_522_elements_indexed_from_1");
 
