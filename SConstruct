@@ -354,6 +354,42 @@ if ARGUMENTS.get('exe', 0):
                                 LIBPATH=[libpath] + other_libpaths))
 
     if not compile_only:
+        import re
+        texttest_result_line = re.compile(r'<H2>.*: 1 tests: 1 (FAILED|succeeded) </H2>')
+        def texttest_parse_function(target, source, env):
+            """Parse results from texttest to figure out if acceptance tests passed.
+            target is a dummy file, since we don't know what we'll output until we're done.
+            source is the texttest results file.
+            """
+            fp = open(str(source[0]))
+            fails, succs = 0, 0
+            for line in fp:
+                m = texttest_result_line.match(line)
+                if m:
+                    result = m.group(1)
+                    if result == 'FAILED':
+                        fails += 1
+                    else:
+                        succs += 1
+            fp.close()
+            if fails == 0 and succs == 0:
+                status = 'unknown'
+            elif fails == 0:
+                status = 'OK'
+            else:
+                status = '%d_%d' % (fails, fails+succs)
+            to_file_name = build.output_dir + '/AcceptanceTests.' + status + '.0'
+            # Remove any old copies of results from this test
+            oldfiles = glob.glob(os.path.join(build.output_dir, 'AcceptanceTests.*'))
+            for oldfile in oldfiles:
+                os.remove(oldfile)
+            # Copy results and update summary dependencies
+            env.Execute(Copy(to_file_name, source[0]))
+            if test_summary:
+                env.Depends(summary_index, to_file_name)
+            return None
+        parse_builder = Builder(action=texttest_parse_function)
+        env['BUILDERS']['ParseTexttest'] = parse_builder
         # Run acceptance tests
         print "Running acceptance tests", map(str, exes)
         checkout_dir = Dir('#').abspath
@@ -362,16 +398,16 @@ if ARGUMENTS.get('exe', 0):
         # To fix this, we need to change 'output' to point to texttest's output and remove the Copy
         # command below, then add in an extra parse&copy step.
         texttest_output_dir = env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste'
-        todays_file = 'test__' + time.strftime("%d%b%Y") + '.html'
-        output = build.output_dir + '/chaste.unknown.0'
+        todays_file = os.path.join(texttest_output_dir, 'test__' + time.strftime("%d%b%Y") + '.html')
         # The next 2 lines make sure the acceptance tests will get run, and the right results stored
-        env.Execute(Delete(output))
+        env.Execute(Delete(todays_file))
         env.Execute(Delete(os.path.join(env['ENV']['CHASTE_TEST_OUTPUT'], 'texttest_output')))
-        env.Command(output, exes,
+        env.Command(todays_file, exes,
                     [texttest + ' -b -c ' + checkout_dir,
-                     texttest + ' -c ' + checkout_dir + ' -s batch.GenerateHistoricalReport default',
-                     Delete(output),
-                     Copy(output, os.path.join(texttest_output_dir, todays_file))])
-        env.Depends('apps', output)
+                     texttest + ' -c ' + checkout_dir + ' -s batch.GenerateHistoricalReport default'])
+        dummy = build.output_dir + '/dummy.texttest'
+        env.ParseTexttest(dummy, todays_file)
+        env.Depends('apps', [todays_file, dummy])
         if test_summary:
-            env.Depends(summary_index, output)
+            env.Depends(summary_index, dummy)
+        
