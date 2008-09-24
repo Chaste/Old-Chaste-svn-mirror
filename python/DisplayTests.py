@@ -170,6 +170,10 @@ def _recent(req, type=None, start=0):
   builds.sort()
   builds.reverse()
 
+  # Just show a subset
+  total_num_of_builds = len(builds)
+  builds = builds[start:start+20] # About a screenful
+
   output = []
   if start > 0:
     output.append(_linkRecent('Previous page', type, start=start-20) + " ")
@@ -186,10 +190,6 @@ def _recent(req, type=None, start=0):
     </tr>
 """)
   old_revision = -1
-
-  # Just show a subset
-  total_num_of_builds = len(builds)
-  builds = builds[start:start+20] # About a screenful
 
   bgcols = ["white", "#eedd82"]
   bgcol_index = 0
