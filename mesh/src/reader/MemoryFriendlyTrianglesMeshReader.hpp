@@ -217,6 +217,8 @@ public:
             unsigned offset = mIndexFromZero ? 0 : 1;
             
             unsigned is_boundary;
+            unsigned element_dim=ELEMENT_DIM;//In case ELEMENT_DIM is erroneously instatiated to zero
+            assert(element_dim != 0); //Covered in earlier exception, but needed in loop guard here.
             do
             {       
                 ret_indices.clear();
@@ -230,7 +232,8 @@ public:
 				buffer_stream >> face_index;
 		
 		        unsigned node_index;
-			    for (unsigned i = 0; i<ELEMENT_DIM; i++)
+                
+			    for (unsigned i = 0; i<element_dim; i++)
 		        {
 			        buffer_stream >> node_index;
 			        ret_indices.push_back(node_index-offset);
@@ -418,8 +421,7 @@ private:
                 {
                     try
                     {
-                        std::cout << "h " << std::endl;
-    					GetNextFace();
+         				GetNextFace();
                         num_boundary_faces++;
                     }
                     catch(Exception& e)
