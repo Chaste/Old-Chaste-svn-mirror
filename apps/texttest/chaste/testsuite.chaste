@@ -1,8 +1,8 @@
 # No parameters file specified
 no_params
 
-# run with baseline parameters
-baseline
+# monodomain with baseline parameters
+base_monodomain
 
 # bidomain with baseline parameters
 base_bidomain

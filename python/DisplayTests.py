@@ -103,7 +103,10 @@ def testsuite(req, type, revision, machine, buildType, testsuite, status, runtim
   req.write(_header(), 0)
   test_set_dir = _testResultsDir(type, revision, machine, buildType)
   buildTypesModule = _importBuildTypesModule(revision)
-  build = buildTypesModule.GetBuildType(buildType)
+  if buildType == 'acceptance':
+    build = buildTypesModule.GetBuildType('default')
+  else:
+    build = buildTypesModule.GetBuildType(buildType)
   testsuite_file = build.ResultsFileName(test_set_dir, testsuite, status, runtime)
   if os.path.isfile(testsuite_file):
     req.write('\n<pre>\n', 0)

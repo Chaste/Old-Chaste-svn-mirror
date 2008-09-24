@@ -46,6 +46,7 @@ import sys
 import os
 import glob
 import socket
+import time
 
 sys.path.append('python')
 import BuildTypes
@@ -360,6 +361,8 @@ if ARGUMENTS.get('exe', 0):
         # Currently we don't parse texttest results, so the status is hardcoded to 'unknown'.
         # To fix this, we need to change 'output' to point to texttest's output and remove the Copy
         # command below, then add in an extra parse&copy step.
+        texttest_output_dir = env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste'
+        todays_file = 'test__' + time.strftime("%d%b%Y") + '.html'
         output = build.output_dir + '/chaste.unknown.0'
         # The next 2 lines make sure the acceptance tests will get run, and the right results stored
         env.Execute(Delete(output))
@@ -368,7 +371,7 @@ if ARGUMENTS.get('exe', 0):
                     [texttest + ' -b -c ' + checkout_dir,
                      texttest + ' -c ' + checkout_dir + ' -s batch.GenerateHistoricalReport default',
                      Delete(output),
-                     Copy(output, env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste')])
+                     Copy(output, os.path.join(texttest_output_dir, todays_file))])
         env.Depends('apps', output)
         if test_summary:
             env.Depends(summary_index, output)
