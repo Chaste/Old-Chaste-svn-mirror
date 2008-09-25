@@ -162,7 +162,7 @@ void AbstractCardiacCell::GetSlowValues(std::vector<double>& rSlowValues)
     EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
 }
 
-bool AbstractCardiacCell::IsFast()
+bool AbstractCardiacCell::IsFastOnly()
 {
     EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
 }

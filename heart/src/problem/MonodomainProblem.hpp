@@ -102,16 +102,25 @@ public:
         double v_max = -1e5, v_min = 1e5;
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
-            if ( voltage_replicated[i] > v_max)
+            double v=voltage_replicated[i];
+#define COVERAGE_IGNORE
+            if (isnan(v))
             {
-                v_max = voltage_replicated[i];
+                EXCEPTION("Not-a-number encountered");
             }
-            if ( voltage_replicated[i] < v_min)
+#undef COVERAGE_IGNORE
+            if ( v > v_max)
             {
-                v_min = voltage_replicated[i];
+                v_max = v;
+            }
+            if ( v < v_min)
+            {
+                v_min = v;
             }
         }
-        std::cout << " max/min V = " <<  v_max << " " <<   v_min << "\n" << std::flush;
+        std::cout << " V = " << 
+            "[" <<v_min << ", " << v_max << "]" << "\n"
+             << std::flush;
     }
 };
 

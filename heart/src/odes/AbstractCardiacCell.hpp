@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 typedef enum _CellModelState
 {
     STATE_UNSET = 0,
-    FAST,
-    SLOW
+    FAST_VARS_ONLY,
+    ALL_VARS
 } CellModelState;
 
 /**
@@ -144,7 +144,7 @@ public:
     virtual void GetSlowValues(std::vector<double>& rSlowValues);
     
     /*< Get whether this cell is a fast or slow version */
-    virtual bool IsFast();
+    virtual bool IsFastOnly();
     
     virtual void AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues);
 

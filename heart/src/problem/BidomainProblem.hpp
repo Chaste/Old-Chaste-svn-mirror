@@ -157,24 +157,36 @@ public:
 
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
-            if ( voltage_replicated[2*i] > v_max)
+            double v=voltage_replicated[2*i];            
+            double phi=voltage_replicated[2*i+1];
+  
+#define COVERAGE_IGNORE
+            if (isnan(v) || isnan(phi))
             {
-                v_max = voltage_replicated[2*i];
+                EXCEPTION("Not-a-number encountered");
             }
-            if ( voltage_replicated[2*i] < v_min)
+#undef COVERAGE_IGNORE
+            if ( v > v_max)
             {
-                v_min = voltage_replicated[2*i];
+                v_max = v;
             }
-            if ( voltage_replicated[2*i+1] > phi_max)
+            if ( v < v_min)
             {
-                phi_max = voltage_replicated[2*i+1];
+                v_min = v;
             }
-            if ( voltage_replicated[2*i+1] < phi_min)
+            if ( phi > phi_max)
             {
-                phi_min = voltage_replicated[2*i+1];
+                phi_max = phi;
+            }
+            if ( phi < phi_min)
+            {
+                phi_min = phi;
             }
         }
-        std::cout << " max/min V, phi_e = " << v_max << " " << v_min << " " << phi_max << " " << phi_min << "\n" << std::flush;
+        std::cout << " V; phi_e = " << 
+            "[" <<v_min << ", " << v_max << "]" << ";\t"
+            "[" <<phi_min << ", " << phi_max << "]" << "\n"
+             << std::flush;
     }
 
     virtual void DefineWriterColumns()
