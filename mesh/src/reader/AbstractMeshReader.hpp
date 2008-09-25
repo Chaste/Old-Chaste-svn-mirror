@@ -78,8 +78,8 @@ public:
 //
 //        mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
 //    }
-//    virtual ~AbstractMeshReader()
-//    {}
+    virtual ~AbstractMeshReader()
+    {}
 
     /*< Returns the number of elements in the mesh */
     virtual unsigned GetNumElements() const =0;
