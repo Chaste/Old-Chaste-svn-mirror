@@ -327,11 +327,14 @@ public:
     /** 
      *  Solve the problem
      */    
-    void Solve()
+    void Solve(double tol = -1.0, 
+               unsigned offset=0, 
+               unsigned maxNumNewtonIterations=INT_MAX,
+               bool quitIfNoConvergence=true)
     {
         if(mWriteOutput)
         {
-            WriteOutput(0);
+            WriteOutput(0+offset);
         }
     
         // compute residual
@@ -342,24 +345,25 @@ public:
         mNumNewtonIterations = 0;
         unsigned counter = 1;
     
-        // use the larger of the tolerances formed from the absolute or
-        // relative possibilities
-        double tol = NEWTON_REL_TOL*norm_resid;
-
-        #define COVERAGE_IGNORE // not going to have tests in cts for everything
-        if(tol > MAX_NEWTON_ABS_TOL)
-        {
-            tol = MAX_NEWTON_ABS_TOL;
+        if(tol<0) // ie if wasn't passed in as a parameter
+        {        
+            tol = NEWTON_REL_TOL*norm_resid;
+    
+            #define COVERAGE_IGNORE // not going to have tests in cts for everything
+            if(tol > MAX_NEWTON_ABS_TOL)
+            {
+                tol = MAX_NEWTON_ABS_TOL;
+            }
+            if(tol < MIN_NEWTON_ABS_TOL)
+            {
+                tol = MIN_NEWTON_ABS_TOL;
+            }
+            #undef COVERAGE_IGNORE
         }
-        if(tol < MIN_NEWTON_ABS_TOL)
-        {
-            tol = MIN_NEWTON_ABS_TOL;
-        }
-        #undef COVERAGE_IGNORE
 
         std::cout << "Solving with tolerance " << tol << "\n";
     
-        while (norm_resid > tol)
+        while (norm_resid > tol && counter<maxNumNewtonIterations)
         {
             std::cout <<  "\n-------------------\n"
                       <<   "Newton iteration " << counter
@@ -373,7 +377,7 @@ public:
             std::cout << "Norm of residual is " << norm_resid << "\n";    
             if(mWriteOutput)
             {
-                WriteOutput(counter);
+                WriteOutput(counter+offset);
             }
     
             mNumNewtonIterations = counter;
@@ -387,7 +391,7 @@ public:
             }
         }
 
-        if (norm_resid > tol)
+        if ((norm_resid > tol) && quitIfNoConvergence)
         {
             #define COVERAGE_IGNORE
             EXCEPTION("Failed to converge");
