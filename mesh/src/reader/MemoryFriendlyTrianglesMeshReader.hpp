@@ -168,6 +168,10 @@ public:
         CloseFiles();
         OpenFiles();
         ReadHeaders();
+        
+        mNodesRead=0;
+        mElementsRead=0;
+        mFacesRead=0;        
     } 
   
   	/**< Returns a vector of the nodes of each element in turn */
