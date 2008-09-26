@@ -53,7 +53,7 @@ class NonlinearElasticityAssembler : public AbstractNonlinearElasticityAssembler
 {
 friend class TestNonlinearElasticityAssembler;
     
-private:
+protected:
     static const unsigned NUM_VERTICES_PER_ELEMENT = DIM+1;
     static const unsigned NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
     static const unsigned STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT; 
@@ -357,11 +357,21 @@ private:
      *  a specified non-zero surface traction (ie Neumann boundary condition)
      *  to be added to the Rhs vector.
      */
-    void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
-                                   c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-                                   c_vector<double,DIM>& rTraction)
+    virtual void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
+                                           c_matrix<double,BOUNDARY_STENCIL_SIZE,BOUNDARY_STENCIL_SIZE>& rAelem,
+                                           c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
+                                           c_vector<double,DIM>& rTraction,
+                                           bool assembleResidual,
+                                           bool assembleJacobian)
     {
+        rAelem.clear();
         rBelem.clear();
+
+        if(assembleJacobian && !assembleResidual)
+        {
+            // nothing to do
+            return;
+        }
 
         c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
 
@@ -526,12 +536,13 @@ private:
         // surface traction terms 
         ////////////////////////////////////////////////////////////
         c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
-        if(assembleResidual && mBoundaryElements.size()>0)
+        c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE> a_boundary_elem;
+        if(mBoundaryElements.size()>0)
         {
             for(unsigned i=0; i<mBoundaryElements.size(); i++)
             {
                 BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mBoundaryElements[i]);
-                AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, this->mSurfaceTractions[i]);
+                AssembleOnBoundaryElement(r_boundary_element, a_boundary_elem, b_boundary_elem, this->mSurfaceTractions[i], assembleResidual, assembleJacobian);
 
                 unsigned p_indices[BOUNDARY_STENCIL_SIZE];
                 for(unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
@@ -547,8 +558,16 @@ private:
                     p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
                 }
 
-                this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
-                
+                if (assembleJacobian)
+                {
+                    this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
+                }
+    
+                if (assembleResidual)
+                {
+                    this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
+                }
+
                 // some extra checking
                 if(DIM==2)
                 {   
@@ -668,7 +687,7 @@ public:
      *  tractions are assumed. This method takes in a list of boundary elements
      *  and a corresponding list of surface tractions
      */
-    void SetSurfaceTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
+    void SetSurfaceTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
                                               std::vector<c_vector<double,DIM> >& rSurfaceTractions)
     {
         assert(rBoundaryElements.size()==rSurfaceTractions.size());
