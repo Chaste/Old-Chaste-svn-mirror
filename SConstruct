@@ -398,7 +398,9 @@ if ARGUMENTS.get('exe', 0):
         # To fix this, we need to change 'output' to point to texttest's output and remove the Copy
         # command below, then add in an extra parse&copy step.
         texttest_output_dir = env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste'
-        todays_file = os.path.join(texttest_output_dir, 'test__' + time.strftime("%d%b%Y") + '.html')
+        time_eight_hours_ago =  time.time() - 8*60*60
+        canonical_test_date=time.strftime("%d%b%Y", time.localtime(time_eight_hours_ago))
+        todays_file = os.path.join(texttest_output_dir, 'test__' + canonical_test_date + '.html')
         # The next 2 lines make sure the acceptance tests will get run, and the right results stored
         env.Execute(Delete(todays_file))
         env.Execute(Delete(os.path.join(env['ENV']['CHASTE_TEST_OUTPUT'], 'texttest_output')))
