@@ -363,7 +363,7 @@ public:
 
         std::cout << "Solving with tolerance " << tol << "\n";
     
-        while (norm_resid > tol && counter<maxNumNewtonIterations)
+        while (norm_resid > tol && counter<=maxNumNewtonIterations)
         {
             std::cout <<  "\n-------------------\n"
                       <<   "Newton iteration " << counter
