@@ -548,6 +548,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     //new_node_index = mNumCornerNodes;
     mElements.reserve(rMeshReader.GetNumElements());
 
+//    std::cout << "num elements " << rMeshReader.GetNumElements() << std::endl; 
+//    std::cout << "num edges " << rMeshReader.GetNumFaces() << std::endl;
+//    assert(0);    
+
     for (unsigned element_index=0; element_index < (unsigned) rMeshReader.GetNumElements(); element_index++)
     {
         std::vector<unsigned> node_indices = rMeshReader.GetNextElement();
@@ -573,7 +577,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
     {
         std::vector<unsigned> node_indices = rMeshReader.GetNextFace();
-
+        
         bool is_boundary_face = true;
 
         // Determine if this is a boundary face

@@ -201,6 +201,8 @@ public:
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
+        std::cout << output_dir+"1dClosedMeshIn2dSpace" << std::endl;
+
         TrianglesMeshReader<1,2> mesh_reader2(output_dir+"1dClosedMeshIn2dSpace");
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 100U);
 

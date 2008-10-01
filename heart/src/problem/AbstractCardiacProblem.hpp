@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
 #include "ConformingTetrahedralMesh.hpp"
-#include "MemoryFriendlyTrianglesMeshReader.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
@@ -158,7 +157,7 @@ public:
             try
         	{
                 /// \todo: Only considering <LoadMesh/> definition. Consider <Slab/> too
-		        MemoryFriendlyTrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
+		        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
 		        mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
 		        mAllocatedMemoryForMesh = true;
 		
