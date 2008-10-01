@@ -107,7 +107,7 @@ private:
 
 public:
 
-    void xTestMeshConstructionFromMeshReader(void)
+    void TestMeshConstructionFromMeshReader(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -132,7 +132,7 @@ public:
     }
 
 
-    void xTest3dMeshConstructionFromMeshReader(void)
+    void Test3dMeshConstructionFromMeshReader(void)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51U);
@@ -168,7 +168,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
     }
 
-    void xTest3dMeshConstructionFromMeshReader2(void)
+    void Test3dMeshConstructionFromMeshReader2(void)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 425U);
@@ -184,7 +184,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 436U);
     }
 
-    void xTestMeshConstructionWithMemoryFriendlyMeshReader(void)
+    void TestMeshConstructionWithMemoryFriendlyMeshReader(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -209,7 +209,7 @@ public:
     }
 
 
-    void xTestMeshConstructionWithMemoryFriendlyMeshReaderIndexedFromOne(void)
+    void TestMeshConstructionWithMemoryFriendlyMeshReaderIndexedFromOne(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -234,7 +234,7 @@ public:
     }
 
 
-    void xTestMeshWithBoundaryElements(void)
+    void TestMeshWithBoundaryElements(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -257,7 +257,7 @@ public:
     }
 
 
-    void xTestRescaleMeshFromBoundaryNode(void)
+    void TestRescaleMeshFromBoundaryNode(void)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
