@@ -390,7 +390,7 @@ void LinearSystem::SetKspType(const char *kspType)
     strcpy(mKspType, kspType);
     if (mKspIsSetup)
     {
-    KSPSetType(mKspSolver, kspType);
+        KSPSetType(mKspSolver, kspType);
         KSPSetFromOptions(mKspSolver);
     }
 }
@@ -420,7 +420,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     if (!mKspIsSetup)
     {
         mNonZerosUsed=mat_info.nz_used;
-        //MatNorm(lhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
+        //MatNorm(mLhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
         PC prec; //Type of pre-conditioner
 
         KSPCreate(PETSC_COMM_WORLD, &mKspSolver);
@@ -487,7 +487,12 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         {
             EXCEPTION("LinearSystem doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
         }
-
+//        PetscScalar norm;
+//        MatNorm(mLhsMatrix, NORM_FROBENIUS, &norm);
+//        if (fabs(norm - mMatrixNorm) > 0)
+//        {
+//            EXCEPTION("LinearSystem doesn't allow the matrix norm to change");
+//        }
         #undef COVERAGE_IGNORE
     }
 
@@ -498,8 +503,49 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     if (lhsGuess)
     {
         VecCopy(lhsGuess, lhs_vector);
+        //VecZeroEntries(lhs_vector);
     }
-
+//    //Double check that the mRhsVector contains sensible values
+//    double *p_rhs, *p_guess;
+//    VecGetArray(mRhsVector, &p_rhs);
+//    VecGetArray(lhsGuess, &p_guess);
+//    for (int global_index=mOwnershipRangeLo; global_index<mOwnershipRangeHi; global_index++)
+//    {
+//        int local_index = global_index - mOwnershipRangeLo;
+//        assert(!isnan(p_rhs[local_index]));
+//        assert(!isnan(p_guess[local_index]));
+//        if (p_rhs[local_index] != p_rhs[local_index])
+//        {
+//            std::cout << "********* PETSc nan\n";
+//            assert(0);
+//        }
+//    }
+//    std::cout << "b[0] = " << p_rhs[0] << ", guess[0] = " << p_guess[0] << "\n";
+//    VecRestoreArray(mRhsVector, &p_rhs);
+//    VecRestoreArray(lhsGuess, &p_guess);
+//    // Test A*guess
+//    Vec temp;
+//    VecDuplicate(mRhsVector, &temp);
+//    MatMult(mLhsMatrix, lhs_vector, temp);
+//    double *p_temp;
+//    VecGetArray(temp, &p_temp);
+//    std::cout << "temp[0] = " << p_temp[0] << "\n";
+//    VecRestoreArray(temp, &p_temp);
+//    VecDestroy(temp);
+//    // Dump the matrix to file
+//    PetscViewer viewer;
+//    PetscViewerASCIIOpen(PETSC_COMM_WORLD,"mat.output",&viewer);
+//    MatView(mLhsMatrix, viewer);
+//    PetscViewerFlush(viewer);
+//    PetscViewerDestroy(viewer);
+//    // Dump the rhs vector to file
+//    PetscViewerASCIIOpen(PETSC_COMM_WORLD,"vec.output",&viewer);
+//    PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+//    VecView(mRhsVector, viewer);
+//    PetscViewerFlush(viewer);
+//    PetscViewerDestroy(viewer);
+    
+    
     try
     {
         EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
