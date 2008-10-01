@@ -3327,11 +3327,11 @@ _xsd_ksp_preconditioner_type_convert () const
   ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ksp_preconditioner_type_literals_);
   const _xsd_ksp_preconditioner_type* i (::std::lower_bound (
                                            _xsd_ksp_preconditioner_type_indexes_,
-                                           _xsd_ksp_preconditioner_type_indexes_ + 3,
+                                           _xsd_ksp_preconditioner_type_indexes_ + 4,
                                            *this,
                                            c));
 
-  if (i == _xsd_ksp_preconditioner_type_indexes_ + 3 || _xsd_ksp_preconditioner_type_literals_[*i] != *this)
+  if (i == _xsd_ksp_preconditioner_type_indexes_ + 4 || _xsd_ksp_preconditioner_type_literals_[*i] != *this)
   {
     throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
   }
@@ -3340,19 +3340,21 @@ _xsd_ksp_preconditioner_type_convert () const
 }
 
 const char* const ksp_preconditioner_type::
-_xsd_ksp_preconditioner_type_literals_[3] =
+_xsd_ksp_preconditioner_type_literals_[4] =
 {
   "ilu",
   "jacobi",
-  "bjacobi"
+  "bjacobi",
+  "none"
 };
 
 const ksp_preconditioner_type::_xsd_ksp_preconditioner_type ksp_preconditioner_type::
-_xsd_ksp_preconditioner_type_indexes_[3] =
+_xsd_ksp_preconditioner_type_indexes_[4] =
 {
   ::ksp_preconditioner_type::bjacobi,
   ::ksp_preconditioner_type::ilu,
-  ::ksp_preconditioner_type::jacobi
+  ::ksp_preconditioner_type::jacobi,
+  ::ksp_preconditioner_type::none
 };
 
 // simulation_type

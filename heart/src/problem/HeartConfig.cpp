@@ -582,6 +582,8 @@ const char* HeartConfig::GetKSPPreconditioner() const
     		return "jacobi";
     	case ksp_preconditioner_type::bjacobi :
     		return "bjacobi";
+        case ksp_preconditioner_type::none :
+            return "none";
     	
     }
 #define COVERAGE_IGNORE
@@ -808,6 +810,11 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
         mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::bjacobi);
 		return;
 	}
+    if ( strcmp(kspPreconditioner, "none") == 0)
+    {
+        mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::none);
+        return;
+    }
 	
 	EXCEPTION("Unknown preconditioner type provided");
 }
