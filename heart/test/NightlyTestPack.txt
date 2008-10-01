@@ -1,6 +1,7 @@
 Test1dBidomainProblemForEfficiency.hpp
 TestBidomain3D.hpp
 TestBidomainWithShocks.hpp
+TestCardiacElectroMechanicsProblem2.hpp
 TestConvergenceEfficiency.hpp
 TestConvergenceNeumannStimulus.hpp
 TestConvergenceNightly.hpp

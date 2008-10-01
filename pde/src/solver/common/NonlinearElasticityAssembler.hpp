@@ -78,11 +78,11 @@ protected:
      *  stored in mCurrrentSolution. The ordering assumed is (in 2d)
      *  rBelem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
      */
-    void AssembleOnElement(Element<DIM, DIM>& rElement,
-                           c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
-                           c_vector<double, STENCIL_SIZE>& rBElem,
-                           bool assembleResidual,
-                           bool assembleJacobian)
+    virtual void AssembleOnElement(Element<DIM, DIM>& rElement,
+                                   c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
+                                   c_vector<double, STENCIL_SIZE>& rBElem,
+                                   bool assembleResidual,
+                                   bool assembleJacobian)
     {
         const c_matrix<double, DIM, DIM>* p_inverse_jacobian = rElement.GetInverseJacobian();
         double jacobian_determinant = rElement.GetJacobianDeterminant();

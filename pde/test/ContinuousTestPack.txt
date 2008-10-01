@@ -5,10 +5,12 @@ TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestMaterialLaws2.hpp
-TestNonlinearHeatEquationPde.hpp
 TestNonlinearElasticityAssembler.hpp
+TestNonlinearElasticityTools.hpp
+TestNonlinearHeatEquationPde.hpp
 TestPdeSimulationTime.hpp
 TestQuadraticBasisFunction.hpp
+TestQuadraturePointsGroup.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
 TestSimpleNonlinearEllipticAssembler.hpp
