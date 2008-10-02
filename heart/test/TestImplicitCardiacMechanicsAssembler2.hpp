@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTIMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include "UblasCustomFunctions.hpp"
 #include "ImplicitCardiacMechanicsAssembler2.hpp"
 #include "MooneyRivlinMaterialLaw2.hpp"
 #include "PetscSetupAndFinalize.hpp"

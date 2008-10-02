@@ -24,14 +24,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-"""Chaste Build System
-
-This module is designed to be imported by both the build scripts and the
-web interface to test results.  Given a name representing a build type
-(a valid value of the build argument to scons) it determines what compile
-tools & flags to use, and also how to interpret the status string of a test
-suite.
-"""
 
 import os
 import sys
