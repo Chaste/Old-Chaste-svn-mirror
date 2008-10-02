@@ -215,16 +215,16 @@ public:
 		std::vector<unsigned> ret_indices;		
 
         // In the first two cases there's no file, all the nodes are set as faces
-		if (SPACE_DIM == 1)
-		{
-			ret_indices.push_back(mFacesRead);
-		}
+        if (SPACE_DIM == 1)
+        {
+            ret_indices.push_back(mFacesRead);
+        }
         else if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
         {
             ret_indices.push_back(mFacesRead);                        
         }
-		else
-		{
+        else
+        {
             unsigned offset = mIndexFromZero ? 0 : 1;
             
             unsigned is_boundary;
@@ -248,12 +248,12 @@ public:
 		        {
 			        buffer_stream >> node_index;
 			        ret_indices.push_back(node_index-offset);
-		        }
+                }
 
                 buffer_stream >> is_boundary; 
             }
             while((mMaxFaceBdyMarker==1) && (is_boundary!=1));
-		}        
+        }        
 	                
         mFacesRead++;
 		return ret_indices;
@@ -365,20 +365,12 @@ private:
         // get the next line to see if it is indexed from zero or not        	    
         GetNextLineFromStream(mNodesFile, buffer);
         std::stringstream buffer_stream_ii(buffer);
+
         unsigned first_index;
         buffer_stream_ii >> first_index;
-        if(first_index==0)
-        {
-            mIndexFromZero = true;
-        }
-        else
-        {
-            if(first_index!=1)
-            {
-                EXCEPTION("Nodes should indexed from zero or one");
-            }
-            mIndexFromZero = false;
-        }
+        assert(first_index == 0 || first_index == 1);         
+        mIndexFromZero = (first_index == 0);
+        
         //close, reopen, skip header
         mNodesFile.close();
         OpenNodeFile();

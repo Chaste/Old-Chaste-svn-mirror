@@ -74,6 +74,12 @@ public:
 
         delete pMeshReader;
     }
+    
+    void TestExceptions()
+    {
+        // The file does not exist
+        TS_ASSERT_THROWS_ANYTHING( READER_3D mesh_reader("no_file") );                       
+    }
 
 };
 
