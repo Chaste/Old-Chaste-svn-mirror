@@ -448,6 +448,15 @@ public:
         mUsingBodyForceFunction = true;
         mpBodyForceFunction = pFunction;
     }
+    
+    void SetWriteOutput(bool writeOutput = true)
+    {
+        if(writeOutput && (mOutputDirectory==""))
+        {
+            EXCEPTION("Can't write output if no output directory was given in constructor");
+        }
+        mWriteOutput = writeOutput;
+    }
 };
 
 #endif /*ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_*/

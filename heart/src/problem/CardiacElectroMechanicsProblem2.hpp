@@ -28,11 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //// TODO: 
 //     more tests (of this and implicit assembler)
-//     sort out output
 //     run for longer time
 //     compare times
 //     use direct solver
-//     see 'memory leak' below
 //     go through and tidy/refactor, perhaps make elements and weights safer
 
 
@@ -80,9 +78,11 @@ struct ElementAndWeights
  *
  *  Solves a monodomain problem (diffusion plus cell models) on a (fine) electrics 
  *  mesh, and a mechanics problem (finite elasticity plus NHS cell models) on a coarse 
- *  mesh. Variable timesteps to implemented soon. An explicit (unstable) or implicit (Jon
- *  Whiteley's algorithm) can be used.
+ *  mesh. An implicit scheme (Jon Whiteley's algorithm) be be used.
  *
+ *  At the moment just solves on the unit square. The spatial stepsize for the
+ *  electrics is fixed (96 by 96), and the displacement boundary conditions are
+ *  zero displacement on X=0.
  *
  *  The implicit algorithm:
  *
@@ -98,15 +98,13 @@ struct ElementAndWeights
  *       - use this active tension in computing the stress for that guess of the deformation
  *  end
  * 
- *  Note: invC is not used in the monodomain equations (code added but commented out),
- *  we have shown that this does not affect the mechanics results (might affect
- *  the electrics)
+ *  Note: invC is not used in the monodomain equations (code added but commented 
+ *  out) we have shown that this does not affect the mechanics results (might 
+ *  affect the electrics).
  */
-
 template<unsigned DIM>
 class CardiacElectroMechanicsProblem2
 {
-    unsigned mNumElementsPerDimInMechanicsMesh;
 
 friend class TestCardiacElectroMechanicsProblem2;
 
@@ -120,10 +118,10 @@ protected :
     double mEndTime;
     /*< The electrics timestep. */
     double mElectricsTimeStep;
-    /*< The mechanics timestep. Needds to be a multiple of the electrics timestep */
+    /*< The mechanics timestep. Needs to be a multiple of the electrics timestep */
     double mMechanicsTimeStep;
     /*< The number of electrics timesteps per mechanics timestep */
-    unsigned mNumElecStepsPerMechStep;
+    unsigned mNumElecTimestepsPerMechTimestep;
     /*< Timestep to use when solving NHS models (for implicit version)*/
     double mNhsOdeTimeStep;
 
@@ -141,6 +139,7 @@ protected :
 
     /*< Output directory, relative to TEST_OUTPUT */
     std::string mOutputDirectory;
+    /*< Deformation output-sub-directory */
     std::string mDeformationOutputDirectory;
     /*< Whether to write any output */
     bool mWriteOutput;
@@ -165,8 +164,12 @@ protected :
     unsigned mWatchedMechanicsNodeIndex;
     /*< File where watched location info is written */
     out_stream mpWatchedLocationFile;
+    /*< Number of nodes per dimension in the mechanics mesh (taken in in constructor) */
+    unsigned mNumElementsPerDimInMechanicsMesh;
 
-
+    /**
+     *  Construct the two meshes
+     */
     void ConstructMeshes()
     {
         double width = 1.0;
@@ -179,14 +182,18 @@ protected :
         mpElectricsMesh->Scale(width/num_elem,width/num_elem);
 
         // create mechanics mesh
+        assert(DIM==2); // the below assumes DIM==2 
         mpMechanicsMesh = new QuadraticMesh<DIM>(1.0,1.0,mNumElementsPerDimInMechanicsMesh,mNumElementsPerDimInMechanicsMesh);
         LOG(2, "Width of meshes is " << width);
         LOG(2, "Num nodes in electrical and mechanical meshes are: " << mpElectricsMesh->GetNumNodes() << ", " << mpMechanicsMesh->GetNumNodes() << "\n");
     }        
         
     
-    
-    virtual void ConstructMechanicsAssembler(std::string mechanicsOutputDir)
+    /**
+     *  Construct the mechanics assembler (the left-hand edge being fixed
+     *  is hardcoded here, and the default material law is used
+     */
+    void ConstructMechanicsAssembler()
     {
         std::vector<unsigned> fixed_nodes;
         for(unsigned i=0; i<mpMechanicsMesh->GetNumNodes(); i++)
@@ -196,14 +203,12 @@ protected :
                 fixed_nodes.push_back(i);
             }
         }
-///TODO: memory leak
-        mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler2<DIM>(mpMechanicsMesh,mechanicsOutputDir,fixed_nodes, new NashHunterPoleZeroLaw2<DIM>);
+        mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler2<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,fixed_nodes);
     }
-        
-//    virtual void PostSolve(double currentTime)
-//    {
-//    }
 
+    /** 
+     *  Determine which node is closest to the watched location
+     */
     void DetermineWatchedNodes()
     {
         assert(mIsWatchedLocation);
@@ -284,6 +289,10 @@ protected :
     }
 
 
+    /**
+     *  Write info (x, y, V, and Ca) for the watched node. Note: the Ca is written, 
+     *  but this ASSUMES LUO-RUDY IS USED
+     */
     void WriteWatchedLocationData(double time, Vec voltage)
     {
         assert(mIsWatchedLocation);
@@ -310,16 +319,11 @@ protected :
 public :
     /**
      *  Constructor
-     *  @param pCellFactory Pointer to a cell factory for the MonodomainProblem class
-     *  @param endTime end time, with start time assumed to be 0.
-     *  @param timeStep Time step.
-     *  @param useExplicitMethod Whether to use an explicit or implicit method
-     *  @param outputDirectory. Defaults to "", in which case no output is written
      */
     CardiacElectroMechanicsProblem2(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                     double endTime,
                                     unsigned numElementsPerDimInMechanicsMesh,
-                                    unsigned numElecStepsPerMechStep,
+                                    unsigned numElecTimeStepsPerMechTimestep,
                                     double nhsOdeTimeStep,
                                     std::string outputDirectory = "")
     {
@@ -333,11 +337,11 @@ public :
         assert(endTime > 0);
         mEndTime = endTime;
         mElectricsTimeStep = 0.01;
-        assert(numElecStepsPerMechStep>0);
+        assert(numElecTimeStepsPerMechTimestep>0);
         assert(numElementsPerDimInMechanicsMesh>0);
         mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
-        mNumElecStepsPerMechStep = numElecStepsPerMechStep;
-        mMechanicsTimeStep = mElectricsTimeStep*mNumElecStepsPerMechStep;
+        mNumElecTimestepsPerMechTimestep = numElecTimeStepsPerMechTimestep;
+        mMechanicsTimeStep = mElectricsTimeStep*mNumElecTimestepsPerMechTimestep;
         assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
         mNhsOdeTimeStep = nhsOdeTimeStep;
 
@@ -380,6 +384,9 @@ public :
         mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
     }
 
+    /**
+     *  Delete allocated memory and close the watched location file
+     */
     virtual ~CardiacElectroMechanicsProblem2()
     {
         delete mpMonodomainProblem;
@@ -396,9 +403,9 @@ public :
     }
 
     /**
-     *  Initialise the class. Calls ConstructMeshes() and ConstructMechanicsAssembler() on
-     *  the concrete classes. Initialises the MonodomainProblem and sets up the electrics
-     *  mesh to mechanics mesh data.
+     *  Initialise the class. Calls ConstructMeshes() and 
+     *  ConstructMechanicsAssembler(). Initialises the MonodomainProblem 
+     *  and sets up the electrics mesh to mechanics mesh data.
      */
     void Initialise()
     {
@@ -424,7 +431,7 @@ public :
         mpMonodomainProblem->Initialise();
 
         // construct mechanics assembler
-        ConstructMechanicsAssembler(mDeformationOutputDirectory);
+        ConstructMechanicsAssembler();
 
 //        if(mUseDirectLinearSolver)
 //        {
@@ -499,8 +506,6 @@ public :
         Vec voltage;
         Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
-        EulerIvpOdeSolver euler_solver;
-
         unsigned num_quad_points = mpCardiacMechAssembler->GetTotalNumQuadPoints();
         std::vector<NhsCellularMechanicsOdeSystem> cellmech_systems;
         std::vector<double> intracellular_Ca(num_quad_points, 0.0);
@@ -513,6 +518,7 @@ public :
         unsigned mech_writer_counter = 0;
         if (mWriteOutput)
         {
+            mpCardiacMechAssembler->SetWriteOutput();
             mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
 
             if(!mNoElectricsOutput)
@@ -533,7 +539,7 @@ public :
             std::cout << "\n\n ** Current time = " << stepper.GetTime();
 
             LOG(2, "  Solving electrics");
-            for(unsigned i=0; i<mNumElecStepsPerMechStep; i++)
+            for(unsigned i=0; i<mNumElecTimestepsPerMechTimestep; i++)
             {
                 double current_time = stepper.GetTime() + i*mElectricsTimeStep;
                 double next_time = stepper.GetTime() + (i+1)*mElectricsTimeStep;
@@ -592,6 +598,7 @@ public :
             // solve the mechanics
             LOG(2, "  Solving mechanics ");
             //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
+            mpCardiacMechAssembler->SetWriteOutput(false);
             mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
 
             unsigned num_iters = mpCardiacMechAssembler->GetNumNewtonIterations();
@@ -609,6 +616,7 @@ public :
                 LOG(2, "  Writing output");
                 // write deformed position
                 mech_writer_counter++;
+                mpCardiacMechAssembler->SetWriteOutput();
                 mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
 
                 if(!mNoElectricsOutput)
@@ -625,12 +633,12 @@ public :
 
 //            // setup the Cinverse data;
 //            std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
-//            dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
+//            mpCardiacMechAssembler->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
 //
 //            // write lambda
 //            std::stringstream file_name;
 //            file_name << "lambda_" << mech_writer_counter << ".dat";
-//            dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->WriteLambda(mOutputDirectory,file_name.str());
+//            mpCardiacMechAssembler->WriteLambda(mOutputDirectory,file_name.str());
 
 
             // write the total elapsed time..
@@ -687,13 +695,13 @@ public :
         mNoElectricsOutput = true;
     }
 
-    /** Use the direct solver when solving linear systems in the
-     *  mechanics. DEFINITELY should be used in experimental work.
-     */
-    void UseDirectLinearSolver()
-    {
-        mUseDirectLinearSolver = true;
-    }
+//    /** Use the direct solver when solving linear systems in the
+//     *  mechanics. DEFINITELY should be used in experimental work.
+//     */
+//    void UseDirectLinearSolver()
+//    {
+//        mUseDirectLinearSolver = true;
+//    }
 
     /**
      *  Set a location to be watched - for which lots of output
@@ -701,6 +709,8 @@ public :
      *
      *  The watched file will have rows that look like:
      *  time x_pos y_pos [z_pos] voltage Ca_i_conc.
+     *  
+     *  NOTE: for the Calcium - assumes LUO_RUDY IS USED
      */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation)
     {

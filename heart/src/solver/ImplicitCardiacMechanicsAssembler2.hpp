@@ -36,15 +36,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 #include <cfloat>
 
-// NOTE with zero body force and quasi-static elasticity the density is taken in but
-// not used, hence we just use the value 1.0
+// NOTE: with zero body force and quasi-static elasticity the density is taken in but
+// not used (as multiplied by zero body force), hence we just use the value 1.0.
 const double CARDIAC_TISSUE_DENSITY = 1.0;  
 
 
 /**
  *  Implicit Cardiac Mechanics Assembler
  * 
- *  Todo: describe algorithm here
+ *  Solves cardiac mechanics implicitly (together with the NHS cell
+ *  models for determining the active tension), taking in the intracellular
+ *  Calcium concentration. See CardiacElectroMechanicsProblem2 documentation
+ *  for more detail. 
  */
 template<unsigned DIM>
 class ImplicitCardiacMechanicsAssembler2 : public NonlinearElasticityAssembler<DIM>
@@ -52,16 +55,36 @@ class ImplicitCardiacMechanicsAssembler2 : public NonlinearElasticityAssembler<D
 friend class TestImplicitCardiacMechanicsAssembler2;
 
 private:
+    /** 
+     *  The NHS cell systems (with their own implicit solvers, which take in 
+     *  [Ca]_i and return Ta. Note the indexing: the i-th entry corresponds to
+     *  the i-th global quad point, when looping over elements and then
+     *  quad points */
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems;
+    
+    /** The stretch ratio (in the fibre direction) at the last timestep.
+     *  Note the indexing: the i-th entry corresponds to the i-th global 
+     *  quad point, when looping over elements and then quad points 
+     */ 
     std::vector<double> mLambdaLastTimeStep;
+    
+    /** The current stretch ratio (in the fibre direction). Note the indexing: 
+     *  the i-th entry corresponds to the i-th global quad point, when looping 
+     *  over elements and then quad points 
+     */ 
     std::vector<double> mLambda;
 
+    /*< Current time */
     double mCurrentTime;
+    /*< Time to which the solver has been asked to solve to */
     double mNextTime;
+    /*< Time used to integrate the NHS model */
     double mOdeTimestep;
 
+    /*< Whether the material law was passed in or the default used */
     bool mAllocatedMaterialLawMemory;
     
+    /*< Total number of quad points in the (mechanics) mesh */
     unsigned mTotalQuadPoints;
     
 public:
@@ -77,49 +100,58 @@ public:
                                        std::string outputDirectory,
                                        std::vector<unsigned>& rFixedNodes,
                                        AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw = NULL)
-        : NonlinearElasticityAssembler<DIM>(pQuadMesh, pMaterialLaw, zero_vector<double>(DIM), CARDIAC_TISSUE_DENSITY, outputDirectory, rFixedNodes),
+        : NonlinearElasticityAssembler<DIM>(pQuadMesh, 
+                                            pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw2<DIM>,
+                                            zero_vector<double>(DIM),
+                                            DOUBLE_UNSET,
+                                            outputDirectory, 
+                                            rFixedNodes),
           mCurrentTime(DBL_MAX),
           mNextTime(DBL_MAX),
           mOdeTimestep(DBL_MAX)
     {
+        // compute total num quad points
         mTotalQuadPoints = pQuadMesh->GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
 
+        // initialise stores
         mLambda.resize(mTotalQuadPoints, 1.0);
-
-        mCellMechSystems.resize(mTotalQuadPoints);
         mLambdaLastTimeStep.resize(mTotalQuadPoints, 1.0);
+        mCellMechSystems.resize(mTotalQuadPoints);
 
-        mAllocatedMaterialLawMemory = false;
-        if(pMaterialLaw==NULL)
-        {
-            assert(0); // not sure if this will work, as NULL was passed into constructor..
-            this->mMaterialLaws.resize(1);
-            this->mMaterialLaws[0] = new NashHunterPoleZeroLaw2<DIM>;
-            mAllocatedMaterialLawMemory = true;
-        }
+        // note that if pMaterialLaw is NULL a new NashHunter law was sent to the 
+        // NonlinElas constuctor (see above)
+        mAllocatedMaterialLawMemory = (pMaterialLaw==NULL);
     }
-
+    
+    /** 
+     *  Destructor just deletes memory if it was allocated
+     */
     ~ImplicitCardiacMechanicsAssembler2()
     {
         if(mAllocatedMaterialLawMemory)
         {
+            assert(this->mMaterialLaws.size()==1); // haven't implemented heterogeniety yet
             delete this->mMaterialLaws[0];
         }
     }
     
+    /*< Get the total number of quad points in the mesh */
     unsigned GetTotalNumQuadPoints()
     {
         return mTotalQuadPoints;
     }
     
+    /*< Get the quadrature rule used in the elements */
     GaussianQuadratureRule<DIM>* GetQuadratureRule()
     {
         return this->mpQuadratureRule;
     }
 
     /**
-     *  Overloaded SetForcingQuantity(), expecting Calcium concentrations not
-     *  active tensions
+     *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we 
+     *  would set the active tension as the forcing quantity; the implicit algorithm
+     *  takes in the Calcium concentration and solves for the active tension implicitly
+     *  together with the mechanics.
      */
     void SetIntracellularCalciumConcentrations(std::vector<double>& caI)
     {
@@ -131,20 +163,30 @@ public:
     }
 
     /**
-     *  Overloaded Solve, which stores the time info, calls the base Solve(),
-     *  then updates cell mechanics systems and lambda
+     *  Solve for the deformation using quasi-static nonlinear elasticity.
+     *  (not dynamic nonlinear elasticity, despite the times taken in - just ONE
+     *  deformation is solved for. The cell models are integrated implicitly
+     *  over the time range using the ODE timestep provided, as part of the solve,
+     *  and updated at the end once the solution has been found, as is lambda.
      */
     void Solve(double currentTime, double nextTime, double odeTimestep)
     {
+        // set the times, which are used in AssembleOnElement
         assert(currentTime < nextTime);
         mCurrentTime = currentTime;
         mNextTime = nextTime;
         mOdeTimestep = odeTimestep;
 
+        // solve
         NonlinearElasticityAssembler<DIM>::Solve();
 
+        // assemble residual again (to solve the cell models implicitly again 
+        // using the correct value of the deformation x (in case this wasn't the
+        // last thing that was done 
         this->AssembleSystem(true,false);
 
+        // now update state variables, and set lambda at last timestep. Note
+        // lambda was set in AssembleOnElement
         for(unsigned i=0; i<mCellMechSystems.size(); i++)
         {
              mCellMechSystems[i].UpdateStateVariables();
@@ -152,16 +194,15 @@ public:
         }
     }
 
-//    void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
-//    {
-//        EXCEPTION("ImplicitCardiacMechanicsAssembler can't do different fibre directions yet");
-//    }
-
 
 private:
 
     /**
-     *  AssembleOnElement
+     *  Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and 
+     *  the lack of the body force term in the residual, the bits were this is
+     *  different to the base class AssembleOnElement are restricted to two bits
+     *  (see code): calculating Ta implicitly and using it to compute the stress,
+     *  and the addition of a corresponding extra term to the Jacobian
      */
     void AssembleOnElement(Element<DIM, DIM>& rElement,
                            c_matrix<double, NonlinearElasticityAssembler<DIM>::STENCIL_SIZE, NonlinearElasticityAssembler<DIM>::STENCIL_SIZE >& rAElem,
@@ -313,8 +354,8 @@ private:
     
             double detF = Determinant(F);
 
-            /*************************************
-             *  The cardiac-specific code
+            /************************************
+             *  The cardiac-specific code PART 1
              ************************************/
             //static c_matrix<double,DIM,DIM> C_fibre;          // C when transformed to fibre-sheet axes
             //static c_matrix<double,DIM,DIM> inv_C_fibre;      // C^{-1} transformed to fibre-sheet axes
@@ -430,9 +471,9 @@ private:
 //            this->dTdE.SetAsProduct(temp3, this->mFibreSheetMat, 3);
 
 
-            /********************************
-             * end of cardiac specific code
-             ********************************/
+            /*************************************
+             * end of cardiac specific code PART 1
+             *************************************/
 
             /////////////////////////////////////////
             // residual vector
@@ -515,6 +556,9 @@ private:
                             }
                         }
                         
+                        /************************************
+                         *  The cardiac-specific code PART 2
+                         ************************************/
                         rAElem(index1,index2) +=  (
                                                        d_act_tension_dlam
                                                      +
@@ -527,6 +571,9 @@ private:
                                                     * grad_quad_phi(0,node_index1)
                                                     //* fe_values.shape_grad(i,q_point)[0]
                                                     * wJ;                        
+                       /************************************
+                        *  End cardiac-specific code PART 2
+                        ************************************/
                     }
                     
                     

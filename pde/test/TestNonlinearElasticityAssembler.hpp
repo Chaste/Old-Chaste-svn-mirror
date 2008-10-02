@@ -232,8 +232,11 @@ public:
                                                   "",
                                                   fixed_nodes);
 
-        assembler.Solve();
+        // for coverage
+        TS_ASSERT_THROWS_ANYTHING(assembler.SetWriteOutput(true));
+        assembler.SetWriteOutput(false);
 
+        assembler.Solve();
         TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 0u);
 
         // get deformed position
