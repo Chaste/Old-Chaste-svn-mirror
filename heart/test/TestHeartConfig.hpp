@@ -305,6 +305,9 @@ public :
         HeartConfig::Instance()->SetKSPPreconditioner("ilu");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
         
+        HeartConfig::Instance()->SetKSPPreconditioner("none");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);
+        
 		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
         
 
