@@ -100,9 +100,9 @@ public:
 
         READER_2D mesh_reader("mesh/test/data/baddata/bad_elements_disk_522_elements");
 
-        // Reads node 0 from file
+        // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader.GetNextElement());
-        // Reads node 2 from file when expecting number 1                            
+        // Reads element 2 from file when expecting number 1                            
         TS_ASSERT_THROWS_ANYTHING(mesh_reader.GetNextElement());                            
     }
 
@@ -123,10 +123,12 @@ public:
 
         delete p_mesh_reader;
 
-        //TS_ASSERT_THROWS_ANYTHING(
-        p_mesh_reader=new READER_2D(
-                            "mesh/test/data/baddata/bad_faces_disk_522_elements"/*)*/);
-        delete p_mesh_reader;//\todo This is temporary since presumably the constructor ought to throw?
+        READER_2D mesh_reader ("mesh/test/data/baddata/bad_faces_disk_522_elements");
+
+        // First boundary face is #20, on its way through the file there's a gap between face 1 and face 10
+        TS_ASSERT_THROWS_ANYTHING(mesh_reader.GetNextFace());
+        /// \todo: the exception thrown here is thrown in the constructor as well. In that case, it's wrongly
+        /// caught considering it an end of file exception and therefore setting an inconsistent number of faces.
     }
 
 
@@ -326,8 +328,7 @@ public:
 
     void TestOtherExceptions() throw(Exception)
     {
-        // these should fail because SPACE_DIM doesn't match the dimension in the file
-        //TS_ASSERT_THROWS_ANYTHING( READER_3D mesh_reader("mesh/test/data/disk_984_elements") );   
+        // these should fail because SPACE_DIM doesn't match the dimension in the file   
         TS_ASSERT_THROWS_ANYTHING( READER_1D mesh_reader("mesh/test/data/disk_984_elements") );
     }
 

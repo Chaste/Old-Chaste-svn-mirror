@@ -60,7 +60,8 @@ private:
 	
 	unsigned mNodesRead;
 	unsigned mElementsRead;
-	unsigned mFacesRead;
+    unsigned mFacesRead;
+    unsigned mBoundaryFacesRead;
 
     unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
     unsigned mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
@@ -79,7 +80,8 @@ public:
     	mNumFaces(0),
 		mNodesRead(0),
 		mElementsRead(0),
-		mFacesRead(0),
+        mFacesRead(0),
+		mBoundaryFacesRead(0),
     	mOrderOfElements(orderOfElements)
     {
         // Only linear and quadratic elements
@@ -129,6 +131,19 @@ public:
         return mNumFaces;
     }
 
+    /**< Resets pointers to beginning*/
+    void Reset()
+    {
+        CloseFiles();
+        OpenFiles();
+        ReadHeaders();
+        
+        mNodesRead=0;
+        mElementsRead=0;
+        mFacesRead=0;
+        mBoundaryFacesRead=0;        
+    } 
+
 
 	/**< Returns a vector of the coordinates of each node in turn */
     std::vector<double> GetNextNode()
@@ -163,19 +178,7 @@ public:
         
         return ret_coords;
     }
-    
-    /**< Resets pointers to beginning*/
-    void Reset()
-    {
-        CloseFiles();
-        OpenFiles();
-        ReadHeaders();
-        
-        mNodesRead=0;
-        mElementsRead=0;
-        mFacesRead=0;        
-    } 
-  
+      
   	/**< Returns a vector of the nodes of each element in turn */
     std::vector<unsigned> GetNextElement()
     {
@@ -217,11 +220,11 @@ public:
         // In the first two cases there's no file, all the nodes are set as faces
         if (SPACE_DIM == 1)
         {
-            ret_indices.push_back(mFacesRead);
+            ret_indices.push_back(mBoundaryFacesRead);
         }
         else if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
         {
-            ret_indices.push_back(mFacesRead);                        
+            ret_indices.push_back(mBoundaryFacesRead);                        
         }
         else
         {
@@ -241,21 +244,29 @@ public:
 		
 				unsigned face_index;		
 				buffer_stream >> face_index;
+
+                if(face_index != mFacesRead+offset)
+                {
+                    std::stringstream error;
+                    error << "Data for face " << mFacesRead << " missing";
+                    EXCEPTION(error.str());
+                }
 		
-		        unsigned node_index;
-                
+		        unsigned node_index;                
 			    for (unsigned i = 0; i<element_dim; i++)
 		        {
 			        buffer_stream >> node_index;
 			        ret_indices.push_back(node_index-offset);
                 }
 
-                buffer_stream >> is_boundary; 
+                buffer_stream >> is_boundary;
+                
+                mFacesRead++; 
             }
             while((mMaxFaceBdyMarker==1) && (is_boundary!=1));
         }        
 	                
-        mFacesRead++;
+        mBoundaryFacesRead++;
 		return ret_indices;
     }
 
@@ -441,7 +452,9 @@ private:
 				// close the file, reopen, and skip the header again
 				mFacesFile.close();
                 OpenFacesFile();
-                GetNextLineFromStream(mFacesFile, buffer);      
+                GetNextLineFromStream(mFacesFile, buffer);
+                mFacesRead=0;
+                mBoundaryFacesRead=0;      
             }            
 		}		
         
