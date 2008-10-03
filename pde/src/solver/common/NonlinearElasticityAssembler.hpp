@@ -48,17 +48,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Currently only works with fixed nodes BCs (ie zerodisplacement) and zero-surface
  *  tractions on the rest of the boundary.
  */ 
-template<unsigned DIM>
+template<size_t DIM>
 class NonlinearElasticityAssembler : public AbstractNonlinearElasticityAssembler<DIM>
 {
 friend class TestNonlinearElasticityAssembler;
     
 protected:
-    static const unsigned NUM_VERTICES_PER_ELEMENT = DIM+1;
-    static const unsigned NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
+    static const size_t NUM_VERTICES_PER_ELEMENT = DIM+1;
+    static const size_t NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
     static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT; 
-    static const unsigned NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
-    static const unsigned BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM; 
+    static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
+    static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM; 
 
     /**
      *  The mesh to be solved on. Requires 6 nodes per triangle (or 10 per tetrahedron)
