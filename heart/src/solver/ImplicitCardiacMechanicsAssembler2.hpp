@@ -393,8 +393,8 @@ private:
             }
 
             // compute the derivative of the active tension wrt lam and dlam_dt
-            double d_act_tension_dlam;
-            double d_act_tension_d_dlamdt;
+            double d_act_tension_dlam = 0.0; //Set and used if assembleJacobian==true
+            double d_act_tension_d_dlamdt = 0.0; //Set and used if assembleJacobian==true
 
             if(assembleJacobian)
             {

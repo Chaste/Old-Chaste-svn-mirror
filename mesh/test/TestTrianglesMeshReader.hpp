@@ -124,8 +124,9 @@ public:
         delete p_mesh_reader;
 
         //TS_ASSERT_THROWS_ANYTHING(
-            p_mesh_reader=new READER_2D(
+        p_mesh_reader=new READER_2D(
                             "mesh/test/data/baddata/bad_faces_disk_522_elements"/*)*/);
+        delete p_mesh_reader;//\todo This is temporary since presumably the constructor ought to throw?
     }
 
 

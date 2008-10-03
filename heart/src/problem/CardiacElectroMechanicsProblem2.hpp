@@ -503,7 +503,7 @@ public :
            = mpMonodomainProblem->CreateAssembler();
 
         // set up initial voltage etc
-        Vec voltage;
+        Vec voltage=NULL; //This will be set and used later
         Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
         unsigned num_quad_points = mpCardiacMechAssembler->GetTotalNumQuadPoints();
@@ -601,8 +601,7 @@ public :
             mpCardiacMechAssembler->SetWriteOutput(false);
             mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
 
-            unsigned num_iters = mpCardiacMechAssembler->GetNumNewtonIterations();
-            LOG(2, "    Number of newton iterations = " << num_iters);
+            LOG(2, "    Number of newton iterations = " << mpCardiacMechAssembler->GetNumNewtonIterations());
 
 //            PostSolve(stepper.GetTime());
 

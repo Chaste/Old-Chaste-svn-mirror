@@ -488,9 +488,10 @@ protected:
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
             iter = mpQuadMesh->GetElementIteratorBegin();
-    
-        c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
-        c_vector<double, STENCIL_SIZE> b_elem;
+        
+        const unsigned stencil_size=STENCIL_SIZE;
+        c_matrix<double, stencil_size, stencil_size> a_elem;
+        c_vector<double, stencil_size> b_elem;
     
         ////////////////////////////////////////////////////////
         // loop over elements
@@ -514,7 +515,8 @@ protected:
     
                 for(unsigned i=0; i<NUM_VERTICES_PER_ELEMENT; i++)
                 {
-                    p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + element.GetNodeGlobalIndex(i);
+                    unsigned index=DIM*NUM_NODES_PER_ELEMENT + i;
+                    p_indices[index] = DIM*mpQuadMesh->GetNumNodes() + element.GetNodeGlobalIndex(i);
                 }
     
                 if (assembleJacobian)
