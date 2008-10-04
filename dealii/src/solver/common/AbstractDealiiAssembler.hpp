@@ -519,6 +519,9 @@ protected:
         // deal with hanging nodes - form a continuous solutions
         mHangingNodeConstraints.distribute(update);
 
+
+        Timer::Reset();
+
         // save the old current solution
         Vector<double> old_solution = mCurrentSolution;
 
@@ -561,6 +564,8 @@ protected:
         {
             std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
         }
+        Timer::PrintAndReset("Testing damping values");
+
 
         // implement best update and recalculate residual
         mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);

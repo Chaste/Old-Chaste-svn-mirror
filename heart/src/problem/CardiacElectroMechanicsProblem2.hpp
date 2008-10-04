@@ -483,7 +483,7 @@ public :
     }
 
     /**
-     *  Solve the electromechanincs problem
+     *  Solve the electromechanics problem
      */
     void Solve()
     {
@@ -539,6 +539,7 @@ public :
             std::cout << "\n\n ** Current time = " << stepper.GetTime();
 
             LOG(2, "  Solving electrics");
+
             for(unsigned i=0; i<mNumElecTimestepsPerMechTimestep; i++)
             {
                 double current_time = stepper.GetTime() + i*mElectricsTimeStep;
@@ -595,6 +596,7 @@ public :
             // set [Ca]
             mpCardiacMechAssembler->SetIntracellularCalciumConcentrations(intracellular_Ca);
 
+
             // solve the mechanics
             LOG(2, "  Solving mechanics ");
             //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
@@ -602,8 +604,6 @@ public :
             mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
 
             LOG(2, "    Number of newton iterations = " << mpCardiacMechAssembler->GetNumNewtonIterations());
-
-//            PostSolve(stepper.GetTime());
 
             // update the current time
             stepper.AdvanceOneTimeStep();

@@ -37,6 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIncompressibleMaterialLaw2.hpp"
 #include "OutputFileHandler.hpp"
 
+
+//#include "Timer.hpp"  in the dealii folder
+
 template<unsigned DIM>
 class AbstractNonlinearElasticityAssembler
 {
@@ -178,9 +181,6 @@ protected:
         AssembleSystem(true, true);
         //Timer::PrintAndReset("AssembleSystem");
 
-        //Vec solution = mpLinearSystem->Solve();
-        //Timer::PrintAndReset("Solve");
-
         // solve explicity with Petsc's GMRES method.
         KSP solver;
         Vec solution;
@@ -199,6 +199,7 @@ protected:
         KSPSetUp(solver);
 
         KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
+        //Timer::PrintAndReset("KSP Solve");
 
         ReplicatableVector update(solution);
 
@@ -249,12 +250,14 @@ protected:
         {
             std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
         }
+        //Timer::PrintAndReset("Find best damping");
 
         // implement best update and recalculate residual
         for(unsigned j=0; j<mNumDofs; j++)
         {
             mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
         }
+        //Timer::PrintAndReset("Update");
         
         VecDestroy(solution);
         KSPDestroy(solver);
