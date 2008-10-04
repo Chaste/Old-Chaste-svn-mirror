@@ -38,7 +38,7 @@ Exception::Exception(std::string message,
 
     mMessage = std::string("\nChaste error: ") + filename + ":"  + line_number.str()  + ": " + message;
 
-    ///// The following is would the error message to the log file, if open exists.
+    ///// The following would write the error message to the log file, if one exists.
     ///// It's commented out because you end up with 100s of errors in the log from
     ///// element nodes being swapped around when the mesh is read in
     // no way of saying here whether this will be a fatal error, but write
