@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 
 
-//#include "Timer.hpp"  in the dealii folder
+//#include "Timer.hpp" // in the dealii folder
 
 template<unsigned DIM>
 class AbstractNonlinearElasticityAssembler
@@ -257,7 +257,6 @@ protected:
         {
             mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
         }
-        //Timer::PrintAndReset("Update");
         
         VecDestroy(solution);
         KSPDestroy(solver);

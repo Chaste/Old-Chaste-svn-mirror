@@ -1,6 +1,7 @@
 TestBidomainPde.hpp
 TestBidomainProblem.hpp
 TestCellProperties.hpp
+TestCardiacElectroMechanicsProblem2.hpp
 TestCellularMechanicsOdeSystems.hpp
 TestConductivityTensors.hpp
 TestConvergenceTester.hpp

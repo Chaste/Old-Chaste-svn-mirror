@@ -27,9 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 //// TODO: 
-//     more tests (of this and implicit assembler)
-//     run for longer time
-//     compare times
+//     more tests 
 //     use direct solver
 //     go through and tidy/refactor, perhaps make elements and weights safer
 
@@ -166,24 +164,30 @@ protected :
     out_stream mpWatchedLocationFile;
     /*< Number of nodes per dimension in the mechanics mesh (taken in in constructor) */
     unsigned mNumElementsPerDimInMechanicsMesh;
+    /*< Length and width of the domain, default to 1 (ie 1cm by 1cm) */
+    double mDomainWidth;
+    /*< Number of electrics elements in each direction (defaults to 100, amounted needed for default domain width) */
+    unsigned mNumElectricsElementsEachDir;
+    
 
     /**
      *  Construct the two meshes
      */
     void ConstructMeshes()
     {
-        double width = 1.0;
+        double width = mDomainWidth;
+        std::cout << "w="<<width;
 
         // create electrics mesh
         mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
 
-        unsigned num_elem = 96;
-        mpElectricsMesh->ConstructRectangularMesh(num_elem,num_elem);
-        mpElectricsMesh->Scale(width/num_elem,width/num_elem);
+        //unsigned num_elem = mNumElectricsElementsEachDir;
+        mpElectricsMesh->ConstructRectangularMesh(mNumElectricsElementsEachDir,mNumElectricsElementsEachDir);
+        mpElectricsMesh->Scale(width/mNumElectricsElementsEachDir,width/mNumElectricsElementsEachDir);
 
         // create mechanics mesh
         assert(DIM==2); // the below assumes DIM==2 
-        mpMechanicsMesh = new QuadraticMesh<DIM>(1.0,1.0,mNumElementsPerDimInMechanicsMesh,mNumElementsPerDimInMechanicsMesh);
+        mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,mNumElementsPerDimInMechanicsMesh,mNumElementsPerDimInMechanicsMesh);
         LOG(2, "Width of meshes is " << width);
         LOG(2, "Num nodes in electrical and mechanical meshes are: " << mpElectricsMesh->GetNumNodes() << ", " << mpMechanicsMesh->GetNumNodes() << "\n");
     }        
@@ -284,8 +288,8 @@ protected :
             mWatchedMechanicsNodeIndex = node_index;
         }
 
-        OutputFileHandler handler(mOutputDirectory + "/watched/");
-        mpWatchedLocationFile = handler.OpenOutputFile("data_NBassumesLr91.txt");
+        OutputFileHandler handler(mOutputDirectory);
+        mpWatchedLocationFile = handler.OpenOutputFile("watched.txt");
     }
 
 
@@ -325,7 +329,9 @@ public :
                                     unsigned numElementsPerDimInMechanicsMesh,
                                     unsigned numElecTimeStepsPerMechTimestep,
                                     double nhsOdeTimeStep,
-                                    std::string outputDirectory = "")
+                                    std::string outputDirectory = "",
+                                    double domainWidth = 1.0,
+                                    unsigned numElectricsElementsEachDir = 96)
     {
         // create the monodomain problem. Note the we use this to set up the cells,
         // get an initial condition (voltage) vector, and get an assembler. We won't
@@ -344,6 +350,10 @@ public :
         mMechanicsTimeStep = mElectricsTimeStep*mNumElecTimestepsPerMechTimestep;
         assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
         mNhsOdeTimeStep = nhsOdeTimeStep;
+        assert(domainWidth > 0);
+        mDomainWidth = domainWidth;
+        assert(numElectricsElementsEachDir > 0);
+        mNumElectricsElementsEachDir = numElectricsElementsEachDir;
 
         // check whether output is required
         mWriteOutput = (outputDirectory!="");
@@ -389,15 +399,19 @@ public :
      */
     virtual ~CardiacElectroMechanicsProblem2()
     {
+        // NOTE if SetWatchedLocation but not Initialise has been
+        // called, mpWatchedLocationFile will be uninitialised and
+        // using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
+        // it is true if Initialise has been called.
+        if(mIsWatchedLocation && mpMechanicsMesh)
+        {
+            mpWatchedLocationFile->close();
+        }
+
         delete mpMonodomainProblem;
         delete mpCardiacMechAssembler;
         delete mpElectricsMesh;
         delete mpMechanicsMesh;
-
-        if(mIsWatchedLocation)
-        {
-            mpWatchedLocationFile->close();
-        }
 
         LogFile::Close();
     }
@@ -715,6 +729,11 @@ public :
     {
         mIsWatchedLocation = true;
         mWatchedLocation = watchedLocation;
+    }
+    
+    std::vector<c_vector<double,DIM> >& rGetDeformedPosition()
+    {
+        return mpCardiacMechAssembler->rGetDeformedPosition();
     }
 };
 

@@ -170,12 +170,12 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     std::string command =    "./bin/triangle -eo2 " + handler.GetOutputDirectoryFullPath()
                            + "/" + tempfile_name_stem + ".node"; 
     system(command.c_str());
-    system(("ls -ltr "+ handler.GetOutputDirectoryFullPath()).c_str());
+//    system(("ls -ltr "+ handler.GetOutputDirectoryFullPath()).c_str());
     // move the output files to the chaste directory
     command =   "mv " + handler.GetOutputDirectoryFullPath() + "/" 
               + tempfile_name_stem + ".1.* .";
     system(command.c_str());
-    system("ls -ltr ");
+//    system("ls -ltr ");
     // load
     LoadFromFile( tempfile_name_stem + ".1");
     

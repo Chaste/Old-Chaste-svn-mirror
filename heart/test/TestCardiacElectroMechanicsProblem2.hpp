@@ -50,7 +50,7 @@ public:
 
         CardiacElectroMechanicsProblem2<2> problem(&cell_factory,
                                                    1, /* end time */
-                                                   10, /*mech mesh size*/
+                                                   1, /*mech mesh size*/
                                                    100, /* 100*0.01ms mech dt */
                                                    0.01,
                                                    "nothingtolookathere");
@@ -64,7 +64,7 @@ public:
         // have checked these hardcoded values correspond to the nodes
         // at (1,0);
         TS_ASSERT_EQUALS(problem.mWatchedElectricsNodeIndex, 9408u);
-        TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 10u);
+        TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
 
         //// would like to do the following....
         //CardiacElectroMechanicsProblem<2> problem2(&cell_factory,
@@ -78,23 +78,39 @@ public:
     }
 
 
-    void Test2dImplicit() throw(Exception)
+    void Test2dOneMechanicsElement() throw(Exception)
     {
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechanicsProblem2<2> implicit_problem(&cell_factory,
-                                                            10, /* end time */
-                                                            5, /*mech mesh size*/
-                                                            100, /* 100*0.01ms mech dt */
-                                                            0.01,
-                                                            "TestCardiacElectroMechImplicit2");
-        implicit_problem.SetNoElectricsOutput();
-        implicit_problem.Solve();
+        CardiacElectroMechanicsProblem2<2> problem(&cell_factory,
+                                                   10, /* end time */
+                                                   1, /*mech mesh size*/
+                                                   100, /* 100*0.01ms mech dt */
+                                                   0.01, /*NHS ode timestep */
+                                                   "TestCardiacElectroMechOneElement",
+                                                   0.05, /* Width of tissue */
+                                                   5);   /* Num electrics elements in each dir */
+        problem.SetNoElectricsOutput();
 
+        c_vector<double,2> pos;
+        pos(0) = 0.05;
+        pos(1) = 0.0;
+        
+        problem.SetWatchedPosition(pos);
+        problem.Solve();
+ 
         // test by checking the length of the tissue against hardcoded value
-        ImplicitCardiacMechanicsAssembler2<2>* assembler = implicit_problem.mpCardiacMechAssembler;
-        std::vector<c_vector<double,2> >& r_deformed_position = assembler->rGetDeformedPosition();
-        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.998313, 1e-4);
+        std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
+        TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0497, 1e-4);
+
+        OutputFileHandler handler("TestCardiacElectroMechOneElement",false);
+        std::string watched = handler.GetOutputDirectoryFullPath() + "watched.txt";
+        std::string command = "diff " + handler.GetOutputDirectoryFullPath() + "watched.txt heart/test/data/good_watched.txt";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        
+        // check no electrics output was written
+        command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
+        TS_ASSERT_DIFFERS(system(command.c_str()), 0);
     }
 
 //    void TestCinverseDataStructure() throw(Exception)
