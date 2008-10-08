@@ -498,6 +498,13 @@ public:
         {
             TS_ASSERT_EQUALS(twenty_one[i], 21U);
         }
+        //Can read more of the data
+        std::vector<double> Na_47=reader.GetVariableOverTime("I_Na", 47);
+        TS_ASSERT_EQUALS(Na_47.size(), 10U);
+        for (unsigned i=0; i<Na_47.size(); i++)
+        {
+            TS_ASSERT_EQUALS(Na_47[i], i*1000U + 200U + 47U);
+        }
 
         //Data not included
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 22));
