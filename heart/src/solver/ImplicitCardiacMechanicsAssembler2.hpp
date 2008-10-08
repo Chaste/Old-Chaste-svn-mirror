@@ -163,6 +163,18 @@ public:
     }
 
     /**
+     *  Get lambda (the stretch ratio).
+     *  NOTE: the i-th entry of this vector is assumed to be the i-th quad point 
+     *  obtained by looping over cells in the obvious way and then looping over 
+     *  quad points. These quad points, in the same order, can be obtained by 
+     *  using the QuadraturePointsGroup class.
+     */
+    std::vector<double>& rGetLambda()
+    {
+        return mLambda;
+    }
+
+    /**
      *  Solve for the deformation using quasi-static nonlinear elasticity.
      *  (not dynamic nonlinear elasticity, despite the times taken in - just ONE
      *  deformation is solved for. The cell models are integrated implicitly
@@ -385,11 +397,12 @@ private:
             }
             catch (Exception& e)
             {
-                active_tension = 1e10;
+                #define COVERAGE_IGNORE
                 if(assembleJacobian) 
                 {
                     EXCEPTION("Failed in solving NHS systems when assembling Jacobian");
                 }
+                #undef COVERAGE_IGNORE
             }
 
             // compute the derivative of the active tension wrt lam and dlam_dt
@@ -427,9 +440,12 @@ private:
             }
             catch (Exception& e)
             {
+                ///\todo: what's all this about?
+                #define COVERAGE_IGNORE
                 LOG(2, "WARNING in ImplicitCardiacMechanicsAssembler!\n");
                 active_tension = 1e10;
                 // should have done something above..
+                #undef COVERAGE_IGNORE
             }
 
             //this->mDTdE_fibre.Zero();
