@@ -9,7 +9,6 @@ TestFaberRudyAgainstLimpet.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
-TestImplicitCardiacMechanicsAssembler2.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainProblem.hpp

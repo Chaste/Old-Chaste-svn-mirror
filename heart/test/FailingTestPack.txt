@@ -1,4 +1,2 @@
 Test1dFibreWithHeterogeneity.hpp
 TestBidomainCompareWithMemfem.hpp
-TestCardiacElectroMechanicsProblem2.hpp
-TestCardiacElectroMechanicsProblem2Long.hpp
