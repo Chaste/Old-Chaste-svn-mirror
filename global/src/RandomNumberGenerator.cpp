@@ -90,11 +90,35 @@ double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
     return sd * StandardNormalRandomDeviate() + mean;
 }
 
+
+/**
+ *  Shuffle the integers 0,1,..,num-1, using the Knuth-algorithm 
+ *  (also called the Fisher-Yates algorithm), a linear time unbiased method.
+ *  The shuffled values are returned in rValues, which doesn't need to
+ *  be correctly-sized when passed in. 
+ */
+void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues)
+{
+    rValues.resize(num);
+    for(unsigned i=0; i<num; i++)
+    {
+        rValues[i] = i;
+    }
+        
+    for(unsigned end=num; end>0; end--)
+    {
+        // Pick a random integer from {0,..,end-1}
+        unsigned k = RandomNumberGenerator::Instance()->randMod(end); 
+        unsigned temp = rValues[end-1];
+        rValues[end-1] = rValues[k];
+        rValues[k] = temp;
+    }
+}     
+
+
 /**
  *  Generate a random number from the normal distribution with mean 0
  *  and standard distribution 1.
-
-
 
      (STANDARD-)  N O R M A L  DISTRIBUTION
 

@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <time.h>
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
@@ -44,6 +45,8 @@ public:
     double NormalRandomDeviate(double mean, double sd);
     double ranf(void);
     unsigned randMod(unsigned base);
+    void Shuffle(unsigned num, std::vector<unsigned>& rValues);
+
 
     static RandomNumberGenerator* Instance();
     static void Destroy();

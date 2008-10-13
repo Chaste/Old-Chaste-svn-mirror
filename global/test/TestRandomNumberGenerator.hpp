@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTRANDOMNUMBERS_HPP_
-#define TESTRANDOMNUMBERS_HPP_
+#ifndef TESTRANDOMNUMBERGENERATOR_HPP_
+#define TESTRANDOMNUMBERGENERATOR_HPP_
 #include <cxxtest/TestSuite.h>
 
 #include <boost/archive/text_oarchive.hpp>
@@ -36,13 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "UblasCustomFunctions.hpp" // use a c_matrix for a bit of storage
 
-class TestRandomNumbers : public CxxTest::TestSuite
+class TestRandomNumberGenerator : public CxxTest::TestSuite
 {
 public:
     double ran1;
 
-    void TestRandomNumers()
+    void TestRandomNumbers()
     {
         srandom(0);
         ran1=(double)random()/RAND_MAX;
@@ -146,8 +147,60 @@ public:
             RandomNumberGenerator::Destroy();
         }
     }
+    
+    void TestShuffle() throw(Exception)
+    {
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        p_gen->Reseed(0);
 
+        std::vector<unsigned> shuffled_results;
+        p_gen->Shuffle(5,shuffled_results);
 
+        for(unsigned i=0; i<5; i++)
+        {
+            bool found = false;
+            for(unsigned j=0; j<shuffled_results.size(); j++)
+            {
+                if(shuffled_results[j]==i)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            TS_ASSERT_EQUALS(found, true);
+        }
+            
+        unsigned num_trials = 100000;
+        c_matrix<unsigned,5,5> results = zero_matrix<unsigned>(5,5);
+        
+        for(unsigned trial=0; trial<num_trials; trial++) 
+        {
+            p_gen->Shuffle(5,shuffled_results);
+            for(unsigned i=0;i<5;i++)
+            {
+                for(unsigned j=0;j<5;j++)
+                {
+                    if(shuffled_results[j] == i)
+                    {
+                        results(i,j)++;
+                    }
+                }
+            }
+        }
+        for(unsigned i=0; i<5; i++)
+        {
+            for(unsigned j=0; j<5; j++)
+            {
+                // prob of i going to position j
+                double prob = (double)results(i,j)/num_trials; 
+                
+                // This test could fail with very low probability (just rerun)
+                // We accept 0.19 to 0.21,
+                // (note, usually in 0.199 to 0.201 with million trials (we use 10^5 trials))
+                TS_ASSERT_DELTA(prob, 0.2, 1e-2); 
+            }
+        }
+    }
 };
 
-#endif /*TESTRANDOMNUMBERS_HPP_*/
+#endif /*TESTRANDOMNUMBERGENERATOR_HPP_*/
