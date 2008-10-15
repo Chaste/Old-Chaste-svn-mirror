@@ -451,6 +451,7 @@ private:
 				
 				// close the file, reopen, and skip the header again
 				mFacesFile.close();
+                mFacesFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
                 OpenFacesFile();
                 GetNextLineFromStream(mFacesFile, buffer);
                 mFacesRead=0;
