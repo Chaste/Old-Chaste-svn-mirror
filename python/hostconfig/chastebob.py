@@ -35,7 +35,7 @@ petsc_build_name_optimized = 'linux-gnu-opt'
 petsc_build_name_production = 'linux-intel-opt-mkl'
 dealii_path = '../../../deal.II-5.2.0/'
 metis_path = '../../../metis-4.0/'
-intel_path = '/opt/intel/cce/9.1.039'
+intel_path = '/opt/intel/cce/10.0.025'
 icpc='icpc'
 
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include']
