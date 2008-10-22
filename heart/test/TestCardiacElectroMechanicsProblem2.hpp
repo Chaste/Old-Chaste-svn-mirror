@@ -54,7 +54,7 @@ public:
                                                    1, /*mech mesh size*/
                                                    100, /* 100*0.01ms mech dt */
                                                    0.01,
-                                                   "nothingtolookathere");
+                                                   "");
 
         c_vector<double,2> pos;
         pos(0) = 1.0;
@@ -68,9 +68,9 @@ public:
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
 
         //// would like to do the following....
-        //CardiacElectroMechanicsProblem<2> problem2(&cell_factory,
-        //                                           1, 10, 100, 0.01,
-        //                                           "nothingtolookathere");
+        //CardiacElectroMechanicsProblem2<2> problem2(&cell_factory,
+        //                                            1, 10, 100, 0.01,
+        //                                            "");
         //pos(1) = 1.1;
         //problem2.SetWatchedPosition(pos);
         //TS_ASSERT_THROWS_ANYTHING(problem2.Initialise());
@@ -93,8 +93,6 @@ public:
                                                    "TestCardiacElectroMechOneElement",
                                                    0.05, /* Width of tissue */
                                                    5);   /* Num electrics elements in each dir */
-        problem.SetNoElectricsOutput();
-
         c_vector<double,2> pos;
         pos(0) = 0.05;
         pos(1) = 0.0;
@@ -111,9 +109,9 @@ public:
         std::string command = "diff " + handler.GetOutputDirectoryFullPath() + "watched.txt heart/test/data/good_watched.txt";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         
-        // check no electrics output was written
+        // check electrics output was written
         command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
-        TS_ASSERT_DIFFERS(system(command.c_str()), 0);
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
 //// Don't delete

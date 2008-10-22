@@ -236,13 +236,15 @@ protected :
 
         if(min_dist > 1e-8)
         {
+            #define COVERAGE_IGNORE
             std::cout << "ERROR: Could not find an electrics node very close to requested watched location - "
                       << "min distance was " << min_dist << " for node " << node_index
                       << " at location " << pos << std::flush;;
 
             //// the following causes a seg fault for some reason (!!???!!!)
-            // EXCEPTION("Could not find an electrics node very close to requested watched location");
+            //EXCEPTION("Could not find an electrics node very close to requested watched location");
             assert(0);
+            #undef COVERAGE_IGNORE
         }
         else
         {
@@ -274,6 +276,7 @@ protected :
 
         if(min_dist > 1e-8)
         {
+            #define COVERAGE_IGNORE
             std::cout << "ERROR: Could not find a mechanics node very close to requested watched location - "
                       << "min distance was " << min_dist << " for node " << node_index
                       << " at location " << pos_at_min;
@@ -281,6 +284,7 @@ protected :
             //// the following causes a seg fault for some reason (!!???!!!)
             //EXCEPTION("Could not find a mechanics node very close to requested watched location");
             assert(0);
+            #undef COVERAGE_IGNORE
         }
         else
         {
@@ -660,27 +664,22 @@ public :
 
         if ((mWriteOutput) && (!mNoElectricsOutput))
         {
-//            if( PetscTools::AmMaster() ) // ie only if master process and results files were written
+//// Not sure why this doesn't work.
+//            //Convert simulation data to Meshalyzer format
+//            std::string output_directory =  mOutputDirectory + "/electrics/output";
+//            Hdf5ToMeshalyzerConverter converter(mOutputDirectory+"/electrics", output_directory, "voltage");
+//            
+//            //Write mesh in a suitable form for meshalyzer
+//            if (PetscTools::AmMaster())
 //            {
-//                // call shell script which converts the data to meshalyzer format
-//                std::string chaste_2_meshalyzer;
-//                std::stringstream space_dim;
-//                space_dim << DIM;
-//
-//                std::string mesh_full_path =   OutputFileHandler::GetChasteTestOutputDirectory()
-//                                             + mOutputDirectory + "/electrics_mesh";
-//
-//                chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
-//                                      + space_dim.str() + " "       // argument 1 is the dimension.
-//                                      + mesh_full_path + " "        // arg 2 is mesh prefix
-//                                      + mOutputDirectory + "/electrics/"
-//                                      + "voltage "                  // arg 3 is the results folder and prefix,
-//                                                                    // relative to the testoutput folder.
-//                                      + "last_simulation";          // arg 4 is the output prefix, relative to
-//                                                                    // anim folder.
-//                system(chaste_2_meshalyzer.c_str());
+//                //Write the mesh
+//                MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
+//                mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
+//                
+//                //Write the parameters out
+//                HeartConfig::Instance()->Write(output_directory, "parameters.xml");
 //            }
-//
+
             HeartConfig::Instance()->Reset();
             mpMonodomainProblem->mpWriter->Close();
             delete mpMonodomainProblem->mpWriter;
