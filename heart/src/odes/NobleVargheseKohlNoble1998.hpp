@@ -118,8 +118,6 @@ public:
     {
     }
 
-    void VerifyGatingVariables() {}
-
     double GetIIonic()
     {
         std::vector<double>& rY = rGetStateVariables();

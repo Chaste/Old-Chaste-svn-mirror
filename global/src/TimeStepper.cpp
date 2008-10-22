@@ -44,11 +44,11 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
       mTimeStep(0),
       mTime(startTime)
 {
-    // std::cout << startTime << " " << endTime << " " << dt << std::endl;
     if (startTime > endTime)
     {
         EXCEPTION("The simulation duration must be positive");
     }
+ 
     /**
      * \todo This assertion breaks several tests
      *

@@ -149,8 +149,6 @@ public:
         mScaleFactorIto=sfito;
     }
 
-    void VerifyGatingVariables() {}
-
     double GetIIonic()
     {
         std::vector<double>& rY = rGetStateVariables();

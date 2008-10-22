@@ -681,8 +681,6 @@ public:
     // Lookup table indices
     unsigned _table_index_0;
     double _factor_0;
-    
-    void VerifyGatingVariables() {}
 
     double GetIIonic()
     {
