@@ -686,6 +686,7 @@ public :
             delete mpMonodomainProblem->mpWriter;
         }
 
+        VecDestroy(voltage);
         delete p_electrics_assembler;
     }
 
