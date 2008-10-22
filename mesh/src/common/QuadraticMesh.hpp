@@ -166,16 +166,42 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     // create the quadratic mesh files using triangle and load
     ////////////////////////////////////////////////////////////
     
+    std::string binary;
+
+    #define COVERAGE_IGNORE  // can't cover both of these cases on the same machine, obv.
+    if(sizeof(long)==4)
+    {
+        // 32-bit machine
+        binary = "./bin/triangle";
+    }
+    else
+    {
+        // 64-bit machine, sizeof(long)==8
+        binary = "./bin/triangle_64";
+    }
+    #undef COVERAGE_IGNORE
+
     // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
-    std::string command =    "./bin/triangle -eo2 " + handler.GetOutputDirectoryFullPath()
+    std::string command =  binary + " -Qeo2 " + handler.GetOutputDirectoryFullPath()
                            + "/" + tempfile_name_stem + ".node"; 
-    system(command.c_str());
-//    system(("ls -ltr "+ handler.GetOutputDirectoryFullPath()).c_str());
+    int return_value = system(command.c_str());
+    
+    if(return_value != 0)
+    {
+        #define COVERAGE_IGNORE
+        EXCEPTION("Remeshing (by calling triangle) failed");
+        #undef COVERAGE_IGNORE 
+    }
+    
     // move the output files to the chaste directory
     command =   "mv " + handler.GetOutputDirectoryFullPath() + "/" 
               + tempfile_name_stem + ".1.* .";
+    
+    // NOTE: we don't check whether the return value here is zero, because if CHASTE_TESTOUTPUT
+    // is "." (ie if it hasn't been exported), then the mv will fail (source and destination files
+    // are the same), but this isn't a problem.
     system(command.c_str());
-//    system("ls -ltr ");
+    
     // load
     LoadFromFile( tempfile_name_stem + ".1");
     
