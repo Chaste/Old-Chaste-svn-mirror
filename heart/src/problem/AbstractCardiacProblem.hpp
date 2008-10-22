@@ -96,8 +96,8 @@ protected:
 
 public:
     // This (and things in MonodomainProblem) being public are hacks for
-    // AbstractCardiacElectroMechanicsWriter to work.
-    // TODO AbstractCardiacElectroMechanicsWriter should be a friend, but not sure
+    // CardiacElectroMechanicsProblem to work.
+    // TODO CardiacElectroMechanicsProblem should be a friend, but not sure
     // how to get friends to work when both friends are templated and abstract.
     Hdf5DataWriter* mpWriter;
 

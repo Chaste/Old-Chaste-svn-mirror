@@ -92,8 +92,6 @@ public:
     /**
      * Computes the total current flowing through the cell membrane, using the current
      * values of the state variables.
-     *
-     * \todo does any cell model need to know the current time as well?
      */
     virtual double GetIIonic() = 0;
 
@@ -135,7 +133,7 @@ public:
     virtual void VerifyStateVariables()
     {
 //// This code is for the future, but commented out at the moment due to the memory increas
-//// it will introduce. See #???
+//// it will introduce. See #794.
 ////
 //// DOXYGEN DESCRIPTION NEEDS CHANGING ONCE THIS IS BROUGHT IN 
 ////
