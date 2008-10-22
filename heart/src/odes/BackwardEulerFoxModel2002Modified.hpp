@@ -85,8 +85,6 @@ public:
     {
     }
 
-    void VerifyStateVariables() {}
-
     double GetIIonic()
     {
         std::vector<double>& rY = rGetStateVariables();

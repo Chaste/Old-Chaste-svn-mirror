@@ -114,8 +114,6 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
     double slow_inward_current_f_gate_f = rY[6];
     double time_dependent_potassium_current_X_gate_X = rY[7];
     
-    VerifyStateVariables();    
-    
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
     
     double fast_sodium_current_h_gate_alpha_h;
@@ -290,7 +288,6 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
 
 void LuoRudyIModel1991OdeSystem::VerifyStateVariables()
 {
-//#ifndef NDEBUG
     const std::vector<double>& rY = rGetStateVariables();
  
     const double fast_sodium_current_h_gate_h = rY[0];            // gating
@@ -337,5 +334,4 @@ void LuoRudyIModel1991OdeSystem::VerifyStateVariables()
         EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     #undef COVERAGE_IGNORE
-//#endif
 }

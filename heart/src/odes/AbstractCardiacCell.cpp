@@ -86,6 +86,8 @@ void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
     mSetVoltageDerivativeToZero = false;
 
     SetVoltage(saved_voltage);
+
+    VerifyStateVariables();
 }
 
 void AbstractCardiacCell::SetVoltage(double voltage)

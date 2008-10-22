@@ -125,10 +125,22 @@ public:
      *  one of the state variables
      */
     virtual double GetIntracellularCalciumConcentration();
-    
-    /*
-     *  METHODS NEEDED BY FAST CARDIAC CELLS
-     */    
+
+    /** 
+     *  Empty method which can be over-ridden in concrete cell class which should
+     *  go through the current state vector and go range checking on the values
+     *  (eg check that concentrations are positive and gating variables are between 
+     *  zero and one). This method is called in the ComputeExceptVoltage method.
+     */
+    virtual void VerifyStateVariables()
+    {
+    }    
+
+
+
+    ////////////////////////////////////////////////////////////////////////
+    //  METHODS NEEDED BY FAST CARDIAC CELLS
+    ////////////////////////////////////////////////////////////////////////
     
     /**
      *  Pure method for setting the state of this model. This should
@@ -153,6 +165,8 @@ public:
      *  (irrespective of whether in fast or slow mode
      */
     virtual unsigned GetNumSlowValues();
+    
+
     
 };
 

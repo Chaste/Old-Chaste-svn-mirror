@@ -389,7 +389,6 @@ double BackwardEulerLuoRudyIModel1991::GetIIonic()
 
 void BackwardEulerLuoRudyIModel1991::VerifyStateVariables()
 {
-//#ifndef NDEBUG
     const std::vector<double>& rY = rGetStateVariables();
  
     const double fast_sodium_current_h_gate_h = rY[0];            // gating
@@ -436,6 +435,5 @@ void BackwardEulerLuoRudyIModel1991::VerifyStateVariables()
         EXCEPTION("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize");
     }
     #undef COVERAGE_IGNORE
-//#endif
 }
 

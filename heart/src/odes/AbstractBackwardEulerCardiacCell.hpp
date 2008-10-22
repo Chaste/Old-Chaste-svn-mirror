@@ -115,13 +115,6 @@ public:
      */
     virtual void ComputeExceptVoltage(double tStart, double tEnd);
 
-    /**
-     *  The implemented version of this pure method should check that none
-     *  of the gating variables have gone out of range and throw an
-     *  Exception if any have.
-     */
-    virtual void VerifyStateVariables()=0;
-
 private:
 #define COVERAGE_IGNORE
     /**
