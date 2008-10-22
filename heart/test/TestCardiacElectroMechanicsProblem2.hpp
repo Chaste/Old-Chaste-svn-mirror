@@ -41,9 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacElectroMechanicsProblem2 : public CxxTest::TestSuite
 {
 public:
-
     void TestDeterminingWatchedNodes() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+
         EventHandler::Disable();
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
@@ -80,6 +81,8 @@ public:
 
     void Test2dOneMechanicsElement() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechanicsProblem2<2> problem(&cell_factory,
@@ -113,6 +116,7 @@ public:
         TS_ASSERT_DIFFERS(system(command.c_str()), 0);
     }
 
+//// Don't delete
 //    void TestCinverseDataStructure() throw(Exception)
 //    {
 //        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);

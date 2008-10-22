@@ -43,6 +43,8 @@ class TestCardiacElectroMechanicsProblem2Long : public CxxTest::TestSuite
 public:
     void Test2dHardcodedResult() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechanicsProblem2<2> problem(&cell_factory,
