@@ -113,7 +113,7 @@ public:
                 
         // coverage - test default material law works ok
         ImplicitCardiacMechanicsAssembler2<2> another_assembler(&mesh,"",fixed_nodes);
-        c_matrix<double,2,2> F;
+        c_matrix<double,2,2> F = zero_matrix<double>(2,2);
         F(0,0)=F(1,1)=1.1; 
         double pressure = 1;
         c_matrix<double,2,2> S;        
