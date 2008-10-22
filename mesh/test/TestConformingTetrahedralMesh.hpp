@@ -1946,6 +1946,8 @@ public:
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(0.0, weights[2]);
         TS_ASSERT_LESS_THAN(0.0, weights[3]);
+        // Weights are non-negative and sum to 1
+        TS_ASSERT_DELTA(norm_1(weights),1.0,1e-12);
 
         ChastePoint<3> out_point(0.1, -10., 0.1);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(out_point), false);
@@ -1954,7 +1956,22 @@ public:
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(weights[2], 0.0);
         TS_ASSERT_LESS_THAN(0.0, weights[3]);
-
+        TS_ASSERT_DELTA(weights[0], 10.8, 1e-5);
+        TS_ASSERT_DELTA(weights[1], 0.1, 1e-5);
+        TS_ASSERT_DELTA(weights[2], -10.0, 1e-5);
+        TS_ASSERT_DELTA(weights[3], 0.1, 1e-5);
+        // Weights still sum to 1, but one weight is negative
+        TS_ASSERT_DELTA(norm_1(weights),21.0,1e-12);
+        
+        weights=element3d.CalculateInterpolationWeightsWithProjection(out_point);
+        TS_ASSERT_LESS_THAN(0.0, weights[0]);
+        TS_ASSERT_LESS_THAN(0.0, weights[1]);
+        TS_ASSERT_LESS_THAN_EQUALS(0.0, weights[2]);
+        TS_ASSERT_EQUALS(0.0, weights[2]);
+        TS_ASSERT_LESS_THAN(0.0, weights[3]);
+        // Weights are non-negative and sum to 1
+        TS_ASSERT_DELTA(norm_1(weights),1.0,1e-12);
+        
         delete nodes3d[0];
         delete nodes3d[1];
         delete nodes3d[2];

@@ -2221,17 +2221,17 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementInd
     {
         ///\todo What if the element is deleted?
         c_vector<double, ELEMENT_DIM+1> weight=mElements[i]->CalculateInterpolationWeights(testPoint);
-        double min_weight=1.0;
+        double neg_weight_sum=0.0;
         for (unsigned j=0; j<=ELEMENT_DIM; j++)
         {
-            if (weight[j]<min_weight)
+            if (weight[j]<0.0)
             {
-                min_weight=weight[j];
+                neg_weight_sum+=weight[j];
             }
         }
-        if (min_weight > max_min_weight)
+        if (neg_weight_sum > max_min_weight)
         {
-            max_min_weight = min_weight;
+            max_min_weight = neg_weight_sum;
             closest_index=i;
         }
 

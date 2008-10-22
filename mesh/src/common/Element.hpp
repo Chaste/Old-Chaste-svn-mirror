@@ -224,6 +224,45 @@ public:
         return weights;
     }
 
+    /// We are calculating the interpolation weights, but if we are not within the element (one or more negative weights), we project onto the element, rather than extrapolating from it. 
+    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint)
+    {
+        //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+        assert (ELEMENT_DIM == SPACE_DIM);
+
+        c_vector<double, SPACE_DIM+1> weights = CalculateInterpolationWeights(testPoint);
+
+        // Check for negative weights and set them to zero.
+        bool negative_weight = false;
+        
+        for(unsigned i=0;i<=SPACE_DIM;i++)
+        {
+            if(weights[i] < 0.0)
+            {
+                weights[i] = 0.0;
+                
+                negative_weight = true;
+            }   
+        }
+        
+        if(negative_weight == false)
+        {
+            // If there are no negative weights, there is nothing to do.
+            return weights;   
+        }
+        
+        // Renormalise so that all weights add to 1.0.
+        
+        // Note that all elements of weights are now non-negative and so the l1-norm (sum of magnitudes) is equivalent to the sum of the elements of the vector 
+        double sum = norm_1 (weights);
+        
+        assert (sum >= 1.0);
+        
+        weights = weights/sum;
+        
+        return weights;
+        
+    }
 
     c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint)
     {
