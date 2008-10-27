@@ -39,7 +39,7 @@ public:
     void TestGetQuadPointLocations1d() throw(Exception)
     {
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
 
         GaussianQuadratureRule<1> quad_rule(2);
@@ -72,7 +72,7 @@ public:
     void TestGetQuadPointLocations2d() throw(Exception)
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_2_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
 
         GaussianQuadratureRule<2> quad_rule(2);

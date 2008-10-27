@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <queue>
 
+#include "TetrahedralMesh.hpp"
+
 /**
  *  This class defines
  *
@@ -41,7 +43,7 @@ template<unsigned SPACE_DIM>
 class DistanceMapCalculator
 {
 private:
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
+    TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
     unsigned mNumNodes;
 
     /**
@@ -81,7 +83,7 @@ private:
 
 
 public:
-    DistanceMapCalculator(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh):
+    DistanceMapCalculator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh):
         mrMesh(rMesh)
     {
         mNumNodes = mrMesh.GetNumNodes();

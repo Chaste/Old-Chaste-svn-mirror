@@ -103,7 +103,7 @@ public:
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -196,7 +196,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -259,7 +259,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -360,7 +360,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -454,7 +454,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -600,7 +600,7 @@ public:
 
         // Create a cigar-shaped mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        ConformingTetrahedralMesh<2,2>* p_mesh = new ConformingTetrahedralMesh<2,2>;
+        RefinableMesh<2,2>* p_mesh = new RefinableMesh<2,2>;
         p_mesh->ConstructFromMeshReader(mesh_reader);
         p_mesh->Scale(5.0,1.0);
 
@@ -673,7 +673,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -773,7 +773,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -853,7 +853,7 @@ public:
 //        CancerParameters::Instance()->SetHepaOneParameters();
 //
 //        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-//        ConformingTetrahedralMesh<3,3> mesh;
+//        RefinableMesh<3,3> mesh;
 //        mesh.ConstructFromMeshReader(mesh_reader);
 //
 //        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");

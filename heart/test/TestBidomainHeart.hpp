@@ -119,7 +119,7 @@ public:
         EXIT_IF_SEQUENTIAL;
         
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         unsigned num_procs = PetscTools::NumProcs();

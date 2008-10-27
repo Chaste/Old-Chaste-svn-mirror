@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 class CornerStimulusCellFactory : public AbstractCardiacCellFactory<3>

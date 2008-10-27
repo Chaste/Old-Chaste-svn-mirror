@@ -52,7 +52,7 @@ class HoneycombMeshGenerator
 {
 private:
 
-    ConformingTetrahedralMesh<2,2>* mpMesh;
+    RefinableMesh<2,2>* mpMesh;
     std::set<unsigned> mGhostNodeIndices;
     std::string mMeshFilename;
     double mCryptWidth;
@@ -91,13 +91,13 @@ public:
      */
     ~HoneycombMeshGenerator();
     
-    ConformingTetrahedralMesh<2,2>* GetMesh();
+    RefinableMesh<2,2>* GetMesh();
 
     Cylindrical2dMesh* GetCylindricalMesh();
 
     std::set<unsigned> GetGhostNodeIndices();
 
-    ConformingTetrahedralMesh<2,2>* GetCircularMesh(double radius);
+    RefinableMesh<2,2>* GetCircularMesh(double radius);
 
 };
 #endif /*HONEYCOMBMESHGENERATOR_HPP_*/

@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 
-#include "ConformingTetrahedralMesh.hpp"
 #include "LinearSystem.hpp"
 #include "BidomainPde.hpp"
 #include "GaussianQuadratureRule.hpp"
@@ -397,7 +396,7 @@ public:
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
      */
-    BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainDg0Assembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
                          BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                          unsigned numQuadPoints = 2) :

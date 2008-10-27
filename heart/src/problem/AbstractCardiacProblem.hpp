@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPROBLEM_HPP_
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
@@ -71,7 +71,7 @@ protected:
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    TetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
     Vec mVoltage; // Current solution
 
@@ -158,7 +158,7 @@ public:
         	{
                 /// \todo: Only considering <LoadMesh/> definition. Consider <Slab/> too
 		        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
-		        mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+		        mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
 		        mAllocatedMemoryForMesh = true;
 		
 		        EventHandler::BeginEvent(READ_MESH);
@@ -255,7 +255,7 @@ public:
         mCallChaste2Meshalyzer=call;
     }
 
-    void SetMesh(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+    void SetMesh(TetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
     {
         // If this fails the mesh has already been set. We assert rather throw an exception
         // to avoid a memory leak when checking it throws correctly
@@ -296,7 +296,7 @@ public:
         return mVoltage;
     }
 
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
+    TetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
     {
     	assert (mpMesh);    	
         return *mpMesh;

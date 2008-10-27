@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
@@ -237,7 +237,7 @@ private:
         }
 
         // Get an iterator over the elements of the mesh
-        typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
+        typename TetrahedralMesh<DIM, DIM>::ElementIterator
             iter = mpQuadMesh->GetElementIteratorBegin();
 
         c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
@@ -389,7 +389,7 @@ public:
         
         // Solve using linears
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         EllipticPdeWithLinearSource<2> pde(1.0, 1.0);
@@ -443,7 +443,7 @@ public:
         
         // Solve using linears
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         EllipticPdeWithLinearSource<3> pde(1.0, 1.0);

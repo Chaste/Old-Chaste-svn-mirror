@@ -53,7 +53,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         std::vector<TissueCell> cells;
@@ -113,7 +113,7 @@ public:
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
-            ConformingTetrahedralMesh<2,2> mesh;
+            RefinableMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
             num_nodes = mesh.GetNumNodes();
 

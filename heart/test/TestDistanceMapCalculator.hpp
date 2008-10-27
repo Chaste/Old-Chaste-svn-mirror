@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTDISTANCEMAPCALCULATOR_
 
 #include "TrianglesMeshReader.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "DistanceMapCalculator.hpp"
 
 class TestDistanceMapCalculator : public CxxTest::TestSuite
@@ -39,7 +38,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
@@ -73,7 +72,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9261u); // 21x21x21 nodes

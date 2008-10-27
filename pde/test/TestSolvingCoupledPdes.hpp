@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
@@ -156,7 +156,7 @@ private:
 
 
 public:
-    MySimpleCoupledAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
+    MySimpleCoupledAssembler(TetrahedralMesh<2,2>* pMesh,
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
                              double lambda) :
             AbstractAssembler<2,2,2>(),
@@ -237,7 +237,7 @@ private:
 
 
 public :
-    AnotherCoupledAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
+    AnotherCoupledAssembler(TetrahedralMesh<2,2>* pMesh,
                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) :
             AbstractAssembler<2,2,2>(),
             MySimpleCoupledAssembler<AnotherCoupledAssembler>(pMesh, pBoundaryConditions,0.0)
@@ -271,7 +271,7 @@ public:
     void TestSimpleCoupledPde( void ) throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
@@ -333,7 +333,7 @@ public:
     void TestSimpleCoupledPdeWithNeumannBoundaryConditions( void ) throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
@@ -344,7 +344,7 @@ public:
         BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
 
         // du/dn = -0.5 on r=1
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
         ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
@@ -423,7 +423,7 @@ public:
     void TestRealCoupledPde( void ) throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // boundary conditions for 2-unknown problem

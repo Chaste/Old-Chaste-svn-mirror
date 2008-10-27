@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "AbstractFunctionalCalculator.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -78,7 +78,7 @@ public:
     void TestWithVolumeCalculator()
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
 
         VolumeCalculator<2> volume_calculator;
@@ -98,7 +98,7 @@ public:
     void TestWithExampleFunctionals()
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
 
         // Test interpolation of x and u

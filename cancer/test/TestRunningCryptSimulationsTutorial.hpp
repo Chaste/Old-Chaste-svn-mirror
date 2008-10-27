@@ -85,7 +85,7 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
         CancerParameters::Instance()->Reset();
 
-        /* Next, we generate a mesh. The basic Chaste mesh is {{{ConformingTetrahedralMesh}}}. To enforce
+        /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}. To enforce
          * periodicity, {{{Cylindrical2dMesh}}} was created, which is basically a normal mesh
          * that knows how to keep itself periodic. To create a {{{Cylindrical2dMesh}}}, we can use
          * the {{{HoneycombMeshGenerator}}} which generates a honeycomb-shaped mesh, ie all nodes

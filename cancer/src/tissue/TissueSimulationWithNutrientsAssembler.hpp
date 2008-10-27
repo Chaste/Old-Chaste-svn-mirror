@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "GaussianQuadratureRule.hpp"
 
@@ -97,7 +97,7 @@ public:
     /**
      * Constructor stores the mesh and pde and boundary conditions.
      */
-    TissueSimulationWithNutrientsAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
+    TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
                                   AbstractLinearEllipticPde<DIM>* pPde,
                                   BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2);
@@ -110,7 +110,7 @@ public:
 };
 
 template<unsigned DIM>
-TissueSimulationWithNutrientsAssembler<DIM>::TissueSimulationWithNutrientsAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
+TissueSimulationWithNutrientsAssembler<DIM>::TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
                               AbstractLinearEllipticPde<DIM>* pPde,
                               BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                               unsigned numQuadPoints) :

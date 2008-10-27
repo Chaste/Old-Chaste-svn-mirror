@@ -128,7 +128,7 @@ protected :
     double mNhsOdeTimeStep;
 
     /*< A chaste mesh for the electrics */
-    ConformingTetrahedralMesh<DIM,DIM>* mpElectricsMesh;
+    TetrahedralMesh<DIM,DIM>* mpElectricsMesh;
     /*<  A dealii mesh for the mechanics */
     Triangulation<DIM>*                 mpMechanicsMesh;
 

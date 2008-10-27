@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define VORONOITESSELLATION_HPP_
 
 #include "UblasCustomFunctions.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "VoronoiCell.hpp"
 
 #include <cmath>
@@ -44,7 +44,7 @@ private:
     friend class TestVoronoiTessellation;
     friend class InventorVoronoiWriter;
 
-    ConformingTetrahedralMesh<DIM,DIM>& mrMesh;
+    TetrahedralMesh<DIM,DIM>& mrMesh;
     /**
      * Vertices correspond to elements of the mesh
      */
@@ -79,17 +79,17 @@ private:
      */
     double ReturnPolarAngle(double x, double y) const;
 
-    void Initialise(ConformingTetrahedralMesh<2,2>& rMesh);
-    void Initialise(ConformingTetrahedralMesh<3,3>& rMesh);
+    void Initialise(TetrahedralMesh<2,2>& rMesh);
+    void Initialise(TetrahedralMesh<3,3>& rMesh);
 
 
 public:
 
     /***
      * Constructor. Create a tesselation of the given mesh which must be Delauny
-     * (see ConformingTetrahedralMesh::CheckVoronoi).
+     * (see TetrahedralMesh::CheckVoronoi).
      */
-    VoronoiTessellation(ConformingTetrahedralMesh<DIM,DIM>& rMesh);
+    VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh);
 
     ~VoronoiTessellation();
 
@@ -112,7 +112,7 @@ public:
 
 
 template<unsigned DIM>
-VoronoiTessellation<DIM>::VoronoiTessellation(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+VoronoiTessellation<DIM>::VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh)
     : mrMesh(rMesh)
 {
     #define COVERAGE_IGNORE
@@ -133,7 +133,7 @@ VoronoiTessellation<DIM>::VoronoiTessellation(ConformingTetrahedralMesh<DIM,DIM>
 
 
 template<unsigned DIM>
-void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<2,2>& rMesh)
+void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
 {
     for(unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
     {
@@ -231,14 +231,14 @@ void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<2,2>& rMesh)
 
 
 template<unsigned DIM>
-void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<3,3>& rMesh)
+void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
 {
     #define COVERAGE_IGNORE
     assert(DIM==3);
     #undef COVERAGE_IGNORE
 
     // loop over each edge
-    for (typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = mrMesh.EdgesBegin();
+    for (typename TetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = mrMesh.EdgesBegin();
          edge_iterator != mrMesh.EdgesEnd();
          ++edge_iterator)
     {

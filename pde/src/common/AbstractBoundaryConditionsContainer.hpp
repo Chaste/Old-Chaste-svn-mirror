@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include "AbstractBoundaryCondition.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "LinearSystem.hpp"
 #include "PetscException.hpp"
 

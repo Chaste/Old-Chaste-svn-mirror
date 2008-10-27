@@ -48,7 +48,7 @@ public:
 
         // Create a mesh and get its nodes
         HoneycombMeshGenerator generator(3, 3, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<Node<2> > nodes;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -126,7 +126,7 @@ public:
         unsigned cells_across = 2;
         unsigned cells_up = 2;
         HoneycombMeshGenerator generator(cells_across, cells_up, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get nodes
         std::vector<Node<2> > nodes;
@@ -218,7 +218,7 @@ public:
 
             // Create mesh
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-            ConformingTetrahedralMesh<2,2> mesh;
+            TetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Get nodes

@@ -40,9 +40,9 @@ class TestTissueSimulation3d : public AbstractCancerTestSuite
 {
 private:
 
-    ConformingTetrahedralMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
+    RefinableMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
     {
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
         mesh.ConstructCuboid(width,height,depth,true);
         TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -68,7 +68,7 @@ public:
     void TestDoCellBirth() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells by iterating through the mesh nodes
@@ -103,7 +103,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
@@ -141,7 +141,7 @@ public:
     void TestSolveMethodSpheroidSimulation3D() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
@@ -188,7 +188,7 @@ public:
         unsigned height = 3;
         unsigned depth = 3;
 
-        ConformingTetrahedralMesh<3,3> mesh = Make3dMesh(width,height,depth);
+        RefinableMesh<3,3> mesh = Make3dMesh(width,height,depth);
         TrianglesMeshWriter<3,3> mesh_writer("TestGhostNodesSpheroidSimulation3D","StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
 

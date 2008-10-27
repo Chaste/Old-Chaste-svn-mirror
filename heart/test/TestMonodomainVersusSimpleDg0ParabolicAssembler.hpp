@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTMONODOMAINVERSUSSIMPLEDG0PARABOLICASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+//#include "TetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 
@@ -118,7 +118,7 @@ public:
 
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("heart/test/data/heart_FHN_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -129,7 +129,7 @@ public:
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*iter, p_zero_condition);
@@ -195,7 +195,7 @@ public:
         
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -206,7 +206,7 @@ public:
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);

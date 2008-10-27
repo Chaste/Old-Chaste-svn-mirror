@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTELEMENT_HPP_
 #define _TESTELEMENT_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "RefinableMesh.hpp"
 
 #include "Exception.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -649,7 +649,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -700,7 +700,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -717,7 +717,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -734,7 +734,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -754,7 +754,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -802,7 +802,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -821,7 +821,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -870,7 +870,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -894,7 +894,7 @@ public:
         unsigned PROBLEM_DIM = 1;
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         Element<2,2>* p_element = mesh.GetElement(2);
@@ -917,5 +917,3 @@ public:
 };
 
 #endif //_TESTELEMENT_HPP_
-
-

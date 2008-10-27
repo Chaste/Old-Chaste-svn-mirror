@@ -30,12 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _NODE_HPP_
 #define _NODE_HPP_
 
-//#include "ConformingTetrahedralMesh.hpp"
+//#include "TetrahedralMesh.hpp"
 #include "ChastePoint.hpp"
 #include <set>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class ConformingTetrahedralMesh;
+class TetrahedralMesh;
 
 template<unsigned SPACE_DIM>
 class Node
@@ -259,7 +259,7 @@ public:
      * Determine if a node lives within a flagged element.
      */
     template <unsigned ELEMENT_DIM>
-    bool IsFlagged(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
+    bool IsFlagged(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
     {
         bool in_flagged_element = false;
         for (ContainingElementIterator it = ContainingElementsBegin();

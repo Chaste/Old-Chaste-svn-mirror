@@ -62,7 +62,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);

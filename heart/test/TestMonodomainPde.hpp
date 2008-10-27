@@ -91,7 +91,7 @@ public:
     void TestMonodomainPdeBasic( void )
     {
         unsigned num_nodes=2;
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(1);
         assert(mesh.GetNumNodes()==num_nodes);
 
@@ -176,7 +176,7 @@ public:
 
     void TestMonodomainPdeGetCardiacCell( void )
     {
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(1);
 
         MyCardiacCellFactory cell_factory;

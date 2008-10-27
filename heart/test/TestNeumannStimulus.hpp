@@ -74,9 +74,9 @@ public:
         ConstBoundaryCondition<1> *p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
 
         // get mesh
-        ConformingTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
+        TetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
         // loop over boundary elements
-        ConformingTetrahedralMesh<1, 1>::BoundaryElementIterator iter;
+        TetrahedralMesh<1, 1>::BoundaryElementIterator iter;
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
@@ -127,9 +127,9 @@ public:
         StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
 
         // get mesh
-        ConformingTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
+        TetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
         // loop over boundary elements
-        ConformingTetrahedralMesh<1, 1>::BoundaryElementIterator iter;
+        TetrahedralMesh<1, 1>::BoundaryElementIterator iter;
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
@@ -186,9 +186,9 @@ public:
         StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
 
         // get mesh
-        ConformingTetrahedralMesh<1,1>& r_mesh = bidomain_problem.rGetMesh();
+        TetrahedralMesh<1,1>& r_mesh = bidomain_problem.rGetMesh();
         // loop over boundary elements
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter;
+        TetrahedralMesh<1,1>::BoundaryElementIterator iter;
         iter = r_mesh.GetBoundaryElementIteratorBegin();
         while (iter != r_mesh.GetBoundaryElementIteratorEnd())
         {
@@ -246,9 +246,9 @@ public:
         //ConstBoundaryCondition<2> *p_bc_no_flux = new ConstBoundaryCondition<2>(0);
 
         // get mesh
-        ConformingTetrahedralMesh<2,2>& r_mesh = bidomain_problem.rGetMesh();
+        TetrahedralMesh<2,2>& r_mesh = bidomain_problem.rGetMesh();
         // loop over boundary elements
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter;
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter;
         iter = r_mesh.GetBoundaryElementIteratorBegin();
         while (iter != r_mesh.GetBoundaryElementIteratorEnd())
         {

@@ -45,7 +45,7 @@ public:
     {
         // Set up mesh
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up PDE
         SimpleNutrientPde<2> pde(1.0);
@@ -63,7 +63,7 @@ public:
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
 
@@ -98,14 +98,14 @@ public:
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a coarse mesh - element 1 contains all the cells,
         // element 0 contains none
-        ConformingTetrahedralMesh<2,2> coarse_mesh;
+        TetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(1,1);
         coarse_mesh.Scale(100,100);
 

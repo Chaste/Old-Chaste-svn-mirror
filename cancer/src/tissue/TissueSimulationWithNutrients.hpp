@@ -104,7 +104,7 @@ private :
     /**
      *  Coarse nutrient mesh on which to solve the nutrient PDE.
      */
-    ConformingTetrahedralMesh<DIM,DIM>* mpCoarseNutrientMesh;
+    TetrahedralMesh<DIM,DIM>* mpCoarseNutrientMesh;
 
     /**
      * Map between cells and the elements of the coarse nutrient mesh containing them.
@@ -360,7 +360,7 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
 {
     // Create coarse nutrient mesh (can use a larger mesh if required, e.g. disk_984_elements)
     TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-    mpCoarseNutrientMesh = new ConformingTetrahedralMesh<2,2>;
+    mpCoarseNutrientMesh = new TetrahedralMesh<2,2>;
     mpCoarseNutrientMesh->ConstructFromMeshReader(mesh_reader);
 
     // Find centre of tissue
@@ -469,7 +469,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
 
     // Note: If not using a coarse nutrient mesh, we MUST be using a MeshBasedTissue
 
-    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
+    TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
@@ -478,7 +478,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
-    for (typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
+    for (typename TetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
          node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
          ++node_iter)
     {
@@ -536,7 +536,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     assert(mpPde==NULL);
     assert(mpAveragedSinksPde);
 
-    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarseNutrientMesh;
+    TetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarseNutrientMesh;
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
@@ -786,7 +786,7 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
     (*mpAverageRadialNutrientResultsFile) << time << " ";
 
     // Get reference to the mesh and its size
-    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
+    TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     unsigned num_nodes = r_mesh.GetNumNodes();
 
     // Calculate the centre of the tissue

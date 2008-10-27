@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscmat.h>
 
 #include "AbstractNonlinearAssembler.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 
@@ -179,7 +178,7 @@ public :
      * Constructor - takes in the mesh, pde and boundary conditions container to be solved. Can
      * also define the number of quad points (in each dimension), the default value of which is 2
      */
-    SimpleNonlinearEllipticAssembler( ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+    SimpleNonlinearEllipticAssembler( TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                       AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                       unsigned numQuadPoints = 2) :

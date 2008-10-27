@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NONLINEARELASTICITYTOOLS_HPP_
 #define NONLINEARELASTICITYTOOLS_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
     
 /**
  *  A class of helper methods for problems which use NonlinearElasticityAssembler
@@ -45,7 +45,7 @@ public:
      *  boundary nodes. It does however throw an exception if no nodes on the given
      *  surface are found.
      */
-    static std::vector<unsigned> GetNodesByComponentValue(ConformingTetrahedralMesh<DIM,DIM>& rMesh,
+    static std::vector<unsigned> GetNodesByComponentValue(TetrahedralMesh<DIM,DIM>& rMesh,
                                                           unsigned component,
                                                           double value)
     {

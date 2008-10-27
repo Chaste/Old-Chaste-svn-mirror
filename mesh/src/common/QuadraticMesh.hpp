@@ -29,13 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef QUADRATICMESH_HPP_
 #define QUADRATICMESH_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 
 #include <vector>
 
 template<unsigned DIM>
-class QuadraticMesh : public ConformingTetrahedralMesh<DIM, DIM>
+class QuadraticMesh : public TetrahedralMesh<DIM, DIM>
 {    
 private:
     /*< Whether the mesh is ready (ie a set up quadratic mesh */
@@ -276,7 +276,7 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
     // the elements, and add the extra nodes to the boundary element
     if(DIM>1)
     {
-        for(typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+        for(typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
               = this->GetBoundaryElementIteratorBegin();
             iter != this->GetBoundaryElementIteratorEnd();
             ++iter)

@@ -147,7 +147,7 @@ public:
          * {{{ELEM_DIM}}} and {{{SPACE_DIM}}} will be equal. */
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         /* Now declare a tetrahedral mesh with the same dimensions */
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         /* Construct the mesh using the mesh reader */
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -167,7 +167,7 @@ public:
 
         /* We want to specify u=0 on x=0 and y=0. To do this, get a boundary node iterator
          * from the mesh */
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter
+        TetrahedralMesh<2,2>::BoundaryNodeIterator iter
            = mesh.GetBoundaryNodeIteratorBegin();
         /* Then loop over the boundary nodes, getting the x and y value */
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
@@ -212,7 +212,7 @@ public:
          */
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
 
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter
+        TetrahedralMesh<2,2>::BoundaryElementIterator surf_iter
           = mesh.GetBoundaryElementIteratorBegin();
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
@@ -300,7 +300,7 @@ public:
     {
         /* Create a 10 by 10 by 10 mesh in 3D, this time using the {{{ConstructCuboid}}} method
          * on the mesh. */
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(10,10,10);
         /* This returns a mesh over the region [0,10]^3^ with 10 elements in each direction, so
          * we have to scale it down to [0,1]^3^ */

@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef STREETERFIBREGENERATOR_HPP_
 #define STREETERFIBREGENERATOR_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
 #include "DistanceMapCalculator.hpp"
 #include "MemfemMeshReader.hpp"
 #include <vector>
@@ -40,7 +39,7 @@ template<unsigned SPACE_DIM>
 class StreeterFibreGenerator
 {
 private:
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
+    TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
     unsigned mNumNodes, mNumElements;
 
     DistanceMapCalculator<SPACE_DIM>* mpDistanceCalculator;
@@ -241,7 +240,7 @@ private:
 
 
 public:
-    StreeterFibreGenerator(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh):
+    StreeterFibreGenerator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh):
         mrMesh(rMesh),
         mFilesSet(false)
     {

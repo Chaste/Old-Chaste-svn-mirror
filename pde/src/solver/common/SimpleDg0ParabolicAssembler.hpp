@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractLinearAssembler.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "GaussianQuadratureRule.hpp"
 
@@ -123,7 +122,7 @@ public:
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
      */
-    SimpleDg0ParabolicAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    SimpleDg0ParabolicAssembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 AbstractLinearParabolicPde<SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                 unsigned numQuadPoints = 2) :

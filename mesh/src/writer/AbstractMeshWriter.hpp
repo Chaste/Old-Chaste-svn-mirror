@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTMESHWRITER_HPP_
 #define _ABSTRACTMESHWRITER_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -97,7 +97,7 @@ public:
     {
         return mBoundaryFaceData.size();
     }
-    void WriteFilesUsingMesh(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    void WriteFilesUsingMesh(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
 };
 
@@ -142,7 +142,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryEdge(std::vector
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
-     ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
+     TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
     NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index=0;
@@ -168,7 +168,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     assert(new_index==(unsigned)rMesh.GetNumNodes());
 
     // Get an iterator over the elements of the mesh
-    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
+    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
         rMesh.GetElementIteratorBegin();
 
     while (iter != rMesh.GetElementIteratorEnd())
@@ -188,7 +188,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
 
     // Get a iterator over the boundary elements of the mesh
-    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator boundary_iter =
+    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator boundary_iter =
         rMesh.GetBoundaryElementIteratorBegin();
     while (boundary_iter != rMesh.GetBoundaryElementIteratorEnd())
     {

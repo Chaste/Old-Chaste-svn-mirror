@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTVOLUMECALCULATOR_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include <cmath>
 
@@ -44,7 +44,7 @@ public:
     void CheckVolume(std::string meshFile, double expectedVolume, double errorTolerance)
     {
         TrianglesMeshReader<3,3> meshReader(meshFile);
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(meshReader);
 
         TS_ASSERT_DELTA(mesh.CalculateVolume()/expectedVolume, 1.0, errorTolerance);
@@ -70,7 +70,7 @@ public:
         // Calculate length of non-uniform mesh
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_4_non_uniform_elements");
 
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double mesh_length = mesh.CalculateVolume();
@@ -84,7 +84,7 @@ public:
         // Tests area calculation for a square 2D mesh
         TrianglesMeshReader<2,2> square_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh_square;
+        TetrahedralMesh<2,2> mesh_square;
 
         mesh_square.ConstructFromMeshReader(square_mesh_reader);
 
@@ -95,7 +95,7 @@ public:
         // Tests area calculation for a annular 2D mesh
         TrianglesMeshReader<2,2> annuluar_mesh_reader("mesh/test/data/annulus_256_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh_annulus;
+        TetrahedralMesh<2,2> mesh_annulus;
 
         mesh_annulus.ConstructFromMeshReader(annuluar_mesh_reader);
 
@@ -109,12 +109,12 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get a iterator over the boundary elements of the 3D mesh
-        ConformingTetrahedralMesh<3, 3>::BoundaryElementIterator boundary_iter =
+        TetrahedralMesh<3, 3>::BoundaryElementIterator boundary_iter =
             mesh.GetBoundaryElementIteratorBegin();
 
         double area=0.0;
@@ -136,12 +136,12 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get a iterator over the boundary elements of the 3D mesh
-        ConformingTetrahedralMesh<3, 3>::BoundaryElementIterator boundary_iter =
+        TetrahedralMesh<3, 3>::BoundaryElementIterator boundary_iter =
             mesh.GetBoundaryElementIteratorBegin();
 
         double area=0.0;
@@ -158,11 +158,11 @@ public:
     void TestDiskPerimeter(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
         // Get a iterator over the boundary elements of the 2D mesh
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator boundary_iter =
+        TetrahedralMesh<2,2>::BoundaryElementIterator boundary_iter =
             mesh.GetBoundaryElementIteratorBegin();
 
         double perimeter=0.0;
@@ -180,21 +180,21 @@ public:
     void TestSurfaceWithMethod(void)
     {
         TrianglesMeshReader<3,3> mesh_reader_1("mesh/test/data/cube_136_elements");
-        ConformingTetrahedralMesh<3,3> mesh_1;
+        TetrahedralMesh<3,3> mesh_1;
         mesh_1.ConstructFromMeshReader(mesh_reader_1);
         TS_ASSERT_DELTA(mesh_1.CalculateSurfaceArea(),6.0,1e-6);
         TrianglesMeshReader<3,3> mesh_reader_2("mesh/test/data/cube_1626_elements");
-        ConformingTetrahedralMesh<3,3> mesh_2;
+        TetrahedralMesh<3,3> mesh_2;
         mesh_2.ConstructFromMeshReader(mesh_reader_2);
         TS_ASSERT_DELTA(mesh_2.CalculateSurfaceArea(),6.0,1e-6);
 
         TrianglesMeshReader<2,2> mesh_reader_3("mesh/test/data/disk_984_elements");
-        ConformingTetrahedralMesh<2,2> mesh_3;
+        TetrahedralMesh<2,2> mesh_3;
         mesh_3.ConstructFromMeshReader(mesh_reader_3);
         TS_ASSERT_DELTA(mesh_3.CalculateSurfaceArea(), 2*M_PI, 2e-3);
 
         TrianglesMeshReader<1,1> mesh_reader_4("mesh/test/data/1D_0_to_1_200_elements");
-        ConformingTetrahedralMesh<1,1> mesh_4;
+        TetrahedralMesh<1,1> mesh_4;
         mesh_4.ConstructFromMeshReader(mesh_reader_4);
         TS_ASSERT_DELTA(mesh_4.CalculateSurfaceArea(),0.0,1e-6);
     }

@@ -76,7 +76,7 @@ protected:
         mNodes = element.mNodes;
         // Allow nodes to keep track of containing elements (but not surface/boundary elements)
         // Only done in copy constructor, since that is what is called to put elements
-        // in the vector contained in ConformingTetrahedralMesh.
+        // in the vector contained in TetrahedralMesh.
 
         mJacobianDeterminant = element.mJacobianDeterminant;
         mJacobian = element.mJacobian;

@@ -41,15 +41,15 @@ class CuboidMeshConstructor
 {
 private:
 
-    void ConstructHyperCube(ConformingTetrahedralMesh<1,1> &rMesh, unsigned width)
+    void ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width)
     {
         rMesh.ConstructLinearMesh(width);
     }
-    void ConstructHyperCube(ConformingTetrahedralMesh<2,2> &rMesh, unsigned width)
+    void ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width)
     {
         rMesh.ConstructRectangularMesh(width, width);
     }
-    void ConstructHyperCube(ConformingTetrahedralMesh<3,3> &rMesh, unsigned width)
+    void ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width)
     {
         rMesh.ConstructCuboid(width, width, width);
     }
@@ -69,7 +69,7 @@ public:
         // create the mesh
         unsigned mesh_size = (unsigned) pow(2, meshNum+2); // number of elements in each dimension
         double scaling = mMeshWidth/(double) mesh_size;
-        ConformingTetrahedralMesh<DIM,DIM> mesh;
+        TetrahedralMesh<DIM,DIM> mesh;
         ConstructHyperCube(mesh, mesh_size);
         mesh.Scale(scaling, scaling, scaling);
         NumElements = mesh.GetNumElements();

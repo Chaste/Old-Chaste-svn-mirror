@@ -644,7 +644,7 @@ private:
 //public:
 //    std::vector<std::vector<unsigned> > mNodesContainedInElement;
 //
-//    void ComputeElementsContainingNodes(ConformingTetrahedralMesh<DIM,DIM>* pOtherMesh)
+//    void ComputeElementsContainingNodes(TetrahedralMesh<DIM,DIM>* pOtherMesh)
 //    {
 //        assert(DIM==2);
 //
@@ -695,7 +695,7 @@ private:
 //    }
 //
 //
-//    void CalculateCinverseAtNodes(ConformingTetrahedralMesh<DIM,DIM>* pOtherMesh, std::vector<std::vector<double> >& rValuesAtNodes)
+//    void CalculateCinverseAtNodes(TetrahedralMesh<DIM,DIM>* pOtherMesh, std::vector<std::vector<double> >& rValuesAtNodes)
 //    {
 //        assert(DIM==2);
 //        rValuesAtNodes.resize(pOtherMesh->GetNumNodes());

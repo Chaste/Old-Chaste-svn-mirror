@@ -78,7 +78,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -138,7 +138,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -227,7 +227,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;

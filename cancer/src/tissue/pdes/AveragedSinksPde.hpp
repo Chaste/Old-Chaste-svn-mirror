@@ -51,7 +51,7 @@ public:
 
     AveragedSinksPde(MeshBasedTissue<DIM>& rTissue, double coefficient);
 
-    void SetupSourceTerms(ConformingTetrahedralMesh<DIM,DIM>& rCoarseMesh);
+    void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh);
 
     double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x);
 
@@ -68,7 +68,7 @@ AveragedSinksPde<DIM>::AveragedSinksPde(MeshBasedTissue<DIM>& rTissue, double co
 }
 
 template<unsigned DIM>
-void AveragedSinksPde<DIM>::SetupSourceTerms(ConformingTetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
+void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
 {
     // Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());

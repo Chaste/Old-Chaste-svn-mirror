@@ -76,7 +76,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(5), 81u);
 
         // each boundary element should have three nodes
-        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
@@ -85,7 +85,7 @@ public:
         }
 
 
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter
           = mesh.GetBoundaryElementIteratorBegin();
         // the first edge has nodes 53 and 0, according to the edge file..
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(0), 53u);
@@ -136,7 +136,7 @@ public:
         }
         
         // each boundary element should have 6 nodes
-        for(ConformingTetrahedralMesh<3,3>::BoundaryElementIterator iter
+        for(TetrahedralMesh<3,3>::BoundaryElementIterator iter
               = mesh2.GetBoundaryElementIteratorBegin();
             iter != mesh2.GetBoundaryElementIteratorEnd();
             ++iter)
@@ -144,7 +144,7 @@ public:
             TS_ASSERT_EQUALS((*iter)->GetNumNodes(), 6u);
         }
 
-        ConformingTetrahedralMesh<3,3>::BoundaryElementIterator iter
+        TetrahedralMesh<3,3>::BoundaryElementIterator iter
           = mesh2.GetBoundaryElementIteratorBegin();
         // the first boundary elem has these nodes, according to the edge file..
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(0), 177u);
@@ -187,7 +187,7 @@ public:
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
 
         // test boundary elements
-        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)

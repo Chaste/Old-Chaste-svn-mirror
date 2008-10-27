@@ -31,12 +31,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTREADINGLARGEMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 
 #include <vector>
 
-class TestReadingLargeConformingTetrahedralMesh : public CxxTest::TestSuite
+class TestReadingLargeTetrahedralMesh : public CxxTest::TestSuite
 {
 public:
     // This test is mainly here for performance testing, to check that loading a
@@ -45,7 +45,7 @@ public:
     void TestLoadingLargeMesh(void)
     {
         TrianglesMeshReader<3,3> meshReader("heart/test/data/heart");
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(meshReader);
 
         // Check we have the right number of nodes & elements

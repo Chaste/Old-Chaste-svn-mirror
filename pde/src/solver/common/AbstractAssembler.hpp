@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "LinearSystem.hpp"
 #include "GaussianQuadratureRule.hpp"

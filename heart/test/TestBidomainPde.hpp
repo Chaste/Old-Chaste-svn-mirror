@@ -99,7 +99,7 @@ public:
 
     void TestBidomainPdeSolveCellSystems( void )
     {
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(1);
 
         double big_time_step = 0.5;

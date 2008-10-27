@@ -81,7 +81,7 @@ public:
         double width = 1.0;
 
         // create electrics mesh
-        this->mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
+        this->mpElectricsMesh = new TetrahedralMesh<DIM,DIM>();
 
         unsigned num_elem = 96;
         this->mpElectricsMesh->ConstructRectangularMesh(num_elem,num_elem);

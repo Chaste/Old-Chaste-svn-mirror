@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "AbstractStaticAssembler.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "AbstractNonlinearSolver.hpp"

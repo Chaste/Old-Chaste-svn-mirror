@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
 #include "VoronoiTessellation.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "RefinableMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CancerParameters.hpp"
 #include "Exception.hpp"
@@ -57,7 +57,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
         nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
 
-        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        RefinableMesh<3,3> mesh(nodes);
 
         // Create Voronoi Tesselation
         VoronoiTessellation<3> tessellation(mesh);
@@ -105,7 +105,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
         nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
 
-        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        RefinableMesh<3,3> mesh(nodes);
 
         // Create Voronoi Tesselation
         VoronoiTessellation<3> tessellation(mesh);
@@ -148,7 +148,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(4, false, 0.5,0.5,0.5));
 
-        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        RefinableMesh<3,3> mesh(nodes);
         //TrianglesMeshWriter<3,3> mesh_writer("","Simple_Delaunay_Tet");
         //mesh_writer.WriteFilesUsingMesh(mesh);
         TS_ASSERT(mesh.CheckVoronoi());
@@ -235,7 +235,7 @@ public:
         nodes.push_back(new Node<2>(0, true,  1,  0));
         nodes.push_back(new Node<2>(0, true,  0.5,0.5));
 
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        RefinableMesh<2,2> mesh(nodes);
 
         TS_ASSERT(mesh.CheckVoronoi());
 
@@ -281,7 +281,7 @@ public:
         nodes.push_back(new Node<2>(0, true,  0.5,-pow(3,0.5)/2.0));
         nodes.push_back(new Node<2>(0, true,  -0.5,-pow(3,0.5)/2.0));
 
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        RefinableMesh<2,2> mesh(nodes);
 
         TS_ASSERT(mesh.CheckVoronoi());
 
@@ -310,7 +310,7 @@ public:
         nodes.push_back(new Node<2>(0, true,  1,  0));
         nodes.push_back(new Node<2>(0, true,  0.5,0.5));
 
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        RefinableMesh<2,2> mesh(nodes);
 
         TS_ASSERT(mesh.CheckVoronoi());
 

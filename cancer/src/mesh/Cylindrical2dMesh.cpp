@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 Cylindrical2dMesh::Cylindrical2dMesh(double width)
-  : ConformingTetrahedralMesh<2,2>(),
+  : RefinableMesh<2,2>(),
     mWidth(width)
 {
     assert(width > 0.0);
@@ -40,7 +40,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width)
 
 
 Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
-  : ConformingTetrahedralMesh<2,2>(),
+  : RefinableMesh<2,2>(),
     mWidth(width)
 {
     assert(width > 0.0);
@@ -121,7 +121,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
         c_vector<double, 2> location = mNodes[mLeftOriginals[i]]->rGetLocation();
         location[0] = location[0] + mWidth;
 
-        unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
+        unsigned new_node_index = RefinableMesh<2,2>::AddNode(new Node<2>(0u, location));
         mLeftImages.push_back(new_node_index);
     }
 
@@ -133,7 +133,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
         c_vector<double, 2> location = mNodes[mRightOriginals[i]]->rGetLocation();
         location[0] = location[0] - mWidth;
 
-        unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
+        unsigned new_node_index = RefinableMesh<2,2>::AddNode(new Node<2>(0u, location));
         mRightImages.push_back(new_node_index);
     }
 }
@@ -159,11 +159,11 @@ void Cylindrical2dMesh::CreateHaloNodes()
        // Inserting top halo node in mesh
        location[0] = x_coordinate;
        location[1] = y_top_coordinate;
-       unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
+       unsigned new_node_index = RefinableMesh<2,2>::AddNode(new Node<2>(0u, location));
        mTopHaloNodes.push_back(new_node_index);
 
        location[1] = y_bottom_coordinate;
-       new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
+       new_node_index = RefinableMesh<2,2>::AddNode(new Node<2>(0u, location));
        mBottomHaloNodes.push_back(new_node_index);
     }
 }
@@ -197,7 +197,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     // Call the normal re-mesh. Note that the mesh now has lots
     // of extra nodes which will be deleted, hence the name 'big_map'
     NodeMap big_map(GetNumAllNodes());
-    ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
+    RefinableMesh<2,2>::ReMesh(big_map);
 
     // If the big_map isn't the identity map, the little map ('map') needs to be
     // altered accordingly before being passed to the user. not sure how this all works,
@@ -482,7 +482,7 @@ void Cylindrical2dMesh::SetNode(unsigned index, ChastePoint<2> point, bool concr
     }
 
     // Update the node's location
-    ConformingTetrahedralMesh<2,2>::SetNode(index, point, concreteMove);
+    RefinableMesh<2,2>::SetNode(index, point, concreteMove);
 }
 
 
@@ -509,7 +509,7 @@ double Cylindrical2dMesh::GetWidth(const unsigned& rDimension) const
     }
     else
     {
-        width = ConformingTetrahedralMesh<2,2>::GetWidth(rDimension);
+        width = RefinableMesh<2,2>::GetWidth(rDimension);
     }
     return width;
 }
@@ -517,7 +517,7 @@ double Cylindrical2dMesh::GetWidth(const unsigned& rDimension) const
 
 unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
 {
-    unsigned node_index = ConformingTetrahedralMesh<2,2>::AddNode(pNewNode);
+    unsigned node_index = RefinableMesh<2,2>::AddNode(pNewNode);
 
     // If necessary move it to be back on the cylinder
     ChastePoint<2> new_node_point = pNewNode->GetPoint();

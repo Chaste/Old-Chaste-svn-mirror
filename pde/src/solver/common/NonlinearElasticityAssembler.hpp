@@ -493,7 +493,7 @@ protected:
         }
     
         // Get an iterator over the elements of the mesh
-        typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
+        typename TetrahedralMesh<DIM, DIM>::ElementIterator
             iter = mpQuadMesh->GetElementIteratorBegin();
     
         c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;

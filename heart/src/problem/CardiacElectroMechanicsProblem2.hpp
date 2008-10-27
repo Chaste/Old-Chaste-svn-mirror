@@ -124,7 +124,7 @@ protected :
     double mNhsOdeTimeStep;
 
     /*< The mesh for the electrics */
-    ConformingTetrahedralMesh<DIM,DIM>* mpElectricsMesh;
+    TetrahedralMesh<DIM,DIM>* mpElectricsMesh;
     /*< The mesh for the mechanics */
     QuadraticMesh<DIM>* mpMechanicsMesh;
 
@@ -179,7 +179,7 @@ protected :
         std::cout << "w="<<width;
 
         // create electrics mesh
-        mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
+        mpElectricsMesh = new TetrahedralMesh<DIM,DIM>();
 
         //unsigned num_elem = mNumElectricsElementsEachDir;
         mpElectricsMesh->ConstructRectangularMesh(mNumElectricsElementsEachDir,mNumElectricsElementsEachDir);

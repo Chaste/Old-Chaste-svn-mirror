@@ -38,7 +38,7 @@ std::vector< std::vector<double> > DiscreteSystemForceCalculator::CalculateExtre
 {
     std::vector< std::vector<double> > extremal_normal_forces;
 
-    ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
+    TetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
 
     std::vector<double> minimum_normal_forces(r_mesh.GetNumNodes());
     std::vector<double> maximum_normal_forces(r_mesh.GetNumNodes());
@@ -96,7 +96,7 @@ void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOut
     double minimum;
     double maximum;
 
-    ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
+    TetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
 
     std::vector< std::vector<double> > extremal_normal_forces = CalculateExtremalNormalForces();
 
@@ -119,7 +119,7 @@ void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOut
 
 std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(unsigned index)
 {
-    ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
+    TetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
     Node<2>* p_node = r_mesh.GetNode(index);
 
     std::set<unsigned> neighbouring_node_indices;
@@ -144,7 +144,7 @@ std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(uns
 
 std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned index, double theta)
 {
-    ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
+    TetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
 
     std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
 
@@ -187,7 +187,7 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
 
 std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned index)
 {
-    ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
+    TetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
     std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
 
     std::vector<double> sampling_angles(4*neighbouring_node_indices.size());

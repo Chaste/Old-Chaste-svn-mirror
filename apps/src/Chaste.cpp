@@ -205,7 +205,7 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
 }
 
 
-void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
+void CreateSlab(TetrahedralMesh<3,3>* pMesh)
 {
     // construct mesh. Note that mesh is measured in cm
     unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
@@ -230,7 +230,7 @@ void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
     std::string output_dir_full_path = handler.GetOutputDirectoryFullPath();
 }
 
-void WriteSlab(ConformingTetrahedralMesh<3,3>* pMesh)
+void WriteSlab(TetrahedralMesh<3,3>* pMesh)
 {
 
     // write out the mesh that was used if we are the master process
@@ -280,7 +280,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
         ReadParametersFromFile();
 
         ChasteSlabCellFactory cell_factory;
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
 
         switch(domain)
         {

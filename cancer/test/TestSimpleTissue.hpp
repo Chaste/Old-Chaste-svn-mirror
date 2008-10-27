@@ -45,7 +45,7 @@ class TestSimpleTissue : public AbstractCancerTestSuite
 private:
 
     template<unsigned DIM>
-    std::vector<Node<DIM> > SetUpNodes(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    std::vector<Node<DIM> > SetUpNodes(TetrahedralMesh<DIM,DIM>* pMesh)
     {
         std::vector<Node<DIM> > nodes;
 
@@ -57,7 +57,7 @@ private:
     }
 
     template<unsigned DIM>
-    std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    std::vector<TissueCell> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
@@ -76,7 +76,7 @@ private:
     {
         // Create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
-        ConformingTetrahedralMesh<DIM,DIM> mesh;
+        TetrahedralMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -136,7 +136,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -156,7 +156,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -237,7 +237,7 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -286,7 +286,7 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -347,7 +347,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -394,7 +394,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -428,7 +428,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -490,7 +490,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get node vector from mesh
@@ -567,7 +567,7 @@ public:
 
             // Create a simple mesh
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-            ConformingTetrahedralMesh<2,2> mesh;
+            TetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Get node vector from mesh

@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTREMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+#include "RefinableMesh.hpp"
 #include <cmath>
 
 
@@ -48,11 +48,11 @@ public:
         OutputFileHandler handler("");
 
         TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/cube_1626_elements");
-        ConformingTetrahedralMesh<3,3> old_mesh;
+        TetrahedralMesh<3,3> old_mesh;
         old_mesh.ConstructFromMeshReader(mesh_reader2);
 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -115,7 +115,7 @@ public:
         OutputFileHandler handler("");
 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -152,7 +152,7 @@ public:
         system(command.c_str());
 
         TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
-        ConformingTetrahedralMesh<3,3> mesh2;
+        TetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
@@ -180,7 +180,7 @@ public:
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -231,7 +231,7 @@ public:
         system(command.c_str());
 
         TrianglesMeshReader<2,2> mesh_reader2(full_name+"1");
-        ConformingTetrahedralMesh<2,2> mesh2;
+        TetrahedralMesh<2,2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
@@ -264,7 +264,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -310,7 +310,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
-        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        RefinableMesh<3,3> mesh(nodes);
         double area = mesh.CalculateVolume();
 
         unsigned num_nodes_before = mesh.GetNumNodes();
@@ -366,7 +366,7 @@ public:
 
     void TestReMeshFailsAfterEnoughDeletions() throw (Exception)
     {
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1,1);
         NodeMap map(1);
 
@@ -454,7 +454,7 @@ public:
         nodes.push_back(new Node<2>(3, true, 0.0, 10.0));
         nodes.push_back(new Node<2>(4, true, 0.5, 7.0));
 
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        RefinableMesh<2,2> mesh(nodes);
 
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 10.0, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 22.0, 1e-6);
@@ -481,7 +481,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 

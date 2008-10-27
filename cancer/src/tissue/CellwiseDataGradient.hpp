@@ -74,7 +74,7 @@ template<unsigned DIM>
 void CellwiseDataGradient<DIM>::SetupGradients()
 {
     MeshBasedTissue<DIM>& r_tissue = CellwiseData<DIM>::Instance()->rGetTissue();
-    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = r_tissue.rGetMesh();
+    TetrahedralMesh<DIM,DIM>& r_mesh = r_tissue.rGetMesh();
 
     // Initialise gradients size
     unsigned num_nodes = r_tissue.rGetMesh().GetNumNodes();

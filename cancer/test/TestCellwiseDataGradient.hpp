@@ -49,7 +49,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create a tissue
@@ -87,7 +87,7 @@ public:
     {
         // Create a mesh: [0,2]x[0,2]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create a tissue
@@ -169,7 +169,7 @@ public:
     {
         // Create a mesh: [0,2]x[0,2]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create a tissue

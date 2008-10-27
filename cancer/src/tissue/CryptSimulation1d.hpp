@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "TissueCell.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "RefinableMesh.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "Exception.hpp"
 #include "ColumnDataWriter.hpp"
@@ -62,7 +62,7 @@ class CryptSimulation1d
 private:
     double mDt;
     double mEndTime;
-    ConformingTetrahedralMesh<1,1> &mrMesh;
+    RefinableMesh<1,1> &mrMesh;
 
     bool mIncludeVariableRestLength;
 
@@ -81,7 +81,7 @@ private:
 
 public:
 
-    CryptSimulation1d(ConformingTetrahedralMesh<1,1> &rMesh,
+    CryptSimulation1d(RefinableMesh<1,1> &rMesh,
                       std::vector<TissueCell> cells = std::vector<TissueCell>());
 
     ~CryptSimulation1d();

@@ -45,7 +45,7 @@ class TestTissueSimulationWithSimpleTissue : public AbstractCancerTestSuite
 private:
 
     template<unsigned DIM>
-    std::vector<Node<DIM> > SetUpNodes(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    std::vector<Node<DIM> > SetUpNodes(TetrahedralMesh<DIM,DIM>* pMesh)
     {
         std::vector<Node<DIM> > nodes;
 
@@ -57,7 +57,7 @@ private:
     }
 
     template<unsigned DIM>
-    std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    std::vector<TissueCell> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
@@ -99,7 +99,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get node vector from mesh
         std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
@@ -147,7 +147,7 @@ public:
 //        int num_cells_depth = 100;
 //        int num_cells_width = 100;
 //        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-//        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+//        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 //
 //        // Get node vector from mesh
 //        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
@@ -183,7 +183,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get node vector from mesh
         std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
@@ -222,7 +222,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get node vector from mesh
         std::vector<Node<2> > nodes = SetUpNodes(p_mesh);

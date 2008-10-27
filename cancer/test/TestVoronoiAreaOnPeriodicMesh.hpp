@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VoronoiCell.hpp"
 #include "VoronoiTessellation.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "Exception.hpp"
 #include "TrianglesMeshWriter.hpp"

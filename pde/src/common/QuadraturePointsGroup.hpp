@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define QUADRATUREPOINTSGROUP_HPP_
 
 #include "UblasCustomFunctions.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "LinearBasisFunction.hpp"
 #include <vector>
@@ -57,7 +57,7 @@ public :
      *  Constructor takes in a mesh and a rule and computes and stores all
      *  the quad points in physical space
      */
-    QuadraturePointsGroup(ConformingTetrahedralMesh<DIM,DIM>& rMesh,
+    QuadraturePointsGroup(TetrahedralMesh<DIM,DIM>& rMesh,
                           GaussianQuadratureRule<DIM>& rQuadRule)
     {
         mNumElements = rMesh.GetNumElements();

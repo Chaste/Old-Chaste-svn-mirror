@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <math.h>
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "OutputFileHandler.hpp"
@@ -51,15 +51,15 @@ template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class PerformanceTester
 {
 private:
-    void ConstructHyperCube(ConformingTetrahedralMesh<1,1> &rMesh, unsigned width)
+    void ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width)
     {
         rMesh.ConstructLinearMesh(width);
     }
-    void ConstructHyperCube(ConformingTetrahedralMesh<2,2> &rMesh, unsigned width)
+    void ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width)
     {
         rMesh.ConstructRectangularMesh(width, width);
     }
-    void ConstructHyperCube(ConformingTetrahedralMesh<3,3> &rMesh, unsigned width)
+    void ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width)
     {
         rMesh.ConstructCuboid(width, width, width);
     }

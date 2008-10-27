@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
+#include "RefinableMesh.hpp"
 #include <cmath>
 //#include <iostream>
 
@@ -129,7 +130,7 @@ public:
             "femlab_lshape_elements.dat",
             "femlab_lshape_edges.dat");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         bool cull_internal_faces = true;
         mesh.ConstructFromMeshReader(import_mesh_reader, cull_internal_faces);
 
@@ -148,7 +149,7 @@ public:
         TrianglesMeshReader<1,1> import_mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         MeshalyzerMeshWriter<1,1> mesh_writer("", "MeshFromTetgenViaMesh");
 
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(import_mesh_reader);
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
@@ -159,7 +160,7 @@ public:
         TrianglesMeshReader<2,2> import_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
         MeshalyzerMeshWriter<2,2> mesh_writer("", "MeshFromTetgenViaMesh");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(import_mesh_reader);
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
@@ -170,7 +171,7 @@ public:
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         MeshalyzerMeshWriter<3,3> mesh_writer("", "MeshFromTetgenViaMesh");
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(import_mesh_reader);
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
@@ -182,7 +183,7 @@ public:
         bool set_CG_format=true;
         MeshalyzerMeshWriter<3,3> mesh_writer("CGFromTetgenViaMesh", "CGFromTetgenViaMesh", true, set_CG_format);
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(import_mesh_reader);
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
@@ -192,7 +193,7 @@ public:
     void TestTriangles1DClosedMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");
-        ConformingTetrahedralMesh<1,2> mesh;
+        TetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TrianglesMeshWriter<1,2> mesh_writer("","1dClosedMeshIn2dSpace");
@@ -215,7 +216,7 @@ public:
     void TestTriangles1DMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
-        ConformingTetrahedralMesh<1,2> mesh;
+        TetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TrianglesMeshWriter<1,2> mesh_writer("","1dMeshIn2dSpace");
@@ -234,7 +235,7 @@ public:
     void TestTriangles1DMeshIn2DSpaceWithDeletedNode()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
-        ConformingTetrahedralMesh<1,2> mesh;
+        RefinableMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.DeleteBoundaryNodeAt(0);
 
@@ -254,7 +255,7 @@ public:
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/slab_395_elements");
 
-        ConformingTetrahedralMesh<2,3> mesh;
+        TetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TrianglesMeshWriter<2,3> mesh_writer("","2dClosedMeshIn3dSpace");
@@ -274,7 +275,7 @@ public:
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
 
-        ConformingTetrahedralMesh<2,3> mesh;
+        TetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TrianglesMeshWriter<2,3> mesh_writer("","2dMeshIn3dSpace");

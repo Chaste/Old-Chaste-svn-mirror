@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "AbstractLinearAssembler.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "GaussianQuadratureRule.hpp"
 
@@ -125,7 +124,7 @@ public:
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
      */
-    SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    SimpleLinearEllipticAssembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :

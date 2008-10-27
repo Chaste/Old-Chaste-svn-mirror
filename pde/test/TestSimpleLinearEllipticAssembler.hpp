@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include <petsc.h>
 #include "SimplePoissonEquation.hpp"
 #include "LinearPdeWithZeroSource.hpp"
@@ -155,7 +155,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/trivial_1d_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -195,7 +195,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -208,7 +208,7 @@ public:
 
         ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         // Add Neumann condition to the left hand end
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
+        TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
 
@@ -232,7 +232,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -247,7 +247,7 @@ public:
         // Note we pass -1 not 1; see comment for AddNeumannBoundaryCondition
         ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(-1.0);
         // Add Neumann condition to the left hand end
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
+        TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
 
@@ -270,7 +270,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -298,7 +298,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -307,7 +307,7 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         // du/dn = -0.5 on r=1
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_boundary_condition;
         p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
@@ -340,7 +340,7 @@ public:
     {
         /// Create mesh from mesh reader \todo set to correct mesh file?
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_1_to_3");
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -355,7 +355,7 @@ public:
         // Note we need to specify D * du/dx for the Neumann boundary condition
         ConstBoundaryCondition<1>* p_neumann_boundary_condition =
             new ConstBoundaryCondition<1>(7.0*9.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
+        TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
 
@@ -381,7 +381,7 @@ public:
     void longTestKathrynHarrimanPage67EqFourPointOne()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         LinearPdeWithZeroSource<2> pde;
@@ -391,7 +391,7 @@ public:
         // u = 0 on r<=1, z=0
         ConstBoundaryCondition<2>* p_boundary_dirichlet_condition =
             new ConstBoundaryCondition<2>(0.0);
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter1 =
+        TetrahedralMesh<2,2>::BoundaryNodeIterator iter1 =
             mesh.GetBoundaryNodeIteratorBegin();
         while (iter1 != mesh.GetBoundaryNodeIteratorEnd())
         {
@@ -402,7 +402,7 @@ public:
             iter1++;
         }
         // du/dn = 0 on r>1, z=0 and on r=0, z>=0
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter2 = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter2 = mesh.GetBoundaryElementIteratorBegin();
         while (iter2 != mesh.GetBoundaryElementIteratorEnd())
         {
             // Condition is zero, so we don't actually have to do anything.
@@ -465,7 +465,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -473,7 +473,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
-        ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
+        TetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
 
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
@@ -510,7 +510,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -518,7 +518,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
-        ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
+        TetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
 
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
@@ -535,7 +535,7 @@ public:
             iter++;
         }
 
-        ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<3>* p_neumann_boundary_condition = new ConstBoundaryCondition<3>(-1.0/3);
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
@@ -576,7 +576,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -616,7 +616,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -624,7 +624,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
-        for(ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter =
+        for(TetrahedralMesh<2,2>::BoundaryNodeIterator iter =
               mesh.GetBoundaryNodeIteratorBegin();
             iter != mesh.GetBoundaryNodeIteratorEnd();
             iter++)
@@ -661,7 +661,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");
 

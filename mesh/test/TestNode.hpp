@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTNODE_HPP_
 
 #include "Node.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include <cxxtest/TestSuite.h>
 
 class TestNode : public CxxTest::TestSuite
@@ -145,7 +145,7 @@ public:
 
     void TestFlagging()
     {
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1, 1);
         unsigned num_nodes = 4;
 

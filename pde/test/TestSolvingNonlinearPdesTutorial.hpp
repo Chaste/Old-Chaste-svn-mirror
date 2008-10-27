@@ -139,7 +139,7 @@ public:
     {
         /* As usual, first create a mesh */
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         /* Next, instantiate the PDE to be solved */
@@ -151,7 +151,7 @@ public:
          */
         BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_zero_bc = new ConstBoundaryCondition<2>(0.0);
-        for( ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
+        for( TetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
              node_iter != mesh.GetBoundaryNodeIteratorEnd();
              node_iter++)
         {
@@ -170,7 +170,7 @@ public:
         FunctionalBoundaryCondition<2>* p_functional_bc
           = new FunctionalBoundaryCondition<2>( &MyNeummanFunction );
         /* Next, loop over surface elements */
-        for( ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
+        for( TetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
              elt_iter != mesh.GetBoundaryElementIteratorEnd();
              elt_iter++ )
         {

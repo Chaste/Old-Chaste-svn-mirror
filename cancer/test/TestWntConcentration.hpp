@@ -197,7 +197,7 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Translate mesh so that its centre is at (0,0)
@@ -329,7 +329,7 @@ public:
     {
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<WntCellCycleModel*> models;

@@ -43,7 +43,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
@@ -64,7 +64,7 @@ public:
     void TestSimpleCellsGeneratorForCryptRandom() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
 
         CellsGenerator<2> generator;
 
@@ -111,7 +111,7 @@ public:
     void TestSimpleCellsGeneratorForCryptNonRandom() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
 
         CellsGenerator<2> generator;
 
@@ -160,7 +160,7 @@ public:
     void TestOdeCellsGeneratorForCryptRandom() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
 
         CellsGenerator<2> generator;
 
@@ -179,7 +179,7 @@ public:
     void TestOdeCellsGeneratorForCryptNonRandom() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
 
         CellsGenerator<2> generator;
 

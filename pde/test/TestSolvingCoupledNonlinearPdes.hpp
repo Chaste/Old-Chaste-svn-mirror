@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
@@ -140,7 +140,7 @@ private:
 
 
 public:
-    MySimpleNonlinearCoupledAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
+    MySimpleNonlinearCoupledAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
                                       BoundaryConditionsContainer<DIM,DIM,2>* pBoundaryConditions,
                                       double lambda)
             :  BaseClassType()
@@ -244,7 +244,7 @@ private:
 
 
 public :
-    AnotherCoupledNonlinearAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
+    AnotherCoupledNonlinearAssembler(TetrahedralMesh<2,2>* pMesh,
                                      BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
             :  BaseClassType()
     {
@@ -282,7 +282,7 @@ private :
         TrianglesMeshReader<DIM,DIM> mesh_reader(file);
 
 
-        ConformingTetrahedralMesh<DIM,DIM> mesh;
+        TetrahedralMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
@@ -407,7 +407,7 @@ public:
     void TestSimpleCoupledNonlinearPdeWithNeumannBoundaryConditions( void ) throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
@@ -418,7 +418,7 @@ public:
         BoundaryConditionsContainer<2,2,2> bcc;
 
         // du/dn = -0.5 on r=1
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
         ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
@@ -499,13 +499,13 @@ public:
 // boundary conditions maybe?)  ///\todo: find out why..
         //TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
 
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc;
 
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];

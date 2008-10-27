@@ -167,7 +167,7 @@ public:
      *
      * @param pMesh Pointer to a mesh object, from which we extract the boundary.
      */
-    void DefineZeroDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineZeroDirichletOnMeshBoundary(TetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                            unsigned indexOfUnknown = 0)
     {
         this->DefineConstantDirichletOnMeshBoundary(pMesh, 0.0, indexOfUnknown);
@@ -180,7 +180,7 @@ public:
      * @param pMesh Pointer to a mesh object, from which we extract the boundary.
      * @param value the value of the constant Dirichlet boundary condition
      */
-    void DefineConstantDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineConstantDirichletOnMeshBoundary(TetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                                double value,
                                                unsigned indexOfUnknown = 0)
     {
@@ -191,7 +191,7 @@ public:
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition =
             new ConstBoundaryCondition<SPACE_DIM>( value );
 
-        typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
+        typename TetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
         iter = pMesh->GetBoundaryNodeIteratorBegin();
         while (iter != pMesh->GetBoundaryNodeIteratorEnd())
         {
@@ -207,7 +207,7 @@ public:
      *
      * @param pMesh Pointer to a mesh object, from which we extract the boundary.
      */
-    void DefineZeroNeumannOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineZeroNeumannOnMeshBoundary(TetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                          unsigned indexOfUnknown = 0)
     {
         assert(indexOfUnknown < PROBLEM_DIM);
@@ -216,7 +216,7 @@ public:
         ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
             new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
 
-        typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryElementIterator iter;
+        typename TetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryElementIterator iter;
         iter = pMesh->GetBoundaryElementIteratorBegin();
         while (iter != pMesh->GetBoundaryElementIteratorEnd())
         {
@@ -360,14 +360,14 @@ public:
      * @param pMesh Pointer to the mesh to check for validity.
      * @return true iff all boundaries have boundary conditions defined.
      */
-    bool Validate(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM> *pMesh)
+    bool Validate(TetrahedralMesh<ELEM_DIM,SPACE_DIM> *pMesh)
     {
         bool valid = true;
 
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             // Iterate over surface elements
-            typename ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
+            typename TetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
             = pMesh->GetBoundaryElementIteratorBegin();
             while (valid && elt_iter != pMesh->GetBoundaryElementIteratorEnd())
             {

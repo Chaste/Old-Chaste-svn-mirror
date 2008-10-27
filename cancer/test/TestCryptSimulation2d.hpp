@@ -51,8 +51,8 @@ private:
      * but is fairly thorough.  Used for testing serialization.
      */
     template<unsigned DIM>
-    void CompareMeshes(ConformingTetrahedralMesh<DIM,DIM>* pMesh1,
-                       ConformingTetrahedralMesh<DIM,DIM>* pMesh2)
+    void CompareMeshes(RefinableMesh<DIM,DIM>* pMesh1,
+                       RefinableMesh<DIM,DIM>* pMesh2)
     {
         TS_ASSERT_EQUALS(pMesh1->GetNumAllNodes(), pMesh2->GetNumAllNodes());
         TS_ASSERT_EQUALS(pMesh1->GetNumNodes(), pMesh2->GetNumNodes());
@@ -75,8 +75,8 @@ private:
         TS_ASSERT_EQUALS(pMesh1->GetNumAllElements(), pMesh2->GetNumAllElements());
         TS_ASSERT_EQUALS(pMesh1->GetNumBoundaryElements(), pMesh2->GetNumBoundaryElements());
         TS_ASSERT_EQUALS(pMesh1->GetNumAllBoundaryElements(), pMesh2->GetNumAllBoundaryElements());
-        typename ConformingTetrahedralMesh<DIM,DIM>::ElementIterator it=pMesh1->GetElementIteratorBegin();
-        typename ConformingTetrahedralMesh<DIM,DIM>::ElementIterator it2=pMesh2->GetElementIteratorBegin();
+        typename RefinableMesh<DIM,DIM>::ElementIterator it=pMesh1->GetElementIteratorBegin();
+        typename RefinableMesh<DIM,DIM>::ElementIterator it2=pMesh2->GetElementIteratorBegin();
         for (;
              it != pMesh1->GetElementIteratorEnd();
              ++it, ++it2)
@@ -110,7 +110,7 @@ public:
     void TestUpdatePositions() throw (Exception)
     {
         HoneycombMeshGenerator generator(3, 3, 1, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         std::vector<TissueCell> cells;
@@ -356,7 +356,7 @@ public:
         Cylindrical2dMesh* p_mesh2=generator2.GetCylindricalMesh();
 
         // Compare
-        ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue())))->rGetMesh();
+        RefinableMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue())))->rGetMesh();
         CompareMeshes(p_mesh2, &r_mesh);
 
         delete p_simulator;
@@ -526,13 +526,13 @@ public:
         // and run from 0.2 to 0.25.
         NodeMap map(0);
 
-        ConformingTetrahedralMesh<2,2>& r_mesh1 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
+        RefinableMesh<2,2>& r_mesh1 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
         r_mesh1.ReMesh(map);
         p_simulator1->Save();
 
         CryptSimulation2d* p_simulator2 = CryptSimulation2d::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
 
-        ConformingTetrahedralMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
+        RefinableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
 
         CompareMeshes(&r_mesh1, &r_mesh2);
 
@@ -581,7 +581,7 @@ public:
         unsigned thickness_of_ghost_layer = 1;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false, crypt_width/cells_across);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         // Set up cells
@@ -750,7 +750,7 @@ public:
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
@@ -785,7 +785,7 @@ public:
         location[1] = 1.0;
         Node<2>* p_node = new Node<2>(0u,location, false);
 
-        ConformingTetrahedralMesh<2,2> conf_mesh;
+        RefinableMesh<2,2> conf_mesh;
         conf_mesh.AddNode(p_node);
 
         // Set up cells
@@ -814,7 +814,7 @@ public:
         location[0] = 1.0;
         location[1] = 0.0; // <- y=0
         Node<2>* p_node = new Node<2>(0u,location, false);
-        ConformingTetrahedralMesh<2,2> conf_mesh;
+        RefinableMesh<2,2> conf_mesh;
         conf_mesh.AddNode(p_node);
 
         // Set up cells
@@ -957,7 +957,7 @@ public:
         unsigned thickness_of_ghost_layer = 1;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         // Set up cells
@@ -1057,7 +1057,7 @@ public:
         double crypt_width = num_cells_width-0.0;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         CancerParameters* p_params = CancerParameters::Instance();

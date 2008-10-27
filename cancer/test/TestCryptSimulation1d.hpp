@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "RefinableMesh.hpp"
 
 
 class TestCryptSimulation1d : public AbstractCancerTestSuite
@@ -126,7 +127,7 @@ public:
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
 
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // We have to destroy SimulationTime as it is automatically instantiated in SetUp()
@@ -154,7 +155,7 @@ public:
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
 
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ChastePoint<1> shifted_point;
@@ -187,7 +188,7 @@ public:
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
 
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ChastePoint<1> shifted_point;
@@ -238,7 +239,7 @@ public:
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
 
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells by iterating through the mesh nodes
@@ -302,7 +303,7 @@ public:
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells by iterating through the mesh nodes
@@ -365,7 +366,7 @@ public:
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // For Tyson-Novak Cells
@@ -458,7 +459,7 @@ public:
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
 
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
+        RefinableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells by iterating through the mesh nodes

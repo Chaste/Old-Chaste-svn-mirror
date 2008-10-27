@@ -43,7 +43,7 @@ public:
         std::string rv_face_file = "heart/test/data/point50_heart_mesh/rv.tri";
         std::string lv_face_file = "heart/test/data/point50_heart_mesh/lv.tri";
 
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         StreeterFibreGenerator<3> fibre_generator(mesh);

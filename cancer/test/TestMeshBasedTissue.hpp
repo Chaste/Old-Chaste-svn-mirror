@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "CellsGenerator.hpp"
-#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -45,7 +44,7 @@ class TestMeshBasedTissue : public AbstractCancerTestSuite
 private:
 
     template<unsigned DIM>
-    std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    std::vector<TissueCell> SetUpCells(RefinableMesh<DIM,DIM>* pMesh)
     {
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
@@ -65,7 +64,7 @@ private:
     {
         // Create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
-        ConformingTetrahedralMesh<DIM,DIM> mesh;
+        RefinableMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Get each a birth time of -node_index,
@@ -124,7 +123,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Get each a birth time of -node_index,
@@ -148,7 +147,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Get each a birth time of -node_index,
@@ -174,7 +173,7 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
 
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         // Set up cells
@@ -233,7 +232,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
@@ -297,7 +296,7 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
@@ -369,7 +368,7 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
@@ -460,7 +459,7 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
@@ -521,7 +520,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
@@ -587,7 +586,7 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghosts, false);
 
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         // Set up cells
@@ -626,7 +625,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
@@ -697,7 +696,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        RefinableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Get each a birth time of -node_index,
@@ -747,7 +746,7 @@ public:
 
             // Create a simple mesh
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-            ConformingTetrahedralMesh<2,2> mesh;
+            RefinableMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Set up cells, one for each node. Get each a birth time of -node_index,
@@ -840,7 +839,7 @@ public:
         nodes.push_back(new Node<2>(3, false, 2, 0.5));
         nodes.push_back(new Node<2>(4, false, 2, 1.5));
 
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        RefinableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
@@ -894,7 +893,7 @@ public:
         nodes.push_back(new Node<2>(3, false, 2, 0.5));
         nodes.push_back(new Node<2>(4, false, 2, 1.5));
 
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        RefinableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);

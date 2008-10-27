@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "ReplicatableVector.hpp"
 
@@ -129,7 +129,7 @@ public:
     /** Calculate the integral over the given mesh, using the given solution
      *  vector on the mesh.
      */
-    double Calculate(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
+    double Calculate(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
                      Vec solution)
     {
         assert(solution);
@@ -141,7 +141,7 @@ public:
 
         double result = 0;
 
-        for (typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
+        for (typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
                iter = rMesh.GetElementIteratorBegin();
                iter != rMesh.GetElementIteratorEnd();
                ++iter)

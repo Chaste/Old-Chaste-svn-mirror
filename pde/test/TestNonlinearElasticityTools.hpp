@@ -50,7 +50,7 @@ public:
         }
 
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_136_elements");
-        ConformingTetrahedralMesh<3,3> mesh3d;
+        TetrahedralMesh<3,3> mesh3d;
         mesh3d.ConstructFromMeshReader(reader);
         mesh3d.Scale(0.3423244,1.343244325,6.23435);
         

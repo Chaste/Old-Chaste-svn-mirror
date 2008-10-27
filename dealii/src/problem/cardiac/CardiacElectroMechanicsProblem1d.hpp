@@ -114,7 +114,7 @@ public:
     void ConstructMeshes()
     {
         // create electrics mesh
-        mpElectricsMesh = new ConformingTetrahedralMesh<1,1>();
+        mpElectricsMesh = new TetrahedralMesh<1,1>();
         unsigned num_elem = 128;
 
         mpElectricsMesh->ConstructLinearMesh(num_elem);

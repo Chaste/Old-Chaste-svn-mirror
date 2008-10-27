@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTPLANESTIMULUSCELLFACTORY_HPP_
 #define TESTPLANESTIMULUSCELLFACTORY_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
@@ -39,7 +39,7 @@ class TestPlaneStimulusCellFactory : public CxxTest::TestSuite
 public:
     void TestBasicContructor() throw (Exception)
     {
-        ConformingTetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(2,2,2);
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory1;
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory2(-100); //  stimulus voltage

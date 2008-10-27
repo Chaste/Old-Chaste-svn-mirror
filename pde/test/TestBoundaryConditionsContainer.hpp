@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
@@ -327,7 +327,7 @@ public:
     {
         // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -348,7 +348,7 @@ public:
     {
         // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -358,7 +358,7 @@ public:
 
         bcc.DefineZeroNeumannOnMeshBoundary(&mesh);
 
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter;
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter;
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
@@ -385,7 +385,7 @@ public:
     {
         // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -398,7 +398,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), bc);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), bc);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), bc);
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter
         = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, bc); // 2 to 3

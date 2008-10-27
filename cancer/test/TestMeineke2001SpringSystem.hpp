@@ -57,7 +57,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         std::vector<TissueCell> cells;
@@ -170,7 +170,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false,crypt_width/cells_across);
-        ConformingTetrahedralMesh<2,2>* p_mesh =generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh =generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         // Set up cells
@@ -297,7 +297,7 @@ public:
 
         // Test a non-periodic mesh
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Scale the mesh in one direction
         p_mesh->Scale(1.0,1.2);
@@ -399,7 +399,7 @@ public:
         nodes.push_back(new Node<2>(2, false, 2, 2));
         nodes.push_back(new Node<2>(3, false, 2, 0));
 
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        RefinableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
@@ -474,7 +474,7 @@ public:
     {
         // Set up stretched tissue
         HoneycombMeshGenerator generator(4, 4, 0, false, 2.0);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         std::vector<TissueCell> cells;
@@ -502,7 +502,7 @@ public:
 
         // Now do the same thing but for a squashed tissue
         HoneycombMeshGenerator generator2(4, 4, 0, false, 0.5);
-        ConformingTetrahedralMesh<2,2>* p_mesh2 = generator2.GetMesh();
+        RefinableMesh<2,2>* p_mesh2 = generator2.GetMesh();
         std::set<unsigned> ghost_node_indices2 = generator2.GetGhostNodeIndices();
 
         std::vector<TissueCell> cells2;
@@ -529,7 +529,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
-        ConformingTetrahedralMesh<3,3> mesh;
+        RefinableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
@@ -596,7 +596,7 @@ public:
         //
         //  Move one node and check that forces are correctly calculated
         //
-        ConformingTetrahedralMesh<3,3> mesh2;
+        RefinableMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
         MeshBasedTissue<3> tissue2(mesh2,cells);
         Meineke2001SpringSystem<3> meineke_spring_system2(tissue2);
@@ -636,7 +636,7 @@ public:
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
-            ConformingTetrahedralMesh<2,2> mesh;
+            RefinableMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
             num_nodes = mesh.GetNumNodes();
 

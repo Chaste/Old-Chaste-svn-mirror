@@ -388,7 +388,7 @@ public:
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
-        ConformingTetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(10, 10, true);
         mesh.Scale(0.01,0.01); //To get 1mm x 1mm
         monodomain_problem.SetMesh(&mesh);

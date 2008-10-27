@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLSGENERATOR_HPP_
 #define CELLSGENERATOR_HPP_
 
-#include "ConformingTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -69,7 +69,7 @@ public :
      * @param rMesh  The mesh the cells should be associated with.
      */
     static void GenerateBasic(std::vector<TissueCell>& rCells,
-                               ConformingTetrahedralMesh<DIM,DIM>& rMesh);
+                               TetrahedralMesh<DIM,DIM>& rMesh);
 
     /**
      * Generates cells of a specified cell cycle type under the correct
@@ -88,7 +88,7 @@ public :
      * \todo Only give generation information to relevant models (see #509)
      */
     static void GenerateForCrypt(std::vector<TissueCell>& rCells,
-                                 ConformingTetrahedralMesh<2,2>& rMesh,
+                                 TetrahedralMesh<2,2>& rMesh,
                                  CellCycleType cycleType,
                                  bool randomBirthTimes,
                                  double y0 = 0.3,
@@ -100,7 +100,7 @@ public :
 
 template<unsigned DIM>
 void CellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
-                               ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+                               TetrahedralMesh<DIM,DIM>& rMesh)
 {
     rCells.clear();
     rCells.reserve(rMesh.GetNumNodes());
@@ -116,7 +116,7 @@ void CellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
 
 template<unsigned DIM>
 void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
-                                 ConformingTetrahedralMesh<2,2>& rMesh,
+                                 TetrahedralMesh<2,2>& rMesh,
                                  CellCycleType cycleType,
                                  bool randomBirthTimes,
                                  double y0,

@@ -417,7 +417,7 @@ public:
         c_vector<double,2> traction;
         traction(0) = 2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
         traction(1) = 0;
-        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter 
+        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter 
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
@@ -504,7 +504,7 @@ public:
         }
 
         std::vector<BoundaryElement<1,2>*> boundary_elems;
-        for(ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter 
+        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter 
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)

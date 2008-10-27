@@ -1,4 +1,4 @@
-TestConformingTetrahedralMesh.hpp
+TestTetrahedralMesh.hpp
 TestFemlabMeshReader.hpp
 TestFace.hpp
 TestInventorVoronoiWriter.hpp

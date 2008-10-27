@@ -102,8 +102,8 @@ public:
          */
         HoneycombMeshGenerator generator(10, 10, 0, false);
         /* Get the mesh. Note we call {{{GetMesh()}}} rather than {{{GetCyclindricalMesh}}},
-         * and that a {{{ConformingTetrahedralMesh}}} is returned. */
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+         * and that a {{{RefinableMesh}}} is returned. */
+        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
 
 
         /* Next, we need to create some cells. Unlike before, we don't just use
