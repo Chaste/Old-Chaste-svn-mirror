@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 #include "AbstractIncompressibleMaterialLaw2.hpp"
 #include "OutputFileHandler.hpp"
+#include "LogFile.hpp"
 
 
 //#include "Timer.hpp" // in the dealii folder
@@ -263,6 +264,14 @@ protected:
     }
 
 
+    /**
+     *  This function may be overloaded by subclasses. It is called after each Newton 
+     *  iteration.
+     */
+    virtual void PostNewtonStep(unsigned counter, double normResidual)
+    {
+    }
+    
 public:
     AbstractNonlinearElasticityAssembler(unsigned numDofs,
                                          AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw,
@@ -383,6 +392,8 @@ public:
             }
     
             mNumNewtonIterations = counter;
+    
+    		PostNewtonStep(counter,norm_resid);
     
             counter++;
             if (counter==20)

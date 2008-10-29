@@ -41,6 +41,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 
 
+
+
+Vector<double> ModelProblem4GetTraction(const Point<2>& X)
+{
+    assert(X[0]==0 || X[0]==1 || X[1]==1);
+    
+    Vector<double> traction(2);
+    traction(0) = 0;
+    traction(1) = 0;
+
+    if(X[1]==1)
+    {
+        if( (X[0]>=0.25) && (X[0]<=0.75) )
+        {
+            traction(1) = -0.06;
+        }
+    }
+
+    return traction;
+}
+
 class ModelProblem2
 {
 public:
@@ -48,7 +69,6 @@ public:
     static const double C1 = 0.1;
     static const double C2 = 0.02;
 };
-
 
 Vector<double> TractionForMixedShears(const Point<2>& X)
 {
@@ -177,6 +197,172 @@ public:
 };
 
 
+
+class FiniteElasticityWithWatchedInfo : public FiniteElasticityAssembler<2>
+{
+private:
+    Point<2> mWatchedPoint;
+    unsigned mNodeIndexOfWatchedPoint;
+    
+    void PostNewtonStep(unsigned counter, double normResidual)
+    {
+        assert(mNodeIndexOfWatchedPoint!=UINT_MAX);
+
+        //// MP1-3
+        Point<2> error;
+        double X = mWatchedPoint[0];
+        double Y = mWatchedPoint[1];
+
+        //// MP1 or 3
+        //double exact_x = X - DealiiModelProblem3::Mu(X);
+        //double exact_y = Y/(1-DealiiModelProblem3::MuDash(X));
+
+        //// MP2
+        double exact_x = X;
+        double exact_y = Y - 0.5*X + (0.5-0.1)/2;
+
+        //// MP1-3
+        std::vector<Vector<double> >& r_deformed_position = this->rGetDeformedPosition();
+        error(0) = rGetDeformedPosition()[0](mNodeIndexOfWatchedPoint) - exact_x;
+        error(1) = rGetDeformedPosition()[1](mNodeIndexOfWatchedPoint) - exact_y;
+        double norm2_err = sqrt(error(0)*error(0)+error(1)*error(1));
+        LOG_AND_COUT(1,"\tNewton step " << counter << ": " << normResidual << " " << norm2_err);
+
+        //// MP4
+        //std::vector<Vector<double> >& r_deformed_position = this->rGetDeformedPosition();
+        //LOG_AND_COUT(1,"\tNewton step " << counter << ": " << normResidual << " " << r_deformed_position[0](mNodeIndexOfWatchedPoint) << " " << r_deformed_position[1](mNodeIndexOfWatchedPoint));
+        //CalculateForceOnTopSurface(counter);
+    }
+        
+
+public:
+    FiniteElasticityWithWatchedInfo(Triangulation<2>* pMesh,
+                                    AbstractIncompressibleMaterialLaw<2>*  pMaterialLaw,
+                                    Vector<double> bodyForce,
+                                    double density,
+                                    std::string outputDirectory)
+        : FiniteElasticityAssembler<2>(pMesh,pMaterialLaw,bodyForce,density,outputDirectory)
+    {
+        mNodeIndexOfWatchedPoint=UINT_MAX;
+    }
+    
+    
+    void AddWatchedLocation(Point<2> location, unsigned nodeIndex)
+    {
+        mWatchedPoint = location;
+        mNodeIndexOfWatchedPoint = nodeIndex;
+    }
+    
+
+    void CalculateForceOnTopSurface(unsigned counter)
+    {
+        // only write output if the flag mWriteOutput has been set
+        if (!this->mWriteOutput)
+        {
+            return;
+        }
+    
+        // create stresses file
+        std::stringstream ss;
+        ss << this->mOutputDirectoryFullPath << "/top_forces_" << counter << ".txt";
+        std::string stress_filename = ss.str();
+        std::ofstream stress_output(stress_filename.c_str());
+    
+        static QSimpson<2>   quadrature_formula;
+        const unsigned n_q_points = quadrature_formula.n_quadrature_points;
+    
+        FEValues<2> fe_values(mFeSystem, quadrature_formula,
+                                UpdateFlags(update_values    |
+                                            update_gradients |
+                                            update_q_points  |     // needed for interpolating u and u' on the quad point
+                                            update_JxW_values));
+    
+        std::vector< Vector<double> >                  local_solution_values(n_q_points);
+        std::vector< std::vector< Tensor<1,2> > >    local_solution_gradients(n_q_points);
+    
+        Tensor<2,2> identity;
+        for (unsigned q_point=0; q_point<n_q_points; q_point++)
+        {
+            local_solution_values[q_point].reinit(2+1);
+            local_solution_gradients[q_point].resize(2+1);
+        }
+    
+        for (unsigned i=0; i<2; i++)
+        {
+            for (unsigned j=0; j<2; j++)
+            {
+                identity[i][j] = i==j ? 1.0 : 0.0;
+            }
+        }
+    
+        unsigned elem_number = 0;
+        DoFHandler<2>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
+    
+        while (element_iter!=this->mDofHandler.end())
+        {
+            fe_values.reinit(element_iter); // compute fe values for this element
+            fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
+            fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
+    
+            AbstractIncompressibleMaterialLaw<2>* p_material_law = GetMaterialLawForElement(element_iter);
+    
+            for (unsigned q_point=0; q_point<n_q_points; q_point++)
+            {
+                const Point<2>& X = fe_values.quadrature_point(q_point);
+                if(X[1]==1)
+                {
+                    unsigned N = round(sqrt(this->mpMesh->n_active_cells()));
+    
+                    bool bdy = false;
+                    double h = 1.0/N;
+                    for(unsigned k=0; k<=N; k++)
+                    {
+                        if( fabs(X[0] - k*h)<1e-6)
+                        {
+                            bdy = true;
+                        }
+                    }
+                    
+                    if(!bdy)
+                    {                    
+                        const std::vector< Tensor<1,2> >& grad_u_p = local_solution_gradients[q_point];
+        
+                        Vector<double> x;
+                        x.reinit(2);
+                        for(unsigned i=0; i<2; i++)
+                        {
+                            x(i) = local_solution_values[q_point](i);
+                        }
+        
+                        double p = local_solution_values[q_point](PRESSURE_COMPONENT_INDEX);
+        
+                        static Tensor<2,2> F;
+                        static Tensor<2,2> S;
+        
+                        for (unsigned i=0; i<2; i++)
+                        {
+                            for (unsigned j=0; j<2; j++)
+                            {
+                                F[i][j] = identity[i][j] + grad_u_p[i][j];
+                            }
+                        }
+        
+                        p_material_law->Compute1stPiolaKirchoffStress(F,p,S);
+                        
+                        stress_output << X[0] << " " << X[1] << " " << S[0][1] << " " << S[1][1] << "\n";
+                    }
+                }
+            }
+    
+            element_iter++;
+        }
+        stress_output.close();
+    }
+};
+
+
+
+
 class TestQuadHexFiniteElasticityExperiments : public CxxTest::TestSuite
 {
 private:
@@ -253,21 +439,34 @@ private:
             dir << "TestVerifySolveDealiiModelProblem2";
         }
  
-        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
-                                                       NULL,
-                                                       body_force,
-                                                       1.0,
-                                                       dir.str());
+        FiniteElasticityWithWatchedInfo finite_elasticity(&mesh,
+                                                          NULL,
+                                                          body_force,
+                                                          1.0,
+                                                          dir.str());
 
         finite_elasticity.SetMaterialLawsForHeterogeneousProblem(laws, material_ids);
         finite_elasticity.SetFunctionalTractionBoundaryCondition(TractionForMixedShears);
+        
+        finite_elasticity.UseDirectSolver();
+
+        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
+        unsigned watched_point_index = FindWatchedPointIndex(watchedPoint, r_undeformed_position);
+        finite_elasticity.AddWatchedLocation(watchedPoint,watched_point_index);
+
 
         // solve
-        finite_elasticity.StaticSolve(true, 1e-15);
+        try
+        {
+            finite_elasticity.StaticSolve(true, 1e-18);
+        }
+        catch(Exception& e)
+        {
+            LOG_AND_COUT(1,e.GetMessage());
+        }
                 
         // compare                            
         std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
-        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
         
         if(testing)
         {
@@ -292,7 +491,6 @@ private:
             //  if quad-hex is like quad-tet they won't be anywhere near...
         }
 
-        unsigned watched_point_index = FindWatchedPointIndex(watchedPoint, r_undeformed_position);
         
         Point<2> error;
         double X = r_undeformed_position[0](watched_point_index);
@@ -359,11 +557,11 @@ private:
             dir << "TestVerifySolveDealiiModelProblem3";
         }
         
-        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
-                                                       &law,
-                                                       body_force,
-                                                       1.0,
-                                                       dir.str());
+        FiniteElasticityWithWatchedInfo finite_elasticity(&mesh,
+                                                          &law,
+                                                          body_force,
+                                                          1.0,
+                                                          dir.str());
 
         // define boundary values
         std::map<unsigned,double> boundary_values;
@@ -388,12 +586,25 @@ private:
         finite_elasticity.SetFunctionalBodyForce(DealiiModelProblem3::GetBodyForce);
         finite_elasticity.SetBoundaryValues(boundary_values);
 
+        finite_elasticity.UseDirectSolver();
+
+        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
+        unsigned watched_point_index = FindWatchedPointIndex(watchedPoint, r_undeformed_position);
+        finite_elasticity.AddWatchedLocation(watchedPoint,watched_point_index);
+
+
         // solve
-        finite_elasticity.StaticSolve(true, 1e-15);
+        try
+        {
+            finite_elasticity.StaticSolve(true, 1e-19);
+        }
+        catch(Exception& e)
+        {
+            LOG_AND_COUT(1,e.GetMessage());
+        }
 
         // compare                            
         std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
-        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
         
         if(testing)
         {
@@ -420,7 +631,6 @@ private:
             }
         }
 
-        unsigned watched_point_index = FindWatchedPointIndex(watchedPoint, r_undeformed_position);
         
         Point<2> error;
         double X = r_undeformed_position[0](watched_point_index);
@@ -435,20 +645,98 @@ private:
 
     }
 
+
+
+
+
+
+
+    Point<2> RunModelProblem4(unsigned numRefinements, 
+                              Point<2> watchedPoint,
+                              bool testing = false)
+    {
+        Vector<double> body_force(2);
+        body_force(0) = 0;
+        body_force(1) = 0;
+        MooneyRivlinMaterialLaw<2> law(0.02);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+   
+        if(numRefinements>0)
+        {
+            mesh.refine_global(numRefinements);
+        }
+
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 1, 0.0);
+        
+        std::stringstream dir;
+        if(!testing)
+        {
+            dir << "DealiiModelProblem4/" << numRefinements;
+        }
+        else
+        {
+            dir << "TestVerifySolveDealiiModelProblem4";
+        }
+        
+        FiniteElasticityWithWatchedInfo finite_elasticity(&mesh,
+                                                          &law,
+                                                          body_force,
+                                                          1.0,
+                                                          dir.str());
+
+
+        // set traction
+        finite_elasticity.SetFunctionalTractionBoundaryCondition(ModelProblem4GetTraction);
+
+        finite_elasticity.UseDirectSolver();
+
+        std::vector<Vector<double> >& r_undeformed_position = finite_elasticity.rGetUndeformedPosition();
+        unsigned watched_point_index = FindWatchedPointIndex(watchedPoint, r_undeformed_position);
+        finite_elasticity.AddWatchedLocation(watchedPoint,watched_point_index);
+
+        // solve
+        try
+        {
+            finite_elasticity.StaticSolve(true, 1e-19);
+        }
+        catch(Exception& e)
+        {
+            LOG_AND_COUT(1,e.GetMessage());
+        }
+
+        // compare                            
+        std::vector<Vector<double> >& r_deformed_position = finite_elasticity.rGetDeformedPosition();
+        
+        if(testing)
+        {
+            assert(0);
+        }
+
+        
+        Point<2> ret;
+        ret[0] = r_deformed_position[0](watched_point_index);
+        ret[1] = r_deformed_position[1](watched_point_index);
+
+        return ret;
+    }
+
+
 public:
 
-//    void dont__TestVerifyRun__NEW__ModelProblem1() throw(Exception)
-//    {
-//        assert(DealiiModelProblem3::Mu(1)==-0.1);
-//
-//        Point<2> X;
-//        X[0] = 1.0;
-//        X[1] = 1.0;
-//
-//        Point<2> error = RunModelProblem3(4,X,true);
-//        TS_ASSERT_DELTA(error[0], 0.0, 1e-3);
-//        TS_ASSERT_DELTA(error[1], 0.0, 1e-3);
-//    }
+    void DONT_TestVerifyRun__NEW__ModelProblem1() throw(Exception)
+    {
+        assert(DealiiModelProblem3::Mu(1)==-0.1);
+
+        Point<2> X;
+        X[0] = 1.0;
+        X[1] = 1.0;
+
+        Point<2> error = RunModelProblem3(4,X,true);
+        TS_ASSERT_DELTA(error[0], 0.0, 1e-3);
+        TS_ASSERT_DELTA(error[1], 0.0, 1e-3);
+    }
 
 
     void dont__TestVerifyRunModelProblem2() throw(Exception)
@@ -462,7 +750,7 @@ public:
         TS_ASSERT_DELTA(error[1], 0.0, 1e-2);
     }
 
-    void dontTestVerifyRunModelProblem3() throw(Exception)
+    void DONT_TestVerifyRunModelProblem3() throw(Exception)
     {
         // check ModelProblem3 is in correct mode
         assert(fabs(DealiiModelProblem3::Mu(1)-0.05)<1e-2);
@@ -476,37 +764,39 @@ public:
         TS_ASSERT_DELTA(error[1], 0.0, 1e-3);
     }
 
-//    void dont__TestRun_New_ModelProblem1() throw(Exception)
-//    {
-//        assert(DealiiModelProblem3::Mu(1)==-0.1);
-//        
-//        LogFile::Instance()->Set(1,"MechComp","dealii_prob1.txt");
-//        LogFile::Instance()->SetPrecision(10);
-//
-//        Point<2> X;
-//        X[0] = 1.0; // 1.0 not 0.5
-//        X[1] = 1.0;
-//
-//        for(unsigned i=1; i<=6; i++)
-//        {
-//            unsigned N = pow(2,i);
-//            unsigned num_nodes = (2*N-1)*(2*N-1);
-//            unsigned num_vertices = 2*(N+1)*(N+1);
-//            unsigned num_dofs = 2*num_nodes+num_vertices; 
-//
-//            Point<2> error = RunModelProblem3(i,X);
-//    
-//            double norm_err = sqrt(error[0]*error[0]+error[1]*error[1]);
-//        
-//            LOG_AND_COUT(1,N<<" "<<num_nodes<<" "<<num_dofs<<" "<<error[0]<<" "<<error[1]<<" "<<norm_err);
-//        }
-//        LogFile::Close();
-//    }
-
-
-
-    void dont__TestRunModelProblem2() throw(Exception)
+    void DONT_TestRun_New_ModelProblem1() throw(Exception)
     {
+        assert(DealiiModelProblem3::Mu(1)==-0.1);
+        
+        LogFile::Instance()->Set(1,"MechComp","dealii_prob1.txt");
+        LogFile::Instance()->SetPrecision(10);
+
+        Point<2> X;
+        X[0] = 1.0; // 1.0 not 0.5
+        X[1] = 1.0;
+
+        for(unsigned i=1; i<=7; i++)
+        {
+            unsigned N = pow(2,i);
+            unsigned num_nodes = (2*N-1)*(2*N-1);
+            unsigned num_vertices = 2*(N+1)*(N+1);
+            unsigned num_dofs = 2*num_nodes+num_vertices; 
+
+            Point<2> error = RunModelProblem3(i,X);
+    
+            double norm_err = sqrt(error[0]*error[0]+error[1]*error[1]);
+        
+            LOG_AND_COUT(1,N<<" "<<num_nodes<<" "<<num_dofs<<" "<<error[0]<<" "<<error[1]<<" "<<norm_err);
+        }
+        LogFile::Close();
+    }
+
+
+
+    void TestRunModelProblem2() throw(Exception)
+    {
+        /// ***to run this properly, make sure PostNewtonStep() is doing the right thing***
+
         LogFile::Instance()->Set(1,"MechComp","dealii_prob2.txt");
         LogFile::Instance()->SetPrecision(10);
 
@@ -514,7 +804,7 @@ public:
         X[0] = 1.0;
         X[1] = 1.0;
 
-        for(unsigned i=1; i<=5; i++)
+        for(unsigned i=1; i<=4; i++)
         {
             unsigned N = pow(2,i);
             unsigned num_nodes = (2*N-1)*(2*N-1);
@@ -529,8 +819,10 @@ public:
         LogFile::Close();
     }
 
-    void TestRunModelProblem3() throw(Exception)
+    void DONT_TestRunModelProblem3() throw(Exception)
     {
+        /// ***to run this properly, make sure PostNewtonStep() is doing the right thing***
+
         // check ModelProblem3 is in correct mode
         assert(fabs(DealiiModelProblem3::Mu(1)-0.05)<1e-2);
         
@@ -541,7 +833,7 @@ public:
         X[0] = 0.5;   // 0.5
         X[1] = 1.0;
 
-        for(unsigned i=1; i<=5; i++)
+        for(unsigned i=1; i<=4; i++)
         {
             unsigned N = pow(2,i);
             unsigned num_nodes = (2*N-1)*(2*N-1);
@@ -553,6 +845,31 @@ public:
             double norm_err = sqrt(error[0]*error[0]+error[1]*error[1]);
         
             LOG_AND_COUT(1,N<<" "<<num_nodes<<" "<<num_dofs<<" "<<error[0]<<" "<<error[1]<<" "<<norm_err);
+        }
+        LogFile::Close();
+    }
+    
+    void DONT_TestRunModelProblem4() throw(Exception)
+    {
+        /// ***to run this properly, make sure PostNewtonStep() is doing the right thing***
+        
+        LogFile::Instance()->Set(1,"MechComp","dealii_prob4.txt");
+        LogFile::Instance()->SetPrecision(10);
+
+        Point<2> X;
+        X[0] = 0.5;   // 0.5
+        X[1] = 1.0;
+
+        for(unsigned i=2; i<=4; i++)
+        {
+            unsigned N = pow(2,i);
+            unsigned num_nodes = (2*N-1)*(2*N-1);
+            unsigned num_vertices = 2*(N+1)*(N+1);
+            unsigned num_dofs = 2*num_nodes+num_vertices; 
+
+            Point<2> def = RunModelProblem4(i,X);
+    
+            LOG_AND_COUT(1,N<<" "<<num_nodes<<" "<<num_dofs<<" "<<def[0]<<" "<<def[1]);
         }
         LogFile::Close();
     }

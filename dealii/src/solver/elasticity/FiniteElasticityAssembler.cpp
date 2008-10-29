@@ -892,6 +892,8 @@ void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput, double tol)
 
         this->mNumNewtonIterations = counter;
 
+        PostNewtonStep(counter, norm_resid);
+
         counter++;
         if (counter==20)
         {

@@ -154,21 +154,7 @@ public :
 
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
 
-
-        // looping it probably more eficient then doing S = T*transpose(F)
-        // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
-        // SymmetricTensor<2,DIM>
-        for (unsigned M=0; M<DIM; M++)
-        {
-            for (unsigned i=0; i<DIM; i++)
-            {
-                S(M,i) = 0.0;
-                for (unsigned N=0; N<DIM; N++)
-                {
-                    S(M,i) += T(M,N) * F(i,N);
-                }
-            }
-        }
+        S = prod(T,trans(F));
     }
 
 

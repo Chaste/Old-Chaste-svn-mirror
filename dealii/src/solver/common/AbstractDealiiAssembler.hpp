@@ -556,8 +556,7 @@ protected:
         if (best_damping_value == 0.0)
         {
             #define COVERAGE_IGNORE
-            std::cout << "\nResidual does not decrease in newton direction, quitting\n" << std::flush;
-            assert(0); // got a weird error once with an exception here, hence the assert(0);
+            EXCEPTION("Residual does not decrease in newton direction, quitting");
             #undef COVERAGE_IGNORE
         }
         else

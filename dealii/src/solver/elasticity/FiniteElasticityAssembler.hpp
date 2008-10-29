@@ -222,6 +222,13 @@ protected:
      */
     void DistributeDofs();
 
+    
+    /**
+     *  For child classes to override. Called at the end of every Newton step.
+     */
+    virtual void PostNewtonStep(unsigned counter, double normResidual)
+    {
+    }
 
 public:
     /**
