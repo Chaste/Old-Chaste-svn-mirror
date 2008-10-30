@@ -223,8 +223,8 @@ private:
 
         //// MP1-3
         std::vector<Vector<double> >& r_deformed_position = this->rGetDeformedPosition();
-        error(0) = rGetDeformedPosition()[0](mNodeIndexOfWatchedPoint) - exact_x;
-        error(1) = rGetDeformedPosition()[1](mNodeIndexOfWatchedPoint) - exact_y;
+        error(0) = r_deformed_position[0](mNodeIndexOfWatchedPoint) - exact_x;
+        error(1) = r_deformed_position[1](mNodeIndexOfWatchedPoint) - exact_y;
         double norm2_err = sqrt(error(0)*error(0)+error(1)*error(1));
         LOG_AND_COUT(1,"\tNewton step " << counter << ": " << normResidual << " " << norm2_err);
 
@@ -295,7 +295,6 @@ public:
             }
         }
     
-        unsigned elem_number = 0;
         DoFHandler<2>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
     
         while (element_iter!=this->mDofHandler.end())
@@ -311,7 +310,7 @@ public:
                 const Point<2>& X = fe_values.quadrature_point(q_point);
                 if(X[1]==1)
                 {
-                    unsigned N = round(sqrt(this->mpMesh->n_active_cells()));
+                    unsigned N = (unsigned)(round(sqrt(this->mpMesh->n_active_cells())));
     
                     bool bdy = false;
                     double h = 1.0/N;
@@ -778,7 +777,7 @@ public:
         for(unsigned i=1; i<=7; i++)
         {
             unsigned N = pow(2,i);
-            unsigned num_nodes = (2*N-1)*(2*N-1);
+            unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
 
@@ -807,7 +806,7 @@ public:
         for(unsigned i=1; i<=4; i++)
         {
             unsigned N = pow(2,i);
-            unsigned num_nodes = (2*N-1)*(2*N-1);
+            unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
 
@@ -836,7 +835,7 @@ public:
         for(unsigned i=1; i<=4; i++)
         {
             unsigned N = pow(2,i);
-            unsigned num_nodes = (2*N-1)*(2*N-1);
+            unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
 
@@ -863,7 +862,7 @@ public:
         for(unsigned i=2; i<=4; i++)
         {
             unsigned N = pow(2,i);
-            unsigned num_nodes = (2*N-1)*(2*N-1);
+            unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
 
