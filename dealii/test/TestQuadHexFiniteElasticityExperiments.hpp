@@ -776,7 +776,7 @@ public:
 
         for(unsigned i=1; i<=7; i++)
         {
-            unsigned N = pow(2,i);
+            unsigned N = (unsigned)pow(2,i);
             unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
@@ -805,7 +805,7 @@ public:
 
         for(unsigned i=1; i<=4; i++)
         {
-            unsigned N = pow(2,i);
+            unsigned N = (unsigned)pow(2,i);
             unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
@@ -834,7 +834,7 @@ public:
 
         for(unsigned i=1; i<=4; i++)
         {
-            unsigned N = pow(2,i);
+            unsigned N = (unsigned)pow(2,i);
             unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
@@ -861,7 +861,7 @@ public:
 
         for(unsigned i=2; i<=4; i++)
         {
-            unsigned N = pow(2,i);
+            unsigned N = (unsigned)pow(2,i);
             unsigned num_nodes = (unsigned)((2*N-1)*(2*N-1));
             unsigned num_vertices = 2*(N+1)*(N+1);
             unsigned num_dofs = 2*num_nodes+num_vertices; 
