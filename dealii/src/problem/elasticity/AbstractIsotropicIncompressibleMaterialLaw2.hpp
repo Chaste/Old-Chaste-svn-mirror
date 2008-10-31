@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIncompressibleMaterialLaw2.hpp"
 
 /**
- *  AbstractIsotropicIncompressibleMaterialLaw22
+ *  AbstractIsotropicIncompressibleMaterialLaw2
  *
  *  An isotropic incompressible hyperelastic material law for finite elastiticy
  *
