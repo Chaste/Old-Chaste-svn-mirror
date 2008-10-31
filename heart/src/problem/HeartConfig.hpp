@@ -43,8 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class HeartConfig
 {
 private:
-	void CheckTimeSteps() const;
-	
+    void CheckTimeSteps() const;
+    
 public:
     /**
      * Call this method to access the global parameters holder.
@@ -78,12 +78,12 @@ public:
         
     void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
-    							std::vector<double>& scaleFactorGks,
-    							std::vector<double>& scaleFactorIto) const;
-	bool GetConductivityHeterogeneitiesProvided() const;    							
+                                std::vector<double>& scaleFactorGks,
+                                std::vector<double>& scaleFactorIto) const;
+    bool GetConductivityHeterogeneitiesProvided() const;
     void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
-				  					 	std::vector< c_vector<double,3> >& intraConductivities,
-										std::vector< c_vector<double,3> >& extraConductivities) const;
+                                        std::vector< c_vector<double,3> >& intraConductivities,
+                                        std::vector< c_vector<double,3> >& extraConductivities) const;
     std::string GetOutputDirectory() const;
     std::string GetOutputFilenamePrefix() const;
 
@@ -123,12 +123,12 @@ public:
     void SetIonicModel(ionic_model_type ionicModel);
     void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
     void SetConductivityHeterogeneities(std::vector< c_vector<double,3> >& cornerA,
-    									std::vector< c_vector<double,3> >& cornerB,
-				  					 	std::vector< c_vector<double,3> >& intraConductivities,
-										std::vector< c_vector<double,3> >& extraConductivities);
+                                        std::vector< c_vector<double,3> >& cornerB,
+                                        std::vector< c_vector<double,3> >& intraConductivities,
+                                        std::vector< c_vector<double,3> >& extraConductivities);
     
     void SetOutputDirectory(std::string outputDirectory);
-	void SetOutputFilenamePrefix(std::string outputFilenamePrefix);    
+    void SetOutputFilenamePrefix(std::string outputFilenamePrefix);    
 
     // Physiological
     void SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities);

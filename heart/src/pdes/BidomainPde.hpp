@@ -75,74 +75,74 @@ public:
 
         if (this->mpConfig->GetIsMeshProvided() && this->mpConfig->GetLoadMesh())
         {
-        	switch (this->mpConfig->GetConductivityMedia())
-        	{
-        		case media_type::Orthotropic:
-            		mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
-            		mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".ortho");        		
-        			break;
-        			
-        		case media_type::Axisymmetric:
-		            mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
-		            mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".axi");
-        			break;
+            switch (this->mpConfig->GetConductivityMedia())
+            {
+                case media_type::Orthotropic:
+                    mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+                    mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".ortho");                
+                    break;
+                    
+                case media_type::Axisymmetric:
+                    mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+                    mpExtracellularConductivityTensors->SetFibreOrientationFile(this->mpConfig->GetMeshName() + ".axi");
+                    break;
 
-        		case media_type::NoFibreOrientation:
-            		mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;        		
-        			break;
-        			
-	            default :
-    	            NEVER_REACHED;    			        		
-        	}        	
+                case media_type::NoFibreOrientation:
+                    mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;                
+                    break;
+                    
+                default :
+                    NEVER_REACHED;                                
+            }            
         }
         else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
         {
-            mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;       	
+            mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;           
         }
 
         c_vector<double, SPACE_DIM> extra_conductivities;
-        this->mpConfig->GetExtracellularConductivities(extra_conductivities);	
+        this->mpConfig->GetExtracellularConductivities(extra_conductivities);    
 
-		// this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep 
-		// a pointer to it and we don't want it to go out of scope before Init() is called
-		std::vector<c_vector<double, SPACE_DIM> > hetero_extra_conductivities; 
+        // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep 
+        // a pointer to it and we don't want it to go out of scope before Init() is called
+        std::vector<c_vector<double, SPACE_DIM> > hetero_extra_conductivities; 
 
-		if (this->mpConfig->GetConductivityHeterogeneitiesProvided())
-		{
-			unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();
-			hetero_extra_conductivities.reserve(num_elements);						
+        if (this->mpConfig->GetConductivityHeterogeneitiesProvided())
+        {
+            unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();
+            hetero_extra_conductivities.reserve(num_elements);                        
 
-	        std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
-    	    std::vector< c_vector<double,3> > intra_h_conductivities;
-       		std::vector< c_vector<double,3> > extra_h_conductivities;
-        	HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
-                                                                	intra_h_conductivities,
-                                                                	extra_h_conductivities);
-						
-			for (unsigned element_index=0; element_index<num_elements; element_index++)
-			{
-				for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
-				{
-					// if element centroid is contained in the region
-					ChastePoint<SPACE_DIM> element_centroid(pCellFactory->GetMesh()->GetElement(element_index)->CalculateCentroid());
-					if ( conductivities_heterogeneity_areas[region_index].DoesContain( element_centroid ) )
-					{
-						hetero_extra_conductivities[element_index] = extra_h_conductivities[region_index];
-					}
-					else
-					{
-						hetero_extra_conductivities[element_index] = extra_conductivities;						
-					}
-				}
-			}
-			
-			mpExtracellularConductivityTensors->SetNonConstantConductivities(&hetero_extra_conductivities);			
-		}
-		else
-		{                       
-	        mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
-		}
-		
+            std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+            std::vector< c_vector<double,3> > intra_h_conductivities;
+            std::vector< c_vector<double,3> > extra_h_conductivities;
+            HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+                                                                    intra_h_conductivities,
+                                                                    extra_h_conductivities);
+                        
+            for (unsigned element_index=0; element_index<num_elements; element_index++)
+            {
+                for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
+                {
+                    // if element centroid is contained in the region
+                    ChastePoint<SPACE_DIM> element_centroid(pCellFactory->GetMesh()->GetElement(element_index)->CalculateCentroid());
+                    if ( conductivities_heterogeneity_areas[region_index].DoesContain( element_centroid ) )
+                    {
+                        hetero_extra_conductivities[element_index] = extra_h_conductivities[region_index];
+                    }
+                    else
+                    {
+                        hetero_extra_conductivities[element_index] = extra_conductivities;                        
+                    }
+                }
+            }
+            
+            mpExtracellularConductivityTensors->SetNonConstantConductivities(&hetero_extra_conductivities);            
+        }
+        else
+        {                       
+            mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
+        }
+        
         mpExtracellularConductivityTensors->Init();
         
     }

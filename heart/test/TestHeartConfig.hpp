@@ -183,14 +183,14 @@ public :
     void TestGetIsMeshProvided()
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
-		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), false);
-		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetLoadMesh())
-		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateSlab())
-		
-		HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
-		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), true);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), false);
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetLoadMesh())
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateSlab())
+        
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), true);        
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetLoadMesh(), true);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateSlab(), false);    	
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateSlab(), false);        
     }
 
     void TestSetFunctions() throw(Exception)
@@ -205,26 +205,26 @@ public :
         HeartConfig::Instance()->SetIonicModel(ionic_model_type::BackwardEulerLuoRudyIModel1991);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::BackwardEulerLuoRudyIModel1991);
 
-		TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
+        TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
 
-		std::vector< c_vector<double,3> > cornerA;
-		std::vector< c_vector<double,3> > cornerB;
-	 	std::vector< c_vector<double,3> > intraConductivities;
-		std::vector< c_vector<double,3> > extraConductivities;
-		
-		cornerA.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
-		cornerB.push_back( Create_c_vector( 1.0,  1.0,  1.0) );
-		intraConductivities.push_back( Create_c_vector(2.5, 2.5, 2.5) );
-		extraConductivities.push_back( Create_c_vector(8.5, 8.5, 8.5) );
+        std::vector< c_vector<double,3> > cornerA;
+        std::vector< c_vector<double,3> > cornerB;
+        std::vector< c_vector<double,3> > intraConductivities;
+        std::vector< c_vector<double,3> > extraConductivities;
+        
+        cornerA.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
+        cornerB.push_back( Create_c_vector( 1.0,  1.0,  1.0) );
+        intraConductivities.push_back( Create_c_vector(2.5, 2.5, 2.5) );
+        extraConductivities.push_back( Create_c_vector(8.5, 8.5, 8.5) );
 
         cornerA.push_back( Create_c_vector(-2.0, -2.0, -2.0) );
         cornerB.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
         intraConductivities.push_back( Create_c_vector(1.0, 0.5, 0.4) );
         extraConductivities.push_back( Create_c_vector(7.0, 6.5, 6.4) );
-		
-		HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);		
+        
+        HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);        
 
-		TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
+        TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
 
         std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
@@ -300,7 +300,7 @@ public :
          //Throws when printing step is not a multiple of pde time step
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
         
-		// Throws because ode time step is bigger than pde time step
+        // Throws because ode time step is bigger than pde time step
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
         
 
@@ -334,7 +334,7 @@ public :
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "symmlq")==0);
 
-		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPSolver("foobar"));
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPSolver("foobar"));
 
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "jacobi")==0);
@@ -348,7 +348,7 @@ public :
         HeartConfig::Instance()->SetKSPPreconditioner("none");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);
         
-		TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
         
 
      }

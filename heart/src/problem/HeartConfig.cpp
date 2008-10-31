@@ -177,18 +177,18 @@ ionic_model_type HeartConfig::GetIonicModel() const
 
 bool HeartConfig::GetIsMeshProvided() const
 {
-	try
-	{
-    	DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                    	& mpDefaultParameters->Simulation().Mesh(),
-                    	"Mesh");                    	
-    	return true;
-	}
-	catch (Exception& e)
-	{			
-		return false;
-	}
-}	
+    try
+    {
+        DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                        & mpDefaultParameters->Simulation().Mesh(),
+                        "Mesh");                        
+        return true;
+    }
+    catch (Exception& e)
+    {            
+        return false;
+    }
+}    
 
 bool HeartConfig::GetCreateSlab() const
 {
@@ -199,9 +199,9 @@ bool HeartConfig::GetCreateSlab() const
 
 bool HeartConfig::GetLoadMesh() const
 {
-	return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                        	& mpDefaultParameters->Simulation().Mesh(),
-                        	"Mesh")->get().LoadMesh().present());
+    return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                            & mpDefaultParameters->Simulation().Mesh(),
+                            "Mesh")->get().LoadMesh().present());
 }
  
 void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
@@ -273,8 +273,8 @@ void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::v
 }
 
 void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
-    								     std::vector<double>& scaleFactorGks,
-    							         std::vector<double>& scaleFactorIto) const
+                                         std::vector<double>& scaleFactorGks,
+                                         std::vector<double>& scaleFactorIto) const
 {
     simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(),
@@ -305,22 +305,22 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
 
 bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
 {
-	try
-	{
-    	DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
-                    	& mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
-                    	"CellHeterogeneities");                    	
-    	return true;
-	}
-	catch (Exception& e)
-	{			
-		return false;
-	}	
+    try
+    {
+        DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
+                        & mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
+                        "CellHeterogeneities");                        
+        return true;
+    }
+    catch (Exception& e)
+    {            
+        return false;
+    }    
 }
 
 void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
-					  			 	             std::vector< c_vector<double,3> >& intraConductivities,
-									             std::vector< c_vector<double,3> >& extraConductivities) const
+                                                 std::vector< c_vector<double,3> >& intraConductivities,
+                                                 std::vector< c_vector<double,3> >& extraConductivities) const
 {
     simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container&
          conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
@@ -389,7 +389,7 @@ std::string HeartConfig::GetOutputFilenamePrefix() const
 {
     return DecideLocation( & mpUserParameters->Simulation().OutputFilenamePrefix(),
                            & mpDefaultParameters->Simulation().OutputFilenamePrefix(),
-                           "OutputFilenamePrefix")->get();	
+                           "OutputFilenamePrefix")->get();    
 }
 
 void HeartConfig::GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const
@@ -529,10 +529,10 @@ bool HeartConfig::GetUseAbsoluteTolerance() const
 
 double HeartConfig::GetAbsoluteTolerance() const
 {
-	if (!GetUseAbsoluteTolerance())
+    if (!GetUseAbsoluteTolerance())
     {
         EXCEPTION("Absolute tolerance is not set in Chaste parameters");
-    }	
+    }    
     return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                            & mpDefaultParameters->Numerical().KSPTolerances(),
                            "KSPTolerances")->get().KSPAbsolute().get();
@@ -557,12 +557,12 @@ bool HeartConfig::GetUseRelativeTolerance() const
 
 double HeartConfig::GetRelativeTolerance() const
 {
-	if (!GetUseRelativeTolerance())
+    if (!GetUseRelativeTolerance())
     {
         EXCEPTION("Relative tolerance is not set in Chaste parameters");
     }   
     
-	return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+    return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                            & mpDefaultParameters->Numerical().KSPTolerances(),
                            "KSPTolerances")->get().KSPRelative().get();
 }
@@ -573,12 +573,12 @@ const char* HeartConfig::GetKSPSolver() const
                              & mpDefaultParameters->Numerical().KSPSolver(),
                             "KSPSolver")->get() )
     {
-    	case ksp_solver_type::gmres :
-    		return "gmres";
-		case ksp_solver_type::cg :
-			return "cg";
-		case ksp_solver_type::symmlq :
-			return "symmlq";
+        case ksp_solver_type::gmres :
+            return "gmres";
+        case ksp_solver_type::cg :
+            return "cg";
+        case ksp_solver_type::symmlq :
+            return "symmlq";
     }
 #define COVERAGE_IGNORE
     EXCEPTION("Unknown ksp solver");
@@ -591,15 +591,15 @@ const char* HeartConfig::GetKSPPreconditioner() const
                              & mpDefaultParameters->Numerical().KSPPreconditioner(),
                              "KSPPreconditioner")->get() )
     {
-    	case ksp_preconditioner_type::ilu :
-    		return "ilu";
-    	case ksp_preconditioner_type::jacobi :
-    		return "jacobi";
-    	case ksp_preconditioner_type::bjacobi :
-    		return "bjacobi";
+        case ksp_preconditioner_type::ilu :
+            return "ilu";
+        case ksp_preconditioner_type::jacobi :
+            return "jacobi";
+        case ksp_preconditioner_type::bjacobi :
+            return "bjacobi";
         case ksp_preconditioner_type::none :
             return "none";
-    	
+        
     }
 #define COVERAGE_IGNORE
     EXCEPTION("Unknown ksp preconditioner");
@@ -628,20 +628,20 @@ void HeartConfig::SetIonicModel(ionic_model_type ionicModel)
 
 void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefinition)
 {
-	if ( ! mpUserParameters->Simulation().Mesh().present())
-	{
-		mesh_type mesh_to_load;	
-		mpUserParameters->Simulation().Mesh().set(mesh_to_load);	
-	}
-	
-	mesh_type::LoadMesh::type mesh_prefix(meshPrefix, fibreDefinition);	
-	mpUserParameters->Simulation().Mesh().get().LoadMesh().set(mesh_prefix);
+    if ( ! mpUserParameters->Simulation().Mesh().present())
+    {
+        mesh_type mesh_to_load;    
+        mpUserParameters->Simulation().Mesh().set(mesh_to_load);    
+    }
+    
+    mesh_type::LoadMesh::type mesh_prefix(meshPrefix, fibreDefinition);    
+    mpUserParameters->Simulation().Mesh().get().LoadMesh().set(mesh_prefix);
 }
 
 void  HeartConfig::SetConductivityHeterogeneities(std::vector< c_vector<double,3> >& cornerA,
-									     		  std::vector< c_vector<double,3> >& cornerB,
-			  					 				  std::vector< c_vector<double,3> >& intraConductivities,
-												  std::vector< c_vector<double,3> >& extraConductivities)
+                                                   std::vector< c_vector<double,3> >& cornerB,
+                                                     std::vector< c_vector<double,3> >& intraConductivities,
+                                                  std::vector< c_vector<double,3> >& extraConductivities)
 {
     assert ( cornerA.size() == cornerB.size() );    
     assert ( cornerB.size() == intraConductivities.size() );    
@@ -649,8 +649,8 @@ void  HeartConfig::SetConductivityHeterogeneities(std::vector< c_vector<double,3
 
     simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container heterogeneities_container;
 
-	for (unsigned region_index=0; region_index<cornerA.size(); region_index++) 
-	{
+    for (unsigned region_index=0; region_index<cornerA.size(); region_index++) 
+    {
         point_type point_a(cornerA[region_index][0],
                            cornerA[region_index][1],
                            cornerA[region_index][2]);
@@ -659,7 +659,7 @@ void  HeartConfig::SetConductivityHeterogeneities(std::vector< c_vector<double,3
                            cornerB[region_index][1],
                            cornerB[region_index][2]);
         
-		conductivity_heterogeneity_type ht(box_type(point_a, point_b));
+        conductivity_heterogeneity_type ht(box_type(point_a, point_b));
         
         conductivities_type intra(intraConductivities[region_index][0],
                                   intraConductivities[region_index][1],
@@ -673,14 +673,13 @@ void  HeartConfig::SetConductivityHeterogeneities(std::vector< c_vector<double,3
         
         ht.ExtracellularConductivities(extra);
         
-		heterogeneities_container.push_back(ht);		
-	}
-	
-	simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities heterogeneities_object;	
-
+        heterogeneities_container.push_back(ht);        
+    }
+    
+    simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities heterogeneities_object;    
     heterogeneities_object.ConductivityHeterogeneity(heterogeneities_container);
 
-	mpUserParameters->Simulation().ConductivityHeterogeneities().set(heterogeneities_object);		
+    mpUserParameters->Simulation().ConductivityHeterogeneities().set(heterogeneities_object);        
 }
 
 
@@ -814,7 +813,7 @@ void HeartConfig::CheckTimeSteps() const
     
     if ( GetOdeTimeStep() > GetPdeTimeStep() )
     {
-    	EXCEPTION("Ode time-step should not be greater than pde time-step");
+        EXCEPTION("Ode time-step should not be greater than pde time-step");
     }
 }
 
@@ -835,47 +834,47 @@ void HeartConfig::SetUseAbsoluteTolerance(double absoluteTolerance)
 
 void HeartConfig::SetKSPSolver(const char* kspSolver)
 {
-	if ( strcmp(kspSolver, "gmres") == 0)
-	{
-		mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::gmres);
-		return;
-	}
-	if ( strcmp(kspSolver, "cg") == 0)
-	{
-		mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::cg);
-		return;
-	}
-	if ( strcmp(kspSolver, "symmlq") == 0)
-	{
-		mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::symmlq);
-		return;
-	}
-	
-	EXCEPTION("Unknown solver type provided");
+    if ( strcmp(kspSolver, "gmres") == 0)
+    {
+        mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::gmres);
+        return;
+    }
+    if ( strcmp(kspSolver, "cg") == 0)
+    {
+        mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::cg);
+        return;
+    }
+    if ( strcmp(kspSolver, "symmlq") == 0)
+    {
+        mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::symmlq);
+        return;
+    }
+    
+    EXCEPTION("Unknown solver type provided");
 }
 
 void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 {
-	if ( strcmp(kspPreconditioner, "ilu") == 0)
-	{
+    if ( strcmp(kspPreconditioner, "ilu") == 0)
+    {
         mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::ilu);
-		return;
-	}
-	if ( strcmp(kspPreconditioner, "jacobi") == 0)
-	{
+        return;
+    }
+    if ( strcmp(kspPreconditioner, "jacobi") == 0)
+    {
         mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::jacobi);
-		return;
-	}
-	if ( strcmp(kspPreconditioner, "bjacobi") == 0)
-	{
+        return;
+    }
+    if ( strcmp(kspPreconditioner, "bjacobi") == 0)
+    {
         mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::bjacobi);
-		return;
-	}
+        return;
+    }
     if ( strcmp(kspPreconditioner, "none") == 0)
     {
         mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::none);
         return;
     }
-	
-	EXCEPTION("Unknown preconditioner type provided");
+    
+    EXCEPTION("Unknown preconditioner type provided");
 }
