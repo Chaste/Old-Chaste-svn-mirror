@@ -65,7 +65,6 @@ protected:
     bool mFlag;
 
 
-
     /**
      * Method that constructs the element. This is required because of having
      * two different copy constructors, one with a new index and another without
