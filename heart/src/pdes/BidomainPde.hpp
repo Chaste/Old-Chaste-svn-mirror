@@ -105,13 +105,11 @@ public:
 
         // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep 
         // a pointer to it and we don't want it to go out of scope before Init() is called
-        std::vector<c_vector<double, SPACE_DIM> > hetero_extra_conductivities; 
+        unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();                        
+        std::vector<c_vector<double, SPACE_DIM> > hetero_extra_conductivities(num_elements); 
 
         if (this->mpConfig->GetConductivityHeterogeneitiesProvided())
         {
-            unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();
-            hetero_extra_conductivities.reserve(num_elements);                        
-
             std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
             std::vector< c_vector<double,3> > intra_h_conductivities;
             std::vector< c_vector<double,3> > extra_h_conductivities;
