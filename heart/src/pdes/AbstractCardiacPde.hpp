@@ -165,12 +165,50 @@ public:
         	// See previous todo.
             mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;       	
         }
-                
-        c_vector<double, SPACE_DIM> intra_conductivities; 
-        
-        mpConfig->GetIntracellularConductivities(intra_conductivities);
-        
-        mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
+
+        c_vector<double, SPACE_DIM> intra_conductivities; 	        
+        mpConfig->GetIntracellularConductivities(intra_conductivities);	        
+
+		// this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep 
+		// a pointer to it and we don't want it to go out of scope before Init() is called
+		std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities; 
+			
+		if (mpConfig->GetConductivityHeterogeneitiesProvided())
+		{
+			unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();
+			hetero_intra_conductivities.reserve(num_elements);						
+
+	        std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+    	    std::vector< c_vector<double,3> > intra_h_conductivities;
+       		std::vector< c_vector<double,3> > extra_h_conductivities;
+        	HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+                                                                	intra_h_conductivities,
+                                                                	extra_h_conductivities);
+						
+			for (unsigned element_index=0; element_index<num_elements; element_index++)
+			{
+				for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
+				{
+					// if element centroid is contained in the region
+					ChastePoint<SPACE_DIM> element_centroid(pCellFactory->GetMesh()->GetElement(element_index)->CalculateCentroid());
+					if ( conductivities_heterogeneity_areas[region_index].DoesContain(element_centroid) )
+					{
+						hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];
+					}
+					else
+					{
+						hetero_intra_conductivities[element_index] = intra_conductivities;						
+					}
+				}
+			}
+			
+			mpIntracellularConductivityTensors->SetNonConstantConductivities(&hetero_intra_conductivities);
+		}
+		else
+		{               
+	        mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
+		}
+		
         mpIntracellularConductivityTensors->Init();        
     }
 

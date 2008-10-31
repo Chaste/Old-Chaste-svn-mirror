@@ -56,7 +56,10 @@ public:
      *
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
-    bool DoesContain(const ChastePoint<3>& rPointToCheck);
+    /// \todo: use a templated definition of the method 
+    bool DoesContain(const ChastePoint<3U>& rPointToCheck);
+    bool DoesContain(const ChastePoint<2U>& rPointToCheck);
+    bool DoesContain(const ChastePoint<1U>& rPointToCheck);
 };
 
 #endif /*CHASTECUBOID_HPP_*/

@@ -39,7 +39,7 @@ ChasteCuboid::ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB) : m
     }
 }
 
-bool ChasteCuboid::DoesContain(const ChastePoint<3>& rPointToCheck)
+bool ChasteCuboid::DoesContain(const ChastePoint<3U>& rPointToCheck)
 {
     bool inside=true;
     for (unsigned dim=0; dim<3; dim++)
@@ -52,4 +52,14 @@ bool ChasteCuboid::DoesContain(const ChastePoint<3>& rPointToCheck)
         }
     }
     return inside;
+}
+
+bool ChasteCuboid::DoesContain(const ChastePoint<2U>& rPointToCheck)
+{
+    EXCEPTION("Wrong argument type in ChasteCuboid::DoesContain. Can only be used in 3D");
+}
+
+bool ChasteCuboid::DoesContain(const ChastePoint<1U>& rPointToCheck)
+{
+    EXCEPTION("Wrong argument type in ChasteCuboid::DoesContain. Can only be used in 3D");
 }

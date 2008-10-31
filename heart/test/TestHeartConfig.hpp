@@ -205,6 +205,46 @@ public :
         HeartConfig::Instance()->SetIonicModel(ionic_model_type::BackwardEulerLuoRudyIModel1991);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::BackwardEulerLuoRudyIModel1991);
 
+		TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
+
+		std::vector< c_vector<double,3> > cornerA;
+		std::vector< c_vector<double,3> > cornerB;
+	 	std::vector< c_vector<double,3> > intraConductivities;
+		std::vector< c_vector<double,3> > extraConductivities;
+		
+		cornerA.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
+		cornerB.push_back( Create_c_vector( 1.0,  1.0,  1.0) );
+		intraConductivities.push_back( Create_c_vector(2.5, 2.5, 2.5) );
+		extraConductivities.push_back( Create_c_vector(8.5, 8.5, 8.5) );
+
+        cornerA.push_back( Create_c_vector(-2.0, -2.0, -2.0) );
+        cornerB.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
+        intraConductivities.push_back( Create_c_vector(1.0, 0.5, 0.4) );
+        extraConductivities.push_back( Create_c_vector(7.0, 6.5, 6.4) );
+		
+		HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);		
+
+		TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
+
+        std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+        std::vector< c_vector<double,3> > intra_h_conductivities;
+        std::vector< c_vector<double,3> > extra_h_conductivities;
+        HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+                                                                intra_h_conductivities,
+                                                                extra_h_conductivities);
+
+        TS_ASSERT(conductivities_heterogeneity_areas.size() == 2)
+        TS_ASSERT(intra_h_conductivities.size() == 2)
+        TS_ASSERT(extra_h_conductivities.size() == 2)
+
+        TS_ASSERT(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(0.0, 0.0, 0.0)));
+        TS_ASSERT(!conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)));
+        TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.5);
+        TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.5);
+        
+        TS_ASSERT(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)));        
+        TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
+
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
 

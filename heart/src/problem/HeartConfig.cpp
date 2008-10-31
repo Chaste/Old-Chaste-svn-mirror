@@ -303,6 +303,21 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
     }
 }
 
+bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
+{
+	try
+	{
+    	DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
+                    	& mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
+                    	"CellHeterogeneities");                    	
+    	return true;
+	}
+	catch (Exception& e)
+	{			
+		return false;
+	}	
+}
+
 void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
 					  			 	             std::vector< c_vector<double,3> >& intraConductivities,
 									             std::vector< c_vector<double,3> >& extraConductivities) const
@@ -622,6 +637,52 @@ void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefini
 	mesh_type::LoadMesh::type mesh_prefix(meshPrefix, fibreDefinition);	
 	mpUserParameters->Simulation().Mesh().get().LoadMesh().set(mesh_prefix);
 }
+
+void  HeartConfig::SetConductivityHeterogeneities(std::vector< c_vector<double,3> >& cornerA,
+									     		  std::vector< c_vector<double,3> >& cornerB,
+			  					 				  std::vector< c_vector<double,3> >& intraConductivities,
+												  std::vector< c_vector<double,3> >& extraConductivities)
+{
+    assert ( cornerA.size() == cornerB.size() );    
+    assert ( cornerB.size() == intraConductivities.size() );    
+    assert ( intraConductivities.size() == extraConductivities.size());    
+
+    simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container heterogeneities_container;
+
+	for (unsigned region_index=0; region_index<cornerA.size(); region_index++) 
+	{
+        point_type point_a(cornerA[region_index][0],
+                           cornerA[region_index][1],
+                           cornerA[region_index][2]);
+
+        point_type point_b(cornerB[region_index][0],
+                           cornerB[region_index][1],
+                           cornerB[region_index][2]);
+        
+		conductivity_heterogeneity_type ht(box_type(point_a, point_b));
+        
+        conductivities_type intra(intraConductivities[region_index][0],
+                                  intraConductivities[region_index][1],
+                                  intraConductivities[region_index][2]);
+        
+        ht.IntracellularConductivities(intra);
+
+        conductivities_type extra(extraConductivities[region_index][0],
+                                  extraConductivities[region_index][1],
+                                  extraConductivities[region_index][2]);
+        
+        ht.ExtracellularConductivities(extra);
+        
+		heterogeneities_container.push_back(ht);		
+	}
+	
+	simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities heterogeneities_object;	
+
+    heterogeneities_object.ConductivityHeterogeneity(heterogeneities_container);
+
+	mpUserParameters->Simulation().ConductivityHeterogeneities().set(heterogeneities_object);		
+}
+
 
 void HeartConfig::SetOutputDirectory(std::string outputDirectory)
 {
