@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTMONODOMAINVERSUSSIMPLEDG0PARABOLICASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-//#include "TetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 
