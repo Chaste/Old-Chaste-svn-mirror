@@ -115,10 +115,7 @@ public :
      */
     MooneyRivlinMaterialLaw(double c1, double c2 = MINUS_LARGE)
     {
-        if (DIM!=2 && DIM !=3)
-        {
-            EXCEPTION("Can only have 2 or 3d incompressible Mooney-Rivlin laws");
-        }
+        assert(DIM==2 || DIM ==3);
 
         // if dim==3, check that c2 was passed in, ie c2 isn't the default value
         if ((DIM==3) && (c2<MINUS_LARGE+1))

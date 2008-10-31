@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  PolynomialMaterialLaw3d
+ *  PolynomialMaterialLaw3d2
  *
  *  An incompressible, isotropic, hyperelastic material law with a polynomial form
  *
@@ -207,4 +207,4 @@ public :
 
 
 
-#endif /*POLYNOMIALMATERIALLAW3D_HPP_*/
+#endif /*POLYNOMIALMATERIALLAW3D2_HPP_*/

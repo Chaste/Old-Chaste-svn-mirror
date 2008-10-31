@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Triangulation<DIM>* pMesh,
-                                                                              AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                              AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw,
                                                                               Vector<double> bodyForce,
                                                                               double density,
                                                                               std::string outputDirectory,
@@ -227,7 +227,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
+    AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
 
     double element_volume = 0;
 
@@ -518,7 +518,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
         fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
         fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-        AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
+        AbstractIncompressibleMaterialLaw2<DIM>* p_material_law;
         if (!this->mHeterogeneous)
         {
             p_material_law = this->mMaterialLaws[0];

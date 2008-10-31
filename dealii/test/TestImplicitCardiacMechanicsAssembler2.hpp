@@ -27,18 +27,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_
-#define TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef TESTIMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
+#define TESTIMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "CardiacMechanicsAssembler.cpp"
-#include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "ImplicitCardiacMechanicsAssembler2.hpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
 #include "FiniteElasticityTools.hpp"
 
 
-class TestImplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
+class TestImplicitCardiacMechanicsAssembler2 : public CxxTest::TestSuite
 {
 public:
     void TestCompareJacobians() throw(Exception)
@@ -51,9 +51,9 @@ public:
 
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
+        MooneyRivlinMaterialLaw2<2> material_law(0.02);
 
-        ImplicitCardiacMechanicsAssembler<2> implicit_assembler(&mesh,"",&material_law);
+        ImplicitCardiacMechanicsAssembler2<2> implicit_assembler(&mesh,"",&material_law);
 
         std::vector<double> calcium_conc(implicit_assembler.GetTotalNumQuadPoints(), 0.0);
 
@@ -85,8 +85,8 @@ public:
         Point<2> zero;
         FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
 
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
-        ImplicitCardiacMechanicsAssembler<2> implicit_assembler(&mesh,"",&material_law);
+        MooneyRivlinMaterialLaw2<2> material_law(0.02);
+        ImplicitCardiacMechanicsAssembler2<2> implicit_assembler(&mesh,"",&material_law);
 
         Tensor<2,2> P;
         P[0][0] =  0;
@@ -114,9 +114,9 @@ public:
 
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
+        MooneyRivlinMaterialLaw2<2> material_law(0.02);
 
-        ImplicitCardiacMechanicsAssembler<2> implicit_assembler(&mesh,
+        ImplicitCardiacMechanicsAssembler2<2> implicit_assembler(&mesh,
                                                                 "ImplicitCardiacMech",
                                                                 &material_law);
 
@@ -177,13 +177,13 @@ public:
         Point<2> zero;
         FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
 
-        ImplicitCardiacMechanicsAssembler<2> implicit_assembler(&mesh,"");
+        ImplicitCardiacMechanicsAssembler2<2> implicit_assembler(&mesh,"");
 
         std::vector<double> calcium_conc(implicit_assembler.GetTotalNumQuadPoints(), 1);
         implicit_assembler.SetForcingQuantity(calcium_conc);
         implicit_assembler.Solve(0,0.01,0.01);
 
-        ImplicitCardiacMechanicsAssembler<2> implicit_assembler_with_scaling(&mesh,"");
+        ImplicitCardiacMechanicsAssembler2<2> implicit_assembler_with_scaling(&mesh,"");
 
         implicit_assembler_with_scaling.SetForcingQuantity(calcium_conc);
         implicit_assembler_with_scaling.SetScaling(10);      // best scaling, assuming k_i=kPa and Precondition
@@ -203,4 +203,4 @@ public:
     }
 };
 
-#endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER2_HPP_*/

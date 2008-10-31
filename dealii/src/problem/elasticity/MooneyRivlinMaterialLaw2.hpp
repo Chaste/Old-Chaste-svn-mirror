@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  MooneyRivlinMaterialLaw
+ *  MooneyRivlinMaterialLaw2
  *
  *  A Mooney-Rivlin isotropic incompressible hyperelastic material law for finite
  *  elasticity
@@ -115,7 +115,10 @@ public :
      */
     MooneyRivlinMaterialLaw2(double c1, double c2 = MINUS_LARGE)
     {
-        assert(DIM==2 || DIM ==3);
+        if (DIM!=2 && DIM !=3)
+        {
+            EXCEPTION("Can only have 2 or 3d incompressible Mooney-Rivlin laws");
+        }
 
         // if dim==3, check that c2 was passed in, ie c2 isn't the default value
         if ((DIM==3) && (c2<MINUS_LARGE+1))

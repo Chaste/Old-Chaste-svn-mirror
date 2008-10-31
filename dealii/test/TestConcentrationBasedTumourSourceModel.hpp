@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FiniteElasticityAssembler.hpp"
 #include "FiniteElasticityTools.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
 #include "TriangulationVertexIterator.hpp"
 
 class TestConcentrationBasedTumourSourceModel : public CxxTest::TestSuite
@@ -51,7 +51,7 @@ public:
 //        Vector<double> body_force(2);
 //        body_force(0) = 1.0;
 //
-//        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+//        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(2.0);
 //
 //        Triangulation<2> mesh;
 //        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -89,7 +89,7 @@ public:
         Vector<double> body_force(2);
         body_force(0) = 1.0;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(2.0);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);

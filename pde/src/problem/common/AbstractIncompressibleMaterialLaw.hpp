@@ -30,12 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTINCOMPRESSIBLEMATERIALLAW_HPP_
 #define ABSTRACTINCOMPRESSIBLEMATERIALLAW_HPP_
 
-
-#include <numerics/vectors.h>
-#include <numerics/matrices.h>
-#include <base/tensor.h>
-#include <base/symmetric_tensor.h>
-#include "FourthOrderTensor.hpp"
+#include <boost/numeric/ublas/vector.hpp>
+#include <cassert>
+#include <vector>
+#include "Exception.hpp"
+#include "UblasCustomFunctions.hpp"
+#include "FourthOrderTensor2.hpp"
 
 /**
  *  AbstractIncompressibleMaterialLaw
@@ -67,12 +67,12 @@ public :
      *  @param computeDTdE a boolean flag saying whether the stress derivative is
      *    required or not.
      */
-    virtual void ComputeStressAndStressDerivative(Tensor<2,DIM>&          C,
-                                                  Tensor<2,DIM>&          invC,
-                                                  double                  pressure,
-                                                  SymmetricTensor<2,DIM>& T,
-                                                  FourthOrderTensor<DIM>& dTdE,
-                                                  bool                    computeDTdE)=0;
+    virtual void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& C,
+                                                  c_matrix<double,DIM,DIM>& invC,
+                                                  double                    pressure,
+                                                  c_matrix<double,DIM,DIM>& T,
+                                                  FourthOrderTensor2<DIM>&   dTdE,
+                                                  bool                      computeDTdE)=0;
 
 
     /**
@@ -90,16 +90,16 @@ public :
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void ComputeCauchyStress(Tensor<2,DIM>& F, double pressure, Tensor<2,DIM>& sigma)
+    void ComputeCauchyStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& sigma)
     {
-        double detF = determinant(F);
+        double detF = Determinant(F);
 
-        Tensor<2,DIM> C = transpose(F) * F;
-        Tensor<2,DIM> invC = invert(C);
+        c_matrix<double,DIM,DIM> C = prod(trans(F),F);
+        c_matrix<double,DIM,DIM> invC = Inverse(C);
 
-        SymmetricTensor<2,DIM> T;
+        c_matrix<double,DIM,DIM> T;
 
-        static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
+        static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
 
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
 
@@ -110,15 +110,15 @@ public :
         {
             for (unsigned j=0; j<DIM; j++)
             {
-                sigma[i][j] = 0.0;
+                sigma(i,j) = 0.0;
                 for (unsigned M=0; M<DIM; M++)
                 {
                     for (unsigned N=0; N<DIM; N++)
                     {
-                        sigma[i][j] += F[i][M]*T[M][N]*F[j][N];
+                        sigma(i,j) += F(i,M)*T(M,N)*F(j,N);
                     }
                 }
-                sigma[i][j] /= detF;
+                sigma(i,j) /= detF;
             }
         }
     }
@@ -143,32 +143,18 @@ public :
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void Compute1stPiolaKirchoffStress(Tensor<2,DIM>& F, double pressure, Tensor<2,DIM>& S)
+    void Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& S)
     {
-        Tensor<2,DIM> C = transpose(F) * F;
-        Tensor<2,DIM> invC = invert(C);
+        c_matrix<double,DIM,DIM> C = prod(trans(F),F);
+        c_matrix<double,DIM,DIM> invC = Inverse(C);
 
-        SymmetricTensor<2,DIM> T;
+        c_matrix<double,DIM,DIM> T;
 
-        static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
+        static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
 
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
 
-
-        // looping it probably more eficient then doing S = T*transpose(F)
-        // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
-        // SymmetricTensor<2,DIM>
-        for (unsigned M=0; M<DIM; M++)
-        {
-            for (unsigned i=0; i<DIM; i++)
-            {
-                S[M][i] = 0.0;
-                for (unsigned N=0; N<DIM; N++)
-                {
-                    S[M][i] += T[M][N] * F[i][N];
-                }
-            }
-        }
+        S = prod(T,trans(F));
     }
 
 
@@ -186,11 +172,11 @@ public :
      *  Note: to compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void Compute2ndPiolaKirchoffStress(Tensor<2,DIM>& C, double pressure, SymmetricTensor<2,DIM>& T)
+    void Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& C, double pressure, c_matrix<double,DIM,DIM>& T)
     {
-        Tensor<2,DIM> invC = invert(C);
+        c_matrix<double,DIM,DIM> invC = Inverse(C);
 
-        static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
+        static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
 
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
     }
@@ -213,7 +199,9 @@ public :
      */
     virtual void ScaleMaterialParameters(double scaleFactor)
     {
+        #define COVERAGE_IGNORE
         EXCEPTION("[the material law you are using]::ScaleMaterialParameters() has not be implemented\n");
+        #undef COVERAGE_IGNORE
     }
 };
 

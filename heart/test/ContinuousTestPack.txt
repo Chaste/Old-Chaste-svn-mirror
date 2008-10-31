@@ -1,6 +1,6 @@
 TestBidomainPde.hpp
 TestBidomainProblem.hpp
-TestCardiacElectroMechanicsProblem2.hpp
+TestCardiacElectroMechanicsProblem.hpp
 TestCellProperties.hpp
 TestCellularMechanicsOdeSystems.hpp
 TestConductivityTensors.hpp
@@ -10,7 +10,7 @@ TestFaberRudyAgainstLimpet.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
-TestImplicitCardiacMechanicsAssembler2.hpp
+TestImplicitCardiacMechanicsAssembler.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainProblem.hpp

@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "NonlinearElasticityAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "ExponentialMaterialLaw2.hpp"
-#include "MooneyRivlinMaterialLaw2.hpp"
+#include "ExponentialMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw.hpp"
 
 class TestNonlinearElasticityAssemblerLong : public CxxTest::TestSuite
 {
@@ -46,7 +46,7 @@ public:
         
         QuadraticMesh<3> mesh("mesh/test/data/cube_136_elements_quadratic");
 
-        MooneyRivlinMaterialLaw2<3> law(0.02, 0.0);
+        MooneyRivlinMaterialLaw<3> law(0.02, 0.0);
         c_vector<double,3> body_force;
         body_force(0) = 0.06;
         body_force(1) = 0.0;

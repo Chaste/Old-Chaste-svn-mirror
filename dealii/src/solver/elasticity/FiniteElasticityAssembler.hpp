@@ -68,7 +68,7 @@ const unsigned DIRICHLET_BOUNDARY = 12;
 const double NEWTON_ABS_TOL = 1e-8;
 const double NEWTON_REL_TOL = 1e-6;
 
-#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractIncompressibleMaterialLaw2.hpp"
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 #include "DofVertexIterator.hpp"
@@ -125,11 +125,11 @@ protected:
     /*< Whether the material is heterogeneous or not */
     bool                 mHeterogeneous;
     /*< The material laws at each region of the mesh */
-    std::vector<AbstractIncompressibleMaterialLaw<DIM>*>  mMaterialLaws;
+    std::vector<AbstractIncompressibleMaterialLaw2<DIM>*>  mMaterialLaws;
     /*< Map from region number of material law (needed for heterogeneous simulations */
     std::vector<int>     mMaterialIdToMaterialLawIndexMap;
     /*< Helper function for getting material law given element */
-    AbstractIncompressibleMaterialLaw<DIM>* GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter);
+    AbstractIncompressibleMaterialLaw2<DIM>* GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter);
 
     /*< Body force per unit volume */
     Vector<double>       mBodyForce;
@@ -248,7 +248,7 @@ public:
      *   Defaults to 2, ie linear interpolation
      */
     FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
-                              AbstractIncompressibleMaterialLaw<DIM>*  pMaterialLaw,
+                              AbstractIncompressibleMaterialLaw2<DIM>*  pMaterialLaw,
                               Vector<double> bodyForce,
                               double density,
                               std::string outputDirectory,
@@ -279,7 +279,7 @@ public:
      *  @materialIds The values of the labels of the different region. Each element in
      *   the mesh should have it's material id set to a value in this vector
      */
-    void SetMaterialLawsForHeterogeneousProblem(std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
+    void SetMaterialLawsForHeterogeneousProblem(std::vector<AbstractIncompressibleMaterialLaw2<DIM>*> materialLaws,
                                                 std::vector<unsigned> materialIds);
 
     /**

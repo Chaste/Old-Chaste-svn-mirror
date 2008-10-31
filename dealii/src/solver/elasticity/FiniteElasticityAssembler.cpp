@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
-                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                          AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw,
                                                           Vector<double> bodyForce,
                                                           double density,
                                                           std::string outputDirectory,
@@ -137,7 +137,7 @@ FiniteElasticityAssembler<DIM>::~FiniteElasticityAssembler()
 
 template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::SetMaterialLawsForHeterogeneousProblem(
-        std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
+        std::vector<AbstractIncompressibleMaterialLaw2<DIM>*> materialLaws,
         std::vector<unsigned> materialIds)
 {
     // check sizes match
@@ -219,7 +219,7 @@ void FiniteElasticityAssembler<DIM>::FormInitialGuess()
     this->mCurrentSolution = 0;
 
     std::vector<unsigned> local_dof_indices(this->mDofsPerElement);
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
+    AbstractIncompressibleMaterialLaw2<DIM>* p_material_law;
 
     typename DoFHandler<DIM>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
     while (element_iter!=this->mDofHandler.end())
@@ -268,7 +268,7 @@ void FiniteElasticityAssembler<DIM>::SetConstantSurfaceTraction(Vector<double> t
 }
 
 template<unsigned DIM>
-AbstractIncompressibleMaterialLaw<DIM>* FiniteElasticityAssembler<DIM>::GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter)
+AbstractIncompressibleMaterialLaw2<DIM>* FiniteElasticityAssembler<DIM>::GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter)
 {
     if (!mHeterogeneous)
     {
@@ -351,7 +351,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
+    AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
 
     for (unsigned q_point=0; q_point<n_q_points; q_point++)
     {
@@ -594,7 +594,7 @@ void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
         fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
         fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-        AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(element_iter);
+        AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = GetMaterialLawForElement(element_iter);
 
         for (unsigned q_point=0; q_point<n_q_points; q_point++)
         {

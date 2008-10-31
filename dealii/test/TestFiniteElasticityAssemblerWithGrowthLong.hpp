@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include "FiniteElasticityAssemblerWithGrowth.cpp"
 #include "TriangulationVertexIterator.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "ConstantTumourSourceModel.hpp"
 
@@ -49,7 +49,7 @@ public :
         Vector<double> body_force(3); // zero
         double density = 1.233;
 
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.02, 0.01);
+        MooneyRivlinMaterialLaw2<3> mooney_rivlin_law(0.02, 0.01);
 
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -180,7 +180,7 @@ public :
         Vector<double> body_force(2); // zero
         double density = 1;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -296,7 +296,7 @@ public :
         Vector<double> body_force(2); // zero
         double density = 1;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);

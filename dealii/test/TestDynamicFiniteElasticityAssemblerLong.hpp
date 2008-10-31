@@ -35,9 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DynamicFiniteElasticityAssembler.cpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
-#include "PolynomialMaterialLaw3d.hpp"
-#include "ExponentialMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
+#include "PolynomialMaterialLaw3d2.hpp"
+#include "ExponentialMaterialLaw2.hpp"
 #include "FiniteElasticityTools.hpp"
 
 // todos: proper test of answers
@@ -51,7 +51,7 @@ public :
         Vector<double> body_force(2);
         body_force(1) = 2.0;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(2.0);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -96,7 +96,7 @@ public :
         Vector<double> body_force(3);
         body_force(1) = 0.02;
 
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.01, 0.02);
+        MooneyRivlinMaterialLaw2<3> mooney_rivlin_law(0.01, 0.02);
 
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -146,7 +146,7 @@ public :
         body_force(1) = 1.0;
 
         double density = 1.0;
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(2.0);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);

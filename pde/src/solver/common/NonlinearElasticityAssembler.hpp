@@ -131,7 +131,7 @@ protected:
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
 
         // get the material law
-        AbstractIncompressibleMaterialLaw2<DIM>* p_material_law;
+        AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
         if(this->mMaterialLaws.size()==1)
         {
             // homogeneous
@@ -652,7 +652,7 @@ public:
      *  and the output directory.
      */
     NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
-                                 AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw,
+                                 AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                  c_vector<double,DIM> bodyForce,
                                  double density,
                                  std::string outputDirectory,
@@ -668,7 +668,7 @@ public:
 
 
     NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
-                                 std::vector<AbstractIncompressibleMaterialLaw2<DIM>*>& rMaterialLaws,
+                                 std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
                                  c_vector<double,DIM> bodyForce,
                                  double density,
                                  std::string outputDirectory,

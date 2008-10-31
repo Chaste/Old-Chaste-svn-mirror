@@ -27,11 +27,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef POLEZEROMATERIALLAW2_HPP_
-#define POLEZEROMATERIALLAW2_HPP_
+#ifndef POLEZEROMATERIALLAW_HPP_
+#define POLEZEROMATERIALLAW_HPP_
 
 
-#include "AbstractIncompressibleMaterialLaw2.hpp"
+#include "AbstractIncompressibleMaterialLaw.hpp"
 #include "Exception.hpp"
 
 
@@ -54,9 +54,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Not isotropic, so inherits directly from AbstractIncompressibleMaterialLaw
  */
 template<unsigned DIM>
-class PoleZeroMaterialLaw2 : public AbstractIncompressibleMaterialLaw2<DIM>
+class PoleZeroMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
 {
-friend class TestMaterialLaws2;
+friend class TestMaterialLaws;
 
 private :
     std::vector<std::vector<double> > mK;
@@ -70,7 +70,7 @@ protected :
      *  Protected default constructor doing nothing. Just saw inherited classes
      *  can be instantiated and THEN set up the parameters
      */
-    PoleZeroMaterialLaw2()
+    PoleZeroMaterialLaw()
     {
     }
 
@@ -125,9 +125,9 @@ public :
      *
      *  Note: using the k_1..k_6 convention,  k_4 = 2*k[0][1] = 2*k[1][0], etc
      */
-     PoleZeroMaterialLaw2(std::vector<std::vector<double> > k,
-                          std::vector<std::vector<double> > a,
-                          std::vector<std::vector<double> > b)
+     PoleZeroMaterialLaw(std::vector<std::vector<double> > k,
+                         std::vector<std::vector<double> > a,
+                         std::vector<std::vector<double> > b)
     {
         SetParameters(k,a,b);
     }
@@ -224,4 +224,4 @@ public :
 };
 
 
-#endif /*POLEZEROMATERIALLAW2_HPP_*/
+#endif /*POLEZEROMATERIALLAW_HPP_*/

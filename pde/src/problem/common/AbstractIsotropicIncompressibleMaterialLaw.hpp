@@ -27,10 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW2_HPP_
-#define ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW2_HPP_
+#ifndef ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_
+#define ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_
 
-#include "AbstractIncompressibleMaterialLaw2.hpp"
+#include "AbstractIncompressibleMaterialLaw.hpp"
 
 /**
  *  AbstractIsotropicIncompressibleMaterialLaw
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Note: only dimension equals 2 or 3 should be permitted.
  */
 template<unsigned DIM>
-class AbstractIsotropicIncompressibleMaterialLaw2 : public AbstractIncompressibleMaterialLaw2<DIM>
+class AbstractIsotropicIncompressibleMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
 {
 protected :
     virtual double Get_dW_dI1(double I1, double I2)=0;
@@ -170,7 +170,7 @@ public :
         }
     }
 
-    virtual ~AbstractIsotropicIncompressibleMaterialLaw2()
+    virtual ~AbstractIsotropicIncompressibleMaterialLaw()
     {}
 
 
@@ -200,4 +200,4 @@ public :
 
 
 
-#endif /*ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW2_HPP_*/
+#endif /*ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_*/

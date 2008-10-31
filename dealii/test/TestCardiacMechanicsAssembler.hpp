@@ -120,7 +120,7 @@ public :
 
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(2);
+        MooneyRivlinMaterialLaw2<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh,
                                                             "CardiacMech/SpecifiedActiveTensionCompression",
@@ -177,7 +177,7 @@ public :
 
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(2);
+        MooneyRivlinMaterialLaw2<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh,
                                                            "CardiacMech/SpecifiedActiveTensionStretching",
@@ -238,7 +238,7 @@ public :
 
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(2);
+        MooneyRivlinMaterialLaw2<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh,
                                                            "CardiacMech/SpecifiedActiveTensionComp90Deg",
@@ -309,7 +309,7 @@ public :
 
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(2);
+        MooneyRivlinMaterialLaw2<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh,
                                                            "CardiacMech/SpecifiedActiveTensionComp45Deg",
@@ -383,7 +383,7 @@ public :
         TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumNewtonIterations(), 3u);
     }
 
-    void TestWithScalingOfNashHunterPoleZeroLaw()
+    void TestWithScalingOfNashHunterPoleZeroLaw2()
     {
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);

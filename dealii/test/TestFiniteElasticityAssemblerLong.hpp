@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FiniteElasticityAssembler.cpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
-#include "PolynomialMaterialLaw3d.hpp"
-#include "ExponentialMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
+#include "PolynomialMaterialLaw3d2.hpp"
+#include "ExponentialMaterialLaw2.hpp"
 #include "FiniteElasticityTools.hpp"
 
 
@@ -129,7 +129,7 @@ public :
         // - speeds up GMRES
         Vector<double> body_force(2);
         body_force(0) = 0.06;
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -194,7 +194,7 @@ public :
         Vector<double> body_force(3);
         body_force(1) = 20;
 
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(1,2);
+        MooneyRivlinMaterialLaw2<3> mooney_rivlin_law(1,2);
 
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 0.1);
@@ -285,7 +285,7 @@ public :
         Vector<double> body_force(3); // zero vector
         body_force(2)=0.05;
 
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.02,0.02);
+        MooneyRivlinMaterialLaw2<3> mooney_rivlin_law(0.02,0.02);
 
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -436,10 +436,10 @@ public :
         Vector<double> body_force(2);
         body_force(1) = 0.01;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_stiff(1);
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_weak(0.2);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law_stiff(1);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law_weak(0.2);
 
-        std::vector<AbstractIncompressibleMaterialLaw<2>*> material_laws;
+        std::vector<AbstractIncompressibleMaterialLaw2<2>*> material_laws;
         material_laws.push_back(&mooney_rivlin_law_stiff);
         material_laws.push_back(&mooney_rivlin_law_weak);
 
@@ -490,10 +490,10 @@ public :
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
 
 
-        MooneyRivlinMaterialLaw<2> law1(c1);
-        MooneyRivlinMaterialLaw<2> law2(c2);
+        MooneyRivlinMaterialLaw2<2> law1(c1);
+        MooneyRivlinMaterialLaw2<2> law2(c2);
 
-        std::vector<AbstractIncompressibleMaterialLaw<2>*> laws;
+        std::vector<AbstractIncompressibleMaterialLaw2<2>*> laws;
         laws.push_back(&law1);
         laws.push_back(&law2);
 
@@ -566,7 +566,7 @@ public :
 
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
 
-        MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
+        MooneyRivlinMaterialLaw2<2> law(MATERIAL_PARAM);
 
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
                                                        &law,

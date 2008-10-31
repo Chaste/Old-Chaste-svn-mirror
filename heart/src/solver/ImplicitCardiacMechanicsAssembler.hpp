@@ -27,12 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef IMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
-#define IMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
+#ifndef IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
+#define IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
 
 #include "NonlinearElasticityAssembler.hpp"
 #include "NhsSystemWithImplicitSolver.hpp"
-#include "NashHunterPoleZeroLaw2.hpp"
+#include "NashHunterPoleZeroLaw.hpp"
 #include "LogFile.hpp"
 #include <cfloat>
 
@@ -46,13 +46,13 @@ const double CARDIAC_TISSUE_DENSITY = 1.0;
  * 
  *  Solves cardiac mechanics implicitly (together with the NHS cell
  *  models for determining the active tension), taking in the intracellular
- *  Calcium concentration. See CardiacElectroMechanicsProblem2 documentation
+ *  Calcium concentration. See CardiacElectroMechanicsProblem documentation
  *  for more detail. 
  */
 template<unsigned DIM>
-class ImplicitCardiacMechanicsAssembler2 : public NonlinearElasticityAssembler<DIM>
+class ImplicitCardiacMechanicsAssembler : public NonlinearElasticityAssembler<DIM>
 {
-friend class TestImplicitCardiacMechanicsAssembler2;
+friend class TestImplicitCardiacMechanicsAssembler;
 
 private:
     /** 
@@ -96,12 +96,12 @@ public:
      *  @param pMaterialLaw. The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
-    ImplicitCardiacMechanicsAssembler2(QuadraticMesh<DIM>* pQuadMesh,
-                                       std::string outputDirectory,
-                                       std::vector<unsigned>& rFixedNodes,
-                                       AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw = NULL)
+    ImplicitCardiacMechanicsAssembler(QuadraticMesh<DIM>* pQuadMesh,
+                                      std::string outputDirectory,
+                                      std::vector<unsigned>& rFixedNodes,
+                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL)
         : NonlinearElasticityAssembler<DIM>(pQuadMesh, 
-                                            pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw2<DIM>,
+                                            pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
                                             zero_vector<double>(DIM),
                                             DOUBLE_UNSET,
                                             outputDirectory, 
@@ -126,7 +126,7 @@ public:
     /** 
      *  Destructor just deletes memory if it was allocated
      */
-    ~ImplicitCardiacMechanicsAssembler2()
+    ~ImplicitCardiacMechanicsAssembler()
     {
         if(mAllocatedMaterialLawMemory)
         {
@@ -267,7 +267,7 @@ private:
         c_matrix<double, DIM, NonlinearElasticityAssembler<DIM>::NUM_NODES_PER_ELEMENT> grad_quad_phi;
 
         // get the material law
-        AbstractIncompressibleMaterialLaw2<DIM>* p_material_law;
+        AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
         if(this->mMaterialLaws.size()==1)
         {
             // homogeneous
@@ -817,4 +817,4 @@ private:
 //    }
  };
 
-#endif /*IMPLICITCARDIACMECHANICSASSEMBLER2_HPP_*/
+#endif /*IMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/

@@ -27,14 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef EXPONENTIALMATERIALLAW_HPP_
-#define EXPONENTIALMATERIALLAW_HPP_
+#ifndef EXPONENTIALMATERIALLAW2_HPP_
+#define EXPONENTIALMATERIALLAW2_HPP_
 
-#include "AbstractIsotropicIncompressibleMaterialLaw.hpp"
+#include "AbstractIsotropicIncompressibleMaterialLaw2.hpp"
 #include "Exception.hpp"
 
 /**
- *  ExponentialMaterialLaw
+ *  ExponentialMaterialLaw2
  *
  *  An exponential isotropic incompressible hyperelastic material law for finite
  *  elasticity
@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 template<unsigned DIM>
-class ExponentialMaterialLaw : public AbstractIsotropicIncompressibleMaterialLaw<DIM>
+class ExponentialMaterialLaw2 : public AbstractIsotropicIncompressibleMaterialLaw2<DIM>
 {
 private :
     double mA;
@@ -111,7 +111,7 @@ public :
     /**
      *  Constructor, Taking in the parameters a and b. a must be positive.
      */
-    ExponentialMaterialLaw(double a, double b)
+    ExponentialMaterialLaw2(double a, double b)
     {
         if (DIM!=2 && DIM !=3)
         {
@@ -127,4 +127,4 @@ public :
     }
 };
 
-#endif /*EXPONENTIALMATERIALLAW_HPP_*/
+#endif /*EXPONENTIALMATERIALLAW2_HPP_*/

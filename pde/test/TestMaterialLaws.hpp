@@ -27,32 +27,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTMATERIALLAWS2_HPP_
-#define TESTMATERIALLAWS2_HPP_
+#ifndef TESTMATERIALLAWS_HPP_
+#define TESTMATERIALLAWS_HPP_
 
 #include <cxxtest/TestSuite.h>
 
-#include "MooneyRivlinMaterialLaw2.hpp"
-#include "ExponentialMaterialLaw2.hpp"
-#include "PolynomialMaterialLaw3d2.hpp"
-#include "PoleZeroMaterialLaw2.hpp"
+#include "MooneyRivlinMaterialLaw.hpp"
+#include "ExponentialMaterialLaw.hpp"
+#include "PolynomialMaterialLaw3d.hpp"
+#include "PoleZeroMaterialLaw.hpp"
 //#include "PoleZero3dIn1dLaw.hpp"
-#include "NashHunterPoleZeroLaw2.hpp"
-#include "SchmidCostaExponentialLaw2d2.hpp"
+#include "NashHunterPoleZeroLaw.hpp"
+#include "SchmidCostaExponentialLaw2d.hpp"
 #include <cassert>
 
 
-class TestMaterialLaws2 : public CxxTest::TestSuite
+class TestMaterialLaws : public CxxTest::TestSuite
 {
 public:
     void TestMooneyRivlinLaw()
     {
-        TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw2<2> bad_mr_law(-3.0));
-        TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw2<3> bad_mr_law2(3.0));
+        TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw<2> bad_mr_law(-3.0));
+        TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw<3> bad_mr_law2(3.0));
 
         double c1 = 2.0;
 
-        MooneyRivlinMaterialLaw2<2> ml_law_2d(c1);
+        MooneyRivlinMaterialLaw<2> ml_law_2d(c1);
 
         TS_ASSERT_DELTA(ml_law_2d.GetC1(), c1, 1e-12);
         TS_ASSERT_DELTA(ml_law_2d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
@@ -78,7 +78,7 @@ public:
 
         double c2 = 3.0;
 
-        MooneyRivlinMaterialLaw2<3> ml_law_3d(c1, c2);
+        MooneyRivlinMaterialLaw<3> ml_law_3d(c1, c2);
 
         TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1, 1e-12);
         TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2, 1e-12);
@@ -195,14 +195,14 @@ public:
 
     void TestExponentialLaw()
     {
-        TS_ASSERT_THROWS_ANYTHING(ExponentialMaterialLaw2<2> bad_exp_law(-3.0,1));
+        TS_ASSERT_THROWS_ANYTHING(ExponentialMaterialLaw<2> bad_exp_law(-3.0,1));
 
         double a = 2.0;
         double b = 3.0;
         double I1 = 2.0;
         double I2 = 1.0;
 
-        ExponentialMaterialLaw2<2> exp_law_2d(a,b);
+        ExponentialMaterialLaw<2> exp_law_2d(a,b);
 
         TS_ASSERT_DELTA(exp_law_2d.GetA(), a, 1e-12);
         TS_ASSERT_DELTA(exp_law_2d.GetB(), b, 1e-12);
@@ -210,7 +210,7 @@ public:
         TS_ASSERT_DELTA(exp_law_2d.Get_dW_dI1(I1,I2),  a*b*exp(b*(I1-2)),   1e-12);
         TS_ASSERT_DELTA(exp_law_2d.Get_d2W_dI1(I1,I2), b*exp_law_2d.Get_dW_dI1(I1,I2), 1e-12);
 
-        ExponentialMaterialLaw2<3> exp_law_3d(a,b);
+        ExponentialMaterialLaw<3> exp_law_3d(a,b);
 
         TS_ASSERT_DELTA(exp_law_3d.GetA(), a, 1e-12);
         TS_ASSERT_DELTA(exp_law_3d.GetB(), b, 1e-12);
@@ -247,7 +247,7 @@ public:
     void TestPolynomailMaterialLawAgainstMooneyRivlin()
     {
         unsigned N = 1;
-        std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d2::GetZeroedAlpha(N);
+        std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d::GetZeroedAlpha(N);
 
         // test GetZeroedAlpha
         TS_ASSERT_EQUALS(alpha.size(),2u);
@@ -266,8 +266,8 @@ public:
         alpha[1][0] = c1;
         alpha[0][1] = c2;
 
-        PolynomialMaterialLaw3d2 poly_mr_law(N,alpha);
-        MooneyRivlinMaterialLaw2<3> mooney_rivlin_law(c1,c2);
+        PolynomialMaterialLaw3d poly_mr_law(N,alpha);
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(c1,c2);
 
         double I1 = 4;
         double I2 = 2.4;
@@ -289,7 +289,7 @@ public:
     void TestQuadraticPolynomialLaw()
     {
         unsigned N = 2;
-        std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d2::GetZeroedAlpha(N);
+        std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d::GetZeroedAlpha(N);
 
         double c20 = 3.0;
         double c11 = 4.0;
@@ -299,7 +299,7 @@ public:
         alpha[1][1] = c11;
         alpha[0][2] = c02;
 
-        PolynomialMaterialLaw3d2 poly_law(N,alpha);
+        PolynomialMaterialLaw3d poly_law(N,alpha);
 
         c_matrix<double,3,3> C;
         C(0,0) = 3.0;
@@ -393,17 +393,17 @@ public:
 
 
         // check exception thrown if N=0
-        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d2 bad_poly1(0,alpha));
+        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d bad_poly1(0,alpha));
 
         // check exception thrown if alpha is not correctly sized
         std::vector< std::vector<double> > bad_alpha(2);
         bad_alpha[0].resize(1);
         bad_alpha[1].resize(1);
-        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d2 bad_poly2(2,bad_alpha));
+        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d bad_poly2(2,bad_alpha));
 
         // check exception thrown if alpha[p][q]!=0, when p+q>N
         alpha[2][2] = 1.0;
-        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d2 bad_poly3(2,alpha));
+        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d bad_poly3(2,alpha));
 
         // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
         // obviously it should be zero
@@ -444,7 +444,7 @@ public:
         b[1][0] = b[0][1] = 6;
         b[1][1] = 5;
 
-        PoleZeroMaterialLaw2<2> pole_zero_law(k,a,b);
+        PoleZeroMaterialLaw<2> pole_zero_law(k,a,b);
 
         c_matrix<double,2,2> C;
         C(0,0) = 1;
@@ -599,7 +599,7 @@ public:
         b[2][1] = b[1][2] = 4;
         b[2][2] = 2;
 
-        PoleZeroMaterialLaw2<3> pole_zero_law(k,a,b);
+        PoleZeroMaterialLaw<3> pole_zero_law(k,a,b);
 
         c_matrix<double,3,3> C;
         C(0,0) = 2;
@@ -667,7 +667,7 @@ public:
 
     void TestNashHunterPoleZeroLaw3d() throw(Exception)
     {
-        NashHunterPoleZeroLaw2<3> law;
+        NashHunterPoleZeroLaw<3> law;
 
         c_matrix<double,3,3> C;
         c_matrix<double,3,3> invC;
@@ -692,7 +692,7 @@ public:
 
     void TestNashHunterPoleZeroLaw2d() throw(Exception)
     {
-        NashHunterPoleZeroLaw2<2> law;
+        NashHunterPoleZeroLaw<2> law;
 
         c_matrix<double,2,2> C;
         c_matrix<double,2,2> invC;
@@ -714,7 +714,7 @@ public:
 
     void TestDerivateInPoleZeroLaw2d() throw(Exception)
     {
-        NashHunterPoleZeroLaw2<2> law;
+        NashHunterPoleZeroLaw<2> law;
 
         //PoleZeroMaterialLaw<2> law(k,a,b);
 
@@ -767,7 +767,7 @@ public:
 
     void TestSchmidCostaExponentialLaw()
     {
-        SchmidCostaExponentialLaw2d2 law;
+        SchmidCostaExponentialLaw2d law;
 
         double a = law.GetA();
         assert(a>0);

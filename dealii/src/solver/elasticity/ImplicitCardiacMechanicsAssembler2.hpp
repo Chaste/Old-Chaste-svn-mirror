@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
-#define IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef IMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
+#define IMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
 
 #include "CardiacMechanicsAssembler.cpp"
 #include "NhsSystemWithImplicitSolver.hpp"
@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-class ImplicitCardiacMechanicsAssembler : public CardiacMechanicsAssembler<DIM>
+class ImplicitCardiacMechanicsAssembler2 : public CardiacMechanicsAssembler<DIM>
 {
-friend class TestImplicitCardiacMechanicsAssembler;
+friend class TestImplicitCardiacMechanicsAssembler2;
 
 private:
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems;
@@ -59,9 +59,9 @@ public:
      *  @param pMaterialLaw. The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
-    ImplicitCardiacMechanicsAssembler(Triangulation<DIM>* pMesh,
+    ImplicitCardiacMechanicsAssembler2(Triangulation<DIM>* pMesh,
                                       std::string outputDirectory,
-                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL)
+                                      AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw = NULL)
         : CardiacMechanicsAssembler<DIM>(pMesh, outputDirectory, pMaterialLaw),
           mCurrentTime(DBL_MAX),
           mNextTime(DBL_MAX),
@@ -76,7 +76,7 @@ public:
         this->mActiveTension.resize(mCellMechSystems.size());
     }
 
-    ~ImplicitCardiacMechanicsAssembler()
+    ~ImplicitCardiacMechanicsAssembler2()
     {
     }
 
@@ -119,7 +119,7 @@ public:
 
     void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
     {
-        EXCEPTION("ImplicitCardiacMechanicsAssembler can't do different fibre directions yet");
+        EXCEPTION("ImplicitCardiacMechanicsAssembler2 can't do different fibre directions yet");
     }
 
 private:
@@ -200,7 +200,7 @@ private:
         fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
         fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-        AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
+        AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
 
     //// for a varying fibre-direction
     //    assert(DIM==2);
@@ -609,7 +609,7 @@ private:
 //            std::vector<Point<DIM> > quad_points =fe_values.get_quadrature_points();
 //
 //
-//            AbstractIncompressibleMaterialLaw<DIM>* p_material_law = this->GetMaterialLawForElement(element_iter);
+//            AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = this->GetMaterialLawForElement(element_iter);
 //
 //            std::vector<Tensor<2,DIM> > inv_C_at_nodes(4);// 4=2^DIM
 //
@@ -678,4 +678,4 @@ private:
 //    }
  };
 
-#endif /*IMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*IMPLICITCARDIACMECHANICSASSEMBLER2_HPP_*/

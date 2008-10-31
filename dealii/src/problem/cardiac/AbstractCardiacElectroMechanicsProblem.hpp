@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractElasticityAssembler.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "LogFile.hpp"
-#include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "ImplicitCardiacMechanicsAssembler2.hpp"
 
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
@@ -108,7 +108,7 @@ struct ElementAndWeights
 template<unsigned DIM>
 class AbstractCardiacElectroMechanicsProblem
 {
-friend class TestCardiacElectroMechanicsProblem;
+friend class TestCardiacElectroMechanicsProblemDealii;
 
 protected :
     /*< The cardiac problem class */
@@ -444,7 +444,7 @@ public :
         }
 
 //        // get the assembler to compute which electrics nodes are in each mechanics mesh
-//        dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->ComputeElementsContainingNodes(mpElectricsMesh);
+//        dynamic_cast<ImplicitCardiacMechanicsAssembler2<DIM>*>(mpCardiacMechAssembler)->ComputeElementsContainingNodes(mpElectricsMesh);
 //        assert(DIM==2);
 //
 //        NodewiseData<DIM>::Instance()->AllocateMemory(mpElectricsMesh->GetNumNodes(), 3);
@@ -623,12 +623,12 @@ public :
 
 //            // setup the Cinverse data;
 //            std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
-//            dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
+//            dynamic_cast<ImplicitCardiacMechanicsAssembler2<DIM>*>(mpCardiacMechAssembler)->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
 //
 //            // write lambda
 //            std::stringstream file_name;
 //            file_name << "lambda_" << mech_writer_counter << ".dat";
-//            dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->WriteLambda(mOutputDirectory,file_name.str());
+//            dynamic_cast<ImplicitCardiacMechanicsAssembler2<DIM>*>(mpCardiacMechAssembler)->WriteLambda(mOutputDirectory,file_name.str());
 
 
             // write the total elapsed time..

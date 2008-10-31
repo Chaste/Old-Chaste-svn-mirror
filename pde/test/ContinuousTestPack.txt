@@ -4,7 +4,7 @@ TestConstBoundaryCondition.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
-TestMaterialLaws2.hpp
+TestMaterialLaws.hpp
 TestNonlinearElasticityAssembler.hpp
 TestNonlinearElasticityTools.hpp
 TestNonlinearHeatEquationPde.hpp

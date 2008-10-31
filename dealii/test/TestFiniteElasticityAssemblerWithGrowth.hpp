@@ -37,9 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
 
-#include "MooneyRivlinMaterialLaw.hpp"
-#include "PolynomialMaterialLaw3d.hpp"
-#include "ExponentialMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
+#include "PolynomialMaterialLaw3d2.hpp"
+#include "ExponentialMaterialLaw2.hpp"
 
 #include "FiniteElasticityTools.hpp"
 #include "ConcentrationBasedTumourSourceModel.hpp"
@@ -59,7 +59,7 @@ public :
     void TestExceptions() throw(Exception)
     {
         Vector<double> body_force(2);
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(2.0);
         ConstantTumourSourceModel<2> source_model(1.0);
 
         Triangulation<2> mesh;
@@ -100,7 +100,7 @@ public :
     {
         Vector<double> body_force(2); // zero
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -132,7 +132,7 @@ public :
         Vector<double> body_force(2); // zero
         double density = 1.233;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);

@@ -64,7 +64,7 @@ protected:
         std::string          mOutputDirectoryFullPath;
         bool                 mWriteOutput;
         FourthOrderTensor<DIM> dTdE;
-        AbstractIncompressibleMaterialLaw<DIM>*  mpMaterialLaw;
+        AbstractIncompressibleMaterialLaw2<DIM>*  mpMaterialLaw;
         Vector<double>       mBodyForce;
         double               mDensity;
         const unsigned       PRESSURE_COMPONENT_INDEX;
@@ -122,7 +122,7 @@ public:
      *   Defaults to 2, ie linear interpolation
      */
     FiniteElasticityAssemblerWithGrowth(Triangulation<DIM>* pMesh,
-                                        AbstractIncompressibleMaterialLaw<DIM>*  pMaterialLaw,
+                                        AbstractIncompressibleMaterialLaw2<DIM>*  pMaterialLaw,
                                         Vector<double> bodyForce,
                                         double density,
                                         std::string outputDirectory,

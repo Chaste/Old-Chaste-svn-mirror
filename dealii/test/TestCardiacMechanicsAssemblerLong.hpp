@@ -71,7 +71,7 @@ public :
 
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<3> material_law(0.02, 0.0);
+        MooneyRivlinMaterialLaw2<3> material_law(0.02, 0.0);
 
         CardiacMechanicsAssembler<3> cardiac_mech_assembler(&mesh,
                                                             "CardiacMech/SpecifiedActiveTensionCompression3d",

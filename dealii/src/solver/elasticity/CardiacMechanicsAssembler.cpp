@@ -31,13 +31,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CardiacMechanicsAssembler.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
-#include "NashHunterPoleZeroLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
+#include "NashHunterPoleZeroLaw2.hpp"
 
 template<unsigned DIM>
 CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pMesh,
                                                           std::string outputDirectory,
-                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+                                                          AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw)
     : FiniteElasticityAssembler<DIM>(pMesh, pMaterialLaw, Vector<double>(DIM), 1.0, outputDirectory, 2, 1),
       AbstractCardiacMechanicsAssembler<DIM>(pMesh)
 {
@@ -46,7 +46,7 @@ CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pM
     if(pMaterialLaw==NULL)
     {
         this->mMaterialLaws.resize(1);
-        this->mMaterialLaws[0] = new NashHunterPoleZeroLaw<DIM>;
+        this->mMaterialLaws[0] = new NashHunterPoleZeroLaw2<DIM>;
         this->mHeterogeneous = false; // as FiniteElasticityAssembler would have set this to be true as NULL passed in to construtor
         mAllocatedMaterialLawMemory = true;
     }
@@ -216,7 +216,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
+    AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
 
 
 //// for a varying fibre-direction

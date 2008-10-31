@@ -27,10 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef EXPONENTIALMATERIALLAW2_HPP_
-#define EXPONENTIALMATERIALLAW2_HPP_
+#ifndef EXPONENTIALMATERIALLAW_HPP_
+#define EXPONENTIALMATERIALLAW_HPP_
 
-#include "AbstractIsotropicIncompressibleMaterialLaw2.hpp"
+#include "AbstractIsotropicIncompressibleMaterialLaw.hpp"
 #include "Exception.hpp"
 
 /**
@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 template<unsigned DIM>
-class ExponentialMaterialLaw2 : public AbstractIsotropicIncompressibleMaterialLaw2<DIM>
+class ExponentialMaterialLaw : public AbstractIsotropicIncompressibleMaterialLaw<DIM>
 {
 private :
     double mA;
@@ -111,7 +111,7 @@ public :
     /**
      *  Constructor, Taking in the parameters a and b. a must be positive.
      */
-    ExponentialMaterialLaw2(double a, double b)
+    ExponentialMaterialLaw(double a, double b)
     {
         assert(DIM==2 || DIM ==3);
         if (a<0.0)
@@ -124,4 +124,4 @@ public :
     }
 };
 
-#endif /*EXPONENTIALMATERIALLAW2_HPP_*/
+#endif /*EXPONENTIALMATERIALLAW_HPP_*/

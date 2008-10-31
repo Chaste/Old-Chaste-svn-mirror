@@ -27,13 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_
-#define ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_
+#ifndef ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW2_HPP_
+#define ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW2_HPP_
 
-#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractIncompressibleMaterialLaw2.hpp"
 
 /**
- *  AbstractIsotropicIncompressibleMaterialLaw
+ *  AbstractIsotropicIncompressibleMaterialLaw22
  *
  *  An isotropic incompressible hyperelastic material law for finite elastiticy
  *
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Note: only dimension equals 2 or 3 should be permitted.
  */
 template<unsigned DIM>
-class AbstractIsotropicIncompressibleMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
+class AbstractIsotropicIncompressibleMaterialLaw2 : public AbstractIncompressibleMaterialLaw2<DIM>
 {
 protected :
     virtual double Get_dW_dI1(double I1, double I2)=0;
@@ -189,7 +189,7 @@ public :
         }
     }
 
-    virtual ~AbstractIsotropicIncompressibleMaterialLaw()
+    virtual ~AbstractIsotropicIncompressibleMaterialLaw2()
     {}
 
 
@@ -219,4 +219,4 @@ public :
 
 
 
-#endif /*ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_*/
+#endif /*ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW2_HPP_*/

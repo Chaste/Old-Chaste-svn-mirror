@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTCARDIACELECTROMECHANICSPROBLEMEXPERIMENTAL_HPP_
-#define TESTCARDIACELECTROMECHANICSPROBLEMEXPERIMENTAL_HPP_
+#ifndef TESTCARDIACELECTROMECHANICSPROBLEMDEALIIEXPERIMENTAL_HPP_
+#define TESTCARDIACELECTROMECHANICSPROBLEMDEALIIEXPERIMENTAL_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechanicsProblem1d.hpp"
-#include "CardiacElectroMechanicsProblem.hpp"
+#include "CardiacElectroMechanicsProblemDealii.hpp"
 #include "RegularStimulus.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
@@ -76,7 +76,7 @@ public:
 };
 
 
-class TestCardiacElectroMechanicsProblemExperimental : public CxxTest::TestSuite
+class TestCardiacElectroMechanicsProblemDealiiExperimental : public CxxTest::TestSuite
 {
 public:
 
@@ -85,12 +85,12 @@ public:
         //PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
         MyCellFactory cell_factory;
 
-        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
-                                                           2300,  // end time of 200ms
-                                                           10,   // 10 mech elements in 1cm by 1cm square
-                                                           100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
-                                                           1,    // nhs_dt = 1ms
-                                                           "CardiacElectroMechBasicLong");
+        CardiacElectroMechanicsProblemDealii<2> implicit_problem(&cell_factory,
+                                                                 2300,  // end time of 200ms
+                                                                 10,   // 10 mech elements in 1cm by 1cm square
+                                                                 100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
+                                                                 1,    // nhs_dt = 1ms
+                                                                 "CardiacElectroMechBasicLong");
         implicit_problem.SetNoElectricsOutput();
         implicit_problem.UseDirectLinearSolver();
 
@@ -116,13 +116,13 @@ public:
 //
 //            PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 //
-//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
-//                                                               200,  // end time of 200ms
-//                                                               10,   // 10 mech elements in 1cm by 1cm square
-//                                                               100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
-//                                                               1,    // nhs_dt = 1ms
-//                                                               name.str(),
-//                                                               calcium_scale_factors[i]);
+//            CardiacElectroMechanicsProblemDealii<2> implicit_problem(&cell_factory,
+//                                                                     200,  // end time of 200ms
+//                                                                     10,   // 10 mech elements in 1cm by 1cm square
+//                                                                     100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
+//                                                                     1,    // nhs_dt = 1ms
+//                                                                     name.str(),
+//                                                                     calcium_scale_factors[i]);
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
 //        }
@@ -140,7 +140,7 @@ public:
 //            std::stringstream name;
 //            name << "CardiacElectroMech_Time_MORE_" << dt;
 //
-//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, dt, 0.01, name.str());
+//            CardiacElectroMechanicsProblemDealii<2> implicit_problem(&cell_factory, 200, 10, dt, 0.01, name.str());
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
 //
@@ -154,7 +154,7 @@ public:
 //            std::stringstream name;
 //            name << "CardiacElectroMech_Space_NEW_" << num_nodes_in_each_dir;
 //
-//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, num_nodes_in_each_dir, 100, 1.0, name.str());
+//            CardiacElectroMechanicsProblemDealii<2> implicit_problem(&cell_factory, 200, num_nodes_in_each_dir, 100, 1.0, name.str());
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
 //
@@ -170,7 +170,7 @@ public:
 //
 //            std::cout << nhs_ode_time_step << "\n";
 //
-//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, 128, nhs_ode_time_step, name.str());
+//            CardiacElectroMechanicsProblemDealii<2> implicit_problem(&cell_factory, 200, 10, 128, nhs_ode_time_step, name.str());
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
 //
@@ -180,4 +180,4 @@ public:
 
 
 };
-#endif /*TESTCARDIACELECTROMECHANICSPROBLEMEXPERIMENTAL_HPP_*/
+#endif /*TESTCARDIACELECTROMECHANICSPROBLEMDEALIIEXPERIMENTAL_HPP_*/

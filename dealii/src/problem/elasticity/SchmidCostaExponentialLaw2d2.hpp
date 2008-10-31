@@ -27,10 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef SCHMIDCOSTAEXPONENTIALLAW2D_HPP_
-#define SCHMIDCOSTAEXPONENTIALLAW2D_HPP_
+#ifndef SCHMIDCOSTAEXPONENTIALLAW2D2_HPP_
+#define SCHMIDCOSTAEXPONENTIALLAW2D2_HPP_
 
-#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractIncompressibleMaterialLaw2.hpp"
 
 /**
  *  A 2d version of the material law in Costa, Holmes, McCulloch "Modelling Cardiac
@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  "Myocardial Material Parameter Estimation - A Comparative Study for Simple
  *  Shear" Transactions of the ASME.
  */
-class SchmidCostaExponentialLaw2d : public AbstractIncompressibleMaterialLaw<2>
+class SchmidCostaExponentialLaw2d2 : public AbstractIncompressibleMaterialLaw2<2>
 {
 
 private :
@@ -52,7 +52,7 @@ private :
     Tensor<2,2> mIdentity;
 
 public :
-    SchmidCostaExponentialLaw2d()
+    SchmidCostaExponentialLaw2d2()
     {
         mA = 0.221;    // kiloPascals, presumably, althought the paper doesn't say.
                        // gives results matching Pole-zero anyway.
@@ -139,4 +139,4 @@ public :
     }
 };
 
-#endif /* SCHMIDCOSTAEXPONENTIALLAW2D_HPP_*/
+#endif /* SCHMIDCOSTAEXPONENTIALLAW2D2_HPP_*/

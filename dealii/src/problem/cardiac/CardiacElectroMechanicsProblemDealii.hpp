@@ -27,12 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef CARDIACELECTROMECHANICSPROBLEM_HPP_
-#define CARDIACELECTROMECHANICSPROBLEM_HPP_
+#ifndef CARDIACELECTROMECHANICSPROBLEMDEALII_HPP_
+#define CARDIACELECTROMECHANICSPROBLEMDEALII_HPP_
 
-#include "MooneyRivlinMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
 #include "CardiacMechanicsAssembler.cpp"
-#include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "ImplicitCardiacMechanicsAssembler2.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "LogFile.hpp"
 
@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  See documentation for AbstractCardiacElectroMechanicsProblem
  */
 template<unsigned DIM>
-class CardiacElectroMechanicsProblem : public AbstractCardiacElectroMechanicsProblem<DIM>
+class CardiacElectroMechanicsProblemDealii : public AbstractCardiacElectroMechanicsProblem<DIM>
 {
 private:
     unsigned mNumElementsPerDimInMechanicsMesh;
@@ -60,12 +60,12 @@ public:
      *
      *  See documentation for AbstractCardiacElectroMechanicsProblem
      */
-    CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
-                                   double endTime,
-                                   unsigned numElementsPerDimInMechanicsMesh,
-                                   unsigned numElecStepsPerMechStep,
-                                   double nhsOdeTimeStep,
-                                   std::string outputDirectory = "")
+    CardiacElectroMechanicsProblemDealii(AbstractCardiacCellFactory<DIM>* pCellFactory,
+                                         double endTime,
+                                         unsigned numElementsPerDimInMechanicsMesh,
+                                         unsigned numElecStepsPerMechStep,
+                                         double nhsOdeTimeStep,
+                                         std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<DIM>(pCellFactory,
                                                        endTime,
                                                        numElecStepsPerMechStep,
@@ -110,8 +110,8 @@ public:
         Point<DIM> zero;
         FiniteElasticityTools<DIM>::SetFixedBoundary(*(this->mpMechanicsMesh), 0, 0.0);
 
-        this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
+        this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler2<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
     }
 };
 
-#endif /*CARDIACELECTROMECHANICSPROBLEM_HPP_*/
+#endif /*CARDIACELECTROMECHANICSPROBLEMDEALII_HPP_*/

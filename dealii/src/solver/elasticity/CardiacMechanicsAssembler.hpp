@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class CardiacMechanicsAssembler : public FiniteElasticityAssembler<DIM>, public AbstractCardiacMechanicsAssembler<DIM>
 {
-friend class TestImplicitCardiacMechanicsAssembler;
+friend class TestImplicitCardiacMechanicsAssembler2;
 
 protected:
     bool mAllocatedMaterialLawMemory;
@@ -89,7 +89,7 @@ public:
      */
     CardiacMechanicsAssembler(Triangulation<DIM>* pMesh,
                               std::string outputDirectory,
-                              AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
+                              AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw = NULL);
     virtual ~CardiacMechanicsAssembler();
 
 

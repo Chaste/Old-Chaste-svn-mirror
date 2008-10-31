@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FiniteElasticityAssembler.cpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
 
 #include "FiniteElasticityTools.hpp"
 
@@ -162,7 +162,7 @@ public :
         // create a FiniteElasticity object, just in order to get its DoFHandler
         Vector<double> body_force(2);
         body_force(0) = 6.0;
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0,2.0);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(2.0,2.0);
         FiniteElasticityAssembler<2> finite_elasticity(&mesh, &mooney_rivlin_law,
                                                        body_force, 1.0, "finite_elas/simple");
 

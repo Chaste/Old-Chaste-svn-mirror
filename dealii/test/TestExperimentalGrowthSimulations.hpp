@@ -37,9 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
 
-#include "MooneyRivlinMaterialLaw.hpp"
-#include "PolynomialMaterialLaw3d.hpp"
-#include "ExponentialMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
+#include "PolynomialMaterialLaw3d2.hpp"
+#include "ExponentialMaterialLaw2.hpp"
 
 #include "FiniteElasticityTools.hpp"
 #include "ConcentrationBasedTumourSourceModel.hpp"
@@ -129,7 +129,7 @@ public :
     {
         Vector<double> body_force(2); // zero
         double density = 1.0;
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         Point<2> zero;
@@ -166,7 +166,7 @@ public :
         Vector<double> body_force(2); // zero
         double density = 1.0;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(2.0);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -206,7 +206,7 @@ public :
         Vector<double> body_force(2); // zero
         double density = 1.0;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         Point<2> zero;
@@ -272,7 +272,7 @@ public :
         double length = 50;
         double height = 2;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         Point<2> zero;
@@ -330,7 +330,7 @@ public :
         Vector<double> body_force(2); // zero
         double density = 1.0;
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.002);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(0.002);
 
         Triangulation<2> mesh;
         MakeRectangularMeshWithTwoCircles(mesh);
@@ -346,11 +346,11 @@ public :
                                                                       &source_model);
 
 
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_stiff(0.02);
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_weak(0.002);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law_stiff(0.02);
+        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law_weak(0.002);
 
         std::vector<unsigned> material_ids;
-        std::vector<AbstractIncompressibleMaterialLaw<2>*> material_laws;
+        std::vector<AbstractIncompressibleMaterialLaw2<2>*> material_laws;
 
         material_ids.push_back(GROWING_REGION);
         material_laws.push_back(&mooney_rivlin_law_weak);

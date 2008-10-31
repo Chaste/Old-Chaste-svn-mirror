@@ -27,34 +27,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTCARDIACELECTROMECHANICSPROBLEM2_HPP_
-#define TESTCARDIACELECTROMECHANICSPROBLEM2_HPP_
+#ifndef TESTCARDIACELECTROMECHANICSPROBLEMDEALII_HPP_
+#define TESTCARDIACELECTROMECHANICSPROBLEMDEALII_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
-#include "CardiacElectroMechanicsProblem2.hpp"
+#include "CardiacElectroMechanicsProblem1d.hpp"
+#include "CardiacElectroMechanicsProblemDealii.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
-class TestCardiacElectroMechanicsProblem2 : public CxxTest::TestSuite
+class TestCardiacElectroMechanicsProblemDealii : public CxxTest::TestSuite
 {
 public:
+
     void TestDeterminingWatchedNodes() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         EventHandler::Disable();
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechanicsProblem2<2> problem(&cell_factory,
-                                                   1, /* end time */
-                                                   1, /*mech mesh size*/
-                                                   100, /* 100*0.01ms mech dt */
-                                                   0.01,
-                                                   "");
+        CardiacElectroMechanicsProblemDealii<2> problem(&cell_factory,
+                                                        1, /* end time */
+                                                        10, /*mech mesh size*/
+                                                        100, /* 100*0.01ms mech dt */
+                                                        0.01,
+                                                        "nothingtolookathere");
 
         c_vector<double,2> pos;
         pos(0) = 1.0;
@@ -65,12 +65,12 @@ public:
         // have checked these hardcoded values correspond to the nodes
         // at (1,0);
         TS_ASSERT_EQUALS(problem.mWatchedElectricsNodeIndex, 9408u);
-        TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
+        TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 10u);
 
         //// would like to do the following....
-        //CardiacElectroMechanicsProblem2<2> problem2(&cell_factory,
-        //                                            1, 10, 100, 0.01,
-        //                                            "");
+        //CardiacElectroMechanicsProblemDealii<2> problem2(&cell_factory,
+        //                                                 1, 10, 100, 0.01,
+        //                                                 "nothingtolookathere");
         //pos(1) = 1.1;
         //problem2.SetWatchedPosition(pos);
         //TS_ASSERT_THROWS_ANYTHING(problem2.Initialise());
@@ -79,51 +79,36 @@ public:
     }
 
 
-    void Test2dOneMechanicsElement() throw(Exception)
+    // test the interface works and does what it should do.
+    // We only test the implicit solver as the explicit is not expected to work for very long
+    void Test2dImplicit() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechanicsProblem2<2> problem(&cell_factory,
-                                                   10, /* end time */
-                                                   1, /*mech mesh size*/
-                                                   100, /* 100*0.01ms mech dt */
-                                                   0.01, /*NHS ode timestep */
-                                                   "TestCardiacElectroMechOneElement",
-                                                   0.05, /* Width of tissue */
-                                                   5);   /* Num electrics elements in each dir */
-        c_vector<double,2> pos;
-        pos(0) = 0.05;
-        pos(1) = 0.0;
-        
-        problem.SetWatchedPosition(pos);
-        problem.Solve();
- 
-        // test by checking the length of the tissue against hardcoded value
-        std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
-        TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0497, 1e-4);
+        CardiacElectroMechanicsProblemDealii<2> implicit_problem(&cell_factory,
+                                                                 10, /* end time */
+                                                                 5, /*mech mesh size*/
+                                                                 100, /* 100*0.01ms mech dt */
+                                                                 0.01,
+                                                                 "TestCardiacElectroMechImplicit");
+        implicit_problem.SetNoElectricsOutput();
+        implicit_problem.Solve();
 
-        OutputFileHandler handler("TestCardiacElectroMechOneElement",false);
-        std::string watched = handler.GetOutputDirectoryFullPath() + "watched.txt";
-        std::string command = "diff " + handler.GetOutputDirectoryFullPath() + "watched.txt heart/test/data/good_watched.txt";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        
-        // check electrics output was written
-        command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        // test by checking the length of the tissue against hardcoded value
+        AbstractElasticityAssembler<2>* assembler = dynamic_cast<AbstractElasticityAssembler<2>*>(implicit_problem.mpCardiacMechAssembler);
+        std::vector<Vector<double> >& deformed_position = assembler->rGetDeformedPosition();
+        TS_ASSERT_DELTA(deformed_position[0](5), 0.998313, 1e-4);
     }
 
-//// Don't delete
 //    void TestCinverseDataStructure() throw(Exception)
 //    {
 //        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
-//        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
-//                                                           0.05, /* end time */
-//                                                           5, /*mech mesh size*/
-//                                                           1, /* 0.01ms mech dt */
-//                                                           0.01,
-//                                                           "TestCardiacElectroMechImplicitCinverse");
+//        CardiacElectroMechanicsProblemDealii<2> implicit_problem(&cell_factory,
+//                                                                 0.05, /* end time */
+//                                                                 5, /*mech mesh size*/
+//                                                                 1, /* 0.01ms mech dt */
+//                                                                 0.01,
+//                                                                 "TestCardiacElectroMechImplicitCinverse");
 //        implicit_problem.SetNoElectricsOutput();
 //        implicit_problem.Solve();
 //
@@ -140,4 +125,4 @@ public:
 //        }
 //    }
 };
-#endif /*TESTCARDIACELECTROMECHANICSPROBLEM2_HPP_*/
+#endif /*TESTCARDIACELECTROMECHANICSPROBLEMDEALII_HPP_*/

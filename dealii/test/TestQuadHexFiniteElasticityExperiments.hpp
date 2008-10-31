@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FiniteElasticityAssembler.cpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
-#include "PolynomialMaterialLaw3d.hpp"
-#include "ExponentialMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw2.hpp"
+#include "PolynomialMaterialLaw3d2.hpp"
+#include "ExponentialMaterialLaw2.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "UblasCustomFunctions.hpp"
 
@@ -237,7 +237,7 @@ private:
 
 public:
     FiniteElasticityWithWatchedInfo(Triangulation<2>* pMesh,
-                                    AbstractIncompressibleMaterialLaw<2>*  pMaterialLaw,
+                                    AbstractIncompressibleMaterialLaw2<2>*  pMaterialLaw,
                                     Vector<double> bodyForce,
                                     double density,
                                     std::string outputDirectory)
@@ -303,7 +303,7 @@ public:
             fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
             fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
     
-            AbstractIncompressibleMaterialLaw<2>* p_material_law = GetMaterialLawForElement(element_iter);
+            AbstractIncompressibleMaterialLaw2<2>* p_material_law = GetMaterialLawForElement(element_iter);
     
             for (unsigned q_point=0; q_point<n_q_points; q_point++)
             {
@@ -403,10 +403,10 @@ private:
 
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
 
-        MooneyRivlinMaterialLaw<2> law1(ModelProblem2::C1);
-        MooneyRivlinMaterialLaw<2> law2(ModelProblem2::C2);
+        MooneyRivlinMaterialLaw2<2> law1(ModelProblem2::C1);
+        MooneyRivlinMaterialLaw2<2> law2(ModelProblem2::C2);
 
-        std::vector<AbstractIncompressibleMaterialLaw<2>*> laws;
+        std::vector<AbstractIncompressibleMaterialLaw2<2>*> laws;
         laws.push_back(&law1);
         laws.push_back(&law2);
 
@@ -510,7 +510,7 @@ private:
                               bool testing = false)
     {
         Vector<double> body_force(2);
-        MooneyRivlinMaterialLaw<2> law(DealiiModelProblem3::c1);
+        MooneyRivlinMaterialLaw2<2> law(DealiiModelProblem3::c1);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -657,7 +657,7 @@ private:
         Vector<double> body_force(2);
         body_force(0) = 0;
         body_force(1) = 0;
-        MooneyRivlinMaterialLaw<2> law(0.02);
+        MooneyRivlinMaterialLaw2<2> law(0.02);
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);

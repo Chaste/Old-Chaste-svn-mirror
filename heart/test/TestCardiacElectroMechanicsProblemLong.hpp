@@ -27,18 +27,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTCARDIACELECTROMECHANICSPROBLEM2LONG_HPP_
-#define TESTCARDIACELECTROMECHANICSPROBLEM2LONG_HPP_
+#ifndef TESTCARDIACELECTROMECHANICSPROBLEMLONG_HPP_
+#define TESTCARDIACELECTROMECHANICSPROBLEMLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
-#include "CardiacElectroMechanicsProblem2.hpp"
+#include "CardiacElectroMechanicsProblem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
-class TestCardiacElectroMechanicsProblem2Long : public CxxTest::TestSuite
+class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
 {
 public:
     void Test2dHardcodedResult() throw(Exception)
@@ -47,12 +47,12 @@ public:
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechanicsProblem2<2> problem(&cell_factory,
-                                                   10, /* end time */
-                                                   5, /*mech mesh size*/
-                                                   100, /* 100*0.01ms mech dt */
-                                                   0.01, /*NHS ode dt */
-                                                   "TestCardiacElectroMechImplicit2");
+        CardiacElectroMechanicsProblem<2> problem(&cell_factory,
+                                                  10, /* end time */
+                                                  5, /*mech mesh size*/
+                                                  100, /* 100*0.01ms mech dt */
+                                                  0.01, /*NHS ode dt */
+                                                  "TestCardiacElectroMechImplicit");
         problem.SetNoElectricsOutput();
         problem.Solve();
 
@@ -61,4 +61,4 @@ public:
         TS_ASSERT_DELTA(r_deformed_position[5](0), 0.998313, 1e-4);
     }
 };
-#endif /*TESTCARDIACELECTROMECHANICSPROBLEM2LONG_HPP_*/
+#endif /*TESTCARDIACELECTROMECHANICSPROBLEMLONG_HPP_*/

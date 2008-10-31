@@ -36,13 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 DynamicFiniteElasticityAssembler<DIM>::DynamicFiniteElasticityAssembler(Triangulation<DIM>* pMesh,
-        AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+        AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw,
         Vector<double> bodyForce,
         double density,
         std::string outputDirectory,
         unsigned degreeOfBasesForPosition,
-        unsigned degreeOfBasesForPressure
-                                                                       )  :
+        unsigned degreeOfBasesForPressure)  
+    :
         FiniteElasticityAssembler<DIM>(pMesh,
                                        pMaterialLaw,
                                        bodyForce,
@@ -137,7 +137,7 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(
     fe_values.get_function_values(mSolutionAtLastTimestep, local_solution_values_last_timestep);
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law = this->GetMaterialLawForElement(elementIter);
+    AbstractIncompressibleMaterialLaw2<DIM>* p_material_law = this->GetMaterialLawForElement(elementIter);
 
 
     for (unsigned q_point=0; q_point<n_q_points; q_point++)

@@ -27,18 +27,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTIMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
-#define TESTIMPLICITCARDIACMECHANICSASSEMBLER2_HPP_
+#ifndef TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_
+#define TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
-#include "ImplicitCardiacMechanicsAssembler2.hpp"
-#include "MooneyRivlinMaterialLaw2.hpp"
+#include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "MooneyRivlinMaterialLaw.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "QuadraturePointsGroup.hpp"
 #include "NonlinearElasticityTools.hpp"
 
-class TestImplicitCardiacMechanicsAssembler2 : public CxxTest::TestSuite
+class TestImplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
 {
 public:
     void TestCompareJacobians() throw(Exception)
@@ -46,12 +46,12 @@ public:
         EXIT_IF_PARALLEL; // this test usually passes in ||, but sometimes fails
 
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
-        MooneyRivlinMaterialLaw2<2> law(0.02);
+        MooneyRivlinMaterialLaw<2> law(0.02);
         
         std::vector<unsigned> fixed_nodes 
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler2<2> assembler(&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"",fixed_nodes,&law);
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0);
 
@@ -112,7 +112,7 @@ public:
         MPI_Barrier(PETSC_COMM_WORLD);
                 
         // coverage - test default material law works ok
-        ImplicitCardiacMechanicsAssembler2<2> another_assembler(&mesh,"",fixed_nodes);
+        ImplicitCardiacMechanicsAssembler<2> another_assembler(&mesh,"",fixed_nodes);
         c_matrix<double,2,2> F = zero_matrix<double>(2,2);
         F(0,0)=F(1,1)=1.1; 
         double pressure = 1;
@@ -129,12 +129,12 @@ public:
         EXIT_IF_PARALLEL; // this test usually passes in ||, but sometimes fails
 
         QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
-        MooneyRivlinMaterialLaw2<2> law(0.02);
+        MooneyRivlinMaterialLaw<2> law(0.02);
         
         std::vector<unsigned> fixed_nodes 
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler2<2> assembler(&mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
 
         TS_ASSERT_EQUALS(assembler.GetTotalNumQuadPoints(), mesh.GetNumElements()*9u);
 
@@ -164,7 +164,7 @@ public:
 
         // note 8 elements is assumed in the fixed nodes
         QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
-        MooneyRivlinMaterialLaw2<2> law(0.02);
+        MooneyRivlinMaterialLaw<2> law(0.02);
 
         // fix all nodes on elements containing the origin (as was done in
         // dealii test)
@@ -175,7 +175,7 @@ public:
         fixed_nodes.push_back(1);
         fixed_nodes.push_back(81);
 
-        ImplicitCardiacMechanicsAssembler2<2> assembler(&mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
         assembler.SetIntracellularCalciumConcentrations(calcium_conc);
@@ -200,14 +200,14 @@ public:
 
         // NOTE: test hardcoded for num_elem = 4
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
-        MooneyRivlinMaterialLaw2<2> law(0.02);
+        MooneyRivlinMaterialLaw<2> law(0.02);
         
         // need to leave the mesh as unfixed as possible
         std::vector<unsigned> fixed_nodes(2);
         fixed_nodes[0] = 0; 
         fixed_nodes[1] = 5; 
 
-        ImplicitCardiacMechanicsAssembler2<2> assembler(&mesh,"ImplicityCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicityCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
         QuadraturePointsGroup<2> quad_points(mesh,*(assembler.GetQuadratureRule()));
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
@@ -279,4 +279,4 @@ public:
     }
 };
 
-#endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER2_HPP_*/
+#endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/

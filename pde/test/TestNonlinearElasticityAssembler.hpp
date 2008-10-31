@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "NonlinearElasticityAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "ExponentialMaterialLaw2.hpp"
-#include "MooneyRivlinMaterialLaw2.hpp"
+#include "ExponentialMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw.hpp"
 
 double MATERIAL_PARAM = 0.05;
 double ALPHA = 0.2;
@@ -90,7 +90,7 @@ public:
     void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
-        ExponentialMaterialLaw2<2> law(2,3);
+        ExponentialMaterialLaw<2> law(2,3);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
         
@@ -214,7 +214,7 @@ public:
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
 
         double c1 = 3.0;
-        MooneyRivlinMaterialLaw2<2> mooney_rivlin_law(c1);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(c1);
 
         std::vector<unsigned> fixed_nodes;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -265,9 +265,9 @@ public:
         // two element quad mesh on the square
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
 
-        MooneyRivlinMaterialLaw2<2> law_1(1.0);
-        MooneyRivlinMaterialLaw2<2> law_2(5.0);
-        std::vector<AbstractIncompressibleMaterialLaw2<2>*> laws;
+        MooneyRivlinMaterialLaw<2> law_1(1.0);
+        MooneyRivlinMaterialLaw<2> law_2(5.0);
+        std::vector<AbstractIncompressibleMaterialLaw<2>*> laws;
         laws.push_back(&law_1);
         laws.push_back(&law_2);
         
@@ -304,7 +304,7 @@ public:
 
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
 
-        MooneyRivlinMaterialLaw2<2> law(0.02);
+        MooneyRivlinMaterialLaw<2> law(0.02);
         c_vector<double,2> body_force;
         body_force(0) = 0.06;
         body_force(1) = 0.0;
@@ -396,7 +396,7 @@ public:
         unsigned num_elem = 5;
         
         QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
-        MooneyRivlinMaterialLaw2<2> law(c1);
+        MooneyRivlinMaterialLaw<2> law(c1);
         
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,2> > locations;
@@ -492,7 +492,7 @@ public:
         unsigned num_elem = 5;
         QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
 
-        MooneyRivlinMaterialLaw2<2> law(MATERIAL_PARAM);
+        MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
         
         std::vector<unsigned> fixed_nodes;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)

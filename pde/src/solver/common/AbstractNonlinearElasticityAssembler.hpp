@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include "PetscTools.hpp"
 #include "LinearSystem.hpp"
-#include "AbstractIncompressibleMaterialLaw2.hpp"
+#include "AbstractIncompressibleMaterialLaw.hpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 
@@ -63,7 +63,7 @@ protected:
      *  1 (same material law for all elements, ie homogeneous), or size
      *  num_elem.
      */
-    std::vector<AbstractIncompressibleMaterialLaw2<DIM>*> mMaterialLaws;
+    std::vector<AbstractIncompressibleMaterialLaw<DIM>*> mMaterialLaws;
     /**
      *  The linear system where we store all residual vectors which are calculated
      *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
@@ -274,7 +274,7 @@ protected:
     
 public:
     AbstractNonlinearElasticityAssembler(unsigned numDofs,
-                                         AbstractIncompressibleMaterialLaw2<DIM>* pMaterialLaw,
+                                         AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                          c_vector<double,DIM> bodyForce,
                                          double density,
                                          std::string outputDirectory,
@@ -300,7 +300,7 @@ public:
 
 
     AbstractNonlinearElasticityAssembler(unsigned numDofs,
-                                         std::vector<AbstractIncompressibleMaterialLaw2<DIM>*>& rMaterialLaws,
+                                         std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
                                          c_vector<double,DIM> bodyForce,
                                          double density,
                                          std::string outputDirectory,

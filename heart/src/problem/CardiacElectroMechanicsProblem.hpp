@@ -32,11 +32,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //     go through and tidy/refactor, perhaps make elements and weights safer
 
 
-#ifndef CARDIACELECTROMECHANICSPROBLEM2_HPP_
-#define CARDIACELECTROMECHANICSPROBLEM2_HPP_
+#ifndef CARDIACELECTROMECHANICSPROBLEM_HPP_
+#define CARDIACELECTROMECHANICSPROBLEM_HPP_
 
 #include "MonodomainProblem.hpp"
-#include "ImplicitCardiacMechanicsAssembler2.hpp"
+#include "ImplicitCardiacMechanicsAssembler.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "TrianglesMeshWriter.hpp"
@@ -101,16 +101,16 @@ struct ElementAndWeights
  *  affect the electrics).
  */
 template<unsigned DIM>
-class CardiacElectroMechanicsProblem2
+class CardiacElectroMechanicsProblem
 {
 
-friend class TestCardiacElectroMechanicsProblem2;
+friend class TestCardiacElectroMechanicsProblem;
 
 protected :
     /*< The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
     /*< The mechanics assembler */
-    ImplicitCardiacMechanicsAssembler2<DIM>* mpCardiacMechAssembler;
+    ImplicitCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;
 
     /*< End time. The start time is assumed to be 0.0 */
     double mEndTime;
@@ -207,7 +207,7 @@ protected :
                 fixed_nodes.push_back(i);
             }
         }
-        mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler2<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,fixed_nodes);
+        mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,fixed_nodes);
     }
 
     /** 
@@ -328,14 +328,14 @@ public :
     /**
      *  Constructor
      */
-    CardiacElectroMechanicsProblem2(AbstractCardiacCellFactory<DIM>* pCellFactory,
-                                    double endTime,
-                                    unsigned numElementsPerDimInMechanicsMesh,
-                                    unsigned numElecTimeStepsPerMechTimestep,
-                                    double nhsOdeTimeStep,
-                                    std::string outputDirectory = "",
-                                    double domainWidth = 1.0,
-                                    unsigned numElectricsElementsEachDir = 96)
+    CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
+                                   double endTime,
+                                   unsigned numElementsPerDimInMechanicsMesh,
+                                   unsigned numElecTimeStepsPerMechTimestep,
+                                   double nhsOdeTimeStep,
+                                   std::string outputDirectory = "",
+                                   double domainWidth = 1.0,
+                                   unsigned numElectricsElementsEachDir = 96)
     {
         // create the monodomain problem. Note the we use this to set up the cells,
         // get an initial condition (voltage) vector, and get an assembler. We won't
@@ -401,7 +401,7 @@ public :
     /**
      *  Delete allocated memory and close the watched location file
      */
-    virtual ~CardiacElectroMechanicsProblem2()
+    virtual ~CardiacElectroMechanicsProblem()
     {
         // NOTE if SetWatchedLocation but not Initialise has been
         // called, mpWatchedLocationFile will be uninitialised and
@@ -739,4 +739,4 @@ public :
 
 
 
-#endif /*CARDIACELECTROMECHANICSPROBLEM2_HPP_*/
+#endif /*CARDIACELECTROMECHANICSPROBLEM_HPP_*/
