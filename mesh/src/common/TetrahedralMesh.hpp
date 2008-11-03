@@ -100,7 +100,7 @@ public:
 
     virtual ~TetrahedralMesh();
 
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
     Node<SPACE_DIM> *GetNode(unsigned index);

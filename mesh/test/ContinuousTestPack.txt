@@ -6,6 +6,7 @@ TestInventorVoronoiWriter.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestNode.hpp
+TestParallelTetrahedralMesh.hpp
 TestPoint.hpp
 TestQuadraticMesh.hpp
 TestRefinableMesh.hpp
