@@ -49,13 +49,13 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
 
-        unsigned num_local_elements = mesh.GetNumLocalElements();
+        unsigned num_local_nodes = mesh.GetNumLocalNodes();
 
-        unsigned elements_reduction;
+        unsigned nodes_reduction;        
 
-        MPI_Allreduce(&num_local_elements, &elements_reduction, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        MPI_Allreduce(&num_local_nodes, &nodes_reduction, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);        
 
-        TS_ASSERT_EQUALS(elements_reduction, mesh.GetNumElements());
+        TS_ASSERT_EQUALS(nodes_reduction, mesh.GetNumNodes());        
         
         // Check some node co-ordinates
 //        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);

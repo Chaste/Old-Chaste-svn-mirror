@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 #include "Element.hpp"
+#include "DistributedVector.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
@@ -42,7 +43,8 @@ private:
     unsigned mTotalNumNodes;
     
     std::map< unsigned, Element<ELEMENT_DIM, SPACE_DIM>* > mElements;
-    //std::vector< Node<SPACE_DIM>* > mNodes; //defined in base class
+    std::map< unsigned, Node<SPACE_DIM>* > mNodes;
+    std::map< unsigned, Node<SPACE_DIM>* > mGhostNodes;
     std::map< unsigned, BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* > mBoundaryElements;
 
     std::map< unsigned,Node<SPACE_DIM> *> mBoundaryNodes;
@@ -55,13 +57,14 @@ public:
     virtual ~ParallelTetrahedralMesh();
 
     void ComputeMeshPartioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-                               std::vector<unsigned> &rElementsPartition);    
+                               std::set<unsigned>& nodesOwned,
+                               std::set<unsigned>& ghostNodesOwned,
+                               std::set<unsigned>& elementsOwned) const;    
 
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
-    // There are no local nodes yet
-    //unsigned GetNumLocalNodes();
+    unsigned GetNumLocalNodes();
 
     unsigned GetNumLocalElements();
 
@@ -90,27 +93,40 @@ ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartioning(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-    std::vector<unsigned> &rElementsPartition)
+    std::set<unsigned>& nodesOwned,
+    std::set<unsigned>& ghostNodesOwned,
+    std::set<unsigned>& elementsOwned) const
 {
     ///\todo: add a timing event for the partitioning
     
-    // Not calling METIS yet, dumb partitioning (for the moment)
-    unsigned num_procs = PetscTools::NumProcs();
-    
-    unsigned offset = 0;
-    for (unsigned proc_index=0; proc_index<num_procs; proc_index++)
+    // Not calling ParMETIS yet, dumb partitioning (for the moment)
+    DistributedVector::SetProblemSize(mTotalNumNodes);
+    for(DistributedVector::Iterator node_number = DistributedVector::Begin(); node_number != DistributedVector::End(); ++node_number)
     {
-        unsigned elements_assigned = mTotalNumElements/num_procs;
-        if (proc_index < mTotalNumElements%num_procs)
-        {
-            elements_assigned++;
-        }
-                
-        for(unsigned element_index=0; element_index<elements_assigned; element_index++)
-        {
-            rElementsPartition[offset++] = proc_index;            
-        }        
+         nodesOwned.insert(node_number.Global);
     }
+    
+    std::vector<unsigned> node_indices;
+    for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+    {
+        node_indices = rMeshReader.GetNextElement();
+        for(unsigned node_index = 0; node_index < node_indices.size(); node_index++)
+        {
+            if (nodesOwned.find(node_indices[node_index]) != nodesOwned.end())
+            {
+                elementsOwned.insert(element_number);
+                
+                std::set<unsigned> temp;
+                std::set_difference(node_indices.begin(), node_indices.end(),
+                                      nodesOwned.begin(), nodesOwned.end(),
+                                      std::inserter(temp, temp.begin()) );                              
+                               
+                ghostNodesOwned.insert(temp.begin(), temp.end()); //need to remove the owned nodes from here
+            }
+        }
+    }
+    
+    rMeshReader.Reset();
 }
 
 
@@ -120,20 +136,33 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     bool cullInternalFaces)
 {
     mTotalNumElements = rMeshReader.GetNumElements();
-    mTotalNumNodes = rMeshReader.GetNumNodes();
-
-    unsigned my_rank = PetscTools::GetMyRank();    
+    mTotalNumNodes = rMeshReader.GetNumNodes();    
     
-    std::vector<unsigned> elements_partition(mTotalNumElements);
+    std::set<unsigned> nodes_owned;
+    std::set<unsigned> ghost_nodes_owned;
+    std::set<unsigned> elements_owned;
     
-    ComputeMeshPartioning(rMeshReader, elements_partition);
-
-    // Load all the nodes (for the moment)
+    ComputeMeshPartioning(rMeshReader, nodes_owned, ghost_nodes_owned, elements_owned);
+    
+    // Load the nodes owned by the processor
     std::vector<double> coords;
     for (unsigned node_index=0; node_index < mTotalNumNodes; node_index++)
     {
         coords = rMeshReader.GetNextNode();
-        this->mNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
+        
+        // The node is owned by the processor
+        if (nodes_owned.find(node_index) != nodes_owned.end())
+        {
+            mNodes[node_index] = new Node<SPACE_DIM>(node_index, coords, false);
+            //continue;
+        }
+
+        // The node is a ghost node in this processor
+        if (ghost_nodes_owned.find(node_index) != ghost_nodes_owned.end())
+        {
+            mGhostNodes[node_index] = new Node<SPACE_DIM>(node_index, coords, false);
+        }
+
     }
 
     // Load the elements owned by the processor
@@ -142,32 +171,38 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     {
         node_indices = rMeshReader.GetNextElement();
 
-        if (elements_partition[element_index] == my_rank)
+        // The element is owned by the processor
+        if (elements_owned.find(element_index) != elements_owned.end())
         {
             std::vector<Node<SPACE_DIM>*> nodes;
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
-                nodes.push_back(this->mNodes[node_indices[j]]);
+                if (nodes_owned.find(node_indices[j]) != nodes_owned.end())
+                {
+                    nodes.push_back(mNodes[node_indices[j]]);
+                }
+                else
+                {
+                    nodes.push_back(mGhostNodes[node_indices[j]]);
+                }                    
             }
-    
-            mElements[element_index] = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);                        
+            mElements[element_index] = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
         }
     }
     
 }
 
 
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes()
-//{
-//    return mNodes.size();
-//}
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes()
+{
+    return mNodes.size();
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalElements()
 {
     return mElements.size();
-    //return mElementsPerProc[PetscTools::GetMyRank()];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
