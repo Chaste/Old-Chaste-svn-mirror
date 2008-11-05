@@ -9,6 +9,7 @@ TestDistanceMapCalculator.hpp
 TestFaberRudyAgainstLimpet.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
+TestHeterogeneousConductivities.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestImplicitCardiacMechanicsAssembler.hpp
 TestIonicModels.hpp
