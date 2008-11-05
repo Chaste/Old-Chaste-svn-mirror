@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscmat.h>
 #include <iostream>
 #include <assert.h>
+#include <cstring> //For strcmp etc. Needed in gcc-4.3
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
 
