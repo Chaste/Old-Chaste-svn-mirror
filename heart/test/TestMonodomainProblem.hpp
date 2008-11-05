@@ -85,7 +85,7 @@ public:
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
-    void TestMonodomainProblem1D()
+    void TestMonodomainProblem1D() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
@@ -121,7 +121,7 @@ public:
         monodomain_problem.GetPde();
     }
 
-    void TestMonodomainProblem1DWithRelativeTolerance()
+    void TestMonodomainProblem1DWithRelativeTolerance() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
@@ -193,7 +193,7 @@ public:
     // edge.
     // Should behave like the 1D case, extrapolated.
     // See also TestMonodomainSlab.hpp (nightly test) for the 3D version.
-    void TestMonodomainProblem2DWithEdgeStimulus( void )
+    void TestMonodomainProblem2DWithEdgeStimulus() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
@@ -274,7 +274,7 @@ public:
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating in the
     // very centre of the mesh.
-    void TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh( void )
+    void TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.3); //ms - needs to be 1.3 ms to pass test
@@ -333,13 +333,52 @@ public:
 
 //        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
+    
+    // Same as TestMonodomainProblem1D
+    void doesnt_pass_yet__TestMonodomainMatrixBasedAssembly() throw(Exception)
+    {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");        
+        HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
+         
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+        
+        monodomain_problem.SetUseMatrixBasedAssembly();
+
+        monodomain_problem.Initialise();
+
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
+        monodomain_problem.Solve();
+
+        // test whether voltages and gating variables are in correct ranges
+        CheckMonoLr91Vars<1>(monodomain_problem);
+
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+
+        // cover get pde
+        monodomain_problem.GetPde();
+    }
 
 
     ///////////////////////////////////////////////////////////////////
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
     ///////////////////////////////////////////////////////////////////
-    void TestMonodomainProblemPrintsOnlyAtRequestedTimes()
+    void TestMonodomainProblemPrintsOnlyAtRequestedTimes() throw(Exception)
     {
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);
         HeartConfig::Instance()->SetSimulationDuration(0.3); //ms
@@ -373,7 +412,7 @@ public:
         
     }
 
-    void TestMonodomainWithMeshInMemoryToMeshalyzer()
+    void TestMonodomainWithMeshInMemoryToMeshalyzer() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(0.1);  //ms
@@ -464,8 +503,6 @@ public:
         // throws because output dir and filename are both ""        
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
     }
-    
-    
 };
 
 #endif //_TESTMONODOMAINPROBLEM_HPP_

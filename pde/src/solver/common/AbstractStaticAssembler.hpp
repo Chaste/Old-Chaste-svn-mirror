@@ -469,6 +469,9 @@ protected:
             iter++;
         }
 
+//// for debugging matrix-based rhs assembly
+//VecView(mpLinearSystem->rGetRhsVector(),PETSC_VIEWER_STDOUT_WORLD);
+
         // add the integrals associated with Neumann boundary conditions to the linear system
         typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
             surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
@@ -486,6 +489,8 @@ protected:
         EventHandler::BeginEvent(NEUMANN_BCS);
         if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions() && assembleVector)
         {
+//// for debugging matrix-based rhs assembly
+//assert(0);            
             typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
                 neumann_iterator = this->mpBoundaryConditions->BeginNeumann();
             c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;

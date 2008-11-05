@@ -109,25 +109,7 @@ protected:
                             bool assembleMatrix=true)
     {
         this->AssembleSystem(true, assembleMatrix, currentSolutionOrGuess, currentTime);
-        PetscInt vec_size;
-        if (currentSolutionOrGuess)
-        {
-            VecGetSize(currentSolutionOrGuess, &vec_size);
-        }
-
-        //this->mpLinearSystem->DisplayRhs();
-
-        if (currentSolutionOrGuess && (unsigned)vec_size == this->mpLinearSystem->GetSize())
-        {
-            return this->mpLinearSystem->Solve(currentSolutionOrGuess);
-        }
-        else
-        {
-            // When solving on a flagged mesh, the linear system is smaller than the current solution,
-            // so we can't use the current solution as an initial guess for the linear solver.
-            return this->mpLinearSystem->Solve();
-        }
-
+        return this->mpLinearSystem->Solve(currentSolutionOrGuess);
     }
 
 

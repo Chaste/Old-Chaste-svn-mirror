@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include "MonodomainDg0Assembler.hpp"
+#include "MonodomainMatrixBasedAssembler.hpp"
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacProblem.hpp"
 
@@ -45,6 +46,7 @@ class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
 {
 protected:
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;
+    bool mUseMatrixBasedAssembly;
 
 public:
     AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde()
@@ -57,12 +59,24 @@ public:
     {
         assert(mpMonodomainPde);
 
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                            mpMonodomainPde,
-                                                            this->mpBoundaryConditionsContainer,
-                                                            2);
-        return p_assembler;
+        if(!mUseMatrixBasedAssembly)
+        {
+            MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
+              = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                                mpMonodomainPde,
+                                                                this->mpBoundaryConditionsContainer,
+                                                                2);
+            return p_assembler;
+        }
+        else
+        {
+            MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>* p_assembler
+              = new MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                                        mpMonodomainPde,
+                                                                        this->mpBoundaryConditionsContainer,
+                                                                        2);
+            return p_assembler;
+        }            
     }
 
 public:
@@ -76,6 +90,7 @@ public:
             : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
               mpMonodomainPde(NULL)
     {
+        mUseMatrixBasedAssembly = false;
     }
 
     /**
@@ -99,16 +114,16 @@ public:
         std::cout << "Solved to time " << time << "\n" << std::flush;
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(this->mVoltage);
-        double v_max = -1e5, v_min = 1e5;
+        double v_max = -DBL_MAX, v_min = DBL_MAX;
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
             double v=voltage_replicated[i];
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             if (isnan(v))
             {
                 EXCEPTION("Not-a-number encountered");
             }
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
             if ( v > v_max)
             {
                 v_max = v;
@@ -118,9 +133,12 @@ public:
                 v_min = v;
             }
         }
-        std::cout << " V = " << 
-            "[" <<v_min << ", " << v_max << "]" << "\n"
-             << std::flush;
+        std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
+    }
+    
+    void SetUseMatrixBasedAssembly()
+    {
+        mUseMatrixBasedAssembly = true;
     }
 };
 

@@ -61,7 +61,8 @@ public:
     static const unsigned E_DIM = ELEMENT_DIM;
     static const unsigned S_DIM = SPACE_DIM;
     static const unsigned P_DIM = 1u;
-private:
+
+protected:
     double mSourceTerm;
 
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;

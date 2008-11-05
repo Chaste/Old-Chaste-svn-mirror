@@ -46,15 +46,34 @@ protected:
 
     Vec    mInitialCondition;
 
-    /**
-     * Whether the matrix has been assembled for the current time step.
-     */
+    /*< Whether the matrix has been assembled for the current time step. */
     bool mMatrixIsAssembled;
 
-    /**
-     * Whether the matrix of the system needs to be assembled at each time step.
-     */
+    /*< Whether the matrix of the system needs to be assembled at each time step. */
     bool mMatrixIsConstant;
+
+    /*< Whether the RHS vector of a linear problem is created by a matrix-vector multiplication */
+    bool mUseMatrixBasedRhsAssembly;
+    Mat* mpMatrixForMatrixBasedRhsAssembly;
+    Vec mVectorForMatrixBasedRhsAssembly;
+    
+    void DoMatrixBasedRhsAssembly(Vec currentSolution)
+    {
+        assert(mpMatrixForMatrixBasedRhsAssembly!=NULL);
+
+        ConstructVectorForMatrixBasedRhsAssembly(currentSolution);
+        
+        // b = Bz
+        MatMult(*mpMatrixForMatrixBasedRhsAssembly, mVectorForMatrixBasedRhsAssembly, (*(this->GetLinearSystem()))->rGetRhsVector()); 
+
+//VecView((*(this->GetLinearSystem()))->rGetRhsVector(),PETSC_VIEWER_STDOUT_WORLD);
+
+/// TODO! extract neumann boundary conditions method from AbsStaticAssembler, define
+/// pure method in AbstractAssembler, and call it here!
+
+        // apply boundary conditions
+        this->ApplyDirichletConditions(currentSolution, false);
+    }
 
 public:
     /**
@@ -67,12 +86,13 @@ public:
         mInitialCondition = NULL;
         mMatrixIsAssembled = false;
         mMatrixIsConstant = false;
+        
+        mUseMatrixBasedRhsAssembly = false;
+        mpMatrixForMatrixBasedRhsAssembly = NULL;
     }
 
     /**
      * Set the times to solve between, and the time step to use.
-     *
-     * \todo change this to take in a TimeStepper instance?
      */
     void SetTimes(double Tstart, double Tend, double dt)
     {
@@ -129,7 +149,6 @@ public:
      */
     Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
-        //std::cout << "Mixin solve" << std::endl;
         assert(mTimesSet);
         assert(mInitialCondition != NULL);
 
@@ -147,7 +166,16 @@ public:
             mDtInverse = 1.0/mDt;
 
             PdeSimulationTime::SetTime(stepper.GetTime());
-            next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
+
+            if(!mUseMatrixBasedRhsAssembly || !mMatrixIsAssembled)
+            {
+                next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
+            }
+            else
+            {
+                DoMatrixBasedRhsAssembly(current_solution);
+                return (*(this->GetLinearSystem()))->Solve(currentSolutionOrGuess);
+            }
 
             mMatrixIsAssembled = true;
 
@@ -162,7 +190,13 @@ public:
         }
         return current_solution;
     }
-
+    
+    virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
+    {
+        #define COVERAGE_IGNORE
+        EXCEPTION("mUseMatrixBasedRhsAssembly=true but ConstructVectorForMatrixBasedRhsAssembly() has not been overloaded");
+        #undef COVERAGE_IGNORE
+    }
 };
 
 #endif //_ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_
