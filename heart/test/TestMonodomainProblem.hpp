@@ -335,7 +335,7 @@ public:
     }
     
     // Same as TestMonodomainProblem1D
-    void doesnt_pass_yet__TestMonodomainMatrixBasedAssembly() throw(Exception)
+    void TestMonodomainMatrixBasedAssembly() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms

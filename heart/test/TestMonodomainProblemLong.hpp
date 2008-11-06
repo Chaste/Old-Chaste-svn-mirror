@@ -91,6 +91,7 @@ public:
     void TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+        HeartConfig::Instance()->SetPrintingTimeStep(1.0); //ms
         HeartConfig::Instance()->SetSimulationDuration(500); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dWithPointStimulusLong");
@@ -99,6 +100,8 @@ public:
         PointStimulus2dCellFactory cell_factory(60); // Central node
 
         MonodomainProblem<2> monodomain_problem(&cell_factory);
+
+//        monodomain_problem.SetUseMatrixBasedAssembly();
 
         monodomain_problem.Initialise();
 
@@ -135,6 +138,8 @@ public:
             TS_ASSERT_DELTA(voltage_replicated[i], -84.5, 1);
         }
 
+        EventHandler::Headings();
+        EventHandler::Report();
     }
 };
 #endif //_TESTMONODOMAINPROBLEMLONG_HPP_

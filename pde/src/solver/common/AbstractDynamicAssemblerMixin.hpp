@@ -57,22 +57,68 @@ protected:
     Mat* mpMatrixForMatrixBasedRhsAssembly;
     Vec mVectorForMatrixBasedRhsAssembly;
     
-    void DoMatrixBasedRhsAssembly(Vec currentSolution)
+    void DoMatrixBasedRhsAssembly(Vec currentSolution, double time)
     {
+// this is in AssembleSysten and being bypassed - is it needed????
+////if (currentSolution != NULL)
+////{
+////    EventHandler::BeginEvent(COMMUNICATION);
+////    this->mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolution);
+////    EventHandler::EndEvent(COMMUNICATION);
+////}
+
+        // as bypassing AssembleSystem, need to make sure we call 
+        // Prepare and Finalize
+        this->PrepareForAssembleSystem(currentSolution, time);
+        
         assert(mpMatrixForMatrixBasedRhsAssembly!=NULL);
+
+        EventHandler::BeginEvent(ASSEMBLE_RHS);
+
+        (*(this->GetLinearSystem()))->ZeroRhsVector();
 
         ConstructVectorForMatrixBasedRhsAssembly(currentSolution);
         
         // b = Bz
         MatMult(*mpMatrixForMatrixBasedRhsAssembly, mVectorForMatrixBasedRhsAssembly, (*(this->GetLinearSystem()))->rGetRhsVector()); 
 
-//VecView((*(this->GetLinearSystem()))->rGetRhsVector(),PETSC_VIEWER_STDOUT_WORLD);
+        //VecView((*(this->GetLinearSystem()))->rGetRhsVector(),PETSC_VIEWER_STDOUT_WORLD);
 
-/// TODO! extract neumann boundary conditions method from AbsStaticAssembler, define
-/// pure method in AbstractAssembler, and call it here!
+/// TODO extract this and the identical code in AbsStaticAssembler::AssembleSystem
+/// to AbstractAssembler?
+        EventHandler::BeginEvent(NEUMANN_BCS);
+        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions())
+        {
+        //// for debugging matrix-based rhs assembly
+        assert(0);            
+
+            typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
+                neumann_iterator = this->mpBoundaryConditions->BeginNeumann();
+            c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
+
+            // Iterate over defined conditions
+            while (neumann_iterator != this->mpBoundaryConditions->EndNeumann())
+            {
+                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = *(neumann_iterator->first);
+                AssembleOnSurfaceElement(surf_element, b_surf_elem);
+
+                const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM;
+                unsigned p_indices[STENCIL_SIZE];
+                surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
+                (*(this->GetLinearSystem()))->AddRhsMultipleValues(p_indices, b_surf_elem);
+                ++neumann_iterator;
+            }
+        }
+        EventHandler::EndEvent(NEUMANN_BCS);
 
         // apply boundary conditions
         this->ApplyDirichletConditions(currentSolution, false);
+
+        // as bypassing AssembleSystem, need to make sure we call 
+        // Prepare and Finalise
+        this->FinaliseAssembleSystem(currentSolution, time);
+
+        EventHandler::EndEvent(ASSEMBLE_RHS);
     }
 
 public:
@@ -173,7 +219,7 @@ public:
             }
             else
             {
-                DoMatrixBasedRhsAssembly(current_solution);
+                DoMatrixBasedRhsAssembly(current_solution, stepper.GetTime());
                 return (*(this->GetLinearSystem()))->Solve(currentSolutionOrGuess);
             }
 

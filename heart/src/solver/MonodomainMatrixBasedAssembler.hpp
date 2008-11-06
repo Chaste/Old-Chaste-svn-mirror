@@ -146,9 +146,6 @@ public:
         mpTemporaryAssembler = new MyTemporaryAssembler<SPACE_DIM>(pMesh);
         this->mpMatrixForMatrixBasedRhsAssembly = mpTemporaryAssembler->GetMatrix();
         this->mUseMatrixBasedRhsAssembly = true;
-        
-        
-        MatView(*(this->mpMatrixForMatrixBasedRhsAssembly),PETSC_VIEWER_STDOUT_WORLD); 
     }
 
     ~MonodomainMatrixBasedAssembler()
