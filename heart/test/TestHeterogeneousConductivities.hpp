@@ -58,9 +58,9 @@ public:
        // HeartConfig::Instance()->SetOdeTimeStep(0.01);
    
    
-        double num_elem_x=8;
-        double num_elem_y=8;
-        double num_elem_z=8;
+        unsigned num_elem_x = 8;
+        unsigned num_elem_y=8;
+        unsigned num_elem_z=8;
         double width=0.1;
         double height=0.1;
         double depth=0.1;
