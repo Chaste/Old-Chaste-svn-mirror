@@ -205,6 +205,7 @@ public:
 
         Vec current_solution = mInitialCondition;
         Vec next_solution;
+
         while ( !stepper.IsTimeAtEnd() )
         {
             /// \todo create a stepper class which can guarantee that dt is constant, so we can pull this outside the loop?
@@ -220,11 +221,10 @@ public:
             else
             {
                 DoMatrixBasedRhsAssembly(current_solution, stepper.GetTime());
-                return (*(this->GetLinearSystem()))->Solve(currentSolutionOrGuess);
+                next_solution = (*(this->GetLinearSystem()))->Solve(currentSolutionOrGuess);
             }
 
             mMatrixIsAssembled = true;
-
             stepper.AdvanceOneTimeStep();
 
             // Avoid memory leaks

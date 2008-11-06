@@ -104,11 +104,11 @@ public:
         double total=mCpuTime[top_event];
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
-            printf("%7.1e ", mCpuTime[event]);
+            printf("%7.2e ", mCpuTime[event]/1000);
             printf("(%3.0f%%)  ", mCpuTime[event]*100.0/total);
             mCpuTime[event]=0.0;
         }
-        std::cout << "(milliseconds) \n";
+        std::cout << "(seconds) \n";
     }
 
     static void Headings()

@@ -330,23 +330,23 @@ public:
         // hardcoded result to check nothing has changed
         // assumes endtime = 1.3
         TS_ASSERT_DELTA(voltage_replicated[0], -34.3481, 1e-3);
-
-//        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     
-    // Same as TestMonodomainProblem1D
+    // Same as TestMonodomainProblem1D, except printing timestep is
+    // not equal to pde_timestep, to check it works in this case
     void TestMonodomainMatrixBasedAssembly() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
-        HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+        HeartConfig::Instance()->SetPrintingTimeStep(1); //ms
+        HeartConfig::Instance()->SetSimulationDuration(2); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");        
-        HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
+        HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dMatrixBasedRhs");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
          
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         
-        monodomain_problem.SetUseMatrixBasedAssembly();
+//        monodomain_problem.SetUseMatrixBasedAssembly();
 
         monodomain_problem.Initialise();
 
@@ -368,9 +368,6 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
-
-        // cover get pde
-        monodomain_problem.GetPde();
     }
 
 

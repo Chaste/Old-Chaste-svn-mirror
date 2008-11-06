@@ -74,7 +74,6 @@ public:
 
         // should not be able to begin that has already begun
         TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EVERYTHING));
-
     }
 };
 
