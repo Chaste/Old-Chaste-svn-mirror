@@ -29,5 +29,5 @@ default:$CHASTE_TEST_OUTPUT/texttest_output
 default:$CHASTE_TEST_OUTPUT/texttest_reports
 
 [run_dependent_text]
-output:(milliseconds)
+output:(seconds)
 results_h5:HDF5

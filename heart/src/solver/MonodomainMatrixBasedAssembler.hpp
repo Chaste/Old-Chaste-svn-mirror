@@ -167,11 +167,19 @@ public:
         
         VecAssemblyBegin(force_term_at_nodes); 
         VecAssemblyEnd(force_term_at_nodes); 
-
-        VecAXPBY(this->mVectorForMatrixBasedRhsAssembly, 1.0,
-                 this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
-                  *this->mDtInverse, 
+        double one=1.0;
+        double scaling=this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
+                  *this->mDtInverse;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        VecAXPBY(&one, &scaling, force_term_at_nodes,
+            this->mVectorForMatrixBasedRhsAssembly);
+#else
+        VecAXPBY(this->mVectorForMatrixBasedRhsAssembly, 
+                 one,
+                 scaling, 
                  force_term_at_nodes); 
+#endif
+       
 
         VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly); 
         VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);

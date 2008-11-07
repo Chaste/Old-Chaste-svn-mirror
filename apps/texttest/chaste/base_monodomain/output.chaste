@@ -14,4 +14,4 @@ You should have received a copy of the Lesser GNU General Public License
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 
          InMesh          AssSys             Ode           Comms          AssRhs          NeuBCs             Ksp          Output           User1           User2           Total  
-0.0e+00 (  0%)  1.0e+04 (  5%)  9.9e+04 ( 49%)  3.0e+01 (  0%)  9.1e+04 ( 44%)  0.0e+00 (  0%)  8.4e+02 (  0%)  1.4e+02 (  0%)  0.0e+00 (  0%)  1.0e+03 (  0%)  2.0e+05 (100%)  (milliseconds) 
+Blah blah (seconds) 
