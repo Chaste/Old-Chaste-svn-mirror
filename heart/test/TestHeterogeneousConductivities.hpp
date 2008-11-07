@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTHETEROGENEOUSCONDUCTIVITIES_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "MonodomainProblem.hpp"
+#include "BidomainProblem.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -75,8 +75,8 @@ public:
         GeneralPlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(num_elem_x, width);
                     
         /* monodomain problem class using (a pointer to) the cell factory */
-        MonodomainProblem<3> monodomain_problem( &cell_factory );
-        monodomain_problem.SetMesh(&mesh);
+        BidomainProblem<3> problem( &cell_factory );
+        problem.SetMesh(&mesh);
         
         /*tissue properties*/  
         std::vector< c_vector<double,3> > cornerA;
@@ -85,10 +85,14 @@ public:
         std::vector< c_vector<double,3> > extraConductivities;
         cornerA.push_back( Create_c_vector(width/2, 0, 0) );
         cornerB.push_back( Create_c_vector(width, height, depth) );
+        
         //within the cuboid
         intraConductivities.push_back( Create_c_vector(0.1, 0.1, 0.1) );
         extraConductivities.push_back( Create_c_vector(7.0, 7.0, 7.0) );     
+        //This test should *fail* if you comment out the following line
+        //(which blocks conductivity on the RHS of the slab).
         HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities); 
+        
         //elsewhere
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.2, 1.2, 1.2));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1.2, 1.2, 1.2));
@@ -102,15 +106,15 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("Slab_small");    
      
         /*output for MEshalyzer*/
-        monodomain_problem.ConvertOutputToMeshalyzerFormat();
+        problem.ConvertOutputToMeshalyzerFormat();
         
         /* Initialise the problem*/
-        monodomain_problem.Initialise();
+        problem.Initialise();
 
         /* Solve the PDE monodomain equaion*/
-        monodomain_problem.Solve();
+        problem.Solve();
         
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(problem.GetVoltage());
         for (unsigned i=0;i<mesh.GetNumNodes();i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];

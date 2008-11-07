@@ -111,6 +111,10 @@ public:
         this->mpLinearSystem = new LinearSystem(pMesh->GetNumNodes());
         this->AssembleSystem(false,true);
     }
+    ~MyTemporaryAssembler()
+    {
+        delete this->mpBoundaryConditions;
+     }
     
     Mat* GetMatrix()
     {
@@ -150,6 +154,7 @@ public:
 
     ~MonodomainMatrixBasedAssembler()
     {
+        delete mpTemporaryAssembler;
     }
     
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
@@ -183,6 +188,7 @@ public:
 
         VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly); 
         VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
+        VecDestroy(force_term_at_nodes);
     }
 };
 
