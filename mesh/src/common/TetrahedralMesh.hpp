@@ -67,10 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM, 
-                                             std::vector<Node<SPACE_DIM> *>,
-                                             std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>,
-                                             std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> >
+class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestTetrahedralMesh; // to give access to private methods (not variables)
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
@@ -85,6 +82,9 @@ private:
 
     std::vector<unsigned> mNodesPerProcessor;
 
+    unsigned SolveNodeMapping(unsigned index);
+    unsigned SolveElementMapping(unsigned index);
+            
 public:
 
     TetrahedralMesh();
@@ -96,11 +96,6 @@ public:
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
-    bool GetNodeIsLocal(unsigned index);
-    bool GetElementIsLocal(unsigned index);    
-
-//    Node<SPACE_DIM> *GetNode(unsigned index);
-
     unsigned GetNumAllNodes() const; // to refine
     unsigned GetNumAllElements(); // to refine
     unsigned GetNumAllBoundaryElements(); // to refine
@@ -108,11 +103,6 @@ public:
 
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
     std::vector<unsigned>& rGetNodesPerProcessor();
-
-//    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index)
-//    {
-//        return (this->mElements[index]);
-//    }
 
     BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index)  // to abstract
     {
@@ -589,20 +579,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned>& TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
 {
     return mNodesPerProcessor;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIsLocal(unsigned index)
-{
-    return (index < this->mNodes.size());    
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIsLocal(unsigned index)
-{
-    return (index < this->mElements.size());
-}
-   
+}   
 
 /**
  * Get a node reference from the mesh.
@@ -1903,6 +1880,20 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
         }
     }
 
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index)
+{
+    assert(index < this->mNodes.size() );
+    return index;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
+{
+    assert(index < this->mElements.size() );
+    return index;
 }
 
 

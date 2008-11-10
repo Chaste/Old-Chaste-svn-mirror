@@ -71,9 +71,8 @@ public:
              it!=mesh.GetElementIteratorEnd(); 
              ++it)
         {
-            p_para_element = it->second;
+            p_para_element = *it;
             element_index = p_para_element->GetIndex();
-            TS_ASSERT_EQUALS(it->first, p_para_element->GetIndex());            
             
             p_sequ_element = mesh.GetElement(element_index);            
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
@@ -88,6 +87,17 @@ public:
             }
         } 
     }
+
+//    void TestAllNodesAssigned()
+//    {
+//        
+//    }
+//    
+//    void TestAllElementsAssigned()
+//    {
+//        
+//    }    
+
             
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

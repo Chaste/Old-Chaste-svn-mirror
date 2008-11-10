@@ -29,25 +29,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTMESH_HPP_
 
 #include "Node.hpp"
+#include "BoundaryElement.hpp"
 #include "Element.hpp"
+#include "AbstractMeshReader.hpp"
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM,
-         class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMesh
 {
-public:
-    typedef typename ELEMENT_CONTAINER::const_iterator ElementIterator;
-    typedef typename BOUNDARY_CONTAINER::const_iterator BoundaryElementIterator;
-    typedef typename NODE_CONTAINER::const_iterator BoundaryNodeIterator;
-
 protected:  // Give access of these variables to subclasses
-    NODE_CONTAINER mNodes;
-    NODE_CONTAINER mBoundaryNodes;
+    std::vector<Node<SPACE_DIM> *> mNodes;
+    std::vector<Node<SPACE_DIM> *> mBoundaryNodes;
 
-    ELEMENT_CONTAINER mElements;
-    BOUNDARY_CONTAINER mBoundaryElements;   
-    
+    std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
+    std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;   
+
 public:
+    typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
+    typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
+    typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
 
     virtual ~AbstractMesh()
     {
@@ -58,11 +57,23 @@ public:
     virtual unsigned GetNumBoundaryElements();
     unsigned GetNumBoundaryNodes();// should this be overloaded and virtual too?
 
-    virtual bool GetNodeIsLocal(unsigned index)=0;
-    virtual bool GetElementIsLocal(unsigned index)=0;    
-    
     Node<SPACE_DIM> *GetNode(unsigned index);    
     Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index);
+    
+    /**
+     * Sets the ownership of each element according to which nodes are owned by the
+     * process.
+     * @param lo is the lowest node number owned by the process
+     * @param hi is one higher than the highest node number owned by the process
+     * ie. this process owns nodes [lo..hi)
+     * and element is "owned" if one or more of its nodes are owned
+     */
+    virtual void SetElementOwnerships(unsigned lo, unsigned hi)=0;
+    
+    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+                                         bool cullInternalFaces=false)=0;
+    
+    
     
     
 /// \todo: move implementations out of class definition    
@@ -115,46 +126,50 @@ public:
     {
         return mBoundaryNodes.end();
     }
-    
+
+private:
+    virtual unsigned SolveNodeMapping(unsigned index)=0;
+    virtual unsigned SolveElementMapping(unsigned index)=0;        
+
 };
 
 /// Returns the number of nodes that are actually in use
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumNodes() const
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return this->mNodes.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumElements() const
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return this->mElements.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumBoundaryNodes()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
 {
     return this->mBoundaryNodes.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumBoundaryElements()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
 {
     return this->mBoundaryElements.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNode(unsigned index)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
 {
-    assert(GetNodeIsLocal(index));
-    return this->mNodes[index];
+    unsigned local_index = SolveNodeMapping(index);
+    return this->mNodes[local_index];
 }
     
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetElement(unsigned index)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index)
 {
-    assert(GetElementIsLocal(index));
-    return this->mElements[index];
+    unsigned local_index = SolveElementMapping(index);
+    return this->mElements[local_index];
 }
 
 
