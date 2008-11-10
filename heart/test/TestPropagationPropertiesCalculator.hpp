@@ -120,7 +120,7 @@ public:
         PropagationPropertiesCalculator ppc_fs(&mono_fs_reader);
         
         TS_ASSERT_DELTA(ppc_fs.CalculateMaximumUpstrokeVelocity(14895U), 174.9, 4.0);
-        TS_ASSERT_DELTA(ppc_fs.CalculateActionPotentialDuration(90, 14895U), 231.1054, 2);
+        TS_ASSERT_DELTA(ppc_fs.CalculateActionPotentialDuration(90, 14895U), 230.25, 1.0);
         
         Hdf5DataReader mono_bw_reader("heart/test/data/MonodomainBackwardToCompareWithFastSlow3D", "res", false);
         //std::vector<double> voltage_fast_slow=mono_fs_reader.GetVariableOverTime("V", mMiddleIndex);
@@ -129,10 +129,8 @@ public:
         PropagationPropertiesCalculator ppc_bw(&mono_bw_reader);
         
         TS_ASSERT_DELTA(ppc_bw.CalculateMaximumUpstrokeVelocity(14895U), 174.9, 4.0);
-        TS_ASSERT_DELTA(ppc_bw.CalculateActionPotentialDuration(90, 14895U), 231.1054, 2);
-        
-        exit(1);
-    }
+        TS_ASSERT_DELTA(ppc_bw.CalculateActionPotentialDuration(90, 14895U), 230.25, 1.0);
+     }
 };
 
 #endif //_TESTPROPAGATIONPROPERTIESCALCULATOR_HPP_
