@@ -97,8 +97,12 @@ void CellProperties::CalculateProperties()
         switch (ap_phase)
         {
             case UNDEFINED:
-                if (v <= mThreshold &&  upstroke_vel > 0)
-                {
+                // First AP: switch on if below threshold and there is a positive gradient
+                // Subsequent APs: switch on if below threshold and there is a gradient of at least 5% of the previously seen activation
+                // This avoids switching to UPSTROKE if there's a kink on the way down
+                if (v <= mThreshold &&  upstroke_vel > 0.05*mMaxUpstrokeVelocity)
+                {   
+                    
                     // Start of AP, so record minimum V
                     mPrevMinPotential = mMinPotential;
                     mMinPotential = prev_v;
