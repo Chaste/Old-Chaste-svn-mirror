@@ -76,9 +76,11 @@ public: // not sure why this is public
         Element<DIM,DIM>* pElement)
 
     {
+#define COVERAGE_IGNORE
         assert(0); //note: temporary assembler - see #787
         c_vector<double,1*(DIM+1)> ret = zero_vector<double>(DIM+1);
         return ret;
+#undef COVERAGE_IGNORE
     }
 
 
@@ -91,9 +93,11 @@ public: // not sure why this is public
         c_vector<double, DIM> &rPhi,
         ChastePoint<DIM> &rX )
     {
+#define COVERAGE_IGNORE
         assert(0); //note: temporary assembler - see #787
         c_vector<double,DIM> ret = zero_vector<double>(DIM);
         return ret;        
+#undef COVERAGE_IGNORE
     }
 
 

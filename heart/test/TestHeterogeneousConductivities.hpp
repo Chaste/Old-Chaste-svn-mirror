@@ -49,6 +49,12 @@ using std::ofstream;
 /* test class*/
 class TestHeterogeneousConductivities : public CxxTest::TestSuite
 {
+
+    static const double width=0.1;
+    static const double height=0.1;
+    static const double depth=0.1;
+
+
 public:
     void TestSimpleSimulation() throw(Exception)
     {
@@ -61,9 +67,6 @@ public:
         unsigned num_elem_x = 8;
         unsigned num_elem_y=8;
         unsigned num_elem_z=8;
-        double width=0.1;
-        double height=0.1;
-        double depth=0.1;
         
         /* Read the mesh*/
         TetrahedralMesh<3,3> mesh;
@@ -88,7 +91,7 @@ public:
         
         //within the cuboid
         intraConductivities.push_back( Create_c_vector(0.1, 0.1, 0.1) );
-        extraConductivities.push_back( Create_c_vector(7.0, 7.0, 7.0) );     
+        extraConductivities.push_back( Create_c_vector(0.0, 0.0, 0.0) );     
         //This test should *fail* if you comment out the following line
         //(which blocks conductivity on the RHS of the slab).
         HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities); 
@@ -97,16 +100,13 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.2, 1.2, 1.2));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1.2, 1.2, 1.2));
         
-       /* set monodomain parameters*/
+       /* set  parameters*/
        // HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
        // HeartConfig::Instance()->SetCapacitance(1.0);
  
          /* Output Directory and prefix (for the hdf5 file), relative to CHASTE_TEST_OUTPUT*/
         HeartConfig::Instance()->SetOutputDirectory("slab_results_het_halfcond");
         HeartConfig::Instance()->SetOutputFilenamePrefix("Slab_small");    
-     
-        /*output for MEshalyzer*/
-        problem.ConvertOutputToMeshalyzerFormat();
         
         /* Initialise the problem*/
         problem.Initialise();
@@ -115,20 +115,24 @@ public:
         problem.Solve();
         
         ReplicatableVector voltage_replicated(problem.GetVoltage());
+        TS_ASSERT_EQUALS(mesh.GetNumNodes() * 2, voltage_replicated.size()); 
         for (unsigned i=0;i<mesh.GetNumNodes();i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
-            if (x<=width/2)
+            if (x<width/2)
             {
-                TS_ASSERT_LESS_THAN(-71.0,voltage_replicated[i]);
+                 //Left side is stimulated
+                 TS_ASSERT_LESS_THAN(-71.0,voltage_replicated[2 * i]);
             }
-            else
+            else if (x>width/2)
             {
-                TS_ASSERT_LESS_THAN(voltage_replicated[i],-82.0);
+                //Right side is blocked
+                TS_ASSERT_LESS_THAN(voltage_replicated[2 * i],-82.0);
             }
         }
-        
-        
+    }
+    void TestExceptions()
+    {
         //Tests of lower-level functionality
         ChastePoint<3> corner1(width/2, 0, 0);
         ChastePoint<3> corner2(width, height, depth);
