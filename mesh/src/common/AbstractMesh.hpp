@@ -53,8 +53,8 @@ public:
     {
     }
 
-    virtual unsigned GetNumNodes();
-    virtual unsigned GetNumElements();
+    virtual unsigned GetNumNodes() const;
+    virtual unsigned GetNumElements() const;
     virtual unsigned GetNumBoundaryElements();
     unsigned GetNumBoundaryNodes();// should this be overloaded and virtual too?
 
@@ -120,13 +120,13 @@ public:
 
 /// Returns the number of nodes that are actually in use
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumNodes()
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumNodes() const
 {
     return this->mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class NODE_CONTAINER, class ELEMENT_CONTAINER, class BOUNDARY_CONTAINER>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumElements()
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM, NODE_CONTAINER, ELEMENT_CONTAINER, BOUNDARY_CONTAINER>::GetNumElements() const
 {
     return this->mElements.size();
 }

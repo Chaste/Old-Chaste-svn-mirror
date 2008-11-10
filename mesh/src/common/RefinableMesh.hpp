@@ -73,8 +73,8 @@ public:
 
     void Clear();
 
-    unsigned GetNumNodes();
-    unsigned GetNumElements();
+    unsigned GetNumNodes() const;
+    unsigned GetNumElements() const;
     unsigned GetNumBoundaryElements();
     ///should unsigned GetNumBoundaryNodes() be overloaded too??
     
@@ -213,7 +213,7 @@ unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
+unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return this->mElements.size() - mDeletedElementIndices.size();
 }
@@ -221,7 +221,7 @@ unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 
 /// Returns the number of nodes that are actually in use
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
+unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return this->mNodes.size() - mDeletedNodeIndices.size();
 }

@@ -78,7 +78,7 @@ public:
             p_sequ_element = mesh.GetElement(element_index);            
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
             
-            for (unsigned node_local_index; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
+            for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
             {
                 TS_ASSERT_EQUALS(p_para_element->GetNodeGlobalIndex(node_local_index), 
                                  p_sequ_element->GetNodeGlobalIndex(node_local_index));                                 
