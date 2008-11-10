@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "PetscSetupAndFinalize.hpp"
 #include "ParallelTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 
 class TestParallelTetrahedralMesh : public CxxTest::TestSuite
 {
@@ -56,20 +58,36 @@ public:
         MPI_Allreduce(&num_local_nodes, &nodes_reduction, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);        
 
         TS_ASSERT_EQUALS(nodes_reduction, mesh.GetNumNodes());        
-        
-        // Check some node co-ordinates
-//        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
-//        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
-//        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
-//        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
-//
-//        // Check first element has the right nodes
-//        TetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-//        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309U);
-//        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
-//        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
-//        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
-    }    
     
+        mesh_reader.Reset();        
+        TetrahedralMesh<2,2> seq_mesh;
+        seq_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        Element<2,2>* p_para_element;
+        Element<2,2>* p_sequ_element;
+        unsigned element_index;
+        
+        for (ParallelTetrahedralMesh<2,2>::ElementIterator it=mesh.GetElementIteratorBegin(); 
+             it!=mesh.GetElementIteratorEnd(); 
+             ++it)
+        {
+            p_para_element = it->second;
+            element_index = p_para_element->GetIndex();
+            TS_ASSERT_EQUALS(it->first, p_para_element->GetIndex());            
+            
+            p_sequ_element = mesh.GetElement(element_index);            
+            TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
+            
+            for (unsigned node_local_index; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
+            {
+                TS_ASSERT_EQUALS(p_para_element->GetNodeGlobalIndex(node_local_index), 
+                                 p_sequ_element->GetNodeGlobalIndex(node_local_index));                                 
+
+                TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[0], 
+                                 p_sequ_element->GetNode(node_local_index)->GetPoint()[0]);                                 
+            }
+        } 
+    }
+            
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

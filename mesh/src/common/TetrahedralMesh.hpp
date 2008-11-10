@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "triangle.h"
 #undef REAL
 
+#include "AbstractMesh.hpp"
 #include "AbstractMeshReader.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "Element.hpp"
@@ -66,23 +67,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class TetrahedralMesh
+class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM, 
+                                             std::vector<Node<SPACE_DIM> *>,
+                                             std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>,
+                                             std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> >
 {
     friend class TestTetrahedralMesh; // to give access to private methods (not variables)
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
-public:
-    typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
-    typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
-    typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
-
-protected:  // Give access of these variables to subclasses
-    std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
-    std::vector<Node<SPACE_DIM> *> mNodes;
-    std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
-
-    std::vector<unsigned> mNodesPerProcessor;
-
-    std::vector< Node<SPACE_DIM> *> mBoundaryNodes;
 
 private:
     friend class boost::serialization::access;
@@ -92,6 +83,8 @@ private:
        // Don't do anything - this is just so subclasses can archive member variables.
     }        
 
+    std::vector<unsigned> mNodesPerProcessor;
+
 public:
 
     TetrahedralMesh();
@@ -100,79 +93,30 @@ public:
 
     virtual ~TetrahedralMesh();
 
-    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
-    Node<SPACE_DIM> *GetNode(unsigned index);
+    bool GetNodeIsLocal(unsigned index);
+    bool GetElementIsLocal(unsigned index);    
 
-    virtual unsigned GetNumNodes();
-    virtual unsigned GetNumElements();
-    virtual unsigned GetNumBoundaryElements();
-    unsigned GetNumAllNodes() const;
-    unsigned GetNumAllElements();
-    unsigned GetNumAllBoundaryElements();
-    unsigned GetNumBoundaryNodes();// should this be overloaded and virtual too?
+//    Node<SPACE_DIM> *GetNode(unsigned index);
+
+    unsigned GetNumAllNodes() const; // to refine
+    unsigned GetNumAllElements(); // to refine
+    unsigned GetNumAllBoundaryElements(); // to refine
+
 
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
     std::vector<unsigned>& rGetNodesPerProcessor();
 
-    /**
-     * Return a pointer to the first element in the mesh.
-     */
-    ElementIterator GetElementIteratorBegin() const
-    {
-        return mElements.begin();
-    }
-    /**
-     * Return a pointer to *one past* the last element in the mesh
-     * (for consistency with STL iterators).
-     */
-    ElementIterator GetElementIteratorEnd() const
-    {
-        return mElements.end();
-    }
+//    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index)
+//    {
+//        return (this->mElements[index]);
+//    }
 
-    /**
-     * Return a pointer to the first boundary element in the mesh.
-     */
-
-    BoundaryElementIterator GetBoundaryElementIteratorBegin() const
+    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index)  // to abstract
     {
-        return mBoundaryElements.begin();
-    }
-    /**
-     * Return a pointer to *one past* the last boundary element in the mesh
-     * (for consistency with STL iterators).
-     */
-    BoundaryElementIterator GetBoundaryElementIteratorEnd() const
-    {
-        return mBoundaryElements.end();
-    }
-
-    /**
-     * Return a pointer to the first boundary node in the mesh.
-     */
-    BoundaryNodeIterator GetBoundaryNodeIteratorBegin() const
-    {
-        return mBoundaryNodes.begin();
-    }
-    /**
-     * Return a pointer to *one past* the last boundary node in the mesh
-     * (for consistency with STL iterators).
-     */
-    BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const
-    {
-        return mBoundaryNodes.end();
-    }
-
-    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index)
-    {
-        return (mElements[index]);
-    }
-
-    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index)
-    {
-        return (mBoundaryElements[index]);
+        return (this->mBoundaryElements[index]);
     }
 
     /**
@@ -418,7 +362,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::TetrahedralMesh(unsigned numElements)
 {
     Clear();
-    mElements.reserve(numElements);
+    this->mElements.reserve(numElements);
 }
 
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -452,7 +396,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
     // Reserve memory for nodes, so we don't have problems with pointers stored in
     // elements becoming invalid.
-    mNodes.reserve(num_nodes);
+    this->mNodes.reserve(num_nodes);
 
     rMeshReader.Reset();
 
@@ -464,7 +408,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     for (unsigned i=0; i < num_nodes; i++)
     {
         coords = rMeshReader.GetNextNode();
-        mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
+        this->mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
     }
 
     //unsigned new_node_index = mNumCornerNodes;
@@ -472,7 +416,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     rMeshReader.Reset();
     // Add elements
     //new_node_index = mNumCornerNodes;
-    mElements.reserve(rMeshReader.GetNumElements());
+    this->mElements.reserve(rMeshReader.GetNumElements());
 
     for (unsigned element_index=0; element_index < (unsigned) rMeshReader.GetNumElements(); element_index++)
     {
@@ -486,11 +430,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         // unsigned nodes_size = node_indices.size();
         for (unsigned j=0; j<ELEMENT_DIM+1; j++) // num vertices=ELEMENT_DIM+1, may not be equal to nodes_size.
         {
-            assert(node_indices[j] <  mNodes.size());
-            nodes.push_back(mNodes[node_indices[j]]);
+            assert(node_indices[j] <  this->mNodes.size());
+            nodes.push_back(this->mNodes[node_indices[j]]);
         }
 
-        mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes));
+        this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes));
     }
 
 
@@ -507,9 +451,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         std::vector<Node<SPACE_DIM>*> nodes;
         for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
         {
-            assert(node_indices[node_index] <  mNodes.size());
+            assert(node_indices[node_index] <  this->mNodes.size());
             // Add Node pointer to list for creating an element
-            nodes.push_back(mNodes[node_indices[node_index]]);
+            nodes.push_back(this->mNodes[node_indices[node_index]]);
 
             if(cullInternalFaces)
             {
@@ -565,7 +509,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                 if (!nodes[j]->IsBoundaryNode())
                 {
                     nodes[j]->SetAsBoundaryNode();
-                    mBoundaryNodes.push_back(nodes[j]);
+                    this->mBoundaryNodes.push_back(nodes[j]);
                 }
                 //Register the index that this bounday element will have
                 //with the node
@@ -573,7 +517,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
 
             // The added elements will be deleted in our destructor
-            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
             actual_face_index++;
         }
     }
@@ -583,19 +527,19 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~TetrahedralMesh()
 {
     // Iterate over nodes and free the memory
-    for (unsigned i=0; i<mNodes.size(); i++)
+    for (unsigned i=0; i<this->mNodes.size(); i++)
     {
-        delete mNodes[i];
+        delete this->mNodes[i];
     }
     // Iterate over elements and free the memory
-    for (unsigned i=0; i<mElements.size(); i++)
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        delete mElements[i];
+        delete this->mElements[i];
     }
     // Iterate over boundary elements and free the memory
-    for (unsigned i=0; i<mBoundaryElements.size(); i++)
+    for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
     {
-        delete mBoundaryElements[i];
+        delete this->mBoundaryElements[i];
     }
 
 }
@@ -631,11 +575,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
         sum += mNodesPerProcessor[i];
     }
 
-    if(sum != GetNumNodes())
+    if(sum != this->GetNumNodes())
     {
         std::stringstream string_stream;
         string_stream << "Sum of nodes per processor, " << sum
-                     << ", not equal to number of nodes in mesh, " << GetNumNodes();
+                     << ", not equal to number of nodes in mesh, " << this->GetNumNodes();
         EXCEPTION(string_stream.str());
     }
 }
@@ -647,76 +591,82 @@ std::vector<unsigned>& TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProc
     return mNodesPerProcessor;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIsLocal(unsigned index)
+{
+    return (index < this->mNodes.size());    
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIsLocal(unsigned index)
+{
+    return (index < this->mElements.size());
+}
+   
+
 /**
  * Get a node reference from the mesh.
  *
  * Note that this may become invalid if nodes are subsequently added to the mesh.
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM>* TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
-{
-    assert(index < mNodes.size());
-    return (mNodes[index]);
-}
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//Node<SPACE_DIM>* TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
+//{
+//    assert(index < this->mNodes.size());
+//    return (this->mNodes[index]);
+//}
 
 /// Returns the number of nodes that are actually in use
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
-{
-    return mNodes.size();
-}
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
+//{
+//    return this->mNodes.size();
+//}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
 {
-    return mNodes.size();
+    return this->mNodes.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
-{
-    return mElements.size();
-}
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
+//{
+//    return this->mElements.size();
+//}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 {
-    return mElements.size();
+    return this->mElements.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
-{
-    return mBoundaryNodes.size();
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
-{
-    return mBoundaryElements.size();
-}
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
+//{
+//    return this->mBoundaryNodes.size();
+//}
+//
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
+//{
+//    return this->mBoundaryElements.size();
+//}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
 {
-    return mBoundaryElements.size();
+    return this->mBoundaryElements.size();
 }
-
-
-
-
-
-
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateVolume()
 {
     double mesh_volume = 0.0;
 
-    ElementIterator it = GetElementIteratorBegin();
+    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();
 
-    while (it != GetElementIteratorEnd())
+    while (it != this->GetElementIteratorEnd())
     {
         mesh_volume += (*it)->GetVolume();
         it++;
@@ -738,9 +688,9 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
     }
 
     double mesh_surface = 0.0;
-    BoundaryElementIterator it = GetBoundaryElementIteratorBegin();
+    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator it = this->GetBoundaryElementIteratorBegin();
 
-    while (it != GetBoundaryElementIteratorEnd())
+    while (it != this->GetBoundaryElementIteratorEnd())
     {
         mesh_surface += (*it)->GetJacobianDeterminant();
         it++;
@@ -772,7 +722,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
 
     for (unsigned i=0; i<num_nodes; i++)
     {
-        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+        c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
         if (SPACE_DIM>=3)
         {
             r_location[2] *= zScale;
@@ -826,7 +776,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_D
 
     for (unsigned i=0; i<num_nodes; i++)
     {
-        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+        c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
         r_location += transVec;
     }
 
@@ -848,7 +798,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
     unsigned num_nodes=GetNumAllNodes();
     for (unsigned i=0; i<num_nodes; i++)
     {
-        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+        c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
         r_location = prod(rotation_matrix, r_location);
     }
 
@@ -959,19 +909,19 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
     RandomNumberGenerator *p_rng=RandomNumberGenerator::Instance();
 
     //Working from the back, each node is swapped with a random node that precedes it in the array
-    for (unsigned index=mNodes.size()-1; index>0; index--)
+    for (unsigned index=this->mNodes.size()-1; index>0; index--)
     {
         unsigned  other=p_rng->randMod(index+1); //includes the possibility of rolling "index"
         //Swap index and other
-        Node<SPACE_DIM> *temp=mNodes[index];
-        mNodes[index]=mNodes[other];
-        mNodes[other]=temp;
+        Node<SPACE_DIM> *temp=this->mNodes[index];
+        this->mNodes[index]=this->mNodes[other];
+        this->mNodes[other]=temp;
     }
 
     //Update indices
-    for (unsigned index=0; index<mNodes.size(); index++)
+    for (unsigned index=0; index<this->mNodes.size(); index++)
     {
-        mNodes[index]->SetIndex(index);
+        this->mNodes[index]->SetIndex(index);
     }
 }
 
@@ -979,24 +929,24 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>& perm)
 {
     //Let's not do this if there are any deleted nodes
-    assert( GetNumAllNodes() == GetNumNodes());
+    assert( GetNumAllNodes() == this->GetNumNodes());
 
-    assert(perm.size() == mNodes.size());
+    assert(perm.size() == this->mNodes.size());
 
     //Copy the node pointers
     std::vector <Node <SPACE_DIM> *> copy_m_nodes;
-    copy_m_nodes.assign(mNodes.begin(), mNodes.end());
+    copy_m_nodes.assign(this->mNodes.begin(), this->mNodes.end());
 
-    for (unsigned i=0;i<mNodes.size();i++)
+    for (unsigned i=0;i<this->mNodes.size();i++)
     {
-        assert(perm[i] < mNodes.size());
-        mNodes[ perm[i] ] = copy_m_nodes[i];
+        assert(perm[i] < this->mNodes.size());
+        this->mNodes[ perm[i] ] = copy_m_nodes[i];
     }
 
     //Update indices
-    for (unsigned index=0; index<mNodes.size(); index++)
+    for (unsigned index=0; index<this->mNodes.size(); index++)
     {
-        mNodes[index]->SetIndex(index);
+        this->mNodes[index]->SetIndex(index);
     }
 }
 
@@ -1004,8 +954,8 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsigned numProcs)
 {
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
-    assert( GetNumAllElements() == GetNumElements());
-    assert( GetNumAllNodes() == GetNumNodes());
+    assert( GetNumAllElements() == this->GetNumElements());
+    assert( GetNumAllNodes() == this->GetNumNodes());
 
     // Open a file for the elements
     OutputFileHandler handler("");
@@ -1021,7 +971,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     {
         out_stream metis_file=handler.OpenOutputFile(basename);
 
-        (*metis_file)<<GetNumElements()<<"\t";
+        (*metis_file)<<this->GetNumElements()<<"\t";
         if (ELEMENT_DIM==2)
         {
             (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
@@ -1031,12 +981,12 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
             (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
         }
 
-        for (unsigned i=0; i<(unsigned)GetNumElements(); i++)
+        for (unsigned i=0; i<this->GetNumElements(); i++)
         {
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
                 //Note the +1 since Metis wants meshes indexed from 1
-                (*metis_file)<<mElements[i]->GetNode(j)->GetIndex() + 1<<"\t";
+                (*metis_file)<<this->mElements[i]->GetNode(j)->GetIndex() + 1<<"\t";
             }
             (*metis_file)<<"\n";
         }
@@ -1091,7 +1041,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     /*
      *  Read partition file back into a vector.
      */
-    std::vector<unsigned> partition(GetNumNodes());
+    std::vector<unsigned> partition(this->GetNumNodes());
     std::vector<unsigned> offset(numProcs,0u);
 
     std::ifstream partition_stream;
@@ -1101,7 +1051,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     partition_stream.open(full_path.c_str());
     assert(partition_stream.is_open());
 
-    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         unsigned part_read;
 
@@ -1118,10 +1068,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     /*
      *  Create the permutation vector based on Metis output
      */
-    std::vector<unsigned> permutation(GetNumNodes(), UINT_MAX);
+    std::vector<unsigned> permutation(this->GetNumNodes(), UINT_MAX);
     std::vector<unsigned> count(numProcs,0u);
 
-    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         unsigned part = partition[node_index];
         // Permutation defined like: new index for node node_index is "offset[part] + count[part]"
@@ -1145,23 +1095,23 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width
     for (unsigned node_index=0; node_index<=width; node_index++)
     {
         Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, node_index==0 || node_index==width, node_index);
-        mNodes.push_back(p_node); // create node
+        this->mNodes.push_back(p_node); // create node
         if (node_index==0) // create left boundary node and boundary element
         {
-            mBoundaryNodes.push_back(p_node);
-            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(0, p_node) );
+            this->mBoundaryNodes.push_back(p_node);
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(0, p_node) );
         }
         if (node_index==width) // create right boundary node and boundary element
         {
-            mBoundaryNodes.push_back(p_node);
-            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
+            this->mBoundaryNodes.push_back(p_node);
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
         }
         if (node_index>0) // create element
         {
             std::vector<Node<SPACE_DIM>*> nodes;
-            nodes.push_back(mNodes[node_index-1]);
-            nodes.push_back(mNodes[node_index]);
-            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(node_index-1, nodes) );
+            nodes.push_back(this->mNodes[node_index-1]);
+            nodes.push_back(this->mNodes[node_index]);
+            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(node_index-1, nodes) );
         }
     }
 }
@@ -1184,10 +1134,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
                 is_boundary=true;
             }
             Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j);
-            mNodes.push_back(p_node);
+            this->mNodes.push_back(p_node);
             if(is_boundary)
             {
-                mBoundaryNodes.push_back(p_node);
+                this->mBoundaryNodes.push_back(p_node);
             }
         }
     }
@@ -1198,33 +1148,33 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
     for (unsigned i=0;i<width;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(mNodes[i]);
-        nodes.push_back(mNodes[i+1]);
-        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+        nodes.push_back(this->mNodes[i]);
+        nodes.push_back(this->mNodes[i+1]);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Right
     for (unsigned i=1;i<height+1;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(mNodes[(width+1)*i-1]);
-        nodes.push_back(mNodes[(width+1)*(i+1)-1]);
-        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+        nodes.push_back(this->mNodes[(width+1)*i-1]);
+        nodes.push_back(this->mNodes[(width+1)*(i+1)-1]);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Bottom
     for (unsigned i=0;i<width;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(mNodes[height*(width+1)+i+1]);
-        nodes.push_back(mNodes[height*(width+1)+i]);
-        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+        nodes.push_back(this->mNodes[height*(width+1)+i+1]);
+        nodes.push_back(this->mNodes[height*(width+1)+i]);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Left
     for (unsigned i=0;i<height;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(mNodes[(width+1)*(i+1)]);
-        nodes.push_back(mNodes[(width+1)*(i)]);
-        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+        nodes.push_back(this->mNodes[(width+1)*(i+1)]);
+        nodes.push_back(this->mNodes[(width+1)*(i)]);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
 
     //Construct the elements
@@ -1235,29 +1185,29 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         {
             unsigned parity=(i+j)%2;
             std::vector<Node<SPACE_DIM>*> upper_nodes;
-            upper_nodes.push_back(mNodes[j*(width+1)+i]);
-            upper_nodes.push_back(mNodes[j*(width+1)+i+1]);
+            upper_nodes.push_back(this->mNodes[j*(width+1)+i]);
+            upper_nodes.push_back(this->mNodes[j*(width+1)+i+1]);
             if (stagger==false  || parity == 0)
             {
-                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
+                upper_nodes.push_back(this->mNodes[(j+1)*(width+1)+i+1]);
             }
             else
             {
-                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
+                upper_nodes.push_back(this->mNodes[(j+1)*(width+1)+i]);
             }
-            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
+            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
             std::vector<Node<SPACE_DIM>*> lower_nodes;
-            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
-            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
+            lower_nodes.push_back(this->mNodes[(j+1)*(width+1)+i+1]);
+            lower_nodes.push_back(this->mNodes[(j+1)*(width+1)+i]);
             if (stagger==false  ||parity == 0)
             {
-                lower_nodes.push_back(mNodes[j*(width+1)+i]);
+                lower_nodes.push_back(this->mNodes[j*(width+1)+i]);
             }
             else
             {
-                lower_nodes.push_back(mNodes[j*(width+1)+i+1]);
+                lower_nodes.push_back(this->mNodes[j*(width+1)+i+1]);
             }
-            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
+            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
         }
     }
 
@@ -1268,9 +1218,9 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
 {
     for(std::set<unsigned>::iterator iter=testElements.begin(); iter!=testElements.end(); iter++)
     {
-        assert(*iter<GetNumElements());
+        assert(*iter<this->GetNumElements());
         ///\todo What if the element is deleted?
-        if (mElements[*iter]->IncludesPoint(testPoint, strict))
+        if (this->mElements[*iter]->IncludesPoint(testPoint, strict))
         {
             return *iter;
         }
@@ -1278,10 +1228,10 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
 
     ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
     ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
-    for (unsigned i=0; i<mElements.size(); i++)
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
         ///\todo What if the element is deleted?
-        if (mElements[i]->IncludesPoint(testPoint, strict))
+        if (this->mElements[i]->IncludesPoint(testPoint, strict))
         {
             return i;
         }
@@ -1299,10 +1249,10 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChasteP
 
     double max_min_weight=-INFINITY;
     unsigned closest_index=0;
-    for (unsigned i=0; i < mElements.size();i++)
+    for (unsigned i=0; i < this->mElements.size();i++)
     {
         ///\todo What if the element is deleted?
-        c_vector<double, ELEMENT_DIM+1> weight=mElements[i]->CalculateInterpolationWeights(testPoint);
+        c_vector<double, ELEMENT_DIM+1> weight=this->mElements[i]->CalculateInterpolationWeights(testPoint);
         double neg_weight_sum=0.0;
         for (unsigned j=0; j<=ELEMENT_DIM; j++)
         {
@@ -1325,10 +1275,10 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint)
 {
     std::vector<unsigned> element_indices;
-    for (unsigned i=0; i < mElements.size();i++)
+    for (unsigned i=0; i < this->mElements.size();i++)
     {
         ///\todo What if the element is deleted?
-        if (mElements[i]->IncludesPoint(testPoint))
+        if (this->mElements[i]->IncludesPoint(testPoint))
         {
             element_indices.push_back(i);
         }
@@ -1340,9 +1290,9 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
     assert(hi>=lo);
-    for (unsigned element_index=0; element_index<mElements.size(); element_index++)
+    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
     {
-        Element<ELEMENT_DIM, SPACE_DIM>* p_element=mElements[element_index];
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
         p_element->SetOwnership(false);
         for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
         {
@@ -1382,10 +1332,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
                 Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j, k);
 
-                mNodes.push_back(p_node);
+                this->mNodes.push_back(p_node);
                 if(is_boundary)
                 {
-                    mBoundaryNodes.push_back(p_node);
+                    this->mBoundaryNodes.push_back(p_node);
                 }
             }
         }
@@ -1449,22 +1399,22 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                                 {
                                     if (k%2==0)
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[0][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
                                     }
                                     else
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[3][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[3][m][n]]]);
                                     }
                                 }
                                 else
                                 {
                                     if (k%2==0)
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[2][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[2][m][n]]]);
                                     }
                                     else
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[1][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[1][m][n]]]);
                                     }
                                 }
                             }
@@ -1474,22 +1424,22 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                                {
                                     if (k%2==0)
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[3][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[3][m][n]]]);
                                     }
                                     else
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[1][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[1][m][n]]]);
                                     }
                                }
                                else
                                {
                                     if (k%2==0)
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[2][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[2][m][n]]]);
                                     }
                                     else
                                     {
-                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[0][m][n]]]);
+                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
                                     }
                                 }
                             }
@@ -1497,11 +1447,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
                         else
                         {
-                            tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[0][m][n]]]);
+                            tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
                         }
                     }
 
-                    mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
+                    this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
                 }
 
                 //Are we at a boundary?
@@ -1509,80 +1459,80 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                 if (i == 0) //low face at x==0
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[2]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[6]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[6]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[4]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (i == width-1) //high face at x=width
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[1]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[5]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[7]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[1]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[7]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[3]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (j == 0) //low face at y==0
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[5]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[1]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[4]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[5]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (j == height-1) //high face at y=height
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[2]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[3]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[7]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[2]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[7]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[6]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (k == 0) //low face at z==0
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[3]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[2]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[1]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[3]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (k == depth-1) //high face at z=depth
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[4]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[7]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[5]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
-                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
-                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[4]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[6]]);
+                    triangle_nodes.push_back(this->mNodes[global_node_indices[7]]);
+                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
             }//i
         }//j
@@ -1595,23 +1545,23 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
     // three loops, just like the destructor. note we don't delete boundary nodes.
-    for (unsigned i=0; i<mBoundaryElements.size(); i++)
+    for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
     {
-        delete mBoundaryElements[i];
+        delete this->mBoundaryElements[i];
     }
-    for (unsigned i=0; i<mElements.size(); i++)
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        delete mElements[i];
+        delete this->mElements[i];
     }
-    for (unsigned i=0; i<mNodes.size(); i++)
+    for (unsigned i=0; i<this->mNodes.size(); i++)
     {
-        delete mNodes[i];
+        delete this->mNodes[i];
     }
 
-    mNodes.clear();
-    mElements.clear();
-    mBoundaryElements.clear();
-    mBoundaryNodes.clear();
+    this->mNodes.clear();
+    this->mElements.clear();
+    this->mBoundaryElements.clear();
+    this->mBoundaryNodes.clear();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1625,8 +1575,8 @@ std::set<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundaryOfF
     std::map<FaceNodes,bool> face_on_boundary;
 
     // loop over all elements
-    ElementIterator iter = GetElementIteratorBegin();
-    while (iter != GetElementIteratorEnd())
+    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+    while (iter != this->GetElementIteratorEnd())
     {
         if((*iter)->IsFlagged())
         {
@@ -1684,7 +1634,7 @@ std::set<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundaryOfF
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
 {
-    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(mNodes[indexA]->rGetLocation(), mNodes[indexB]->rGetLocation());
+    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(this->mNodes[indexA]->rGetLocation(), this->mNodes[indexB]->rGetLocation());
     return norm_2(vector);
 }
 
@@ -1703,8 +1653,8 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(unsigned in
     assert(SPACE_DIM == 2);
     assert(SPACE_DIM == ELEMENT_DIM);
 
-    double x_diff = mNodes[indexB]->rGetLocation()[0] - mNodes[indexA]->rGetLocation()[0];
-    double y_diff = mNodes[indexB]->rGetLocation()[1] - mNodes[indexA]->rGetLocation()[1];
+    double x_diff = this->mNodes[indexB]->rGetLocation()[0] - this->mNodes[indexA]->rGetLocation()[0];
+    double y_diff = this->mNodes[indexB]->rGetLocation()[1] - this->mNodes[indexA]->rGetLocation()[1];
 
     if (x_diff==0)
     {
@@ -1745,9 +1695,9 @@ c_vector<double,2> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(con
     assert(GetNumAllNodes() > 0u);
     for (unsigned i=0; i<GetNumAllNodes(); i++)
     {
-        if (!mNodes[i]->IsDeleted())
+        if (!this->mNodes[i]->IsDeleted())
         {
-            double this_node_value = mNodes[i]->rGetLocation()[rDimension];
+            double this_node_value = this->mNodes[i]->rGetLocation()[rDimension];
             if (this_node_value>max)
             {
                 max = this_node_value;
@@ -1767,9 +1717,9 @@ c_vector<double,2> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(con
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::UnflagAllElements()
 {
-    ElementIterator i_element;
-    for (i_element = GetElementIteratorBegin();
-         i_element != GetElementIteratorEnd();
+    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_element;
+    for (i_element = this->GetElementIteratorBegin();
+         i_element != this->GetElementIteratorEnd();
          i_element++)
     {
          (*i_element)->Unflag();
@@ -1780,8 +1730,8 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FlagElementsNotContainingNodes(std::set<unsigned> nodesList)
 {
     typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-        iter = GetElementIteratorBegin();
-    while (iter != GetElementIteratorEnd())
+        iter = this->GetElementIteratorBegin();
+    while (iter != this->GetElementIteratorEnd())
     {
         Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
 
@@ -1908,7 +1858,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgesBegin()
 {
     unsigned first_element_index=0;
-    while(first_element_index!=GetNumAllElements() && GetElement(first_element_index)->IsDeleted())
+    while(first_element_index!=GetNumAllElements() && this->GetElement(first_element_index)->IsDeleted())
     {
         first_element_index++;
     }
@@ -1929,11 +1879,11 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<E
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 {
-    for (unsigned i=0; i<mElements.size();i++)
+    for (unsigned i=0; i<this->mElements.size();i++)
     {
-        if (!mElements[i]->IsDeleted())
+        if (!this->mElements[i]->IsDeleted())
         {
-            mElements[i]->RefreshJacobianDeterminant();
+            this->mElements[i]->RefreshJacobianDeterminant();
         }
     }
 

@@ -29,12 +29,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PARALLELTETRAHEDRALMESH_HPP_
 #define PARALLELTETRAHEDRALMESH_HPP_
 
-#include "TetrahedralMesh.hpp"
+#include "AbstractMesh.hpp"
+#include "AbstractMeshReader.hpp"
 #include "Element.hpp"
+#include "BoundaryElement.hpp"
+#include "Node.hpp"
 #include "DistributedVector.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class ParallelTetrahedralMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
+class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM, 
+                                                     std::map<unsigned, Node<SPACE_DIM> *>,
+                                                     std::map<unsigned, Element<ELEMENT_DIM, SPACE_DIM> *>,
+                                                     std::map<unsigned, BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> >
 {
     
 private: 
@@ -42,14 +48,8 @@ private:
     unsigned mTotalNumElements; 
     unsigned mTotalNumNodes;
     
-    std::map< unsigned, Element<ELEMENT_DIM, SPACE_DIM>* > mElements;
-    std::map< unsigned, Node<SPACE_DIM>* > mNodes;
     std::map< unsigned, Node<SPACE_DIM>* > mGhostNodes;
-    std::map< unsigned, BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* > mBoundaryElements;
-
-    std::map< unsigned,Node<SPACE_DIM> *> mBoundaryNodes;
     
-
 public:
 
 //    ParallelTetrahedralMesh();
@@ -64,14 +64,24 @@ public:
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
-    unsigned GetNumLocalNodes();
+    unsigned GetNumLocalNodes() const;
 
-    unsigned GetNumLocalElements();
+    unsigned GetNumLocalElements() const;
 
-    unsigned GetNumNodes();
+    unsigned GetNumNodes() const;
 
-    unsigned GetNumElements();
+    unsigned GetNumElements() const;
+    
+    bool GetNodeIsLocal(unsigned index);
+    bool GetNodeIsGhost(unsigned index);
+    bool GetElementIsLocal(unsigned index);        
+    
+//    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
 
+    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
+    
+    void SetElementOwnerships(unsigned lo, unsigned hi);
+    
     
 };
 
@@ -83,9 +93,9 @@ public:
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
 {
-    for (unsigned i=0; i<mElements.size(); i++)
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        delete mElements[i];
+        delete this->mElements[i];
     }
 }
 
@@ -116,12 +126,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartioning(
             {
                 elementsOwned.insert(element_number);
                 
-                std::set<unsigned> temp;
+                std::set<unsigned> temp; /// \todo: there should be a way of avoiding the use of temp
                 std::set_difference(node_indices.begin(), node_indices.end(),
                                       nodesOwned.begin(), nodesOwned.end(),
                                       std::inserter(temp, temp.begin()) );                              
                                
-                ghostNodesOwned.insert(temp.begin(), temp.end()); //need to remove the owned nodes from here
+                ghostNodesOwned.insert(temp.begin(), temp.end());
             }
         }
     }
@@ -153,7 +163,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         // The node is owned by the processor
         if (nodes_owned.find(node_index) != nodes_owned.end())
         {
-            mNodes[node_index] = new Node<SPACE_DIM>(node_index, coords, false);
+            this->mNodes[node_index] = new Node<SPACE_DIM>(node_index, coords, false);
             //continue;
         }
 
@@ -179,14 +189,14 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             {
                 if (nodes_owned.find(node_indices[j]) != nodes_owned.end())
                 {
-                    nodes.push_back(mNodes[node_indices[j]]);
+                    nodes.push_back(this->mNodes[node_indices[j]]);
                 }
                 else
                 {
                     nodes.push_back(mGhostNodes[node_indices[j]]);
                 }                    
             }
-            mElements[element_index] = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
+            this->mElements[element_index] = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
         }
     }
     
@@ -194,29 +204,72 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes()
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes() const
 {
-    return mNodes.size();
+    return this->mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalElements()
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalElements() const
 {
-    return mElements.size();
+    return this->mElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return mTotalNumNodes;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mTotalNumElements;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIsLocal(unsigned index)
+{
+    return (this->mNodes.find(index) != this->mNodes.end());    
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIsGhost(unsigned index)
+{
+    return (this->mGhostNodes.find(index) != this->mGhostNodes.end());    
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIsLocal(unsigned index)
+{
+    return (this->mElements.find(index) != this->mElements.end());
+}
+
+
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//Element<ELEMENT_DIM, SPACE_DIM>* ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
+//{
+//    /// \todo: assert ownership
+//    return (this->mElements[index]);
+//}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
+{
+    /// \todo: assert ownership
+    return (this->mBoundaryElements[index]);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
+{
+    assert(hi>=lo);
+    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
+    {
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
+        p_element->SetOwnership(true);
+    }
+}
 
 
 #endif /*PARALLELTETRAHEDRALMESH_HPP_*/
