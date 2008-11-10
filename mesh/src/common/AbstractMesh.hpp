@@ -49,6 +49,10 @@ protected:  // Give access of these variables to subclasses
     
 public:
 
+    virtual ~AbstractMesh()
+    {
+    }
+
     virtual unsigned GetNumNodes();
     virtual unsigned GetNumElements();
     virtual unsigned GetNumBoundaryElements();
