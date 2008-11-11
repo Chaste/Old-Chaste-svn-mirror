@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTPARALLELTETRAHEDRALMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ParallelTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
