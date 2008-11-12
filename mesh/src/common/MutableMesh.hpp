@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef REFINABLEMESH_HPP_
-#define REFINABLEMESH_HPP_
+#ifndef MUTABLEMESH_HPP_
+#define MUTABLEMESH_HPP_
 
 //#include <boost/serialization/access.hpp>
 //
@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class RefinableMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
+class MutableMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
 
@@ -65,11 +65,11 @@ private:
     bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement, double maxPenetration);
 
 public:
-    RefinableMesh();
-    RefinableMesh(unsigned numElements);
-    RefinableMesh(std::vector<Node<SPACE_DIM> *> nodes);
+    MutableMesh();
+    MutableMesh(unsigned numElements);
+    MutableMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
-    virtual ~RefinableMesh();
+    virtual ~MutableMesh();
 
     void Clear();
 
@@ -141,19 +141,19 @@ public:
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RefinableMesh()
+MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()
 {
     mAddedNodes = false;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RefinableMesh(unsigned numElements)
+MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh(unsigned numElements)
 {
     mAddedNodes = false;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RefinableMesh(std::vector<Node<SPACE_DIM> *> nodes)
+MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh(std::vector<Node<SPACE_DIM> *> nodes)
 {
     Clear();
     for (unsigned index=0; index<nodes.size(); index++)
@@ -167,14 +167,14 @@ RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RefinableMesh(std::vector<Node<SPACE_DIM>
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-RefinableMesh<ELEMENT_DIM, SPACE_DIM>::~RefinableMesh()
+MutableMesh<ELEMENT_DIM, SPACE_DIM>::~MutableMesh()
 {
     Clear();
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
+unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
 {
 
     if (mDeletedNodeIndices.empty())
@@ -195,7 +195,7 @@ unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNod
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
     mDeletedElementIndices.clear();
     mDeletedBoundaryElementIndices.clear();
@@ -206,14 +206,14 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
+unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
 {
     return this->mBoundaryElements.size() - mDeletedBoundaryElementIndices.size();
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
+unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return this->mElements.size() - mDeletedElementIndices.size();
 }
@@ -221,13 +221,13 @@ unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 
 /// Returns the number of nodes that are actually in use
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
+unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return this->mNodes.size() - mDeletedNodeIndices.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex)
 {
     assert(this->GetNode(boundaryNodeIndex)->IsBoundaryNode());
     double scaleFactor = updatedPoint[0] / this->GetNode(boundaryNodeIndex)->GetPoint()[0];
@@ -249,7 +249,7 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(ChastePo
   * @param concreteMove is set to false if we want to skip the signed area tests
   */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         ChastePoint<SPACE_DIM> point,
         bool concreteMove)
 {
@@ -300,7 +300,7 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
  *
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
 {
     if (this->mNodes[index]->IsDeleted())
     {
@@ -344,7 +344,7 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
  * @param index The index of the node to delete
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index)
 {
 #define COVERAGE_IGNORE
     // A ReMesh can only happen in 2D or 3D so
@@ -364,7 +364,7 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned ind
  *     Set it to true if you're doing the merger for real, in order to do all the bookkeeping.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         unsigned targetIndex,
         bool concreteMove)
 {
@@ -506,7 +506,7 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
+unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     Element<ELEMENT_DIM,SPACE_DIM>* pElement,
     ChastePoint<SPACE_DIM> point)
 {
@@ -567,7 +567,7 @@ unsigned RefinableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
 {
     if (!this->mNodes[index]->IsBoundaryNode() )
     {
@@ -615,7 +615,7 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 {
     assert(!mAddedNodes);
     map.Resize(this->GetNumAllNodes());
@@ -690,7 +690,7 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -914,14 +914,14 @@ void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
 {
     NodeMap map(GetNumNodes());
     ReMesh(map);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool RefinableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
+bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
 {
     assert (ELEMENT_DIM == SPACE_DIM);
     unsigned num_nodes = pElement->GetNumNodes();
@@ -1001,7 +1001,7 @@ bool RefinableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SP
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool RefinableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
+bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 {
     // Looping through all the elements in the mesh
     for (unsigned i=0; i < this->mElements.size();i++)
@@ -1021,4 +1021,4 @@ bool RefinableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 
 
 
-#endif /*REFINABLEMESH_HPP_*/
+#endif /*MUTABLEMESH_HPP_*/

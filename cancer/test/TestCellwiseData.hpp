@@ -48,7 +48,7 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Get each a birth time of -node_index,
@@ -131,7 +131,7 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Get each a birth time of -node_index, so the age = node_index

@@ -52,7 +52,7 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
 
     if (!mCylindrical)
     {
-        mpMesh = new RefinableMesh<2,2>;
+        mpMesh = new MutableMesh<2,2>;
         mpMesh->ConstructFromMeshReader(mesh_reader);
     }
     else
@@ -85,7 +85,7 @@ HoneycombMeshGenerator::~HoneycombMeshGenerator()
 }
 
 
-RefinableMesh<2,2>* HoneycombMeshGenerator::GetMesh()
+MutableMesh<2,2>* HoneycombMeshGenerator::GetMesh()
 {
     if (mCylindrical)
     {
@@ -111,7 +111,7 @@ std::set<unsigned> HoneycombMeshGenerator::GetGhostNodeIndices()
 }
 
 
-RefinableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
+MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
 {
     assert(!mCylindrical); // Following call only safe if is not a cylindrical mesh
 

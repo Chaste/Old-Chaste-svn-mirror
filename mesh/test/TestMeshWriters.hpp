@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
-#include "RefinableMesh.hpp"
+#include "MutableMesh.hpp"
 #include <cmath>
 //#include <iostream>
 
@@ -235,7 +235,7 @@ public:
     void TestTriangles1DMeshIn2DSpaceWithDeletedNode()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
-        RefinableMesh<1,2> mesh;
+        MutableMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.DeleteBoundaryNodeAt(0);
 

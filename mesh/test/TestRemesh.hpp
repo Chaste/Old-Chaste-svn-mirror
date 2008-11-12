@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTREMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "RefinableMesh.hpp"
+#include "MutableMesh.hpp"
 #include <cmath>
 
 
@@ -52,7 +52,7 @@ public:
         old_mesh.ConstructFromMeshReader(mesh_reader2);
 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        RefinableMesh<3,3> mesh;
+        MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -180,7 +180,7 @@ public:
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -264,7 +264,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -310,7 +310,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
-        RefinableMesh<3,3> mesh(nodes);
+        MutableMesh<3,3> mesh(nodes);
         double area = mesh.CalculateVolume();
 
         unsigned num_nodes_before = mesh.GetNumNodes();
@@ -366,7 +366,7 @@ public:
 
     void TestReMeshFailsAfterEnoughDeletions() throw (Exception)
     {
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1,1);
         NodeMap map(1);
 
@@ -454,7 +454,7 @@ public:
         nodes.push_back(new Node<2>(3, true, 0.0, 10.0));
         nodes.push_back(new Node<2>(4, true, 0.5, 7.0));
 
-        RefinableMesh<2,2> mesh(nodes);
+        MutableMesh<2,2> mesh(nodes);
 
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 10.0, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 22.0, 1e-6);
@@ -481,7 +481,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 

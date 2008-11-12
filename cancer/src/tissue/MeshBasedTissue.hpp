@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define MESHBASEDTISSUE_HPP_
 
 #include "AbstractTissue.hpp"
-#include "RefinableMesh.hpp"
+#include "MutableMesh.hpp"
 #include "VoronoiTessellation.hpp"
 #include "Exception.hpp"
 
@@ -51,7 +51,7 @@ class MeshBasedTissue : public AbstractTissue<DIM>
 {
 protected:
 
-    RefinableMesh<DIM, DIM>& mrMesh;
+    MutableMesh<DIM, DIM>& mrMesh;
 
     VoronoiTessellation<DIM>* mpVoronoiTessellation;
 
@@ -134,7 +134,7 @@ public:
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
-    MeshBasedTissue(RefinableMesh<DIM, DIM>&,
+    MeshBasedTissue(MutableMesh<DIM, DIM>&,
                     const std::vector<TissueCell>&,
                     bool deleteMesh=false,
                     bool validate=true);
@@ -144,13 +144,13 @@ public:
      *
      * @param rMesh a conforming tetrahedral mesh.
      */
-    MeshBasedTissue(RefinableMesh<DIM, DIM>&);
+    MeshBasedTissue(MutableMesh<DIM, DIM>&);
 
     ~MeshBasedTissue();
 
-    RefinableMesh<DIM, DIM>& rGetMesh();
+    MutableMesh<DIM, DIM>& rGetMesh();
 
-    const RefinableMesh<DIM, DIM>& rGetMesh() const;
+    const MutableMesh<DIM, DIM>& rGetMesh() const;
 
     bool GetWriteVoronoiData();
 
@@ -164,7 +164,7 @@ public:
      * Remove all cells labelled as dead.
      *
      * Note that this now calls
-     * RefinableMesh::DeleteNodePriorToReMesh()
+     * MutableMesh::DeleteNodePriorToReMesh()
      * and therefore a ReMesh(map) must be called before
      * any element information is used.
      *
@@ -283,7 +283,7 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        SpringIterator(MeshBasedTissue& rTissue, typename RefinableMesh<DIM,DIM>::EdgeIterator edgeIter);
+        SpringIterator(MeshBasedTissue& rTissue, typename MutableMesh<DIM,DIM>::EdgeIterator edgeIter);
 
     private:
 
@@ -292,7 +292,7 @@ public:
 
         MeshBasedTissue& mrTissue;
 
-        typename RefinableMesh<DIM, DIM>::EdgeIterator mEdgeIter;
+        typename MutableMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
 
     /**
@@ -326,7 +326,7 @@ public:
 };
 
 template<unsigned DIM>
-MeshBasedTissue<DIM>::MeshBasedTissue(RefinableMesh<DIM, DIM>& rMesh,
+MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
                   const std::vector<TissueCell>& rCells,
                   bool deleteMesh,
                   bool validate)
@@ -350,7 +350,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(RefinableMesh<DIM, DIM>& rMesh,
 }
 
 template<unsigned DIM>
-MeshBasedTissue<DIM>::MeshBasedTissue(RefinableMesh<DIM, DIM>& rMesh)
+MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh)
              : mrMesh(rMesh)
 {
     this->mTissueContainsMesh = true;
@@ -391,13 +391,13 @@ void MeshBasedTissue<DIM>::Validate()
 }
 
 template<unsigned DIM>
-RefinableMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh()
+MutableMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh()
 {
     return mrMesh;
 }
 
 template<unsigned DIM>
-const RefinableMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh() const
+const MutableMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh() const
 {
     return mrMesh;
 }
@@ -824,7 +824,7 @@ typename MeshBasedTissue<DIM>::SpringIterator& MeshBasedTissue<DIM>::SpringItera
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>::SpringIterator::SpringIterator(MeshBasedTissue& rTissue,
-                                           typename RefinableMesh<DIM,DIM>::EdgeIterator edgeIter)
+                                           typename MutableMesh<DIM,DIM>::EdgeIterator edgeIter)
     : mrTissue(rTissue),
       mEdgeIter(edgeIter)
 {
@@ -995,7 +995,7 @@ inline void save_construct_data(
     Archive & ar, const MeshBasedTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const RefinableMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
+    const MutableMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
     ar & p_mesh;
 }
 
@@ -1009,7 +1009,7 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     assert(MeshBasedTissue<DIM>::meshPathname.length() > 0);
-    RefinableMesh<DIM,DIM>* p_mesh;
+    MutableMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
 
     // Re-initialise the mesh

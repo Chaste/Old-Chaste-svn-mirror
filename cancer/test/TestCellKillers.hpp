@@ -54,7 +54,7 @@ public:
 
         // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -144,7 +144,7 @@ public:
 
         // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.25,-0.25);
 
@@ -196,7 +196,7 @@ public:
 
         // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.25,-0.25);
 
@@ -249,7 +249,7 @@ public:
     {
         // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.5,-0.5);
 
@@ -317,7 +317,7 @@ public:
 
         // Read in a mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up tissue

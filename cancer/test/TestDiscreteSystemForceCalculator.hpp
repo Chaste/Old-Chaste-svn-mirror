@@ -48,7 +48,7 @@ public:
     {
         // Set up a tissue
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
-        RefinableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
         std::set<unsigned> ghost_node_indices = mesh_generator.GetGhostNodeIndices();
 
         CellsGenerator<2> cells_generator;
@@ -138,7 +138,7 @@ public:
         // Set up a tissue
 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
-        RefinableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         CellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
@@ -205,7 +205,7 @@ public:
         // Set up a tissue
 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
-        RefinableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         CellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;

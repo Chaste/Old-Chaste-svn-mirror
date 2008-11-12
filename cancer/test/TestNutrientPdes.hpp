@@ -63,7 +63,7 @@ public:
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
 
@@ -98,7 +98,7 @@ public:
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         MeshBasedTissue<2> tissue(*p_mesh, cells);

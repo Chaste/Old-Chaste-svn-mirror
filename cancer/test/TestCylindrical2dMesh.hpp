@@ -137,7 +137,7 @@ public:
 
         // Call the normal re-mesh
         NodeMap map(p_mesh->GetNumNodes());
-        p_mesh->RefinableMesh<2,2>::ReMesh(map);
+        p_mesh->MutableMesh<2,2>::ReMesh(map);
 
         // Re-Index the vectors regarding left/right nodes with the node map
         for (unsigned i = 0; i<p_mesh->mLeftOriginals.size(); i++)
@@ -519,7 +519,7 @@ public:
         TS_ASSERT_EQUALS(new_num_nodes, original_num_nodes*2+2*num_original_halo_nodes);
 
         NodeMap map(p_mesh->GetNumNodes());
-        p_mesh->RefinableMesh<2,2>::ReMesh(map);   // recreates the boundary elements
+        p_mesh->MutableMesh<2,2>::ReMesh(map);   // recreates the boundary elements
 
         // Test halo node removal
         p_mesh->GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
@@ -586,7 +586,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        RefinableMesh<2,2> * const p_mesh = generator.GetCylindricalMesh();
+        MutableMesh<2,2> * const p_mesh = generator.GetCylindricalMesh();
         
         // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
         // This is because the serialization library only allows you to save tracked
@@ -615,7 +615,7 @@ public:
 
         {
             // De-serialize and compare
-            RefinableMesh<2,2>* p_mesh2;
+            MutableMesh<2,2>* p_mesh2;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -662,8 +662,8 @@ public:
             TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh2->GetNumAllElements());
             TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(), p_mesh2->GetNumBoundaryElements());
             TS_ASSERT_EQUALS(p_mesh->GetNumAllBoundaryElements(), p_mesh2->GetNumAllBoundaryElements());
-            RefinableMesh<2,2>::ElementIterator it = p_mesh->GetElementIteratorBegin();
-            RefinableMesh<2,2>::ElementIterator it2 = p_mesh2->GetElementIteratorBegin();
+            MutableMesh<2,2>::ElementIterator it = p_mesh->GetElementIteratorBegin();
+            MutableMesh<2,2>::ElementIterator it2 = p_mesh2->GetElementIteratorBegin();
             
             for (;
                  it != p_mesh->GetElementIteratorEnd();
@@ -752,7 +752,7 @@ public:
             mesh.CreateMirrorNodes();
 
             NodeMap big_map(mesh.GetNumAllNodes());
-            mesh.RefinableMesh<2,2>::ReMesh(big_map);
+            mesh.MutableMesh<2,2>::ReMesh(big_map);
         }
 
         mesh.GenerateVectorsOfElementsStraddlingPeriodicBoundaries();

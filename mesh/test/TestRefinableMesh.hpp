@@ -26,14 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTREFINABLEMESH_HPP_
-#define TESTREFINABLEMESH_HPP_
+#ifndef TESTMUTABLEMESH_HPP_
+#define TESTMUTABLEMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <fstream>
-#include "RefinableMesh.hpp"
+#include "MutableMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "RandomNumberGenerator.hpp"
@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <vector>
 
-class TestRefinableMesh : public CxxTest::TestSuite
+class TestMutableMesh : public CxxTest::TestSuite
 {
 private:
 
@@ -51,7 +51,7 @@ private:
     {
         // create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
-        RefinableMesh<DIM,DIM> mesh;
+        MutableMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // delete one of the nodes and hence an element
@@ -62,7 +62,7 @@ private:
         // check that we can iterate over the set of edges
         std::set< std::set< unsigned > > edges_visited;
 
-        for (typename RefinableMesh<DIM,DIM>::EdgeIterator edge_iterator=mesh.EdgesBegin();
+        for (typename MutableMesh<DIM,DIM>::EdgeIterator edge_iterator=mesh.EdgesBegin();
              edge_iterator!=mesh.EdgesEnd();
              ++edge_iterator)
         {
@@ -109,7 +109,7 @@ public:
     void TestRescaleMeshFromBoundaryNode(void)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ChastePoint<1> updatedPoint(1.5);
@@ -123,7 +123,7 @@ public:
     void Test1DSetPoint()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         const int node_index=3;
@@ -179,7 +179,7 @@ public:
     void Test2DSetPoint()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         const int node_index=234;
@@ -237,7 +237,7 @@ public:
     void TestMovingNodesIn3D()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        RefinableMesh<3,3> mesh;
+        MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double reference_volume = mesh.CalculateVolume();
@@ -306,7 +306,7 @@ public:
     void Test1DMeshIn2DSetPoint()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
-        RefinableMesh<1,2> mesh;
+        MutableMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         const int boundary_node_index=50;
@@ -343,7 +343,7 @@ public:
     void Test2DMeshIn3DSetPoint()
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
-        RefinableMesh<2,3> mesh;
+        MutableMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         const int boundary_node_index=99;
@@ -394,14 +394,14 @@ public:
     void TestDeletingNodes()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         Node<1> *p_old_rhs_node = mesh.GetNode(10);
         Node<1> *p_old_lhs_node = mesh.GetNode(0);
 
-        RefinableMesh<1,1>::BoundaryElementIterator b_elt_iter;
-        RefinableMesh<1,1>::BoundaryNodeIterator b_node_iter;
+        MutableMesh<1,1>::BoundaryElementIterator b_elt_iter;
+        MutableMesh<1,1>::BoundaryNodeIterator b_node_iter;
 
         // Delete the right end node
         mesh.DeleteBoundaryNodeAt(10);
@@ -461,7 +461,7 @@ public:
     void TestDeleteNodePriorToReMesh() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/circular_fan");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // test it can also delete a boundary node
@@ -481,7 +481,7 @@ public:
     void TestAddingAndDeletingNodes() throw (Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Add a node at position 0.01
@@ -513,7 +513,7 @@ public:
     void Test1DBoundaryNodeMerger()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_1_element");
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.CalculateVolume(), 1.0);
@@ -523,7 +523,7 @@ public:
     void Test1DNodeMerger()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double length=mesh.CalculateVolume();
@@ -551,7 +551,7 @@ public:
     void Test2DNodeMerger()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double area=mesh.CalculateVolume();
@@ -595,7 +595,7 @@ public:
     void Test3DNodeMerger() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        RefinableMesh<3,3> mesh;
+        MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double volume=mesh.CalculateVolume();
@@ -632,7 +632,7 @@ public:
     void Test2DBoundaryNodeMergerChangeArea()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         double area=mesh.CalculateVolume();
         double perim=mesh.CalculateSurfaceArea();
@@ -657,7 +657,7 @@ public:
     void Test2DBoundaryNodeMerger()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double area=mesh.CalculateVolume();
@@ -693,7 +693,7 @@ public:
     void Test3DBoundaryNodeMerger()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        RefinableMesh<3,3> mesh;
+        MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double volume=mesh.CalculateVolume();
@@ -719,7 +719,7 @@ public:
     void TestCheckVoronoiDisk()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
@@ -729,7 +729,7 @@ public:
     void TestCheckVoronoiSquare()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
@@ -739,7 +739,7 @@ public:
     void TestCheckCircularFan()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/circular_fan");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(5e-3),true);
@@ -748,7 +748,7 @@ public:
 
     void TestCheckMovingMesh()
     {
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1,1);
 
         Node<2> *p_node=mesh.GetNode(1);
@@ -773,7 +773,7 @@ public:
     
         void TestDeleteNodes() throw (Exception)
     {
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(2,3);
 
         TS_ASSERT_EQUALS(mesh.CalculateVolume(), 6.0);
@@ -804,14 +804,14 @@ public:
     void TestDeleteNodeFails() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/HalfSquareWithExtraNode");
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(0));
     }
     
     void TestMeshAddNodeAndReMeshMethod(void)
     {
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1, 1, false);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),4u);
@@ -855,7 +855,7 @@ public:
 
     void TestReindex()
     {
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(10, 10);
 
         unsigned num_old_nodes = mesh.GetNumNodes();
@@ -899,7 +899,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
-        RefinableMesh<3,3> mesh(nodes);
+        MutableMesh<3,3> mesh(nodes);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4U);
@@ -915,4 +915,4 @@ public:
     
 };
 
-#endif /*TESTREFINABLEMESH_HPP_*/
+#endif /*TESTMUTABLEMESH_HPP_*/

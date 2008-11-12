@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  @param pGen is a RandomNumberGenerator class.  If it's not given then a new one is
  *  constructed and random numbers are reseeded with srandom(0).
  */
-CryptSimulation1d::CryptSimulation1d(RefinableMesh<1,1> &rMesh,
+CryptSimulation1d::CryptSimulation1d(MutableMesh<1,1> &rMesh,
                                      std::vector<TissueCell> cells)
         : mrMesh(rMesh),
         mCells(cells)
@@ -268,7 +268,7 @@ void CryptSimulation1d::Solve()
         while (true)
         {
             bool sloughed_node = false;
-            RefinableMesh<1,1>::BoundaryNodeIterator it = mrMesh.GetBoundaryNodeIteratorEnd();
+            MutableMesh<1,1>::BoundaryNodeIterator it = mrMesh.GetBoundaryNodeIteratorEnd();
             while (it != mrMesh.GetBoundaryNodeIteratorBegin())
             {
                 it--;

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTELEMENT_HPP_
 #define _TESTELEMENT_HPP_
 
-#include "RefinableMesh.hpp"
+#include "MutableMesh.hpp"
 
 #include "Exception.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -649,7 +649,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -700,7 +700,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -717,7 +717,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -734,7 +734,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
-        RefinableMesh<1,1> mesh;
+        MutableMesh<1,1> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -754,7 +754,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
 
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -802,7 +802,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
 
-        RefinableMesh<2,2> mesh;
+        MutableMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -821,7 +821,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 
-        RefinableMesh<3,3> mesh;
+        MutableMesh<3,3> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -870,7 +870,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 
-        RefinableMesh<3,3> mesh;
+        MutableMesh<3,3> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 

@@ -60,7 +60,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Centre the mesh at (0,0)
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -225,7 +225,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Centre the mesh at (0,0)
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -290,7 +290,7 @@ public:
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
-            RefinableMesh<2,2> mesh;
+            MutableMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
             num_nodes = mesh.GetNumNodes();
 

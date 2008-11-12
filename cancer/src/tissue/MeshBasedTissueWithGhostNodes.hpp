@@ -78,7 +78,7 @@ public:
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
-    MeshBasedTissueWithGhostNodes(RefinableMesh<DIM, DIM>& rMesh,
+    MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
                                   const std::vector<TissueCell>& rCells,
                                   const std::set<unsigned> ghostNodeIndices = std::set<unsigned>(),
                                   bool deleteMesh=false);
@@ -88,7 +88,7 @@ public:
      *
      * @param rMesh a conforming tetrahedral mesh.
      */
-    MeshBasedTissueWithGhostNodes(RefinableMesh<DIM, DIM>& rMesh);
+    MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh);
 
     std::vector<bool>& rGetGhostNodes();
 
@@ -157,7 +157,7 @@ public:
 /// also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
 MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
-     RefinableMesh<DIM, DIM>& rMesh,
+     MutableMesh<DIM, DIM>& rMesh,
      const std::vector<TissueCell>& rCells,
      const std::set<unsigned> ghostNodeIndices,
      bool deleteMesh)
@@ -169,7 +169,7 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
 }
 
 template<unsigned DIM>
-MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(RefinableMesh<DIM, DIM>& rMesh)
+MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh)
              : MeshBasedTissue<DIM>(rMesh)
 {
     this->mTissueContainsGhostNodes = true;
@@ -233,7 +233,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
     }
 
     // Calculate ghost node velocities
-    for (typename RefinableMesh<DIM, DIM>::EdgeIterator edge_iterator=this->mrMesh.EdgesBegin();
+    for (typename MutableMesh<DIM, DIM>::EdgeIterator edge_iterator=this->mrMesh.EdgesBegin();
         edge_iterator!=this->mrMesh.EdgesEnd();
         ++edge_iterator)
     {
@@ -363,7 +363,7 @@ inline void save_construct_data(
     Archive & ar, const MeshBasedTissueWithGhostNodes<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const RefinableMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
+    const MutableMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
     ar & p_mesh;
 }
 
@@ -377,7 +377,7 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     assert(MeshBasedTissue<DIM>::meshPathname.length() > 0);
-    RefinableMesh<DIM,DIM>* p_mesh;
+    MutableMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
 
     // Re-initialise the mesh

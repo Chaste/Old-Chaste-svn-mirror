@@ -37,7 +37,7 @@ class TestHoneycombMeshGenerator : public CxxTest::TestSuite
 {
 private:
 
-    void Output2DNodesToFile(RefinableMesh<2,2>* p_mesh, std::string fileName)
+    void Output2DNodesToFile(MutableMesh<2,2>* p_mesh, std::string fileName)
     {
         OutputFileHandler handler("");
         out_stream file=handler.OpenOutputFile(fileName);
@@ -81,7 +81,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
 
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
 
@@ -101,7 +101,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         // check the mesh
 
-        RefinableMesh<2,2>* p_mesh2;
+        MutableMesh<2,2>* p_mesh2;
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh2=generator.GetMesh());
 
@@ -166,7 +166,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         // check the mesh
 
-        RefinableMesh<2,2>* p_mesh2;
+        MutableMesh<2,2>* p_mesh2;
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh2=generator.GetMesh());
 
@@ -229,7 +229,7 @@ public:
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
         // check the mesh
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
 
@@ -293,7 +293,7 @@ public:
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
         // check the mesh
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
 
@@ -357,7 +357,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
 
-        RefinableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
 
@@ -380,7 +380,7 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
 
-        RefinableMesh<2,2>* p_mesh = generator.GetCircularMesh(radius);
+        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(radius);
 
         double epsilon = 1e-5;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -393,7 +393,7 @@ public:
     void TestCircularMeshIsJacobian() throw(Exception)
     {
         HoneycombMeshGenerator generator(20, 20, 0u, false);
-        RefinableMesh<2,2>* p_mesh = generator.GetCircularMesh(10);
+        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(10);
 
         NodeMap map(p_mesh->GetNumAllNodes());
 

@@ -34,13 +34,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
 
-#include "RefinableMesh.hpp"
+#include "MutableMesh.hpp"
 #include "TrianglesMeshWriter.hpp"
 
 #include <boost/serialization/export.hpp>// at end of includes
 
 
-class Cylindrical2dMesh : public RefinableMesh<2,2>
+class Cylindrical2dMesh : public MutableMesh<2,2>
 {
     friend class TestCylindrical2dMesh;
 private:
@@ -143,7 +143,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<RefinableMesh<2,2> >(*this);
+        archive & boost::serialization::base_object<MutableMesh<2,2> >(*this);
         archive & mWidth;
         archive & mTop;
         archive & mBottom;

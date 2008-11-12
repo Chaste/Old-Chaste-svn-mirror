@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
 #include "VoronoiTessellation.hpp"
-#include "RefinableMesh.hpp"
+#include "MutableMesh.hpp"
 #include "Exception.hpp"
 #include "InventorVoronoiWriter.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -58,7 +58,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
-        RefinableMesh<3,3> mesh(nodes);
+        MutableMesh<3,3> mesh(nodes);
 
         // Create Voronoi Tesselation
         VoronoiTessellation<3> tessellation(mesh);
@@ -76,7 +76,7 @@ public:
         // Create conforming tetrahedral mesh which is Delaunay
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_136_elements");
 
-        RefinableMesh<3,3> mesh;
+        MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
         TS_ASSERT(mesh.CheckVoronoi());
@@ -103,7 +103,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
-        RefinableMesh<3,3> mesh(nodes);
+        MutableMesh<3,3> mesh(nodes);
 
         // Create Voronoi Tesselation
         VoronoiTessellation<3> tessellation(mesh);
