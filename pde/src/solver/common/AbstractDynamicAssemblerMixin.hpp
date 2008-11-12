@@ -193,7 +193,7 @@ public:
             else
             {
                 DoMatrixBasedRhsAssembly(current_solution, stepper.GetTime());
-                next_solution = (*(this->GetLinearSystem()))->Solve(currentSolutionOrGuess);
+                next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
             }
 
             mMatrixIsAssembled = true;
