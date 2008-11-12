@@ -75,7 +75,7 @@ public:
 
     unsigned GetNumNodes() const;
     unsigned GetNumElements() const;
-    unsigned GetNumBoundaryElements();
+    unsigned GetNumBoundaryElements() const;
     ///should unsigned GetNumBoundaryNodes() be overloaded too??
     
     void RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex);
@@ -206,7 +206,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
+unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 {
     return this->mBoundaryElements.size() - mDeletedBoundaryElementIndices.size();
 }
