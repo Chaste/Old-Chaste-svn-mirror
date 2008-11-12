@@ -41,7 +41,7 @@ class TestParallelTetrahedralMesh : public CxxTest::TestSuite
     
 public:
 
-    void TestSimple()
+    void TestConstructFromMeshReader2D()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         
@@ -64,18 +64,14 @@ public:
         TetrahedralMesh<2,2> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
         
-        Element<2,2>* p_para_element;
-        Element<2,2>* p_sequ_element;
-        unsigned element_index;
-        
         for (ParallelTetrahedralMesh<2,2>::ElementIterator it=mesh.GetElementIteratorBegin(); 
              it!=mesh.GetElementIteratorEnd(); 
              ++it)
         {
-            p_para_element = *it;
-            element_index = p_para_element->GetIndex();
+            Element<2,2>* p_para_element = *it;
+            unsigned element_index = p_para_element->GetIndex();
             
-            p_sequ_element = mesh.GetElement(element_index);            
+            Element<2,2>* p_sequ_element = mesh.GetElement(element_index);            
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
             
             for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
@@ -86,19 +82,46 @@ public:
                 TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[0], 
                                  p_sequ_element->GetNode(node_local_index)->GetPoint()[0]);                                 
             }
-        } 
+        }
+
+        for (ParallelTetrahedralMesh<2,2>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin(); 
+             it!=mesh.GetBoundaryElementIteratorEnd(); 
+             ++it)
+        {
+            BoundaryElement<1,2>* p_para_boundary_element = *it;
+            unsigned boundary_element_index = p_para_boundary_element->GetIndex();
+            
+            BoundaryElement<1,2>* p_sequ_boundary_element = mesh.GetBoundaryElement(boundary_element_index);            
+            TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
+            
+            for (unsigned node_local_index=0; node_local_index < p_para_boundary_element->GetNumNodes(); node_local_index++)
+            {
+                TS_ASSERT_EQUALS(p_para_boundary_element->GetNodeGlobalIndex(node_local_index), 
+                                 p_sequ_boundary_element->GetNodeGlobalIndex(node_local_index));                                 
+
+                TS_ASSERT_EQUALS(p_para_boundary_element->GetNode(node_local_index)->GetPoint()[0], 
+                                 p_sequ_boundary_element->GetNode(node_local_index)->GetPoint()[0]);                                 
+            }
+            
+            
+        }
+         
     }
 
-//    void TestAllNodesAssigned()
-//    {
-//        
-//    }
-//    
-//    void TestAllElementsAssigned()
-//    {
-//        
-//    }    
+    void TestConstructFromMeshReader3D()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 136U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 96U);
 
+        ParallelTetrahedralMesh<3,3> mesh;        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);                
+    }
             
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

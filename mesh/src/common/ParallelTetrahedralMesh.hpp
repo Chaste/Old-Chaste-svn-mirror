@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BoundaryElement.hpp"
 #include "Node.hpp"
 #include "DistributedVector.hpp"
+#include "PetscTools.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
@@ -42,7 +43,8 @@ class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
     
 private: 
 
-    unsigned mTotalNumElements; 
+    unsigned mTotalNumElements;
+    unsigned mTotalNumBoundaryElements; 
     unsigned mTotalNumNodes;
     
     std::vector<Node<SPACE_DIM>* > mGhostNodes;
@@ -72,6 +74,8 @@ public:
     unsigned GetNumNodes() const;
 
     unsigned GetNumElements() const;
+    
+    unsigned GetNumBoundaryElements() const;
     
     BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
     
@@ -158,8 +162,15 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
     bool cullInternalFaces)
 {
+    
+    if(ELEMENT_DIM==1)
+    {
+        cullInternalFaces = true;
+    }    
+    
     mTotalNumElements = rMeshReader.GetNumElements();
-    mTotalNumNodes = rMeshReader.GetNumNodes();    
+    mTotalNumNodes = rMeshReader.GetNumNodes();
+    mTotalNumBoundaryElements = rMeshReader.GetNumFaces();   
         
     std::set<unsigned> nodes_owned;
     std::set<unsigned> ghost_nodes_owned;
@@ -175,6 +186,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     std::vector<double> coords;
     for (unsigned node_index=0; node_index < mTotalNumNodes; node_index++)
     {
+        /// \todo: assert the node is not considered both owned and ghost-owned. Remove continue statement few lines below then.
         coords = rMeshReader.GetNextNode();
         
         // The node is owned by the processor
@@ -182,7 +194,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         {
             RegisterNode(node_index);
             this->mNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
-            //continue;
+            continue;
         }
 
         // The node is a ghost node in this processor
@@ -224,6 +236,123 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
     }
     
+    // Boundary nodes and elements
+//////////////////////////////////////////////////////////////////    
+    unsigned actual_face_index = 0; 
+    for (unsigned face_index=0; face_index<mTotalNumBoundaryElements; face_index++)
+    {
+        std::vector<unsigned> node_indices = rMeshReader.GetNextFace();
+
+        bool own = false;
+
+        for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
+        {
+            // if I own this node
+            if(mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
+            {
+                own = true;
+            }
+        }
+        
+        if (!own )
+        {
+            continue;
+        }
+            
+        
+        bool is_boundary_face = true;
+
+        // Determine if this is a boundary face
+        std::set<unsigned> containing_element_indices; // Elements that contain this face
+        std::vector<Node<SPACE_DIM>*> nodes;
+
+        for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
+        {
+            // if I own this node
+            if(mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
+            {
+                // Add Node pointer to list for creating an element
+                unsigned node_local_index = SolveNodeMapping(node_indices[node_index]);
+                nodes.push_back(this->mNodes[node_local_index]);
+            }
+
+            // if I ghost-own this node
+            if(mGhostNodesMapping.find(node_indices[node_index]) != mGhostNodesMapping.end())
+            {
+                // Add Node pointer to list for creating an element
+                unsigned node_local_index = SolveGhostNodeMapping(node_indices[node_index]);                
+                nodes.push_back(this->mGhostNodes[node_local_index]); 
+            }
+            
+            if(cullInternalFaces)
+            {
+                // Work out what elements contain this face, by taking the intersection
+                // of the sets of elements containing each node in the face.
+                if (node_index == 0)
+                {
+                    containing_element_indices = nodes[node_index]->rGetContainingElementIndices();
+                }
+                else
+                {
+                    std::set<unsigned> temp;
+                    std::set_intersection(nodes[node_index]->rGetContainingElementIndices().begin(),
+                                          nodes[node_index]->rGetContainingElementIndices().end(),
+                                          containing_element_indices.begin(), containing_element_indices.end(),
+                                          std::inserter(temp, temp.begin()));
+                    containing_element_indices = temp;
+                }
+            }
+        }
+       
+
+        if(cullInternalFaces)
+        {
+            // only if not 1D as this assertion does not apply to quadratic 1D meshes
+            if(ELEMENT_DIM!=1)
+            {
+                //If the following assertion is thrown, it means that the .edge/.face file does not
+                //match the .ele file -- they were generated at separate times.  Simply remove the internal
+                //edges/faces by hand.
+                assert(containing_element_indices.size() != 0);
+            }
+
+            // if num_containing_elements is greater than 1, it is not an boundary face
+            if(containing_element_indices.size() > 1)
+            {
+                is_boundary_face = false;
+            }
+            
+            // in 1D QUADRATICS, all nodes are faces, so internal nodes which don't have any
+            // containing elements must also be unmarked as a boundary face
+            if( (ELEMENT_DIM==1) && (containing_element_indices.size()==0))
+            {
+                is_boundary_face = false;
+            }
+        }
+
+        if (is_boundary_face)
+        {
+            // This is a boundary face
+            // Ensure all its nodes are marked as boundary nodes
+            for (unsigned j=0; j<nodes.size(); j++)
+            {
+                if (!nodes[j]->IsBoundaryNode())
+                {
+                    nodes[j]->SetAsBoundaryNode();
+                    this->mBoundaryNodes.push_back(nodes[j]);
+                }
+                //Register the index that this bounday element will have
+                //with the node
+                nodes[j]->AddBoundaryElement(actual_face_index);
+            }
+
+            // The added elements will be deleted in our destructor
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
+            actual_face_index++;
+        }
+    }    
+//////////////////////////////////////////////////////////////////
+    
 }
 
 
@@ -249,6 +378,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mTotalNumElements;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
+{
+    return mTotalNumBoundaryElements;
 }
 
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
