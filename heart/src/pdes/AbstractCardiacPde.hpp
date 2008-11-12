@@ -92,10 +92,21 @@ protected:
     
     HeartConfig* mpConfig;
 
+    /**
+     * Whether we need to replicate the caches.
+     * 
+     * When doing matrix-based RHS assembly, we only actually need information from
+     * cells/nodes local to the processor, so replicating the caches is an 
+     * unnecessary communication overhead.
+     * 
+     * Defaults to true.
+     */
+    bool mDoCacheReplication;
 
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
-            :  mStride(stride)
+            : mStride(stride),
+              mDoCacheReplication(true)
     {
         //This constructor is called from the Initialise() method of the CardiacProblem class
         assert(pCellFactory!=NULL);
@@ -222,6 +233,16 @@ public:
 
         delete mpIntracellularConductivityTensors;
     }
+    
+    /**
+     * Set whether or not to replicate the caches across all processors.
+     * 
+     * See also mDoCacheReplication.
+     */
+    void SetCacheReplication(bool doCacheReplication)
+    {
+        mDoCacheReplication = doCacheReplication;
+    }
 
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex)
     {
@@ -283,7 +304,10 @@ public:
         PetscTools::ReplicateException(false);
 
         EventHandler::BeginEvent(COMMUNICATION);
-        ReplicateCaches();
+        if (mDoCacheReplication)
+        {
+            ReplicateCaches();
+        }
         EventHandler::EndEvent(COMMUNICATION);
     }
 

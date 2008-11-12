@@ -154,6 +154,8 @@ public:
         mpTemporaryAssembler = new MyTemporaryAssembler<SPACE_DIM>(pMesh);
         this->mpMatrixForMatrixBasedRhsAssembly = mpTemporaryAssembler->GetMatrix();
         this->mUseMatrixBasedRhsAssembly = true;
+        // No need to replicate ionic caches
+        pPde->SetCacheReplication(false);
     }
 
     ~MonodomainMatrixBasedAssembler()
@@ -167,15 +169,20 @@ public:
         this->mVectorForMatrixBasedRhsAssembly = currentSolution; // ie voltage 
     
         Vec force_term_at_nodes = PetscTools::CreateVec(this->mpMesh->GetNumNodes());
-
-        for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++) 
+        PetscInt lo, hi;
+        VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
+        double *p_force_term;
+        VecGetArray(force_term_at_nodes, &p_force_term);
+        for (unsigned global_index=lo; global_index<hi; global_index++) 
         {
-            const Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(i);
-            VecSetValue(force_term_at_nodes, i, this->mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*p_node, 0.0), INSERT_VALUES);
+            unsigned local_index = global_index - lo;
+            const Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(global_index);
+            p_force_term[local_index] = this->mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*p_node, 0.0);
         }
-        
+        VecRestoreArray(force_term_at_nodes, &p_force_term);
         VecAssemblyBegin(force_term_at_nodes); 
         VecAssemblyEnd(force_term_at_nodes); 
+        
         double one=1.0;
         double scaling=this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
                   *this->mDtInverse;
