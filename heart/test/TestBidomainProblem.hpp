@@ -76,6 +76,9 @@ public:
 
     void TestBidomainDg01DPinned()
     {
+// as UseMatrixBasedRhsAssembly is called below and it doesn't work in parallel yet.
+EXIT_IF_PARALLEL;
+        
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
@@ -102,6 +105,8 @@ public:
         pinned_nodes.clear();
         pinned_nodes.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
+
+bidomain_problem.UseMatrixBasedRhsAssembly();
 
         try
         {

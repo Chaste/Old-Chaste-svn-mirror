@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainDg0Assembler.hpp"
 #include "BidomainPde.hpp"
 #include "AbstractCardiacProblem.hpp"
+#include "BidomainMatrixBasedAssembler.hpp"
 
 
 /**
@@ -56,6 +57,8 @@ private:
 
     unsigned mRowMeanPhiEZero;
 
+    bool mUseMatrixBasedRhsAssembly;
+
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
@@ -66,11 +69,25 @@ protected:
 
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
     {
-        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
-            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                            mpBidomainPde,
-                                                            this->mpBoundaryConditionsContainer,
-                                                            2);
+        BidomainDg0Assembler<SPACE_DIM, SPACE_DIM>* p_bidomain_assembler;
+        
+        if(!mUseMatrixBasedRhsAssembly)
+        {
+            p_bidomain_assembler
+                = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                                mpBidomainPde,
+                                                                this->mpBoundaryConditionsContainer,
+                                                                2);
+        }
+        else
+        {
+            p_bidomain_assembler
+                = new BidomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                                        mpBidomainPde,
+                                                                        this->mpBoundaryConditionsContainer,
+                                                                        2);
+        }
+
         try
         {
             p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
@@ -96,7 +113,9 @@ public:
             mpBidomainPde(NULL), 
             mRowMeanPhiEZero(INT_MAX)
     {
-        mFixedExtracellularPotentialNodes.resize(0);        
+        mFixedExtracellularPotentialNodes.resize(0); 
+        
+        mUseMatrixBasedRhsAssembly = false;
     }
 
     /**
@@ -220,6 +239,10 @@ public:
         }
     }
 
+    void UseMatrixBasedRhsAssembly()
+    {
+        mUseMatrixBasedRhsAssembly = true;
+    }
 };
 
 

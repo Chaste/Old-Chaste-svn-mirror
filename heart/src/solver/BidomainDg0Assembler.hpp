@@ -72,7 +72,8 @@ public:
     static const unsigned E_DIM = ELEMENT_DIM;
     static const unsigned S_DIM = SPACE_DIM;
     static const unsigned P_DIM = 2u;
-private:
+
+protected:
     // Save typing
     typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType;
     typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, SelfType> BaseClassType;
