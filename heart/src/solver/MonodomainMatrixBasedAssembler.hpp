@@ -173,7 +173,7 @@ public:
         VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
         double *p_force_term;
         VecGetArray(force_term_at_nodes, &p_force_term);
-        for (unsigned global_index=lo; global_index<hi; global_index++) 
+        for (int global_index=lo; global_index<hi; global_index++) 
         {
             unsigned local_index = global_index - lo;
             const Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(global_index);

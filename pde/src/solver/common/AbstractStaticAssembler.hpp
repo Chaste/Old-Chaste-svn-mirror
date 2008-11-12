@@ -375,7 +375,6 @@ protected:
         if(assembleMatrix)
         {
             assemble_event = ASSEMBLE_SYSTEM;
-            //std::cout << "*";
         }
         else
         {
@@ -469,9 +468,6 @@ protected:
             iter++;
         }
 
-//// for debugging matrix-based rhs assembly
-//VecView(mpLinearSystem->rGetRhsVector(),PETSC_VIEWER_STDOUT_WORLD);
-
         // add the integrals associated with Neumann boundary conditions to the linear system
         typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
             surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
@@ -485,35 +481,16 @@ protected:
         // although this is a bit inefficient. Proper solution involves changing BCC to have a map of arrays
         // boundary conditions rather than an array of maps.
         ////////////////////////////////////////////////////////
-        assert(this->mpBoundaryConditions!=NULL);
-        EventHandler::BeginEvent(NEUMANN_BCS);
-        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions() && assembleVector)
+        if (assembleVector)
         {
-//// for debugging matrix-based rhs assembly
-//assert(0);            
-            typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
-                neumann_iterator = this->mpBoundaryConditions->BeginNeumann();
-            c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
-
-            // Iterate over defined conditions
-            while (neumann_iterator != this->mpBoundaryConditions->EndNeumann())
-            {
-                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = *(neumann_iterator->first);
-                AssembleOnSurfaceElement(surf_element, b_surf_elem);
-
-                const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM;
-                unsigned p_indices[STENCIL_SIZE];
-                surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
-                mpLinearSystem->AddRhsMultipleValues(p_indices, b_surf_elem);
-                ++neumann_iterator;
-            }
+            this->ApplyNeummanBoundaryConditions();
         }
-        EventHandler::EndEvent(NEUMANN_BCS);
 
         if (assembleVector)
         {
             mpLinearSystem->AssembleRhsVector();
         }
+        
         if (assembleMatrix)
         {
             mpLinearSystem->AssembleIntermediateLhsMatrix();

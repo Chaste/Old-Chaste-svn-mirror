@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GaussianQuadratureRule.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
+#include "EventHandler.hpp"
 
 /**
  *  AbstractAssembler
@@ -274,6 +275,45 @@ protected:
     virtual LinearSystem** GetLinearSystem()=0;
     virtual ReplicatableVector& rGetCurrentSolutionOrGuess()=0;
 
+
+    /**
+     *  Apply Neumann boundary conditions to the RHS vector by looping over 
+     *  surface elements (though actually looping over the boundary condition
+     *  objects).
+     * 
+     *  Note for PROBLEM_DIM>1. We assume that if an element has a boundary 
+     *  condition on any unknown there is a boundary condition on unknown 0. 
+     *  This can be so for any problem by adding zero constant conditions 
+     *  where required although this is a bit inefficient. Proper solution 
+     *  involves changing BCC to have a map of arrays boundary conditions 
+     *  rather than an array of maps.
+     */
+    void ApplyNeummanBoundaryConditions()
+    {
+        assert(mpBoundaryConditions!=NULL);
+        EventHandler::BeginEvent(NEUMANN_BCS);
+        if (mpBoundaryConditions->AnyNonZeroNeumannConditions())
+        {
+            typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
+                neumann_iterator = mpBoundaryConditions->BeginNeumann();
+            c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
+
+            // Iterate over defined conditions
+            while (neumann_iterator != mpBoundaryConditions->EndNeumann())
+            {
+                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = *(neumann_iterator->first);
+                AssembleOnSurfaceElement(surf_element, b_surf_elem);
+
+                const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM; // problem_dim*num_nodes_on_surface_element
+                unsigned p_indices[STENCIL_SIZE];
+                surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
+                (*(this->GetLinearSystem()))->AddRhsMultipleValues(p_indices, b_surf_elem);
+                ++neumann_iterator;
+            }
+        }
+        EventHandler::EndEvent(NEUMANN_BCS);
+    }
+    
 public:
 
     /**
