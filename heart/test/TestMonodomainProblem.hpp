@@ -346,7 +346,7 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         
-        monodomain_problem.SetUseMatrixBasedAssembly();
+        monodomain_problem.UseMatrixBasedRhsAssembly();
 
         monodomain_problem.Initialise();
 
