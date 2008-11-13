@@ -188,6 +188,7 @@ public:
     ~BidomainMatrixBasedAssembler()
     {
         delete mpTemporaryAssembler;
+        VecDestroy(this->mVectorForMatrixBasedRhsAssembly);
     }
     
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
