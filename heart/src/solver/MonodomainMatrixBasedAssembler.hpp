@@ -156,17 +156,20 @@ public:
         this->mUseMatrixBasedRhsAssembly = true;
         // No need to replicate ionic caches
         pPde->SetCacheReplication(false);
+
+        this->mVectorForMatrixBasedRhsAssembly = PetscTools::CreateVec(this->mpMesh->GetNumNodes());
+
     }
 
     ~MonodomainMatrixBasedAssembler()
     {
         delete mpTemporaryAssembler;
+        VecDestroy(this->mVectorForMatrixBasedRhsAssembly);
     }
     
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
     {
-        // rhs_rhs = V
-        this->mVectorForMatrixBasedRhsAssembly = currentSolution; // ie voltage 
+        VecCopy(currentSolution,this->mVectorForMatrixBasedRhsAssembly); // set vector_for_rhs_assembly = V 
     
         Vec force_term_at_nodes = PetscTools::CreateVec(this->mpMesh->GetNumNodes());
         PetscInt lo, hi;
@@ -184,8 +187,9 @@ public:
         VecAssemblyEnd(force_term_at_nodes); 
         
         double one=1.0;
-        double scaling=this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
-                  *this->mDtInverse;
+        double scaling=  this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
+                        *this->mDtInverse;
+
 #if (PETSC_VERSION_MINOR == 2) //Old API
         VecAXPBY(&one, &scaling, force_term_at_nodes,
             this->mVectorForMatrixBasedRhsAssembly);
@@ -196,7 +200,6 @@ public:
                  force_term_at_nodes); 
 #endif
        
-
         VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly); 
         VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
         VecDestroy(force_term_at_nodes);

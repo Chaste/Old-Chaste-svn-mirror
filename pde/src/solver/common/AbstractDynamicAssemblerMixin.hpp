@@ -59,14 +59,6 @@ protected:
     
     void DoMatrixBasedRhsAssembly(Vec currentSolution, double time)
     {
-// this is in AssembleSysten and being bypassed - is it needed????
-////if (currentSolution != NULL)
-////{
-////    EventHandler::BeginEvent(COMMUNICATION);
-////    this->mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolution);
-////    EventHandler::EndEvent(COMMUNICATION);
-////}
-
         // as bypassing AssembleSystem, need to make sure we call 
         // Prepare and Finalize
         this->PrepareForAssembleSystem(currentSolution, time);
