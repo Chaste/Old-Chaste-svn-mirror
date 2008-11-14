@@ -83,7 +83,7 @@ public:
 
     std::vector<unsigned>& rGetNodesPerProcessor();
     
-    
+    virtual void PermuteNodes();
     
 /// \todo: move implementations out of class definition    
     
@@ -214,5 +214,10 @@ std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcess
     return mNodesPerProcessor;
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
+{
+    NEVER_REACHED
+}
 
 #endif /*ABSTRACTMESH_HPP_*/
