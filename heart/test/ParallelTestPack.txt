@@ -1,3 +1,4 @@
+TestBidomainParallelMesh.hpp
 TestBidomainProblem.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainProblem.hpp
