@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # repository by a wrapper script.
 
 import os
+import operator
 import time
 import itertools
 import re
@@ -284,13 +285,20 @@ def _summary(req, type, revision, machine=None, buildType=None):
 
   # Work out the URL of the build log file
   # i.e. find out where test_set_dir/build.log points to
-  build_log = ""
+  build_log = "</p>"
   if not _standalone:
-    logurl = os.path.realpath(test_set_dir + "/build.log")
+    logpath = os.path.realpath(test_set_dir + "/build.log")
     # Remove the '/var/www/html' part
-    logurl = logurl[13:]
+    logurl = logpath[13:]
     if logurl:
-      build_log = "Build log: <a href=\"%s\">%s</a>" % (logurl, logurl)
+      build_log = "Build log: <a href=\"%s\">%s</a></p>" % (logurl, logurl)
+      timings = _parseBuildTimings(logpath).items()
+      timings.sort(key=operator.itemgetter(1)) # Sort by time
+      timings.reverse()
+      build_log += "\nTimings (for entire build log): <table><tr><th>Activity</th><th>Time (seconds)</th></tr>\n"
+      build_log += "\n".join(map(lambda row: '<tr><td>%s</td><td>%f</td></tr>' % row,
+                                 timings))
+      build_log += "\n</table>\n"
   
   # Produce output HTML
   if graphs:
@@ -305,7 +313,6 @@ def _summary(req, type, revision, machine=None, buildType=None):
   Build type: %s<br />
   Machine: %s<br />
   %s
-  </p>
   <table border="1">
     <tr>
       <th>Test Suite</th>
@@ -719,7 +726,6 @@ def _getTestSummary(test_set_dir, build):
 
 def _checkBuildFailure(test_set_dir, overall_status, colour):
   """Check whether the build failed, and return a new status if it did."""
-  import re
   try:
     log = file(os.path.join(test_set_dir, 'build.log'), 'r')
     for line in log:
@@ -832,6 +838,42 @@ def _statusColour(status, build):
       return 'green'
     else:
       return 'red'
+
+# Regexprs and state strings for _parseBuildTimings
+_time_re = re.compile(r"Command execution time: ([0-9.]+) seconds")
+_states = ['Other', 'Compile', 'CxxTest generation', 'Test running']
+_state_res = map(re.compile,
+    [r"mpicxx ",
+     r"cxxtest/cxxtestgen.py",
+     r"running '.*/build/.*/Test.*Runner'"])
+
+def _parseBuildTimings(logfilename):
+    """Parse a build log file to determine timings.
+    
+    Returns a dictionary mapping activity to time (in seconds).
+    """
+    times = [0] * len(_states)
+    logfile = open(logfilename, 'r')
+    state = 0
+
+    for line in logfile:
+        m = _time_re.match(line)
+        if m:
+            times[state] += float(m.group(1))
+            state = 0
+        elif state == 0:
+            for i, regexp in enumerate(_state_res):
+                m = regexp.match(line)
+                if m:
+                    state = i+1
+                    break
+    logfile.close()
+
+    result = dict(zip(_states, times))
+    result['Total'] = sum(times)
+    return result
+
+
 
 #####################################################################
 ##                   HTML helper functions.                        ##
