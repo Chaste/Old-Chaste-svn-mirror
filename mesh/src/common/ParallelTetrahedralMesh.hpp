@@ -432,9 +432,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterElement(unsigned i
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index)
-{
-    /// \todo: change assert for exception so can be better tested
-    assert(mNodesMapping.find(index) != mNodesMapping.end());
+{    
+    if(mNodesMapping.find(index) == mNodesMapping.end())
+    {
+        std::stringstream message;
+        message << "Requested node " << index << " does not belong to processor " << PetscTools::GetMyRank();
+        EXCEPTION(message.str().c_str());        
+    }
     return mNodesMapping[index];    
 }
 

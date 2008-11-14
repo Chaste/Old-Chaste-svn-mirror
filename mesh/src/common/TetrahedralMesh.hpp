@@ -80,7 +80,7 @@ private:
        // Don't do anything - this is just so subclasses can archive member variables.
     }        
 
-    std::vector<unsigned> mNodesPerProcessor;
+//    std::vector<unsigned> mNodesPerProcessor;
 
     unsigned SolveNodeMapping(unsigned index);
     unsigned SolveElementMapping(unsigned index);
@@ -96,13 +96,8 @@ public:
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
-    unsigned GetNumAllNodes() const; // to refine
-    unsigned GetNumAllElements(); // to refine
-    unsigned GetNumAllBoundaryElements(); // to refine
-
-
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
-    std::vector<unsigned>& rGetNodesPerProcessor();
+    //std::vector<unsigned>& rGetNodesPerProcessor();
 
     BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index)  // to abstract
     {
@@ -538,7 +533,7 @@ TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~TetrahedralMesh()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
 {
-    mNodesPerProcessor.clear();
+    this->mNodesPerProcessor.clear();
 
     std::ifstream file_stream(nodesPerProcessorFile.c_str());
     if(file_stream.is_open())
@@ -550,7 +545,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
 
             if(file_stream)
             {
-                mNodesPerProcessor.push_back(nodes_per_processor);
+                this->mNodesPerProcessor.push_back(nodes_per_processor);
             }
         }
     }
@@ -560,9 +555,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     }
 
     unsigned sum = 0;
-    for(unsigned i=0; i<mNodesPerProcessor.size(); i++)
+    for(unsigned i=0; i<this->mNodesPerProcessor.size(); i++)
     {
-        sum += mNodesPerProcessor[i];
+        sum += this->mNodesPerProcessor[i];
     }
 
     if(sum != this->GetNumNodes())
@@ -575,66 +570,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned>& TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
-{
-    return mNodesPerProcessor;
-}   
-
-/**
- * Get a node reference from the mesh.
- *
- * Note that this may become invalid if nodes are subsequently added to the mesh.
- */
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//Node<SPACE_DIM>* TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
+//std::vector<unsigned>& TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
 //{
-//    assert(index < this->mNodes.size());
-//    return (this->mNodes[index]);
+//    return mNodesPerProcessor;
 //}
-
-/// Returns the number of nodes that are actually in use
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
-//{
-//    return this->mNodes.size();
-//}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
-{
-    return this->mNodes.size();
-}
-
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
-//{
-//    return this->mElements.size();
-//}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
-{
-    return this->mElements.size();
-}
-
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
-//{
-//    return this->mBoundaryNodes.size();
-//}
-//
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
-//{
-//    return this->mBoundaryElements.size();
-//}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
-{
-    return this->mBoundaryElements.size();
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateVolume()
@@ -695,7 +635,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
     const double yScale,
     const double zScale)
 {
-    unsigned num_nodes=GetNumAllNodes();
+    unsigned num_nodes=this->GetNumAllNodes();
 
     for (unsigned i=0; i<num_nodes; i++)
     {
@@ -749,7 +689,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM> transVec)
 {
-    unsigned num_nodes=GetNumAllNodes();
+    unsigned num_nodes=this->GetNumAllNodes();
 
     for (unsigned i=0; i<num_nodes; i++)
     {
@@ -772,7 +712,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
     c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix)
 {
-    unsigned num_nodes=GetNumAllNodes();
+    unsigned num_nodes=this->GetNumAllNodes();
     for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
@@ -906,7 +846,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>& perm)
 {
     //Let's not do this if there are any deleted nodes
-    assert( GetNumAllNodes() == this->GetNumNodes());
+    assert( this->GetNumAllNodes() == this->GetNumNodes());
 
     assert(perm.size() == this->mNodes.size());
 
@@ -931,8 +871,8 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsigned numProcs)
 {
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
-    assert( GetNumAllElements() == this->GetNumElements());
-    assert( GetNumAllNodes() == this->GetNumNodes());
+    assert( this->GetNumAllElements() == this->GetNumElements());
+    assert( this->GetNumAllNodes() == this->GetNumNodes());
 
     // Open a file for the elements
     OutputFileHandler handler("");
@@ -1669,8 +1609,8 @@ c_vector<double,2> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(con
     assert(rDimension < SPACE_DIM);
     double max = -1e200;
     double min = 1e200;
-    assert(GetNumAllNodes() > 0u);
-    for (unsigned i=0; i<GetNumAllNodes(); i++)
+    assert(this->GetNumAllNodes() > 0u);
+    for (unsigned i=0; i<this->GetNumAllNodes(); i++)
     {
         if (!this->mNodes[i]->IsDeleted())
         {
@@ -1835,7 +1775,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgesBegin()
 {
     unsigned first_element_index=0;
-    while(first_element_index!=GetNumAllElements() && this->GetElement(first_element_index)->IsDeleted())
+    while(first_element_index!=this->GetNumAllElements() && this->GetElement(first_element_index)->IsDeleted())
     {
         first_element_index++;
     }
@@ -1845,7 +1785,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<E
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgesEnd()
 {
-    return EdgeIterator(*this, GetNumAllElements());
+    return EdgeIterator(*this, this->GetNumAllElements());
 }
 
 /**

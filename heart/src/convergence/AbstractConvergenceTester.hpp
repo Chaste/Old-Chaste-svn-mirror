@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <math.h>
 
-#include "TetrahedralMesh.hpp"
+#include "AbstractMesh.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.hpp"
@@ -382,9 +382,9 @@ public:
                 StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
 
                 // get mesh
-                TetrahedralMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();
+                AbstractMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();
                 // loop over boundary elements
-                typename TetrahedralMesh<DIM, DIM>::BoundaryElementIterator iter;
+                typename AbstractMesh<DIM, DIM>::BoundaryElementIterator iter;
                 iter = r_mesh.GetBoundaryElementIteratorBegin();
                 while (iter != r_mesh.GetBoundaryElementIteratorEnd())
                 {

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTMESHWRITER_HPP_
 #define _ABSTRACTMESHWRITER_HPP_
 
-#include "TetrahedralMesh.hpp"
+#include "AbstractMesh.hpp"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractMeshReader.hpp"
+#include "NodeMap.hpp"
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -97,7 +98,7 @@ public:
     {
         return mBoundaryFaceData.size();
     }
-    void WriteFilesUsingMesh(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    void WriteFilesUsingMesh(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
 };
 
@@ -142,7 +143,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryEdge(std::vector
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
-     TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
+     AbstractMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
     NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index=0;
@@ -168,7 +169,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     assert(new_index==(unsigned)rMesh.GetNumNodes());
 
     // Get an iterator over the elements of the mesh
-    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
+    typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
         rMesh.GetElementIteratorBegin();
 
     while (iter != rMesh.GetElementIteratorEnd())
@@ -188,7 +189,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
 
     // Get a iterator over the boundary elements of the mesh
-    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator boundary_iter =
+    typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator boundary_iter =
         rMesh.GetBoundaryElementIteratorBegin();
     while (boundary_iter != rMesh.GetBoundaryElementIteratorEnd())
     {

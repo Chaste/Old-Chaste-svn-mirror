@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
+#include "TetrahedralMesh.hpp"
 #include <cxxtest/TestSuite.h>
 
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>

@@ -397,7 +397,7 @@ public:
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
      */
-    BidomainDg0Assembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
                          BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                          unsigned numQuadPoints = 2) :

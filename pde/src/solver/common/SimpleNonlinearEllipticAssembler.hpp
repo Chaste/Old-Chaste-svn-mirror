@@ -178,7 +178,7 @@ public :
      * Constructor - takes in the mesh, pde and boundary conditions container to be solved. Can
      * also define the number of quad points (in each dimension), the default value of which is 2
      */
-    SimpleNonlinearEllipticAssembler( TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+    SimpleNonlinearEllipticAssembler( AbstractMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                       AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                       unsigned numQuadPoints = 2) :

@@ -112,7 +112,7 @@ public:
         assert(pCellFactory!=NULL);
         assert(pCellFactory->GetMesh()!=NULL);
 
-        std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();
+        std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();        
 
         // check number of processor agrees with definition in mesh
         if((r_nodes_per_processor.size() != 0) && (r_nodes_per_processor.size() != PetscTools::NumProcs()) )

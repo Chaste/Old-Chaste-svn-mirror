@@ -41,7 +41,9 @@ protected:  // Give access of these variables to subclasses
     std::vector<Node<SPACE_DIM> *> mBoundaryNodes;
 
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
-    std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;   
+    std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
+    
+    std::vector<unsigned> mNodesPerProcessor;   
 
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
@@ -56,6 +58,10 @@ public:
     virtual unsigned GetNumElements() const;
     virtual unsigned GetNumBoundaryElements() const;
     unsigned GetNumBoundaryNodes();// should this be overloaded and virtual too?
+
+    unsigned GetNumAllNodes() const;
+    unsigned GetNumAllElements();
+    unsigned GetNumAllBoundaryElements();
 
     Node<SPACE_DIM> *GetNode(unsigned index);    
     Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index);
@@ -73,6 +79,9 @@ public:
     virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                          bool cullInternalFaces=false)=0;
     
+    virtual void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
+
+    std::vector<unsigned>& rGetNodesPerProcessor();
     
     
     
@@ -153,6 +162,26 @@ unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
+{
+    return this->mNodes.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
+{
+    return this->mElements.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
+{
+    return this->mBoundaryElements.size();
+}
+
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 {
     return this->mBoundaryElements.size();
@@ -170,6 +199,19 @@ Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElemen
 {
     unsigned local_index = SolveElementMapping(index);
     return this->mElements[local_index];
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
+{
+    NEVER_REACHED
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
+{
+    return mNodesPerProcessor;
 }
 
 

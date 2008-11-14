@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCARDIACCELLFACTORY_HPP_
 
 #include "AbstractCardiacCell.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractMesh.hpp"
 #include "ZeroStimulus.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
@@ -58,7 +58,7 @@ protected:
     AbstractIvpOdeSolver* mpSolver;
 
     /** the mesh is automatically set in MonodomainProblem and BidomainProblem */
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
 public:
     virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned)=0;
@@ -82,12 +82,12 @@ public:
         delete mpSolver;
         delete mpZeroStimulus;
     }
-    void SetMesh(TetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh)
     {
         mpMesh = pMesh;
     }
 
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM>* GetMesh()
+    AbstractMesh<SPACE_DIM,SPACE_DIM>* GetMesh()
     {
         assert(mpMesh != NULL);
         return mpMesh;

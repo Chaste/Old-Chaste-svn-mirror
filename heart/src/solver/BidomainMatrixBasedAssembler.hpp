@@ -130,7 +130,7 @@ public:
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
      */
-    MyTemporaryAssemblerForBidomain(TetrahedralMesh<DIM,DIM>* pMesh)
+    MyTemporaryAssemblerForBidomain(AbstractMesh<DIM,DIM>* pMesh)
         :  AbstractLinearAssembler<DIM,DIM,2,false,MyTemporaryAssemblerForBidomain<DIM> >()
     {
         this->mpMesh = pMesh;
@@ -169,7 +169,7 @@ public:
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
      */
-    BidomainMatrixBasedAssembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                  BidomainPde<SPACE_DIM>* pPde,
                                  BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                                  unsigned numQuadPoints = 2) :

@@ -140,7 +140,7 @@ public:
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
      */
-    MonodomainDg0Assembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    MonodomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            MonodomainPde<SPACE_DIM>* pPde,
                            BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
                            unsigned numQuadPoints = 2) :

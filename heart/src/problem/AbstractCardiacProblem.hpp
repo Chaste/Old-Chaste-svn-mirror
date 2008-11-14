@@ -71,7 +71,7 @@ protected:
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
     Vec mVoltage; // Current solution
 
@@ -255,7 +255,7 @@ public:
         mCallChaste2Meshalyzer=call;
     }
 
-    void SetMesh(TetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh)
     {
         // If this fails the mesh has already been set. We assert rather throw an exception
         // to avoid a memory leak when checking it throws correctly
@@ -296,7 +296,7 @@ public:
         return mVoltage;
     }
 
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
+    AbstractMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
     {
     	assert (mpMesh);    	
         return *mpMesh;

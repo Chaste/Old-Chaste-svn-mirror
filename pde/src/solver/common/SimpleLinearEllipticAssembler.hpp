@@ -124,7 +124,7 @@ public:
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
      */
-    SimpleLinearEllipticAssembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    SimpleLinearEllipticAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :

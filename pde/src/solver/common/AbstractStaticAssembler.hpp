@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractAssembler.hpp"
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "LinearSystem.hpp"
 #include "GaussianQuadratureRule.hpp"
@@ -101,7 +101,7 @@ class AbstractStaticAssembler : virtual public AbstractAssembler<ELEMENT_DIM,SPA
 {
 protected:
     /** Mesh to be solved on */
-    TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
+    AbstractMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
 
     /** Quadrature rule for use on normal elements */
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
@@ -432,7 +432,7 @@ protected:
         }
 
         // Get an iterator over the elements of the mesh
-        typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
+        typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
             iter = this->mpMesh->GetElementIteratorBegin();
 
         const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1);
@@ -469,7 +469,7 @@ protected:
         }
 
         // add the integrals associated with Neumann boundary conditions to the linear system
-        typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
+        typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
             surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
 
 
@@ -621,7 +621,7 @@ public:
     /**
      * Set the mesh.
      */
-    void SetMesh(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+    void SetMesh(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
     {
         mpMesh = pMesh;
     }

@@ -122,7 +122,7 @@ public:
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
      */
-    SimpleDg0ParabolicAssembler(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    SimpleDg0ParabolicAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 AbstractLinearParabolicPde<SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                 unsigned numQuadPoints = 2) :
