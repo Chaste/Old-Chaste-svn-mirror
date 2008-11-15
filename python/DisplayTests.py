@@ -295,9 +295,11 @@ def _summary(req, type, revision, machine=None, buildType=None):
       timings = _parseBuildTimings(logpath).items()
       timings.sort(key=operator.itemgetter(1)) # Sort by time
       timings.reverse()
-      build_log += "\nTimings (for entire build log): <table><tr><th>Activity</th><th>Time (seconds)</th></tr>\n"
-      build_log += "\n".join(map(lambda row: '<tr><td>%s</td><td>%f</td></tr>' % row,
-                                 timings))
+      build_log += "\nTimings (for entire build log): <table><tr><th>Activity</th><th>Time (minutes)</th></tr>\n"
+      build_log += "\n".join(
+        map(lambda row: '<tr><td>%s</td><td>%d:%f</td></tr>'
+            % (row[0], row[1]//60, row[1]%60),
+            timings))
       build_log += "\n</table>\n"
   
   # Produce output HTML
