@@ -226,8 +226,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
     }
     
-    // Boundary nodes and elements
-//////////////////////////////////////////////////////////////////    
+    // Boundary nodes and elements    
     unsigned actual_face_index = 0; 
     for (unsigned face_index=0; face_index<mTotalNumBoundaryElements; face_index++)
     {
@@ -340,11 +339,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
             actual_face_index++;
         }
-    }    
-//////////////////////////////////////////////////////////////////
-    
+    }        
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes() const

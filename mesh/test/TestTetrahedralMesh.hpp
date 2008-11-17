@@ -70,8 +70,31 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
     }
+    
+    void TestMeshConstructionFromMeshReaderIndexedFromOne(void)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
 
+        // Check some node co-ordinates
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 1.0, 1e-6); // note this mesh is different to disk_984_elements
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 0.9980267283, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0627905195, 1e-6);
+
+        // Check first element has the right nodes
+        TetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
+        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
+    }
+   
     void Test3dMeshConstructionFromMeshReader(void)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -122,55 +145,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 425U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1889U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 436U);
-    }
-
-    void TestMeshConstructionWithMemoryFriendlyMeshReader(void)
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
-
-        // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
-
-        // Check first element has the right nodes
-        TetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
-        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
-    }
-
-
-    void TestMeshConstructionWithMemoryFriendlyMeshReaderIndexedFromOne(void)
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
-
-        // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 1.0, 1e-6); // note this mesh is different to disk_984_elements
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 0.9980267283, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0627905195, 1e-6);
-
-        // Check first element has the right nodes
-        TetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
-        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
     }
 
 

@@ -41,6 +41,18 @@ class TestParallelTetrahedralMesh : public CxxTest::TestSuite
     
 public:
 
+    void TestConstructFromMeshReader1D()
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        
+        ParallelTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 11U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 10U);
+    }
+
     void TestConstructFromMeshReader2D()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");

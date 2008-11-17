@@ -224,7 +224,9 @@ Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElemen
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
 {
+    #define COVERAGE_IGNORE
     NEVER_REACHED
+    #undef COVERAGE_IGNORE
 }
 
 
@@ -237,7 +239,9 @@ std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcess
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
+    #define COVERAGE_IGNORE
     NEVER_REACHED
+    #undef COVERAGE_IGNORE
 }
 
 #endif /*ABSTRACTMESH_HPP_*/
