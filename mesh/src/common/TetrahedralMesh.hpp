@@ -91,7 +91,7 @@ public:
     TetrahedralMesh(unsigned numElements);
     //TetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
-    virtual ~TetrahedralMesh();
+    //virtual ~TetrahedralMesh();
 
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
@@ -506,27 +506,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             actual_face_index++;
         }
     }
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~TetrahedralMesh()
-{
-    // Iterate over nodes and free the memory
-    for (unsigned i=0; i<this->mNodes.size(); i++)
-    {
-        delete this->mNodes[i];
-    }
-    // Iterate over elements and free the memory
-    for (unsigned i=0; i<this->mElements.size(); i++)
-    {
-        delete this->mElements[i];
-    }
-    // Iterate over boundary elements and free the memory
-    for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
-    {
-        delete this->mBoundaryElements[i];
-    }
-
 }
 
 

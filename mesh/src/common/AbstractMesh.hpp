@@ -50,9 +50,7 @@ public:
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
 
-    virtual ~AbstractMesh()
-    {
-    }
+    virtual ~AbstractMesh();
 
     virtual unsigned GetNumNodes() const;
     virtual unsigned GetNumElements() const;
@@ -141,6 +139,28 @@ private:
     virtual unsigned SolveElementMapping(unsigned index)=0;        
 
 };
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()
+{
+    // Iterate over nodes and free the memory
+    for (unsigned i=0; i<this->mNodes.size(); i++)
+    {
+        delete this->mNodes[i];
+    }
+    // Iterate over elements and free the memory
+    for (unsigned i=0; i<this->mElements.size(); i++)
+    {
+        delete this->mElements[i];
+    }
+    // Iterate over boundary elements and free the memory
+    for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
+    {
+        delete this->mBoundaryElements[i];
+    }
+}
+
 
 /// Returns the number of nodes that are actually in use
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

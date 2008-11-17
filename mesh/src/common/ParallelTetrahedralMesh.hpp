@@ -100,16 +100,6 @@ private:
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
 {
-    for (unsigned i=0; i<this->mElements.size(); i++)
-    {
-        delete this->mElements[i];
-    }
-
-    for (unsigned i=0; i<this->mNodes.size(); i++)
-    {
-        delete this->mNodes[i];
-    }
-
     for (unsigned i=0; i<this->mGhostNodes.size(); i++)
     {
         delete this->mGhostNodes[i];
