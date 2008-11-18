@@ -83,7 +83,7 @@ public :
      */
     void Update(double currentTime)
     {
-        unsigned percentage = floor( (currentTime - mStartTime)/(mEndTime - mStartTime)*100 );
+        unsigned percentage = (unsigned)( (currentTime - mStartTime)/(mEndTime - mStartTime)*100 );
         if(mLastPercentage==UINT_MAX || percentage > mLastPercentage)
         {
             *mpFile << percentage << "% completed" << std::endl;
