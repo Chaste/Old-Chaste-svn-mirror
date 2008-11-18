@@ -10,6 +10,7 @@ TestPetscEvents.hpp
 TestPetSCSetup.hpp
 TestPetscTools.hpp
 TestPetscTools2.hpp
+TestProgressReporter.hpp
 TestRandomNumberGenerator.hpp
 TestReplicatableVector.hpp
 TestTimeStepper.hpp

@@ -170,7 +170,7 @@ def InspectFile(fileName):
           	print 'Not implemented'
           	return False
         else:
-	        HeadAppendStringInFile(cpp_current_notice, fileName)
+	        HeadAppendStringInFile(cpp_current_notice+"\n\n", fileName)
         return True
     else:
         print 'Fix this by doing: python python/CheckForCopyrights.py -new'
