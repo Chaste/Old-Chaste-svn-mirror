@@ -101,7 +101,7 @@ public:
 
         MonodomainProblem<2> monodomain_problem(&cell_factory);
 
-     //   monodomain_problem.UseMatrixBasedRhsAssembly();
+        monodomain_problem.UseMatrixBasedRhsAssembly();
 
         monodomain_problem.Initialise();
 

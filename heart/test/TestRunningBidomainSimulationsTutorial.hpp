@@ -198,7 +198,8 @@ public:
         HeartConfig::Instance()->SetCapacitance(1.0);
 
         /* Now we call Solve() to run the simulation. Output will be written
-         * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''todo: To visualise...'''*/
+         * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''todo: Comments on watching progress and visualising...'''*/
+         
         bidomain_problem.Solve();
 
         /* Finally, we show how to access the voltage values (at the final timestep, the

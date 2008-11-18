@@ -119,6 +119,9 @@ public:
 
         // cover get pde
         monodomain_problem.GetPde();
+        
+        // check a progress report exists
+        TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1d/").c_str()), 0);
     }
 
     void TestMonodomainProblem1DWithRelativeTolerance() throw(Exception)
@@ -304,10 +307,8 @@ public:
         dif = difftime (end,start);
         //printf ("\nSolve took %.2lf seconds. \n", dif );
 
-
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars(monodomain_problem);
-
 
         /*
          * Test that corners are 'equal', and centres of sides.

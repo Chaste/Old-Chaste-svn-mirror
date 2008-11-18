@@ -44,9 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
-
 #include "OrthotropicConductivityTensors.hpp"
 #include "AxisymmetricConductivityTensors.hpp"
+#include "ProgressReporter.hpp"
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
@@ -328,13 +328,27 @@ public:
         TimeStepper stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), 
                             HeartConfig::Instance()->GetPrintingTimeStep());
 
+        std::string progress_reporter_dir;
+
         if (mPrintOutput)
         {
             EventHandler::BeginEvent(WRITE_OUTPUT);
             InitialiseWriter();
             WriteOneStep(stepper.GetTime(), initial_condition);
             EventHandler::EndEvent(WRITE_OUTPUT);
+            
+            progress_reporter_dir = mOutputDirectory;
         }
+        else
+        {
+            progress_reporter_dir = ""; // progress printed to CHASTE_TEST_OUTPUT
+        }
+
+        // create a progress reporter so users can track how much has gone and 
+        // estimate how much time is left. (Note this has to be done after the
+        // InitialiseWriter above (if mPrintOutput==true)
+        ProgressReporter progress_reporter(progress_reporter_dir, 0.0, HeartConfig::Instance()->GetSimulationDuration());
+        progress_reporter.Update(0);
 
         // If we have already run a simulation, free the old solution vec
         if (mVoltage)
@@ -390,12 +404,15 @@ public:
                 WriteOneStep(stepper.GetTime(), mVoltage);
                 EventHandler::EndEvent(WRITE_OUTPUT);
             }
+            
+            progress_reporter.Update(stepper.GetTime());
         }
 
         // Free assembler
         delete mpAssembler;
 
         // close the file that stores voltage values
+        progress_reporter.PrintFinalising();
         CloseFilesAndPostProcess();
         EventHandler::EndEvent(EVERYTHING);
     }
