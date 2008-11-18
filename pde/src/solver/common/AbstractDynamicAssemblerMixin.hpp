@@ -54,21 +54,31 @@ protected:
 
     /*< Whether the RHS vector of a linear problem is created by a matrix-vector multiplication */
     bool mUseMatrixBasedRhsAssembly;
+    /*< If doing matrix-based assembly for the RHS b, the matrix B in Bz=b */
     Mat* mpMatrixForMatrixBasedRhsAssembly;
+    /*< If doing matrix-based assembly for the RHS b, the vector z in Bz=b */
     Vec mVectorForMatrixBasedRhsAssembly;
     
+    /**
+     *  This method is only called if mUseMatrixBasedRhsAssembly has been set to
+     *  true (by a sub-class), in which case the subclass should have set up a matrix
+     *  to do matrix-based RHS assembly, and implemented 
+     *  ConstructVectorForMatrixBasedRhsAssembly. This method just assembles the RHS
+     *  matrix b by setting up z and doing Bz=b.
+     */
     void DoMatrixBasedRhsAssembly(Vec currentSolution, double time)
     {
+        assert(mpMatrixForMatrixBasedRhsAssembly!=NULL);
+
         // as bypassing AssembleSystem, need to make sure we call 
         // Prepare and Finalize
         this->PrepareForAssembleSystem(currentSolution, time);
-        
-        assert(mpMatrixForMatrixBasedRhsAssembly!=NULL);
 
         EventHandler::BeginEvent(ASSEMBLE_RHS);
 
         (*(this->GetLinearSystem()))->ZeroRhsVector();
 
+        // construct z 
         ConstructVectorForMatrixBasedRhsAssembly(currentSolution);
         
         // b = Bz
@@ -178,6 +188,10 @@ public:
 
             PdeSimulationTime::SetTime(stepper.GetTime());
 
+            // NOTE: even if mUseMatrixBasedRhsAssembly==true,
+            // the RHS is assembled without using matrix-based assembly
+            // in the first timestep (when the LHS matrix is set up) - no
+            // easy way around this
             if(!mUseMatrixBasedRhsAssembly || !mMatrixIsAssembled)
             {
                 next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
@@ -201,6 +215,10 @@ public:
         return current_solution;
     }
     
+    /**
+     *  This method should be overloaded by any subclass which uses matrix-based
+     *  assembly.
+     */
     virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
     {
         #define COVERAGE_IGNORE

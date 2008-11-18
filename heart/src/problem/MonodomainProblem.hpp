@@ -136,6 +136,9 @@ public:
         std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
     }
     
+    /** 
+     *  Whether to use matrix-based RHS assembly or not
+     */
     void UseMatrixBasedRhsAssembly()
     {
         mUseMatrixBasedRhsAssembly = true;

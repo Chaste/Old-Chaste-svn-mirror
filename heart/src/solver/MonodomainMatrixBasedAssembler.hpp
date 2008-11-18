@@ -36,22 +36,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MonodomainDg0Assembler.hpp"
 
+// NOTE: MonodomainMatrixBasedAssembler is defined after MonodomainRhsMatrixAssembler
 
+
+/**
+ *  MonodomainRhsMatrixAssembler
+ * 
+ *  This class only exists to construct a matrix, the matrix which is used
+ *  to assemble the RHS in monodomain problems. Therefore, although it inherits
+ *  from the assembler hierachy, it is not an assembler for any particular 
+ *  PDE problem, it is just used to assemble one matrix. Therefore only
+ *  ConstructMatrixTerm is properly implemented.
+ * 
+ *  The matrix that is constructed is in fact the mass matrix:
+ *  A_ij = integral phi_i phi_j dV, where phi_k is the k-th basis function
+ */
 template<unsigned DIM>
-class MyTemporaryAssembler
-    : public AbstractLinearAssembler<DIM, DIM, 1, false, MyTemporaryAssembler<DIM> >
+class MonodomainRhsMatrixAssembler
+    : public AbstractLinearAssembler<DIM, DIM, 1, false, MonodomainRhsMatrixAssembler<DIM> >
 {
 public:
     static const unsigned E_DIM = DIM;
     static const unsigned S_DIM = DIM;
     static const unsigned P_DIM = 1u;
 
-public: // not sure why this is public
+public: 
     /**
-     *  The term to be added to the element stiffness matrix:
-     *
-     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) +
-     *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[co]
+     *  Integrand in matrix definition integral (see class documentation)
      */
     virtual c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
         c_vector<double, DIM+1> &rPhi,
@@ -65,7 +76,8 @@ public: // not sure why this is public
     }
 
     /**
-     *  The term to be added to the element stiffness vector:
+     *  The term to be added to the element stiffness vector - except this class
+     *  is only used for constructing a matrix so this is never called.
      */
     virtual c_vector<double,1*(DIM+1)> ComputeVectorTerm(
         c_vector<double, DIM+1> &rPhi,
@@ -76,50 +88,55 @@ public: // not sure why this is public
         Element<DIM,DIM>* pElement)
 
     {
-#define COVERAGE_IGNORE
-        assert(0); //note: temporary assembler - see #787
-        c_vector<double,1*(DIM+1)> ret = zero_vector<double>(DIM+1);
-        return ret;
-#undef COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
+        NEVER_REACHED;
+        return zero_vector<double>(DIM+1);
+        #undef COVERAGE_IGNORE
     }
 
 
     /**
      *  The term arising from boundary conditions to be added to the element
-     *  stiffness vector
+     *  stiffness vector - except this class is only used fpr constructing a matrix 
+     *  so this is never called.
      */
     virtual c_vector<double, DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
         c_vector<double, DIM> &rPhi,
         ChastePoint<DIM> &rX )
     {
-#define COVERAGE_IGNORE
-        assert(0); //note: temporary assembler - see #787
-        c_vector<double,DIM> ret = zero_vector<double>(DIM);
-        return ret;        
-#undef COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
+        NEVER_REACHED; 
+        return zero_vector<double>(DIM);
+        #undef COVERAGE_IGNORE
     }
 
 
 public:
     /**
-     * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
+     * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
      */
-    MyTemporaryAssembler(AbstractMesh<DIM,DIM>* pMesh)
-        :  AbstractLinearAssembler<DIM,DIM,1,false,MyTemporaryAssembler<DIM> >()
+    MonodomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh)
+        :  AbstractLinearAssembler<DIM,DIM,1,false,MonodomainRhsMatrixAssembler<DIM> >()
     {
         this->mpMesh = pMesh;
+
+        // this needs to be set up, though no boundary condition values are used in the matrix
         this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,1>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
         
         this->mpLinearSystem = new LinearSystem(pMesh->GetNumNodes());
         this->AssembleSystem(false,true);
     }
-    ~MyTemporaryAssembler()
+    
+    ~MonodomainRhsMatrixAssembler()
     {
         delete this->mpBoundaryConditions;
-     }
+    }
     
+    /**
+     *  Get a pointer to the matrix
+     */
     Mat* GetMatrix()
     {
         return &(this->mpLinearSystem->rGetLhsMatrix());
@@ -131,18 +148,28 @@ public:
 
 /**
  *  MonodomainMatrixBasedAssembler
+ *  
+ *  This class makes use of the functionality in its parent, AbstractDynamicAssemblerMixin,
+ *  for specifying a constant matrix B and time-dependent vector z such that the finite element
+ *  RHS vector b (in Ax=b) satisfies Bz=b, and therefore b can be constructed very quickly each
+ *  timestep (compared to looping over elements and assembling it.
  *
+ *  For the monodomain problem, B is the mass matrix (see MonodomainRhsMatrixAssembler)
+ *  and z = CA V^{m}/dt - A I_ionic - Istim
+ *  where V is the vector of voltages are the last timestep, and I_ionic and I_stim are
+ *  nodewise vectors of ionic currents and stimulus currents (and C is the capacitance and
+ *  A surface-area-to-volume ratio). 
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainMatrixBasedAssembler
     : public MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
-    MyTemporaryAssembler<SPACE_DIM>* mpTemporaryAssembler;
+    MonodomainRhsMatrixAssembler<SPACE_DIM>* mpMonodomainRhsMatrixAssembler;
     
 public:
     /**
-     * Constructor stores the mesh and pde and sets up boundary conditions.
+     * Constructor calls base constructor and creates and stores rhs-matrix.
      */
     MonodomainMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                    MonodomainPde<SPACE_DIM>* pPde,
@@ -150,27 +177,35 @@ public:
                                    unsigned numQuadPoints = 2) :
             MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
     {
-        // construct matrix 
-        mpTemporaryAssembler = new MyTemporaryAssembler<SPACE_DIM>(pMesh);
-        this->mpMatrixForMatrixBasedRhsAssembly = mpTemporaryAssembler->GetMatrix();
-        this->mUseMatrixBasedRhsAssembly = true;
-        // No need to replicate ionic caches
-        pPde->SetCacheReplication(false);
+        // construct matrix using the helper class
+        mpMonodomainRhsMatrixAssembler = new MonodomainRhsMatrixAssembler<SPACE_DIM>(pMesh);
+        this->mpMatrixForMatrixBasedRhsAssembly = mpMonodomainRhsMatrixAssembler->GetMatrix();
 
+        // set variables on parent class so that we do matrix-based assembly, and allocate
+        // memory for the vector 'z'
+        this->mUseMatrixBasedRhsAssembly = true;
         this->mVectorForMatrixBasedRhsAssembly = PetscTools::CreateVec(this->mpMesh->GetNumNodes());
 
+        // Tell pde there's no need to replicate ionic caches
+        pPde->SetCacheReplication(false);
     }
 
     ~MonodomainMatrixBasedAssembler()
     {
-        delete mpTemporaryAssembler;
+        delete mpMonodomainRhsMatrixAssembler;
         VecDestroy(this->mVectorForMatrixBasedRhsAssembly);
     }
     
+    /**
+     *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See class 
+     *  documentation.
+     */
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
     {
-        VecCopy(currentSolution,this->mVectorForMatrixBasedRhsAssembly); // set vector_for_rhs_assembly = V 
+        // copy V to z
+        VecCopy(currentSolution,this->mVectorForMatrixBasedRhsAssembly);  
     
+        // set up a vector which has the nodewise force term (ie A*I_ionic+I_stim)
         Vec force_term_at_nodes = PetscTools::CreateVec(this->mpMesh->GetNumNodes());
         PetscInt lo, hi;
         VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
@@ -191,9 +226,10 @@ public:
                         *this->mDtInverse;
 
 #if (PETSC_VERSION_MINOR == 2) //Old API
-        VecAXPBY(&one, &scaling, force_term_at_nodes,
-            this->mVectorForMatrixBasedRhsAssembly);
+        // VecAXPBY(a,b,x,y) does y = ax + by
+        VecAXPBY(&one, &scaling, force_term_at_nodes, this->mVectorForMatrixBasedRhsAssembly);
 #else
+        // VecAXPBY(y,a,b,x) does y = ax + by
         VecAXPBY(this->mVectorForMatrixBasedRhsAssembly, 
                  one,
                  scaling, 
@@ -209,8 +245,8 @@ public:
 /**
  * Specialization of AssemblerTraits for the MonodomainMatrixBasedAssembler.
  *
- * This is always a concrete class, but only defines some of the methods.
- * For others it thus has to know which base class defines them.
+ * This is always a concrete class but the methods which the traits structure
+ * gives info on are defined in super-classes.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct AssemblerTraits<MonodomainMatrixBasedAssembler<ELEMENT_DIM, SPACE_DIM> >

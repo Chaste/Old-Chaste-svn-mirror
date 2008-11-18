@@ -30,8 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _MONODOMAINDG0ASSEMBLER_HPP_
 #define _MONODOMAINDG0ASSEMBLER_HPP_
 
-
-//#include <iostream>
 #include <vector>
 #include <petscvec.h>
 

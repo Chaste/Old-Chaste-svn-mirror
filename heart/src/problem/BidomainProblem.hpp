@@ -179,12 +179,12 @@ public:
             double v=voltage_replicated[2*i];            
             double phi=voltage_replicated[2*i+1];
   
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             if (isnan(v) || isnan(phi))
             {
                 EXCEPTION("Not-a-number encountered");
             }
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
             if ( v > v_max)
             {
                 v_max = v;
@@ -202,10 +202,9 @@ public:
                 phi_min = phi;
             }
         }
-        std::cout << " V; phi_e = " << 
-            "[" <<v_min << ", " << v_max << "]" << ";\t"
-            "[" <<phi_min << ", " << phi_max << "]" << "\n"
-             << std::flush;
+        std::cout << " V; phi_e = " << "[" <<v_min << ", " << v_max << "]" << ";\t"
+                  << "[" <<phi_min << ", " << phi_max << "]" << "\n"
+                  << std::flush;
     }
 
     virtual void DefineWriterColumns()
@@ -239,6 +238,9 @@ public:
         }
     }
 
+    /** 
+     *  Whether to use matrix-based RHS assembly or not
+     */
     void UseMatrixBasedRhsAssembly()
     {
         mUseMatrixBasedRhsAssembly = true;

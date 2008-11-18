@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "HeatEquation.hpp"
 
-class TestHeatEquation : public CxxTest::TestSuite
+class TestTimeDependentDiffusionEquationPde : public CxxTest::TestSuite
 {
 public:
 
