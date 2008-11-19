@@ -103,7 +103,7 @@ public:
         pinned_nodes.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
 
-bidomain_problem.UseMatrixBasedRhsAssembly();
+bidomain_problem.UseMatrixBasedRhsAssembly(false);
 
         try
         {

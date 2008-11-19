@@ -104,7 +104,7 @@ protected:
 
 public:
     /**
-     * Constructor
+     * Constructor 
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
@@ -244,6 +244,11 @@ public:
     void UseMatrixBasedRhsAssembly()
     {
         mUseMatrixBasedRhsAssembly = true;
+    }
+    
+    void UseMatrixBasedRhsAssembly(bool usematrix)
+    {
+        mUseMatrixBasedRhsAssembly = usematrix;
     }
 };
 
