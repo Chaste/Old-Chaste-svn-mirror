@@ -50,8 +50,11 @@ for pid in os.listdir('/proc/'):
       if s.st_uid == os.getuid():
         cwd = os.path.realpath('/proc/' + pid + '/cwd')
         if cwd == kill_dir and int(pid) != os.getpid():
-          print pid, "is running from our dir as"
-          os.system('cat /proc/' + pid + '/cmdline')
+          print pid, "is running from our dir as",
+          f = open('/proc/' + pid + '/cmdline')
+          cmdline = f.read().split('\x00')[:-1]
+          f.close()
+          print cmdline[0:3]
           if not sim:
             os.kill(int(pid), signal.SIGTERM)
             print " ** SENT SIGTERM  mwa ha ha"
