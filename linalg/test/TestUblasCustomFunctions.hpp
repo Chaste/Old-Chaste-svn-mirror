@@ -35,9 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/io.hpp>
 #include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "/opt/intel/mkl/9.1.023/include/mkl_lapack.h"
 #include "PetscTools.hpp"
-#include <iomanip>
 
 class TestUblasCustomFunctions : public CxxTest::TestSuite
 {
