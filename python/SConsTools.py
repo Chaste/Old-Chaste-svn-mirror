@@ -184,16 +184,23 @@ def FindTestsToRun(build, BUILD_TARGETS,
     else:
         # Are we building this component/project?
         test_this_comp = False
-        this_comp_targets = ['.', SCons.Defaults.DefaultEnvironment().Dir('#').abspath]
+        root_dir = SCons.Defaults.DefaultEnvironment().Dir('#').abspath
+        this_comp_targets = ['.', root_dir]
         if not project and component in comp_deps['core']:
             this_comp_targets.append('core')
         if project:
-            this_comp_targets.append('projects/'+project)
+            this_comp_targets.extend(
+                [os.path.join('projects', project),
+                 os.path.join(root_dir, 'projects', project)])
         else:
-            this_comp_targets.append(component)
+            this_comp_targets.extend([component,
+                                      os.path.join(root_dir, component)])
+        #print map(str, BUILD_TARGETS)
+        #print component, project, this_comp_targets
         for targ in BUILD_TARGETS:
             if str(targ) in this_comp_targets:
                 test_this_comp = True
+                break
         if test_this_comp:
             # Find appropriate test pack files
             packfiles = []

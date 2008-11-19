@@ -208,8 +208,8 @@ env['CHASTE_OBJECTS'] = {}
 
 
 if not single_test_suite:
-    # Default is to build everything
-    Default('.')
+    # Default is to build all components, but not user projects
+    Default(components)
 
 
 # Create Builders for generating test .cpp files, and running test executables
@@ -338,6 +338,7 @@ if test_summary and not compile_only:
   # Make sure the summary is always required by the build targets requested
   for targ in BUILD_TARGETS:
       senv.Depends(targ, summary_index)
+  senv.Depends(summary_index, test_log_files)
   senv.Default(summary_index)
 
 
