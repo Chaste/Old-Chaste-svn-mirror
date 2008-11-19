@@ -150,7 +150,14 @@ public:
         this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,2>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
 
-        this->mpLinearSystem = new LinearSystem(2*pMesh->GetNumNodes());
+//        this->mpLinearSystem = new LinearSystem(2*pMesh->GetNumNodes());
+
+        DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+        Vec template_vec = DistributedVector::CreateVec(2);
+        this->mpLinearSystem = new LinearSystem(template_vec);
+        VecDestroy(template_vec);
+
+
         this->AssembleSystem(false,true);
     }
 
@@ -215,7 +222,8 @@ public:
         // set variables on parent class so that we do matrix-based assembly, and allocate
         // memory for the vector 'z'
         this->mUseMatrixBasedRhsAssembly = true;
-        this->mVectorForMatrixBasedRhsAssembly = PetscTools::CreateVec(2*this->mpMesh->GetNumNodes());
+        //this->mVectorForMatrixBasedRhsAssembly = PetscTools::CreateVec(2*this->mpMesh->GetNumNodes());
+        this->mVectorForMatrixBasedRhsAssembly = DistributedVector::CreateVec(2);
 
         // Tell pde there's no need to replicate ionic caches
         pPde->SetCacheReplication(false);
@@ -235,22 +243,33 @@ public:
      */
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
     {
+        DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+        
+        DistributedVector distributed_current_solution(currentSolution);
+        DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0);      
+        DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);     
+        DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
+        DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
+
         double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
         double Cm  = HeartConfig::Instance()->GetCapacitance();
-        ReplicatableVector current_solution_replicated(currentSolution);
-
-        for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
+        
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
         {
-            double V = current_solution_replicated[2*i];
-            double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[i] 
-                       - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[i]; 
-            double G = - this->mpBidomainPde->rGetExtracellularStimulusCacheReplicated()[i]; 
+            double V = distributed_current_solution_vm[index];
+            double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
+                       - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global]; 
+            double G = - this->mpBidomainPde->rGetExtracellularStimulusCacheReplicated()[index.Global]; 
             
-            VecSetValue(this->mVectorForMatrixBasedRhsAssembly, 2*i,   Am*Cm*V*this->mDtInverse + F, INSERT_VALUES); 
-            VecSetValue(this->mVectorForMatrixBasedRhsAssembly, 2*i+1, G, INSERT_VALUES); 
+            dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
+            dist_vec_matrix_based_phie[index] = G; 
         }
 
-        VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly); 
+        dist_vec_matrix_based.Restore();
+        
+        VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
         VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly); 
     }
 };

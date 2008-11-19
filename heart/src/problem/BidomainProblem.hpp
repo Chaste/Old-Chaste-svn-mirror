@@ -115,7 +115,7 @@ public:
     {
         mFixedExtracellularPotentialNodes.resize(0); 
         
-        mUseMatrixBasedRhsAssembly = false;
+        mUseMatrixBasedRhsAssembly = true;
     }
 
     /**
