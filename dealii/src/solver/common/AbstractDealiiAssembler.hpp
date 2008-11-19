@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <grid/grid_out.h>
 #include <grid/grid_in.h>
 #include <grid/tria.h>
-#include <time.h>
+#include <ctime>
 #include <dofs/dof_handler.h>
 #include <grid/grid_generator.h>
 

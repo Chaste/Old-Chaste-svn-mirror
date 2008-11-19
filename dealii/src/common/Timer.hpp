@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TIMER_HPP_
 #define TIMER_HPP_
 
-#include <time.h>
+#include <ctime>
 #include <iostream>
 #include <string>
 #include "LogFile.hpp"

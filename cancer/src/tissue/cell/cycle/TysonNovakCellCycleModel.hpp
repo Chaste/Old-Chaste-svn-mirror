@@ -28,7 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYSONNOVAKCELLCYCLEMODEL_HPP_
 #define TYSONNOVAKCELLCYCLEMODEL_HPP_
 
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/access.hpp>
+//#include <boost/serialization/vector.hpp>
 
 #include <iostream>
 
@@ -36,6 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "Exception.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  *  Tyson Novak cell cycle model

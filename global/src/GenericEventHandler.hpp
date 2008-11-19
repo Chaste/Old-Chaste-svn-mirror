@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cassert>
 //#include <petsc.h>
-#include <time.h>
+#include <ctime>
 #include <iostream>
 
 #include "Exception.hpp"

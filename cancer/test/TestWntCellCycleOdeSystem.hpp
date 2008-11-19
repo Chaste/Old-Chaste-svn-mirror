@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include <stdio.h>
-#include <time.h>
+#include <ctime>
 #include <vector>
 #include <iostream>
 

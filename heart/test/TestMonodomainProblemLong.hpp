@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckMonoLr91Vars.hpp"
 
 
-#include <time.h>
+#include <ctime>
 
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
@@ -96,7 +96,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dWithPointStimulusLong");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulusLong");
-        
+
         PointStimulus2dCellFactory cell_factory(60); // Central node
 
         MonodomainProblem<2> monodomain_problem(&cell_factory);

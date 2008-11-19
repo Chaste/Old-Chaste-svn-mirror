@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
+//#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include <cfloat>

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef RANDOMNUMBERGENERATORS_HPP_
 #define RANDOMNUMBERGENERATORS_HPP_
 #include <cmath>
-#include <time.h>
+#include <ctime>
 #include <stdlib.h>
 #include <iostream>
 #include <vector>

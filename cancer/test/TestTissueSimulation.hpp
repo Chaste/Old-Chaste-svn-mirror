@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include <stdio.h>
-#include <time.h>
+#include <ctime>
 #include <math.h>
 
 #include "TissueSimulation.hpp"
