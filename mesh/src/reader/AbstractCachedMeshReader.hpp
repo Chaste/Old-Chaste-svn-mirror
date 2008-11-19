@@ -119,7 +119,7 @@ public:
 
     std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */
     void Reset(); /**< Resets pointers to beginning*/
-    std::vector<unsigned> GetNextElement(); /**< Returns a vector of the nodes of each element in turn */
+    std::vector<unsigned> GetNextElementInfo(); /**< Returns a vector of the nodes of each element in turn */
     std::vector<unsigned> GetNextEdge(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
     std::vector<unsigned> GetNextFace(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
 };
@@ -269,7 +269,7 @@ std::vector<double> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNod
  *  mNumElements-1.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
+std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementInfo()
 {
     // Checks that there are still some elements left to read. If not throws an
     // exception that must be caught by the user.

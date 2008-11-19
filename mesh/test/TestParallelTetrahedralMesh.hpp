@@ -43,7 +43,7 @@ public:
 
     void TestConstructFromMeshReader1D()
     {
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         
         ParallelTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -51,6 +51,12 @@ public:
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 11U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10U);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1U);
+        for (unsigned i=0; i<10; i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetRegion(), i%5+1);
+        }
     }
 
     void TestConstructFromMeshReader2D()
@@ -167,10 +173,6 @@ public:
         {
             //I'm not the owner of node 19
         }
-        
-        
     }
-
-            
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

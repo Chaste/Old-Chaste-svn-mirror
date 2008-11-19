@@ -126,7 +126,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartioning(
     std::vector<unsigned> node_indices;
     for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
     {
-        node_indices = rMeshReader.GetNextElement();
+        node_indices = rMeshReader.GetNextElementInfo();
         for(unsigned node_index = 0; node_index < node_indices.size(); node_index++)
         {
             if (nodesOwned.find(node_indices[node_index]) != nodesOwned.end())
@@ -197,10 +197,10 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     }
 
     // Load the elements owned by the processor
-    std::vector<unsigned> node_indices;
+    std::vector<unsigned> element_data;
     for (unsigned element_index=0; element_index < mTotalNumElements; element_index++)
     {
-        node_indices = rMeshReader.GetNextElement();
+        element_data = rMeshReader.GetNextElementInfo();
 
         // The element is owned by the processor
         if (elements_owned.find(element_index) != elements_owned.end())
@@ -209,20 +209,29 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             unsigned node_local_index;
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
-                if (nodes_owned.find(node_indices[j]) != nodes_owned.end())
+                if (nodes_owned.find(element_data[j]) != nodes_owned.end())
                 {
-                    node_local_index = SolveNodeMapping(node_indices[j]);
+                    node_local_index = SolveNodeMapping(element_data[j]);
                     nodes.push_back(this->mNodes[node_local_index]);
                 }
                 else
                 {
-                    node_local_index = SolveGhostNodeMapping(node_indices[j]);
+                    node_local_index = SolveGhostNodeMapping(element_data[j]);
                     nodes.push_back(this->mGhostNodes[node_local_index]);
                 }                    
             }
             
             RegisterElement(element_index);
-            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes));
+            
+            Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
+            this->mElements.push_back(p_element);
+            
+            if (rMeshReader.GetNumElementAttributes() > 0)
+            {
+                assert(rMeshReader.GetNumElementAttributes() == 1);
+                unsigned attribute_value = element_data[ELEMENT_DIM+1];
+                p_element->SetRegion(attribute_value);
+            }
         }
     }
     

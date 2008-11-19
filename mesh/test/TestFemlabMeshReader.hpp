@@ -111,7 +111,8 @@ public:
                               "femlab_lshape_edges.dat");
 
         TS_ASSERT( pFemlabMeshReader->GetNumElements() == 260);
-
+        TS_ASSERT(pFemlabMeshReader->GetNumElementAttributes() == 0U);
+        
         delete pFemlabMeshReader;
 
     }
@@ -179,13 +180,13 @@ public:
     }
 
     /**
-     * Check that GetNextElement() works. Checks that no errors are thrown for
+     * Check that GetNextElementInfo() works. Checks that no errors are thrown for
      * all of the elements and that an error is thrown if we try to call the
      * function too many times.
      *
      */
 
-    void TestGetNextElement(void)
+    void TestGetNextElementInfo(void)
     {
         pFemlabMeshReader=new FemlabMeshReader<2,2>(
                               "mesh/test/data/",
@@ -195,7 +196,7 @@ public:
 
         std::vector<unsigned> FirstElement;
 
-        FirstElement = pFemlabMeshReader->GetNextElement();
+        FirstElement = pFemlabMeshReader->GetNextElementInfo();
 
         TS_ASSERT( FirstElement[0]==15);
         TS_ASSERT( FirstElement[1]==3);
@@ -203,7 +204,7 @@ public:
 
         std::vector<unsigned> NextElement;
 
-        NextElement = pFemlabMeshReader->GetNextElement();
+        NextElement = pFemlabMeshReader->GetNextElementInfo();
 
         TS_ASSERT( NextElement[0]==8);
         TS_ASSERT( NextElement[1]==0);
@@ -211,10 +212,10 @@ public:
 
         for (unsigned i = 2; i < pFemlabMeshReader->GetNumElements(); i++)
         {
-            TS_ASSERT_THROWS_NOTHING(NextElement = pFemlabMeshReader->GetNextElement());
+            TS_ASSERT_THROWS_NOTHING(NextElement = pFemlabMeshReader->GetNextElementInfo());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(NextElement = pFemlabMeshReader->GetNextElement());
+        TS_ASSERT_THROWS_ANYTHING(NextElement = pFemlabMeshReader->GetNextElementInfo());
 
         delete pFemlabMeshReader;
 

@@ -90,6 +90,14 @@ public:
     /*< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
     virtual unsigned GetNumFaces() const =0;
 
+    /*< Returns the number of attributes in the mesh */
+    virtual unsigned GetNumElementAttributes() const
+    {
+        // By default returns 0.  If a concrete class does read attributes
+        // it needs to overload this method.          
+        return 0;
+    }
+
     /*< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
     unsigned GetNumEdges() const
     {
@@ -102,8 +110,8 @@ public:
     /*< Resets pointers to beginning*/
     virtual void Reset()=0;     
      
-    /*< Returns a vector of the nodes of each element in turn */
-    virtual std::vector<unsigned> GetNextElement()=0; 
+    /*< Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
+    virtual std::vector<unsigned> GetNextElementInfo()=0; 
         
     /*< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
     virtual std::vector<unsigned> GetNextFace()=0;

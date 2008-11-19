@@ -63,6 +63,7 @@ protected:
     bool mIsDeleted;
     bool mOwnership;
     bool mFlag;
+    unsigned mRegion;
 
 
     /**
@@ -292,7 +293,16 @@ public:
         return mFlag;
     }
 
+    void SetRegion(unsigned region)
+    {
+        mRegion = region;
+    }
 
+    unsigned GetRegion()
+    {
+        return mRegion;
+    }
+    
     /***
      * Place in the pIndices array, the global indices (within the stiffness matrix)
      * of the degrees of freedom associated with this element.

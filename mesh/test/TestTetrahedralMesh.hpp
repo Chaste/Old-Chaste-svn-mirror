@@ -1265,5 +1265,19 @@ public:
         TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[0], 1u);
         TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[1], 3u);
     }
+    
+    void TestReadingMeshesWithRegions() throw (Exception)
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1U);
+        
+        for (unsigned i=0; i<10; i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetRegion(), i%5+1);
+        }
+    } 
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

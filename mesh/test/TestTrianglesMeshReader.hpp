@@ -101,9 +101,9 @@ public:
         READER_2D mesh_reader("mesh/test/data/baddata/bad_elements_disk_522_elements");
 
         // Reads element 0 from file
-        TS_ASSERT_THROWS_NOTHING(mesh_reader.GetNextElement());
+        TS_ASSERT_THROWS_NOTHING(mesh_reader.GetNextElementInfo());
         // Reads element 2 from file when expecting number 1                            
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader.GetNextElement());                            
+        TS_ASSERT_THROWS_ANYTHING(mesh_reader.GetNextElementInfo());                            
     }
 
 
@@ -212,11 +212,11 @@ public:
 
 
     /**
-     * Check that GetNextElement() works. Checks that no errors are thrown for
+     * Check that GetNextElementInfo() works. Checks that no errors are thrown for
      * all of the elements and that an error is thrown if we try to call the
      * function too many times.
      */
-    void TestGetNextElement(void) throw(Exception)
+    void TestGetNextElementInfo(void) throw(Exception)
     {
         TrianglesMeshReader<2,2> *p_mesh_reader;
         p_mesh_reader=new TrianglesMeshReader<2,2>("mesh/test/data/disk_984_elements");
@@ -225,10 +225,10 @@ public:
 
         for (unsigned i = 0; i < p_mesh_reader->GetNumElements(); i++)
         {
-            TS_ASSERT_THROWS_NOTHING(NextElement = p_mesh_reader->GetNextElement());
+            TS_ASSERT_THROWS_NOTHING(NextElement = p_mesh_reader->GetNextElementInfo());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(NextElement = p_mesh_reader->GetNextElement());
+        TS_ASSERT_THROWS_ANYTHING(NextElement = p_mesh_reader->GetNextElementInfo());
         delete p_mesh_reader;
     }
 
@@ -343,7 +343,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
 
-		std::vector<unsigned> next_element = mesh_reader.GetNextElement();
+		std::vector<unsigned> next_element = mesh_reader.GetNextElementInfo();
 
         TS_ASSERT_EQUALS(next_element.size(), 3u);
 
@@ -353,7 +353,7 @@ public:
     
         for(unsigned i=1; i<10; i++)
         {
-        	next_element = mesh_reader.GetNextElement();
+        	next_element = mesh_reader.GetNextElementInfo();
     		TS_ASSERT_EQUALS(next_element.size(), 3u);
         }
         
@@ -365,7 +365,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 17u*17u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 128u);
 
-		std::vector<unsigned> next_element = mesh_reader.GetNextElement();
+		std::vector<unsigned> next_element = mesh_reader.GetNextElementInfo();
 
         TS_ASSERT_EQUALS(next_element.size(), 6u);
 
@@ -378,7 +378,7 @@ public:
     
         for(unsigned i=1; i<128; i++)
         {
-        	next_element = mesh_reader.GetNextElement();
+        	next_element = mesh_reader.GetNextElementInfo();
     		TS_ASSERT_EQUALS(next_element.size(), 6u);
         }
     }
@@ -389,7 +389,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 10u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1u);
 
-		std::vector<unsigned> next_element = mesh_reader.GetNextElement();
+		std::vector<unsigned> next_element = mesh_reader.GetNextElementInfo();
     
         TS_ASSERT_EQUALS(next_element.size(), 10u);
         
@@ -397,6 +397,22 @@ public:
         {
             TS_ASSERT_EQUALS(next_element[i], i);
         }
+    }
+    void TestReadingElementAttributes() throw(Exception)
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
+
+        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 10U);
+        
+        TS_ASSERT_EQUALS( mesh_reader.GetNumElementAttributes(), 1U);
+        
+        
+        for(unsigned i=0; i<10; i++)
+        {
+            std::vector<unsigned> next_element_info = mesh_reader.GetNextElementInfo();
+            TS_ASSERT_EQUALS(next_element_info.size(), 3u);
+            TS_ASSERT_EQUALS(next_element_info[2], i%5+1);
+        }        
     }
 };
 

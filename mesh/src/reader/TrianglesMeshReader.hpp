@@ -82,6 +82,7 @@ public:
 		mElementsRead(0),
         mFacesRead(0),
 		mBoundaryFacesRead(0),
+        mNumElementAttributes(0),
     	mOrderOfElements(orderOfElements)
     {
         // Only linear and quadratic elements
@@ -131,6 +132,12 @@ public:
         return mNumFaces;
     }
 
+    /**< Returns the number of attributes in the mesh */
+    unsigned GetNumElementAttributes() const
+    {
+        return mNumElementAttributes;
+    }
+    
     /**< Resets pointers to beginning*/
     void Reset()
     {
@@ -179,10 +186,10 @@ public:
         return ret_coords;
     }
       
-  	/**< Returns a vector of the nodes of each element in turn */
-    std::vector<unsigned> GetNextElement()
+    /*< Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
+    std::vector<unsigned> GetNextElementInfo()
     {
-		std::vector<unsigned> ret_indices;		
+		std::vector<unsigned> ret_values;		
         
         std::string buffer;		
 		GetNextLineFromStream(mElementsFile, buffer);
@@ -204,12 +211,21 @@ public:
 	    for (unsigned i = 0; i < mNodesPerElement; i++)
         {
 	        buffer_stream >> node_index;
-	        ret_indices.push_back(node_index - offset);
+	        ret_values.push_back(node_index - offset);
         }
-                
+         
+        if(mNumElementAttributes>0)
+        {
+            assert(mNumElementAttributes==1);
+
+            unsigned attribute_value;
+            buffer_stream >> attribute_value;
+            ret_values.push_back(attribute_value);
+        }       
+
         mElementsRead++;
 
-		return ret_indices;
+		return ret_values;
     } 
         
     /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */

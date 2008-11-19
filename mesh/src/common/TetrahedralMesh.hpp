@@ -405,7 +405,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
     for (unsigned element_index=0; element_index < (unsigned) rMeshReader.GetNumElements(); element_index++)
     {
-        std::vector<unsigned> node_indices = rMeshReader.GetNextElement();
+        std::vector<unsigned> element_data = rMeshReader.GetNextElementInfo();
         std::vector<Node<SPACE_DIM>*> nodes;
 
 // NOTE: currently just reading element vertices from mesh reader - even if it
@@ -415,11 +415,19 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         // unsigned nodes_size = node_indices.size();
         for (unsigned j=0; j<ELEMENT_DIM+1; j++) // num vertices=ELEMENT_DIM+1, may not be equal to nodes_size.
         {
-            assert(node_indices[j] <  this->mNodes.size());
-            nodes.push_back(this->mNodes[node_indices[j]]);
+            assert(element_data[j] <  this->mNodes.size());
+            nodes.push_back(this->mNodes[element_data[j]]);
         }
 
-        this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes));
+        Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
+        this->mElements.push_back(p_element);
+    
+        if (rMeshReader.GetNumElementAttributes() > 0)
+        {
+            assert(rMeshReader.GetNumElementAttributes() == 1);
+            unsigned attribute_value = element_data[ELEMENT_DIM+1];
+            p_element->SetRegion(attribute_value);
+        }        
     }
 
 

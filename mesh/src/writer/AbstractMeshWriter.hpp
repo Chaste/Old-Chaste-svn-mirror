@@ -124,6 +124,8 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<unsigned> nextElement)
 {
+    //If this fails, it may be because the reader is reading region info [i.e. std::vector now contains
+    //the nodes and the attribute info] see ticket 801
     assert (nextElement.size() == ELEMENT_DIM+1);
     mElementData.push_back(nextElement);
 }
@@ -219,7 +221,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     }
     for (unsigned i=0; i<rMeshReader.GetNumElements();i++)
     {
-        SetNextElement(rMeshReader.GetNextElement());
+        SetNextElement(rMeshReader.GetNextElementInfo());
     }
     for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
     {

@@ -59,6 +59,7 @@ public:
         TS_ASSERT(pMeshReader->GetNumNodes() == 381U);
         TS_ASSERT(pMeshReader->GetNumElements() == 1030U);
         TS_ASSERT(pMeshReader->GetNumFaces() == 758U);
+        TS_ASSERT(pMeshReader->GetNumElementAttributes() == 0U);
 
         std::vector<unsigned> NextFace;
 
