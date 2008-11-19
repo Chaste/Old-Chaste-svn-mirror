@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include "UblasCustomFunctions.hpp"
+#include "PetscSetupAndFinalize.hpp"
+#include "/opt/intel/mkl/9.1.023/include/mkl_lapack.h"
+#include "PetscTools.hpp"
 #include <iomanip>
 
 class TestUblasCustomFunctions : public CxxTest::TestSuite
@@ -264,6 +267,33 @@ public:
         TS_ASSERT_EQUALS( v3[0], 1);
         TS_ASSERT_EQUALS( v3[1], 2);
         TS_ASSERT_EQUALS( v3[2], 3);
+    }
+    
+    void TestEigenVectorValueCalculation()
+    {
+        c_matrix<double, 3, 3> A;
+        A(0,0) = 2.4;
+        A(0,1) = 5;
+        A(0,2) = 5;
+        A(1,0) = 5;
+        A(1,1) = 6;
+        A(1,2) = 7;
+        A(2,0) = 6;
+        A(2,1) = 8;
+        A(2,2) = 9;
+        
+        double smallest_eigenvalue = -0.0096002162399060342324;
+        
+        c_vector<double, 3> eigenvector;
+        
+        eigenvector = CalculateSmallestEigenvector(A);        
+        
+        c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);              
+
+        double delta = 1e-12; 
+        TS_ASSERT_DELTA( a_times_eigenvector[0], smallest_eigenvalue*eigenvector[0], delta);  
+        TS_ASSERT_DELTA( a_times_eigenvector[1], smallest_eigenvalue*eigenvector[1], delta);
+        TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);        
     }
 
 };

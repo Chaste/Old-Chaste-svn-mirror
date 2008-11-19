@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix_expression.hpp>
 
+#include "/opt/intel/mkl/9.1.023/include/mkl_lapack.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -264,6 +266,7 @@ c_vector<double, 2> Create_c_vector(double x, double y);
 
 c_vector<double, 3> Create_c_vector(double x, double y, double z);
 
+c_vector<double,3> CalculateSmallestEigenvector(c_matrix<double,3,3> &A);
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/
 
