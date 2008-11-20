@@ -51,11 +51,12 @@ private:
     
     std::map<unsigned, unsigned> mNodesMapping;
     std::map<unsigned, unsigned> mGhostNodesMapping;    
-    std::map<unsigned, unsigned> mElementsMapping;        
+    std::map<unsigned, unsigned> mElementsMapping;
+    std::map<unsigned, unsigned> mBoundaryElementsMapping;        
     
 public:
 
-//    ParallelTetrahedralMesh();
+    ParallelTetrahedralMesh();
 
     virtual ~ParallelTetrahedralMesh();
 
@@ -68,16 +69,11 @@ public:
                                  bool cullInternalFaces=false);
 
     unsigned GetNumLocalNodes() const;
-
     unsigned GetNumLocalElements() const;
 
     unsigned GetNumNodes() const;
-
-    unsigned GetNumElements() const;
-    
-    unsigned GetNumBoundaryElements() const;
-    
-    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
+    unsigned GetNumElements() const;    
+    unsigned GetNumBoundaryElements() const;    
     
     void SetElementOwnerships(unsigned lo, unsigned hi);
 
@@ -86,16 +82,18 @@ private:
     void RegisterNode(unsigned index);
     void RegisterGhostNode(unsigned index);
     void RegisterElement(unsigned index);
+    void RegisterBoundaryElement(unsigned index);
 
-    unsigned SolveNodeMapping(unsigned index);
+    unsigned SolveNodeMapping(unsigned index) const;
     unsigned SolveGhostNodeMapping(unsigned index);
-    unsigned SolveElementMapping(unsigned index);            
+    unsigned SolveElementMapping(unsigned index) const;            
+    unsigned SolveBoundaryElementMapping(unsigned index) const;
 };
 
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh()
-//{
-//}
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh()
+{
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
@@ -349,7 +347,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                 nodes[j]->AddBoundaryElement(actual_face_index);
             }
 
-            // The added elements will be deleted in our destructor
+            RegisterBoundaryElement(actual_face_index);
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
             actual_face_index++;
         }
@@ -387,18 +385,11 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements
 }
 
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//Element<ELEMENT_DIM, SPACE_DIM>* ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
+//BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
 //{
 //    /// \todo: assert ownership
-//    return (this->mElements[index]);
+//    return (this->mBoundaryElements[index]);
 //}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
-{
-    /// \todo: assert ownership
-    return (this->mBoundaryElements[index]);
-}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
@@ -431,7 +422,14 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterElement(unsigned i
 }    
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index)
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterBoundaryElement(unsigned index)
+{
+    mBoundaryElementsMapping[index] = this->mBoundaryElements.size();    
+}    
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
 {
     std::map<unsigned, unsigned>::const_iterator node_position = mNodesMapping.find(index); 
         
@@ -452,7 +450,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveGhostNodeMapping(
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
 {
     std::map<unsigned, unsigned>::const_iterator element_position = mElementsMapping.find(index); 
     
@@ -466,5 +464,19 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(un
     return element_position->second;    
 }            
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
+{
+    std::map<unsigned, unsigned>::const_iterator boundary_element_position = mBoundaryElementsMapping.find(index); 
+    
+    if(boundary_element_position == mBoundaryElementsMapping.end())
+    {
+        std::stringstream message;
+        message << "Requested boundary element " << index << " does not belong to processor " << PetscTools::GetMyRank();
+        EXCEPTION(message.str().c_str());        
+    }
+
+    return boundary_element_position->second;    
+}            
 
 #endif /*PARALLELTETRAHEDRALMESH_HPP_*/

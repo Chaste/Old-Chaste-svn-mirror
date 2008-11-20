@@ -82,8 +82,9 @@ private:
 
 //    std::vector<unsigned> mNodesPerProcessor;
 
-    unsigned SolveNodeMapping(unsigned index);
-    unsigned SolveElementMapping(unsigned index);
+    unsigned SolveNodeMapping(unsigned index) const;
+    unsigned SolveElementMapping(unsigned index) const;
+    unsigned SolveBoundaryElementMapping(unsigned index) const;    
             
 public:
 
@@ -99,10 +100,6 @@ public:
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
     //std::vector<unsigned>& rGetNodesPerProcessor();
 
-    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index)  // to abstract
-    {
-        return (this->mBoundaryElements[index]);
-    }
 
     /**
      * Return the volume of a mesh, calculated by adding the determinant of each element
@@ -1810,19 +1807,25 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index)
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
 {
     assert(index < this->mNodes.size() );
     return index;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
 {
     assert(index < this->mElements.size() );
     return index;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
+{
+    assert(index < this->mBoundaryElements.size() );
+    return index;
+}
 
 
 #endif //_TETRAHEDRALMESH_HPP_

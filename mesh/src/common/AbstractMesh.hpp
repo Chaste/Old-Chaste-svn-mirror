@@ -61,8 +61,9 @@ public:
     unsigned GetNumAllElements();
     unsigned GetNumAllBoundaryElements();
 
-    Node<SPACE_DIM> *GetNode(unsigned index);    
-    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index);
+    Node<SPACE_DIM> *GetNode(unsigned index) const;    
+    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
+    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
     
     /**
      * Sets the ownership of each element according to which nodes are owned by the
@@ -81,62 +82,45 @@ public:
 
     std::vector<unsigned>& rGetNodesPerProcessor();
     
-    virtual void PermuteNodes();
-    
-/// \todo: move implementations out of class definition    
+    virtual void PermuteNodes();      
     
     /**
      * Return a pointer to the first element in the mesh.
      */
-    ElementIterator GetElementIteratorBegin() const
-    {
-        return mElements.begin();
-    }
+    ElementIterator GetElementIteratorBegin() const;
+
     /**
      * Return a pointer to *one past* the last element in the mesh
      * (for consistency with STL iterators).
      */
-    ElementIterator GetElementIteratorEnd() const
-    {
-        return mElements.end();
-    }
+    ElementIterator GetElementIteratorEnd() const;
 
     /**
      * Return a pointer to the first boundary element in the mesh.
      */
+    BoundaryElementIterator GetBoundaryElementIteratorBegin() const;
 
-    BoundaryElementIterator GetBoundaryElementIteratorBegin() const
-    {
-        return mBoundaryElements.begin();
-    }
     /**
      * Return a pointer to *one past* the last boundary element in the mesh
      * (for consistency with STL iterators).
      */
-    BoundaryElementIterator GetBoundaryElementIteratorEnd() const
-    {
-        return mBoundaryElements.end();
-    }
+    BoundaryElementIterator GetBoundaryElementIteratorEnd() const;
 
     /**
      * Return a pointer to the first boundary node in the mesh.
      */
-    BoundaryNodeIterator GetBoundaryNodeIteratorBegin() const
-    {
-        return mBoundaryNodes.begin();
-    }
+    BoundaryNodeIterator GetBoundaryNodeIteratorBegin() const;
+
     /**
      * Return a pointer to *one past* the last boundary node in the mesh
      * (for consistency with STL iterators).
      */
-    BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const
-    {
-        return mBoundaryNodes.end();
-    }
+    BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const;
 
 private:
-    virtual unsigned SolveNodeMapping(unsigned index)=0;
-    virtual unsigned SolveElementMapping(unsigned index)=0;        
+    virtual unsigned SolveNodeMapping(unsigned index) const = 0;
+    virtual unsigned SolveElementMapping(unsigned index) const = 0;        
+    virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0;
 
 };
 
@@ -208,18 +192,25 @@ unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
+Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
 {
     unsigned local_index = SolveNodeMapping(index);
     return this->mNodes[local_index];
 }
     
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index)
+Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
 {
     unsigned local_index = SolveElementMapping(index);
     return this->mElements[local_index];
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
+{
+    unsigned local_index = SolveBoundaryElementMapping(index);
+    return this->mBoundaryElements[local_index];
+}    
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
@@ -238,6 +229,41 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
     NEVER_REACHED;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorBegin() const
+{
+    return mElements.begin();
+}
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorEnd() const
+{
+    return mElements.end();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorBegin() const
+{
+    return mBoundaryElements.begin();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorEnd() const
+{
+    return mBoundaryElements.end();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorBegin() const
+{
+    return mBoundaryNodes.begin();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorEnd() const
+{
+    return mBoundaryNodes.end();
 }
 
 #endif /*ABSTRACTMESH_HPP_*/
