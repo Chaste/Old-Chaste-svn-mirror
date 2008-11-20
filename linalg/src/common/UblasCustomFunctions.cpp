@@ -79,18 +79,18 @@ c_vector<double,3> CalculateSmallestEigenvector(c_matrix<double,3,3> &A)
 
     
     int index_of_smallest=0;    
-    double min_eigenvalue = abs(WR(0));
+    double min_eigenvalue = fabs(WR(0));
     
-    if (abs(WR(1)) < min_eigenvalue)
+    if (fabs(WR(1)) < min_eigenvalue)
     {
         index_of_smallest = 1;
-        min_eigenvalue = abs(WR(1));
+        min_eigenvalue = fabs(WR(1));
     }
 
-    if (abs(WR(2)) < min_eigenvalue)
+    if (fabs(WR(2)) < min_eigenvalue)
     {
         index_of_smallest = 2;
-        min_eigenvalue = abs(WR(2));
+        min_eigenvalue = fabs(WR(2));
     }
             
     output(0) = VR(index_of_smallest,0);
