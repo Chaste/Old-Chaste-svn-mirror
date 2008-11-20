@@ -52,6 +52,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include "Exception.hpp"
 
+struct ElementData 
+{
+    std::vector<unsigned> NodeIndices;
+    unsigned AttributeValue;
+};
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMeshReader
 {
@@ -111,7 +117,7 @@ public:
     virtual void Reset()=0;     
      
     /*< Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
-    virtual std::vector<unsigned> GetNextElementInfo()=0; 
+    virtual ElementData GetNextElementData()=0; 
         
     /*< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
     virtual std::vector<unsigned> GetNextFace()=0;

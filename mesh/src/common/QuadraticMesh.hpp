@@ -225,10 +225,6 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
 {
     TrianglesMeshReader<DIM,DIM> mesh_reader(fileName, 2); // 2=quadratic mesh
 
-    // something weird might happen if have quadratic meshes with region info...
-    // (ie it is untested)
-    assert(mesh_reader.GetNumElementAttributes()==0);
-
     ConstructFromMeshReader(mesh_reader);
 
     // set up the information on whether a node is an internal node or not (if not,
@@ -265,15 +261,21 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
         
     
     mesh_reader.Reset();
+
+    // attributes and quad meshes not done yet..
+    // if num attributes > 0 the first quad node will have been incorrectly set as the
+    // element region...
+    assert(mesh_reader.GetNumElementAttributes()==0);
     
     // add the extra nodes (1 extra node in 1D, 3 in 2D, 6 in 3D) to the element
     // data.
     for(unsigned i=0; i<this->GetNumElements(); i++)
     {
-        std::vector<unsigned> node_indices = mesh_reader.GetNextElementInfo();
+        std::vector<unsigned> nodes = mesh_reader.GetNextElementData().NodeIndices;
+        assert(nodes.size()==(DIM+1)*(DIM+2)/2);
         for(unsigned j=DIM+1; j<(DIM+1)*(DIM+2)/2; j++)
         {
-            this->GetElement(i)->AddNode( this->GetNode(node_indices[j]) );
+            this->GetElement(i)->AddNode( this->GetNode(nodes[j]) );
         }
     }
     

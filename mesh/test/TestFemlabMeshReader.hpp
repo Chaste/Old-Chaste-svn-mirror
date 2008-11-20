@@ -47,7 +47,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 {
 public:
 
-    AbstractMeshReader<2,2> *pFemlabMeshReader;
+    AbstractMeshReader<2,2> *mpFemlabMeshReader;
     /**
      * Check that input files are opened correctly.
      *
@@ -55,13 +55,13 @@ public:
 
     void TestFilesOpen(void)
     {
-        TS_ASSERT_THROWS_NOTHING(pFemlabMeshReader=new READER_2D(
+        TS_ASSERT_THROWS_NOTHING(mpFemlabMeshReader=new READER_2D(
                                                        "mesh/test/data/",
                                                        "femlab_lshape_nodes.dat",
                                                        "femlab_lshape_elements.dat",
                                                        "femlab_lshape_edges.dat"));
 
-        delete pFemlabMeshReader;
+        delete mpFemlabMeshReader;
 
         // Coverage test
 
@@ -83,15 +83,15 @@ public:
 
     void TestNodesDataRead(void)
     {
-        pFemlabMeshReader=new FemlabMeshReader<2,2>(
+        mpFemlabMeshReader=new FemlabMeshReader<2,2>(
                               "mesh/test/data/",
                               "femlab_lshape_nodes.dat",
                               "femlab_lshape_elements.dat",
                               "femlab_lshape_edges.dat");
 
-        TS_ASSERT( pFemlabMeshReader->GetNumNodes() == 151);
+        TS_ASSERT( mpFemlabMeshReader->GetNumNodes() == 151);
 
-        delete pFemlabMeshReader;
+        delete mpFemlabMeshReader;
     }
 
 
@@ -104,16 +104,16 @@ public:
 
     void TestElementsDataRead(void)
     {
-        pFemlabMeshReader=new FemlabMeshReader<2,2>(
+        mpFemlabMeshReader=new FemlabMeshReader<2,2>(
                               "mesh/test/data/",
                               "femlab_lshape_nodes.dat",
                               "femlab_lshape_elements.dat",
                               "femlab_lshape_edges.dat");
 
-        TS_ASSERT( pFemlabMeshReader->GetNumElements() == 260);
-        TS_ASSERT(pFemlabMeshReader->GetNumElementAttributes() == 0U);
+        TS_ASSERT( mpFemlabMeshReader->GetNumElements() == 260);
+        TS_ASSERT(mpFemlabMeshReader->GetNumElementAttributes() == 0U);
         
-        delete pFemlabMeshReader;
+        delete mpFemlabMeshReader;
 
     }
 
@@ -126,15 +126,15 @@ public:
 
     void TestFacesDataRead(void)
     {
-        pFemlabMeshReader=new FemlabMeshReader<2,2>(
+        mpFemlabMeshReader=new FemlabMeshReader<2,2>(
                               "mesh/test/data/",
                               "femlab_lshape_nodes.dat",
                               "femlab_lshape_elements.dat",
                               "femlab_lshape_edges.dat");
 
-        TS_ASSERT( pFemlabMeshReader->GetNumFaces() == 54);
+        TS_ASSERT( mpFemlabMeshReader->GetNumFaces() == 54);
 
-        delete pFemlabMeshReader;
+        delete mpFemlabMeshReader;
 
     }
 
@@ -148,7 +148,7 @@ public:
 
     void TestGetNextNode(void)
     {
-        pFemlabMeshReader=new FemlabMeshReader<2,2>(
+        mpFemlabMeshReader=new FemlabMeshReader<2,2>(
                               "mesh/test/data/",
                               "femlab_lshape_nodes.dat",
                               "femlab_lshape_elements.dat",
@@ -156,68 +156,71 @@ public:
 
         std::vector<double> FirstNode;
 
-        FirstNode = pFemlabMeshReader->GetNextNode();
+        FirstNode = mpFemlabMeshReader->GetNextNode();
 
         TS_ASSERT_DELTA( FirstNode[0] ,  0.0 , 1e-6 );
         TS_ASSERT_DELTA( FirstNode[1] , 1.0 , 1e-6 )
 
-        std::vector<double> NextNode;
+        std::vector<double> next_node;
 
-        NextNode = pFemlabMeshReader->GetNextNode();
+        next_node = mpFemlabMeshReader->GetNextNode();
 
-        TS_ASSERT_DELTA( NextNode[0] , 0.5 , 1e-6 );
-        TS_ASSERT_DELTA( NextNode[1] , 1.0 , 1e-6 )
+        TS_ASSERT_DELTA( next_node[0] , 0.5 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[1] , 1.0 , 1e-6 )
 
-        for (unsigned i = 2; i < pFemlabMeshReader->GetNumNodes(); i++)
+        for (unsigned i = 2; i < mpFemlabMeshReader->GetNumNodes(); i++)
         {
-            TS_ASSERT_THROWS_NOTHING(NextNode = pFemlabMeshReader->GetNextNode());
+            TS_ASSERT_THROWS_NOTHING(next_node = mpFemlabMeshReader->GetNextNode());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(NextNode = pFemlabMeshReader->GetNextNode());
+        TS_ASSERT_THROWS_ANYTHING(next_node = mpFemlabMeshReader->GetNextNode());
 
-        delete pFemlabMeshReader;
+        delete mpFemlabMeshReader;
 
     }
 
     /**
-     * Check that GetNextElementInfo() works. Checks that no errors are thrown for
+     * Check that GetNextElementData() works. Checks that no errors are thrown for
      * all of the elements and that an error is thrown if we try to call the
      * function too many times.
      *
      */
 
-    void TestGetNextElementInfo(void)
+    void TestGetNextElementData(void)
     {
-        pFemlabMeshReader=new FemlabMeshReader<2,2>(
+        mpFemlabMeshReader=new FemlabMeshReader<2,2>(
                               "mesh/test/data/",
                               "femlab_lshape_nodes.dat",
                               "femlab_lshape_elements.dat",
                               "femlab_lshape_edges.dat");
 
-        std::vector<unsigned> FirstElement;
 
-        FirstElement = pFemlabMeshReader->GetNextElementInfo();
 
-        TS_ASSERT( FirstElement[0]==15);
-        TS_ASSERT( FirstElement[1]==3);
-        TS_ASSERT( FirstElement[2]==62);
 
-        std::vector<unsigned> NextElement;
+        ElementData first_element_data = mpFemlabMeshReader->GetNextElementData();
 
-        NextElement = pFemlabMeshReader->GetNextElementInfo();
+        std::vector<unsigned> first_element_nodes = first_element_data.NodeIndices;
 
-        TS_ASSERT( NextElement[0]==8);
-        TS_ASSERT( NextElement[1]==0);
-        TS_ASSERT( NextElement[2]==53);
+        TS_ASSERT_EQUALS( first_element_data.NodeIndices[0], 15u);
+        TS_ASSERT_EQUALS( first_element_data.NodeIndices[1], 3u);
+        TS_ASSERT_EQUALS( first_element_data.NodeIndices[2], 62u);
+        TS_ASSERT_EQUALS( first_element_data.AttributeValue, 0u);
 
-        for (unsigned i = 2; i < pFemlabMeshReader->GetNumElements(); i++)
+        ElementData next_element_data = mpFemlabMeshReader->GetNextElementData();
+
+        TS_ASSERT_EQUALS( next_element_data.NodeIndices[0], 8u);
+        TS_ASSERT_EQUALS( next_element_data.NodeIndices[1], 0u);
+        TS_ASSERT_EQUALS( next_element_data.NodeIndices[2], 53u);
+        TS_ASSERT_EQUALS( next_element_data.AttributeValue, 0u);
+
+        for (unsigned i=2; i<mpFemlabMeshReader->GetNumElements(); i++)
         {
-            TS_ASSERT_THROWS_NOTHING(NextElement = pFemlabMeshReader->GetNextElementInfo());
+            TS_ASSERT_THROWS_NOTHING(next_element_data = mpFemlabMeshReader->GetNextElementData());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(NextElement = pFemlabMeshReader->GetNextElementInfo());
+        TS_ASSERT_THROWS_ANYTHING(next_element_data = mpFemlabMeshReader->GetNextElementData());
 
-        delete pFemlabMeshReader;
+        delete mpFemlabMeshReader;
 
     }
 
@@ -230,34 +233,34 @@ public:
 
     void TestGetNextFace(void)
     {
-        pFemlabMeshReader=new FemlabMeshReader<2,2>(
+        mpFemlabMeshReader=new FemlabMeshReader<2,2>(
                               "mesh/test/data/",
                               "femlab_lshape_nodes.dat",
                               "femlab_lshape_elements.dat",
                               "femlab_lshape_edges.dat");
 
-        std::vector<unsigned> FirstFace;
+        std::vector<unsigned> first_face;
 
-        FirstFace = pFemlabMeshReader->GetNextFace();
+        first_face = mpFemlabMeshReader->GetNextFace();
 
-        TS_ASSERT( FirstFace[0]==0);
-        TS_ASSERT( FirstFace[1]==8);
+        TS_ASSERT( first_face[0]==0);
+        TS_ASSERT( first_face[1]==8);
 
-        std::vector<unsigned> NextFace;
+        std::vector<unsigned> next_face;
 
-        NextFace = pFemlabMeshReader->GetNextFace();
+        next_face = mpFemlabMeshReader->GetNextFace();
 
-        TS_ASSERT( NextFace[0]==8);
-        TS_ASSERT( NextFace[1]==9);
+        TS_ASSERT( next_face[0]==8);
+        TS_ASSERT( next_face[1]==9);
 
-        for (unsigned i = 2; i < pFemlabMeshReader->GetNumFaces(); i++)
+        for (unsigned i = 2; i < mpFemlabMeshReader->GetNumFaces(); i++)
         {
-            TS_ASSERT_THROWS_NOTHING(NextFace = pFemlabMeshReader->GetNextFace());
+            TS_ASSERT_THROWS_NOTHING(next_face = mpFemlabMeshReader->GetNextFace());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(NextFace = pFemlabMeshReader->GetNextFace());
+        TS_ASSERT_THROWS_ANYTHING(next_face = mpFemlabMeshReader->GetNextFace());
 
-        delete pFemlabMeshReader;
+        delete mpFemlabMeshReader;
 
     }
 

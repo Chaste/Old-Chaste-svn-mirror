@@ -187,9 +187,9 @@ public:
     }
       
     /*< Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
-    std::vector<unsigned> GetNextElementInfo()
+    ElementData GetNextElementData()
     {
-		std::vector<unsigned> ret_values;		
+		ElementData element_data;		
         
         std::string buffer;		
 		GetNextLineFromStream(mElementsFile, buffer);
@@ -198,7 +198,7 @@ public:
 
 		unsigned element_index;		
 		buffer_stream >> element_index; 
-		
+
         unsigned offset = mIndexFromZero ? 0 : 1;
 		if(element_index != mElementsRead+offset)
 		{
@@ -208,10 +208,10 @@ public:
 		}
 
         unsigned node_index;
-	    for (unsigned i = 0; i < mNodesPerElement; i++)
+	    for (unsigned i=0; i<mNodesPerElement; i++)
         {
 	        buffer_stream >> node_index;
-	        ret_values.push_back(node_index - offset);
+	        element_data.NodeIndices.push_back(node_index - offset);
         }
          
         if(mNumElementAttributes>0)
@@ -220,12 +220,17 @@ public:
 
             unsigned attribute_value;
             buffer_stream >> attribute_value;
-            ret_values.push_back(attribute_value);
-        }       
+            element_data.AttributeValue = attribute_value;
+        }
+        else
+        {
+            element_data.AttributeValue = 0;
+        }
+                   
 
         mElementsRead++;
 
-		return ret_values;
+		return element_data;
     } 
         
     /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */

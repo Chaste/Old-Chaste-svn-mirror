@@ -405,18 +405,18 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
     for (unsigned element_index=0; element_index < (unsigned) rMeshReader.GetNumElements(); element_index++)
     {
-        std::vector<unsigned> element_data = rMeshReader.GetNextElementInfo();
+        ElementData element_data = rMeshReader.GetNextElementData();
         std::vector<Node<SPACE_DIM>*> nodes;
 
-// NOTE: currently just reading element vertices from mesh reader - even if it
-// does contain information about internal nodes (ie for quadratics) this is
-// ignored here and used elsewhere
+        // NOTE: currently just reading element vertices from mesh reader - even if it
+        // does contain information about internal nodes (ie for quadratics) this is
+        // ignored here and used elsewhere: ie don't do this:
+        //   unsigned nodes_size = node_indices.size();
 
-        // unsigned nodes_size = node_indices.size();
         for (unsigned j=0; j<ELEMENT_DIM+1; j++) // num vertices=ELEMENT_DIM+1, may not be equal to nodes_size.
         {
-            assert(element_data[j] <  this->mNodes.size());
-            nodes.push_back(this->mNodes[element_data[j]]);
+            assert(element_data.NodeIndices[j] <  this->mNodes.size());
+            nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
         }
 
         Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
@@ -425,7 +425,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         if (rMeshReader.GetNumElementAttributes() > 0)
         {
             assert(rMeshReader.GetNumElementAttributes() == 1);
-            unsigned attribute_value = element_data[ELEMENT_DIM+1];
+            unsigned attribute_value = element_data.AttributeValue;
             p_element->SetRegion(attribute_value);
         }        
     }

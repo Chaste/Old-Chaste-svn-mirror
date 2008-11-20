@@ -87,6 +87,8 @@ protected:
         mIsDeleted = element.mIsDeleted;
         mOwnership = element.mOwnership;
         mFlag = element.mFlag;
+        
+        mRegion = element.mRegion;
     }
 
 
@@ -344,6 +346,8 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
     mIsDeleted = false;
     mFlag = false;
     mOwnership = true;
+    
+    mRegion = 0;
 
     // This is so we know it's the first time of asking
     mJacobianDeterminant=0.0;

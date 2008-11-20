@@ -119,7 +119,7 @@ public:
 
     std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */
     void Reset(); /**< Resets pointers to beginning*/
-    std::vector<unsigned> GetNextElementInfo(); /**< Returns a vector of the nodes of each element in turn */
+    ElementData GetNextElementData(); /**< Returns a vector of the nodes of each element in turn */
     std::vector<unsigned> GetNextEdge(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
     std::vector<unsigned> GetNextFace(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
 };
@@ -269,7 +269,7 @@ std::vector<double> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNod
  *  mNumElements-1.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementInfo()
+ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 {
     // Checks that there are still some elements left to read. If not throws an
     // exception that must be caught by the user.
@@ -278,11 +278,13 @@ std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextE
         EXCEPTION("All elements already got");
     }
 
-    std::vector<unsigned> next_element = *mpElementIterator;
+    ElementData ret;
+    ret.NodeIndices = *mpElementIterator;
+    ret.AttributeValue = 0;
 
     mpElementIterator++;
 
-    return next_element;
+    return ret;
 }
 
 
