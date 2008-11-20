@@ -447,7 +447,13 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveGhostNodeMapping(
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
 {
-    assert(mElementsMapping.find(index) != mElementsMapping.end());
+    if(mElementsMapping.find(index) == mElementsMapping.end());
+    {
+        std::stringstream message;
+        message << "Requested element " << index << " does not belong to processor " << PetscTools::GetMyRank();
+        EXCEPTION(message.str().c_str());        
+    }
+
     return mElementsMapping[index];    
 }            
 

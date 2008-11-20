@@ -55,7 +55,15 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1U);
         for (unsigned i=0; i<10; i++)
         {
-            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetRegion(), i%5+1);
+            try
+            {
+                unsigned region = mesh.GetElement(i)->GetRegion();
+                TS_ASSERT_EQUALS(region, i%5+1);
+            }
+            catch(Exception& e)
+            {
+                // I don't own this element                
+            }
         }
     }
 
