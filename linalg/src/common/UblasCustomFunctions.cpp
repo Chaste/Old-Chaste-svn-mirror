@@ -77,7 +77,7 @@ c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3
     
     assert(info==0);
 
-    // if this fail a complex eigenvalue was found
+    // if this fails a complex eigenvalue was found
     assert(norm_2(WI) == 0.0);
     
     int index_of_smallest=0;    
