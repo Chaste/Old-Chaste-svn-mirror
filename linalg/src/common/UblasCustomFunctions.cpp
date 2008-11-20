@@ -57,47 +57,52 @@ c_vector<double, 3> Create_c_vector(double x, double y, double z)
 c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3> &A)
 {
     int info;
-    c_vector<double, 3 > WR;  // TODO: what are these?
-    c_vector<double, 3 > WI;
-    c_vector<double, 4*3 > WORK;
-    c_matrix<double, 3, 3> VL;
-    c_matrix<double, 3, 3> VR;
+    c_vector<double, 3 > eigenvalues_real_part;
+    c_vector<double, 3 > eigenvalues_imaginary_part;
+    c_vector<double, 4*3 > workspace;
+    c_matrix<double, 3, 3> right_eigenvalues;
+        
+    char dont_compute_left_evectors = 'N';
+    char compute_right_evectors = 'V';
     
-    c_vector<double, 3> output;
-    
-    char N = 'N';
-    char V = 'V';
-    int size = 3;
-    int four_times_size = 4*3;
+    int matrix_size = 3;
+    int matrix_ld = matrix_size;
+    int workspace_size = 4*matrix_size;
     
     c_matrix<double, 3, 3> a_transpose;
     noalias(a_transpose) = trans(A);    
     
-    dgeev_(&N,&V,&size,a_transpose.data(),&size,WR.data(),WI.data(),VL.data(),&size,VR.data(),&size,WORK.data(),&four_times_size,&info);
-    
+    dgeev_(&dont_compute_left_evectors, &compute_right_evectors, 
+           &matrix_size, a_transpose.data(),&matrix_ld,
+           eigenvalues_real_part.data(), eigenvalues_imaginary_part.data(), 
+           NULL, &matrix_ld, 
+           right_eigenvalues.data(),&matrix_ld,
+           workspace.data(),&workspace_size,
+           &info);    
     assert(info==0);
 
     // if this fails a complex eigenvalue was found
-    assert(norm_2(WI) == 0.0);
+    assert(norm_2(eigenvalues_imaginary_part) == 0.0);
     
     int index_of_smallest=0;    
-    double min_eigenvalue = fabs(WR(0));
+    double min_eigenvalue = fabs(eigenvalues_real_part(0));
     
-    if (fabs(WR(1)) < min_eigenvalue)
+    if (fabs(eigenvalues_real_part(1)) < min_eigenvalue)
     {
         index_of_smallest = 1;
-        min_eigenvalue = fabs(WR(1));
+        min_eigenvalue = fabs(eigenvalues_real_part(1));
     }
 
-    if (fabs(WR(2)) < min_eigenvalue)
+    if (fabs(eigenvalues_real_part(2)) < min_eigenvalue)
     {
         index_of_smallest = 2;
-        min_eigenvalue = fabs(WR(2));
+        min_eigenvalue = fabs(eigenvalues_real_part(2));
     }
-            
-    output(0) = VR(index_of_smallest,0);
-    output(1) = VR(index_of_smallest,1);
-    output(2) = VR(index_of_smallest,2);
+
+    c_vector<double, 3> output;            
+    output(0) = right_eigenvalues(index_of_smallest,0);
+    output(1) = right_eigenvalues(index_of_smallest,1);
+    output(2) = right_eigenvalues(index_of_smallest,2);
     
     return output;
     
