@@ -46,7 +46,6 @@ class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
 {
 protected:
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;
-    bool mUseMatrixBasedRhsAssembly;
 
 public:
     AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde()
@@ -59,7 +58,7 @@ public:
     {
         assert(mpMonodomainPde);
 
-        if(!mUseMatrixBasedRhsAssembly)
+        if(!this->mUseMatrixBasedRhsAssembly)
         {
             MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
               = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
@@ -90,7 +89,6 @@ public:
             : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
               mpMonodomainPde(NULL)
     {
-        mUseMatrixBasedRhsAssembly = true;
     }
 
     /**
@@ -134,14 +132,6 @@ public:
             }
         }
         std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
-    }
-    
-    /** 
-     *  Whether to use matrix-based RHS assembly or not
-     */
-    void UseMatrixBasedRhsAssembly(bool useMatrixBasedAssembly)
-    {
-        mUseMatrixBasedRhsAssembly = useMatrixBasedAssembly;
     }
 };
 

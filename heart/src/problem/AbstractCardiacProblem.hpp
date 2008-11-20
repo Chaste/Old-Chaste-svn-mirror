@@ -66,6 +66,8 @@ protected:
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
+    bool mUseMatrixBasedRhsAssembly;
+
 protected:
     BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
@@ -112,6 +114,7 @@ public:
               mNodesPerProcessorFilename(""),     // i.e. undefined
               mOutputDirectory(""),  // i.e. undefined
               mOutputFilenamePrefix(""),   // i.e. undefined
+              mUseMatrixBasedRhsAssembly(true),
               mpBoundaryConditionsContainer(NULL),
               mpCellFactory(pCellFactory),
               mpMesh(NULL),
@@ -502,5 +505,14 @@ public:
         }
         return Hdf5DataReader(mOutputDirectory, mOutputFilenamePrefix);
     }
+    
+    /** 
+     *  Whether to use matrix-based RHS assembly or not
+     */    
+    void UseMatrixBasedRhsAssembly(bool usematrix=true)
+    {
+        mUseMatrixBasedRhsAssembly = usematrix;
+    }
+    
 };
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

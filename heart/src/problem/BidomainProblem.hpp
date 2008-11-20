@@ -57,8 +57,6 @@ private:
 
     unsigned mRowMeanPhiEZero;
 
-    bool mUseMatrixBasedRhsAssembly;
-
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
@@ -71,7 +69,7 @@ protected:
     {
         BidomainDg0Assembler<SPACE_DIM, SPACE_DIM>* p_bidomain_assembler;
         
-        if(!mUseMatrixBasedRhsAssembly)
+        if(!this->mUseMatrixBasedRhsAssembly)
         {
             p_bidomain_assembler
                 = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
@@ -114,8 +112,6 @@ public:
             mRowMeanPhiEZero(INT_MAX)
     {
         mFixedExtracellularPotentialNodes.resize(0); 
-        
-        mUseMatrixBasedRhsAssembly = true;
     }
 
     /**
@@ -238,18 +234,6 @@ public:
         }
     }
 
-    /** 
-     *  Whether to use matrix-based RHS assembly or not
-     */
-    void UseMatrixBasedRhsAssembly()
-    {
-        mUseMatrixBasedRhsAssembly = true;
-    }
-    
-    void UseMatrixBasedRhsAssembly(bool usematrix)
-    {
-        mUseMatrixBasedRhsAssembly = usematrix;
-    }
 };
 
 
