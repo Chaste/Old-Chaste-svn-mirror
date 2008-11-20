@@ -427,14 +427,16 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterElement(unsigned i
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index)
-{    
-    if(mNodesMapping.find(index) == mNodesMapping.end())
+{
+    std::map<unsigned, unsigned>::const_iterator node_position = mNodesMapping.find(index); 
+        
+    if(node_position == mNodesMapping.end())
     {
         std::stringstream message;
         message << "Requested node " << index << " does not belong to processor " << PetscTools::GetMyRank();
         EXCEPTION(message.str().c_str());        
     }
-    return mNodesMapping[index];    
+    return node_position->second;    
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -447,14 +449,16 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveGhostNodeMapping(
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
 {
-    if(mElementsMapping.find(index) == mElementsMapping.end())
+    std::map<unsigned, unsigned>::const_iterator element_position = mElementsMapping.find(index); 
+    
+    if(element_position == mElementsMapping.end())
     {
         std::stringstream message;
         message << "Requested element " << index << " does not belong to processor " << PetscTools::GetMyRank();
         EXCEPTION(message.str().c_str());        
     }
 
-    return mElementsMapping[index];    
+    return element_position->second;    
 }            
 
 
