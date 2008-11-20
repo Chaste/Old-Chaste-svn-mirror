@@ -97,7 +97,7 @@ public:
             Element<2,2>* p_para_element = *it;
             unsigned element_index = p_para_element->GetIndex();
             
-            Element<2,2>* p_sequ_element = mesh.GetElement(element_index);            
+            Element<2,2>* p_sequ_element = seq_mesh.GetElement(element_index);            
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
             
             for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
@@ -117,7 +117,7 @@ public:
             BoundaryElement<1,2>* p_para_boundary_element = *it;
             unsigned boundary_element_index = p_para_boundary_element->GetIndex();
             
-            BoundaryElement<1,2>* p_sequ_boundary_element = mesh.GetBoundaryElement(boundary_element_index);            
+            BoundaryElement<1,2>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);            
             TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
             
             for (unsigned node_local_index=0; node_local_index < p_para_boundary_element->GetNumNodes(); node_local_index++)

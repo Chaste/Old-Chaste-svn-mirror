@@ -127,21 +127,26 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartioning(
     {
         ElementData element_data = rMeshReader.GetNextElementData();
 
+        bool element_owned = false;
+        std::set<unsigned> temp_ghost_nodes;
+        
         for(unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
             if (rNodesOwned.find(element_data.NodeIndices[i]) != rNodesOwned.end())
             {
+                element_owned = true;
                 rElementsOwned.insert(element_number);
-                
-                std::set<unsigned> temp; /// \todo: there should be a way of avoiding the use of temp
-
-                std::set_difference(element_data.NodeIndices.begin(), element_data.NodeIndices.end(),
-                                    rNodesOwned.begin(), rNodesOwned.end(),
-                                    std::inserter(temp, temp.begin()) );                              
-                               
-                rGhostNodesOwned.insert(temp.begin(), temp.end());
+            }
+            else
+            {
+                temp_ghost_nodes.insert(element_data.NodeIndices[i]);
             }
         }
+        
+        if (element_owned)
+        {
+            rGhostNodesOwned.insert(temp_ghost_nodes.begin(), temp_ghost_nodes.end());
+        }                        
     }
     
     rMeshReader.Reset();
