@@ -76,10 +76,9 @@ c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3
     dgeev_(&N,&V,&size,a_transpose.data(),&size,WR.data(),WI.data(),VL.data(),&size,VR.data(),&size,WORK.data(),&four_times_size,&info);
     
     assert(info==0);
-    if(norm_2(WI) != 0.0)
-    {    
-        EXCEPTION("Matrix has complex eigenvalues");
-    }
+
+    // if this fail a complex eigenvalue was found
+    assert(norm_2(WI) == 0.0);
     
     int index_of_smallest=0;    
     double min_eigenvalue = fabs(WR(0));
