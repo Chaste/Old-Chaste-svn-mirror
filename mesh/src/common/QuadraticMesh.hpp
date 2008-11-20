@@ -262,11 +262,6 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
     
     mesh_reader.Reset();
 
-    // attributes and quad meshes not done yet..
-    // if num attributes > 0 the first quad node will have been incorrectly set as the
-    // element region...
-    assert(mesh_reader.GetNumElementAttributes()==0);
-    
     // add the extra nodes (1 extra node in 1D, 3 in 2D, 6 in 3D) to the element
     // data.
     for(unsigned i=0; i<this->GetNumElements(); i++)
