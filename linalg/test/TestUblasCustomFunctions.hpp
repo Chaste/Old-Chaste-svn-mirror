@@ -267,7 +267,7 @@ public:
         TS_ASSERT_EQUALS( v3[2], 3);
     }
     
-    void TestEigenVectorValueCalculation()
+    void TestEigenVectorValueCalculation() throw(Exception)
     {
         c_matrix<double, 3, 3> A;
         A(0,0) = 2.4;
@@ -284,16 +284,23 @@ public:
         
         c_vector<double, 3> eigenvector;
         
-        eigenvector = CalculateSmallestEigenvector(A);        
+        eigenvector = CalculateEigenvectorForSmallestEigenvalue(A);
         
         c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);              
 
         double delta = 1e-12; 
         TS_ASSERT_DELTA( a_times_eigenvector[0], smallest_eigenvalue*eigenvector[0], delta);  
         TS_ASSERT_DELTA( a_times_eigenvector[1], smallest_eigenvalue*eigenvector[1], delta);
-        TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);        
+        TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);
+        
+        // set up B = [1  0 0] 
+        //            [0  0 1] 
+        //            [0 -1 0]
+        c_matrix<double,3,3> B = zero_matrix<double>(3,3);
+        B(0,0) = B(1,2) = 1.0;
+        B(2,1) = -1.0;
+        TS_ASSERT_THROWS_ANYTHING(CalculateEigenvectorForSmallestEigenvalue(B));  // eigenvalues are 1,i,-i, ie complex
     }
-
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

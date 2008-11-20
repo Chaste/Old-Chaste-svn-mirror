@@ -333,9 +333,8 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[0], -34.3481, 1e-3);
     }
     
-    // Same as TestMonodomainProblem1D, except printing timestep is
-    // not equal to pde_timestep, to check it works in this case
-    void TestMonodomainMatrixBasedAssembly() throw(Exception)
+    // Same as TestMonodomainProblem1D, but uses NO matrix based assembly.
+    void TestMonodomainWithNoMatrixBasedAssembly() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetPrintingTimeStep(1); //ms
@@ -347,7 +346,8 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         
-        monodomain_problem.UseMatrixBasedRhsAssembly();
+        // switch off matrix based assembly
+        monodomain_problem.UseMatrixBasedRhsAssembly(false);
 
         monodomain_problem.Initialise();
 

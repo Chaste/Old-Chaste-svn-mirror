@@ -150,8 +150,6 @@ public:
         this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,2>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
 
-//        this->mpLinearSystem = new LinearSystem(2*pMesh->GetNumNodes());
-
         DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
         Vec template_vec = DistributedVector::CreateVec(2);
         this->mpLinearSystem = new LinearSystem(template_vec);
@@ -245,8 +243,11 @@ public:
     {
         DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
         
+        // dist stripe for the current Voltage
         DistributedVector distributed_current_solution(currentSolution);
-        DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0);      
+        DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0); 
+             
+        // dist stripe for z
         DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);     
         DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
         DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);

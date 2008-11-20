@@ -46,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 #define TINY DBL_EPSILON
 
+#include "Exception.hpp"
+
 using namespace boost::numeric::ublas;
 /**
  * Get the determinant of a ublas matrix
@@ -266,7 +268,7 @@ c_vector<double, 2> Create_c_vector(double x, double y);
 
 c_vector<double, 3> Create_c_vector(double x, double y, double z);
 
-c_vector<double,3> CalculateSmallestEigenvector(c_matrix<double,3,3> &A);
+c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3> &A);
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/
 

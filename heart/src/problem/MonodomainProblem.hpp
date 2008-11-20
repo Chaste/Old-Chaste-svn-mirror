@@ -90,7 +90,7 @@ public:
             : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
               mpMonodomainPde(NULL)
     {
-        mUseMatrixBasedRhsAssembly = false;
+        mUseMatrixBasedRhsAssembly = true;
     }
 
     /**
@@ -139,9 +139,9 @@ public:
     /** 
      *  Whether to use matrix-based RHS assembly or not
      */
-    void UseMatrixBasedRhsAssembly()
+    void UseMatrixBasedRhsAssembly(bool useMatrixBasedAssembly)
     {
-        mUseMatrixBasedRhsAssembly = true;
+        mUseMatrixBasedRhsAssembly = useMatrixBasedAssembly;
     }
 };
 

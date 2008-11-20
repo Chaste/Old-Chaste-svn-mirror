@@ -74,6 +74,7 @@ public:
         HeartConfig::Reset();   
     }
 
+    // first test doesn't use matrix based assembly..
     void TestBidomainDg01DPinned()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -103,7 +104,9 @@ public:
         pinned_nodes.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
 
-bidomain_problem.UseMatrixBasedRhsAssembly(false);
+        // switch off matrix-based assembly (just to test old method). Note: switching this off
+        // is VERY inefficient 
+        bidomain_problem.UseMatrixBasedRhsAssembly(false);
 
         try
         {

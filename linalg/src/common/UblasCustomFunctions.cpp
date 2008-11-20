@@ -54,10 +54,10 @@ c_vector<double, 3> Create_c_vector(double x, double y, double z)
     return v;
 }
 
-c_vector<double,3> CalculateSmallestEigenvector(c_matrix<double,3,3> &A)
+c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3> &A)
 {
     int info;
-    c_vector<double, 3 > WR;
+    c_vector<double, 3 > WR;  // TODO: what are these?
     c_vector<double, 3 > WI;
     c_vector<double, 4*3 > WORK;
     c_matrix<double, 3, 3> VL;
@@ -74,9 +74,12 @@ c_vector<double,3> CalculateSmallestEigenvector(c_matrix<double,3,3> &A)
     noalias(a_transpose) = trans(A);    
     
     dgeev_(&N,&V,&size,a_transpose.data(),&size,WR.data(),WI.data(),VL.data(),&size,VR.data(),&size,WORK.data(),&four_times_size,&info);
-    assert(info==0);    
-    assert(norm_2(WI) == 0.0); // We've found a complex eigenvalue... 
-
+    
+    assert(info==0);
+    if(norm_2(WI) != 0.0)
+    {    
+        EXCEPTION("Matrix has complex eigenvalues");
+    }
     
     int index_of_smallest=0;    
     double min_eigenvalue = fabs(WR(0));

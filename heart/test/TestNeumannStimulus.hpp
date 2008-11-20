@@ -332,7 +332,7 @@ public:
         // pass the bcc to the monodomain problem
         monodomain_problem.SetBoundaryConditionsContainer(&bcc);
 
-        monodomain_problem.UseMatrixBasedRhsAssembly();
+        monodomain_problem.UseMatrixBasedRhsAssembly(false);
 
         monodomain_problem.Solve();
 
