@@ -84,6 +84,8 @@ elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
     import nottingham as conf
 elif machine_fqdn.endswith(".maths.ox.ac.uk"):
     import maths as conf
+elif machine_fqdn.endswith(".fle.fujitsu.com"):
+    import fle as conf
 elif machine_fqdn.startswith('alex-laptop'):
     import alexf as conf
 
