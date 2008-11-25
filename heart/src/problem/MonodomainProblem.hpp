@@ -90,7 +90,7 @@ public:
               mpMonodomainPde(NULL)
     {
         // this is set to true in the base class but overwritten here 
-        mUseMatrixBasedRhsAssembly = false; // made false as Parallel is not passing
+        this->mUseMatrixBasedRhsAssembly = false; // made false as Parallel is not passing
     }
 
     /**
