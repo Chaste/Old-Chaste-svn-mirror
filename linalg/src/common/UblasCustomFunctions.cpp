@@ -72,7 +72,8 @@ c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3
     c_matrix<double, 3, 3> a_transpose;
     noalias(a_transpose) = trans(A);    
     
-    dgeev_(&dont_compute_left_evectors, &compute_right_evectors, 
+    //PETSc alias for dgeev or dgeev_
+    LAPACKgeev_(&dont_compute_left_evectors, &compute_right_evectors, 
            &matrix_size, a_transpose.data(),&matrix_ld,
            eigenvalues_real_part.data(), eigenvalues_imaginary_part.data(), 
            NULL, &matrix_ld, 

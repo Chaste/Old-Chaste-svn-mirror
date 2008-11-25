@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix_expression.hpp>
 
+//#define PETSC_HAVE_FORTRAN_UNDERSCORE
+//Nasty hack to make sure the right header is switched in by PETSc
 #include "petscblaslapack.h"
 
 #include <iostream>
