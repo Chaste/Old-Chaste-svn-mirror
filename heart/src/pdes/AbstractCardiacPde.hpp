@@ -102,11 +102,14 @@ protected:
      * Defaults to true.
      */
     bool mDoCacheReplication;
+    bool mDoOneCacheReplication; //This is to mark the conventional assembly on the first time step.
+    ///\todo maybe we don't want the conventional assembly even in the first time step.
 
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
             : mStride(stride),
-              mDoCacheReplication(true)
+              mDoCacheReplication(true),
+              mDoOneCacheReplication(true)
     {
         //This constructor is called from the Initialise() method of the CardiacProblem class
         assert(pCellFactory!=NULL);
@@ -304,9 +307,10 @@ public:
         PetscTools::ReplicateException(false);
 
         EventHandler::BeginEvent(COMMUNICATION);
-        if (mDoCacheReplication)
+        if ((mDoCacheReplication)||mDoOneCacheReplication)
         {
             ReplicateCaches();
+            mDoOneCacheReplication=false;
         }
         EventHandler::EndEvent(COMMUNICATION);
     }

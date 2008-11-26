@@ -89,8 +89,6 @@ public:
             : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
               mpMonodomainPde(NULL)
     {
-        // this is set to true in the base class but overwritten here 
-        this->mUseMatrixBasedRhsAssembly = false; // made false as Parallel is not passing
     }
 
     /**
