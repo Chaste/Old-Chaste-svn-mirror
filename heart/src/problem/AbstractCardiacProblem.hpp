@@ -51,6 +51,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
+friend class TestBidomainWithBathAssembler;
+    
 protected:
     std::string mMeshFilename;
     bool mAllocatedMemoryForMesh;

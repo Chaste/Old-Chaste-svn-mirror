@@ -1,6 +1,7 @@
 TestBidomainParallelMesh.hpp
 TestBidomainPde.hpp
 TestBidomainProblem.hpp
+TestBidomainWithBathAssembler.hpp
 TestCardiacElectroMechanicsProblem.hpp
 TestCellProperties.hpp
 TestCellularMechanicsOdeSystems.hpp

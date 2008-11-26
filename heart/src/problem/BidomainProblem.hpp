@@ -49,6 +49,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
 {
+
+friend class TestBidomainWithBathAssembler;    
+    
 protected:
     BidomainPde<SPACE_DIM>* mpBidomainPde;
 private:

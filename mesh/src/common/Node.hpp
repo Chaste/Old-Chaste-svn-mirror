@@ -42,6 +42,7 @@ class Node
 {
 private:
     unsigned mIndex;
+    unsigned mRegion;
 
     c_vector<double, SPACE_DIM> mLocation;
 
@@ -62,6 +63,7 @@ private:
         mIsDeleted = false;
         mElementIterator = ContainingElementsBegin();
         mBoundaryElementIterator = ContainingBoundaryElementsBegin();
+        mRegion = 0;
     }
 
 public:
@@ -273,6 +275,16 @@ public:
             }
         }
         return in_flagged_element;
+    }
+    
+    void SetRegion(unsigned region)
+    {
+        mRegion = region;
+    }
+
+    unsigned GetRegion()
+    {
+        return mRegion;
     }
 
     /**
