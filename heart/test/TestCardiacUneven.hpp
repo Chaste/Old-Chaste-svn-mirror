@@ -27,12 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _TESTMONODOMAINUNEVEN_HPP_
-#define _TESTMONODOMAINUNEVEN_HPP_
+#ifndef _TESTCARDIACUNEVEN_HPP_
+#define _TESTCARDIACUNEVEN_HPP_
 
 
 #include <cxxtest/TestSuite.h>
 #include "MonodomainProblem.hpp"
+#include "BidomainProblem.hpp"
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
@@ -43,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include "DistributedVector.hpp"
 
-class TestMonodomainUneven : public CxxTest::TestSuite
+class TestCardiacUneven : public CxxTest::TestSuite
 {
 public:
     void tearDown()
@@ -108,8 +109,56 @@ public:
         else
         {
             TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
+            EventHandler::Reset();
+        }
+    }
+    // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
+    void TestBidomainTwoUnevenProcessors()
+    {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetSimulationDuration(2); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetOutputDirectory("BidomainUneven");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
+                        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+
+        BidomainProblem<1> bidomain_problem( &cell_factory );
+
+        bidomain_problem.SetNodesPerProcessorFilename("heart/test/data/11_nodes_2_processors.txt");
+
+        if(PetscTools::NumProcs() == 2)
+        {
+            bidomain_problem.Initialise();
+
+
+            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+            HeartConfig::Instance()->SetCapacitance(1.0);
+
+            bidomain_problem.Solve();
+
+
+            PetscInt petsc_lo, petsc_hi;
+            VecGetOwnershipRange(bidomain_problem.GetVoltage(),&petsc_lo,&petsc_hi);
+
+            if(PetscTools::GetMyRank() == 0)
+            {
+                TS_ASSERT_EQUALS(0, petsc_lo);
+                TS_ASSERT_EQUALS(8*2, petsc_hi);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(8*2, petsc_lo);
+                TS_ASSERT_EQUALS(11*2, petsc_hi);
+            }
+
+        }
+        else
+        {
+            TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
+            EventHandler::Reset();
         }
     }
 };
 
-#endif // _TESTMONODOMAINUNEVEN_HPP_
+#endif // _TESTCARDIACUNEVEN_HPP_

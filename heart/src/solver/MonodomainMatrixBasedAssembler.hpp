@@ -125,7 +125,10 @@ public:
         this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,1>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
         
-        this->mpLinearSystem = new LinearSystem(pMesh->GetNumNodes());
+        //This linear system needs a distribution from the DistributedVector class
+        Vec temp_vec=DistributedVector::CreateVec();
+        this->mpLinearSystem = new LinearSystem(temp_vec);
+        VecDestroy(temp_vec);
         this->AssembleSystem(false,true);
     }
     
@@ -184,7 +187,7 @@ public:
         // set variables on parent class so that we do matrix-based assembly, and allocate
         // memory for the vector 'z'
         this->mUseMatrixBasedRhsAssembly = true;
-        this->mVectorForMatrixBasedRhsAssembly = PetscTools::CreateVec(this->mpMesh->GetNumNodes());
+        this->mVectorForMatrixBasedRhsAssembly = DistributedVector::CreateVec();
 
         // Tell pde there's no need to replicate ionic caches
         pPde->SetCacheReplication(false);
@@ -203,10 +206,10 @@ public:
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
     {
         // copy V to z
-        VecCopy(currentSolution,this->mVectorForMatrixBasedRhsAssembly);  
+        VecCopy(currentSolution, this->mVectorForMatrixBasedRhsAssembly);  
     
         // set up a vector which has the nodewise force term (ie A*I_ionic+I_stim)
-        Vec force_term_at_nodes = PetscTools::CreateVec(this->mpMesh->GetNumNodes());
+        Vec force_term_at_nodes = DistributedVector::CreateVec();
         PetscInt lo, hi;
         VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
         double *p_force_term;

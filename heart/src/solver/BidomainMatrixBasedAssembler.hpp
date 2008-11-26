@@ -150,7 +150,7 @@ public:
         this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,2>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
 
-        DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+        //DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes()); WOULD BE WRONG -- we need the maintain an uneven distribution, if given
         Vec template_vec = DistributedVector::CreateVec(2);
         this->mpLinearSystem = new LinearSystem(template_vec);
         VecDestroy(template_vec);
@@ -220,7 +220,6 @@ public:
         // set variables on parent class so that we do matrix-based assembly, and allocate
         // memory for the vector 'z'
         this->mUseMatrixBasedRhsAssembly = true;
-        //this->mVectorForMatrixBasedRhsAssembly = PetscTools::CreateVec(2*this->mpMesh->GetNumNodes());
         this->mVectorForMatrixBasedRhsAssembly = DistributedVector::CreateVec(2);
 
         // Tell pde there's no need to replicate ionic caches
@@ -241,7 +240,6 @@ public:
      */
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
     {
-        DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
         
         // dist stripe for the current Voltage
         DistributedVector distributed_current_solution(currentSolution);

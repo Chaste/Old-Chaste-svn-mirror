@@ -3,6 +3,7 @@ TestBidomainPde.hpp
 TestBidomainProblem.hpp
 TestBidomainWithBathAssembler.hpp
 TestCardiacElectroMechanicsProblem.hpp
+TestCardiacUneven.hpp
 TestCellProperties.hpp
 TestCellularMechanicsOdeSystems.hpp
 TestConductivityTensors.hpp
@@ -19,7 +20,6 @@ TestMonodomainConductionVelocity.hpp
 TestMonodomainProblem.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestMonodomainPde.hpp
-TestMonodomainUneven.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestNeumannStimulus.hpp
 TestNhsSystemWithImplicitSolver.hpp
