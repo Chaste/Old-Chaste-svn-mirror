@@ -44,20 +44,22 @@ public:
     void TestPapillaryFibre(void) throw(Exception)
     {
 
-std::string epi_face_file = "/home/chaste/heart_data/pap_face_n.tri";
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cylinder_muscle");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-ifstream coordsfile;
+//ifstream coordsfile;
 ifstream pap_facefile;
-coordsfile.open("/home/chaste/heart_data/heartT_renum_i.pts");
-pap_facefile.open("/home/chaste/heart_data/pap_face_n.dat");
+//coordsfile.open("notforrelease/test/data/OxfordHeart_i_triangles/heartT_renum_i.pts");
+pap_facefile.open("mesh/test/data/cylinder_muscle.surflist");
 
 
 /////////////////////////////////////////////////////////////
   // Defines the numbers of nodes and face nodes
   /////////////////////////////////////////////////////////////
-  int num_nodes = 4310704;
-  int num_elements = 24217344;
-    int num_pap_face = 42539;
+  int num_nodes = mesh.GetNumNodes();
+  int num_elements = mesh.GetNumElements();
+  int num_pap_face = mesh.GetNumBoundaryNodes();
     
 
 
@@ -73,7 +75,7 @@ pap_facefile.open("/home/chaste/heart_data/pap_face_n.dat");
 /////////////////////////////////////////////////////////////////
   // Reads the centroids of the elements
   /////////////////////////////////////////////////////////////////
-  ifstream centsfile("/home/chaste/heart_data/centroids.pts");
+  ifstream centsfile("notforrelease/test/data/OxfordHeart_i_triangles/centroids.pts");
  
   // Defines the number of centroids (same as number of elements...)
   int num_cents = 24217344;
@@ -87,6 +89,7 @@ pap_facefile.open("/home/chaste/heart_data/pap_face_n.dat");
   for(int i=0;i<num_cents;i++)
     cents[i] = new double[3];
   
+  std::cout << "b"<<"\n";
  
   // Reads in cents file
     for(int i=0;i<num_cents;i++)
@@ -100,7 +103,7 @@ pap_facefile.open("/home/chaste/heart_data/pap_face_n.dat");
 cout << cents[10][0] << " " << cents[10][2] << "\n ";
   
 // Reads-in list of only papillary elements
-ifstream papselemsfile("/home/chaste/heart_data/paps_elems.dat");
+ifstream papselemsfile("notforrelease/test/data/OxfordHeart_i_triangles/paps_elems.dat");
 int num_paps_elems = 1278265;
 int *paps_elems;
   paps_elems = new int [num_paps_elems];
@@ -115,21 +118,7 @@ for(int i=0;i<num_paps_elems;i++)
  
  
 
-  // Reads in coords file
-  double x,y,z,dummy;
-  coordsfile >> dummy;
-  for(int i=0;i<num_nodes;i++)
-    {
-      coordsfile >> x >> y >> z;
-      coords[i][0] = x*x_factor;
-      coords[i][1] = y*y_factor;
-      coords[i][2] = z*z_factor;
-
-    }
-cout << coords[10][0] << " " << coords[10][2] << "\n ";
-
-
-  // Reads in list of papillary nodes
+   // Reads in list of papillary nodes
   int pap_face_value;
 for(int i=0;i<num_pap_face;i++)
     {
@@ -198,9 +187,10 @@ double **gradients;
  
     }
 		
+std::cout << "c"<<"\n";        
 		
 		 // Writes-out the radius vector file
-  ofstream vectorfile("/home/chaste/heart_data/radius_vector.dat");
+  ofstream vectorfile("notforrelease/test/data/OxfordHeart_i_triangles/radius_vector.dat");
   for(int i=0;i<num_elements;i++)
     {
       vectorfile << gradients[i][0] << " " << gradients[i][1] << " " << gradients[i][2] << "\n";
@@ -223,89 +213,35 @@ double **gradients;
   
  // Defines entries in (unsmoothed) structure tensor component vectors, where each entry of [I11,I12,I13;I21,I22,I23;I31,I32,I33] is defined to be
 // g^T * g, where g = (g1,g2,g3) is the x,y,z components of the radius vector at that element. 
- double *I11;
-  I11 = new double [num_paps_elems];
 
-double *I12;
-  I12 = new double [num_paps_elems];
-
-double *I13;
-  I13 = new double [num_paps_elems];
-
-double *I21;
-  I21 = new double [num_paps_elems];
-
-double *I22;
-  I22 = new double [num_paps_elems];
-
-double *I23;
-  I23 = new double [num_paps_elems];
-
-double *I31;
-  I31 = new double [num_paps_elems];
-
-double *I32;
-  I32 = new double [num_paps_elems];
-
-double *I33;
-  I33 = new double [num_paps_elems];
-  
-  double *I11s;
-  I11s = new double [num_paps_elems];
-
-double *I12s;
-  I12s = new double [num_paps_elems];
-
-double *I13s;
-  I13s = new double [num_paps_elems];
-
-double *I21s;
-  I21s = new double [num_paps_elems];
-
-double *I22s;
-  I22s = new double [num_paps_elems];
-
-double *I23s;
-  I23s = new double [num_paps_elems];
-
-double *I31s;
-  I31s = new double [num_paps_elems];
-
-double *I32s;
-  I32s = new double [num_paps_elems];
-
-double *I33s;
-  I33s = new double [num_paps_elems];
-
+     std::vector< c_matrix<double,3,3> > tensorI(num_paps_elems, zero_matrix<double>(3,3));
+     std::vector< c_matrix<double,3,3> > tensorS(num_paps_elems, zero_matrix<double>(3,3));     
+//     c_matrix<double,3,3> computed(zero_matrix<double>(3,3));
+     
 // Initialises structure tensor component vectors
-  for(int i=0;i<num_paps_elems;i++)
-    {
-      I11[i] = 0;
-      I12[i] = 0;
-      I13[i] = 0;
-      I21[i] = 0;
-      I22[i] = 0;
-      I23[i] = 0;
-      I31[i] = 0;
-      I32[i] = 0;
-      I33[i] = 0;
-      
-      I11s[i] = 0;
-      I12s[i] = 0;
-      I13s[i] = 0;
-      I21s[i] = 0;
-      I22s[i] = 0;
-      I23s[i] = 0;
-      I31s[i] = 0;
-      I32s[i] = 0;
-      I33s[i] = 0;
-    }
- 
+
+//     for(int k=0;k<3;k++)
+//     {
+//        for(int j=0;j<3;j++)
+//        {
+//         computed(j,k)=0;
+//        }  
+//     }
+     
+//     for(int i=0;i<num_paps_elems;i++)
+//     {
+//        tensorI[i]=computed;
+//        tensorS[i]=computed;
+//     }
+    //TS_ASSERT_EQUALS(tensorI[1](0,0), 24217344U);
+    
+  
+
 // Assigns entries in (unsmoothed) structure tensor component vectors, where each entry of [I11,I12,I13;I21,I22,I23;I31,I32,I33] is defined to be
 // g^T * g, where g = (g1,g2,g3) is the x,y,z components of the radius vector at that element. 
  int n,m;
 
-  for(int i=0;i<num_paps_elems;i++)
+  for(int i=0;i<10;i++)
     {
       n = paps_elems[i];
       
@@ -315,48 +251,43 @@ double *I33s;
         gradient[j]=gradients[n][j];
       }
       
-      c_matrix <double, 3, 3> tensor = outer_prod(gradient, gradient);
+//      c_matrix <double, 3, 3> tensor = outer_prod(gradient, gradient);
       
-      I11[i] = tensor(0,0);
-      I12[i] = tensor(0,1);
-      I13[i] = tensor(0,2);
-      I21[i] = tensor(1,0);
-      I22[i] = tensor(1,1);
-      I23[i] = tensor(1,2);
-      I31[i] = tensor(2,0);
-      I32[i] = tensor(2,1);
-      I33[i] = tensor(2,2);
+//      for(int k=0;k<3;k++)
+//      {
+//        for(int j=0;j<3;j++)
+//        {
+//            tensorI[i](j,k) = tensor(j,k);
+//        }
+//      }
+      tensorI[i] = outer_prod(gradient, gradient);  
       
-      TS_ASSERT_DELTA(I11[i], tensor(0,0), 1e-16);    
+      
+//      TS_ASSERT_DELTA(I11[i], tensor(0,0), 1e-16);    
 
     }
+ 
+//   assert(0);
+std::cout << "d"<<"\n";
  
  ////////////////////////////////////////////////////////////////////////////////////////////
  // Smoothes the structure tensor components for each papillary elements by looping over all other papillary elements, calculating
  // distance geometric distance between the two elements; if it is within a certain limit, include this in the Gaussian kernel
  ////////////////////////////////////////////////////////////////////////////////////////////
-  double x_p,y_p,z_p,sv_I11,sv_I12,sv_I13,sv_I21,sv_I22,sv_I23,sv_I31,sv_I32,sv_I33,r_max;
+  double x_p,y_p,z_p,r_max;
   double g_factor = 0;
   double sigma = 0.5;
   double g_factor_sum = 0;
   r_max = 1.0;
 
-  for(int i=0;i<num_paps_elems;i++)
+      
+
+  for(int i=0;i<10;i++)
     {
 
       if(i == 100 || i == 1000 || i == 10000 || i == 100000 || i == 500000 || i == 800000 || i == 1000000)
         cout << i << "\n";
         
-      sv_I11 = 0;
-      sv_I12 = 0;
-      sv_I13 = 0;
-      sv_I21 = 0;
-      sv_I22 = 0;
-      sv_I23 = 0;
-      sv_I31 = 0;
-      sv_I32 = 0;
-      sv_I33 = 0;
-
       g_factor_sum = 0;
 
       n = paps_elems[i];
@@ -381,57 +312,29 @@ double *I33s;
 
               g_factor_sum = g_factor + g_factor_sum;
     
-              sv_I11 = sv_I11 + g_factor*I11[j];
-              sv_I12 = sv_I12 + g_factor*I12[j];
-              sv_I13 = sv_I13 + g_factor*I13[j];
-              sv_I21 = sv_I21 + g_factor*I21[j];
-              sv_I22 = sv_I22 + g_factor*I22[j];
-              sv_I23 = sv_I23 + g_factor*I23[j];
-              sv_I31 = sv_I31 + g_factor*I31[j];
-              sv_I32 = sv_I32 + g_factor*I32[j];
-              sv_I33 = sv_I33 + g_factor*I33[j];
+              for(int l=0;l<3;l++)
+              {
+                for(int k=0;k<3;k++)
+                {
+                    tensorS[i](k,l) = tensorS[i](k,l) + g_factor*tensorI[j](k,l);
+                }
+              }
+             
 
             }
         }
-
-      I11s[i] = sv_I11/g_factor_sum;
-      I12s[i] = sv_I12/g_factor_sum;
-      I13s[i] = sv_I13/g_factor_sum;
-      I21s[i] = sv_I21/g_factor_sum;
-      I22s[i] = sv_I22/g_factor_sum;
-      I23s[i] = sv_I23/g_factor_sum;
-      I31s[i] = sv_I31/g_factor_sum;
-      I32s[i] = sv_I32/g_factor_sum;
-      I33s[i] = sv_I33/g_factor_sum;
+       
+       for(int l=0;l<3;l++)
+       {
+           for(int k=0;k<3;k++)
+           {
+               tensorS[i](k,l) = tensorS[i](k,l)/g_factor_sum;
+           }
+       }
 
     }
     
-    // Writes-out the list of nearest neighbours
-  ofstream I11sfile("/home/chaste/heart_data/I11s.dat");
-  ofstream I12sfile("/home/chaste/heart_data/I12s.dat");
-  ofstream I13sfile("/home/chaste/heart_data/I13s.dat");
-  ofstream I21sfile("/home/chaste/heart_data/I21s.dat");
-  ofstream I22sfile("/home/chaste/heart_data/I22s.dat");
-  ofstream I23sfile("/home/chaste/heart_data/I23s.dat");
-  ofstream I31sfile("/home/chaste/heart_data/I31s.dat");
-  ofstream I32sfile("/home/chaste/heart_data/I32s.dat");
-  ofstream I33sfile("/home/chaste/heart_data/I33s.dat");
-  
-  for(int i=0;i<num_paps_elems;i++)
-    {
-     I11sfile << I11s[i] << "\n";
-     I12sfile << I12s[i] << "\n";
-     I13sfile << I13s[i] << "\n";
-     I21sfile << I21s[i] << "\n";
-     I22sfile << I22s[i] << "\n";
-     I23sfile << I23s[i] << "\n";
-     I31sfile << I31s[i] << "\n";
-     I32sfile << I32s[i] << "\n";
-     I33sfile << I33s[i] << "\n";
-
-    }
     
-	    coordsfile.close();
 	    pap_facefile.close();
         
 
