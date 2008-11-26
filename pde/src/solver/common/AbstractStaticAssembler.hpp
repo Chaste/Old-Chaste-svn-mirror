@@ -499,6 +499,8 @@ protected:
         // Apply dirichlet boundary conditions
         this->ApplyDirichletConditions(currentSolutionOrGuess, assembleMatrix);
 
+        this->FinaliseLinearSystem(currentSolutionOrGuess, currentTime, assembleVector, assembleMatrix);
+
         if (assembleVector)
         {
             mpLinearSystem->AssembleRhsVector();

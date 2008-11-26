@@ -32,12 +32,144 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 
-#include "BidomainMatrixBasedAssembler.hpp"
+#include "BidomainDg0Assembler.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainWithBathAssembler
-    : public BidomainMatrixBasedAssembler<ELEMENT_DIM, SPACE_DIM>
+    : public BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
 {
+public:
+    /**
+     *  ComputeMatrixTerm()
+     *
+     *  This method is called by AssembleOnElement() and tells the assembler
+     *  the contribution to add to the element stiffness matrix.
+     */
+    virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        ChastePoint<SPACE_DIM> &rX,
+        c_vector<double,2> &u,
+        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+    {
+        if(pElement->GetRegion()==0) // ie if a tissue element
+        {
+            return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
+        }
+        else // bath element
+        {
+            const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = identity_matrix<double>(SPACE_DIM);
+
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
+            c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_b_grad_phi =
+                prod(trans(rGradPhi), temp);
+
+            c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ret = zero_matrix<double>(2*(ELEMENT_DIM+1));
+
+            // even rows, even columns
+            //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+            //slice00(ret, slice (0, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
+            //slice00 = 0;
+    
+            // odd rows, even columns
+            //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+            //slice10(ret, slice (1, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
+            //slice10 = 0
+    
+            // even rows, odd columns
+            //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+            //slice01(ret, slice (0, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
+            //slice01 = 0;
+    
+            // odd rows, odd columns
+            matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+            slice11(ret, slice (1, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
+            slice11 = grad_phi_sigma_b_grad_phi;
+    
+            return ret;
+        }
+    }
+
+
+    virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        ChastePoint<SPACE_DIM> &rX,
+        c_vector<double,2> &u,
+        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+    {
+        if(pElement->GetRegion()==0) // ie if a tissue element
+        {
+            return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
+        }
+        else // bath element
+        {
+            c_vector<double,2*(ELEMENT_DIM+1)> ret = zero_vector<double>(2*(ELEMENT_DIM+1));
+    
+            vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
+            vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
+    
+            // u(0) = voltage
+           // noalias(slice_V)   =  0; 
+            noalias(slice_Phi) =  -this->mIExtracellularStimulus * rPhi;
+    
+            return ret;
+        }
+    }
+
+
+
+
+
+
+
+    void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix)
+    {
+        unsigned mat_size = 2*this->mpMesh->GetNumNodes();
+        PetscInt index_of_rows[mat_size];
+        PetscScalar zeros[mat_size];
+        for(unsigned i=0; i<mat_size; i++)
+        {
+            index_of_rows[i] = i;
+            zeros[i] = 0.0;
+        }
+        
+        for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
+        {
+            if(this->mpMesh->GetNode(i)->GetRegion()==1) // ie is a bath node
+            {
+                PetscInt index[1];
+                index[0] = 2*i;
+
+                if(assembleMatrix)
+                {
+                    Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
+    
+                    // zero all the columns corresponding to V for this bath node.
+                    MatSetValues(r_matrix,mat_size,index_of_rows,1,index,zeros,INSERT_VALUES);
+    
+                    // now zero the row corresponding to V for this bath node, but
+                    // putting 1.0 on the diagonal
+                    //MatZeroRows(r_matrix,1,index,1.0);
+     
+                    MatSetValues(r_matrix,1,index,mat_size,index_of_rows,zeros,INSERT_VALUES);
+                    MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
+                }
+                
+                if(assembleVector)
+                {
+                    VecSetValue((*(this->GetLinearSystem()))->rGetRhsVector(), index[0], 0.0, INSERT_VALUES);
+                }
+            }
+        }
+//        (*(this->GetLinearSystem()))->AssembleFinalLhsMatrix();
+//        MatView( (*(this->GetLinearSystem()))->rGetLhsMatrix(), 0);
+//        VecView( (*(this->GetLinearSystem()))->rGetRhsVector(), 0);
+//        assert(0);
+    }
+
 public:
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
@@ -46,9 +178,8 @@ public:
                               BidomainPde<SPACE_DIM>* pPde,
                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                               unsigned numQuadPoints = 2) :
-            BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
-    {
-        
+            BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
+    {        
         // Initialize all nodes to be bath nodes
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {

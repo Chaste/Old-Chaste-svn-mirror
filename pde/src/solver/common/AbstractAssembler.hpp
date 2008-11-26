@@ -239,6 +239,14 @@ protected:
     {}
 
     /**
+     *  Can be overloaded if the user needs to edit the linear system after the boundary 
+     *  conditions have been added by before it is solved
+     */
+    virtual void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix)
+    {}
+
+
+    /**
      * This method is called by AssembleSystem to apply dirichlet conditions to the system.
      */
     virtual void ApplyDirichletConditions(Vec currentSolutionOrGuess, bool applyToMatrix)=0;

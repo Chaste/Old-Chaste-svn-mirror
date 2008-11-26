@@ -45,7 +45,7 @@ typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 class TestBidomainWithBathAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestLabellingNodes() throw (Exception)
+    void xTestLabellingNodes() throw (Exception)
     {
         // all this is just to create a mesh, pde and bcc to pass to the new 
         // type of assembler
@@ -84,7 +84,7 @@ public:
     }
 
 
-    void TestFailsIfNoBathElements() throw (Exception)
+    void xTestFailsIfNoBathElements() throw (Exception)
     {
         // all this is just to create a mesh, pde and bcc to pass to the new 
         // type of assembler
@@ -104,6 +104,27 @@ public:
         // Create the bidomain with bath assembler.
         // Fails because this mesh has no bath elements               
         TS_ASSERT_THROWS_ANYTHING(  ASSEMBLER_1D assembler(p_mesh, p_pde, &bcc) );
+        
+        // we need to call solve as other an EventHandling exception is thrown
+        bidomain_problem.Solve();
+    }
+    
+    void Test1DBathProblem() throw (Exception)
+    {
+        // all this is just to create a mesh, pde and bcc to pass to the new 
+        // type of assembler
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBath1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_1d");
+                
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
+        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
+        bidomain_problem.Initialise();
+
+        bidomain_problem.Solve();
+        
+        ///\todo test..
     }
 };
     

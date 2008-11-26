@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainPde.hpp"
 #include "AbstractCardiacProblem.hpp"
 #include "BidomainMatrixBasedAssembler.hpp"
-
+#include "BidomainWithBathAssembler.hpp"
 
 /**
  * Class which specifies and solves a bidomain problem.
@@ -54,11 +54,12 @@ friend class TestBidomainWithBathAssembler;
     
 protected:
     BidomainPde<SPACE_DIM>* mpBidomainPde;
+
 private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     unsigned mExtracelluarColumnId;
-
     unsigned mRowMeanPhiEZero;
+    bool mHasBath;
 
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
@@ -72,21 +73,32 @@ protected:
     {
         BidomainDg0Assembler<SPACE_DIM, SPACE_DIM>* p_bidomain_assembler;
         
-        if(!this->mUseMatrixBasedRhsAssembly)
+        if(mHasBath)
         {
             p_bidomain_assembler
-                = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                mpBidomainPde,
-                                                                this->mpBoundaryConditionsContainer,
-                                                                2);
+                = new BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                                     mpBidomainPde,
+                                                                     this->mpBoundaryConditionsContainer,
+                                                                     2);
         }
         else
         {
-            p_bidomain_assembler
-                = new BidomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                        mpBidomainPde,
-                                                                        this->mpBoundaryConditionsContainer,
-                                                                        2);
+            if(!this->mUseMatrixBasedRhsAssembly)
+            {
+                p_bidomain_assembler
+                    = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                                    mpBidomainPde,
+                                                                    this->mpBoundaryConditionsContainer,
+                                                                    2);
+            }
+            else 
+            {
+                p_bidomain_assembler
+                    = new BidomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+                                                                            mpBidomainPde,
+                                                                            this->mpBoundaryConditionsContainer,
+                                                                            2);
+            }
         }
 
         try
@@ -109,10 +121,11 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+    BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool hasBath=false)
             : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory),
             mpBidomainPde(NULL), 
-            mRowMeanPhiEZero(INT_MAX)
+            mRowMeanPhiEZero(INT_MAX),
+            mHasBath(hasBath)
     {
         mFixedExtracellularPotentialNodes.resize(0); 
     }
