@@ -725,6 +725,58 @@ class Intel(BuildType):
                 break
         self._cc_flags.append('-vec_report' + vec)
 
+class Fle(BuildType):
+  "Intel compiler tools on FLE cluster."
+  def __init__(self, *args, **kwargs):
+    BuildType.__init__(self, *args, **kwargs)
+    self._compiler_type = 'intel'
+    # Turn off some warnings
+    self._cc_flags = ['-i-dynamic', '-wr470', '-wr186']
+    self._cc_flags.extend(['-O3', '-xW'])
+    self._cc_flags.extend(['-DNDEBUG'])
+    self._link_flags = ['-static-libcxa']
+    self.build_dir = 'fle'
+    # Intel compiler uses optimisation by default
+    self.is_optimised = True
+
+  def SetReporting(self, vec=1):
+    """
+    Set the reporting level.
+    vec controls the vectoriser report, and is the number to put after
+    -vec_report. Default is 1 to indicate vectorised loops; use 3 to
+    find out why loops aren't vectorised.
+    """
+    # Remove any current reporting
+    i = self._cc_flags.find('-vec_report')
+    if i > -1:
+      self._cc_flags = self._cc_flags[:i] + self._cc_flags[i+13:]
+    self._cc_flags = self._cc_flags + ' -vec_report' + vec
+
+    self._num_processes = 1
+
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
+    "Run test with a single processor environment"
+    return self.tools['mpirun'] + ' -machinefile /home/southern/.mpihosts' + ' -np ' \
+             + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
+
+class FleProfile(Fle):
+  "Intel compilers with no optimisation on FLE cluster."
+  def __init__(self, *args, **kwargs):
+    Fle.__init__(self, *args, **kwargs)
+    self._cc_flags.extend(['-DITC'])
+    self._link_flags.extend(['-DITC', '-L/opt/intel/ict/3.0/itac/7.0/itac/lib_mpich', '-lVT', '-ldwarf', '-lelf', '-lnsl', '-lm', '-ldl', '-lpthread'])
+    self.build_dir = 'fle_profile'
+
+
+class FleNonopt(Fle):
+  "Intel compilers with no optimisation on FLE cluster."
+  def __init__(self, *args, **kwargs):
+    Fle.__init__(self, *args, **kwargs)
+    self._cc_flags = ['-i-dynamic', '-wr470', '-wr186', '-O0', '-xK']
+    self.build_dir = 'fle_nonopt'
+    self.is_optimised = False
+				    
+
 class IntelNonopt(Intel):
     """Intel compilers with no optimisation."""
     def __init__(self, *args, **kwargs):
