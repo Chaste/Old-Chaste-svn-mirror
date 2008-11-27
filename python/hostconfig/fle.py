@@ -15,16 +15,18 @@ other_includepaths = ['/home/southern/boost/include/boost-1_34',
                       '/share/apps/opt/opt/include',
                       '/home/southern/xsd-2.3.1-i686-linux-gnu/libxsd',
                       '/home/southern/xerces-c-src_2_7_0/include',
+		      '/home/southern/hdf5/include',
 		      '/opt/infinipath-mpi/include' ]
 other_libpaths = ['/opt/intel/mkl/9.0/lib/em64t',
                   '/usr/X11R6/lib64',
                   '/opt/hypre/lib',
                   '/home/southern/boost/lib',
                   '/home/southern/lib',
+		  '/home/southern/hdf5/lib',
 		  '/opt/infinipath-mpi/lib64' ]
 blas_lapack = ['mkl_lapack64', 'mkl_em64t']
 other_libraries = ['mkl_em64t', 'mkl', 'X11', 'HYPRE', 'boost_serialization-gcc34-1_34',
-                     'xerces-c', 'svml', 'imf', 'irc']
+                     'xerces-c', 'svml', 'imf', 'irc', 'z', 'hdf5' ]
 
 tools = {'mpirun': '/opt/infinipath-mpi/bin/mpirun',
          'mpicxx': '/opt/infinipath-mpi/bin/mpicxx -CC=icpc'}
