@@ -16,12 +16,14 @@ other_includepaths = ['/home/southern/boost/include/boost-1_34',
                       '/home/southern/xsd-2.3.1-i686-linux-gnu/libxsd',
                       '/home/southern/xerces-c-src_2_7_0/include',
 		      '/home/southern/hdf5/include',
+		      '/home/southern/deal.II/deal.II/include',
+		      '/home/southern/deal.II/base/include', 
 		      '/opt/infinipath-mpi/include' ]
 other_libpaths = ['/opt/intel/mkl/9.0/lib/em64t',
                   '/usr/X11R6/lib64',
                   '/opt/hypre/lib',
+		  '/home/southern/lib',
                   '/home/southern/boost/lib',
-                  '/home/southern/lib',
 		  '/home/southern/hdf5/lib',
 		  '/opt/infinipath-mpi/lib64' ]
 blas_lapack = ['mkl_lapack64', 'mkl_em64t']
