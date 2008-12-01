@@ -197,7 +197,7 @@ for root, dirs, files in os.walk(chaste_dir):
 
 # Let the test summary script know
 if (chaste_dir=="."):
-	dir = os.getcwd();
+    dir = os.getcwd();
 else:
     dir = chaste_dir;
     
