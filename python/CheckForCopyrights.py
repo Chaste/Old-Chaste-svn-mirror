@@ -196,7 +196,12 @@ for root, dirs, files in os.walk(chaste_dir):
                 num_copyrights+=1
 
 # Let the test summary script know
-print "Copyright test run over ",chaste_dir," (",num_no_copyrights+num_copyrights,") files"
+if (chaste_dir=="."):
+	dir = os.getcwd();
+else:
+    dir = chaste_dir;
+    
+print "Copyright test run over ",dir," (",num_no_copyrights+num_copyrights,") files"
 if num_no_copyrights > 0:
     print
     print "The next line is for the benefit of the test summary scripts."

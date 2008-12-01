@@ -34,10 +34,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BidomainDg0Assembler.hpp"
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainWithBathAssembler
     : public BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
 {
+public:
+    static const unsigned CARDIAC_TISSUE = 0; 
+    static const unsigned BATH = 1;
+    
+    
 public:
     /**
      *  ComputeMatrixTerm()
@@ -59,7 +65,8 @@ public:
         }
         else // bath element
         {
-            const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = identity_matrix<double>(SPACE_DIM);
+///\todo: the conductivity here is hardcoded to be 7!            
+            const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = 7.0*identity_matrix<double>(SPACE_DIM);
 
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
             c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_b_grad_phi =
@@ -183,7 +190,7 @@ public:
         // Initialize all nodes to be bath nodes
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
-            this->mpMesh->GetNode(i)->SetRegion(1);
+            this->mpMesh->GetNode(i)->SetRegion(BATH);
         }
         
         bool any_bath_element_found = false;
@@ -193,16 +200,16 @@ public:
         {
             Element<ELEMENT_DIM, SPACE_DIM>& r_element = *(this->mpMesh->GetElement(i));
             
-            if (r_element.GetRegion() == 0)
+            if (r_element.GetRegion() == CARDIAC_TISSUE)
             {
                 for (unsigned j=0; j<r_element.GetNumNodes(); j++)
                 {
-                    r_element.GetNode(j)->SetRegion(0);
+                    r_element.GetNode(j)->SetRegion(CARDIAC_TISSUE);
                 }
             }
             else
             {
-                assert(r_element.GetRegion()==1);
+                assert(r_element.GetRegion()==BATH);
                 any_bath_element_found = true;
             }
         }

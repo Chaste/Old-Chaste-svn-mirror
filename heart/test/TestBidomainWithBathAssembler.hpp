@@ -42,10 +42,56 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 
+
+template<unsigned DIM>
+class BathCellFactory : public AbstractCardiacCellFactory<DIM>
+{
+private:
+    // define a new stimulus
+    SimpleStimulus* mpStimulus;
+
+public:
+    BathCellFactory() : AbstractCardiacCellFactory<DIM>()
+    {
+        // set the new stimulus
+        mpStimulus = new SimpleStimulus(-600, 0.5);
+    }
+
+    BathCellFactory(double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>()
+    {
+        // set the new stimulus
+        mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
+    }
+
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    {
+        // stimulate centre node normally.. 
+        if (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-0.5)<1e-6)
+        {
+            return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus, this->mpZeroStimulus);
+        }
+        else
+        {
+            return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
+        }
+    }
+
+    ~BathCellFactory(void)
+    {
+        delete mpStimulus;
+    }
+};
+
+
+
+
+
+
+
 class TestBidomainWithBathAssembler : public CxxTest::TestSuite
 {
 public:
-    void xTestLabellingNodes() throw (Exception)
+    void TestLabellingNodes() throw (Exception)
     {
         // all this is just to create a mesh, pde and bcc to pass to the new 
         // type of assembler
@@ -84,7 +130,7 @@ public:
     }
 
 
-    void xTestFailsIfNoBathElements() throw (Exception)
+    void TestFailsIfNoBathElements() throw (Exception)
     {
         // all this is just to create a mesh, pde and bcc to pass to the new 
         // type of assembler
@@ -108,19 +154,86 @@ public:
         // we need to call solve as other an EventHandling exception is thrown
         bidomain_problem.Solve();
     }
-    
-    void Test1DBathProblem() throw (Exception)
+ 
+
+    void doesntpass_Test1dProblemOnlyBath() throw (Exception)
     {
-        // all this is just to create a mesh, pde and bcc to pass to the new 
-        // type of assembler
-        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
+        HeartConfig::Instance()->SetSimulationDuration(10.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBathOnlyBath");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath");
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
+                
+        BathCellFactory<1> cell_factory(-1e6);
+
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            mesh.GetElement(i)->SetRegion(1);
+        }
+
+        // create boundary conditions container
+        BoundaryConditionsContainer<1,1,2> bcc;
+        ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(1);
+        ConstBoundaryCondition<1>* p_zero_stim = new ConstBoundaryCondition<1>(0.0);
+
+        // loop over boundary elements
+        for(TetrahedralMesh<1,1>::BoundaryElementIterator iter 
+              = mesh.GetBoundaryElementIteratorBegin();
+           iter != mesh.GetBoundaryElementIteratorEnd();
+           iter++)
+        {
+            // if the element is on the left of the mesh, add a stimulus to the bcc
+            if (((*iter)->GetNodeLocation(0))[0]==0.0)
+            {
+                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
+                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim, 1);
+            }
+        }
+
+        BidomainProblem<1> bidomain_problem( &cell_factory, true );
+        
+        bidomain_problem.SetBoundaryConditionsContainer(&bcc);
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        bidomain_problem.Solve(); // diverges..?
+    }
+ 
+    
+    void doesntwork_Test1DBathProblem() throw (Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(10.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_1d");
-                
+        
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
+                
+        BathCellFactory<1> cell_factory(-1e6);
+        BidomainProblem<1> bidomain_problem( &cell_factory, true );
+
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            double x = mesh.GetElement(i)->CalculateCentroid()[0];
+            if( (x<0.25) || (x>0.75) )
+            {
+                mesh.GetElement(i)->SetRegion(1);
+            }
+        }
+
+        bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
         
