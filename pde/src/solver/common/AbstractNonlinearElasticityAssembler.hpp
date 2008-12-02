@@ -38,6 +38,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 
+//#define ___USE_DEALII_LINEAR_SYSTEM___
+
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+  #include "DealiiLinearSystem.hpp"
+#endif  
+
 
 //#include "Timer.hpp" // in the dealii folder
 
@@ -69,7 +75,12 @@ protected:
      *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
      *  methods explicitly (in order to easily set num restarts etc). In the future
      *  it'll be solved using the UMFPACK direct method */ 
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+    DealiiLinearSystem* mpLinearSystem;
+#else
     LinearSystem* mpLinearSystem;
+#endif
+
     /*< Body force vector */
     c_vector<double,DIM> mBodyForce;
     /*< Mass density of the undeformed body (equal to the density of deformed body) */
@@ -166,7 +177,11 @@ protected:
     double CalculateResidualNorm()
     {
         double norm;
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        norm = mpLinearSystem->GetRhsVectorNorm();
+#else
         VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
+#endif
         return norm/mNumDofs;
     }
 
@@ -182,6 +197,11 @@ protected:
         AssembleSystem(true, true);
         //Timer::PrintAndReset("AssembleSystem");
 
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        mpLinearSystem->Solve();
+        Vector<double>& update = mpLinearSystem->rGetLhsVector(); 
+        //Timer::PrintAndReset("Direct Solve");
+#else
         // solve explicity with Petsc's GMRES method.
         KSP solver;
         Vec solution;
@@ -203,6 +223,7 @@ protected:
         //Timer::PrintAndReset("KSP Solve");
 
         ReplicatableVector update(solution);
+#endif
 
         std::vector<double> old_solution(mNumDofs);
         for(unsigned i=0; i<mNumDofs; i++)
@@ -226,7 +247,11 @@ protected:
         {
             for(unsigned j=0; j<mNumDofs; j++)
             {
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update(j);
+#else
                 mCurrentSolution[j] = old_solution[j] - damping_values[i]*update[j];
+#endif
             }
 
             // compute residual
@@ -244,6 +269,7 @@ protected:
         if (best_damping_value == 0.0)
         {
             #define COVERAGE_IGNORE
+            assert(0);
             EXCEPTION("Residual does not decrease in newton direction, quitting");
             #undef COVERAGE_IGNORE
         }
@@ -256,11 +282,19 @@ protected:
         // implement best update and recalculate residual
         for(unsigned j=0; j<mNumDofs; j++)
         {
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+            mCurrentSolution[j] = old_solution[j] - best_damping_value*update(j);
+#else
             mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
+#endif
         }
         
+
+
+#ifndef ___USE_DEALII_LINEAR_SYSTEM___
         VecDestroy(solution);
         KSPDestroy(solver);
+#endif
     }
 
 
@@ -295,7 +329,12 @@ public:
         assert(fixedNodes.size()>0);
         mWriteOutput = (mOutputDirectory != "");
         
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        //// has to be done in parent as needs mesh
+        //mpLinearSystem = new DealiiLinearSystem( mesh );
+#else
         mpLinearSystem = new LinearSystem(mNumDofs);
+#endif
     }
 
 
@@ -325,7 +364,12 @@ public:
         assert(fixedNodes.size()>0);
         mWriteOutput = (mOutputDirectory != "");
         
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        //// has to be done in parent as needs mesh
+        //mpLinearSystem = new DealiiLinearSystem( mesh );
+#else
         mpLinearSystem = new LinearSystem(mNumDofs);
+#endif
     }
 
 

@@ -585,6 +585,8 @@ protected:
             }
         }
 
+
+#ifndef ___USE_DEALII_LINEAR_SYSTEM___
         if (assembleResidual)
         {
             this->mpLinearSystem->AssembleRhsVector();
@@ -593,10 +595,12 @@ protected:
         {
             this->mpLinearSystem->AssembleIntermediateLhsMatrix();
         }
+#endif
 
         // Apply dirichlet boundary conditions
         this->ApplyBoundaryConditions(assembleJacobian);
     
+#ifndef ___USE_DEALII_LINEAR_SYSTEM___
         if (assembleResidual)
         {
             this->mpLinearSystem->AssembleRhsVector();
@@ -605,6 +609,7 @@ protected:
         {
             this->mpLinearSystem->AssembleFinalLhsMatrix();
         }
+#endif
     }
 
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
@@ -663,6 +668,11 @@ public:
                                                     outputDirectory, fixedNodes),
           mpQuadMesh(pQuadMesh)
     {
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        //// has to be done in parent as needs mesh
+        this->mpLinearSystem = new DealiiLinearSystem(*pQuadMesh);
+#endif
+
         Initialise(pFixedNodeLocations);
     }
 
@@ -679,6 +689,12 @@ public:
                                                     outputDirectory, fixedNodes),
           mpQuadMesh(pQuadMesh)
     {
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        //// has to be done in parent as needs mesh
+        this->mpLinearSystem = new DealiiLinearSystem(*pQuadMesh);
+#endif
+
+
         assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
         Initialise(pFixedNodeLocations);
     }

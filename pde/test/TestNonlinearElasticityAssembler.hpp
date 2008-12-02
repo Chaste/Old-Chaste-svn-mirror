@@ -87,7 +87,10 @@ c_vector<double,2> MyTraction(c_vector<double,2>& X)
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestAssembleSystem() throw (Exception)
+
+
+#ifndef ___USE_DEALII_LINEAR_SYSTEM___ // remove the dont from dontTest when removing this
+    void dontTestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
         ExponentialMaterialLaw<2> law(2,3);
@@ -203,6 +206,8 @@ public:
             assembler.mCurrentSolution[j] -= h;
         }
     }
+#endif
+
     
     // A test where the solution should be zero displacement
     // It mainly tests that the initial guess was set up correctly to
@@ -489,7 +494,7 @@ public:
 
         c_vector<double,2> body_force = zero_vector<double>(2);
 
-        unsigned num_elem = 5;
+        unsigned num_elem = 20;
         QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
 
         MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
