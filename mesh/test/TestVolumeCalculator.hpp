@@ -122,8 +122,9 @@ public:
         {
             // There are 16 regular triangles on each face of the cube
             // since determinant is double the area we are expecting (1/8).
-            TS_ASSERT_DELTA((*boundary_iter)->GetJacobianDeterminant(), 1/8.0, 1e-6);
-            area+=(*boundary_iter)->GetJacobianDeterminant()/2.0;
+            unsigned element_index = (*boundary_iter)->GetIndex();
+            TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(element_index), 1/8.0, 1e-6);
+            area+=mesh.GetJacobianDeterminantForBoundaryElement(element_index)/2.0;
             boundary_iter++;
 
         }
@@ -147,7 +148,7 @@ public:
         double area=0.0;
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
         {
-            area+=(*boundary_iter)->GetJacobianDeterminant()/2.0;
+            area+= mesh.GetJacobianDeterminantForBoundaryElement((*boundary_iter)->GetIndex())/2.0;
             boundary_iter++;
 
         }
@@ -168,7 +169,7 @@ public:
         double perimeter=0.0;
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
         {
-            perimeter+=(*boundary_iter)->GetJacobianDeterminant();
+            perimeter+= mesh.GetJacobianDeterminantForBoundaryElement((*boundary_iter)->GetIndex());
             boundary_iter++;
 
         }

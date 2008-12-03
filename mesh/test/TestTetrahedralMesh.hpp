@@ -247,7 +247,7 @@ public:
         Element<1,1>* p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
-        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
+        TS_ASSERT_DELTA(p_element->CalculateJacobianDeterminant(), 0.1, 1e-6);
 
         Node<1>* p_node2 = mesh.GetNode(1);
         TS_ASSERT_EQUALS(p_node2->GetNumContainingElements(), 2u);
@@ -261,7 +261,7 @@ public:
         p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2U);
-        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
+        TS_ASSERT_DELTA(p_element->CalculateJacobianDeterminant(), 0.1, 1e-6);
 
         // There should be no more containing elements
         TS_ASSERT_EQUALS(++elt_iter, p_node2->ContainingElementsEnd());

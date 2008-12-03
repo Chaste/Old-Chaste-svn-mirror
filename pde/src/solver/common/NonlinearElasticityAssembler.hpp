@@ -91,8 +91,8 @@ protected:
                                    bool assembleResidual,
                                    bool assembleJacobian)
     {
-        const c_matrix<double, DIM, DIM>* p_inverse_jacobian = rElement.GetInverseJacobian();
-        double jacobian_determinant = rElement.GetJacobianDeterminant();
+        const c_matrix<double, DIM, DIM>* p_inverse_jacobian = mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex());
+        double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
         if (assembleJacobian)
         {
@@ -384,7 +384,7 @@ protected:
 
         for (unsigned quad_index=0; quad_index<this->mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
         {
-            double jacobian_determinant = rBoundaryElement.GetJacobianDeterminant();
+            double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForBoundaryElement(rBoundaryElement.GetIndex());
             double wJ = jacobian_determinant * this->mpBoundaryQuadratureRule->GetWeight(quad_index);
 
             const ChastePoint<DIM-1>& quad_point = this->mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);

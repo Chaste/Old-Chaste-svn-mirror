@@ -593,7 +593,7 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
 
     while (it != this->GetBoundaryElementIteratorEnd())
     {
-        mesh_surface += (*it)->GetJacobianDeterminant();
+        mesh_surface += GetJacobianDeterminantForBoundaryElement( (*it)->GetIndex() );
         it++;
     }
 

@@ -227,8 +227,8 @@ private:
         assert(mNextTime != DBL_MAX);
         assert(mOdeTimestep != DBL_MAX);
         
-        const c_matrix<double, DIM, DIM>* p_inverse_jacobian = rElement.GetInverseJacobian();
-        double jacobian_determinant = rElement.GetJacobianDeterminant();
+        const c_matrix<double, DIM, DIM>* p_inverse_jacobian = this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex());
+        double jacobian_determinant = this->mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
         if (assembleJacobian)
         {

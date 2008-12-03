@@ -145,12 +145,12 @@ public:
         nodes1d.push_back(new Node<1>(0, false, 2.0));
         nodes1d.push_back(new Node<1>(1, false, 2.5));
         Element<1,1> element1d(INDEX_IS_NOT_USED, nodes1d);
-        const c_matrix<double, 1, 1> *J1d = element1d.GetJacobian();
+        const c_matrix<double, 1, 1> *J1d = element1d.CalculateJacobian();
         TS_ASSERT_DELTA((*J1d)(0,0), 0.5, 1e-12);
         TS_ASSERT_DELTA(element1d.GetVolume(), 0.5,1e-5);
-        double Det1d = element1d.GetJacobianDeterminant();
+        double Det1d = element1d.CalculateJacobianDeterminant();
         TS_ASSERT_DELTA(Det1d, 0.5, 1e-12);
-        const c_matrix<double, 1, 1> *J1dinv = element1d.GetInverseJacobian();
+        const c_matrix<double, 1, 1> *J1dinv = element1d.CalculateInverseJacobian();
         TS_ASSERT_DELTA((*J1dinv)(0,0), 2.0, 1e-12);
 
         delete nodes1d[0];
@@ -162,7 +162,7 @@ public:
         nodes2d.push_back(new Node<2>(1, false, 1.0, 0.0));
         nodes2d.push_back(new Node<2>(2, false, 0.0, 1.0));
         Element<2,2> element2d(INDEX_IS_NOT_USED, nodes2d);
-        const c_matrix<double, 2, 2> *J2d = element2d.GetJacobian();
+        const c_matrix<double, 2, 2> *J2d = element2d.CalculateJacobian();
         TS_ASSERT_DELTA((*J2d)(0,0), 1.0, 1e-12);
         TS_ASSERT_DELTA((*J2d)(0,1), 0.0, 1e-12);
         TS_ASSERT_DELTA((*J2d)(1,0), 0.0, 1e-12);
@@ -178,15 +178,15 @@ public:
         nodes2d2.push_back(new Node<2>(1, false, 4.0, -3.0));
         nodes2d2.push_back(new Node<2>(2, false, 2.0, -1.0));
         Element<2,2> element2d2(INDEX_IS_NOT_USED, nodes2d2);
-        const c_matrix<double, 2, 2> *J2d2 = element2d2.GetJacobian();
+        const c_matrix<double, 2, 2> *J2d2 = element2d2.CalculateJacobian();
         TS_ASSERT_DELTA((*J2d2)(0,0), 3.0, 1e-12);
         TS_ASSERT_DELTA((*J2d2)(0,1), 1.0, 1e-12);
         TS_ASSERT_DELTA((*J2d2)(1,0), -1.0, 1e-12);
         TS_ASSERT_DELTA((*J2d2)(1,1), 1.0, 1e-12);
 
-        double Det2d = element2d2.GetJacobianDeterminant();
+        double Det2d = element2d2.CalculateJacobianDeterminant();
         TS_ASSERT_DELTA(Det2d, 4.0, 1e-12);
-        const c_matrix<double, 2, 2> *J2d2inv = element2d2.GetInverseJacobian();
+        const c_matrix<double, 2, 2> *J2d2inv = element2d2.CalculateInverseJacobian();
         TS_ASSERT_DELTA((*J2d2inv)(0,0), 0.25, 1e-12);
         TS_ASSERT_DELTA((*J2d2inv)(0,1), -0.25, 1e-12);
         TS_ASSERT_DELTA((*J2d2inv)(1,0), 0.25, 1e-12);
@@ -204,7 +204,7 @@ public:
         nodes3d.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         nodes3d.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
         Element<3,3> element3d(INDEX_IS_NOT_USED, nodes3d);
-        const c_matrix<double, 3, 3> *J3d = element3d.GetJacobian();
+        const c_matrix<double, 3, 3> *J3d = element3d.CalculateJacobian();
         TS_ASSERT_DELTA((*J3d)(0,0), 1.0, 1e-12);
         TS_ASSERT_DELTA((*J3d)(0,1), 0.0, 1e-12);
         TS_ASSERT_DELTA((*J3d)(0,2), 0.0, 1e-12);
@@ -228,7 +228,7 @@ public:
         nodes3d2.push_back(new Node<3>(2, false, 5.0, 5.0, 5.0));
         nodes3d2.push_back(new Node<3>(3, false, 0.0, 3.0, 4.0));
         Element<3,3> element3d2(INDEX_IS_NOT_USED, nodes3d2);
-        const c_matrix<double, 3, 3> *J3d2 = element3d2.GetJacobian();
+        const c_matrix<double, 3, 3> *J3d2 = element3d2.CalculateJacobian();
         TS_ASSERT_DELTA((*J3d2)(0,0), 1.0, 1e-4);
         TS_ASSERT_DELTA((*J3d2)(0,1), 4.0, 1e-4);
         TS_ASSERT_DELTA((*J3d2)(0,2), -1.0, 1e-4);
@@ -239,9 +239,9 @@ public:
         TS_ASSERT_DELTA((*J3d2)(2,1), 2.0, 1e-4);
         TS_ASSERT_DELTA((*J3d2)(2,2), 1.0, 1e-4);
 
-        double Det3d2 = element3d2.GetJacobianDeterminant();
+        double Det3d2 = element3d2.CalculateJacobianDeterminant();
         TS_ASSERT_DELTA(Det3d2, 7.0, 1e-4);
-        const c_matrix<double, 3, 3> *J3d2inv = element3d2.GetInverseJacobian();
+        const c_matrix<double, 3, 3> *J3d2inv = element3d2.CalculateInverseJacobian();
         TS_ASSERT_DELTA((*J3d2inv)(0,0), 1.0/7.0, 1e-4);
         TS_ASSERT_DELTA((*J3d2inv)(0,1), -6.0/7.0, 1e-4);
         TS_ASSERT_DELTA((*J3d2inv)(0,2), 1.0, 1e-4);
@@ -436,7 +436,7 @@ public:
 
         BoundaryElement<2,3> element(INDEX_IS_NOT_USED, nodes);
         element.RefreshJacobianDeterminant();
-        TS_ASSERT_DELTA(element.GetJacobianDeterminant(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(element.CalculateJacobianDeterminant(), 1.0, 1e-6);
 
         //Alter to be collinear (for coverage)
         nodes[2]->rGetModifiableLocation()[1]=0.0;
@@ -555,7 +555,7 @@ public:
         TS_ASSERT_DELTA(sqrt(circum2[3]), sqrt(3.0)/2.0, 1e-7);
 
         TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), sqrt(3)*M_PI_2, 1e-7);
-        TS_ASSERT_DELTA(right_angle_element.GetJacobianDeterminant(), 1.0, 1e-7);
+        TS_ASSERT_DELTA(right_angle_element.CalculateJacobianDeterminant(), 1.0, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 0.5, 1e-7);
 
         for (unsigned i=0; i<right_angle_nodes.size(); i++)
@@ -688,9 +688,9 @@ public:
         TS_ASSERT_EQUALS(p_second_node->GetPoint().rGetLocation()(0), 0.1);
 
         // test jacobians
-        TS_ASSERT_EQUALS(p_first_element->GetJacobianDeterminant(), 0.01);
-        TS_ASSERT_EQUALS(p_second_element->GetJacobianDeterminant(), 0.1);
-        TS_ASSERT_DELTA(p_last_element->GetJacobianDeterminant(), 0.09,1e-6);
+        TS_ASSERT_EQUALS(p_first_element->CalculateJacobianDeterminant(), 0.01);
+        TS_ASSERT_EQUALS(p_second_element->CalculateJacobianDeterminant(), 0.1);
+        TS_ASSERT_DELTA(p_last_element->CalculateJacobianDeterminant(), 0.09,1e-6);
 
         // test mesh length
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
@@ -765,7 +765,7 @@ public:
         // Refine an element in the bottom right corner
         Element<2,2>* p_corner_element=mesh.GetElement(18);
 
-        TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),0.0001 , 1e-6);
+        TS_ASSERT_DELTA(p_corner_element->CalculateJacobianDeterminant(),0.0001 , 1e-6);
 
         // Point to be inserted in the bottom right corner
         ChastePoint<2> new_point(0.095,0.003);
@@ -773,7 +773,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_corner_element,new_point));
 
         //Testing the JacobianDeterminant of the element that has changed
-        TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),3e-05 , 1e-6);
+        TS_ASSERT_DELTA(p_corner_element->CalculateJacobianDeterminant(),3e-05 , 1e-6);
 
         //Testing invariants
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.01,1e-6);
@@ -783,7 +783,7 @@ public:
         // Refine an element in the middle of the mesh
         Element<2,2>* p_middle_element=mesh.GetElement(108);
 
-        TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(),0.0001 , 1e-6);
+        TS_ASSERT_DELTA(p_middle_element->CalculateJacobianDeterminant(),0.0001 , 1e-6);
 
         // Point to be inserted in the middle of the mesh
         ChastePoint<2> new_point1(0.045,0.053);
@@ -791,7 +791,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_middle_element,new_point1));
 
         //Testing the JacobianDeterminant of the element that has changed
-        TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(),3e-05 , 1e-6);
+        TS_ASSERT_DELTA(p_middle_element->CalculateJacobianDeterminant(),3e-05 , 1e-6);
 
         //Testing invariants
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.01,1e-6);
@@ -832,7 +832,7 @@ public:
         // Refine an element in the top corner (1, 1, 1)
         Element<3,3>* p_corner_element=mesh.GetElement(64);
 
-        TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),0.03125 , 1e-6);
+        TS_ASSERT_DELTA(p_corner_element->CalculateJacobianDeterminant(),0.03125 , 1e-6);
 
         // Point to be inserted in the top corner
         ChastePoint<3> new_point(0.9,0.75,0.9);
@@ -840,7 +840,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_corner_element,new_point));
 
         //Testing the JacobianDeterminant of the element that has changed
-        TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(), 0.0125 , 1e-6);
+        TS_ASSERT_DELTA(p_corner_element->CalculateJacobianDeterminant(), 0.0125 , 1e-6);
 
         //Testing invariants
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
@@ -851,7 +851,7 @@ public:
         // Refine an element which includes the middle node
         Element<3,3>* p_middle_element=mesh.GetElement(49);
 
-        TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(),0.0625 , 1e-6);
+        TS_ASSERT_DELTA(p_middle_element->CalculateJacobianDeterminant(),0.0625 , 1e-6);
 
         // Point to be inserted near node 22 (middle of cube)
         ChastePoint<3> new_point1(0.49, 0.47, 0.6);
@@ -859,7 +859,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_middle_element, new_point1));
 
         //Testing the JacobianDeterminant of the element that has changed
-        TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(), 0.01125 , 1e-6);
+        TS_ASSERT_DELTA(p_middle_element->CalculateJacobianDeterminant(), 0.01125 , 1e-6);
 
         //Testing invariants
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
@@ -881,7 +881,7 @@ public:
         // Refine an element in the top corner (1, 1, 1)
         Element<3,3>* p_corner_element=mesh.GetElement(64);
 
-        TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),0.03125 , 1e-6);
+        TS_ASSERT_DELTA(p_corner_element->CalculateJacobianDeterminant(),0.03125 , 1e-6);
 
         // Point to be inserted in wrong place
         ChastePoint<3> new_point(0.9,0.75,1.0);

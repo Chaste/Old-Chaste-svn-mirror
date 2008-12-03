@@ -68,8 +68,9 @@ private:
 
         /// NOTE: This assumes that the Jacobian is constant on an element, ie
         /// no curvilinear bases were used for position
-        const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = rElement.GetInverseJacobian();
-        double jacobian_determinant = rElement.GetJacobianDeterminant();
+        /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method. 
+        const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = rElement.CalculateInverseJacobian();
+        double jacobian_determinant = rElement.CalculateJacobianDeterminant();
 
         const unsigned num_nodes = rElement.GetNumNodes();
 

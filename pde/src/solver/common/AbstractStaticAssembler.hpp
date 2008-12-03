@@ -163,12 +163,12 @@ protected:
          * basis function.
          */
         const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = NULL;
-        double jacobian_determinant = rElement.GetJacobianDeterminant();
+        double jacobian_determinant = mpMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
         // Initialise element contributions to zero
         if ( assembleMatrix || this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
         {
-            p_inverse_jacobian = rElement.GetInverseJacobian();
+            p_inverse_jacobian = this->mpMesh->GetInverseJacobianForElement(rElement.GetIndex());
         }
 
         if (assembleMatrix)
@@ -232,7 +232,7 @@ protected:
                     for (unsigned index_of_unknown=0; index_of_unknown<(NON_HEART ? PROBLEM_DIM : 1); index_of_unknown++)
                     {
                         // If we have a current solution (e.g. this is a dynamic problem)
-                        // get the value in a usable form.
+                        // get the value in a usable form.rElement
 
                         // NOTE - currentSolutionOrGuess input is actually now redundant at this point -
 
@@ -293,7 +293,7 @@ protected:
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
             *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>::mpSurfaceQuadRule);
 
-        double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
+        double jacobian_determinant = mpMesh->GetJacobianDeterminantForBoundaryElement(rSurfaceElement.GetIndex());
 
         rBSurfElem.clear();
 

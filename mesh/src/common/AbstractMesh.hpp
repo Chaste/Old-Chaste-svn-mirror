@@ -117,6 +117,28 @@ public:
      */
     BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const;
 
+
+    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobianForElement(unsigned elementIndex) const
+    {
+        return mElements[elementIndex]->CalculateJacobian();
+    }
+    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobianForElement(unsigned elementIndex) const
+    {
+        return mElements[elementIndex]->CalculateInverseJacobian();
+    }
+    double GetJacobianDeterminantForElement(unsigned elementIndex) const
+    {
+        return mElements[elementIndex]->CalculateJacobianDeterminant();
+    }
+    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobianForBoundaryElement(unsigned elementIndex) const
+    {
+        return mBoundaryElements[elementIndex]->CalculateInverseJacobian();
+    }
+    double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const
+    {
+        return mBoundaryElements[elementIndex]->CalculateJacobianDeterminant();
+    }
+    
 private:
     virtual unsigned SolveNodeMapping(unsigned index) const = 0;
     virtual unsigned SolveElementMapping(unsigned index) const = 0;        

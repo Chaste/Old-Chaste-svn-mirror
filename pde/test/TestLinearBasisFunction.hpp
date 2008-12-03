@@ -177,7 +177,7 @@ public:
         nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
         Element<2,2> element(INDEX_IS_NOT_USED, nodes);
 
-        const c_matrix<double, 2, 2> *inverseJacobian = element.GetInverseJacobian();
+        const c_matrix<double, 2, 2> *inverseJacobian = element.CalculateInverseJacobian();
         ChastePoint<2> evaluation_point(1,1);
         c_matrix<double, 2, 3> trans_deriv;
         LinearBasisFunction<2>::ComputeTransformedBasisFunctionDerivatives(evaluation_point,

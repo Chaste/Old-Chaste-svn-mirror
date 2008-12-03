@@ -186,18 +186,20 @@ public:
         mNodes.push_back(node);
     }
 
-    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobian(void) const
+///////////////////////////////////
+    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *CalculateJacobian(void) const
     {
         return &mJacobian;
     }
-    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobian(void) const
+    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *CalculateInverseJacobian(void) const
     {
         return &mInverseJacobian;
     }
-    double GetJacobianDeterminant(void) const
+    double CalculateJacobianDeterminant(void) const
     {
         return mJacobianDeterminant;
     }
+///////////////////////////////////
 
     /** Get the volume of an element (or area in 2d, or length in 1d) */
     double GetVolume(void) const

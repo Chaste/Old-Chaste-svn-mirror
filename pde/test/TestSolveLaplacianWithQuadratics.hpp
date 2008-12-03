@@ -73,12 +73,12 @@ private:
          * basis function. <--- not true, as we don't have curvilinear elements!
          */
         const c_matrix<double, DIM, DIM>* p_inverse_jacobian = NULL;
-        double jacobian_determinant = rElement.GetJacobianDeterminant();
+        double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
         // Initialise element contributions to zero
         if ( assembleMatrix )
         {
-            p_inverse_jacobian = rElement.GetInverseJacobian();
+            p_inverse_jacobian = mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex());
         }
 
         if (assembleMatrix)
