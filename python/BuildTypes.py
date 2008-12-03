@@ -734,7 +734,7 @@ class Fle(BuildType):
     self._cc_flags = ['-i-dynamic', '-wr470', '-wr186']
     self._cc_flags.extend(['-O3', '-xW'])
     self._cc_flags.extend(['-DNDEBUG'])
-    self._link_flags = ['-static-libcxa']
+    self._link_flags = ['-static-libgcc']
     self.build_dir = 'fle'
     # Intel compiler uses optimisation by default
     self.is_optimised = True

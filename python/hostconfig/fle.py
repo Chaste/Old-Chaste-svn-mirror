@@ -32,7 +32,7 @@ petsc_build_name = 'linux-x86_64'
 petsc_build_name_optimized = 'linux-x86_64'
 dealii_path = None
 metis_path = None
-intel_path = '/opt/intel/fce/9.1.040/'
+intel_path = '/opt/intel/fce/10.1.013/'
 icpc = 'icpc'
 
 other_includepaths = ['/home/southern/boost/include/boost-1_34',
@@ -55,5 +55,6 @@ blas_lapack = ['mkl_lapack64', 'mkl_em64t']
 other_libraries = ['mkl_em64t', 'mkl', 'X11', 'HYPRE', 'boost_serialization-gcc34-1_34',
                      'xerces-c', 'svml', 'imf', 'irc', 'z', 'hdf5' ]
 
-tools = {'mpirun': '/opt/infinipath-mpi/bin/mpirun',
-         'mpicxx': '/opt/infinipath-mpi/bin/mpicxx -CC=icpc'}
+tools = {}
+#tools = {'mpirun': '/opt/infinipath-mpi/bin/mpirun',
+#	 'mpicxx': '/opt/infinipath-mpi/bin/mpicxx'}
