@@ -32,13 +32,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueCell.hpp"
 
 /**
- * A helper class for generating a vector of cells for a given mesh
+ * A helper class for generating a vector of cells for a given mesh.
+ * 
+ * It is subclassed for different types of cell model.
  */
 template<unsigned DIM>
 class AbstractCellsGenerator
 {
-public :
-
+public:
     /**
      * Default constructor
      */
@@ -47,9 +48,25 @@ public :
 
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
     
+    /**
+     * Return the typical cell cycle duration for a transit cell, in hours.
+     * Used when giving cells random ages - the ages will follow a uniform
+     * distribution with this value as the upper limit.
+     */
     virtual double GetTypicalTransitCellCycleTime()=0;
     
-    virtual double GetTypicalStemCellCycleTime()=0;   
+    /**
+     * Return the typical cell cycle duration for a stem cell, in hours.
+     * Used when giving cells random ages - the ages will follow a uniform
+     * distribution with this value as the upper limit.
+     */
+    virtual double GetTypicalStemCellCycleTime()=0;
+    
+    /**
+     * Whether cells are able to fully differentiate.
+     * Defaults to false unless overridden.
+     */
+    virtual bool CellsCanDifferentiate();
     
     virtual ~AbstractCellsGenerator()
     {}
@@ -62,11 +79,14 @@ public :
      *
      * @param rCells  An empty cells vector for this function to fill up
      * @param rMesh  The crypt mesh (can be cylindrical)
-     * @param randomBirthTimes  Whether to assign the cells random birth times (this can be expensive computationally with ODE models)
+     * @param randomBirthTimes  Whether to assign the cells random birth times
+     *    (this can be expensive computationally with ODE models)
      * @param y0  below this line cells are generation 0 (defaults to 0.3)
      * @param y1  below this line cells are generation 1 (defaults to 2.0)
      * @param y2  below this line cells are generation 2 (defaults to 3.0)
      * @param y3  below this line cells are generation 3 (defaults to 4.0)
+     * @param initialiseCells  whether to initialise the cell cycle models as each
+     *   cell is created
      *
      */
     virtual void GenerateForCrypt(std::vector<TissueCell>& rCells,
@@ -78,6 +98,13 @@ public :
                                  double y3 = 4.0,
                                  bool initialiseCells = false);
 };
+
+
+template<unsigned DIM>
+bool AbstractCellsGenerator<DIM>::CellsCanDifferentiate()
+{
+    return false;
+}
 
 template<unsigned DIM>
 void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
@@ -112,54 +139,43 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
         typical_stem_cycle_time = GetTypicalStemCellCycleTime();
         
         double birth_time = 0.0;
+        if (randomBirthTimes)
+        {
+            birth_time = -p_random_num_gen->ranf();
+        }
 
         if (y <= y0)
         {
             cell_type = STEM;
             generation = 0;
-            if (randomBirthTimes)
-            {
-                birth_time = -p_random_num_gen->ranf()*typical_stem_cycle_time; // hours
-            }
+            birth_time *= typical_stem_cycle_time; // hours
         }
         else if (y < y1)
         {
             cell_type = TRANSIT;
             generation = 1;
-            if (randomBirthTimes)
-            {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
-            }
+            birth_time *= typical_transit_cycle_time; // hours
         }
         else if (y < y2)
         {
             cell_type = TRANSIT;
             generation = 2;
-            if (randomBirthTimes)
-            {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
-            }
+            birth_time *= typical_transit_cycle_time; // hours
         }
         else if (y < y3)
         {
             cell_type = TRANSIT;
             generation = 3;
-            if (randomBirthTimes)
-            {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
-            }
+            birth_time *= typical_transit_cycle_time; // hours
         }
         else
         {
-            if (randomBirthTimes)
-            {
-                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours
-            }
-            cell_type = TRANSIT;
+            cell_type = CellsCanDifferentiate() ? DIFFERENTIATED : TRANSIT;
             generation = 4;
+            birth_time *= typical_transit_cycle_time; // hours
         }
 
-        p_cell_cycle_model->SetGeneration(generation);
+        p_cell_cycle_model->SetGeneration(generation); /// \todo only do this for some cell cycle models?
         TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
         if (initialiseCells)
         {
