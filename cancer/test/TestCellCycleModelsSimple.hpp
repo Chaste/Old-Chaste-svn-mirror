@@ -35,7 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModel.hpp"
+#include "StochasticCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "StochasticOxygenBasedCellCycleModel.hpp"
 #include "StochasticDivisionRuleCellCycleModel.hpp"

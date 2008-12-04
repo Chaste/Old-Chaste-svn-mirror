@@ -34,9 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "TissueSimulationWithNutrients.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 #include "SimpleNutrientPde.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -861,7 +862,8 @@ public:
 //
 //        // Set up cells
 //        std::vector<TissueCell> cells;
-//        CellsGenerator<3>::GenerateBasic(cells, mesh);
+//        FixedCellCycleModelCellsGenerator<3> generator;
+//        generator.GenerateBasic(cells, mesh);
 //
 //        // Set up tissue
 //        MeshBasedTissue<3> tissue(mesh, cells);

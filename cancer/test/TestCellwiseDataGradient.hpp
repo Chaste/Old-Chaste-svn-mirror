@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "CellwiseDataGradient.hpp"
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 
@@ -54,7 +54,8 @@ public:
 
         // Create a tissue
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh,cells);
 
         // Set up data: C(x,y) = x^2
@@ -92,7 +93,8 @@ public:
 
         // Create a tissue
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh,cells);
 
         //////////////////////////////////
@@ -174,7 +176,8 @@ public:
 
         // Create a tissue
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
 
         MeshBasedTissueWithGhostNodes<2> tissue(mesh,cells);
 

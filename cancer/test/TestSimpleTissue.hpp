@@ -34,9 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "SimpleTissue.hpp"
+#include "FixedCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
-#include "CellsGenerator.hpp"
+#include "AbstractCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

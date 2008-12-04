@@ -50,8 +50,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 /* This header defines a helper class that is useful for generating a
  * vector of cells */
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 /* These are the classes that will be used in these tests */
+#include "HoneycombMeshGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "CryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
@@ -103,14 +104,15 @@ public:
 
         /* Now, we create the ''Tissue'', which, in general, is a collection of cells
          * together with nodes or a mesh. First, we need to define a {{{std::vector}}} of
-         * {{{TissueCell}}}s. To do this, we can use a static method on the {{{CellsGenerator}}}
+         * {{{TissueCell}}}s. To do this, we can use a static method on the {{{FixedCellCycleModelCellsGenerator}}}
          * class. Note that the {{{<2>}}} below denotes the dimension. Here, we create an empty
          * vector of cells, pass that into the method along with the
          * mesh, 'FIXED' saying we want cells with a fixed cell cycle, and 'true' indicating
          * we want random birth times for the cells. The {{{cells}}} vector will be populated
          * once the method is called. */
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices, we can
          * create the tissue, which for this test is of type {{{MeshBasedTissueWithGhostNodes}}}.
@@ -183,7 +185,8 @@ public:
          * in 'WNT' as the third parameters, saying the cells should have a
          * Wnt based cell-cycle. This is an ODE based cell cycle. */
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
+        WntCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         /* Create the tissue, as before. */
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);

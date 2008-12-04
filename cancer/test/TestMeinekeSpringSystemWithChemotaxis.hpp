@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "MeinekeSpringSystemWithChemotaxis.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

@@ -34,7 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "SimpleTissueMechanicsSystem.hpp"
-#include "CellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 class TestSimpleTissueMechanicsSystem : public AbstractCancerTestSuite
@@ -57,7 +58,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells,*p_mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells,*p_mesh);
 
         // Create simple tissue
         SimpleTissue<2> simple_tissue(nodes, cells);

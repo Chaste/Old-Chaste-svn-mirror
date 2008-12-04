@@ -35,10 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 
-#include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include "CryptSimulation2d.hpp"
 #include "SloughingCellKiller.hpp"
-#include "CellsGenerator.hpp"
+#include "IngeWntSwatCellCycleModelHypothesisOneCellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
@@ -616,7 +616,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, true);
+        IngeWntSwatCellCycleModelHypothesisOneCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
@@ -638,7 +639,7 @@ public:
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
 
-        SloughingCellKiller cell_killer(&simulator.rGetTissue(),0.01);
+        SloughingCellKiller cell_killer(&simulator.rGetTissue(), 0.01);
         simulator.AddCellKiller(&cell_killer);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

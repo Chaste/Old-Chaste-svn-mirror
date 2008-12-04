@@ -34,7 +34,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "CryptSimulation2d.hpp"
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "StochasticCellCycleModelCellsGenerator.hpp"
+#include "WntCellCycleModelCellsGenerator.hpp"
+#include "TysonNovakCellCycleModelCellsGenerator.hpp"
+#include "IngeWntSwatCellCycleModelHypothesisOneCellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "OutputFileHandler.hpp"
@@ -114,7 +119,8 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
@@ -171,7 +177,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -227,7 +234,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
         for (unsigned i=0; i<cells.size();i++)
         {
@@ -286,7 +294,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
+        WntCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -329,7 +338,9 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         std::vector<TissueCell> cells;
 
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
+        WntCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
+        
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
@@ -377,7 +388,9 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         std::vector<TissueCell> cells;
 
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
+        WntCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
+        
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
@@ -421,7 +434,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -481,7 +495,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -586,7 +601,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
+        WntCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -679,7 +695,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, TYSONNOVAK, true);
+        TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -755,7 +772,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, mesh, false, 0.0, 3.0, 6.5, 8.0);
 
         cells[60].SetBirthTime(-50.0);
 
@@ -790,7 +808,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> conf_cells;
-        CellsGenerator<2>::GenerateForCrypt(conf_cells, conf_mesh, TYSONNOVAK, true);
+        TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(conf_cells, conf_mesh, true);
 
         MeshBasedTissue<2> conf_crypt(conf_mesh, conf_cells);
 
@@ -819,7 +838,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> conf_cells;
-        CellsGenerator<2>::GenerateForCrypt(conf_cells, conf_mesh, TYSONNOVAK, true);
+        TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(conf_cells, conf_mesh, true);
         MeshBasedTissue<2> conf_crypt(conf_mesh, conf_cells);
 
         MeshBasedTissue<2>::Iterator conf_iter = conf_crypt.Begin();
@@ -858,7 +878,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cyl_cells;
-        CellsGenerator<2>::GenerateForCrypt(cyl_cells, cyl_mesh, TYSONNOVAK, true);
+        TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cyl_cells, cyl_mesh, true);
         MeshBasedTissue<2> cyl_crypt(cyl_mesh, cyl_cells);
 
         MeshBasedTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
@@ -884,7 +905,9 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cyl_cells;
-        CellsGenerator<2>::GenerateForCrypt(cyl_cells, cyl_mesh, TYSONNOVAK, true);
+        TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cyl_cells, cyl_mesh, true);
+        
         MeshBasedTissue<2> cyl_crypt(cyl_mesh, cyl_cells);
 
         MeshBasedTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
@@ -918,7 +941,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -962,7 +986,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -989,7 +1014,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -1022,7 +1048,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, false);
+        IngeWntSwatCellCycleModelHypothesisOneCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
@@ -1172,7 +1199,8 @@ public:
         p_mesh = generator.GetCylindricalMesh();
 
         // Set up cells
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
+        StochasticCellCycleModelCellsGenerator<2>cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true,
                                             0.3,2.0,3.0,4.0,true);
         // Set up crypt
         MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);

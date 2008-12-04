@@ -35,7 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "StochasticCellCycleModelCellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "SimpleDataWriter.hpp"
 #include "OutputFileHandler.hpp"
@@ -75,7 +77,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
         crypt.InitialiseCells(); // must be called explicitly as there is no simulation
@@ -173,7 +176,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
+        StochasticCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true,
                                             0.3,2.0,3.0,4.0,true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
@@ -383,7 +387,8 @@ public:
             p_simulation_time->SetStartTime(0.0);
 
             // set up cells
-            CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
+            StochasticCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true,
                                                 0.3,2.0,3.0,4.0,true);
 
             // set up crypt

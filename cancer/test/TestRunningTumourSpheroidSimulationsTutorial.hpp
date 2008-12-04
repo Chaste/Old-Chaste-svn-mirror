@@ -61,7 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 /* This header defines a helper class that is useful for generating a
  * vector of cells */
-#include "CellsGenerator.hpp"
+#include "AbstractCellsGenerator.hpp"
 /* These are the classes that will be used in these tests.
  * {{{TissueSimulationWithNutrients}}} is used for tumour spheroid
  * simulations.
@@ -69,6 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationWithNutrients.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 /* PetscSetupAndFinalize.hpp must be included in all tests which use Petsc, which
  * is true of tumour spheroid simulations, as Petsc is used in the finite element
@@ -107,7 +108,7 @@ public:
 
 
         /* Next, we need to create some cells. Unlike before, we don't just use
-         * the {{{CellsGenerator}}} class, but do it manually, in a loop. First,
+         * a {{{CellsGenerator}}} class, but do it manually, in a loop. First,
          * define the cells vector. */
         std::vector<TissueCell> cells;
         /* then loop over the nodes... */

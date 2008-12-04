@@ -36,7 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 #include "Alarcon2004OxygenBasedCellCycleModel.hpp"
-#include "CellsGenerator.hpp"
+#include "TysonNovakCellCycleModel.hpp"
+#include "IngeWntSwatCellCycleModel.hpp"
+#include "StochasticWntCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCancerTestSuite.hpp"

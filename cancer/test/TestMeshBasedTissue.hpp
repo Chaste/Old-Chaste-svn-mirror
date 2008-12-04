@@ -34,7 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "CellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -70,7 +71,8 @@ private:
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        CellsGenerator<DIM>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<DIM> generator;
+        generator.GenerateBasic(cells, mesh);
 
         // Create the tissue
         MeshBasedTissue<DIM> tissue(mesh,cells);
@@ -129,7 +131,8 @@ public:
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         cells[0].SetNodeIndex(1);
 
         // Fails as no cell or ghost correponding to node 0
@@ -153,7 +156,8 @@ public:
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         cells[0].SetNodeIndex(1);
 
         // Fails as no cell or ghost correponding to node 0
@@ -178,7 +182,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, *p_mesh);
 
         // Create a tissue, with no ghost nodes at the moment
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh,cells);
@@ -236,7 +241,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
 
         // Create a tissue, with no ghost nodes at the moment
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -301,7 +307,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         cells[27].StartApoptosis();
 
         // Create a tissue without ghost nodes
@@ -373,7 +380,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         cells[27].StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
@@ -464,7 +472,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         cells[27].StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
@@ -524,7 +533,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
 
         MeshBasedTissue<2> tissue(mesh,cells);
 
@@ -591,7 +601,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, *p_mesh);
 
         // Create a tissue, with no ghost nodes at the moment
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh,cells);
@@ -630,7 +641,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<3>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<3> generator;
+        generator.GenerateBasic(cells, mesh);
 
         // Create a tissue, with no ghost nodes at the moment
         MeshBasedTissueWithGhostNodes<3> tissue(mesh,cells);
@@ -702,7 +714,8 @@ public:
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
 
         // Create the tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -752,7 +765,8 @@ public:
             // Set up cells, one for each node. Get each a birth time of -node_index,
             // so the age = node_index
             std::vector<TissueCell> cells;
-            CellsGenerator<2>::GenerateBasic(cells, mesh);
+            FixedCellCycleModelCellsGenerator<2> cells_generator;
+            cells_generator.GenerateBasic(cells, mesh);
 
             // Create the tissue
             MeshBasedTissue<2>* const p_tissue = new MeshBasedTissue<2>(mesh, cells);
@@ -842,7 +856,8 @@ public:
         MutableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
 
         MeshBasedTissue<2> tissue(mesh, cells);
 
@@ -896,7 +911,8 @@ public:
         MutableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
 
         MeshBasedTissue<2> tissue(mesh, cells);
 

@@ -38,7 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 
 #include "TissueSimulation.hpp"
-#include "CellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "TysonNovakCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
+#include "FixedCellCycleModel.hpp"
 #include "CryptProjectionSpringSystem.hpp"
 #include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"

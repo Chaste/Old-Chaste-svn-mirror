@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
@@ -60,7 +60,8 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
 
         MeshBasedTissue<2> tissue(mesh, cells);
 
@@ -149,7 +150,8 @@ public:
         mesh.Translate(-0.25,-0.25);
 
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh, cells);
 
         p_params->SetCryptWidth(0.5);
@@ -268,7 +270,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Set up cell killer
@@ -322,7 +325,8 @@ public:
 
         // Set up tissue
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Before we can do anything with the cell killer, we need to set up CellwiseData

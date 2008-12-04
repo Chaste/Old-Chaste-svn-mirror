@@ -34,8 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "CryptSimulation2d.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
-#include "CellsGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -51,7 +52,7 @@ public:
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
         std::set<unsigned> ghost_node_indices = mesh_generator.GetGhostNodeIndices();
 
-        CellsGenerator<2> cells_generator;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
 
@@ -140,7 +141,7 @@ public:
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
-        CellsGenerator<2> cells_generator;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
 
@@ -207,7 +208,7 @@ public:
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
-        CellsGenerator<2> cells_generator;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
 

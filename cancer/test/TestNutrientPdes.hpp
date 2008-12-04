@@ -34,7 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleNutrientPde.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 #include "AveragedSinksPde.hpp"
-#include "CellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 class TestNutrientPdes : public AbstractCancerTestSuite
@@ -65,7 +66,8 @@ public:
         HoneycombMeshGenerator generator(5, 5, 0u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, *p_mesh);
 
         // Make one cell necrotic
         cells[0].SetCellType(NECROTIC);
@@ -100,7 +102,8 @@ public:
         HoneycombMeshGenerator generator(5, 5, 0u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, *p_mesh);
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a coarse mesh - element 1 contains all the cells,
