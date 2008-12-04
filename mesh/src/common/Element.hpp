@@ -44,7 +44,7 @@ public:
         RegisterWithNodes();
     }
 
-    /***
+    /**
      * Copy constructor which allows a new index to be specified
      */
     Element(const Element &element, const unsigned index)
@@ -104,9 +104,11 @@ public:
         RegisterWithNodes();
     }
 
-    /*Returns a vector representing the circumsphere/circumcircle
+    /**
+     * Calculate the circumsphere/circumcircle of this element.
+     *
      * @returns a vector containing x_centre, y_centre,...,radius^2
-    */
+     */
     c_vector<double,SPACE_DIM+1> CalculateCircumsphere()
     {
         /*Assuming that x0,y0.. is at the origin then we need to solve
@@ -160,11 +162,11 @@ public:
         return 4.0*M_PI*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM])/3.0; //4*Pi*r^3/3
     }
 
-    /* The quality of a triangle/tetrahedron is the ratio between the
+    /**
+     * The quality of a triangle/tetrahedron is the ratio between the
      * volume of the shape and the volume of its circumsphere.
      * This is normalised by dividing through by the Platonic ratio.
      */
-
     double CalculateQuality()
     {
         assert (SPACE_DIM == ELEMENT_DIM);
@@ -224,7 +226,11 @@ public:
         return weights;
     }
 
-    /// We are calculating the interpolation weights, but if we are not within the element (one or more negative weights), we project onto the element, rather than extrapolating from it. 
+    /**
+     * Calculate the interpolation weights, but if we are not within
+     * the element (one or more negative weights), we project onto the
+     * element, rather than extrapolating from it.
+     */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...

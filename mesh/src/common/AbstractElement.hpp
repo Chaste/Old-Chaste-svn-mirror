@@ -257,9 +257,9 @@ public:
     }
 
     /**
-    * Mark an element as having been removed from the mesh.
-    * Also notify nodes in the element that it has been removed.
-    */
+     * Mark an element as having been removed from the mesh.
+     * Also notify nodes in the element that it has been removed.
+     */
     virtual void MarkAsDeleted()=0;
 
     bool IsDeleted() const
@@ -307,7 +307,7 @@ public:
         return mRegion;
     }
     
-    /***
+    /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)
      * of the degrees of freedom associated with this element.
      *
