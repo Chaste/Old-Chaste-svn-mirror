@@ -28,17 +28,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NONLINEARELASTICITYASSEMBLER_HPP_
 #define NONLINEARELASTICITYASSEMBLER_HPP_
 
-// NOTE: would prefer to call this finite elasticity assembler but that is the name
-// of the finite elasticity assembler in the dealii folder.
-
-/* Note this file won't compile with Intel icpc version 9.1.039
- * Terminate with:
-  (0): internal error: backend signals
+/* 
+ * NOTE ON COMPILATION ERRORS:
+ * 
+ * This file won't compile with Intel icpc version 9.1.039, with error message: 
+ * "Terminate with:
+  (0): internal error: backend signals"
  *
- * Try recompiling with icpc version 10.0.025
+ * Try recompiling with icpc version 10.0.025.
  */
  
+
+//todos:
 //factor out Dof handling?
+
 #include "AbstractNonlinearElasticityAssembler.hpp"
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
