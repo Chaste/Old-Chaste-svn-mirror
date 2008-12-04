@@ -29,15 +29,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _ODEFIRSTORDER_HPP_
 #define _ODEFIRSTORDER_HPP_
+
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
-
+/**
+ * dy/dt = y, y(0) = 1.0.
+ */
 class OdeFirstOrder : public AbstractOdeSystem
 {
 public :
     OdeFirstOrder() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
-        mInitialConditions.push_back(1.0);
+        mpSystemInfo = OdeSystemInformation<OdeFirstOrder>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -45,5 +49,15 @@ public :
         rDY[0] = rY[0];
     }
 };
+
+template<>
+void OdeSystemInformation<OdeFirstOrder>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mInitialised = true;
+}
 
 #endif //_ODEFIRSTORDER_HPP_

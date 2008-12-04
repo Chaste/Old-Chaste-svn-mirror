@@ -27,15 +27,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ODE5JACOBIAN_HPP_
-#define ODE5JACONIAN_HPP_
+#ifndef _ODE5JACOBIAN_HPP_
+#define _ODE5JACONIAN_HPP_
 
 #include "AbstractOdeSystemWithAnalyticJacobian.hpp"
-#include "PetscSetupAndFinalize.hpp"
-#include "ReplicatableVector.hpp"
-#include "PetscException.hpp"
+#include "OdeSystemInformation.hpp"
 
-
+/**
+ * dy/dt = 100 y (1-y), y(0) = 0.2.
+ */
 class Ode5Jacobian : public AbstractOdeSystemWithAnalyticJacobian
 {
 private :
@@ -44,7 +44,7 @@ private :
 public :
     Ode5Jacobian() : AbstractOdeSystemWithAnalyticJacobian(1)  // 1 here is the number of unknowns
     {
-        mInitialConditions.push_back(0.2);
+        mpSystemInfo = OdeSystemInformation<Ode5Jacobian>::Instance();
         mAlpha = 100;
     }
 
@@ -57,7 +57,16 @@ public :
     {
         jacobian[0][0] = 1.0 - timeStep*mAlpha + 2.0*timeStep*mAlpha*solutionGuess[0];
     }
-
 };
 
-#endif /*ODE5JACOBIAN_HPP_*/
+template<>
+void OdeSystemInformation<Ode5Jacobian>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.2);
+    
+    this->mInitialised = true;
+}
+
+#endif /*_ODE5JACOBIAN_HPP_*/

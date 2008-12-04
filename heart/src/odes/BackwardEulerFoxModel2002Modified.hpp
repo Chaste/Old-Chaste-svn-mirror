@@ -12,6 +12,7 @@
 #include "CardiacNewtonSolver.hpp"
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "OdeSystemInformation.hpp"
 
 /**
  * Generated from CellML, and P_Ca parameter modified.
@@ -24,59 +25,7 @@ public:
         : AbstractBackwardEulerCardiacCell<3>(13, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: millisecond
-
-        mVariableNames.push_back("V");
-        mVariableUnits.push_back("millivolt");
-        mInitialConditions.push_back(-94.7);
-
-        mVariableNames.push_back("m");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.00024676);
-
-        mVariableNames.push_back("h");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.99869);
-
-        mVariableNames.push_back("j");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.99887);
-
-        mVariableNames.push_back("X_kr");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.229);
-
-        mVariableNames.push_back("X_ks");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0001);
-
-        mVariableNames.push_back("X_to");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.00003742);
-
-        mVariableNames.push_back("Y_to");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(1);
-
-        mVariableNames.push_back("f");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.983);
-
-        mVariableNames.push_back("d");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0001);
-
-        mVariableNames.push_back("f_Ca");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.942);
-
-        mVariableNames.push_back("CaI");
-        mVariableUnits.push_back("micromolar");
-        mInitialConditions.push_back(0.0472);
-
-        mVariableNames.push_back("Ca_SR");
-        mVariableUnits.push_back("micromolar");
-        mInitialConditions.push_back(320);
-
+        mpSystemInfo = OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Instance();
         Init();
 
     }
@@ -683,5 +632,63 @@ protected:
     }
 
 };
+
+template<>
+void OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Initialise(void)
+{
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("millivolt");
+    this->mInitialConditions.push_back(-94.7);
+
+    this->mVariableNames.push_back("m");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.00024676);
+
+    this->mVariableNames.push_back("h");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.99869);
+
+    this->mVariableNames.push_back("j");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.99887);
+
+    this->mVariableNames.push_back("X_kr");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.229);
+
+    this->mVariableNames.push_back("X_ks");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0001);
+
+    this->mVariableNames.push_back("X_to");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.00003742);
+
+    this->mVariableNames.push_back("Y_to");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1);
+
+    this->mVariableNames.push_back("f");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.983);
+
+    this->mVariableNames.push_back("d");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0001);
+
+    this->mVariableNames.push_back("f_Ca");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.942);
+
+    this->mVariableNames.push_back("CaI");
+    this->mVariableUnits.push_back("micromolar");
+    this->mInitialConditions.push_back(0.0472);
+
+    this->mVariableNames.push_back("Ca_SR");
+    this->mVariableUnits.push_back("micromolar");
+    this->mInitialConditions.push_back(320);
+    
+    this->mInitialised = true;
+}
 
 #endif

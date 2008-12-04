@@ -27,14 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/*
- * Concrete class
- */
 #ifndef _RKFTESTODE_HPP_
 #define _RKFTESTODE_HPP_
-#include "AbstractOdeSystem.hpp"
 
-/*
+#include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
+
+/**
  * Analytic solution to this, for y(0) = 0.5, is y = (t+1)^2 - 0.5*exp(t).
  */
 class RkfTestOde : public AbstractOdeSystem
@@ -43,15 +42,24 @@ public :
 
     RkfTestOde() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
-        mInitialConditions.push_back(0.5);
-        mStateVariables = mInitialConditions;
+        mpSystemInfo = OdeSystemInformation<RkfTestOde>::Instance();
+        SetStateVariables(GetInitialConditions());
     }
-
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
         rDY[0] = rY[0] - time*time + 1.0;
     }
 };
+
+template<>
+void OdeSystemInformation<RkfTestOde>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.5);
+    
+    this->mInitialised = true;
+}
 
 #endif //_RKFTESTODE_HPP_

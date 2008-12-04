@@ -31,17 +31,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TWODIMODESYSTEM_HPP_
 
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
 class TwoDimOdeSystem : public AbstractOdeSystem
 {
 public :
-    TwoDimOdeSystem()
+    TwoDimOdeSystem() : AbstractOdeSystem(2)
     {
-        mNumberOfStateVariables=2;
-
-        mInitialConditions.push_back(1);
-        mInitialConditions.push_back(2);
-
+        mpSystemInfo = OdeSystemInformation<TwoDimOdeSystem>::Instance();
         mStateVariables.push_back(3);
         mStateVariables.push_back(4);
     }
@@ -51,6 +48,20 @@ public :
         rDY.assign(rY.begin(), rY.end());
     }
 };
+
+template<>
+void OdeSystemInformation<TwoDimOdeSystem>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1);
+    
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(2);
+    
+    this->mInitialised = true;
+}
 
 
 #endif /*TWODIMODESYSTEM_HPP_*/

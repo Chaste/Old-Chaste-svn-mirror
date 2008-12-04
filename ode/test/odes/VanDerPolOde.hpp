@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define VANDERPOLODE_HPP_
 
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
 
 class VanDerPolOde : public AbstractOdeSystem
@@ -38,15 +39,8 @@ class VanDerPolOde : public AbstractOdeSystem
 public :
     VanDerPolOde() : AbstractOdeSystem(2)  // 2 here is the number of unknowns
     {
-        mInitialConditions.push_back(10.0);
-        mVariableNames.push_back("x");
-        mVariableUnits.push_back("m");
-
-        mInitialConditions.push_back(10.0);
-        mVariableNames.push_back("v");
-        mVariableUnits.push_back("m/s");
-
-        SetStateVariables(mInitialConditions);
+        mpSystemInfo = OdeSystemInformation<VanDerPolOde>::Instance();
+        SetStateVariables(GetInitialConditions());
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -55,8 +49,21 @@ public :
         rDY[0]= rY[1] + mu*(rY[0] - rY[0]*rY[0]*rY[0]);
         rDY[1] = -rY[0];
     }
-
 };
+
+template<>
+void OdeSystemInformation<VanDerPolOde>::Initialise(void)
+{
+    this->mVariableNames.push_back("x");
+    this->mVariableUnits.push_back("m");
+    this->mInitialConditions.push_back(10.0);
+    
+    this->mVariableNames.push_back("v");
+    this->mVariableUnits.push_back("m/s");
+    this->mInitialConditions.push_back(10.0);
+    
+    this->mInitialised = true;
+}
 
 
 #endif /*VANDERPOLODE_HPP_*/

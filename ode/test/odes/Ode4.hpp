@@ -27,20 +27,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/*
- * Concrete Ode4 class
- */
 #ifndef _ODE4_HPP_
 #define _ODE4_HPP_
+
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
-
+/**
+ * dy/dt = 100 y (1-y) t, y(0) = 0.5.
+ */
 class Ode4 : public AbstractOdeSystem
 {
 public :
     Ode4() : AbstractOdeSystem(1)  // 1 here is the number of unknowns
     {
-        mInitialConditions.push_back(0.5);
+        mpSystemInfo = OdeSystemInformation<Ode4>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -48,8 +49,17 @@ public :
         double alpha = 100;
         rDY[0]=alpha*rY[0]*(1-rY[0])*time;
     }
-
 };
+
+template<>
+void OdeSystemInformation<Ode4>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.5);
+    
+    this->mInitialised = true;
+}
 
 #endif //_ODE4_HPP_
 

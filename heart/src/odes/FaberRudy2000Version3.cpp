@@ -11,6 +11,7 @@
 #include "AbstractCardiacCell.hpp"
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "OdeSystemInformation.hpp"
 
 class FaberRudy2000Version3 : public AbstractCardiacCell
 {
@@ -24,113 +25,12 @@ public:
                               AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractCardiacCell(pSolver, 25, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
+        mpSystemInfo = OdeSystemInformation<FaberRudy2000Version3>::Instance();
 
         mScaleFactorGks=1.0;
         mScaleFactorIto=0.0;
-        // Time units: second
-
-        mVariableNames.push_back("V");
-        mVariableUnits.push_back("millivolt");
-        mInitialConditions.push_back(-90);
-
-        mVariableNames.push_back("m");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0008);
-
-        mVariableNames.push_back("h");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.993771);
-
-        mVariableNames.push_back("j");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.995727);
-
-        mVariableNames.push_back("d");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(3.210618e-6);
-
-        mVariableNames.push_back("f");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.999837);
-
-        mVariableNames.push_back("b");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.000970231);
-
-        mVariableNames.push_back("g");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.994305);
-
-        mVariableNames.push_back("xr");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.000124042);
-
-        mVariableNames.push_back("xs1");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.00445683);
-
-        mVariableNames.push_back("xs2");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.00445683);
-
-        mVariableNames.push_back("zdv");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.5);
-
-        mVariableNames.push_back("ydv");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.5);
-
-        mVariableNames.push_back("CaI");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(6e-5);
-
-        mVariableNames.push_back("Ca_JSR");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.8);
-
-        mVariableNames.push_back("Ca_NSR");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.8);
-
-        mVariableNames.push_back("APtrack");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("APtrack2");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("APtrack3");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("Cainfluxtrack");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("OVRLDtrack");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("OVRLDtrack2");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("OVRLDtrack3");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("Nai");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(9);
-
-        mVariableNames.push_back("Ki");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(141.2);
-
+        
         Init();
-
     }
 
     ~FaberRudy2000Version3(void)
@@ -825,5 +725,116 @@ public:
     }
 
 };
+
+
+
+template<>
+void OdeSystemInformation<FaberRudy2000Version3>::Initialise(void)
+{
+    // Time units: second
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("millivolt");
+    this->mInitialConditions.push_back(-90);
+
+    this->mVariableNames.push_back("m");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0008);
+
+    this->mVariableNames.push_back("h");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.993771);
+
+    this->mVariableNames.push_back("j");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.995727);
+
+    this->mVariableNames.push_back("d");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(3.210618e-6);
+
+    this->mVariableNames.push_back("f");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.999837);
+
+    this->mVariableNames.push_back("b");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.000970231);
+
+    this->mVariableNames.push_back("g");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.994305);
+
+    this->mVariableNames.push_back("xr");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.000124042);
+
+    this->mVariableNames.push_back("xs1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.00445683);
+
+    this->mVariableNames.push_back("xs2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.00445683);
+
+    this->mVariableNames.push_back("zdv");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.5);
+
+    this->mVariableNames.push_back("ydv");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.5);
+
+    this->mVariableNames.push_back("CaI");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(6e-5);
+
+    this->mVariableNames.push_back("Ca_JSR");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.8);
+
+    this->mVariableNames.push_back("Ca_NSR");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.8);
+
+    this->mVariableNames.push_back("APtrack");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("APtrack2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("APtrack3");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("Cainfluxtrack");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("OVRLDtrack");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("OVRLDtrack2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("OVRLDtrack3");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("Nai");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(9);
+
+    this->mVariableNames.push_back("Ki");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(141.2);
+
+    this->mInitialised = true;
+}
+
+
 
 #endif

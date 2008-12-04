@@ -59,7 +59,7 @@ AbstractCardiacCell::~AbstractCardiacCell()
  */
 void AbstractCardiacCell::Init()
 {
-    rGetStateVariables() = mInitialConditions;
+    SetStateVariables(GetInitialConditions());
 }
 
 

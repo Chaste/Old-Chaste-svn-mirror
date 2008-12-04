@@ -12,6 +12,7 @@
 #include "CardiacNewtonSolver.hpp"
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "OdeSystemInformation.hpp"
 
 
 class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCardiacCell<12>
@@ -37,100 +38,7 @@ public:
 private:
     void MakeVars()
     {
-        // Time units: second
-        //
-        // Variables are:        
-        // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
-        // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
-        //
-        mVariableNames.push_back("V");  //Fast
-        mVariableUnits.push_back("millivolt");
-        mInitialConditions.push_back(-92.849333);
-
-        mVariableNames.push_back("xr1"); // gating variable (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(1.03e-5);
-
-        mVariableNames.push_back("xr2"); // gating variable (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(2e-7);
-
-        mVariableNames.push_back("xs"); // gating variable (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.001302);
-
-        mVariableNames.push_back("m");  //Fast, gating var (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0016203);
-
-        mVariableNames.push_back("h");  //Fast, gating var (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9944036);
-
-        mVariableNames.push_back("d"); // gating variable (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("f"); // gating variable (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(1);
-
-        mVariableNames.push_back("f2"); 
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9349197);
-
-        mVariableNames.push_back("f2ds");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9651958);
-
-        mVariableNames.push_back("s"); // gating variable (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9948645);
-
-        mVariableNames.push_back("r"); // gating variable (check)
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("ActFrac");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0042614);
-
-        mVariableNames.push_back("ProdFrac");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.4068154);
-
-        mVariableNames.push_back("Na_i");  //Slow
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(7.3321223);
-
-        mVariableNames.push_back("K_i");//Slow
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(136.5644281);
-
-        mVariableNames.push_back("Ca_i");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.4e-5);
-
-        mVariableNames.push_back("Ca_ds");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.88e-5);
-
-        mVariableNames.push_back("Ca_up");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.4531889);
-
-        mVariableNames.push_back("Ca_rel");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.4481927);
-
-        mVariableNames.push_back("Ca_Calmod");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.0005555);
-
-        mVariableNames.push_back("Ca_Trop");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.0003542);
-
+        mpSystemInfo = OdeSystemInformation<BackwardEulerNobleVargheseKohlNoble1998>::Instance();
         Init();
 
     }
@@ -1157,5 +1065,107 @@ protected:
     }
 
 };
+
+
+template<>
+void OdeSystemInformation<BackwardEulerNobleVargheseKohlNoble1998>::Initialise(void)
+{
+    // Time units: second
+    //
+    // Variables are:        
+    // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
+    // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
+    //
+    this->mVariableNames.push_back("V");  //Fast
+    this->mVariableUnits.push_back("millivolt");
+    this->mInitialConditions.push_back(-92.849333);
+
+    this->mVariableNames.push_back("xr1"); // gating variable (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.03e-5);
+
+    this->mVariableNames.push_back("xr2"); // gating variable (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(2e-7);
+
+    this->mVariableNames.push_back("xs"); // gating variable (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.001302);
+
+    this->mVariableNames.push_back("m");  //Fast, gating var (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0016203);
+
+    this->mVariableNames.push_back("h");  //Fast, gating var (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9944036);
+
+    this->mVariableNames.push_back("d"); // gating variable (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("f"); // gating variable (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1);
+
+    this->mVariableNames.push_back("f2"); 
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9349197);
+
+    this->mVariableNames.push_back("f2ds");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9651958);
+
+    this->mVariableNames.push_back("s"); // gating variable (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9948645);
+
+    this->mVariableNames.push_back("r"); // gating variable (check)
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("ActFrac");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0042614);
+
+    this->mVariableNames.push_back("ProdFrac");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.4068154);
+
+    this->mVariableNames.push_back("Na_i");  //Slow
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(7.3321223);
+
+    this->mVariableNames.push_back("K_i");//Slow
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(136.5644281);
+
+    this->mVariableNames.push_back("Ca_i");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.4e-5);
+
+    this->mVariableNames.push_back("Ca_ds");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.88e-5);
+
+    this->mVariableNames.push_back("Ca_up");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.4531889);
+
+    this->mVariableNames.push_back("Ca_rel");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.4481927);
+
+    this->mVariableNames.push_back("Ca_Calmod");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.0005555);
+
+    this->mVariableNames.push_back("Ca_Trop");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.0003542);
+
+    this->mInitialised = true;
+}
+
 
 #endif

@@ -25,11 +25,16 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
+#include "CellwiseOdeSystemInformation.hpp"
+
 
 Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CellMutationState& rMutationState)
         : AbstractOdeSystem(6)
 {
+    mpSystemInfo.reset(new CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>);
+    
     /**
      * State variables
      *
@@ -61,30 +66,10 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
         mxThreshold = 0.04; // should this be 0.004??
         myThreshold = 0.05;
     }
-
-    mVariableNames.push_back("Cdh1_APC_complexes");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(0.9);
-
-    mVariableNames.push_back("cyclin_CDK");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(0.01);
-
-    mVariableNames.push_back("p27");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(0.0);
-
-    mVariableNames.push_back("mass");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(mMstar/2.0);
-
-    mVariableNames.push_back("RBNP");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(1.0);
-
-    mVariableNames.push_back("O2");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(oxygenConcentration);
+    
+    // Cell-specific initial conditions
+    SetInitialConditionsComponent(3u, mMstar/2.0);
+    SetInitialConditionsComponent(5u, oxygenConcentration);
 }
 
 void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
@@ -174,4 +159,37 @@ CellMutationState& Alarcon2004OxygenBasedCellCycleOdeSystem::rGetMutationState()
 bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
 {
     return (rY[0] < mxThreshold && rY[1] > myThreshold);
+}
+
+
+
+
+template<>
+void CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>::Initialise(void)
+{
+    this->mVariableNames.push_back("Cdh1_APC_complexes");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(0.9);
+
+    this->mVariableNames.push_back("cyclin_CDK");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(0.01);
+
+    this->mVariableNames.push_back("p27");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mVariableNames.push_back("mass");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("RBNP");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(1.0);
+
+    this->mVariableNames.push_back("O2");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+    
+    this->mInitialised = true;
 }

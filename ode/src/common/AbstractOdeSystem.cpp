@@ -38,19 +38,10 @@ AbstractOdeSystem::AbstractOdeSystem(unsigned numberOfStateVariables)
 AbstractOdeSystem::~AbstractOdeSystem()
 {}
 
-unsigned AbstractOdeSystem::GetStateVariableNumberByName(const std::string name)
+// Default implementation - never stop.
+bool AbstractOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
 {
-    unsigned var_number=0;
-    while (var_number != mNumberOfStateVariables &&
-           mVariableNames[var_number] != name)
-    {
-        var_number++;
-    }
-    if (var_number == mNumberOfStateVariables)
-    {
-        EXCEPTION("State variable does not exist");
-    }
-    return var_number;
+    return false;
 }
 
 std::string AbstractOdeSystem::DumpState(const std::string& message,
@@ -62,10 +53,11 @@ std::string AbstractOdeSystem::DumpState(const std::string& message,
     {
         Y = rGetStateVariables();
     }
-    assert(Y.size() == mVariableNames.size());
-    for (unsigned i=0; i<mVariableNames.size(); i++)
+    std::vector<std::string>& r_var_names = rGetVariableNames();
+    assert(Y.size() == r_var_names.size());
+    for (unsigned i=0; i<r_var_names.size(); i++)
     {
-        res << "\t" << mVariableNames[i] << ":" << Y[i] << "\n";
+        res << "\t" << r_var_names[i] << ":" << Y[i] << "\n";
     }
     return res.str();
 }

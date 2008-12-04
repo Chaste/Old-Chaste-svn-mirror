@@ -56,6 +56,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * and must inherit from the following class, which defines an ODE interface.
  */
 #include "AbstractOdeSystem.hpp"
+/* In order to convenient define useful information about the ODE system, such
+ * as the names and units of variables, and suggested initial conditions, we
+ * need the following header.
+ */
+#include "OdeSystemInformation.hpp"
 /*
  * EMPTYLINE
  *
@@ -68,11 +73,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MyOde : public AbstractOdeSystem
 {
 public:
-/* The constructor does nothing, except calling the base constructor, with the number of
- * state variables in the ODE system (here, 1, i.e. y is a 1d vector).
+/* The constructor does very little.
+ * It calls the base constructor, passing the number of state variables in the
+ * ODE system (here, 1, i.e. y is a 1d vector).
+ * It also sets the object to use to retrieve system information (see later).
  */
     MyOde() : AbstractOdeSystem(1)
     {
+        mpSystemInfo = OdeSystemInformation<MyOde>::Instance();
     }
 
 /* The ODE solvers will repeatedly call a method called EvaluateYDerivatives(), which needs
@@ -87,6 +95,19 @@ public:
         rDY[0] = rY[0]*rY[0] + time*time;
     }
 };
+
+/* The following ''template specialisation'' defines the information for this
+ * ODE system.  Note that we use the ODE system class as a template parameter.
+ */
+template<>
+void OdeSystemInformation<MyOde>::Initialise(void)
+{
+    this->mVariableNames.push_back("y");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
+}
 
 /* That would be all that is needed for this class to solve the ODE. However, rather
  * than solving up to a fixed time, suppose we wanted to solve until some function
@@ -109,7 +130,6 @@ public:
     }
 };
 
-
 /* (Ignore this class until solving with state variables is discussed)
  *
  * Another class which sets up a state variable. Note that this is done in the
@@ -119,6 +139,7 @@ class MyOdeUsingStateVariables : public AbstractOdeSystem
 public:
     MyOdeUsingStateVariables() : AbstractOdeSystem(1)
     {
+        mpSystemInfo = OdeSystemInformation<MyOdeUsingStateVariables>::Instance();
         mStateVariables.push_back(1.0);
     }
 
@@ -129,6 +150,17 @@ public:
     }
 };
 
+/* Again we need to define the ODE system information.
+ */
+template<>
+void OdeSystemInformation<MyOdeUsingStateVariables>::Initialise(void)
+{
+    this->mVariableNames.push_back("y");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mInitialised = true;
+}
 
 /* This class is another simple ODE class, just as an example of how a 2d ODE is solved. Here
  * we solve the ODE dy,,1,,/dt = y,,2,,, dy,,2,,/dt = (y,,1,,)^2^ (which represents the second-order ODE d^2^y/dt^2^ = y^2^
@@ -138,6 +170,7 @@ class My2dOde : public AbstractOdeSystem
 public:
     My2dOde() : AbstractOdeSystem(2)
     {
+        mpSystemInfo = OdeSystemInformation<My2dOde>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY,
@@ -147,6 +180,22 @@ public:
         rDY[1] = rY[0]*rY[0];
     }
 };
+
+/* Again we need to define the ODE system information.
+ */
+template<>
+void OdeSystemInformation<My2dOde>::Initialise(void)
+{
+    this->mVariableNames.push_back("y");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mVariableNames.push_back("dy/dt");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
+}
 
 /*
  * EMPTYLINE

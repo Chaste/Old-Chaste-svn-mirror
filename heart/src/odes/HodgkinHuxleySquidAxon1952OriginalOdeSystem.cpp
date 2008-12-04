@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 #include <cmath>
 
 
@@ -39,24 +40,7 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
     AbstractStimulusFunction *pExtracellularStimulus)
         : AbstractCardiacCell(pOdeSolver,4,0,pIntracellularStimulus,pExtracellularStimulus)
 {
-    /*
-     * State variables
-     */
-    mVariableNames.push_back("V");
-    mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(-75.0);
-    
-    mVariableNames.push_back("n");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.325);
-    
-    mVariableNames.push_back("h");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.6);
-    
-    mVariableNames.push_back("m");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.05);
+    mpSystemInfo = OdeSystemInformation<HodgkinHuxleySquidAxon1952OriginalOdeSystem>::Instance();
     
     AbstractCardiacCell::Init();
 }
@@ -166,4 +150,30 @@ double HodgkinHuxleySquidAxon1952OriginalOdeSystem::GetIIonic()
     double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
     double i_ionic = sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L;
     return i_ionic;
+}
+
+
+template<>
+void OdeSystemInformation<HodgkinHuxleySquidAxon1952OriginalOdeSystem>::Initialise(void)
+{
+    /*
+     * State variables
+     */
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("mV");
+    this->mInitialConditions.push_back(-75.0);
+    
+    this->mVariableNames.push_back("n");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.325);
+    
+    this->mVariableNames.push_back("h");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.6);
+    
+    this->mVariableNames.push_back("m");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.05);
+    
+    this->mInitialised = true;
 }

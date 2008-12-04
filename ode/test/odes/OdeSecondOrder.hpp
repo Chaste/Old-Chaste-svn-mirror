@@ -29,16 +29,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _ODESECONDORDER_HPP_
 #define _ODESECONDORDER_HPP_
-#include "AbstractOdeSystem.hpp"
 
+#include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
 class OdeSecondOrder : public AbstractOdeSystem
 {
 public :
     OdeSecondOrder() : AbstractOdeSystem(2) // 2 here is the number of unknowns
     {
-        mInitialConditions.push_back(0.0);
-        mInitialConditions.push_back(1.0);
+        mpSystemInfo = OdeSystemInformation<OdeSecondOrder>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -47,5 +47,19 @@ public :
         rDY[1] = -rY[0];
     }
 };
+
+template<>
+void OdeSystemInformation<OdeSecondOrder>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mVariableNames.push_back("Variable 2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mInitialised = true;
+}
 
 #endif //_ODESECONDORDER_HPP_

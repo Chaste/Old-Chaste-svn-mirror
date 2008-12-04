@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "NhsCellularMechanicsOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 #include <cmath>
 
 /*
@@ -53,31 +54,14 @@ double NhsCellularMechanicsOdeSystem::CalculateT0(double z)
 
 
 /*
- * ============================== PRIVATE FUNCTIONS =====================================
+ * ============================== PUBLIC FUNCTIONS =====================================
  */
 
 NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
     :   AbstractOdeSystem(5) // five state variables
 {
-    mVariableNames.push_back("CalciumTroponin");
-    mVariableUnits.push_back("microMols");
-    mStateVariables.push_back(0);
-
-    mVariableNames.push_back("z");
-    mVariableUnits.push_back("");
-    mStateVariables.push_back(0);
-
-    mVariableNames.push_back("Q1");
-    mVariableUnits.push_back("");
-    mStateVariables.push_back(0);
-
-    mVariableNames.push_back("Q2");
-    mVariableUnits.push_back("");
-    mStateVariables.push_back(0);
-
-    mVariableNames.push_back("Q3");
-    mVariableUnits.push_back("");
-    mStateVariables.push_back(0);
+    mpSystemInfo = OdeSystemInformation<NhsCellularMechanicsOdeSystem>::Instance();
+    SetStateVariables(GetInitialConditions());
 
     mLambda = 1.0;
     mDLambdaDt = 0.0;
@@ -191,4 +175,31 @@ double NhsCellularMechanicsOdeSystem::GetActiveTension()
 double NhsCellularMechanicsOdeSystem::GetLambda()
 {
     return mLambda;
+}
+
+
+template<>
+void OdeSystemInformation<NhsCellularMechanicsOdeSystem>::Initialise(void)
+{
+    this->mVariableNames.push_back("CalciumTroponin");
+    this->mVariableUnits.push_back("microMols");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("z");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("Q1");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("Q2");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("Q3");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0);
+    
+    this->mInitialised = true;
 }

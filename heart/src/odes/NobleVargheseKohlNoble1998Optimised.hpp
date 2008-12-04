@@ -11,6 +11,7 @@
 #include "AbstractCardiacCell.hpp"
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "OdeSystemInformation.hpp"
 
 class CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables
 {
@@ -580,95 +581,7 @@ public:
                                                     AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractCardiacCell(pSolver, 22, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
-        // Time units: second
-        // 
-        mVariableNames.push_back("membrane__V");
-        mVariableUnits.push_back("millivolt");
-        mInitialConditions.push_back(-92.849333);
-
-        mVariableNames.push_back("rapid_delayed_rectifier_potassium_current_xr1_gate__xr1");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(1.03e-5);
-
-        mVariableNames.push_back("rapid_delayed_rectifier_potassium_current_xr2_gate__xr2");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(2e-7);
-
-        mVariableNames.push_back("slow_delayed_rectifier_potassium_current_xs_gate__xs");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.001302);
-
-        mVariableNames.push_back("fast_sodium_current_m_gate__m");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0016203);
-
-        mVariableNames.push_back("fast_sodium_current_h_gate__h");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9944036);
-
-        mVariableNames.push_back("L_type_Ca_channel_d_gate__d");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("L_type_Ca_channel_f_gate__f");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(1);
-
-        mVariableNames.push_back("L_type_Ca_channel_f2_gate__f2");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9349197);
-
-        mVariableNames.push_back("L_type_Ca_channel_f2ds_gate__f2ds");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9651958);
-
-        mVariableNames.push_back("transient_outward_current_s_gate__s");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9948645);
-
-        mVariableNames.push_back("transient_outward_current_r_gate__r");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("calcium_release__ActFrac");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0042614);
-
-        mVariableNames.push_back("calcium_release__ProdFrac");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.4068154);
-
-        mVariableNames.push_back("intracellular_sodium_concentration__Na_i");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(7.3321223);
-
-        mVariableNames.push_back("intracellular_potassium_concentration__K_i");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(136.5644281);
-
-        mVariableNames.push_back("intracellular_calcium_concentration__Ca_i");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.4e-5);
-
-        mVariableNames.push_back("intracellular_calcium_concentration__Ca_ds");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.88e-5);
-
-        mVariableNames.push_back("intracellular_calcium_concentration__Ca_up");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.4531889);
-
-        mVariableNames.push_back("intracellular_calcium_concentration__Ca_rel");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.4481927);
-
-        mVariableNames.push_back("intracellular_calcium_concentration__Ca_Calmod");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.0005555);
-
-        mVariableNames.push_back("intracellular_calcium_concentration__Ca_Trop");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.0003542);
+        mpSystemInfo = OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic_pe_lut>::Instance();
 
         Init();
 
@@ -942,5 +855,101 @@ public:
     }
 
 };
+
+template<>
+void OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic_pe_lut>::Initialise(void)
+{
+    // Time units: second
+    // 
+    this->mVariableNames.push_back("membrane__V");
+    this->mVariableUnits.push_back("millivolt");
+    this->mInitialConditions.push_back(-92.849333);
+
+    this->mVariableNames.push_back("rapid_delayed_rectifier_potassium_current_xr1_gate__xr1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.03e-5);
+
+    this->mVariableNames.push_back("rapid_delayed_rectifier_potassium_current_xr2_gate__xr2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(2e-7);
+
+    this->mVariableNames.push_back("slow_delayed_rectifier_potassium_current_xs_gate__xs");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.001302);
+
+    this->mVariableNames.push_back("fast_sodium_current_m_gate__m");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0016203);
+
+    this->mVariableNames.push_back("fast_sodium_current_h_gate__h");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9944036);
+
+    this->mVariableNames.push_back("L_type_Ca_channel_d_gate__d");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("L_type_Ca_channel_f_gate__f");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1);
+
+    this->mVariableNames.push_back("L_type_Ca_channel_f2_gate__f2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9349197);
+
+    this->mVariableNames.push_back("L_type_Ca_channel_f2ds_gate__f2ds");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9651958);
+
+    this->mVariableNames.push_back("transient_outward_current_s_gate__s");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9948645);
+
+    this->mVariableNames.push_back("transient_outward_current_r_gate__r");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("calcium_release__ActFrac");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0042614);
+
+    this->mVariableNames.push_back("calcium_release__ProdFrac");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.4068154);
+
+    this->mVariableNames.push_back("intracellular_sodium_concentration__Na_i");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(7.3321223);
+
+    this->mVariableNames.push_back("intracellular_potassium_concentration__K_i");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(136.5644281);
+
+    this->mVariableNames.push_back("intracellular_calcium_concentration__Ca_i");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.4e-5);
+
+    this->mVariableNames.push_back("intracellular_calcium_concentration__Ca_ds");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.88e-5);
+
+    this->mVariableNames.push_back("intracellular_calcium_concentration__Ca_up");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.4531889);
+
+    this->mVariableNames.push_back("intracellular_calcium_concentration__Ca_rel");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.4481927);
+
+    this->mVariableNames.push_back("intracellular_calcium_concentration__Ca_Calmod");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.0005555);
+
+    this->mVariableNames.push_back("intracellular_calcium_concentration__Ca_Trop");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.0003542);
+    
+    this->mInitialised = true;
+}
 
 #endif

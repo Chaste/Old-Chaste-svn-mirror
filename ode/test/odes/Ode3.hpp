@@ -27,22 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/*
- * Concrete Ode3 class
- */
 #ifndef _ODE3_HPP_
 #define _ODE3_HPP_
+
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
-
+/**
+ * dY/dt = Y * t, Y(0) = [4, 8].
+ */
 class Ode3 : public AbstractOdeSystem
 {
 public :
 
     Ode3()  : AbstractOdeSystem(2) // 2 here is the number of unknowns
     {
-        mInitialConditions.push_back(4.0);
-        mInitialConditions.push_back(8.0);
+        mpSystemInfo = OdeSystemInformation<Ode3>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -51,5 +51,19 @@ public :
         rDY[1]=rY[1]*time;
     }
 };
+
+template<>
+void OdeSystemInformation<Ode3>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(4.0);
+    
+    this->mVariableNames.push_back("Variable 2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(8.0);
+    
+    this->mInitialised = true;
+}
 
 #endif //_ODE3_HPP_

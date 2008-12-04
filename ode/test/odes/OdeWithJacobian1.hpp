@@ -27,24 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#ifndef _ODEWITHJACOBIAN1_HPP_
+#define _ODEWITHJACOBIAN1_HPP_
+
+#include "AbstractOdeSystemWithAnalyticJacobian.hpp"
+#include "OdeSystemInformation.hpp"
+
 /*
  * Concrete Jacobian class
  */
-#ifndef _ODEWITHJACOBIAN1_HPP_
-#define _ODEWITHJACOBIAN1_HPP_
-#include "AbstractOdeSystemWithAnalyticJacobian.hpp"
-#include "PetscSetupAndFinalize.hpp"
-#include "ReplicatableVector.hpp"
-#include "PetscException.hpp"
-
 class OdeWithJacobian1 : public AbstractOdeSystemWithAnalyticJacobian
 {
 public :
-
     OdeWithJacobian1()
             : AbstractOdeSystemWithAnalyticJacobian(1) // 1 here is the number of variables
     {
-        mInitialConditions.push_back(0.0);
+        mpSystemInfo = OdeSystemInformation<OdeWithJacobian1>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -56,8 +54,17 @@ public :
     {
         jacobian[0][0] = 1 - 2.0*timeStep*solutionGuess[0];
     }
-
 };
+
+template<>
+void OdeSystemInformation<OdeWithJacobian1>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
+}
 
 
 #endif //_ODEWITHJACOBIAN1_HPP_

@@ -11,6 +11,7 @@
 #include "AbstractCardiacCell.hpp"
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "OdeSystemInformation.hpp"
 
 class CML_noble_varghese_kohl_noble_1998_basic : public AbstractCardiacCell
 {
@@ -20,95 +21,7 @@ public:
                                              AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractCardiacCell(pSolver, 22, 0, pIntracellularStimulus, pExtracellularStimulus)
     {
-        // Time units: second
-        // 
-        mVariableNames.push_back("V");
-        mVariableUnits.push_back("millivolt");
-        mInitialConditions.push_back(-92.849333);
-
-        mVariableNames.push_back("xr1");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(1.03e-5);
-
-        mVariableNames.push_back("xr2");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(2e-7);
-
-        mVariableNames.push_back("xs");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.001302);
-
-        mVariableNames.push_back("m");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0016203);
-
-        mVariableNames.push_back("h");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9944036);
-
-        mVariableNames.push_back("d");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("f");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(1);
-
-        mVariableNames.push_back("f2");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9349197);
-
-        mVariableNames.push_back("f2ds");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9651958);
-
-        mVariableNames.push_back("s");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.9948645);
-
-        mVariableNames.push_back("r");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0);
-
-        mVariableNames.push_back("ActFrac");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.0042614);
-
-        mVariableNames.push_back("ProdFrac");
-        mVariableUnits.push_back("dimensionless");
-        mInitialConditions.push_back(0.4068154);
-
-        mVariableNames.push_back("Na_i");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(7.3321223);
-
-        mVariableNames.push_back("K_i");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(136.5644281);
-
-        mVariableNames.push_back("Ca_i");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.4e-5);
-
-        mVariableNames.push_back("Ca_ds");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(1.88e-5);
-
-        mVariableNames.push_back("Ca_up");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.4531889);
-
-        mVariableNames.push_back("Ca_rel");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.4481927);
-
-        mVariableNames.push_back("Ca_Calmod");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.0005555);
-
-        mVariableNames.push_back("Ca_Trop");
-        mVariableUnits.push_back("millimolar");
-        mInitialConditions.push_back(0.0003542);
+        mpSystemInfo = OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic>::Instance();
 
         Init();
 
@@ -651,5 +564,103 @@ public:
     }
 
 };
+
+
+template<>
+void OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic>::Initialise(void)
+{
+    // Time units: second
+    // 
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("millivolt");
+    this->mInitialConditions.push_back(-92.849333);
+
+    this->mVariableNames.push_back("xr1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.03e-5);
+
+    this->mVariableNames.push_back("xr2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(2e-7);
+
+    this->mVariableNames.push_back("xs");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.001302);
+
+    this->mVariableNames.push_back("m");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0016203);
+
+    this->mVariableNames.push_back("h");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9944036);
+
+    this->mVariableNames.push_back("d");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("f");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1);
+
+    this->mVariableNames.push_back("f2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9349197);
+
+    this->mVariableNames.push_back("f2ds");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9651958);
+
+    this->mVariableNames.push_back("s");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.9948645);
+
+    this->mVariableNames.push_back("r");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0);
+
+    this->mVariableNames.push_back("ActFrac");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0042614);
+
+    this->mVariableNames.push_back("ProdFrac");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.4068154);
+
+    this->mVariableNames.push_back("Na_i");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(7.3321223);
+
+    this->mVariableNames.push_back("K_i");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(136.5644281);
+
+    this->mVariableNames.push_back("Ca_i");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.4e-5);
+
+    this->mVariableNames.push_back("Ca_ds");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(1.88e-5);
+
+    this->mVariableNames.push_back("Ca_up");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.4531889);
+
+    this->mVariableNames.push_back("Ca_rel");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.4481927);
+
+    this->mVariableNames.push_back("Ca_Calmod");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.0005555);
+
+    this->mVariableNames.push_back("Ca_Trop");
+    this->mVariableUnits.push_back("millimolar");
+    this->mInitialConditions.push_back(0.0003542);
+    
+    this->mInitialised = true;
+}
+
 
 #endif

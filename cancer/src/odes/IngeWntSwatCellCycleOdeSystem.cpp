@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
+#include "CellwiseOdeSystemInformation.hpp"
 
 IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel, const CellMutationState& rMutationState)
         : AbstractOdeSystem(22)
@@ -37,6 +38,8 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     mHypothesis = hypothesis;
     mMutationState = rMutationState;
 
+    mpSystemInfo.reset(new CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>);
+    
     /**
      * State variables are
      *
@@ -103,52 +106,22 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
             NEVER_REACHED;
     }
 
-    mVariableNames.push_back("pRb");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(7.357000000000000e-01);
 
-    mVariableNames.push_back("E2F1");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(1.713000000000000e-01);
-
-    mVariableNames.push_back("CycD_i");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(6.900000000000001e-02);
-
-    mVariableNames.push_back("CycD_a");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(3.333333333333334e-03);
-
-    mVariableNames.push_back("pRb_p");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(1.000000000000000e-04);
-
+    // Cell-specific initial conditions
     double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
-
-    mVariableNames.push_back("D");  // Destruction complex (APC/Axin/GSK3B)
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(steady_D);
+    SetInitialConditionsComponent(5u, steady_D); // Destruction complex (APC/Axin/GSK3B)
 
     double temp = (mSx*(d_d_hat+d_d_x_hat))/((1.0-sigma_D)*mSd*d_d_hat+d_x_hat*(d_d_hat+d_d_x_hat));
-
-    mVariableNames.push_back("X");  // Axin
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(temp);
+    SetInitialConditionsComponent(6u, temp);  // Axin
 
     double steady_Cf = ((mSc-mDc*mKd - mPu*steady_D)+sqrt(pow((mSc-mDc*mKd - mPu*steady_D),2) + (4.0*mSc*mDc*mKd)))/(2.0*mDc);
     temp = (mPu*steady_D*steady_Cf)/(mDu*(steady_Cf+mKd));
-
-    mVariableNames.push_back("Cu"); // beta-catenin to be ubiquitinated
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(temp);
+    SetInitialConditionsComponent(7u, temp); // beta-catenin to be ubiquitinated
 
     double theta = mDc+ (mPu*steady_D)/(steady_Cf + mKd);
 
     double steady_Co = ( mSc - p_c_hat - theta*mKc + sqrt(4.0*mSc*theta*mKc + pow((mSc - p_c_hat - theta*mKc),2)) )/(2.0*theta);
-
-    mVariableNames.push_back("Co"); // Open form beta-catenin
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(steady_Co);
+    SetInitialConditionsComponent(8u, steady_Co); // Open form beta-catenin
 
     double steady_Cc = steady_Cf - steady_Co;
 
@@ -156,60 +129,22 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     {
         steady_Cc = 0.0;
     }
+    SetInitialConditionsComponent(9u, steady_Cc); // Closed form beta-catenin
 
-    mVariableNames.push_back("Cc"); // Closed form beta-catenin
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(steady_Cc);
+    SetInitialConditionsComponent(12u, mSa/mDa);  // 'Free' adhesion molecules
 
-    mVariableNames.push_back("Mo"); // Open form mutant beta-catenin
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
+    SetInitialConditionsComponent(13u, mSa*mSca*steady_Co/(mDa*mDca)); // Co-A Adhesion complex
 
-    mVariableNames.push_back("Mc"); // Closed form mutant beta-catenin
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
+    SetInitialConditionsComponent(15u, mSt/mDt); // `Free' transcription molecules (TCF)
 
-    mVariableNames.push_back("A");  // 'Free' adhesion molecules
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(mSa/mDa);
+    SetInitialConditionsComponent(16u, mSct*mSt*steady_Co/(mDt*mDct)); // Co-T open form beta-catenin/TCF
 
-    mVariableNames.push_back("Ca"); // Co-A Adhesion complex
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(mSa*mSca*steady_Co/(mDa*mDca));
-
-    mVariableNames.push_back("Ma"); // Mo-A Mutant adhesion complex
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
-
-    mVariableNames.push_back("T"); // `Free' transcription molecules (TCF)
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(mSt/mDt);
-
-    mVariableNames.push_back("Cot"); // Co-T open form beta-catenin/TCF
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(mSct*mSt*steady_Co/(mDt*mDct));
-
-    mVariableNames.push_back("Cct"); // Cc-T closed beta-catenin/TCF
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(mSct*mSt*steady_Cc/(mDt*mDct));
-
-    mVariableNames.push_back("Mot"); // Mo-T open form mutant beta-catenin/TCF
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
-
-    mVariableNames.push_back("Mct"); // Mc-T closed form mutant beta-catenin/TCF
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
+    SetInitialConditionsComponent(17u, mSct*mSt*steady_Cc/(mDt*mDct)); // Cc-T closed beta-catenin/TCF
 
     temp = (mSct*mSt*mSy*steady_Cf)/(mDy*(mSct*mSt*steady_Cf + mDct*mDt*mKt));
+    SetInitialConditionsComponent(20u, temp); // Wnt target protein
 
-    mVariableNames.push_back("Y"); // Wnt target protein
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(temp);
-
-    mVariableNames.push_back("Sw"); // Wnt stimulus
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(wntLevel);
+    SetInitialConditionsComponent(21u, wntLevel); // Wnt stimulus
 }
 
 void IngeWntSwatCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
@@ -450,4 +385,99 @@ bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const st
     std::vector<double> dy(rY.size());
     EvaluateYDerivatives(time, rY, dy);
     return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
+}
+
+
+template<>
+void CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>::Initialise(void)
+{
+    this->mVariableNames.push_back("pRb");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(7.357000000000000e-01);
+
+    this->mVariableNames.push_back("E2F1");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(1.713000000000000e-01);
+
+    this->mVariableNames.push_back("CycD_i");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(6.900000000000001e-02);
+
+    this->mVariableNames.push_back("CycD_a");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(3.333333333333334e-03);
+
+    this->mVariableNames.push_back("pRb_p");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(1.000000000000000e-04);
+
+    this->mVariableNames.push_back("D");  // Destruction complex (APC/Axin/GSK3B)
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("X");  // Axin
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Cu"); // beta-catenin to be ubiquitinated
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Co"); // Open form beta-catenin
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Cc"); // Closed form beta-catenin
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Mo"); // Open form mutant beta-catenin
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mVariableNames.push_back("Mc"); // Closed form mutant beta-catenin
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mVariableNames.push_back("A");  // 'Free' adhesion molecules
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Ca"); // Co-A Adhesion complex
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Ma"); // Mo-A Mutant adhesion complex
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mVariableNames.push_back("T"); // `Free' transcription molecules (TCF)
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Cot"); // Co-T open form beta-catenin/TCF
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Cct"); // Cc-T closed beta-catenin/TCF
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Mot"); // Mo-T open form mutant beta-catenin/TCF
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mVariableNames.push_back("Mct"); // Mc-T closed form mutant beta-catenin/TCF
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mVariableNames.push_back("Y"); // Wnt target protein
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Sw"); // Wnt stimulus
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+    
+    this->mInitialised = true;
 }

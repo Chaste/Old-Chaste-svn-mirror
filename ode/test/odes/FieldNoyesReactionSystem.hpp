@@ -32,17 +32,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef FIELDNOYESREACTIONSYSTEM_HPP_
 #define FIELDNOYESREACTIONSYSTEM_HPP_
-#include "AbstractOdeSystem.hpp"
 
+#include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
 class FieldNoyesReactionSystem : public AbstractOdeSystem
 {
 public :
     FieldNoyesReactionSystem() : AbstractOdeSystem(3)
     {
-        mInitialConditions.push_back(1.0);
-        mInitialConditions.push_back(1.0);
-        mInitialConditions.push_back(1.0);
+        mpSystemInfo = OdeSystemInformation<FieldNoyesReactionSystem>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -56,7 +55,24 @@ public :
         rDY[1] = -rY[1] - rY[0]*rY[1] + 2*f*rY[2];
         rDY[2] = (rY[0] - rY[2])/p;
     }
-
 };
+
+template<>
+void OdeSystemInformation<FieldNoyesReactionSystem>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mVariableNames.push_back("Variable 2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mVariableNames.push_back("Variable 3");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mInitialised = true;
+}
 
 #endif /*FIELDNOYESREACTIONSYSTEM_HPP_*/

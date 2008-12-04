@@ -32,8 +32,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <string>
-#include "Exception.hpp"
 #include <cassert>
+
+#include <boost/shared_ptr.hpp>
+
+#include "Exception.hpp"
+#include "AbstractOdeSystemInformation.hpp"
 
 /**
  * Abstract OdeSystem class.
@@ -46,10 +50,16 @@ class AbstractOdeSystem
 protected:
     unsigned mNumberOfStateVariables;
     std::vector<double> mStateVariables;
-    std::vector<double> mInitialConditions;
-    std::vector<std::string> mVariableNames;
-    std::vector<std::string> mVariableUnits;
 
+    /**
+     * Information about the concrete ODE system class.
+     *
+     * Subclasses need to set this in their constructor to point to an instance
+     * of a suitable class.  See for example the OdeSystemInformation class.
+     */
+    boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
+
+    /// Whether to use an analytic Jacobian.
     bool mUseAnalytic;
 
 public:
@@ -87,7 +97,8 @@ public:
         {
             EXCEPTION("The number of initial conditions must be that of the number of state variables");
         }
-        mInitialConditions=rInitialConditions;
+        assert(mpSystemInfo);
+        mpSystemInfo->SetInitialConditions(rInitialConditions);
     }
 
     void SetInitialConditionsComponent(unsigned index, double initialCondition)
@@ -96,18 +107,20 @@ public:
         {
             EXCEPTION("Index is greater than the number of state variables");
         }
-        mInitialConditions[index]=initialCondition;
+        assert(mpSystemInfo);
+        mpSystemInfo->SetInitialConditionsComponent(index, initialCondition);
     }
 
 
     std::vector<double> GetInitialConditions() const
     {
-        return mInitialConditions;
+        assert(mpSystemInfo);
+        return mpSystemInfo->GetInitialConditions();
     }
 
     void SetStateVariables(const std::vector<double>& rStateVariables)
     {
-        if (  mNumberOfStateVariables != rStateVariables.size() )
+        if ( mNumberOfStateVariables != rStateVariables.size() )
         {
             EXCEPTION("The size of the passed in vector must be that of the number of state variables");
         }
@@ -121,26 +134,25 @@ public:
 
     std::vector<std::string>& rGetVariableNames()
     {
-        return mVariableNames;
+        assert(mpSystemInfo);
+        return mpSystemInfo->rGetVariableNames();
     }
 
     std::vector<std::string>& rGetVariableUnits()
     {
-        return mVariableUnits;
+        assert(mpSystemInfo);
+        return mpSystemInfo->rGetVariableUnits();
     }
 
     /**
      *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
      *  only until a particular event (for example, only until the y value becomes
-     *  negative.td::vector<std::string> mVariableUnits;
+     *  negative.
      *
      *  After each timestep the solver will call this method on the ODE to see if
      *  it should stop there. By default, false is returned here.
      */
-    virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
-    {
-        return false;
-    }
+    virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
 
     bool GetUseAnalytic()
     {
@@ -156,14 +168,18 @@ public:
      *
      * @param name The name of a state variable.
      * @return The state variable's position within
-     * the vector of state variables associated with the ODE system.
+     *   the vector of state variables associated with the ODE system.
      */
-    unsigned GetStateVariableNumberByName(const std::string name);
+    unsigned GetStateVariableNumberByName(const std::string name)
+    {
+        assert(mpSystemInfo);
+        return mpSystemInfo->GetStateVariableNumberByName(name);
+    }
 
     /**
      * @param varNumber A state variable's position within
-     * the vector of state variables associated with the ODE system.
-     * @return The units associated with the state variable.
+     *   the vector of state variables associated with the ODE system.
+     * @return The current value of the state variable.
      */
     double GetStateVariableValueByNumber(unsigned varNumber) const
     {
@@ -173,13 +189,14 @@ public:
 
     /**
      * @param varNumber A state variable's position within
-     * the vector of state variables associated with the ODE system.
-     * @return The value of the state variable.
+     *   the vector of state variables associated with the ODE system.
+     * @return The units of the state variable.
      */
     std::string GetStateVariableUnitsByNumber(unsigned varNumber) const
     {
         assert(varNumber < mNumberOfStateVariables);
-        return mVariableUnits[varNumber];
+        assert(mpSystemInfo);
+        return mpSystemInfo->GetStateVariableUnitsByNumber(varNumber);
     }
 
 protected:

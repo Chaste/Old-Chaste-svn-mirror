@@ -27,29 +27,38 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/*
- * Concrete Ode1 class
- */
 #ifndef _ODE1_HPP_
 #define _ODE1_HPP_
+
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
-
+/**
+ * dy/dt = 1, y(0) = 0.
+ */
 class Ode1 : public AbstractOdeSystem
 {
-public :
-
-    Ode1()  : AbstractOdeSystem(1) // 1 here is the number of variables
+public:
+    Ode1() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
-        mInitialConditions.push_back(0.0);
-        mStateVariables = mInitialConditions;
+        mpSystemInfo = OdeSystemInformation<Ode1>::Instance();
+        SetStateVariables(GetInitialConditions());
     }
-
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
         rDY[0]=1.0;
     }
 };
+
+template<>
+void OdeSystemInformation<Ode1>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("Units 1");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
+}
 
 #endif //_ODE1_HPP_

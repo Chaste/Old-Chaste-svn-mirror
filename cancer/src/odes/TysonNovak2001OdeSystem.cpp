@@ -26,47 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "TysonNovak2001OdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
 TysonNovak2001OdeSystem::TysonNovak2001OdeSystem()
         : AbstractOdeSystemWithAnalyticJacobian(6)
 {
-    /*
-     * Initialise state variables.
-     * 
-     * These initial conditions are the approximate steady state
-     * solution values while the commented out conditions are taken
-     * from the Tyson and Noval 2001 paper.
-     */
-    mVariableNames.push_back("CycB");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.1);
-    
-    mVariableNames.push_back("Cdh1");
-    mVariableUnits.push_back("nM");
-//    mInitialConditions.push_back(9.8770e-01);
-    mInitialConditions.push_back(0.98913);
-    
-    mVariableNames.push_back("Cdc20T");
-    mVariableUnits.push_back("nM");
-//    mInitialConditions.push_back(1.5011e+00);
-    mInitialConditions.push_back(1.54217);
-    
-    mVariableNames.push_back("Cdc20A");
-    mVariableUnits.push_back("nM");
-//    mInitialConditions.push_back(1.2924e+00);
-    mInitialConditions.push_back(1.40563);
-    
-    mVariableNames.push_back("IEP");
-    mVariableUnits.push_back("nM");
-//    mInitialConditions.push_back(6.5405e-01);
-    mInitialConditions.push_back(0.67083);
-    
-    mVariableNames.push_back("mass");
-    mVariableUnits.push_back("");
-//    mInitialConditions.push_back(4.7039e-01);
-    mInitialConditions.push_back(0.95328/2.0);
-    
-    mNumberOfStateVariables = 6;
+    mpSystemInfo = OdeSystemInformation<TysonNovak2001OdeSystem>::Instance();
     
     Init();
 }
@@ -250,4 +215,46 @@ bool TysonNovak2001OdeSystem::CalculateStoppingEvent(double time, const std::vec
     // Only call this a stopping condition if the mass of the cell is over 0.6
     // (normally cycles from 0.5-1.0 ish!)
     return ( (rY[5] > 0.6 )&& (fabs(rY[0]-mCycB_threshold) < 1.0e-2 && dy[0] < 0.0));
+}
+
+template<>
+void OdeSystemInformation<TysonNovak2001OdeSystem>::Initialise(void)
+{
+    /*
+     * Initialise state variables.
+     * 
+     * These initial conditions are the approximate steady state
+     * solution values while the commented out conditions are taken
+     * from the Tyson and Noval 2001 paper.
+     */
+    this->mVariableNames.push_back("CycB");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(0.1);
+    
+    this->mVariableNames.push_back("Cdh1");
+    this->mVariableUnits.push_back("nM");
+//    this->mInitialConditions.push_back(9.8770e-01);
+    this->mInitialConditions.push_back(0.98913);
+    
+    this->mVariableNames.push_back("Cdc20T");
+    this->mVariableUnits.push_back("nM");
+//    this->mInitialConditions.push_back(1.5011e+00);
+    this->mInitialConditions.push_back(1.54217);
+    
+    this->mVariableNames.push_back("Cdc20A");
+    this->mVariableUnits.push_back("nM");
+//    this->mInitialConditions.push_back(1.2924e+00);
+    this->mInitialConditions.push_back(1.40563);
+    
+    this->mVariableNames.push_back("IEP");
+    this->mVariableUnits.push_back("nM");
+//    this->mInitialConditions.push_back(6.5405e-01);
+    this->mInitialConditions.push_back(0.67083);
+    
+    this->mVariableNames.push_back("mass");
+    this->mVariableUnits.push_back("");
+//    this->mInitialConditions.push_back(4.7039e-01);
+    this->mInitialConditions.push_back(0.95328/2.0);
+    
+    this->mInitialised = true;
 }

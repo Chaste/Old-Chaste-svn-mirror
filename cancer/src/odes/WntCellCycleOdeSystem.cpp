@@ -26,10 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "WntCellCycleOdeSystem.hpp"
+#include "CellwiseOdeSystemInformation.hpp"
 
 WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutationState& rMutationState)
         : AbstractOdeSystem(9)
 {
+    mpSystemInfo.reset(new CellwiseOdeSystemInformation<WntCellCycleOdeSystem>);
+    
     /**
      * State variables.
      *
@@ -80,41 +83,11 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
         NEVER_REACHED;
     }
 
-    mVariableNames.push_back("pRb");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(7.357000000000000e-01);
-
-    mVariableNames.push_back("E2F1");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(1.713000000000000e-01);
-
-    mVariableNames.push_back("CycD_i");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(6.900000000000001e-02);
-
-    mVariableNames.push_back("CycD_a");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(3.333333333333334e-03);
-
-    mVariableNames.push_back("pRb_p");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(1.000000000000000e-04);
-
-    mVariableNames.push_back("APC");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(destruction_level);
-
-    mVariableNames.push_back("Beta_Cat1");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(beta_cat_level_1);
-
-    mVariableNames.push_back("Beta_Cat2");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(beta_cat_level_2);
-
-    mVariableNames.push_back("Wnt");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(WntLevel);
+    // Cell-specific initial conditions
+    SetInitialConditionsComponent(5u, destruction_level);
+    SetInitialConditionsComponent(6u, beta_cat_level_1);
+    SetInitialConditionsComponent(7u, beta_cat_level_2);
+    SetInitialConditionsComponent(8u, WntLevel);
 }
 
 void WntCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
@@ -307,4 +280,47 @@ bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vecto
     assert(!isnan(rY[1]));
     assert(!isnan(dY1));
     return (fabs(rY[1]-1.0) < 1.0e-2 && dY1 > 0.0);
+}
+
+
+template<>
+void CellwiseOdeSystemInformation<WntCellCycleOdeSystem>::Initialise(void)
+{
+    this->mVariableNames.push_back("pRb");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(7.357000000000000e-01);
+
+    this->mVariableNames.push_back("E2F1");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(1.713000000000000e-01);
+
+    this->mVariableNames.push_back("CycD_i");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(6.900000000000001e-02);
+
+    this->mVariableNames.push_back("CycD_a");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(3.333333333333334e-03);
+
+    this->mVariableNames.push_back("pRb_p");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(1.000000000000000e-04);
+
+    this->mVariableNames.push_back("APC");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Beta_Cat1");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Beta_Cat2");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+
+    this->mVariableNames.push_back("Wnt");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+    
+    this->mInitialised = true;
 }

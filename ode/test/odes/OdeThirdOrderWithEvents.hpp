@@ -27,23 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#ifndef _ODETHIRDORDERWITHEVENTS_HPP
+#define _ODETHIRDORDERWITHEVENTS_HPP
+
+#include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
+
 /**
   * Concrete OdeThirdOrder class with events
   */
-#ifndef _ODETHIRDORDERWITHEVENTS_HPP
-#define _ODETHIRDORDERWITHEVENTS_HPP
-#include "AbstractOdeSystem.hpp"
-
-
 class OdeThirdOrderWithEvents : public AbstractOdeSystem
 {
 public :
     OdeThirdOrderWithEvents()
             : AbstractOdeSystem(3) // 3 here is the number of unknowns
     {
-        mInitialConditions.push_back(0.0);
-        mInitialConditions.push_back(1.0);
-        mInitialConditions.push_back(0.0);
+        mpSystemInfo = OdeSystemInformation<OdeThirdOrderWithEvents>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -58,5 +57,23 @@ public :
         return (rY[0]<-0.5);
     }
 };
+
+template<>
+void OdeSystemInformation<OdeThirdOrderWithEvents>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mVariableNames.push_back("Variable 2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mVariableNames.push_back("Variable 3");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
+}
 
 #endif //_ODETHIRDORDERWITHEVENTS_HPP

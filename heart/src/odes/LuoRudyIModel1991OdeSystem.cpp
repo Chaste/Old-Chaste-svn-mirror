@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 #include <cmath>
 
 //#include <iostream>
@@ -39,43 +40,11 @@ LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSo
                                                        AbstractStimulusFunction *pExtracellularStimulus)
         : AbstractCardiacCell(pSolver, 8, 4, pIntracellularStimulus, pExtracellularStimulus)
 {
+    mpSystemInfo = OdeSystemInformation<LuoRudyIModel1991OdeSystem>::Instance();
+    
     // set the final paramter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
-    
-
-    // State variables
-    mVariableNames.push_back("h");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.9804713);
-    
-    mVariableNames.push_back("j");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.98767124);
-    
-    mVariableNames.push_back("m");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00187018);
-    
-    mVariableNames.push_back("CaI");
-    mVariableUnits.push_back("mMol");
-    mInitialConditions.push_back(0.0002);
-    
-    mVariableNames.push_back("V");
-    mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(-83.853);
-    
-    mVariableNames.push_back("d");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00316354);
-    
-    mVariableNames.push_back("f");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.99427859);
-    
-    mVariableNames.push_back("x");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.16647703);
     
     AbstractCardiacCell::Init();
 }
@@ -334,4 +303,46 @@ void LuoRudyIModel1991OdeSystem::VerifyStateVariables()
         EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     #undef COVERAGE_IGNORE
+}
+
+
+    
+
+template<>
+void OdeSystemInformation<LuoRudyIModel1991OdeSystem>::Initialise(void)
+{
+    // State variables
+    this->mVariableNames.push_back("h");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.9804713);
+    
+    this->mVariableNames.push_back("j");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.98767124);
+    
+    this->mVariableNames.push_back("m");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.00187018);
+    
+    this->mVariableNames.push_back("CaI");
+    this->mVariableUnits.push_back("mMol");
+    this->mInitialConditions.push_back(0.0002);
+    
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("mV");
+    this->mInitialConditions.push_back(-83.853);
+    
+    this->mVariableNames.push_back("d");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.00316354);
+    
+    this->mVariableNames.push_back("f");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.99427859);
+    
+    this->mVariableNames.push_back("x");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.16647703);
+    
+    this->mInitialised = true;
 }

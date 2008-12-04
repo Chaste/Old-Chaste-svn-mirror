@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "Exception.hpp"
 #include "CardiacNewtonSolver.hpp"
+#include "OdeSystemInformation.hpp"
 
 #include <cmath>
 #include <cassert>
@@ -71,44 +72,51 @@ BackwardEulerLuoRudyIModel1991::~BackwardEulerLuoRudyIModel1991(void)
 
 void BackwardEulerLuoRudyIModel1991::Init()
 {
+    mpSystemInfo = OdeSystemInformation<BackwardEulerLuoRudyIModel1991>::Instance();
+        
     // set final parameter member variable
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                 log(ionic_concentrations_Nao / ionic_concentrations_Nai);
 
-    // state variables
-    mVariableNames.push_back("h");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.9804713);
-    
-    mVariableNames.push_back("j");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.98767124);
-    
-    mVariableNames.push_back("m");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00187018);
-    
-    mVariableNames.push_back("CaI");
-    mVariableUnits.push_back("mMol");
-    mInitialConditions.push_back(0.0002);
-    
-    mVariableNames.push_back("V");
-    mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(-83.853);
-    
-    mVariableNames.push_back("d");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00316354);
-    
-    mVariableNames.push_back("f");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.99427859);
-    
-    mVariableNames.push_back("x");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.16647703);
-
     AbstractCardiacCell::Init();
+}
+
+template<>
+void OdeSystemInformation<BackwardEulerLuoRudyIModel1991>::Initialise(void)
+{
+    this->mVariableNames.push_back("h");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.9804713);
+    
+    this->mVariableNames.push_back("j");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.98767124);
+    
+    this->mVariableNames.push_back("m");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.00187018);
+    
+    this->mVariableNames.push_back("CaI");
+    this->mVariableUnits.push_back("mMol");
+    this->mInitialConditions.push_back(0.0002);
+    
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("mV");
+    this->mInitialConditions.push_back(-83.853);
+    
+    this->mVariableNames.push_back("d");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.00316354);
+    
+    this->mVariableNames.push_back("f");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.99427859);
+    
+    this->mVariableNames.push_back("x");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.16647703);
+    
+    this->mInitialised = true;
 }
 
 double BackwardEulerLuoRudyIModel1991::GetIntracellularCalciumConcentration()

@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "FitzHughNagumo1961OdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 #include <cmath>
 
 /**
@@ -37,16 +38,7 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *p
                                                         )
         : AbstractCardiacCell(pOdeSolver,2,0,pIntracellularStimulus,pExtracellularStimulus)
 {
-    /*
-     * State variables
-     */
-    mVariableNames.push_back("V");
-    mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(0.0);
-    
-    mVariableNames.push_back("w");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.0);
+    mpSystemInfo = OdeSystemInformation<FitzHughNagumo1961OdeSystem>::Instance();
     
     AbstractCardiacCell::Init();
 }
@@ -93,4 +85,24 @@ double FitzHughNagumo1961OdeSystem::GetIIonic()
     double recovery_variable = mStateVariables[1];
     double fake_ionic_current = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable;
     return fake_ionic_current;
+}
+
+
+
+
+template<>
+void OdeSystemInformation<FitzHughNagumo1961OdeSystem>::Initialise(void)
+{
+    /*
+     * State variables
+     */
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("mV");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mVariableNames.push_back("w");
+    this->mVariableUnits.push_back("");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
 }

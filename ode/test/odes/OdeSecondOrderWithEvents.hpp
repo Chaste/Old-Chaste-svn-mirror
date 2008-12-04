@@ -29,8 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _ODESECONDORDERWITHEVENTS_HPP_
 #define _ODESECONDORDERWITHEVENTS_HPP_
-#include "AbstractOdeSystem.hpp"
 
+#include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
 class OdeSecondOrderWithEvents : public AbstractOdeSystem
 {
@@ -38,11 +39,8 @@ public :
     OdeSecondOrderWithEvents()
             : AbstractOdeSystem(2)  // 2 here is the number of variables
     {
-        // set initial conditions
-        mInitialConditions.push_back(1.0);
-        mInitialConditions.push_back(0.0);
+        mpSystemInfo = OdeSystemInformation<OdeSecondOrderWithEvents>::Instance();
     }
-
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
@@ -50,11 +48,24 @@ public :
         rDY[1] = -rY[0];
     }
 
-
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
         return (rY[0]<0);
     }
 };
+
+template<>
+void OdeSystemInformation<OdeSecondOrderWithEvents>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(1.0);
+    
+    this->mVariableNames.push_back("Variable 2");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
+}
 
 #endif //_ODESECONDORDERWITHEVENTS_HPP_

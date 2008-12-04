@@ -26,10 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "Lee2003WntSignallingOdeSystem.hpp"
+#include "CellwiseOdeSystemInformation.hpp"
 
 Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
         : AbstractOdeSystem(8)
 {
+    mpSystemInfo.reset(new CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>);
+    
     /**
      * The state variables are
      *
@@ -45,41 +48,8 @@ Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
 
     Init(); // set up parameters values
 
-    // Unstimulated state first of all...
-
-    mVariableNames.push_back("Dsh_active");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
-
-    mVariableNames.push_back("APC_axin_GSK3");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(4.83e-3);
-
-    mVariableNames.push_back("beta_cat_P_APC_P_axin_P_GSK3");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(2.02e-3);
-
-    mVariableNames.push_back("beta_cat_P");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(1.00);
-
-    mVariableNames.push_back("APC_P_axin_P_GSK3");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(9.66e-3);
-
-    mVariableNames.push_back("beta_cat");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(25.1);
-
-    mVariableNames.push_back("axin");
-    mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(4.93e-4);
-
-    mVariableNames.push_back("Wnt");
-    mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(WntLevel);
-
-    mNumberOfStateVariables = 8;
+    // Cell-specific initial conditions
+    SetInitialConditionsComponent(7u, WntLevel);
 }
 
 Lee2003WntSignallingOdeSystem::~Lee2003WntSignallingOdeSystem(void)
@@ -164,4 +134,43 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[5] = dX11*factor;
     rDY[6] = dX12*factor;
     rDY[7] = 0.0; // do not change the Wnt level
+}
+
+
+template<>
+void CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>::Initialise(void)
+{
+    this->mVariableNames.push_back("Dsh_active");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mVariableNames.push_back("APC_axin_GSK3");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(4.83e-3);
+
+    this->mVariableNames.push_back("beta_cat_P_APC_P_axin_P_GSK3");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(2.02e-3);
+
+    this->mVariableNames.push_back("beta_cat_P");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(1.00);
+
+    this->mVariableNames.push_back("APC_P_axin_P_GSK3");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(9.66e-3);
+
+    this->mVariableNames.push_back("beta_cat");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(25.1);
+
+    this->mVariableNames.push_back("axin");
+    this->mVariableUnits.push_back("nM");
+    this->mInitialConditions.push_back(4.93e-4);
+
+    this->mVariableNames.push_back("Wnt");
+    this->mVariableUnits.push_back("non_dim");
+    this->mInitialConditions.push_back(NAN); // will be filled in later
+    
+    this->mInitialised = true;
 }

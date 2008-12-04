@@ -31,14 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ODE5_HPP_
 
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 
-
+/**
+ * dy/dt = 100 y (1-y), y(0) = 0.2.
+ */
 class Ode5 : public AbstractOdeSystem
 {
 public :
     Ode5() : AbstractOdeSystem(1)  // 1 here is the number of unknowns
     {
-        mInitialConditions.push_back(0.2);
+        mpSystemInfo = OdeSystemInformation<Ode5>::Instance();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
@@ -46,7 +49,16 @@ public :
         double alpha = 100;
         rDY[0]=alpha*rY[0]*(1-rY[0]);
     }
-
 };
+
+template<>
+void OdeSystemInformation<Ode5>::Initialise(void)
+{
+    this->mVariableNames.push_back("Variable 1");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.2);
+    
+    this->mInitialised = true;
+}
 
 #endif /*ODE5_HPP_*/
