@@ -51,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* This header defines a helper class that is useful for generating a
  * vector of cells */
 #include "FixedCellCycleModelCellsGenerator.hpp"
+#include "WntCellCycleModelCellsGenerator.hpp"
 /* These are the classes that will be used in these tests */
 #include "HoneycombMeshGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
