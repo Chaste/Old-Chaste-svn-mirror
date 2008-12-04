@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <cmath>
 #include "AbstractOdeSystem.hpp"
+#include "OdeSystemInformation.hpp"
 #include "AbstractGrowingTumourSourceModel.hpp"
 
 
@@ -59,11 +60,11 @@ public:
         mRho = rho;
         assert(pSourceModel!=NULL);
         mpSourceModel = pSourceModel;
-
-        mInitialConditions.push_back(1.0);
-
-        SetStateVariables(mInitialConditions);
-    }
+        
+        mpSystemInfo = OdeSystemInformation<GrowthByConstantMassOdeSystem<DIM> >::Instance(); 
+         
+        SetStateVariables(GetInitialConditions());
+      }
 
     ~GrowthByConstantMassOdeSystem()
     {}
@@ -74,6 +75,26 @@ public:
         double s = mpSourceModel->GetSourceValue(mSourceModelIndex);
         rDY[0] = (1.0/DIM)*rY[0]*mRho*s;
     }
+    
 
 };
+
+///\todo Don't know how to make this template generic
+template<>
+void OdeSystemInformation< GrowthByConstantMassOdeSystem<2> >::Initialise(void)
+{
+    this->mVariableNames.push_back("Dunno");
+    this->mVariableUnits.push_back("Dunno");
+    this->mInitialConditions.push_back(1.0);
+    this->mInitialised = true;
+}
+template<>
+void OdeSystemInformation< GrowthByConstantMassOdeSystem<3> >::Initialise(void)
+{
+    this->mVariableNames.push_back("Dunno");
+    this->mVariableUnits.push_back("Dunno");
+    this->mInitialConditions.push_back(1.0);
+    this->mInitialised = true;
+}
+
 #endif /*GROWTHBYCONSTANTMASSODESYSTEM_HPP_*/

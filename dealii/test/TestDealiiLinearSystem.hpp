@@ -96,8 +96,9 @@ public :
             a(0,1) = a(1,0) = -1/h;
             a(1,1) = 1/h;
             
-            system.AddLhsMultipleValues(nodes,a);
-            system.AddRhsMultipleValues(nodes,b);
+            ///\todo This code (added in r4597) has never compiled
+         //   system.AddLhsMultipleValues(nodes,a);
+         //   system.AddRhsMultipleValues(nodes,b);
         }
 
         system.ZeroMatrixRow(0);
