@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
+#include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
