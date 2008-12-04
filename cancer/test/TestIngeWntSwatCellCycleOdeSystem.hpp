@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptSimulation2d.hpp"
 #include "SloughingCellKiller.hpp"
-#include "IngeWntSwatCellCycleModelHypothesisOneCellsGenerator.hpp"
+#include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
@@ -616,7 +616,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        IngeWntSwatCellCycleModelHypothesisOneCellsGenerator<2> cells_generator;
+        IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         for (unsigned i=0; i<cells.size(); i++)

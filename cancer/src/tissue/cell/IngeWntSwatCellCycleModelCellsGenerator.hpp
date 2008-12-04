@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef INGEWNTSWATCELLCYCLEMODELHYPOTHESISTWOCELLSGENERATOR_HPP_
-#define INGEWNTSWATCELLCYCLEMODELHYPOTHESISTWOCELLSGENERATOR_HPP_
+#ifndef INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_
+#define INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_
 
 #include "AbstractCellsGenerator.hpp"
 #include "IngeWntSwatCellCycleModel.hpp"
@@ -35,9 +35,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A helper class for generating a vector of cells for a given mesh
  */
 template<unsigned DIM>
-class IngeWntSwatCellCycleModelHypothesisTwoCellsGenerator : public AbstractCellsGenerator<DIM>
+class IngeWntSwatCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
 public :
+
+    unsigned mHypothesis;
+
+    IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis)
+    {
+        mHypothesis = hypothesis;
+    }
                                  
     AbstractCellCycleModel* CreateCellCycleModel();
     
@@ -48,21 +55,21 @@ public :
 };
 
 template<unsigned DIM>
-AbstractCellCycleModel* IngeWntSwatCellCycleModelHypothesisTwoCellsGenerator<DIM>::CreateCellCycleModel()
+AbstractCellCycleModel* IngeWntSwatCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-    return new IngeWntSwatCellCycleModel(2u);
+    return new IngeWntSwatCellCycleModel(mHypothesis);
 }
 
 template<unsigned DIM>
-double IngeWntSwatCellCycleModelHypothesisTwoCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
+double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
 {
     return 16.0;
 }
 
 template<unsigned DIM>
-double IngeWntSwatCellCycleModelHypothesisTwoCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
+double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
 {
     return 16.0;
 }
 
-#endif /*INGEWNTSWATCELLCYCLEMODELHYPOTHESISTWOCELLSGENERATOR_HPP_*/
+#endif /*INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_*/

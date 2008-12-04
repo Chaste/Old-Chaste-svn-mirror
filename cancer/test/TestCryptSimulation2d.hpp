@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "TysonNovakCellCycleModelCellsGenerator.hpp"
-#include "IngeWntSwatCellCycleModelHypothesisOneCellsGenerator.hpp"
+#include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
@@ -1048,7 +1048,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        IngeWntSwatCellCycleModelHypothesisOneCellsGenerator<2> cells_generator;
+        IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
         cells_generator.GenerateForCrypt(cells, *p_mesh, false);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);

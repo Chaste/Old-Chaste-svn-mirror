@@ -39,6 +39,12 @@ class AbstractCellsGenerator
 {
 public :
 
+    /**
+     * Default constructor
+     */
+    AbstractCellsGenerator()
+    {}
+
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
     
     virtual double GetTypicalTransitCellCycleTime()=0;

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Meineke2001SpringSystem.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
-#include "IngeWntSwatCellCycleModelHypothesisTwoCellsGenerator.hpp"
+#include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "VoronoiTessellation.hpp"
@@ -452,7 +452,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        IngeWntSwatCellCycleModelHypothesisTwoCellsGenerator<2> cells_generator;
+        IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(2u);
         cells_generator.GenerateForCrypt(cells, *p_mesh, false);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
