@@ -120,23 +120,24 @@ public:
 
     const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobianForElement(unsigned elementIndex) const
     {
-        return mElements[elementIndex]->CalculateJacobian();
+        return mElements[SolveElementMapping(elementIndex)]->CalculateJacobian();
     }
     const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobianForElement(unsigned elementIndex) const
     {
-        return mElements[elementIndex]->CalculateInverseJacobian();
+        return mElements[SolveElementMapping(elementIndex)]->CalculateInverseJacobian();
     }
     double GetJacobianDeterminantForElement(unsigned elementIndex) const
     {
-        return mElements[elementIndex]->CalculateJacobianDeterminant();
+        return mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant();
     }
+    
     const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobianForBoundaryElement(unsigned elementIndex) const
     {
-        return mBoundaryElements[elementIndex]->CalculateInverseJacobian();
-    }
+        return mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateInverseJacobian();
+    }    
     double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const
     {
-        return mBoundaryElements[elementIndex]->CalculateJacobianDeterminant();
+        return mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateJacobianDeterminant();
     }
     
 private:
