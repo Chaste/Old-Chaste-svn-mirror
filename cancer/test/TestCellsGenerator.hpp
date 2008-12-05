@@ -31,7 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "FixedCellCycleModelCellsGenerator.hpp"
+#include "SimpleWntCellCycleModelCellsGenerator.hpp"
 #include "StochasticCellCycleModelCellsGenerator.hpp"
+#include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "TysonNovakCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -43,7 +45,7 @@ class TestCellsGenerator : public AbstractCancerTestSuite
 {
 public:
 
-    void TestCellsGeneratorBasic() throw(Exception)
+    void TestFixedCellCycleModelCellsGeneratorGenerateBasic() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
@@ -64,13 +66,10 @@ public:
         }
     }
 
-
-    void TestSimpleCellsGeneratorForCryptRandom() throw(Exception)
+    void TestFixedCellCycleModelCellsGeneratorGenerateForCrypt() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
-
-        FixedCellCycleModelCellsGenerator<2> generator;
 
         std::vector<TissueCell> cells;
 
@@ -78,7 +77,8 @@ public:
         double y1 = 1.0;
         double y2 = 2.0;
         double y3 = 3.0;
-
+        
+        FixedCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, true, y0, y1, y2 ,y3 );
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -111,8 +111,7 @@ public:
         }
     }
 
-
-    void TestSimpleCellsGeneratorForCryptNonRandom() throw(Exception)
+    void TestStochasticCellCycleModelCellsGenerator() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
@@ -159,9 +158,8 @@ public:
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
     }
-
-
-    void TestOdeCellsGeneratorForCryptRandom() throw(Exception)
+    
+    void TestTysonNovakCellCycleModelCellsGenerator() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
@@ -180,7 +178,7 @@ public:
     }
 
 
-    void TestOdeCellsGeneratorForCryptNonRandom() throw(Exception)
+    void TestWntCellCycleModelCellsGenerator() throw(Exception)
     {
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
@@ -195,6 +193,103 @@ public:
         for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+
+            TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
+        }
+    }
+    
+    void TestSimpleWntCellCycleModelCellsGenerator() throw(Exception)
+    {
+        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+
+        SimpleWntCellCycleModelCellsGenerator<2> generator;
+
+        std::vector<TissueCell> cells;
+        generator.GenerateForCrypt(cells, *p_mesh, false);
+
+        TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
+
+        double y0 = 0.3;
+        double y1 = 2.0;
+        double y2 = 3.0;
+        double y3 = 4.0;
+
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+
+            double height = p_mesh->GetNode(i)->rGetLocation()[1];
+            unsigned generation = cells[i].GetCellCycleModel()->GetGeneration();
+            if (height <= y0)
+            {
+                TS_ASSERT_EQUALS(generation, 0u);
+            }
+            else if (height < y1)
+            {
+                TS_ASSERT_EQUALS(generation, 1u);
+            }
+            else if (height < y2)
+            {
+                TS_ASSERT_EQUALS(generation, 2u);
+            }
+            else if (height < y3)
+            {
+                TS_ASSERT_EQUALS(generation, 3u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(generation, 4u);
+            }
+
+            TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
+        }
+    }
+    
+    
+    void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
+    {
+        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+
+        StochasticWntCellCycleModelCellsGenerator<2> generator;
+
+        std::vector<TissueCell> cells;
+        generator.GenerateForCrypt(cells, *p_mesh, false);
+
+        TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
+
+        double y0 = 0.3;
+        double y1 = 2.0;
+        double y2 = 3.0;
+        double y3 = 4.0;
+
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+
+            double height = p_mesh->GetNode(i)->rGetLocation()[1];
+            unsigned generation = cells[i].GetCellCycleModel()->GetGeneration();
+            if (height <= y0)
+            {
+                TS_ASSERT_EQUALS(generation, 0u);
+            }
+            else if (height < y1)
+            {
+                TS_ASSERT_EQUALS(generation, 1u);
+            }
+            else if (height < y2)
+            {
+                TS_ASSERT_EQUALS(generation, 2u);
+            }
+            else if (height < y3)
+            {
+                TS_ASSERT_EQUALS(generation, 3u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(generation, 4u);
+            }
 
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
