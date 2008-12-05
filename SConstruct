@@ -125,6 +125,7 @@ SConsignFile('.sconsign')
 comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'dealii': ['heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'notforrelease': ['heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+             'notforrelease-cancer': ['cancer', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'heart': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'pde': ['mesh', 'linalg', 'io', 'global'],
              'mesh': ['linalg', 'global'],
@@ -134,7 +135,8 @@ comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'global': [],
              'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
 SConsTools.comp_deps = comp_deps
-components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde', 'heart', 'cancer', 'notforrelease']
+components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde',
+              'heart', 'cancer', 'notforrelease', 'notforrelease-cancer']
 if build.using_dealii:
     components = components + ['dealii']
 # Ignore non-existent components

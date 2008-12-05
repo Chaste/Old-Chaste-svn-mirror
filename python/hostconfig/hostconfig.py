@@ -70,6 +70,8 @@ elif machine_fqdn in [ "clpc129.comlab.ox.ac.uk"]:
     import phil as conf
 elif machine_fqdn == "userpc36.comlab.ox.ac.uk":
     import migb as conf
+elif machine_fqdn == "clpc287.comlab.ox.ac.uk":
+    import jonc as conf
 elif machine_fqdn == "pc-gary.physiol.ox.ac.uk":
     import garym as conf
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
