@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
 #include "Ode1.hpp"
+#include "Ode2.hpp"
 #include "Ode4.hpp"
 #include "OdeFirstOrder.hpp"
 #include "OdeSecondOrder.hpp"
@@ -156,6 +157,19 @@ private :
 
 
 public:
+    void TestCoverageOfWriteToFile() throw (Exception)
+    {
+        Ode2 ode_system;
+        OdeSolution solutions;
+        EulerIvpOdeSolver solver;
+
+        // Solve
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        solutions = solver.Solve(&ode_system, state_variables, 0.0, 0.1, 0.1, 0.1);
+
+        // Write
+        solutions.WriteToFile("OdeSolution", "Ode2", &ode_system, "time");
+    }
 
     void TestEulerSolver() throw (Exception)
     {

@@ -41,10 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Ode3.hpp"
 #include "TwoDimOdeSystem.hpp"
 #include "VanDerPolOde.hpp"
-#include "EulerIvpOdeSolver.hpp"
 
 // Tolerance for tests
-double tol=0.01;
+const double tol=0.01;
 
 
 class TestAbstractOdeSystem : public CxxTest::TestSuite
