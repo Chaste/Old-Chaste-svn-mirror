@@ -166,8 +166,12 @@ for src_file in src_files:
             count, line_no = count.strip(), line_no.strip()
             if src_line.find('#define COVERAGE_IGNORE') != -1:
                 ignore = True
+                out_file.write("%9s:%5s:%s" % ('ignored', line_no, src_line))
+                break
             elif src_line.find('#undef COVERAGE_IGNORE') != -1:
                 ignore = False
+                out_file.write("%9s:%5s:%s" % ('ignored', line_no, src_line))
+                break
             if line_no == 0:
                 # This is a gcov header line; what it is doesn't matter
                 out_file.write(line)
