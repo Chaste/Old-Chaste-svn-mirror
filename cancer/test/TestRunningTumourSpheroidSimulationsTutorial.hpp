@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTTUMOURSPHEROIDTUTORIAL_HPP_
 #define TESTTUMOURSPHEROIDTUTORIAL_HPP_
 /*
+ * = An example showing how to run tumour spheroid simulations =
+ * 
  * In this tutorial we show how Chaste is used to run discrete tumour
  * spheroid simulations. These types of simulation are similar to
  * crypt simulations, in that they consist of cell cycle models and

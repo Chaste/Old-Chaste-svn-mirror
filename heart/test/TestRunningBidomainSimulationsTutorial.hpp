@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTRUNNINGBIDOMAINSIMULATIONSTUTORIAL_HPP_
 #define TESTRUNNINGBIDOMAINSIMULATIONSTUTORIAL_HPP_
 /*
+ * = An example showing how to run bidomain simulations (for monodomain, it is essentially the same) =
  * == Introduction ==
  *
  * In this tutorial we show how Chaste is used to run a standard bidomain simulation.

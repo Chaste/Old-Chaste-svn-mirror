@@ -36,7 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
 #define TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
 /*
- * = Introduction =
+ * = Examples showing how to run crypt simulations on periodic meshes with different cell cycles models =
+ * == Introduction ==
  *
  * In this tutorial we show how Chaste is used to run discrete crypt
  * simulations.
@@ -67,7 +68,7 @@ class TestRunningCryptSimulationsTutorial : public CxxTest::TestSuite
 public:
     /* EMPTYLINE
      *
-     * = Test 1 - a basic crypt simulation =
+     * == Test 1 - a basic crypt simulation ==
      *
      * EMPTYLINE
      *
@@ -162,7 +163,7 @@ public:
      *
      * EMPTYLINE
      *
-     * = Test 2 - using Wnt based cell-cycle models =
+     * == Test 2 - using Wnt based cell-cycle models ==
      *
      * EMPTYLINE
      *

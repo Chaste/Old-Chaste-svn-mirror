@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTSOLVINGNONLINEARPDESTUTORIAL_HPP_
 
 /*
+ * = An example showing how to solve a nonlinear elliptic PDE. Also includes function-based boundary conditions =
+ * 
  * In this tutorial we show how Chaste can be used to solve a nonlinear elliptic PDEs.
  * We will solve the PDE div.(u grad u) + 1 = 0, on a square domain, with boundary
  * conditions u=0 on y=0; and Neumann boundary conditions: (u grad u).n = 0 on x=0 and x=1;
