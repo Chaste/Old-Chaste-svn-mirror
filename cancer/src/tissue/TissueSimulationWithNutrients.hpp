@@ -806,7 +806,7 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
     for (unsigned i=0; i<this->mrTissue.GetNumRealCells(); i++)
     {
         double distance = norm_2(r_mesh.GetNode(i)->rGetLocation()-centre);
-        distance_cell_map[distance] = &(this->mrTissue.rGetCellAtNodeIndex(i));
+        distance_cell_map[distance] = &(this->mrTissue.rGetCellUsingLocationIndex(i));
 
         if (distance > max_distance_from_centre)
         {

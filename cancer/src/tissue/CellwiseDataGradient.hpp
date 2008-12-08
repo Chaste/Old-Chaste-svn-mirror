@@ -112,7 +112,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
             }
 
             // If no ghost element, get nutrient conc
-            TissueCell& r_cell = r_tissue.rGetCellAtNodeIndex(node_global_index);
+            TissueCell& r_cell = r_tissue.rGetCellUsingLocationIndex(node_global_index);
             double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(&r_cell,0);
 
             // Interpolate gradient
@@ -176,7 +176,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
                         Node<DIM> & adjacent_node= *(r_mesh.GetNode(adjacent_node_global_index));
 
                         double this_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter),0);
-                        TissueCell& adjacent_cell = r_tissue.rGetCellAtNodeIndex(adjacent_node_global_index);
+                        TissueCell& adjacent_cell = r_tissue.rGetCellUsingLocationIndex(adjacent_node_global_index);
                         double adjacent_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(&adjacent_cell,0);
 
                         c_vector<double, DIM> gradient_contribution=zero_vector<double>(DIM);

@@ -143,8 +143,8 @@ double SimpleTissueMechanicsSystem<DIM>::CalculateForceMagnitude(unsigned nodeAG
     assert(!isnan(distanceBetweenNodes));
 
     double rest_length = 1.0;
-    double ageA = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-    double ageB = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+    double ageA = this->mpTissue->rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
+    double ageB = this->mpTissue->rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
     assert(!isnan(ageA));
     assert(!isnan(ageB));
 
@@ -159,15 +159,15 @@ double SimpleTissueMechanicsSystem<DIM>::CalculateForceMagnitude(unsigned nodeAG
     double a_rest_length = 0.5*rest_length;
     double b_rest_length = a_rest_length;
 
-    if (this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    if (this->mpTissue->rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_a = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
+        double time_until_death_a = this->mpTissue->rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
         a_rest_length = a_rest_length*(time_until_death_a)/(p_params->GetApoptosisTime());
     }
 
-    if (this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    if (this->mpTissue->rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_b = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
+        double time_until_death_b = this->mpTissue->rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
         b_rest_length = b_rest_length*(time_until_death_b)/(p_params->GetApoptosisTime());
     }
 
@@ -247,8 +247,8 @@ std::vector<c_vector<double, DIM> >& SimpleTissueMechanicsSystem<DIM>::rCalculat
                 }
 
                 // Get the damping constant for each cell
-                double damping_constantA = GetDampingConstant(this->mpTissue->rGetCellAtNodeIndex(node_a_index));
-                double damping_constantB = GetDampingConstant(this->mpTissue->rGetCellAtNodeIndex(node_b_index));
+                double damping_constantA = GetDampingConstant(this->mpTissue->rGetCellUsingLocationIndex(node_a_index));
+                double damping_constantB = GetDampingConstant(this->mpTissue->rGetCellUsingLocationIndex(node_b_index));
 
                 // Add the contribution to each node's velocity
                 mDrDt[node_a_index] += force/damping_constantA;

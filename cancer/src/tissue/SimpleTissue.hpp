@@ -219,7 +219,7 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
     this->mCells.push_back(newCell);
 
     TissueCell *p_created_cell = &(this->mCells.back());
-    this->mNodeCellMap[new_node_index] = p_created_cell;
+    this->mLocationCellMap[new_node_index] = p_created_cell;
 
     return p_created_cell;
 }
@@ -263,12 +263,12 @@ void SimpleTissue<DIM>::ReMesh()
     if (node_indices != expected_node_indices)
     {
         // Fix up the mappings between cells and nodes
-        this->mNodeCellMap.clear();
+        this->mLocationCellMap.clear();
         unsigned new_node_index = 0;
         for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
         {
             cell_iter->SetLocationIndex(new_node_index);
-            this->mNodeCellMap[new_node_index] = &(*cell_iter);
+            this->mLocationCellMap[new_node_index] = &(*cell_iter);
             new_node_index++;
         }
     }

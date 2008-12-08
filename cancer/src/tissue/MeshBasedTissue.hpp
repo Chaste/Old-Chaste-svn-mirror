@@ -468,7 +468,7 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DI
     this->mCells.push_back(newCell);
 
     TissueCell *p_created_cell = &(this->mCells.back());
-    this->mNodeCellMap[new_node_index] = p_created_cell;
+    this->mLocationCellMap[new_node_index] = p_created_cell;
 
     return p_created_cell;
 }
@@ -484,7 +484,7 @@ void MeshBasedTissue<DIM>::ReMesh()
         UpdateGhostNodesAfterReMesh(map);
 
         // Fix up the mappings between cells and nodes
-        this->mNodeCellMap.clear();
+        this->mLocationCellMap.clear();
         for (std::list<TissueCell>::iterator it = this->mCells.begin();
              it != this->mCells.end();
              ++it)
@@ -495,7 +495,7 @@ void MeshBasedTissue<DIM>::ReMesh()
             assert(!map.IsDeleted(old_node_index));
             unsigned new_node_index = map.GetNewIndex(old_node_index);
             it->SetLocationIndex(new_node_index);
-            this->mNodeCellMap[new_node_index] = &(*it);
+            this->mLocationCellMap[new_node_index] = &(*it);
         }
     }
 
@@ -785,14 +785,14 @@ template<unsigned DIM>
 TissueCell& MeshBasedTissue<DIM>::SpringIterator::rGetCellA()
 {
     assert((*this) != mrTissue.SpringsEnd());
-    return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
+    return mrTissue.rGetCellUsingLocationIndex(mEdgeIter.GetNodeA()->GetIndex());
 }
 
 template<unsigned DIM>
 TissueCell& MeshBasedTissue<DIM>::SpringIterator::rGetCellB()
 {
     assert((*this) != mrTissue.SpringsEnd());
-    return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
+    return mrTissue.rGetCellUsingLocationIndex(mEdgeIter.GetNodeB()->GetIndex());
 }
 
 template<unsigned DIM>
@@ -882,7 +882,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         // Check cell exists in tissue
         unsigned node_index = p_cell->GetLocationIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-        TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
+        TissueCell& r_cell = this->rGetCellUsingLocationIndex(node_index);
 #define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions
         if (&r_cell != p_cell)
         {
@@ -927,7 +927,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
             }
 
             // Check cell exists in tissue
-            TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
+            TissueCell& r_cell = this->rGetCellUsingLocationIndex(node_index);
             if (&r_cell != p_cell)
             {
                 std::cout << "  Mismatch with tissue" << std::endl << std::flush;

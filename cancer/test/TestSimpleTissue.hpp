@@ -417,7 +417,7 @@ public:
             c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
 
             // Get cell at each node
-            TissueCell& r_cell = simple_tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());
+            TissueCell& r_cell = simple_tissue.rGetCellUsingLocationIndex(cell_iter.GetNode()->GetIndex());
 
             // Test GetLocationOfCell()
             TS_ASSERT_DELTA(node_location[0] , simple_tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
@@ -443,14 +443,14 @@ public:
         SimpleTissue<2> simple_tissue(nodes, cells);
 
         // For coverage of WriteResultsToFiles()
-        simple_tissue.rGetCellAtNodeIndex(0).SetCellType(TRANSIT);
-        simple_tissue.rGetCellAtNodeIndex(0).SetMutationState(LABELLED);
-        simple_tissue.rGetCellAtNodeIndex(1).SetCellType(DIFFERENTIATED);
-        simple_tissue.rGetCellAtNodeIndex(1).SetMutationState(APC_ONE_HIT);
-        simple_tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
-        simple_tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
-        simple_tissue.rGetCellAtNodeIndex(4).SetCellType(NECROTIC);
-        simple_tissue.rGetCellAtNodeIndex(4).StartApoptosis();
+        simple_tissue.rGetCellUsingLocationIndex(0).SetCellType(TRANSIT);
+        simple_tissue.rGetCellUsingLocationIndex(0).SetMutationState(LABELLED);
+        simple_tissue.rGetCellUsingLocationIndex(1).SetCellType(DIFFERENTIATED);
+        simple_tissue.rGetCellUsingLocationIndex(1).SetMutationState(APC_ONE_HIT);
+        simple_tissue.rGetCellUsingLocationIndex(2).SetMutationState(APC_TWO_HIT);
+        simple_tissue.rGetCellUsingLocationIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
+        simple_tissue.rGetCellUsingLocationIndex(4).SetCellType(NECROTIC);
+        simple_tissue.rGetCellUsingLocationIndex(4).StartApoptosis();
         simple_tissue.SetCellAncestorsToNodeIndices();
 
         std::string output_directory = "TestSimpleTissueWriters";

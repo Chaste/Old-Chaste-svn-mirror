@@ -416,10 +416,10 @@ public:
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
 
         // Set cells mutation states
-        tissue.rGetCellAtNodeIndex(0).SetMutationState(HEALTHY);
-        tissue.rGetCellAtNodeIndex(1).SetMutationState(LABELLED);
-        tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
-        tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
+        tissue.rGetCellUsingLocationIndex(0).SetMutationState(HEALTHY);
+        tissue.rGetCellUsingLocationIndex(1).SetMutationState(LABELLED);
+        tissue.rGetCellUsingLocationIndex(2).SetMutationState(APC_TWO_HIT);
+        tissue.rGetCellUsingLocationIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
 
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 15.0, 1e-10);
@@ -495,18 +495,18 @@ public:
         stretched_tissue.InitialiseCells();
 
         // Set one of the non-boundary cells to be necrotic
-        stretched_tissue.rGetCellAtNodeIndex(6).SetCellType(NECROTIC);
+        stretched_tissue.rGetCellUsingLocationIndex(6).SetCellType(NECROTIC);
 
         Meineke2001SpringSystem<2> meineke_spring_system(stretched_tissue);
         meineke_spring_system.SetNecroticSprings(true);
 
-        TS_ASSERT_EQUALS( stretched_tissue.rGetCellAtNodeIndex(6).GetCellType(),NECROTIC);
+        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(6).GetCellType(),NECROTIC);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(6,10)), 3.3333, 1e-4);
 
         // Set a neighbouring cell to be necrotic
-        stretched_tissue.rGetCellAtNodeIndex(10).SetCellType(NECROTIC);
+        stretched_tissue.rGetCellUsingLocationIndex(10).SetCellType(NECROTIC);
 
-        TS_ASSERT_EQUALS( stretched_tissue.rGetCellAtNodeIndex(10).GetCellType(),NECROTIC);
+        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(10).GetCellType(),NECROTIC);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(6,10)), 1.8750, 1e-4);
 
         // Now do the same thing but for a squashed tissue
@@ -521,14 +521,14 @@ public:
         MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, ghost_node_indices2);
         squashed_tissue.InitialiseCells();
 
-        squashed_tissue.rGetCellAtNodeIndex(6).SetCellType(NECROTIC);
+        squashed_tissue.rGetCellUsingLocationIndex(6).SetCellType(NECROTIC);
 
         Meineke2001SpringSystem<2> meineke_spring_system2(squashed_tissue);
         meineke_spring_system2.SetNecroticSprings(true);
 
         TS_ASSERT_DELTA( norm_2(meineke_spring_system2.CalculateForceBetweenNodes(6,10)), 4.0909, 1e-4);
 
-        squashed_tissue.rGetCellAtNodeIndex(10).SetCellType(NECROTIC);
+        squashed_tissue.rGetCellUsingLocationIndex(10).SetCellType(NECROTIC);
 
         TS_ASSERT_DELTA( norm_2(meineke_spring_system2.CalculateForceBetweenNodes(6,10)), 2.8125, 1e-4);
     }

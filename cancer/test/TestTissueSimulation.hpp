@@ -206,9 +206,9 @@ public:
         TS_ASSERT_DELTA(norm_2(distance_between), 0.7029, 1e-3);
 
         // Test the Wnt gradient result
-        TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(302));
+        TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(302));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.999, 1e-3);
-        p_cell = &(crypt.rGetCellAtNodeIndex(506));
+        p_cell = &(crypt.rGetCellUsingLocationIndex(506));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.989, 1e-3);
 
         // Tidy up

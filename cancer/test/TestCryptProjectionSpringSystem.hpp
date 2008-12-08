@@ -91,7 +91,7 @@ public:
 
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.MarkSpring(tissue.rGetCellAtNodeIndex(4), tissue.rGetCellAtNodeIndex(5));
+        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(4), tissue.rGetCellUsingLocationIndex(5));
 
         // Test it is possible to construct a spring system
         TS_ASSERT_THROWS_NOTHING(CryptProjectionSpringSystem spring_system(tissue));
@@ -176,7 +176,7 @@ public:
         TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0 , 1e-4);
 
-        tissue.UnmarkSpring(tissue.rGetCellAtNodeIndex(4), tissue.rGetCellAtNodeIndex(5));
+        tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(4), tissue.rGetCellUsingLocationIndex(5));
 
         // Test velocity calculation for a particular node
         std::vector<c_vector<double, 2> >& velocities_on_each_node = spring_system.rCalculateVelocitiesOfEachNode();
@@ -248,7 +248,7 @@ public:
 
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.MarkSpring(tissue.rGetCellAtNodeIndex(4), tissue.rGetCellAtNodeIndex(5));
+        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(4), tissue.rGetCellUsingLocationIndex(5));
 
         WntConcentration::Instance()->SetType(RADIAL);
         WntConcentration::Instance()->SetTissue(tissue);

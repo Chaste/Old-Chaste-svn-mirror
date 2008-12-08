@@ -324,7 +324,7 @@ public:
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
         TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
-        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(5));
+        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(5));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9702, 1e-4);
 
         CellwiseData<2>::Destroy();
@@ -743,10 +743,10 @@ public:
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(),true);
 
         // Test the CellwiseData result
-        TissueCell* p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(5));
+        TissueCell* p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(5));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
 
-        p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(15));
+        p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(15));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
 
         delete p_simulator;
@@ -909,10 +909,10 @@ public:
 ////        TS_ASSERT_DELTA(node_15_location[1], 2.5977, 1e-4);
 ////
 ////        // Test the CellwiseData result
-////        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(5));
+////        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(5));
 ////        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
 ////
-////        p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(15));
+////        p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(15));
 ////        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
 //
 //        // Tidy up

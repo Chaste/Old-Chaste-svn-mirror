@@ -53,8 +53,8 @@ protected:
     /** List of cells */
     std::list<TissueCell> mCells;
 
-    /** Map node indices back to cells */
-    std::map<unsigned, TissueCell*> mNodeCellMap;
+    /** Map location (node or VertexElement) indices back to cells */
+    std::map<unsigned, TissueCell*> mLocationCellMap;
 
     /** Current cell mutation state counts */
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> mCellMutationStateCount;
@@ -94,7 +94,7 @@ protected:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & mCells;
-        archive & mNodeCellMap;
+        archive & mLocationCellMap;
         archive & mTissueContainsMesh;
         archive & mTissueContainsGhostNodes;
     }
@@ -243,7 +243,7 @@ public:
      *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors.
      *  An assertion fails if not.
      */
-    TissueCell& rGetCellAtNodeIndex(unsigned index);
+    TissueCell& rGetCellUsingLocationIndex(unsigned index);
 
     virtual void CreateOutputFiles(const std::string &rDirectory,
                                    bool rCleanOutputDirectory,
@@ -371,8 +371,8 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     {
         /// \todo Check it points to a real cell; if not do
         /// it = this->mCells.erase(it); --it; continue;
-        unsigned node_index = it->GetLocationIndex();
-        mNodeCellMap[node_index] = &(*it);
+        unsigned index = it->GetLocationIndex();
+        mLocationCellMap[index] = &(*it);
     }
 
     // Initialise cell counts to zero
@@ -494,9 +494,9 @@ bool AbstractTissue<DIM>::IsGhostNode(unsigned index)
 }
 
 template<unsigned DIM>
-TissueCell& AbstractTissue<DIM>::rGetCellAtNodeIndex(unsigned index)
+TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
 {
-    return *(mNodeCellMap[index]);
+    return *(mLocationCellMap[index]);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -737,7 +737,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         }
         else
         {
-            TissueCell* p_cell = mNodeCellMap[index];
+            TissueCell* p_cell = mLocationCellMap[index];
 
             if (outputCellCyclePhases)
             {

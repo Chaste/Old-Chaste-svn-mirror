@@ -467,9 +467,9 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
 
         // Test the Wnt gradient result
-        TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
+        TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(28));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
-        p_cell = &(crypt.rGetCellAtNodeIndex(120));
+        p_cell = &(crypt.rGetCellUsingLocationIndex(120));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
         WntConcentration::Destroy();
 
@@ -567,9 +567,9 @@ public:
         TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(),true);
 
         // Test the Wnt gradient result
-        TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(28));
+        TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
-        p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(120));
+        p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(120));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
 
         delete p_simulator1;
@@ -711,10 +711,10 @@ public:
 
         // Test that labelling a few cells doesn't make any difference to the simulation
         // and therefore log them in the visualizer files for the next test to check.
-        simulator.rGetTissue().rGetCellAtNodeIndex(57).SetMutationState(LABELLED);
-        simulator.rGetTissue().rGetCellAtNodeIndex(56).SetMutationState(APC_ONE_HIT);
-        simulator.rGetTissue().rGetCellAtNodeIndex(51).SetMutationState(APC_TWO_HIT);
-        simulator.rGetTissue().rGetCellAtNodeIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
+        simulator.rGetTissue().rGetCellUsingLocationIndex(57).SetMutationState(LABELLED);
+        simulator.rGetTissue().rGetCellUsingLocationIndex(56).SetMutationState(APC_ONE_HIT);
+        simulator.rGetTissue().rGetCellUsingLocationIndex(51).SetMutationState(APC_TWO_HIT);
+        simulator.rGetTissue().rGetCellUsingLocationIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
         simulator.SetOutputCellMutationStates(true);
         simulator.Solve();
 
@@ -1111,8 +1111,8 @@ public:
         simulator.SetEndTime(1.0);
 
         CancerParameters::Instance()->SetApoptosisTime(2.0);
-        tissue.rGetCellAtNodeIndex(14).StartApoptosis();
-        tissue.rGetCellAtNodeIndex(15).StartApoptosis();
+        tissue.rGetCellUsingLocationIndex(14).StartApoptosis();
+        tissue.rGetCellUsingLocationIndex(15).StartApoptosis();
         simulator.SetNoBirth(true);
 
         simulator.Solve();

@@ -734,7 +734,7 @@ public:
             TS_ASSERT_DELTA(node_location[1], node_location2[1], 1e-6);
 
             // Get cell at each node
-            TissueCell& r_cell = tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());
+            TissueCell& r_cell = tissue.rGetCellUsingLocationIndex(cell_iter.GetNode()->GetIndex());
 
             // Test GetLocationOfCell()
             TS_ASSERT_DELTA(node_location[0] , tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
@@ -780,7 +780,7 @@ public:
                 cell_iter->ReadyToDivide();
             }
 
-            p_tissue->MarkSpring(p_tissue->rGetCellAtNodeIndex(0), p_tissue->rGetCellAtNodeIndex(1));
+            p_tissue->MarkSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1));
 
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
@@ -828,7 +828,7 @@ public:
             }
 
             // Check the marked spring
-            TS_ASSERT(p_tissue->IsMarkedSpring(p_tissue->rGetCellAtNodeIndex(0), p_tissue->rGetCellAtNodeIndex(1)));
+            TS_ASSERT(p_tissue->IsMarkedSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1)));
 
             // Check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
@@ -862,22 +862,22 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Mark some springs
-        tissue.MarkSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2));
-        tissue.MarkSpring(tissue.rGetCellAtNodeIndex(3), tissue.rGetCellAtNodeIndex(4));
+        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
+        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(3), tissue.rGetCellUsingLocationIndex(4));
 
         // Check if springs are marked
-        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
-        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(3), tissue.rGetCellAtNodeIndex(4)));
+        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2)));
+        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(3), tissue.rGetCellUsingLocationIndex(4)));
 
-        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(4)));
-        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(0), tissue.rGetCellAtNodeIndex(2)));
+        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(4)));
+        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(0), tissue.rGetCellUsingLocationIndex(2)));
 
         // Delete cell 4
-        tissue.rGetCellAtNodeIndex(4).Kill();
+        tissue.rGetCellUsingLocationIndex(4).Kill();
         tissue.RemoveDeadCells();
 
         // Check springs with non-deleted cells are still marked
-        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
+        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2)));
         tissue.CheckTissueCellPointers();
 
         // Move cell 2
@@ -895,7 +895,7 @@ public:
         tissue.CheckTissueCellPointers();
 
         // Check there is no marked spring between nodes 1 & 2
-        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
+        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2)));
     }
 
     void TestSettingCellAncestors() throw (Exception)

@@ -345,38 +345,6 @@ public:
 
 
     }
-//    void TestWhetherMutationsSpread() throw (Exception)
-//    {
-//        SimulationTime* p_simulation_time = SimulationTime::Instance();
-//        p_simulation_time->SetStartTime(0.0);
-//
-//        /*
-//         * We load the steady state that the profiled test uses
-//         */
-//        std::string test_to_profile = "NiceCryptSim";
-//        double load_time = 350;   // this is the folder and time that the stored results were archived (needed to know foldernames)
-//        double time_of_each_run = 10; // run for 10 hours.
-//        double end_of_simulation = 1000;
-//
-//
-//        // Call a function to label a cell
-//        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,load_time);
-//        unsigned label_this = Label();
-//        p_simulator->rGetTissue().rGetCellAtNodeIndex(label_this).SetMutationState(LABELLED);
-//        p_simulator->Save();
-//
-//        // write out to file which cell it was
-//        OutputFileHandler results_handler("NiceCryptSim",false);
-//        out_stream file=results_handler.OpenOutputFile("overall_results.dat");
-//        std::vector<double> position = p_simulator->GetNodeLocation(label_this);
-//        (*file) << "Node = " << label_this << " at x = " << position[0] << "\ty = " << position[1] << "\n" << std::flush;
-//
-//        delete p_simulator;
-//
-//
-//        SimulationTime::Destroy();
-//        RandomNumberGenerator::Destroy();
-//    }
 };
 
 #endif /*TESTVORONOITESSELLATION_HPP_*/

@@ -80,7 +80,7 @@ double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const Cha
 template<unsigned DIM>
 double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
 {
-    TissueCell& r_cell = mrTissue.rGetCellAtNodeIndex(rNode.GetIndex());
+    TissueCell& r_cell = mrTissue.rGetCellUsingLocationIndex(rNode.GetIndex());
     if(r_cell.GetCellType()!=NECROTIC)
     {
         return -mCoefficient;

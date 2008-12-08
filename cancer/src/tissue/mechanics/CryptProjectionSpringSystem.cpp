@@ -127,11 +127,11 @@ c_vector<double,2> CryptProjectionSpringSystem::CalculateForceBetweenNodes(unsig
 
     // Calculate of the 3D spring's rest length...
     double rest_length_3d = 1.0;
-    double ageA = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-    double ageB = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+    double ageA = this->mpTissue->rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
+    double ageB = this->mpTissue->rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
 
-    TissueCell& r_cell_A = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex);
-    TissueCell& r_cell_B = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex);
+    TissueCell& r_cell_A = this->mpTissue->rGetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCell& r_cell_B = this->mpTissue->rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
     // ... a bit of code for recently born cells...
     if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
