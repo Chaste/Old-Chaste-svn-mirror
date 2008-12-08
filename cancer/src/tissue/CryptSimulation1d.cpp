@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptSimulation1d.hpp"
 
-
 /** Constructor
  *  @param rMesh
  *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
@@ -45,7 +44,7 @@ CryptSimulation1d::CryptSimulation1d(MutableMesh<1,1> &rMesh,
     mpGen = RandomNumberGenerator::Instance();
     mpParams = CancerParameters::Instance();
     mpParams->SetSpringStiffness(30.0);
-    mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
+    mDt = 1.0/(120.0); // Timestep of 30 seconds (as per Meineke)
     mEndTime = 120.0; // hours
 
     mIncludeVariableRestLength = false;
@@ -66,19 +65,27 @@ CryptSimulation1d::~CryptSimulation1d()
     SimulationTime::Destroy();
 }
 
+/**
+ * Change the time step used for mechanics
+ */
 void CryptSimulation1d::SetDt(double dt)
 {
     assert(dt>0);
     mDt=dt;
 }
 
+/**
+ * Set the end time of the next simualtion.Solve() call.
+ */
 void CryptSimulation1d::SetEndTime(double endTime)
 {
     assert(endTime>0);
     mEndTime=endTime;
 }
 
-
+/**
+ * The subdirectory of CHASTETESTOUTPUT where the results will be stored.
+ */
 void CryptSimulation1d::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
@@ -93,11 +100,13 @@ void CryptSimulation1d::SetIncludeVariableRestLength()
     mIncludeVariableRestLength = true;
 }
 
+/**
+ * The maximum number of cells that will be in this simulation.
+ */
 void CryptSimulation1d::SetMaxCells(unsigned maxCells)
 {
     mMaxCells = maxCells;
 }
-
 
 /**
  *  Get the cells vector
@@ -107,7 +116,6 @@ std::vector<TissueCell> CryptSimulation1d::GetCells()
     assert(mCells.size()>0);
     return mCells;
 }
-
 
 /**
  * Main Solve method.
@@ -340,6 +348,10 @@ void CryptSimulation1d::Solve()
     }
 }
 
+/**
+ * This handles the birth of a cell in 1D by splitting an existing element in two and placing
+ * a new point in the middle of it.
+ */
 unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time)
 {
 

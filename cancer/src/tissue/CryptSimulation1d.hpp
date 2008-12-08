@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueCell.hpp"
 #include "MutableMesh.hpp"
-#include "StochasticCellCycleModel.hpp"
 #include "Exception.hpp"
 #include "ColumnDataWriter.hpp"
 #include "CellTypes.hpp"
