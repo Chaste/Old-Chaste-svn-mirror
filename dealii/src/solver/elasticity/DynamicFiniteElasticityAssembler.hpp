@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Solve a time-dependent incompressible finite elasticity problem. In the Lagrangian
  *  coordinates, this is
  *  \f[
- *  \frac{\partial T_{MN} F^i_M}{\partial X^N} + \rho \g^i = \rho \frac{\partial{v^i}}{\partial t}
+ *  \frac{\partial T_{MN} F^i_M}{\partial X^N} + \rho g^i = \rho \frac{\partial{v^i}}{\partial t}
  *  \f]
  *  where
  *  \f$ T^{MN} \f$ is the second Piola-Kirchoff stress tensor,

@@ -81,7 +81,7 @@ const double NEWTON_REL_TOL = 1e-6;
  *  Solve a static incompressible finite elasticity problem. In the Lagrangian
  *  coordinates, this is
  *  \f[
- *  \partial{T_{MN} F^i_M}{X^N} + \rho \g^i = 0
+ *  \partial{T_{MN} F^i_M}{X^N} + \rho g^i = 0
  *  \f]
  *  where
  *  \f$ T^{MN} \f$ is the second Piola-Kirchoff stress tensor,
