@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 /*
  *
  *  Chaste tutorial - this page gets automatically changed to a wiki page
@@ -37,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef TESTSOLVINGODESTUTORIAL_HPP_
 #define TESTSOLVINGODESTUTORIAL_HPP_
+
 /*
  * = Introduction =
  *
