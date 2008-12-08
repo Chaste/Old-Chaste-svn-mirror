@@ -80,14 +80,14 @@ protected:
     /** Results file for cell cycle phases */
     out_stream mpCellCyclePhasesFile;
 
+    /** Results file for cell variables */
+    out_stream mpCellVariablesFile;
+
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
 
     /** Whether the tissue contains ghost nodes */
     bool mTissueContainsGhostNodes;
-
-    /** Results file for cell variables */
-    out_stream mpCellVariablesFile;
 
     friend class boost::serialization::access;
     template<class Archive>

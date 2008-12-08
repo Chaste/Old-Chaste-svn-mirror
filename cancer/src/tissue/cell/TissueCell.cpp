@@ -49,7 +49,7 @@ TissueCell::TissueCell(CellType cellType,
     mUndergoingApoptosis = false;
     mIsDead = false;
     mDeathTime = DBL_MAX; // This has to be initialised for archiving...
-    mNodeIndex = (unsigned)(-1); // Initialise to a silly value for archiving (avoid memory check error)
+    mNodeIndex = UNSIGNED_UNSET; // Initialise to a silly value for archiving (avoid memory check error)
     mIsLogged = false;
     mAncestor = UNSIGNED_UNSET; // Has to be set by a SetAncestor() call (usually from Tissue)
 

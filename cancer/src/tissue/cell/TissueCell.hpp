@@ -39,6 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
+/**
+ * \todo write some documentation for this class...
+ */
 class TissueCell
 {
 private:
@@ -70,14 +73,14 @@ protected:
     CellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
     unsigned mNodeIndex;
-    bool mUndergoingApoptosis;
+    /** An index which is inherited by all children of this cell */
+    unsigned mAncestor;
     /// When the cell will/did die.
     double mDeathTime;
+    bool mUndergoingApoptosis;
     bool mIsDead;
     /// Whether the cell is being tracked specially.
     bool mIsLogged;
-    /** An index which is inherited by all children of this cell */
-    unsigned mAncestor;
 
     /**
      * Contains code common to both the copy constructor and operator=.
