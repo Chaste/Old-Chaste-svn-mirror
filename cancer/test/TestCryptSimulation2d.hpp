@@ -648,7 +648,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_LESS_THAN(-1e-15,p_mesh->GetNode(cell_iter->GetNodeIndex())->rGetLocation()[1]);
+            TS_ASSERT_LESS_THAN(-1e-15,p_mesh->GetNode(cell_iter->GetLocationIndex())->rGetLocation()[1]);
         }
 
         c_vector<unsigned,5> cell_mutation_state_count = simulator.GetCellMutationStateCount();
@@ -1098,7 +1098,7 @@ public:
             TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

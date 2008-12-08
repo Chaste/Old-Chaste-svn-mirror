@@ -98,7 +98,7 @@ void FixedCellCycleModelCellsGenerator<DIM>::GenerateBasic(
         AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
         TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);        
         double birth_time = 0.0 - i;
-        cell.SetNodeIndex(i);
+        cell.SetLocationIndex(i);
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);
     }

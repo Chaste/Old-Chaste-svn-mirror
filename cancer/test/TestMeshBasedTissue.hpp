@@ -52,7 +52,7 @@ private:
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -86,7 +86,7 @@ private:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), counter);
+            TS_ASSERT_EQUALS((*cell_iter).GetLocationIndex(), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -94,8 +94,8 @@ private:
             // Test GetNode on the iterator
             TS_ASSERT_EQUALS(cell_iter.GetNode()->GetIndex(), mesh.GetNode(counter)->GetIndex());
 
-            // Test iter.GetNode()->GetIndex() is consistent with cell.GetNodeIndex()
-            TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), cell_iter.GetNode()->GetIndex());
+            // Test iter.GetNode()->GetIndex() is consistent with cell.GetLocationIndex()
+            TS_ASSERT_EQUALS((*cell_iter).GetLocationIndex(), cell_iter.GetNode()->GetIndex());
 
             // Test rGetLocation on the iterator
             for (unsigned space_index=0; space_index<DIM; space_index++)
@@ -133,7 +133,7 @@ public:
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh);
-        cells[0].SetNodeIndex(1);
+        cells[0].SetLocationIndex(1);
 
         // Fails as no cell or ghost correponding to node 0
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
@@ -158,7 +158,7 @@ public:
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh);
-        cells[0].SetNodeIndex(1);
+        cells[0].SetLocationIndex(1);
 
         // Fails as no cell or ghost correponding to node 0
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells));
@@ -220,7 +220,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned node_index = cell_iter->GetNodeIndex();
+            unsigned node_index = cell_iter->GetLocationIndex();
             TS_ASSERT_EQUALS(is_ghost_node[node_index], false);
             counter++;
         }
@@ -292,7 +292,7 @@ public:
 
         // Check the index of the new cell
         TissueCell& new_cell = tissue.rGetCells().back();
-        TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
+        TS_ASSERT_EQUALS(new_cell.GetLocationIndex(), old_num_nodes);
     }
 
     void TestRemoveDeadCellsAndReMesh()
@@ -624,8 +624,8 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(spring_iterator.rGetCellA().GetNodeIndex(), spring_iterator.GetNodeA()->GetIndex());
-            TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetNodeIndex(), spring_iterator.GetNodeB()->GetIndex());
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellA().GetLocationIndex(), spring_iterator.GetNodeA()->GetIndex());
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetLocationIndex(), spring_iterator.GetNodeB()->GetIndex());
         }
 
          TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
@@ -671,8 +671,8 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(spring_iterator.rGetCellA().GetNodeIndex(), spring_iterator.GetNodeA()->GetIndex());
-            TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetNodeIndex(), spring_iterator.GetNodeB()->GetIndex());
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellA().GetLocationIndex(), spring_iterator.GetNodeA()->GetIndex());
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetLocationIndex(), spring_iterator.GetNodeB()->GetIndex());
         }
 
         // Set up expected node pairs
@@ -884,7 +884,7 @@ public:
         MeshBasedTissue<2>::Iterator it=tissue.Begin();
         ++it;
         ++it;
-        TS_ASSERT_EQUALS(it->GetNodeIndex(), 2u);
+        TS_ASSERT_EQUALS(it->GetLocationIndex(), 2u);
         ChastePoint<2> new_location(1,10);
         tissue.MoveCell(it, new_location);
 
@@ -924,7 +924,7 @@ public:
              cell_iter!=tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), cell_iter->GetNodeIndex());
+            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), cell_iter->GetLocationIndex());
             counter ++;
         }
         TS_ASSERT_EQUALS(counter, 5u);

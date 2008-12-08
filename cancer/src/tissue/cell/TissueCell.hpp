@@ -59,7 +59,7 @@ private:
         archive & mCellType;
         archive & mMutationState;
         archive & mpCellCycleModel;
-        archive & mNodeIndex;
+        archive & mLocationIndex;
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
         archive & mIsDead;
@@ -72,7 +72,7 @@ protected:
     CellType mCellType;
     CellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
-    unsigned mNodeIndex;
+    unsigned mLocationIndex;
     /** An index which is inherited by all children of this cell */
     unsigned mAncestor;
     /// When the cell will/did die.
@@ -137,12 +137,15 @@ public:
     // void UpdateCellCycleModel();
 
     /**
-     * Set the node at which this cell is positioned.
+     * Set the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
      *
-     * @param index Index of the node in the mesh
+     * @param index Index of the node / VertexElement in the mesh
      */
-    void SetNodeIndex(unsigned index);
-    unsigned GetNodeIndex() const;
+    void SetLocationIndex(unsigned index);
+     /**
+     * Get the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
+     */
+    unsigned GetLocationIndex() const;
 
     double GetAge() const;
     double GetBirthTime() const;

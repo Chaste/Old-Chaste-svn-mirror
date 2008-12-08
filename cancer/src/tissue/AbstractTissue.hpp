@@ -371,7 +371,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     {
         /// \todo Check it points to a real cell; if not do
         /// it = this->mCells.erase(it); --it; continue;
-        unsigned node_index = it->GetNodeIndex();
+        unsigned node_index = it->GetLocationIndex();
         mNodeCellMap[node_index] = &(*it);
     }
 
@@ -439,7 +439,7 @@ unsigned AbstractTissue<DIM>::GetNumRealCells()
 template<unsigned DIM>
 Node<DIM>* AbstractTissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 {
-    unsigned node_index = rCell.GetNodeIndex();
+    unsigned node_index = rCell.GetLocationIndex();
     return GetNode(node_index);
 }
 
@@ -454,7 +454,7 @@ void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
 {
     for(typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        cell_iter->SetAncestor(cell_iter->GetNodeIndex());
+        cell_iter->SetAncestor(cell_iter->GetLocationIndex());
     }
 }
 
@@ -544,7 +544,7 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
         ++mCellIter;
         if (!IsAtEnd())
         {
-            mNodeIndex = mCellIter->GetNodeIndex();
+            mNodeIndex = mCellIter->GetLocationIndex();
         }
     }
     while (!IsAtEnd() && !IsRealCell());
@@ -573,7 +573,7 @@ AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<Tissu
     assert(mrTissue.rGetCells().size() > 0);
     if (!IsAtEnd())
     {
-        mNodeIndex = cellIter->GetNodeIndex();
+        mNodeIndex = cellIter->GetLocationIndex();
     }
     // Make sure we start at a real cell
     if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())

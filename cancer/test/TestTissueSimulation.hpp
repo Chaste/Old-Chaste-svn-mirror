@@ -90,7 +90,7 @@ public:
         {
             TissueCell cell(STEM, HEALTHY, new TysonNovakCellCycleModel());
             double birth_time = -1.0*p_gen->ranf();
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -164,7 +164,7 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                   ( p_params->GetTransitCellG1Duration()
                                    +p_params->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -240,7 +240,7 @@ public:
                                 (CancerParameters::Instance()->GetStemCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

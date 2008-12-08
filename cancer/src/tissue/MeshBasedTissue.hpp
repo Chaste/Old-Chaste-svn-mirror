@@ -375,7 +375,7 @@ void MeshBasedTissue<DIM>::Validate()
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = cell_iter->GetNodeIndex();
+        unsigned node_index = cell_iter->GetLocationIndex();
         validated_node[node_index] = true;
     }
 
@@ -442,7 +442,7 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 
             // Remove the node from the mesh
             num_removed++;
-            mrMesh.DeleteNodePriorToReMesh(it->GetNodeIndex());
+            mrMesh.DeleteNodePriorToReMesh(it->GetLocationIndex());
             it = this->mCells.erase(it);
             --it;
         }
@@ -464,7 +464,7 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DI
 
     unsigned new_node_index = mrMesh.AddNode(p_new_node);
 
-    newCell.SetNodeIndex(new_node_index);
+    newCell.SetLocationIndex(new_node_index);
     this->mCells.push_back(newCell);
 
     TissueCell *p_created_cell = &(this->mCells.back());
@@ -489,12 +489,12 @@ void MeshBasedTissue<DIM>::ReMesh()
              it != this->mCells.end();
              ++it)
         {
-            unsigned old_node_index = it->GetNodeIndex();
+            unsigned old_node_index = it->GetLocationIndex();
 
             // This shouldn't ever happen, as the cell vector only contains living cells
             assert(!map.IsDeleted(old_node_index));
             unsigned new_node_index = map.GetNewIndex(old_node_index);
-            it->SetNodeIndex(new_node_index);
+            it->SetLocationIndex(new_node_index);
             this->mNodeCellMap[new_node_index] = &(*it);
         }
     }
@@ -880,7 +880,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         assert(p_model);
 
         // Check cell exists in tissue
-        unsigned node_index = p_cell->GetNodeIndex();
+        unsigned node_index = p_cell->GetLocationIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
         TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
 #define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions
@@ -915,7 +915,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
             assert(p_cell);
             AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
             assert(p_model);
-            unsigned node_index = p_cell->GetNodeIndex();
+            unsigned node_index = p_cell->GetLocationIndex();
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
 
 #define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions

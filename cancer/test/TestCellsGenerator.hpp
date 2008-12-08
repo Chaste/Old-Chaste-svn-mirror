@@ -61,7 +61,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
         }
     }
@@ -85,7 +85,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
             unsigned generation = cells[i].GetCellCycleModel()->GetGeneration();
             if (height <= y0)
@@ -130,7 +130,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
 
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
             unsigned generation = cells[i].GetCellCycleModel()->GetGeneration();
@@ -173,7 +173,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
         }
     }
 
@@ -192,7 +192,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
 
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
@@ -217,7 +217,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
 
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
             unsigned generation = cells[i].GetCellCycleModel()->GetGeneration();
@@ -266,7 +266,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
 
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
             unsigned generation = cells[i].GetCellCycleModel()->GetGeneration();

@@ -208,7 +208,7 @@ void CryptSimulation2d::UpdateNodePositions(const std::vector< c_vector<double, 
          ++cell_iter)
     {
         TissueCell& cell = *cell_iter;
-        unsigned index = cell.GetNodeIndex();
+        unsigned index = cell.GetLocationIndex();
 
         ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
 

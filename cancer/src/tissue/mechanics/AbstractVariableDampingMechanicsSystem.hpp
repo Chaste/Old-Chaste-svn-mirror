@@ -117,7 +117,7 @@ double AbstractVariableDampingMechanicsSystem<DIM>::GetDampingConstant(TissueCel
 
         VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetVoronoiTessellation();
 
-        double area_cell = tess.GetFaceArea(rCell.GetNodeIndex());
+        double area_cell = tess.GetFaceArea(rCell.GetLocationIndex());
 
         // The areas should be order 1, this is just to avoid getting infinite areas
         // if an area based viscosity option is chosen without ghost nodes.

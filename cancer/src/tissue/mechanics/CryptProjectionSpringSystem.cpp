@@ -85,7 +85,7 @@ void CryptProjectionSpringSystem::UpdateNode3dLocationMap()
          ++cell_iter)
     {
         // Get node index
-        unsigned node_index = cell_iter->GetNodeIndex();
+        unsigned node_index = cell_iter->GetLocationIndex();
 
         // Get 3D location
         node_location_2d = this->mpTissue->GetLocationOfCell(*cell_iter);

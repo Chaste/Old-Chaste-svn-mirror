@@ -117,7 +117,7 @@ public:
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -208,7 +208,7 @@ public:
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -271,7 +271,7 @@ public:
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
 
             // Make the cell necrotic if near the centre
@@ -367,7 +367,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(-0.1);
 
             // Label three neighbouring cells as necrotic
@@ -465,7 +465,7 @@ public:
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -614,7 +614,7 @@ public:
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -685,7 +685,7 @@ public:
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                             (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                              +CancerParameters::Instance()->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -785,7 +785,7 @@ public:
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

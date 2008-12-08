@@ -209,7 +209,7 @@ public:
             WntCellCycleModel* p_model = new WntCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -340,7 +340,7 @@ public:
             WntCellCycleModel* p_model = new WntCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
 
             cells.push_back(cell);

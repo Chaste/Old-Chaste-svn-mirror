@@ -191,7 +191,7 @@ public:
                  iter != tissue.End();
                  ++iter)
             {
-                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0), (double) iter->GetNodeIndex(), 1e-12);
+                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0), (double) iter->GetLocationIndex(), 1e-12);
             }
 
             delete p_data->mpTissue;

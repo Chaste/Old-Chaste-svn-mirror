@@ -112,9 +112,9 @@ std::vector<c_vector<double, DIM> >& MeinekeSpringSystemWithChemotaxis<DIM>::rCa
         if (cell_iter->GetMutationState()==LABELLED)
         {
             TissueCell& cell = *cell_iter;
-            unsigned node_global_index = cell.GetNodeIndex();
+            unsigned node_global_index = cell.GetLocationIndex();
 
-            c_vector<double,DIM>& r_gradient = gradients.rGetGradient(cell.GetNodeIndex());
+            c_vector<double,DIM>& r_gradient = gradients.rGetGradient(cell.GetLocationIndex());
             double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(&cell,0);
             double magnitude_of_gradient = norm_2(r_gradient);
 

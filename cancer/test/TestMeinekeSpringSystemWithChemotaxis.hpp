@@ -60,7 +60,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, LABELLED, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
@@ -123,7 +123,7 @@ public:
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
-                cell.SetNodeIndex(i);
+                cell.SetLocationIndex(i);
                 cell.SetBirthTime(-50.0);
                 cells.push_back(cell);
             }

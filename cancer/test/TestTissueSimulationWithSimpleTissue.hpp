@@ -67,7 +67,7 @@ private:
                                 (CancerParameters::Instance()->GetStemCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

@@ -296,7 +296,7 @@ TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell newCell, c_ve
     TissueCell *p_created_cell = MeshBasedTissue<DIM>::AddCell(newCell, newLocation);
 
     // Update size of mIsGhostNode if necessary
-    unsigned new_node_index = p_created_cell->GetNodeIndex();
+    unsigned new_node_index = p_created_cell->GetLocationIndex();
 
     if (this->GetNumNodes() > this->mIsGhostNode.size())
     {
@@ -312,7 +312,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::Validate()
     std::vector<bool> validated_node = mIsGhostNode;
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = cell_iter->GetNodeIndex();
+        unsigned node_index = cell_iter->GetLocationIndex();
         validated_node[node_index] = true;
     }
 

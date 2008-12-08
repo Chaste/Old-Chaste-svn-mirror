@@ -118,7 +118,7 @@ public:
              * - {{{SimpleOxygenBasedCellCycleModel}}}. The index of the node that
              * this cell is related to also needs to be given. */
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
 
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration

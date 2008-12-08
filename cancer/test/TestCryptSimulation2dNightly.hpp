@@ -320,7 +320,7 @@ public:
 
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

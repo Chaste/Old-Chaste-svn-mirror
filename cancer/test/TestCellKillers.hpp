@@ -115,7 +115,7 @@ public:
         {
             if (!it->IsDead())
             {
-                Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
+                Node<2>* p_node = mesh.GetNode(it->GetLocationIndex());
                 c_vector< double, 2 > location = p_node->rGetLocation();
                 old_locations.insert(location[0]+location[1]*1000);
             }
@@ -130,7 +130,7 @@ public:
              it != r_cells.end(); ++it)
         {
             TS_ASSERT(!it->IsDead());
-            Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
+            Node<2>* p_node = mesh.GetNode(it->GetLocationIndex());
             c_vector< double, 2 > location = p_node->rGetLocation();
             new_locations.insert(location[0]+location[1]*1000);
         }
@@ -207,7 +207,7 @@ public:
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0;
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -372,7 +372,7 @@ public:
         {
             if (!it->IsDead())
             {
-                Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
+                Node<2>* p_node = mesh.GetNode(it->GetLocationIndex());
                 c_vector< double, 2 > location = p_node->rGetLocation();
                 old_locations.insert(location[0]+location[1]*1000);
             }
@@ -387,7 +387,7 @@ public:
              it != r_cells.end(); ++it)
         {
             TS_ASSERT(!it->IsDead());
-            Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
+            Node<2>* p_node = mesh.GetNode(it->GetLocationIndex());
             c_vector< double, 2 > location = p_node->rGetLocation();
             new_locations.insert(location[0]+location[1]*1000);
         }

@@ -83,7 +83,7 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                 (p_params->GetTransitCellG1Duration()
                 +p_params->GetSG2MDuration());
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -139,7 +139,7 @@ public:
         // Three of these cells are labelled - at node 376, 399 and 400.
         for (unsigned i=0; i<test_section2.size(); i++)
         {
-            unsigned node_index = test_section2[i]->GetNodeIndex();
+            unsigned node_index = test_section2[i]->GetLocationIndex();
             if (node_index == 376u || node_index == 399u || node_index == 400u)
             {
                 TS_ASSERT_EQUALS(labelled_cells[i], true);

@@ -139,7 +139,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
          cell_iter != r_tissue.End();
          ++cell_iter)
     {
-        unsigned node_global_index = cell_iter->GetNodeIndex();
+        unsigned node_global_index = cell_iter->GetLocationIndex();
 
 
 

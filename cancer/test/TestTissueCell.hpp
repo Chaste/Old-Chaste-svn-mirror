@@ -76,8 +76,8 @@ public:
         TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
 
         // For coverage
-        stem_cell.SetNodeIndex(3);
-        TS_ASSERT_EQUALS((int)(stem_cell.GetNodeIndex()), 3);
+        stem_cell.SetLocationIndex(3);
+        TS_ASSERT_EQUALS((int)(stem_cell.GetLocationIndex()), 3);
 
         p_simulation_time->IncrementTimeOneStep();
         stem_cell.SetBirthTime(p_simulation_time->GetDimensionalisedTime());
@@ -1097,7 +1097,7 @@ public:
 
             TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
 
-            stem_cell.SetNodeIndex(3);
+            stem_cell.SetLocationIndex(3);
 
             // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
@@ -1133,7 +1133,7 @@ public:
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
 
-            TS_ASSERT_EQUALS(p_stem_cell->GetNodeIndex(), 3u);
+            TS_ASSERT_EQUALS(p_stem_cell->GetLocationIndex(), 3u);
             TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetGeneration(), 0u);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);

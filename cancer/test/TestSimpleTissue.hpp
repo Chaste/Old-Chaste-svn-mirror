@@ -65,7 +65,7 @@ private:
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -99,7 +99,7 @@ private:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), counter);
+            TS_ASSERT_EQUALS((*cell_iter).GetLocationIndex(), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -107,8 +107,8 @@ private:
             // Test GetNode() on the iterator
             TS_ASSERT_EQUALS(cell_iter.GetNode()->GetIndex(), mesh.GetNode(counter)->GetIndex());
 
-            // Test iter.GetNode()->GetIndex() is consistent with cell.GetNodeIndex()
-            TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), cell_iter.GetNode()->GetIndex());
+            // Test iter.GetNode()->GetIndex() is consistent with cell.GetLocationIndex()
+            TS_ASSERT_EQUALS((*cell_iter).GetLocationIndex(), cell_iter.GetNode()->GetIndex());
 
             // Test rGetLocation() on the iterator
             for (unsigned space_index=0; space_index<DIM; space_index++)
@@ -146,7 +146,7 @@ public:
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
-        cells[0].SetNodeIndex(1);
+        cells[0].SetLocationIndex(1);
 
         // Fails as no cell or ghost correponding to node 0
         TS_ASSERT_THROWS_ANYTHING(SimpleTissue<2> simple_tissue(nodes, cells));
@@ -225,7 +225,7 @@ public:
 
         // Check the index of the new cell
         TissueCell& new_cell = simple_tissue.rGetCells().back();
-        TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
+        TS_ASSERT_EQUALS(new_cell.GetLocationIndex(), old_num_nodes);
 
         delete p_node;
     }
@@ -275,7 +275,7 @@ public:
              cell_iter != simple_tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetNodeIndex(), index);
+            TS_ASSERT_EQUALS(cell_iter->GetLocationIndex(), index);
             index++;
         }
     }
@@ -370,7 +370,7 @@ public:
              cell_iter != simple_tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), cell_iter->GetNodeIndex());
+            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), cell_iter->GetLocationIndex());
             counter ++;
         }
         TS_ASSERT_EQUALS(counter, 5u);
@@ -518,7 +518,7 @@ public:
             {
                 birth_time = -23.5;
             }
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

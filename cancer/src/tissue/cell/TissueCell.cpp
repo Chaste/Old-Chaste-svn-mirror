@@ -49,7 +49,7 @@ TissueCell::TissueCell(CellType cellType,
     mUndergoingApoptosis = false;
     mIsDead = false;
     mDeathTime = DBL_MAX; // This has to be initialised for archiving...
-    mNodeIndex = UNSIGNED_UNSET; // Initialise to a silly value for archiving (avoid memory check error)
+    mLocationIndex = UNSIGNED_UNSET; // Initialise to unset value for archiving (avoid memory check error)
     mIsLogged = false;
     mAncestor = UNSIGNED_UNSET; // Has to be set by a SetAncestor() call (usually from Tissue)
 
@@ -66,7 +66,7 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mUndergoingApoptosis = other_cell.mUndergoingApoptosis;
     mIsDead = other_cell.mIsDead;
     mDeathTime = other_cell.mDeathTime;
-    mNodeIndex = other_cell.mNodeIndex;
+    mLocationIndex = other_cell.mLocationIndex;
     mIsLogged = other_cell.mIsLogged;
     mAncestor = other_cell.mAncestor;
 
@@ -121,14 +121,14 @@ void TissueCell::InitialiseCellCycleModel()
 }
 
 
-void TissueCell::SetNodeIndex(unsigned index)
+void TissueCell::SetLocationIndex(unsigned index)
 {
-    mNodeIndex = index;
+    mLocationIndex = index;
 }
 
-unsigned TissueCell::GetNodeIndex() const
+unsigned TissueCell::GetLocationIndex() const
 {
-    return mNodeIndex;
+    return mLocationIndex;
 }
 
 

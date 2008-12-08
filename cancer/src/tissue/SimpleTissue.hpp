@@ -160,7 +160,7 @@ void SimpleTissue<DIM>::Validate()
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = cell_iter->GetNodeIndex();
+        unsigned node_index = cell_iter->GetLocationIndex();
         validated_node[node_index] = true;
     }
 
@@ -215,7 +215,7 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
     unsigned new_node_index = AddNode(&new_node); //Uses copy constructor (so it doesn't matter that new_node goes out of scope)
 
     // Associate the new cell with the node
-    newCell.SetNodeIndex(new_node_index);
+    newCell.SetLocationIndex(new_node_index);
     this->mCells.push_back(newCell);
 
     TissueCell *p_created_cell = &(this->mCells.back());
@@ -255,7 +255,7 @@ void SimpleTissue<DIM>::ReMesh()
     std::set<unsigned> node_indices;
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = cell_iter->GetNodeIndex();
+        unsigned node_index = cell_iter->GetLocationIndex();
         node_indices.insert(node_index);
     }
 
@@ -267,7 +267,7 @@ void SimpleTissue<DIM>::ReMesh()
         unsigned new_node_index = 0;
         for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
         {
-            cell_iter->SetNodeIndex(new_node_index);
+            cell_iter->SetLocationIndex(new_node_index);
             this->mNodeCellMap[new_node_index] = &(*cell_iter);
             new_node_index++;
         }

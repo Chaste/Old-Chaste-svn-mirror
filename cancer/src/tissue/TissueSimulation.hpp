@@ -555,7 +555,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
          ++cell_iter)
     {
         TissueCell& cell = *cell_iter;
-        unsigned index = cell.GetNodeIndex();
+        unsigned index = cell.GetLocationIndex();
 
         ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
         mrTissue.MoveCell(cell_iter, new_point);

@@ -273,7 +273,7 @@ public:
             TissueCell cell(cell_type, HEALTHY, new StochasticCellCycleModel);
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -337,7 +337,7 @@ public:
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -409,7 +409,7 @@ public:
             TissueCell cell(cell_type, HEALTHY, new TysonNovakCellCycleModel());
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -485,7 +485,7 @@ public:
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetNodeIndex(i);
+            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
