@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef TESTSOLVINGODESTUTORIAL_HPP_
 #define TESTSOLVINGODESTUTORIAL_HPP_
-
 /*
  * = Introduction =
  *
