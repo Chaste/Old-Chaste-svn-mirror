@@ -197,7 +197,7 @@ public:
 
         out_stream node_file = handler.OpenOutputFile("temp.node");
         (*node_file) << mesh.GetNumNodes() << "\t2\t0\t0\n";
-        
+
         for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
         {
             if (!mesh.GetNode(i)->IsDeleted())
@@ -297,11 +297,11 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
         TS_ASSERT_DELTA(mesh.CalculateVolume(), area, 1e-6);
     }
-    
+
     void TestRemeshWithMethod3D() throw (Exception)
     {
-        
-        // Create conforming tetrahedral mesh which is Delaunay
+
+        // Create mutable tetrahedral mesh which is Delaunay
         std::vector<Node<3> *> nodes;
 
         nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
@@ -333,7 +333,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
         TS_ASSERT_DELTA(mesh.CalculateVolume(), area, 1e-6);
-        
+
         mesh.DeleteNode(3);
         TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
     }

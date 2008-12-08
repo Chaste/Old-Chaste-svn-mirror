@@ -49,7 +49,7 @@ class TestVoronoiTessellation : public CxxTest::TestSuite
 public:
     void TestReturnPolarAngle() throw (Exception)
     {
-        // Create conforming tetrahedral mesh which is Delauny
+        // Create mutable tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
         nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
@@ -97,7 +97,7 @@ public:
 
     void TestGenerateVerticesFromElementCircumcentres() throw (Exception)
     {
-        // Create conforming tetrahedral mesh which is Delauny
+        // Create mutable tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
         nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
@@ -139,7 +139,7 @@ public:
 
     void TestSimpleTessellation() throw (Exception)
     {
-        // Create conforming tetrahedral mesh which is Delauny
+        // Create mutable tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
 
         nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));

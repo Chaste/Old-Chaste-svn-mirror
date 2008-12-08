@@ -49,7 +49,7 @@ public:
     void TestWriteTet() throw (Exception)
     {
 
-        // Create conforming tetrahedral mesh which is Delaunay
+        // Create mutable tetrahedral mesh which is Delaunay
         std::vector<Node<3> *> nodes;
 
         nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
@@ -73,7 +73,7 @@ public:
 
     void TestWriteComplexCube() throw (Exception)
     {
-        // Create conforming tetrahedral mesh which is Delaunay
+        // Create mutable tetrahedral mesh which is Delaunay
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_136_elements");
 
         MutableMesh<3,3> mesh;
@@ -124,7 +124,7 @@ public:
     // note that this is a different mesh to the non-scaled 'Complex' test
     void TestScaleAndWriteComplex() throw (Exception)
     {
-        // Create conforming tetrahedral mesh which is Delaunay
+        // Create mutable tetrahedral mesh which is Delaunay
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_152_elements");
 
         TetrahedralMesh<3,3> mesh;

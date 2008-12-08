@@ -119,7 +119,7 @@ public:
             TS_ASSERT_DELTA(mesh.GetNode(i)->GetPoint()[0], 1.5*(i/10.0) , 0.001);
         }
     }
-    
+
     void Test1DSetPoint()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -715,7 +715,7 @@ public:
 
         //Can't move corner nodes since this forces some zero volume elements which aren't on the shared list...
     }
-    
+
     void TestCheckVoronoiDisk()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -770,7 +770,7 @@ public:
             }
         }
     }
-    
+
         void TestDeleteNodes() throw (Exception)
     {
         MutableMesh<2,2> mesh;
@@ -808,7 +808,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(0));
     }
-    
+
     void TestMeshAddNodeAndReMeshMethod(void)
     {
         MutableMesh<2,2> mesh;
@@ -886,11 +886,11 @@ public:
             }
         }
     }
-    
+
     void TestConstructFromNodes() throw (Exception)
     {
 
-        // Create conforming tetrahedral mesh which is Delaunay
+        // Create mutable tetrahedral mesh which is Delaunay
         std::vector<Node<3> *> nodes;
 
         nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
@@ -912,7 +912,7 @@ public:
         EdgeIteratorTest<2>("mesh/test/data/square_4_elements");
         EdgeIteratorTest<1>("mesh/test/data/1D_0_to_1_10_elements");
     }
-    
+
 };
 
 #endif /*TESTMUTABLEMESH_HPP_*/

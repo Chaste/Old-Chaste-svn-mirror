@@ -130,7 +130,7 @@ public:
      *
      * There must be precisely 1 cell for each node of the mesh.
      *
-     * @param rMesh a conforming tetrahedral mesh.
+     * @param rMesh a mutable tetrahedral mesh.
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
@@ -142,7 +142,7 @@ public:
     /**
      * Constructor for use by the de-serializer.
      *
-     * @param rMesh a conforming tetrahedral mesh.
+     * @param rMesh a mutable tetrahedral mesh.
      */
     MeshBasedTissue(MutableMesh<DIM, DIM>&);
 
@@ -478,7 +478,7 @@ void MeshBasedTissue<DIM>::ReMesh()
 {
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);
-    
+
     if (!map.IsIdentityMap())
     {
         UpdateGhostNodesAfterReMesh(map);

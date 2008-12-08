@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestTetrahedralMesh : public CxxTest::TestSuite
 {
-    
+
 public:
 
     void TestMeshConstructionFromMeshReader(void)
@@ -70,7 +70,7 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
     }
-    
+
     void TestMeshConstructionFromMeshReaderIndexedFromOne(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
@@ -94,7 +94,7 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
     }
-   
+
     void Test3dMeshConstructionFromMeshReader(void)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -121,7 +121,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-15);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-16);
-        
+
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
@@ -137,7 +137,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 425U);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1889U);
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 436U);
-        
+
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.25e-4, 1e-16);
@@ -1092,7 +1092,7 @@ public:
         TS_ASSERT_DELTA(weights[3], 0.1, 1e-5);
         // Weights still sum to 1, but one weight is negative
         TS_ASSERT_DELTA(norm_1(weights),21.0,1e-12);
-        
+
         weights=element3d.CalculateInterpolationWeightsWithProjection(out_point);
         TS_ASSERT_LESS_THAN(0.0, weights[0]);
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
@@ -1101,7 +1101,7 @@ public:
         TS_ASSERT_LESS_THAN(0.0, weights[3]);
         // Weights are non-negative and sum to 1
         TS_ASSERT_DELTA(norm_1(weights),1.0,1e-12);
-        
+
         delete nodes3d[0];
         delete nodes3d[1];
         delete nodes3d[2];
@@ -1265,19 +1265,19 @@ public:
         TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[0], 1u);
         TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[1], 3u);
     }
-    
+
     void TestReadingMeshesWithRegions() throw (Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1U);
-        
+
         for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_EQUALS(mesh.GetElement(i)->GetRegion(), i%5+1);
         }
-    } 
+    }
 };
-#endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
+#endif //_TESTTETRAHEDRALMESH_HPP_

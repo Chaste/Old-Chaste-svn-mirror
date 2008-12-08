@@ -74,7 +74,7 @@ public:
      * At present there must be precisely 1 cell for each node of the mesh.
      * (This will change in future so that you don't need cells for ghost nodes.)
      *
-     * @param rMesh a conforming tetrahedral mesh.
+     * @param rMesh a mutable tetrahedral mesh.
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
@@ -86,7 +86,7 @@ public:
     /**
      * Constructor for use by the de-serializer.
      *
-     * @param rMesh a conforming tetrahedral mesh.
+     * @param rMesh a mutable tetrahedral mesh.
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh);
 
