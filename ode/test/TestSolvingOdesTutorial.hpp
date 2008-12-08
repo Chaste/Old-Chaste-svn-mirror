@@ -37,9 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTSOLVINGODESTUTORIAL_HPP_
 #define TESTSOLVINGODESTUTORIAL_HPP_
 /*
- * = Introduction =
- *
- * In this tutorial we show how Chaste can be solve an ODE.
+ * = In this tutorial we show how Chaste can be used to solve an ODE system =
  *
  * EMPTYLINE
  *
@@ -63,7 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * EMPTYLINE
  *
- * = Defining the ODE classes =
+ * == Defining the ODE classes ==
  *
  * Let us solve the ODE dy/dt = y^2^+t^2^, with y(0) = 1. To do so, we have to define
  * our own ODE class, inheriting from {{{AbstractOdeSystem}}}, which implements that
@@ -199,11 +197,11 @@ void OdeSystemInformation<My2dOde>::Initialise(void)
 /*
  * EMPTYLINE
  *
- * = The Tests =
+ * == The Tests ==
  *
  * EMPTYLINE
  *
- * == Standard ODE Solving ==
+ * === Standard ODE Solving ===
  *
  * Now we can define the test, where the ODEs are solved. */
 class TestSolvingOdesTutorial: public CxxTest::TestSuite
@@ -264,7 +262,7 @@ public:
     /*
      * EMPTYLINE
      *
-     * == ODE Solving Using the State Variable ==
+     * === ODE Solving Using the State Variable ===
      *
      * In this second test, we show how to do an alternative version of ODE solving, which
      * does not involve passing in initial conditions and returning a {{{OdeSolution}}}.
@@ -293,7 +291,7 @@ public:
     /*
      * EMPTYLINE
      *
-     * == Solving n-dimensional ODEs ==
+     * === Solving n-dimensional ODEs ===
      *
      * Finally, here's a simple test showing how to solve a 2d ODE using the first method.
      * All that is different is the initial condition has be a 2d vector, and returned
