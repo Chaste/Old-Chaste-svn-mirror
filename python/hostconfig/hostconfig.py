@@ -27,25 +27,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """Host-specific configuration.
 
 This module contains the logic to pick up the right configuration file
-for the machine it is run on, based on the machine's hostname.
+for the machine it is run on, based on the machine's hostname.  If a machine
+doesn't have a specific file, default.py is used.
 
 Each configuration file should be a Python program providing certain variables
-specifying where to find libraries and tools.  These variables are:
- * petsc_2_2_path - path to PETSc 2.2 install (None if not present)
- * petsc_2_3_path - path to PETSc 2.3 install (None if not present)
- * dealii_path    - path to Deal.II install (None if not present)
- * metis_path     - path to METIS install (None if not present)
+specifying where to find libraries and tools.  In each case, if the library or
+tool is not present, the variable should be set to None.  These variables are:
+ * petsc_2_2_path - path to PETSc 2.2 install
+ * petsc_2_3_path - path to PETSc 2.3 install
+ * dealii_path    - path to Deal.II install
+ * metis_path     - path to METIS install
  * intel_path     - path to Intel compiler installation
+
+These flags indicate whether to use certain optional external libraries.
+Eventually we will use SCons' Configure functionality to make this unnecessary.
+If the variable is not present, it will default to False.  If the variable is
+set to True, then the appropriate paths (see below) should be specified, too.
+ * use_cvode  - whether to use CVODE
 
  * other_includepaths - list of paths containing other header files
  * other_libpaths     - list of paths containing other libraries, including metis, xsd, and boost
  * other_libraries    - list of other libraries to link against.  This *must* include
                         lapack, blas, and boost_serialization, as their names vary across systems.
 
- * ccflags - any extra compiler flags needed, as a string
+ * ccflags - any extra compiler flags needed, as a string.
 
  * tools - a dictionary mapping executable names to their absolute paths, for tools
            not found on $PATH.
+ * icpc - a special case tool: allows you to change the Intel compiler command, e.g.
+          to add flags specific to 64-bit machines.
 
 Any non-absolute paths will be considered relative to the root of the Chaste install.
 """
@@ -195,6 +205,18 @@ def do_dealii(build):
         libs = map(lambda s: s + '.g', libs)
     libraries.extend(libs)
 
+def optional_library_defines():
+    """
+    Work out what optional libraries have been asked for,
+    and return the appropriate #define flags, as a list.
+    """
+    possible_flags = {'cvode': 'CHASTE_CVODE'}
+    actual_flags = []
+    for libname, symbol in possible_flags.iteritems():
+        if getattr(conf, 'use_' + libname, False):
+            actual_flags.append('-D' + symbol)
+    return actual_flags
+
 def configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
     if build.using_dealii:
@@ -218,12 +240,11 @@ def configure(build):
 
     if build.CompilerType() == 'intel':
         # Switch to use Intel toolchain
-	build.tools['mpicxx'] += ' -CC="'+conf.icpc+'"'
+        build.tools['mpicxx'] += ' -CC="'+conf.icpc+'"'
         build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
         build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
 
 def ccflags():
-    try:
-        return conf.ccflags
-    except:
-        return ''
+    opt_lib_flags = optional_library_defines()
+    conf_flags = getattr(conf, 'ccflags', '')
+    return conf_flags + ' ' + ' '.join(opt_lib_flags)

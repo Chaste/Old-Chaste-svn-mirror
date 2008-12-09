@@ -38,11 +38,18 @@ metis_path = '../../../metis-4.0/'
 intel_path = '/opt/intel/cce/10.0.025'
 icpc='icpc'
 
-other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include']
-other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),  '../../../lib', '/opt/intel/mkl/9.1.023/lib/em64t', '../../../hdf5/lib']
+use_cvode = True
+
+other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include',
+                      '../../../cvode/include']
+other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),
+                    '../../../lib', '../../../hdf5/lib',
+                    '/opt/intel/mkl/9.1.023/lib/em64t',
+                    '../../../cvode/lib']
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
-other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
+other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5',
+                   'sundials_cvode', 'sundials_nvecserial']
 
 tools = {'texttest': '../../../texttest-3.10/source/bin/texttest.py'}
  
