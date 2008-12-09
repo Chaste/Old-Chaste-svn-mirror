@@ -40,23 +40,57 @@ class AbstractForce
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // nothing here (yet)
+        archive & mUseAreaBasedViscosity;
     }
   
 protected :
+
+    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
+    bool mUseAreaBasedViscosity;
     
 public :
     
-    AbstractForce()
-    {}
+    AbstractForce();
     
-    virtual ~AbstractForce()
-    {}
+    virtual ~AbstractForce();
     
-    void AddVelocityContribution(std::vector<c_vector<double, DIM> > node_velocities,
-                                 AbstractTissue<DIM>& rTissue)
-    {}
+    /// \todo eventually this should be a force contribution (see #627)
+    virtual void AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
+                                         AbstractTissue<DIM>& rTissue)=0;
+                                         
+    /**
+     *  Get the damping constant for this cell - ie d in drdt = F/d
+     *  This depends on whether using area-based viscosity has been switched on, and
+     *  on whether the cell is a mutant or not
+     */
+    virtual double GetDampingConstant(TissueCell& rCell, AbstractTissue<DIM>& rTissue);
                                                             
 };
+
+template<unsigned DIM>
+AbstractForce<DIM>::AbstractForce()
+{
+    mUseAreaBasedViscosity = false;
+}
+
+template<unsigned DIM>
+AbstractForce<DIM>::~AbstractForce()
+{
+}
+
+template<unsigned DIM>
+double AbstractForce<DIM>::GetDampingConstant(TissueCell& rCell, AbstractTissue<DIM>& rTissue)
+{
+    double damping_multiplier = 1.0;
+
+    if ( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
+    {
+        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
+    }
+    else
+    {
+        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
+    }
+}
 
 #endif /*ABSTRACTFORCE_HPP_*/

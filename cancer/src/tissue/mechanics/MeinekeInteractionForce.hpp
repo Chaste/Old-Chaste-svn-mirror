@@ -48,7 +48,6 @@ private :
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
-        archive & mUseAreaBasedViscosity;
         archive & mUseEdgeBasedSpringConstant;
         archive & mUseMutantSprings;
         archive & mMutantMutantMultiplier;
@@ -64,9 +63,6 @@ protected :
 
     /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
     double mCutoffPoint;
-
-    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
-    bool mUseAreaBasedViscosity;
     
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
@@ -90,8 +86,7 @@ public :
 
     MeinekeInteractionForce();
     
-    ~MeinekeInteractionForce()
-    {}
+    ~MeinekeInteractionForce();
        
     /**
      * Use a cutoff point, ie specify zero force if two cells are greater
@@ -130,7 +125,7 @@ public :
      *  This depends on whether using area-based viscosity has been switched on, and
      *  on whether the cell is a mutant or not
      */
-    double GetDampingConstant(TissueCell& rCell, MeshBasedTissue<DIM>& rTissue);
+    double GetDampingConstant(TissueCell& rCell, AbstractTissue<DIM>& rTissue);
     
     bool NeedsVoronoiTessellation();
     
@@ -149,17 +144,17 @@ public :
 
     /// \todo eventually this should be a force contribution (see #627)
     void AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
-                                 MeshBasedTissue<DIM>& rTissue);
+                                 AbstractTissue<DIM>& rTissue);
  
 };
 
 template<unsigned DIM>
 MeinekeInteractionForce<DIM>::MeinekeInteractionForce()
-{    
+   : AbstractForce<DIM>()
+{   
+    // Use cutoff point  
     mUseCutoffPoint = false;
     mCutoffPoint = 1e10;
-    
-    mUseAreaBasedViscosity = false;
     
     // Edge-based springs
     mUseEdgeBasedSpringConstant = false;
@@ -177,6 +172,11 @@ MeinekeInteractionForce<DIM>::MeinekeInteractionForce()
 }
 
 template<unsigned DIM>
+MeinekeInteractionForce<DIM>::~MeinekeInteractionForce()
+{
+}
+
+template<unsigned DIM>
 void MeinekeInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
 {
     assert(cutoffPoint > 0.0);
@@ -188,7 +188,7 @@ template<unsigned DIM>
 void MeinekeInteractionForce<DIM>::SetAreaBasedViscosity(bool useAreaBasedViscosity)
 {
     assert(DIM == 2);
-    mUseAreaBasedViscosity = useAreaBasedViscosity;
+    this->mUseAreaBasedViscosity = useAreaBasedViscosity;
 }
 
 template<unsigned DIM>
@@ -219,11 +219,11 @@ void MeinekeInteractionForce<DIM>::SetApoptoticSprings(bool useApoptoticSprings)
 }
 
 template<unsigned DIM>
-double MeinekeInteractionForce<DIM>::GetDampingConstant(TissueCell& rCell, MeshBasedTissue<DIM>& rTissue)
+double MeinekeInteractionForce<DIM>::GetDampingConstant(TissueCell& rCell, AbstractTissue<DIM>& rTissue)
 {
     double damping_multiplier = 1.0;
 
-    if (mUseAreaBasedViscosity)
+    if (this->mUseAreaBasedViscosity)
     {
         // We require the Voronoi tessellation to calculate the area of a cell
         assert(NeedsVoronoiTessellation());
@@ -246,7 +246,7 @@ double MeinekeInteractionForce<DIM>::GetDampingConstant(TissueCell& rCell, MeshB
         // hexagon of edge length 1)
         double d1 = 2.0*(1.0 - d0)/(sqrt(3)*rest_length*rest_length);
 
-        VoronoiTessellation<DIM>& tess = rTissue.rGetVoronoiTessellation();
+        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
 
         double area_cell = tess.GetFaceArea(rCell.GetLocationIndex());
 
@@ -272,7 +272,7 @@ double MeinekeInteractionForce<DIM>::GetDampingConstant(TissueCell& rCell, MeshB
 template<unsigned DIM>
 bool MeinekeInteractionForce<DIM>::NeedsVoronoiTessellation()
 {
-    return (mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
+    return (this->mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
 }
 
 
@@ -281,8 +281,8 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 {
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
 
-    c_vector<double, DIM> node_a_location = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
-    c_vector<double, DIM> node_b_location = rTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_a_location = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->GetNode(nodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->GetNode(nodeBGlobalIndex)->rGetLocation();
 
     // There is reason not to substract one position from the other (cylindrical meshes)
     c_vector<double, DIM> unit_difference = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
@@ -301,11 +301,11 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
     double rest_length = 1.0;
 
-    double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
-    double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
+    double ageA = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
+    double ageB = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
 
-    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
+    TissueCell& r_cell_A = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCell& r_cell_B = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
     if ( ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
@@ -326,14 +326,14 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
-    if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    if ((static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
+        double time_until_death_a = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
         a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
     }
-    if (rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    if ((static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
+        double time_until_death_b = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
         b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
     }
 
@@ -448,10 +448,10 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
 template<unsigned DIM>
 void MeinekeInteractionForce<DIM>::AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
-                                                           MeshBasedTissue<DIM>& rTissue)
+                                                           AbstractTissue<DIM>& rTissue)
 {
-    for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=rTissue.SpringsBegin();
-        spring_iterator!=rTissue.SpringsEnd();
+    for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
+        spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
         ++spring_iterator)
     {
         unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
@@ -459,8 +459,8 @@ void MeinekeInteractionForce<DIM>::AddVelocityContribution(std::vector<c_vector<
 
         c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
 
-        double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA(), rTissue);
-        double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB(), rTissue);
+        double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA(), *(static_cast<MeshBasedTissue<DIM>*>(&rTissue)));
+        double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB(), *(static_cast<MeshBasedTissue<DIM>*>(&rTissue)));
 
         rNodeVelocities[nodeB_global_index] -= force / damping_constantB;
         rNodeVelocities[nodeA_global_index] += force / damping_constantA;
