@@ -68,7 +68,8 @@ public:
         
     }
 
-    
+    ~VertexElement()
+    {}
     
     
     void RegisterWithNodes()
