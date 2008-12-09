@@ -57,6 +57,9 @@ private:
     unsigned SolveBoundaryElementMapping(unsigned index) const;   
     
     std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> mVertexElements;
+//    std::vector< std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> > mVertexElementsOwnedByNodes;
+    
+    void SetupVertexElementsOwnedByNodes();
     
 public:
     
@@ -72,6 +75,7 @@ public:
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertex_elements);
     
     unsigned GetNumVertexElements();
+    std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> GetElementsOwnedByNode(Node<SPACE_DIM>* p_node);
     
     void Clear();
     
@@ -106,6 +110,22 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     {
         VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertex_elements[index];
         this->mVertexElements.push_back(temp_vertex_element);
+    }
+    
+    this->SetupVertexElementsOwnedByNodes();
+};
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
+{
+    for (unsigned index=0; index<mVertexElements.size(); index++)
+    {
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = mVertexElements[index];
+        for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
+        {
+            Node<SPACE_DIM>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
+            p_temp_node->AddElement(p_temp_vertex_element->GetIndex());
+        }
     }
 };
 

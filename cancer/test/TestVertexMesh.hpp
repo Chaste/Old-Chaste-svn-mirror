@@ -62,9 +62,54 @@ public:
         
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumVertexElements(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 4u);
+                       
+        std::set<unsigned> temp_list1;
         
+        temp_list1.insert(0u);
         
+        TS_ASSERT_EQUALS(basic_nodes[1]->rGetContainingElementIndices(), temp_list1);
         
+        temp_list1.insert(1u);
+        
+        TS_ASSERT_EQUALS(basic_nodes[0]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(basic_nodes[2]->rGetContainingElementIndices(), temp_list1);
+        
+        std::set<unsigned> temp_list2;
+        temp_list2.insert(1u);
+        TS_ASSERT_EQUALS(basic_nodes[3]->rGetContainingElementIndices(), temp_list2);
+        
+//        temp_vertex_elements_owned_by_nodes1.push_back(basic_vertex_elements[0]);
+//        temp_vertex_elements_owned_by_nodes1.push_back(basic_vertex_elements[1]);
+//        
+//        temp_vertex_elements_owned_by_nodes2.push_back(basic_vertex_elements[0]);
+//        
+//        temp_vertex_elements_owned_by_nodes3.push_back(basic_vertex_elements[1]);
+//               
+//        vertex_elements_owned_by_nodes.push_back(temp_vertex_elements_owned_by_nodes1);
+//        vertex_elements_owned_by_nodes.push_back(temp_vertex_elements_owned_by_nodes2);
+//        vertex_elements_owned_by_nodes.push_back(temp_vertex_elements_owned_by_nodes1);
+//        vertex_elements_owned_by_nodes.push_back(temp_vertex_elements_owned_by_nodes3);
+//        
+//        std::set<unsigned> vertex_elements_owned_by_node_returned;
+//        
+//        vertex_elements_owned_by_node_returned = basic_nodes[0]->rGetContainingElementIndices;
+//        
+//        TS_ASSERT_EQUALS(vertex_elements_owned_by_node_returned[0], basic_vertex_elements[0]);
+//        std::cout<< "elem number " << vertex_elements_owned_by_node_returned[1]->GetIndex() << std::endl;
+//        TS_ASSERT_EQUALS(vertex_elements_owned_by_node_returned[1], basic_vertex_elements[1]);
+//        
+//        vertex_elements_owned_by_node_returned = basic_vertex_mesh.GetElementsOwnedByNode(basic_nodes[1]);
+//        
+//        TS_ASSERT_EQUALS(vertex_elements_owned_by_node_returned[0], basic_vertex_elements[0]);
+//        
+//        vertex_elements_owned_by_node_returned = basic_vertex_mesh.GetElementsOwnedByNode(basic_nodes[2]);
+//        
+//        TS_ASSERT_EQUALS(vertex_elements_owned_by_node_returned[0], basic_vertex_elements[0]);
+//        TS_ASSERT_EQUALS(vertex_elements_owned_by_node_returned[1], basic_vertex_elements[1]);
+//        
+//        vertex_elements_owned_by_node_returned = basic_vertex_mesh.GetElementsOwnedByNode(basic_nodes[3]);
+//        
+//        TS_ASSERT_EQUALS(vertex_elements_owned_by_node_returned[0], basic_vertex_elements[1]);
     }
 };    
 
