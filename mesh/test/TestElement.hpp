@@ -118,7 +118,7 @@ public:
     }
 
 
-    void TestGetSetAbstractElementMethods()
+    void TestGetSetAbstractTetrahedralElementMethods()
     {
         std::vector<Node<3>*> corner_nodes;
         corner_nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));

@@ -27,163 +27,86 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _ABSTRACTELEMENT_HPP_
-#define _ABSTRACTELEMENT_HPP_
+#ifndef _ABSTRACTTETRAHEDRALELEMENT_HPP_
+#define _ABSTRACTTETRAHEDRALELEMENT_HPP_
 
-#include "Node.hpp"
-#include "ChastePoint.hpp"
-#include "UblasCustomFunctions.hpp"
-
-#include "Exception.hpp"
-
-#include <vector>
-#include <cmath>
-
-// When creating an element within a mesh one needs to specify its global index
-// If the element is not used within a mesh the following
-// constant is used instead.
-const unsigned INDEX_IS_NOT_USED=0;
-
+#include "AbstractElement1.hpp"
 
 /**
  * This class defines an Element for use in the Finite Element Method.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class AbstractElement
+class AbstractTetrahedralElement : public AbstractElement<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
-    unsigned mIndex;
-    std::vector<Node<SPACE_DIM>*> mNodes;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
     
     /*< Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM */
     c_vector<double, SPACE_DIM> mWeightedDirection; 
     double mJacobianDeterminant;
-    bool mIsDeleted;
-    bool mOwnership;
-    bool mFlag;
-    unsigned mRegion;
-
 
     /**
      * Method that constructs the element. This is required because of having
      * two different copy constructors, one with a new index and another without
      */
-    void CommonConstructor(const AbstractElement &element)
+    void CommonConstructor(const AbstractTetrahedralElement& rElement)
     {
-        //Note that the index must be already set by the calling constructor
-        mNodes = element.mNodes;
-        // Allow nodes to keep track of containing elements (but not surface/boundary elements)
-        // Only done in copy constructor, since that is what is called to put elements
-        // in the vector contained in TetrahedralMesh.
-
-        mJacobianDeterminant = element.mJacobianDeterminant;
-        mJacobian = element.mJacobian;
-        mInverseJacobian = element.mInverseJacobian;
-        mWeightedDirection = element.mWeightedDirection;
-
-        // Copy various flags
-        mIsDeleted = element.mIsDeleted;
-        mOwnership = element.mOwnership;
-        mFlag = element.mFlag;
+        mJacobianDeterminant = rElement.mJacobianDeterminant;
+        mJacobian = rElement.mJacobian;
+        mInverseJacobian = rElement.mInverseJacobian;
+        mWeightedDirection = rElement.mWeightedDirection;
         
-        mRegion = element.mRegion;
+        AbstractElement<ELEMENT_DIM,SPACE_DIM>::CommonConstructor(rElement);
     }
 
 
 public:
-    static const unsigned NUM_CORNER_NODES = ELEMENT_DIM+1;
-
-    virtual void RegisterWithNodes()=0;
-
     ///Main constructor
-    AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
+    AbstractTetrahedralElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
      * Copy constructor. This is needed so that copies of an element don't
      * share pointers to the same matrices, which causes problems when copies
      * get destroyed.
      */
-    AbstractElement(const AbstractElement &element)
+    AbstractTetrahedralElement(const AbstractTetrahedralElement &element)
+        : AbstractElement<ELEMENT_DIM, SPACE_DIM>(element)
     {
-        mIndex=element.mIndex;
-        CommonConstructor(element);
+//        CommonConstructor(element);
     }
 
     /**
      * \todo Why does the default constructor not do anything?
      */
-    AbstractElement()
+    AbstractTetrahedralElement()
     {}
 
     /**
      * Element assignment - make this element equal to the other one.
      */
-    virtual AbstractElement& operator=(const AbstractElement &element)
+    virtual AbstractTetrahedralElement& operator=(const AbstractTetrahedralElement &element)
     {
-        // Now copy stuff
-        mIndex=element.mIndex;
         CommonConstructor(element);
         return *this;
     }
 
-    virtual ~AbstractElement()
+    virtual ~AbstractTetrahedralElement()
     {}
 
     void RefreshJacobianDeterminant(bool concreteMove=true);
     void ZeroJacobianDeterminant(void);
     void ZeroWeightedDirection(void);
 
-    double GetNodeLocation(unsigned localIndex, unsigned dimension) const
-    {
-        assert(dimension < SPACE_DIM);
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex]->rGetLocation()[dimension];
-    }
-
-    /**
-     * \todo this used to return a reference to a c_vector, in which case a
-     * weird error arose where it compiled, ran and passed on some machines
-     * but failed the tests (bad_size errors) on another machine.
-     */
-    c_vector<double, SPACE_DIM> GetNodeLocation(unsigned localIndex) const
-    {
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex]->rGetLocation();
-    }
 
     c_vector<double, SPACE_DIM> CalculateCentroid() const
     {
         c_vector<double, SPACE_DIM> centroid=zero_vector<double>(SPACE_DIM);
         for (unsigned i=0; i<=ELEMENT_DIM; i++)
         {
-            centroid += mNodes[i]->rGetLocation();
+            centroid += this->mNodes[i]->rGetLocation();
         }
         return centroid/((double)(ELEMENT_DIM + 1));
-    }
-
-    unsigned GetNodeGlobalIndex(unsigned localIndex) const
-    {
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex]->GetIndex();
-    }
-
-    Node<SPACE_DIM>* GetNode(unsigned localIndex) const
-    {
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex];
-    }
-
-    unsigned GetNumNodes() const
-    {
-        return mNodes.size();
-    }
-
-
-    void AddNode(Node<SPACE_DIM>* node)
-    {
-        mNodes.push_back(node);
     }
 
 ///////////////////////////////////
@@ -229,12 +152,7 @@ public:
         return &mWeightedDirection;
     }
 
-    /** Get the index of this element
-     */
-    unsigned GetIndex(void) const
-    {
-        return mIndex;
-    }
+
 
     /** Update node at the given index
      *  @param rIndex is an local index to which node to change
@@ -243,11 +161,11 @@ public:
     virtual void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)=0;
 
 
-    void ReplaceNode(Node <SPACE_DIM>* pOldNode, Node <SPACE_DIM>* pNewNode)
+    void ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode)
     {
-        for (unsigned i=0; i<mNodes.size(); i++)
+        for (unsigned i=0; i<this->mNodes.size(); i++)
         {
-            if (mNodes[i]==pOldNode)
+            if (this->mNodes[i]==pOldNode)
             {
                 UpdateNode(i,pNewNode);
                 return;
@@ -262,51 +180,6 @@ public:
      */
     virtual void MarkAsDeleted()=0;
 
-    bool IsDeleted() const
-    {
-        return mIsDeleted;
-    }
-
-    void SetIndex(unsigned index)
-    {
-        mIndex=index;
-    }
-
-    bool GetOwnership() const
-    {
-        return mOwnership;
-    }
-
-    void SetOwnership(bool ownership)
-    {
-        mOwnership=ownership;
-    }
-
-    void Flag()
-    {
-        mFlag = true;
-    }
-
-    void Unflag()
-    {
-        mFlag = false;
-    }
-
-    bool IsFlagged() const
-    {
-        return mFlag;
-    }
-
-    void SetRegion(unsigned region)
-    {
-        mRegion = region;
-    }
-
-    unsigned GetRegion()
-    {
-        return mRegion;
-    }
-    
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)
      * of the degrees of freedom associated with this element.
@@ -320,7 +193,7 @@ public:
 
         for (unsigned local_index=0; local_index<ELEMENT_DIM+1; local_index++)
         {
-            unsigned node = GetNodeGlobalIndex(local_index);
+            unsigned node = this->GetNodeGlobalIndex(local_index);
 
             for (unsigned problem_index=0; problem_index<problemDim; problem_index++)
             {
@@ -334,22 +207,13 @@ public:
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
-                                                         const std::vector<Node<SPACE_DIM>*>& rNodes)
-        : mIndex(index), mNodes(rNodes)
+AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(unsigned index,
+                                                                               const std::vector<Node<SPACE_DIM>*>& rNodes)
+        : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
     // Sanity checking
-    assert(ELEMENT_DIM <= SPACE_DIM);
     unsigned total_nodes = ELEMENT_DIM+1;
-    assert(mNodes.size() == total_nodes);
-
-    // Initialise flags.
-    // This must be done before the Jacobian calculations, or assertions trip.
-    mIsDeleted = false;
-    mFlag = false;
-    mOwnership = true;
-    
-    mRegion = 0;
+    assert(this->mNodes.size() == total_nodes);
 
     // This is so we know it's the first time of asking
     mJacobianDeterminant=0.0;
@@ -363,8 +227,8 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
         // if the Jacobian is negative the orientation of the element is probably
         // wrong, so swap the last two nodes around.
 
-        mNodes[total_nodes-1] = rNodes[total_nodes-2];
-        mNodes[total_nodes-2] = rNodes[total_nodes-1];
+        this->mNodes[total_nodes-1] = rNodes[total_nodes-2];
+        this->mNodes[total_nodes-2] = rNodes[total_nodes-1];
         RefreshJacobianDeterminant();
     }
 
@@ -375,20 +239,20 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroJacobianDeterminant(void)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::ZeroJacobianDeterminant(void)
 {
     mJacobianDeterminant=0.0;
 }
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
 {
     mWeightedDirection=zero_vector<double>(SPACE_DIM);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool concreteMove)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool concreteMove)
 {
-    if (mIsDeleted)
+    if (this->mIsDeleted)
     {
         EXCEPTION("Attempting to Refresh a deleted element");
     }
@@ -396,7 +260,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
     {
         for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0U (#186: pointless comparison of unsigned integer with zero)
         {
-            mJacobian(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
+            mJacobian(i,j) = this->GetNodeLocation(j+1,i) - this->GetNodeLocation(0,i);
         }
     }
 
@@ -409,7 +273,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
             std::stringstream string_stream;
             string_stream << "Jacobian determinant is non-positive: "
                           << "determinant = " << mJacobianDeterminant
-                          << " for element " << mIndex;
+                          << " for element " << this->mIndex;
             EXCEPTION(string_stream.str());
         }
         mInverseJacobian   = Inverse(mJacobian);
@@ -472,4 +336,4 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
     }
 }
 
-#endif //_ABSTRACTELEMENT_HPP_
+#endif //_ABSTRACTTETRAHEDRALELEMENT_HPP_

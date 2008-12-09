@@ -30,16 +30,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ELEMENT_HPP_
 #define _ELEMENT_HPP_
 
-#include "AbstractElement.hpp"
+#include "AbstractTetrahedralElement.hpp"
 #include <set>
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class Element : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
+class Element : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>
 {
 
 public:
     Element(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
-        : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+        : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
     {
         RegisterWithNodes();
     }
@@ -49,8 +49,9 @@ public:
      */
     Element(const Element &element, const unsigned index)
     {
-        this->mIndex=index;
         CommonConstructor(element);
+        this->mIndex=index;
+
         RegisterWithNodes();
     }
 
