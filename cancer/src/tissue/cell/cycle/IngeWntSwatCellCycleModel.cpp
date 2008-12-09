@@ -142,7 +142,11 @@ void IngeWntSwatCellCycleModel::Initialise()
 bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 {
     // WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
+#ifdef CHASTE_CVODE
+	const static double dt = SimulationTime::Instance()->GetTimeStep();
+#else
     double dt = 0.00005; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
+#endif // CHASTE_CVODE
 
     // Feed this time step's Wnt stimulus into the solver as a constant over this timestep.
     mpOdeSystem->rGetStateVariables()[21] = WntConcentration::Instance()->GetWntLevel(mpCell);

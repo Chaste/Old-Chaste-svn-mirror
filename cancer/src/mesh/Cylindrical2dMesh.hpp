@@ -60,12 +60,18 @@ private:
     /** The image nodes relating to these left nodes (on right of mesh) */
     std::vector<unsigned> mLeftImages;
 
+    /** A map from image node index (on right of mesh) to original node index (on left of mesh) */
+    std::map<unsigned, unsigned> mImageToLeftOriginalNodeMap;
+
     /** The right nodes which have been mirrored during the remesh */
     std::vector<unsigned> mRightOriginals;
 
     /** The image nodes relating to these right nodes (on left of mesh) */
     std::vector<unsigned> mRightImages;
 
+    /** A map from image node index (on left of mesh) to original node index (on right of mesh) */
+    std::map<unsigned, unsigned> mImageToRightOriginalNodeMap;
+    
     /** The indices of elements which straddle the left periodic boundary */
     std::set<unsigned> mLeftPeriodicBoundaryElementIndices;
 

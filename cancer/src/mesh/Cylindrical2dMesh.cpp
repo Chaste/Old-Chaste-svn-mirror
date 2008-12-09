@@ -85,8 +85,10 @@ void Cylindrical2dMesh::CreateMirrorNodes()
 
     mLeftOriginals.clear();
     mLeftImages.clear();
+    mImageToLeftOriginalNodeMap.clear();
     mRightOriginals.clear();
     mRightImages.clear();
+    mImageToRightOriginalNodeMap.clear();
     mLeftPeriodicBoundaryElementIndices.clear();
     mRightPeriodicBoundaryElementIndices.clear();
 
@@ -123,6 +125,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
 
         unsigned new_node_index = MutableMesh<2,2>::AddNode(new Node<2>(0u, location));
         mLeftImages.push_back(new_node_index);
+        mImageToLeftOriginalNodeMap[new_node_index] = mLeftOriginals[i];
     }
 
     // Go through the right original nodes and create an image node
@@ -135,6 +138,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
 
         unsigned new_node_index = MutableMesh<2,2>::AddNode(new Node<2>(0u, location));
         mRightImages.push_back(new_node_index);
+        mImageToRightOriginalNodeMap[new_node_index] = mRightOriginals[i];
     }
 }
 
@@ -204,18 +208,22 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     // so deal with this bridge when we get to it
     assert(big_map.IsIdentityMap());
 
-    // Re-index the vectors according to the big nodemap.
+    // Re-index the vectors according to the big nodemap, and set up the maps.
+    mImageToLeftOriginalNodeMap.clear();
+    mImageToRightOriginalNodeMap.clear();
 
     for (unsigned i=0; i<mLeftOriginals.size(); i++)
     {
         mLeftOriginals[i] = big_map.GetNewIndex(mLeftOriginals[i]);
         mLeftImages[i] = big_map.GetNewIndex(mLeftImages[i]);
+        mImageToLeftOriginalNodeMap[mLeftImages[i]] = mLeftOriginals[i];
     }
 
     for (unsigned i=0; i<mRightOriginals.size(); i++)
     {
         mRightOriginals[i] = big_map.GetNewIndex(mRightOriginals[i]);
         mRightImages[i] = big_map.GetNewIndex(mRightImages[i]);
+        mImageToRightOriginalNodeMap[mRightImages[i]] = mRightOriginals[i];
     }
 
     for (unsigned i=0; i<mTopHaloNodes.size(); i++)
@@ -298,21 +306,13 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
             {
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
 
-                bool this_node_a_left_image = false;
-                bool this_node_a_right_image = false;
-                if(IsThisIndexInList(this_node_index,mLeftImages))
-                {
-                    this_node_a_left_image = true;
-                }
-                if(IsThisIndexInList(this_node_index,mRightImages))
-                {
-                    this_node_a_right_image = true;
-                }
-                if(this_node_a_left_image)
+                if (mImageToLeftOriginalNodeMap.find(this_node_index)
+                   	!= mImageToLeftOriginalNodeMap.end())
                 {
                     number_of_left_image_nodes++;
                 }
-                if(this_node_a_right_image)
+                else if (mImageToRightOriginalNodeMap.find(this_node_index)
+                    != mImageToRightOriginalNodeMap.end())
                 {
                     number_of_right_image_nodes++;
                 }
@@ -341,7 +341,11 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                 for (unsigned i=0; i<3; i++)
                 {
                     unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                    ReplaceImageWithRealNodeOnElement(p_element,mLeftImages,mLeftOriginals,this_node_index);
+                    std::map<unsigned, unsigned>::iterator it = mImageToLeftOriginalNodeMap.find(this_node_index);
+                    if (it != mImageToLeftOriginalNodeMap.end())
+                    {
+                    	p_element->ReplaceNode(mNodes[this_node_index], mNodes[it->second]);
+                    }
                 }
             }
         }
@@ -358,17 +362,14 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
             for (unsigned i=0; i<2; i++)
             {
                 unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
-                bool this_node_an_image = false;
 
-                if(IsThisIndexInList(this_node_index,mLeftImages))
+                if (mImageToLeftOriginalNodeMap.find(this_node_index)
+                    != mImageToLeftOriginalNodeMap.end())
                 {
-                    this_node_an_image = true;
+                    number_of_image_nodes++;
                 }
-                if(IsThisIndexInList(this_node_index,mRightImages))
-                {
-                    this_node_an_image = true;
-                }
-                if(this_node_an_image)
+                else if (mImageToRightOriginalNodeMap.find(this_node_index)
+                    != mImageToRightOriginalNodeMap.end())
                 {
                     number_of_image_nodes++;
                 }
@@ -390,23 +391,22 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                 for (unsigned i=0; i<2; i++)
                 {
                     unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
-                    for (unsigned j=0; j<mLeftImages.size(); j++)
+                    std::map<unsigned, unsigned>::iterator it = mImageToLeftOriginalNodeMap.find(this_node_index);
+                    if (it != mImageToLeftOriginalNodeMap.end())
                     {
-                        if(this_node_index==mLeftImages[j])
-                        {
-                            //std::cout << "PERIODIC \n" << std::flush;
-                            p_boundary_element->ReplaceNode(mNodes[mLeftImages[j]],mNodes[mLeftOriginals[j]]);
-                            //std::cout << "Node " << mLeftImages[j] << " swapped for node " << mLeftOriginals[j] << "\n" << std::flush;
-                        }
+                        //std::cout << "PERIODIC \n" << std::flush;
+                        p_boundary_element->ReplaceNode(mNodes[this_node_index], mNodes[it->second]);
+                        //std::cout << "Node " << this_node_index << " swapped for node " << it->second << "\n" << std::flush;
                     }
-                    for (unsigned j=0; j<mRightImages.size(); j++)
+                    else
                     {
-                        if(this_node_index==mRightImages[j])
-                        {
-                            //std::cout << "IMAGE\n" << std::flush;
-                            p_boundary_element->MarkAsDeleted();
-                            mDeletedBoundaryElementIndices.push_back(p_boundary_element->GetIndex());
-                        }
+	                    it = mImageToRightOriginalNodeMap.find(this_node_index);
+	                    if (it != mImageToRightOriginalNodeMap.end())
+	                    {
+	                        //std::cout << "IMAGE\n" << std::flush;
+	                        p_boundary_element->MarkAsDeleted();
+	                        mDeletedBoundaryElementIndices.push_back(p_boundary_element->GetIndex());
+	                    }
                     }
                 }
             }
@@ -724,22 +724,14 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
             for (unsigned i=0; i<3; i++)
             {
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                bool this_node_a_left_image = false;
-                bool this_node_a_right_image = false;
 
-                if(IsThisIndexInList(this_node_index,mLeftImages))
-                {
-                    this_node_a_left_image = true;
-                }
-                if(IsThisIndexInList(this_node_index,mRightImages))
-                {
-                    this_node_a_right_image = true;
-                }
-                if(this_node_a_left_image)
+                if (mImageToLeftOriginalNodeMap.find(this_node_index)
+                	!= mImageToLeftOriginalNodeMap.end())
                 {
                     number_of_left_image_nodes++;
                 }
-                if(this_node_a_right_image)
+                else if (mImageToRightOriginalNodeMap.find(this_node_index)
+                    	!= mImageToRightOriginalNodeMap.end())
                 {
                     number_of_right_image_nodes++;
                 }
