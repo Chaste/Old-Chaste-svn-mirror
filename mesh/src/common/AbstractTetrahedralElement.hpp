@@ -154,32 +154,6 @@ public:
 
 
 
-    /** Update node at the given index
-     *  @param rIndex is an local index to which node to change
-     *  @param pNode is a pointer to the replacement node
-     */
-    virtual void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)=0;
-
-
-    void ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode)
-    {
-        for (unsigned i=0; i<this->mNodes.size(); i++)
-        {
-            if (this->mNodes[i]==pOldNode)
-            {
-                UpdateNode(i,pNewNode);
-                return;
-            }
-        }
-        EXCEPTION("You didn't have that node to start with.");
-    }
-
-    /**
-     * Mark an element as having been removed from the mesh.
-     * Also notify nodes in the element that it has been removed.
-     */
-    virtual void MarkAsDeleted()=0;
-
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)
      * of the degrees of freedom associated with this element.
@@ -190,7 +164,6 @@ public:
      */
     void GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices) const
     {
-
         for (unsigned local_index=0; local_index<ELEMENT_DIM+1; local_index++)
         {
             unsigned node = this->GetNodeGlobalIndex(local_index);
