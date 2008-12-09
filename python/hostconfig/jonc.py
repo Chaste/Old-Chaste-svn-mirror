@@ -37,14 +37,15 @@ metis_path = '../../../metis-4.0/'
 intel_path = '/opt/intel/cc/9.1.039/lib'
 icpc='icpc'
 
-use_cvode = True
-
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd',
                       '../../../include']
 other_libpaths = ['../../../lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu')]
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5',
-                   'sundials_cvode', 'sundials_nvecserial']
+other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
+
+use_cvode = True
+if use_cvode:
+    other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
 
 tools = {}

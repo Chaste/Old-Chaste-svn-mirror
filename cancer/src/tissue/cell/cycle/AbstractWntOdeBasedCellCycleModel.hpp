@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -57,7 +58,11 @@ private:
 
 protected:
 
+#ifdef CHASTE_CVODE
+    static CvodeAdaptor msSolver;
+#else
     static RungeKutta4IvpOdeSolver msSolver;
+#endif //CHASTE_CVODE
 
     AbstractWntOdeBasedCellCycleModel(double lastTime)
         : AbstractOdeBasedCellCycleModel(lastTime) {};

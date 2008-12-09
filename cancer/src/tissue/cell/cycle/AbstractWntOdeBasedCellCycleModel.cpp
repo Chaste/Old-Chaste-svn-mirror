@@ -27,7 +27,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 
+#ifdef CHASTE_CVODE
+CvodeAdaptor AbstractWntOdeBasedCellCycleModel::msSolver;
+#else
 RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
+#endif //CHASTE_CVODE
 
 // PROTECTED FUNCTIONS
 
