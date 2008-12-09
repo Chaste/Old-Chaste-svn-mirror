@@ -46,31 +46,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
-//private:
-//    unsigned mIndex;
-//    std::vector<Node<SPACE_DIM>*> mNodes;
-//    
-//    
 private:
      double mVertexElementArea;
      double mVertexElementPerimeter;
 
 public:
     
-//    ///Main constructor
-//    Element(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
     VertexElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
         : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
     {
         RegisterWithNodes();
         mVertexElementArea = DOUBLE_UNSET;
         mVertexElementPerimeter = DOUBLE_UNSET;
-        
     }
 
     ~VertexElement()
     {}
-    
     
     void RegisterWithNodes()
     {
@@ -83,7 +74,6 @@ public:
     void MarkAsDeleted()
     {
         this->mIsDeleted = true;
-        this->mJacobianDeterminant = 0.0;
         // Update nodes in this element so they know they are not contained by us
         for (unsigned i=0; i<this->GetNumNodes(); i++)
         {

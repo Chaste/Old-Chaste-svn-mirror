@@ -37,27 +37,47 @@ class TestVertexElement : public CxxTest::TestSuite
 {
 public:
     void TestVertexElementAreaAndPerimeter()
-     {
+    {
         std::vector<Node<2>*> corner_nodes;
         corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
         corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
-//      corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
     
         VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
         
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
         //  Check nodes have correct indices
-        for (unsigned i=0; i<3; i++)
+        for (unsigned i=0; i<4; i++)
         {
             TS_ASSERT_EQUALS(vertex_element.GetNodeGlobalIndex(i), i);
         }
         
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),0.5,1e-3);
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),2+sqrt(2),1e-3);
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),1.0,1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),4.0,1e-6);
      }
      
+    void TestVertexElementAreaAndPerimeterOnCircle()
+    {
+        std::vector<Node<2>*> nodes;
+        unsigned N = 1000;   //vertices
+        for(unsigned i=0; i<N; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(N); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
+        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
+        
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), N);
+        //  Check nodes have correct indices
+        for (unsigned i=0; i<N; i++)
+        {
+            TS_ASSERT_EQUALS(vertex_element.GetNodeGlobalIndex(i), i);
+        }
+        
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),M_PI,1e-4);
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),2.0*M_PI,1e-4);
+     }
      
-  
-
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/
