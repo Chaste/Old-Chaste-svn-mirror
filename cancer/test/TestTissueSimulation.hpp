@@ -46,6 +46,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "FixedCellCycleModelCellsGenerator.hpp"
+
+
+// simple subclass of TissueSimulation which just overloads StoppingEventHasOccured
+// for testing the stopping event functionality..
+class TissueSimulationWithMyStoppingEvent : public TissueSimulation<2>
+{
+private:
+    // define a stopping event with says stop if t>3.14
+    bool StoppingEventHasOccured()
+    {
+        return  (SimulationTime::Instance()->GetDimensionalisedTime() > 3.1415);
+    }
+
+public:
+    TissueSimulationWithMyStoppingEvent(AbstractTissue<2>& rTissue,
+                                        AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem)
+      : TissueSimulation<2>(rTissue,pMechanicsSystem)
+   {
+   }
+};
 
 
 /**
@@ -272,5 +293,38 @@ public:
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 17u);
     }
 
+
+    void TestTissueSimulationWithStoppingEvent() throw (Exception)
+    {
+        HoneycombMeshGenerator generator(2, 2, 0, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Set up cells, one for each node. Give each cell a random birth time.
+        std::vector<TissueCell> cells;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+
+        // Create a tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Create a mechanics system
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
+
+        // Set up tissue simulation WITH the stopping event
+        TissueSimulationWithMyStoppingEvent simulator(tissue, &spring_system);
+        simulator.SetOutputDirectory("TestTissueSimWithStoppingEvent");
+
+        // ** Set the end time to 10.0 - the stopping event is, however, t>3.1415.
+        simulator.SetEndTime(10.0); 
+
+        // Run tissue simulation
+        simulator.Solve();
+        
+        double time = SimulationTime::Instance()->GetDimensionalisedTime();
+        TS_ASSERT_DELTA(time, 3.1415, 1e-1); // big tol, doesn't matter, just want t~3.14 and t!=10
+        // t should be strictly greater than the 3.1415
+        TS_ASSERT_LESS_THAN(3.1415, time);
+    }
 };
 #endif /*TESTTISSUESIMULATION_HPP_*/

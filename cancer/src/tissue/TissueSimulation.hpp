@@ -271,6 +271,13 @@ protected:
      *  the base class method.
      */
     virtual void AfterSolve();
+    
+    /**
+     *  A child class can overload this if they want the simulation to stop 
+     *  based on certain conditions before the specified end time (for example,
+     *  run until a crypt becomes monoclonal).
+     */
+    virtual bool StoppingEventHasOccured();
 
 public:
 
@@ -819,7 +826,8 @@ void TissueSimulation<DIM>::Solve()
     /////////////////////////////////////////////////////////////////////
     // Main time loop
     /////////////////////////////////////////////////////////////////////
-    while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
+    
+    while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccured()) )
     {
         LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
 
@@ -965,6 +973,13 @@ void TissueSimulation<DIM>::AfterSolve()
         mrTissue.ReMesh();
         LOG(1, "\tdone.\n");
     }
+}
+
+
+template<unsigned DIM>
+bool TissueSimulation<DIM>::StoppingEventHasOccured()
+{
+    return false;
 }
 
 /**
