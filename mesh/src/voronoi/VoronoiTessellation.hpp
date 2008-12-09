@@ -105,7 +105,7 @@ public:
     double GetFaceArea(unsigned index) const;
     double GetFacePerimeter(unsigned index) const;
 
-    double GetEdgeLength(unsigned node_index_1, unsigned node_index_2) const;
+    double GetEdgeLength(unsigned nodeIndex1, unsigned nodeIndex2) const;
 };
 
 
@@ -409,14 +409,14 @@ const Face<DIM>* VoronoiTessellation<DIM>::GetFace(unsigned index) const
 };
 
 template<unsigned DIM>
-double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned node_index_2) const
+double VoronoiTessellation<DIM>::GetEdgeLength(unsigned nodeIndex1, unsigned nodeIndex2) const
 {
     #define COVERAGE_IGNORE
     assert(DIM==2);
     #undef COVERAGE_IGNORE
 
-    std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[node_index_1]->mVertices;
-    std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[node_index_2]->mVertices;
+    std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[nodeIndex1]->mVertices;
+    std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[nodeIndex2]->mVertices;
     std::sort(vertices_1.begin(), vertices_1.end());
     std::sort(vertices_2.begin(), vertices_2.end());
     std::vector< c_vector<double, DIM>* > intersecting_vertices;
@@ -427,7 +427,7 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
 #define COVERAGE_IGNORE //Debug code from r3223
     if (intersecting_vertices.size() != 2)
     {
-        std::cout<< "node 1 = " << node_index_1 << " node 2 = " << node_index_2 <<" \n" << std::flush;
+        std::cout<< "node 1 = " << nodeIndex1 << " node 2 = " << nodeIndex2 <<" \n" << std::flush;
         std::cout<< "vertices 1 \n" << std::flush;
         for (unsigned i=0; i<vertices_1.size(); i++)
         {

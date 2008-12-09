@@ -39,6 +39,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <cmath>
 
+//double ComputePolarAngle(double x, double y)
+//{
+//    if (x==0)
+//    {
+//        if (y>0)
+//        {
+//            return M_PI/2.0;
+//        }
+//        else if (y<0)
+//        {
+//            return -M_PI/2.0;
+//        }
+//        else
+//        {
+//            EXCEPTION("Tried to compute polar angle of (0,0)");
+//        }
+//    }
+//
+//    double angle = atan(y/x);
+//
+//    if (y >= 0 && x < 0 )
+//    {
+//        angle += M_PI;
+//    }
+//    else if (y < 0 && x < 0 )
+//    {
+//        angle -= M_PI;
+//    }
+//    return angle;
+//};
+
 // When creating an element within a mesh one needs to specify its global index
 // If the element is not used within a mesh the following
 // constant is used instead.
@@ -49,6 +80,7 @@ class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 private:
      double mVertexElementArea;
      double mVertexElementPerimeter;
+     
 
 public:
     
@@ -113,7 +145,7 @@ public:
             current_node = this->GetNodeLocation(i);
             anticlockwise_node = this->GetNodeLocation((i+1)%number_of_nodes);
             
-            // TODO: will need to change length calculation to something like GetVectorFromAtoB
+            /// \todo will need to change length calculation to something like GetVectorFromAtoB
             
             temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1]
                 -anticlockwise_node[0]*current_node[1]);
@@ -143,6 +175,49 @@ public:
         }
         
         return mVertexElementPerimeter;
+    }
+    
+    /**
+     *  Calculate the seconds moments of area of the polygon
+     *  @return (Ixx,Iyy,Ixy).
+     */
+    c_vector<double, 3> CalculateMoments()
+    {
+        c_vector<double, 3> moments = zero_vector<double>(3);
+        unsigned node_1, node_2;
+        unsigned N = this->GetNumNodes();
+
+        for (unsigned i=0; i<N; i++)
+        {
+            node_1 = i;
+            node_2 = (i+1)%N;
+
+            c_vector<double, 2> pos_1 = this->mNodes[node_1]->rGetLocation();
+            c_vector<double, 2> pos_2 = this->mNodes[node_2]->rGetLocation();
+
+            // Ixx
+            moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
+                                               + pos_1(1)*pos_1(1)*pos_2(1)
+                                               + pos_1(1)*pos_2(1)*pos_2(1)
+                                               + pos_2(1)*pos_2(1)*pos_2(1));
+
+            // Iyy
+            moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
+                                               + pos_1(0)*pos_1(0)*pos_2(0)
+                                               + pos_1(0)*pos_2(0)*pos_2(0)
+                                               + pos_2(0)*pos_2(0)*pos_2(0));
+
+            // Ixy
+            moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
+                          - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
+                          + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
+        }
+
+        moments(0) /= -12;
+        moments(1) /= 12;
+        moments(2) /= 24;
+
+        return moments;
     }
     
 };

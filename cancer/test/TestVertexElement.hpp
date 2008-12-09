@@ -79,5 +79,45 @@ public:
         TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),2.0*M_PI,1e-4);
      }
      
+//     void xTestAnticlockwisenessOfNodes() throw(Exception)
+//     {
+//        // Tests to check that the nodes are anticlockwise when we create element
+//        std::vector<Node<2>*> corner_nodes;
+//        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+//        corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+//        corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+//        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+//    
+//        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
+//        
+//        std::vector<Node<2>*> corner_nodes2;
+//        corner_nodes2.push_back(new Node<2>(0, false, 0.0, 0.0));
+//        corner_nodes2.push_back(new Node<2>(2, false, 1.0, 1.0));   
+//        corner_nodes2.push_back(new Node<2>(1, false, 1.0, 0.0));
+//        corner_nodes2.push_back(new Node<2>(3, false, 0.0, 1.0));
+//    
+//        VertexElement<2,2> vertex_element2(INDEX_IS_NOT_USED, corner_nodes2);
+//     }
+
+    void TestCalculateMoment() throw(Exception)
+    {
+        std::vector<Node<2>*> nodes;
+        unsigned N = 6;   //vertices
+        for(unsigned i=0; i<N; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(N); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
+        VertexElement<2,2> hexagon(INDEX_IS_NOT_USED, nodes);
+        
+        TS_ASSERT_DELTA(hexagon.GetVertexElementArea(),3*sqrt(3)/2.0,1e-4);
+        TS_ASSERT_DELTA(hexagon.GetVertexElementPerimeter(),6.0,1e-4);
+        
+        c_vector<double, 3> moments = hexagon.CalculateMoments();
+        TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16, 1e-6);    // Ixx
+        TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16, 1e-6);    // Iyy
+        TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
+    }
+     
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/
