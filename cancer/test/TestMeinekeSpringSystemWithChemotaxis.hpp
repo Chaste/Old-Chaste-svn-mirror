@@ -142,7 +142,7 @@ public:
             p_chemotaxis_spring_system->SetAreaBasedViscosity(true);
             p_chemotaxis_spring_system->SetMutantSprings(true, 0.2, 0.3);
             p_chemotaxis_spring_system->SetBCatSprings(true);
-            p_chemotaxis_spring_system->SetNecroticSprings(true);
+            p_chemotaxis_spring_system->SetApoptoticSprings(true);
 
             output_arch << p_chemotaxis_spring_system;
         }
@@ -167,7 +167,7 @@ public:
             TS_ASSERT_DELTA(p_chemotaxis_spring_system->mMutantMutantMultiplier, 0.2, 1e-12);
             TS_ASSERT_DELTA(p_chemotaxis_spring_system->mNormalMutantMultiplier, 0.3, 1e-12);
             TS_ASSERT_EQUALS(p_chemotaxis_spring_system->mUseBCatSprings, true);
-            TS_ASSERT_EQUALS(p_chemotaxis_spring_system->mUseNecroticSprings, true);
+            TS_ASSERT_EQUALS(p_chemotaxis_spring_system->mUseApoptoticSprings, true);
 
             delete p_chemotaxis_spring_system->mpTissue;
             delete p_chemotaxis_spring_system;

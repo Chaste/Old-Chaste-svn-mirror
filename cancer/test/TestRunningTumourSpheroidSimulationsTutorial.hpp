@@ -162,7 +162,7 @@ public:
          * This will be passed into the simulator. The !CellwiseNutrientSinkPde is
          * a Pde class which inherits from !AbstractLinearEllipticPde, and represents
          * the PDE: u_xx + u_yy = k(x) u, where k(x) = 0.03 (the coefficient below)
-         * if x is in a live cell, and k(x)=0 if x is within a necrotic cell
+         * if x is in a live cell, and k(x)=0 if x is within a apoptotic cell
          */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
 

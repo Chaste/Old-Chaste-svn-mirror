@@ -136,10 +136,7 @@ void WntCellCycleOdeSystem::Init()
     double a4 = 10.0;
     double a5 = 0.5;
     double WntMax = 10.0;
-
-    /// todo change this value of mitogenic_factorF to 5.0e-5 without breaking the build
     double mitogenic_factorF = 6.0e-4;
-
     double APC_Total = 0.02;
 
     // Non-dimensionalise...

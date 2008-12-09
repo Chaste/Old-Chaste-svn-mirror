@@ -69,8 +69,8 @@ public:
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, *p_mesh);
 
-        // Make one cell necrotic
-        cells[0].SetCellType(NECROTIC);
+        // Make one cell apoptotic
+        cells[0].SetCellType(APOPTOTIC);
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 

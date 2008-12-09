@@ -69,8 +69,8 @@ private:
         TS_ASSERT_DELTA(inst->GetCriticalHypoxicDuration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(inst->GetNecroticSpringTensionStiffness(), 0.25*15.0, 1e-12);
-        TS_ASSERT_DELTA(inst->GetNecroticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetApoptoticSpringTensionStiffness(), 0.25*15.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetApoptoticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
     }
@@ -142,8 +142,8 @@ public:
         inst1->SetCriticalHypoxicDuration(1.0);
         inst1->SetCryptProjectionParameterA(0.8);
         inst1->SetCryptProjectionParameterB(1.3);
-        inst1->SetNecroticSpringTensionStiffness(1.3);
-        inst1->SetNecroticSpringCompressionStiffness(1.2);
+        inst1->SetApoptoticSpringTensionStiffness(1.3);
+        inst1->SetApoptoticSpringCompressionStiffness(1.2);
         inst1->SetWntChemotaxisStrength(1.9);
         inst1->SetSymmetricDivisionProbability(0.1);
 
@@ -172,8 +172,8 @@ public:
         TS_ASSERT_DELTA(inst2->GetCriticalHypoxicDuration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterA(), 0.8, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterB(), 1.3, 1e-12);
-        TS_ASSERT_DELTA(inst2->GetNecroticSpringTensionStiffness(), 1.3, 1e-12);
-        TS_ASSERT_DELTA(inst2->GetNecroticSpringCompressionStiffness(), 1.2, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetApoptoticSpringTensionStiffness(), 1.3, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetApoptoticSpringCompressionStiffness(), 1.2, 1e-12);
         TS_ASSERT_DELTA(inst2->GetWntChemotaxisStrength(), 1.9, 1e-12);
         TS_ASSERT_DELTA(inst2->GetSymmetricDivisionProbability(), 0.1, 1e-12);
     }
@@ -210,8 +210,8 @@ public:
             inst1->SetCriticalHypoxicDuration(1.0);
             inst1->SetCryptProjectionParameterA(0.8);
             inst1->SetCryptProjectionParameterB(1.3);
-            inst1->SetNecroticSpringTensionStiffness(1.3);
-            inst1->SetNecroticSpringCompressionStiffness(1.2);
+            inst1->SetApoptoticSpringTensionStiffness(1.3);
+            inst1->SetApoptoticSpringCompressionStiffness(1.2);
             inst1->SetWntChemotaxisStrength(1.9);
             inst1->SetSymmetricDivisionProbability(0.1);
 
@@ -249,8 +249,8 @@ public:
             inst1->SetCriticalHypoxicDuration(2.0);
             inst1->SetCryptProjectionParameterA(0.5);
             inst1->SetCryptProjectionParameterB(2.0);
-            inst1->SetNecroticSpringTensionStiffness(0.0);
-            inst1->SetNecroticSpringCompressionStiffness(0.0);
+            inst1->SetApoptoticSpringTensionStiffness(0.0);
+            inst1->SetApoptoticSpringCompressionStiffness(0.0);
             inst1->SetWntChemotaxisStrength(100.0);
             inst1->SetWntChemotaxisStrength(0.0);
 
@@ -285,8 +285,8 @@ public:
             TS_ASSERT_DELTA(inst1->GetCriticalHypoxicDuration(), 1.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterA(), 0.8, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterB(), 1.3, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetNecroticSpringTensionStiffness(), 1.3, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetNecroticSpringCompressionStiffness(), 1.2, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetApoptoticSpringTensionStiffness(), 1.3, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetApoptoticSpringCompressionStiffness(), 1.2, 1e-12);
             TS_ASSERT_DELTA(inst1->GetWntChemotaxisStrength(), 1.9, 1e-12);
             TS_ASSERT_DELTA(inst1->GetSymmetricDivisionProbability(), 0.1, 1e-12);
         }

@@ -61,7 +61,7 @@ private :
     /** Node velocities */
     std::vector<c_vector<double, DIM> > mDrDt;
 
-    /// \todo: add member variables for mutant/necrotic springs here (see #627)
+    /// \todo add member variables for mutant/apoptotic springs here (see #627)
 
     /**
      * Calculates the force between two nodes.
@@ -109,7 +109,7 @@ SimpleTissueMechanicsSystem<DIM>::SimpleTissueMechanicsSystem(SimpleTissue<DIM>&
 {
     this->mpTissue = &rTissue;
     this->mCutoffPoint = 1.5;
-    /// \todo: add code for initialising member variables for mutant/necrotic springs here (see #627)
+    /// \todo add code for initialising member variables for mutant/apoptotic springs here (see #627)
 }
 
 
@@ -174,7 +174,7 @@ double SimpleTissueMechanicsSystem<DIM>::CalculateForceMagnitude(unsigned nodeAG
     rest_length = a_rest_length + b_rest_length;
     assert(rest_length <= 1.0 + 1e-12);
 
-    /// \todo: add code for mutant here (see #627)
+    /// \todo add code for mutant here (see #627)
 
     // A reasonably stable simple force law
     if (distanceBetweenNodes > rest_length)
@@ -196,7 +196,7 @@ template<unsigned DIM>
 double SimpleTissueMechanicsSystem<DIM>::GetDampingConstant(TissueCell& rCell)
 {
     double damping_multiplier = 1.0;
-    // todo: add code for mutant damping multipliers here (see #627)
+    /// \todo add code for mutant damping multipliers here (see #627)
     return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
 }
 

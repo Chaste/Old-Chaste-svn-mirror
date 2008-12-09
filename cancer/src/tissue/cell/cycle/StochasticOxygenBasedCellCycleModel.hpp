@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A simple oxygen-dependent cell cycle model that inherits from
  *  AbstractSimpleCellCycleModel. The duration of G1 phase depends
  *  on the local oxygen concentration. A prolonged period of acute
- *  hypoxia leads to the cell being labelled as necrotic. This model
+ *  hypoxia leads to the cell being labelled as apoptotic. This model
  *  allows for quiescence imposed by transient periods of hypoxia,
  *  followed by reoxygenation.
  *

@@ -230,7 +230,7 @@ unsigned TissueCell::GetAncestor() const
 bool TissueCell::ReadyToDivide()
 {
     assert(!IsDead());
-    if (mUndergoingApoptosis || mCellType==NECROTIC)
+    if (mUndergoingApoptosis || mCellType==APOPTOTIC)
     {
         return false;
     }

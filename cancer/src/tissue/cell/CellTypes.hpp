@@ -36,7 +36,7 @@ typedef enum CellType_
     STEM,
     TRANSIT,
     DIFFERENTIATED,
-    NECROTIC // for use in tissue simulations with nutrients
+    APOPTOTIC // for use in tissue simulations with nutrients
 } CellType;
 
 const static unsigned NUM_CELL_TYPES=4;

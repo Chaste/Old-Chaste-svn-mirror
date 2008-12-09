@@ -67,7 +67,7 @@ void TysonNovakCellCycleModel::ResetForDivision()
      * we must reset the initial conditions each period.
      */
 
-    /// \todo: Uncomment this line and comment the line after once #316 is fixed
+    /// \todo Uncomment this line and comment the line after once #316 is fixed
     // mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
 
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());

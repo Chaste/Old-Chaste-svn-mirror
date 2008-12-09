@@ -118,7 +118,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         Meineke2001SpringSystem<2> spring_system(tissue);
         spring_system.UseCutoffPoint(1.5);

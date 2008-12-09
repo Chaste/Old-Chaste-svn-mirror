@@ -449,7 +449,7 @@ public:
         simple_tissue.rGetCellUsingLocationIndex(1).SetMutationState(APC_ONE_HIT);
         simple_tissue.rGetCellUsingLocationIndex(2).SetMutationState(APC_TWO_HIT);
         simple_tissue.rGetCellUsingLocationIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
-        simple_tissue.rGetCellUsingLocationIndex(4).SetCellType(NECROTIC);
+        simple_tissue.rGetCellUsingLocationIndex(4).SetCellType(APOPTOTIC);
         simple_tissue.rGetCellUsingLocationIndex(4).StartApoptosis();
         simple_tissue.SetCellAncestorsToNodeIndices();
 

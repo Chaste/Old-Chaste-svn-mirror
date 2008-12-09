@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractLinearEllipticPde.hpp"
 
 /**
- *  A nutrient PDE which has a sink at each non-necrotic cell.
+ *  A nutrient PDE which has a sink at each non-apoptotic cell.
  */
 template<unsigned DIM>
 class CellwiseNutrientSinkPde : public AbstractLinearEllipticPde<DIM>
@@ -81,7 +81,7 @@ template<unsigned DIM>
 double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
 {
     TissueCell& r_cell = mrTissue.rGetCellUsingLocationIndex(rNode.GetIndex());
-    if(r_cell.GetCellType()!=NECROTIC)
+    if(r_cell.GetCellType()!=APOPTOTIC)
     {
         return -mCoefficient;
     }

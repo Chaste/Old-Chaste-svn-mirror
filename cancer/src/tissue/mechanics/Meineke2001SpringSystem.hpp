@@ -85,7 +85,7 @@ private :
         archive & mMutantMutantMultiplier;
         archive & mNormalMutantMultiplier;
         archive & mUseBCatSprings;
-        archive & mUseNecroticSprings;
+        archive & mUseApoptoticSprings;
     }
 
 protected :
@@ -108,8 +108,8 @@ protected :
     /** Use springs which are dependent on beta-catenin levels */
     bool mUseBCatSprings;
 
-    /** Use springs which are dependent on whether cells are necrotic */
-    bool mUseNecroticSprings;
+    /** Use springs which are dependent on whether cells are apoptotic */
+    bool mUseApoptoticSprings;
 
 
 public :
@@ -121,7 +121,7 @@ public :
      *
      * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
      *
-     * @param NodeAGlobalIndex
+     * @param NodeAGlobalIndex  
      * @param NodeBGlobalIndex
      *
      * @return The force exerted on Node A by Node B.
@@ -157,9 +157,9 @@ public :
     void SetBCatSprings(bool useBCatSprings);
 
     /**
-     * Set spring stiffness to be dependent on whether cells are necrotic
+     * Set spring stiffness to be dependent on whether cells are apoptotic
      */
-    void SetNecroticSprings(bool useNecroticSprings);
+    void SetApoptoticSprings(bool useApoptoticSprings);
 
 };
 
@@ -179,8 +179,8 @@ Meineke2001SpringSystem<DIM>::Meineke2001SpringSystem(MeshBasedTissue<DIM>& rTis
     // Beta-cat springs
     mUseBCatSprings = false;
 
-    // Necrotic springs
-    mUseNecroticSprings = false;
+    // Apoptotic springs
+    mUseApoptoticSprings = false;
 }
 
 
@@ -317,33 +317,33 @@ c_vector<double, DIM> Meineke2001SpringSystem<DIM>::CalculateForceBetweenNodes(u
         multiplication_factor *= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
     }
 
-    if (mUseNecroticSprings)
+    if (mUseApoptoticSprings)
     {
-        if (r_cell_A.GetCellType()==NECROTIC || r_cell_B.GetCellType()==NECROTIC)
+        if (r_cell_A.GetCellType()==APOPTOTIC || r_cell_B.GetCellType()==APOPTOTIC)
         {
             double spring_a_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
             double spring_b_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
 
-            if (r_cell_A.GetCellType()==NECROTIC)
+            if (r_cell_A.GetCellType()==APOPTOTIC)
             {
                 if (distance_between_nodes-rest_length > 0) // if under tension
                 {
-                    spring_a_stiffness = CancerParameters::Instance()->GetNecroticSpringTensionStiffness();
+                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
                 }
                 else // if under compression
                 {
-                    spring_a_stiffness = CancerParameters::Instance()->GetNecroticSpringCompressionStiffness();
+                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
                 }
             }
-            if (r_cell_B.GetCellType()==NECROTIC)
+            if (r_cell_B.GetCellType()==APOPTOTIC)
             {
                 if (distance_between_nodes-rest_length > 0) // if under tension
                 {
-                    spring_b_stiffness = CancerParameters::Instance()->GetNecroticSpringTensionStiffness();
+                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
                 }
                 else // if under compression
                 {
-                    spring_b_stiffness = CancerParameters::Instance()->GetNecroticSpringCompressionStiffness();
+                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
                 }
             }
 
@@ -419,9 +419,9 @@ void Meineke2001SpringSystem<DIM>::SetBCatSprings(bool useBCatSprings)
 
 
 template<unsigned DIM>
-void Meineke2001SpringSystem<DIM>::SetNecroticSprings(bool useNecroticSprings)
+void Meineke2001SpringSystem<DIM>::SetApoptoticSprings(bool useApoptoticSprings)
 {
-    mUseNecroticSprings = useNecroticSprings;
+    mUseApoptoticSprings = useApoptoticSprings;
 }
 
 #include "TemplatedExport.hpp"

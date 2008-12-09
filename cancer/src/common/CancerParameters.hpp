@@ -70,8 +70,8 @@ public:
     double GetCriticalHypoxicDuration();
     double GetCryptProjectionParameterA();
     double GetCryptProjectionParameterB();
-    double GetNecroticSpringTensionStiffness();
-    double GetNecroticSpringCompressionStiffness();
+    double GetApoptoticSpringTensionStiffness();
+    double GetApoptoticSpringCompressionStiffness();
     double GetWntChemotaxisStrength();
     double GetSymmetricDivisionProbability();
 
@@ -104,8 +104,8 @@ public:
     void SetHepaOneParameters();
     void SetCryptProjectionParameterA(double);
     void SetCryptProjectionParameterB(double);
-    void SetNecroticSpringTensionStiffness(double);
-    void SetNecroticSpringCompressionStiffness(double);
+    void SetApoptoticSpringTensionStiffness(double);
+    void SetApoptoticSpringCompressionStiffness(double);
     void SetWntChemotaxisStrength(double);
     void SetSymmetricDivisionProbability(double);
 
@@ -224,7 +224,7 @@ private:
     /**
      * Non-dimensionalized oxygen concentration below which HEPA-1 cells are
      * considered to be hypoxic.
-     * A prolonged period of hypoxia causes the cell to become necrotic.
+     * A prolonged period of hypoxia causes the cell to become apoptotic.
      */
     double mHepaOneCellHypoxicConcentration;
 
@@ -269,14 +269,14 @@ private:
     double mCryptProjectionParameterB;
 
     /**
-     * Non-dimensionalized 'stiffness' of a necrotic cell under tension.
+     * Non-dimensionalized 'stiffness' of a apoptotic cell under tension.
      */
-    double mNecroticSpringTensionStiffness;
+    double mApoptoticSpringTensionStiffness;
 
     /**
-     * Non-dimensionalized 'stiffness' of a necrotic cell under compression.
+     * Non-dimensionalized 'stiffness' of a apoptotic cell under compression.
      */
-    double mNecroticSpringCompressionStiffness;
+    double mApoptoticSpringCompressionStiffness;
 
     /**
      * Strength of Wnt-based chemotactic force.
@@ -320,8 +320,8 @@ private:
         archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
-        archive & mNecroticSpringTensionStiffness;
-        archive & mNecroticSpringCompressionStiffness;
+        archive & mApoptoticSpringTensionStiffness;
+        archive & mApoptoticSpringCompressionStiffness;
         archive & mWntChemotaxisStrength;
         archive & mSymmetricDivisionProbability;
     }

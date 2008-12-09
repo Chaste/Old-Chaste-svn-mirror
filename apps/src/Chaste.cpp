@@ -168,7 +168,7 @@ void ReadParametersFromFile()
     create_slab = HeartConfig::Instance()->GetCreateSlab();
     load_mesh = HeartConfig::Instance()->GetLoadMesh();
 
-    if (create_slab) /// \todo: move this code to AbstractCardiacProblem
+    if (create_slab) /// \todo move this code to AbstractCardiacProblem
     {           
         HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
         inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
@@ -194,7 +194,7 @@ void ReadParametersFromFile()
         // Ignore the exception
     }               
     
-    /// \todo: Read and store Conductivity Heterogeneities
+    /// \todo Read and store Conductivity Heterogeneities
 
 }
 
@@ -290,7 +290,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
 
                 SetupProblem(mono_problem);
 
-                if (create_slab)/// \todo: move this code to AbstractCardiacProblem
+                if (create_slab)/// \todo move this code to AbstractCardiacProblem
                 {
                     CreateSlab(&mesh);
                     mono_problem.SetMesh(&mesh);

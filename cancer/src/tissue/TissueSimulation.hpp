@@ -1180,7 +1180,7 @@ c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutat
  * [0] = STEM
  * [1] = TRANSIT
  * [2] = DIFFERENTIATED
- * [3] = NECROTIC
+ * [3] = APOPTOTIC
  */
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()

@@ -119,7 +119,7 @@ double OxygenBasedCellKiller<SPACE_DIM>::GetHypoxicConcentration() const
 template <unsigned SPACE_DIM>
 void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
 {
-    if (rCell.GetCellType()==NECROTIC && !(rCell.HasApoptosisBegun()))
+    if (rCell.GetCellType()==APOPTOTIC && !(rCell.HasApoptosisBegun()))
     {
         rCell.StartApoptosis();
     }

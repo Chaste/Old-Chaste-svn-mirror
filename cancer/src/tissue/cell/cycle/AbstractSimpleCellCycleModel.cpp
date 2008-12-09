@@ -55,7 +55,7 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;
             break;
-        case NECROTIC:
+        case APOPTOTIC:
             mG1Duration = DBL_MAX;
             break;
         default:

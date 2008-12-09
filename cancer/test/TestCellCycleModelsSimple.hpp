@@ -271,24 +271,24 @@ public:
 
         // Create a cell with a simple oxygen-based cell cycle model
         SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel();
-        TissueCell necrotic_cell(STEM, HEALTHY, p_cell_model);
+        TissueCell apoptotic_cell(STEM, HEALTHY, p_cell_model);
 
         // Set up constant oxygen_concentration
         CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
 
-        // Force the cell to be necrotic
+        // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC ||
+            TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
                       p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
-            necrotic_cell.ReadyToDivide();
+            apoptotic_cell.ReadyToDivide();
         }
 
-        // Test that the cell type is updated to be NECROTIC
-        TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);
+        // Test that the cell type is updated to be APOPTOTIC
+        TS_ASSERT(apoptotic_cell.GetCellType()==APOPTOTIC);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
         CellwiseData<2>::Destroy();
@@ -404,25 +404,25 @@ public:
 
         // Create a cell with a simple oxygen-based cell cycle model
         StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel();
-        TissueCell necrotic_cell(STEM, HEALTHY, p_cell_model);
-        necrotic_cell.InitialiseCellCycleModel();
+        TissueCell apoptotic_cell(STEM, HEALTHY, p_cell_model);
+        apoptotic_cell.InitialiseCellCycleModel();
 
         // Set up constant oxygen_concentration
         CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
 
-        // Force the cell to be necrotic
+        // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC ||
+            TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
                       p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
-            necrotic_cell.ReadyToDivide();
+            apoptotic_cell.ReadyToDivide();
         }
 
-        // Test that the cell type is updated to be NECROTIC
-        TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);
+        // Test that the cell type is updated to be APOPTOTIC
+        TS_ASSERT(apoptotic_cell.GetCellType()==APOPTOTIC);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
         CellwiseData<2>::Destroy();

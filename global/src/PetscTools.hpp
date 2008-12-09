@@ -221,11 +221,13 @@ public :
      *  Another helper method to get a single value from a vector
      *  in 1 line than Petsc's usual 4 or 5. DOES NOT check that
      *  the requested component is local, DOES do bound-checking.
+     * 
+     * \todo Think if there is an efficient compromise between this method and
+     * the full weight of ReplicatableVector (broadcast single values to all processors).
+     *  How do you know who has the value?
+     * 
+     * 
      */
-///\todo Think if there is an efficient compromise between this method and
-/// the full weight of ReplicatableVector (broadcast single values to all processors).
-/// How do you know who has the value?
-
 
 //    static double GetVecValue(Vec vec, unsigned index)
 //    {

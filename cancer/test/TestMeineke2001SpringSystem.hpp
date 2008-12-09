@@ -478,7 +478,7 @@ public:
         WntConcentration::Destroy();
     }
 
-    void TestSpringConstantsForNecroticCells()
+    void TestSpringConstantsForApoptoticCells()
     {
         // Set up stretched tissue
         HoneycombMeshGenerator generator(4, 4, 0, false, 2.0);
@@ -494,19 +494,19 @@ public:
         // As there is no tissue simulation we must explicitly initialise the cells
         stretched_tissue.InitialiseCells();
 
-        // Set one of the non-boundary cells to be necrotic
-        stretched_tissue.rGetCellUsingLocationIndex(6).SetCellType(NECROTIC);
+        // Set one of the non-boundary cells to be apoptotic
+        stretched_tissue.rGetCellUsingLocationIndex(6).SetCellType(APOPTOTIC);
 
         Meineke2001SpringSystem<2> meineke_spring_system(stretched_tissue);
-        meineke_spring_system.SetNecroticSprings(true);
+        meineke_spring_system.SetApoptoticSprings(true);
 
-        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(6).GetCellType(),NECROTIC);
+        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(6).GetCellType(),APOPTOTIC);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(6,10)), 3.3333, 1e-4);
 
-        // Set a neighbouring cell to be necrotic
-        stretched_tissue.rGetCellUsingLocationIndex(10).SetCellType(NECROTIC);
+        // Set a neighbouring cell to be apoptotic
+        stretched_tissue.rGetCellUsingLocationIndex(10).SetCellType(APOPTOTIC);
 
-        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(10).GetCellType(),NECROTIC);
+        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(10).GetCellType(),APOPTOTIC);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(6,10)), 1.8750, 1e-4);
 
         // Now do the same thing but for a squashed tissue
@@ -521,14 +521,14 @@ public:
         MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, ghost_node_indices2);
         squashed_tissue.InitialiseCells();
 
-        squashed_tissue.rGetCellUsingLocationIndex(6).SetCellType(NECROTIC);
+        squashed_tissue.rGetCellUsingLocationIndex(6).SetCellType(APOPTOTIC);
 
         Meineke2001SpringSystem<2> meineke_spring_system2(squashed_tissue);
-        meineke_spring_system2.SetNecroticSprings(true);
+        meineke_spring_system2.SetApoptoticSprings(true);
 
         TS_ASSERT_DELTA( norm_2(meineke_spring_system2.CalculateForceBetweenNodes(6,10)), 4.0909, 1e-4);
 
-        squashed_tissue.rGetCellUsingLocationIndex(10).SetCellType(NECROTIC);
+        squashed_tissue.rGetCellUsingLocationIndex(10).SetCellType(APOPTOTIC);
 
         TS_ASSERT_DELTA( norm_2(meineke_spring_system2.CalculateForceBetweenNodes(6,10)), 2.8125, 1e-4);
     }
@@ -674,7 +674,7 @@ public:
             p_meineke_spring_system->SetAreaBasedViscosity(true);
             p_meineke_spring_system->SetMutantSprings(true,0.2,0.3);
             p_meineke_spring_system->SetBCatSprings(true);
-            p_meineke_spring_system->SetNecroticSprings(true);
+            p_meineke_spring_system->SetApoptoticSprings(true);
 
             output_arch << p_meineke_spring_system;
         }
@@ -699,7 +699,7 @@ public:
             TS_ASSERT_DELTA(p_meineke_spring_system->mMutantMutantMultiplier, 0.2, 1e-12);
             TS_ASSERT_DELTA(p_meineke_spring_system->mNormalMutantMultiplier, 0.3, 1e-12);
             TS_ASSERT_EQUALS(p_meineke_spring_system->mUseBCatSprings, true);
-            TS_ASSERT_EQUALS(p_meineke_spring_system->mUseNecroticSprings, true);
+            TS_ASSERT_EQUALS(p_meineke_spring_system->mUseApoptoticSprings, true);
 
             delete p_meineke_spring_system->mpTissue;
             delete p_meineke_spring_system;

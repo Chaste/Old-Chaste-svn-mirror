@@ -215,7 +215,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -274,13 +274,13 @@ public:
             cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
 
-            // Make the cell necrotic if near the centre
+            // Make the cell apoptotic if near the centre
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
             double y = p_mesh->GetNode(i)->rGetLocation()[1];
             double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );
             if(dist_from_centre < 1.5)
             {
-                cell.SetCellType(NECROTIC);
+                cell.SetCellType(APOPTOTIC);
             }
 
             cells.push_back(cell);
@@ -288,7 +288,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -370,16 +370,16 @@ public:
             cell.SetLocationIndex(i);
             cell.SetBirthTime(-0.1);
 
-            // Label three neighbouring cells as necrotic
+            // Label three neighbouring cells as apoptotic
             if (i==12 || i==13 || i==17)
             {
-                cell.SetCellType(NECROTIC);
+                cell.SetCellType(APOPTOTIC);
             }
             cells.push_back(cell);
         }
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -408,18 +408,18 @@ public:
         // Solve for one timestep
         simulator.Solve();
 
-        // Just check that we do indeed have three necrotic cells
-        unsigned num_necrotic_cells = 0;
+        // Just check that we do indeed have three apoptotic cells
+        unsigned num_apoptotic_cells = 0;
         for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            if (cell_iter->GetCellType()==NECROTIC)
+            if (cell_iter->GetCellType()==APOPTOTIC)
             {
-                num_necrotic_cells++;
+                num_apoptotic_cells++;
             }
         }
-        TS_ASSERT_EQUALS(num_necrotic_cells, 3u);
+        TS_ASSERT_EQUALS(num_apoptotic_cells, 3u);
 
         // We have 25 cells. Adding up the boundary cell areas, we
         // should have the equivalent area of 16 full regular hexagonal
@@ -428,7 +428,7 @@ public:
         // The area of a single hexagonal cell is sqrt(3)/2, so
         // the correct spheroid radius is given by sqrt((16*sqrt(3)/2)/pi).
         //
-        // Since there are 3 necrotic cells, the correct necrotic radius is
+        // Since there are 3 apoptotic cells, the correct apoptotic radius is
         // given by sqrt((3*sqrt(3)/2)/pi).
 
         // Work out where the previous test wrote its files

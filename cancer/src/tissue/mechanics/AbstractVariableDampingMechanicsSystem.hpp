@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  where A is the cell's voronoi area, and d0,d1 are constants (see code for values), and
  *  old_damping_const is whatever the damping constant would be in (a).
  *
- *  \todo: make d0, d1 member variables, or allow the user to provide a functional form of
+ *  \todo make d0, d1 member variables, or allow the user to provide a functional form of
  *  d(A), if this ever becomes needed (see #627)
  */
 template<unsigned DIM>

@@ -200,7 +200,7 @@ public:
      * [0] = STEM
      * [1] = TRANSIT
      * [2] = DIFFERENTIATED
-     * [3] = NECROTIC
+     * [3] = APOPTOTIC
      */
     c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
 
@@ -804,8 +804,8 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                             cell_type_counter[2]++;
                         }
                         break;
-                    case NECROTIC:
-                        colour = APOPTOSIS_COLOUR; // paint necrotic and apoptotic cells the same colour
+                    case APOPTOTIC:
+                        colour = APOPTOSIS_COLOUR; // paint apoptotic cells the same colour
                         if (outputCellTypes)
                         {
                             cell_type_counter[3]++;

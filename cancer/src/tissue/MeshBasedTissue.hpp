@@ -747,22 +747,22 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
     // because it gives huge areas for boundary cells
     double total_area = rGetMesh().CalculateVolume();
 
-    double necrotic_area = 0.0;
+    double apoptotic_area = 0.0;
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
          ++cell_iter)
     {
-        // Only bother calculating the cell area if it is necrotic
-        if (cell_iter->GetCellType() == NECROTIC)
+        // Only bother calculating the cell area if it is apoptotic
+        if (cell_iter->GetCellType() == APOPTOTIC)
         {
             unsigned node_index = cell_iter.GetNode()->GetIndex();
             double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
-            necrotic_area += cell_area;
+            apoptotic_area += cell_area;
         }
     }
 
-    *mpTissueAreasFile << total_area << " " << necrotic_area << "\n";
+    *mpTissueAreasFile << total_area << " " << apoptotic_area << "\n";
 }
 
 //////////////////////////////////////////////////////////////////////////////

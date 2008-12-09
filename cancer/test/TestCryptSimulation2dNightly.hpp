@@ -181,7 +181,7 @@ public:
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
 
-        ///\todo Note that this test is extrememly fragile.
+        /// \todo Note that this test is extrememly fragile.
         //The output data was
         //produced with IntelProduction.
         // Version 10.0.025

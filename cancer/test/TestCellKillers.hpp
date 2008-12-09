@@ -357,7 +357,7 @@ public:
 
         // Check that a single cell reaches apoptosis
         TS_ASSERT(!r_cells.begin()->HasApoptosisBegun());
-        r_cells.begin()->SetCellType(NECROTIC);
+        r_cells.begin()->SetCellType(APOPTOTIC);
         oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
 
         TS_ASSERT(r_cells.begin()->HasApoptosisBegun());

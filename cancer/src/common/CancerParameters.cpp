@@ -72,8 +72,8 @@ CancerParameters::CancerParameters()
  * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
- * mNecroticSpringTensionStiffness has the same units as mSpringStiffness
- * mNecroticSpringCompressionStiffness has the same units as mSpringStiffness
+ * mApoptoticSpringTensionStiffness has the same units as mSpringStiffness
+ * mApoptoticSpringCompressionStiffness has the same units as mSpringStiffness
  * mWntChemotaxisStrength has no units
  * mSymmetricDivisionProbability has no units
  */
@@ -107,8 +107,8 @@ void CancerParameters::Reset()
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
 
-    mNecroticSpringTensionStiffness = 0.25*mSpringStiffness;
-    mNecroticSpringCompressionStiffness = 0.75*mSpringStiffness;
+    mApoptoticSpringTensionStiffness = 0.25*mSpringStiffness;
+    mApoptoticSpringCompressionStiffness = 0.75*mSpringStiffness;
 
     mWntChemotaxisStrength = 100.0;
     mSymmetricDivisionProbability = 0.0;
@@ -225,13 +225,13 @@ double CancerParameters::GetCryptProjectionParameterB()
 {
     return mCryptProjectionParameterB;
 }
-double CancerParameters::GetNecroticSpringTensionStiffness()
+double CancerParameters::GetApoptoticSpringTensionStiffness()
 {
-    return mNecroticSpringTensionStiffness;
+    return mApoptoticSpringTensionStiffness;
 }
-double CancerParameters::GetNecroticSpringCompressionStiffness()
+double CancerParameters::GetApoptoticSpringCompressionStiffness()
 {
-    return mNecroticSpringCompressionStiffness;
+    return mApoptoticSpringCompressionStiffness;
 }
 double CancerParameters::GetWntChemotaxisStrength()
 {
@@ -382,15 +382,15 @@ void CancerParameters::SetCryptProjectionParameterB(double cryptProjectionParame
     assert(cryptProjectionParameterB>=0.0);
     mCryptProjectionParameterB = cryptProjectionParameterB;
 }
-void CancerParameters::SetNecroticSpringTensionStiffness(double necroticSpringTensionStiffness)
+void CancerParameters::SetApoptoticSpringTensionStiffness(double apoptoticSpringTensionStiffness)
 {
-    assert(necroticSpringTensionStiffness>=0.0);
-    mNecroticSpringTensionStiffness = necroticSpringTensionStiffness;
+    assert(apoptoticSpringTensionStiffness>=0.0);
+    mApoptoticSpringTensionStiffness = apoptoticSpringTensionStiffness;
 }
-void CancerParameters::SetNecroticSpringCompressionStiffness(double necroticSpringCompressionStiffness)
+void CancerParameters::SetApoptoticSpringCompressionStiffness(double apoptoticSpringCompressionStiffness)
 {
-    assert(necroticSpringCompressionStiffness>=0.0);
-    mNecroticSpringCompressionStiffness = necroticSpringCompressionStiffness;
+    assert(apoptoticSpringCompressionStiffness>=0.0);
+    mApoptoticSpringCompressionStiffness = apoptoticSpringCompressionStiffness;
 }
 void CancerParameters::SetWntChemotaxisStrength(double wntChemotaxisStrength)
 {

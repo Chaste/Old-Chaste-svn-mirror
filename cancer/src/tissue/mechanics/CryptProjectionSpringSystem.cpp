@@ -150,12 +150,12 @@ c_vector<double,2> CryptProjectionSpringSystem::CalculateForceBetweenNodes(unsig
         }
     }
 
-    /// \todo: This is where the code for for apoptosing cells would go (see #627)
+    /// \todo This is where the code for for apoptosing cells would go (see #627)
 
     // Assert that the rest length does not exceed 1
     assert(rest_length_3d <= 1.0+1e-12);
 
-    /// \todo: This is where the code for the cases mUseMutantSprings=true and mUseBCatSprings=true would go (see #627)
+    /// \todo This is where the code for the cases mUseMutantSprings=true and mUseBCatSprings=true would go (see #627)
 
     // Calculate the 3D force between the two points
     c_vector<double, 3> force_between_nodes_3d = CancerParameters::Instance()->GetSpringStiffness() * unit_difference_3d * (distance_between_nodes_3d - rest_length_3d);
