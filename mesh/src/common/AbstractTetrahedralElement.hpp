@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTTETRAHEDRALELEMENT_HPP_
 #define _ABSTRACTTETRAHEDRALELEMENT_HPP_
 
-#include "AbstractElement1.hpp"
+#include "AbstractElement.hpp"
 
 /**
  * This class defines an Element for use in the Finite Element Method.
