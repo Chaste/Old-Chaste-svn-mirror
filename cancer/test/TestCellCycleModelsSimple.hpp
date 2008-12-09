@@ -95,11 +95,11 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_diff_model, 100);
         }
 
-        TS_ASSERT_DELTA(p_stem_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
-        TS_ASSERT_DELTA(p_transit_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
-        TS_ASSERT_DELTA(p_diff_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetAge(), p_simulation_time->GetTime(), 1e-9);
+        TS_ASSERT_DELTA(p_transit_model->GetAge(), p_simulation_time->GetTime(), 1e-9);
+        TS_ASSERT_DELTA(p_diff_model->GetAge(), p_simulation_time->GetTime(), 1e-9);
 
-        double hepa_one_cell_birth_time = p_simulation_time->GetDimensionalisedTime();
+        double hepa_one_cell_birth_time = p_simulation_time->GetTime();
 
         p_params->SetHepaOneParameters();
         FixedCellCycleModel* p_hepa_one_model = new FixedCellCycleModel;
@@ -113,7 +113,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_params->GetHepaOneCellG1Duration());
         }
 
-        TS_ASSERT_DELTA(p_hepa_one_model->GetAge() + hepa_one_cell_birth_time, p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_hepa_one_model->GetAge() + hepa_one_cell_birth_time, p_simulation_time->GetTime(), 1e-9);
     }
 
     void TestStochasticCellCycleModel(void) throw(Exception)
@@ -251,7 +251,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_hepa_one_model->GetG1Duration());
         }
 
-        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetTime(), 1e-9);
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);
 
         // Check that cell division correctly resets the cell cycle phase
@@ -280,7 +280,7 @@ public:
         for (unsigned i=0; i<num_steps; i++)
         {
             TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
-                      p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
+                      p_simulation_time->GetTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -382,7 +382,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_hepa_one_model->GetG1Duration(), p_hepa_one_model->GetG2Duration());
         }
 
-        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetTime(), 1e-9);
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(), true);
 
         // Coverage
@@ -414,7 +414,7 @@ public:
         for (unsigned i=0; i<num_steps; i++)
         {
             TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
-                      p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
+                      p_simulation_time->GetTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -469,7 +469,7 @@ public:
         wnt_level = 0.7;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        double division_time = SimulationTime::Instance()->GetDimensionalisedTime();
+        double division_time = SimulationTime::Instance()->GetTime();
 
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
@@ -488,7 +488,7 @@ public:
         p_cycle_model->ResetForDivision();
         p_cycle_model2->ResetForDivision();
 
-        division_time = SimulationTime::Instance()->GetDimensionalisedTime();
+        division_time = SimulationTime::Instance()->GetTime();
 
         // Now reduce the Wnt concentration so only beta-cat or APC2 hit cells divide.
         wnt_level = 0.15;

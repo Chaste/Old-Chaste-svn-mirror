@@ -57,7 +57,7 @@ double AbstractCellCycleModel::GetBirthTime() const
 
 double AbstractCellCycleModel::GetAge()
 {
-    return SimulationTime::Instance()->GetDimensionalisedTime() - mBirthTime;
+    return SimulationTime::Instance()->GetTime() - mBirthTime;
 }
 
 CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()

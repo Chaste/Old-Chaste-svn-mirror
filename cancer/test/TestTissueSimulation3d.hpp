@@ -280,7 +280,7 @@ public:
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 8u);
-            TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);
+            TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
             TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u))[2] , 0.911736, 1e-6);
 
             delete p_simulator;
@@ -294,7 +294,7 @@ public:
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 65u);
-            TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);
+            TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
             TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u))[2] , 1.13958, 1e-6);
 
             delete p_simulator;

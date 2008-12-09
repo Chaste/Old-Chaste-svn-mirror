@@ -831,7 +831,7 @@ public:
             TS_ASSERT(p_tissue->IsMarkedSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1)));
 
             // Check the simulation time has been restored (through the cell)
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
+            TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 0.0);
 
             // Check the tissue has been restored
             TS_ASSERT_EQUALS(p_tissue->rGetCells().size(),5u);

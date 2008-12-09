@@ -105,7 +105,7 @@ public:
         TS_ASSERT(apoptosis_cell_found);
 
         //Increment time to a time after death
-        double death_time = p_simulation_time->GetDimensionalisedTime() + p_params->GetApoptosisTime();
+        double death_time = p_simulation_time->GetTime() + p_params->GetApoptosisTime();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
         p_simulation_time->IncrementTimeOneStep();
 

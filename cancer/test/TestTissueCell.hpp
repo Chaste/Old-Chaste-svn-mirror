@@ -80,7 +80,7 @@ public:
         TS_ASSERT_EQUALS((int)(stem_cell.GetLocationIndex()), 3);
 
         p_simulation_time->IncrementTimeOneStep();
-        stem_cell.SetBirthTime(p_simulation_time->GetDimensionalisedTime());
+        stem_cell.SetBirthTime(p_simulation_time->GetTime());
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(stem_cell.GetAge(), 1.0);
@@ -343,7 +343,7 @@ public:
         std::vector<TissueCell>::iterator cell_iterator;
 
         unsigned i=0;
-        while (p_simulation_time->GetDimensionalisedTime()< end_time)
+        while (p_simulation_time->GetTime()< end_time)
         {
             // Produce the offspring of the cells
             p_simulation_time->IncrementTimeOneStep();
@@ -385,7 +385,7 @@ public:
 
                 cell_iterator++;
             }
-            times[i]=p_simulation_time->GetDimensionalisedTime();
+            times[i]=p_simulation_time->GetTime();
             i++;
         }
         TS_ASSERT_EQUALS(stem_cells[59], 1u);
@@ -550,7 +550,7 @@ public:
             // Produce the offspring of the cells
             std::vector<TissueCell>::iterator cell_iterator = cells.begin();
 
-            while (p_simulation_time->GetDimensionalisedTime()< end_time)
+            while (p_simulation_time->GetTime()< end_time)
             {
                 p_simulation_time->IncrementTimeOneStep();
                 cell_iterator = cells.begin();
@@ -699,7 +699,7 @@ public:
                 cell_iterator++;
             }
 
-            times[i]=p_simulation_time->GetDimensionalisedTime();
+            times[i]=p_simulation_time->GetTime();
             i++;
         }
 
@@ -735,7 +735,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
             if (time>=5.971+SG2MDuration)
@@ -763,7 +763,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             bool result1=wnt_cell.ReadyToDivide();
             bool result2=wnt_cell2.ReadyToDivide();
@@ -813,7 +813,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             if (time >= g1_duration+SG2MDuration1)
             {
@@ -838,7 +838,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             bool parent_ready = wnt_cell.ReadyToDivide();
             bool daughter_ready = wnt_cell2.ReadyToDivide();
@@ -885,7 +885,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
             if (time>=standard_tyson_duration)
             {
                 TS_ASSERT(tn_cell.ReadyToDivide()==true);
@@ -909,7 +909,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
             bool result1=tn_cell.ReadyToDivide();
             bool result2=tn_cell2.ReadyToDivide();
 
@@ -1009,7 +1009,7 @@ public:
         std::vector<TissueCell>::iterator cell_iterator;
 
         unsigned i=0;
-        while (p_simulation_time->GetDimensionalisedTime()< end_time)
+        while (p_simulation_time->GetTime()< end_time)
         {
             // Produce the offspring of the cells
 
@@ -1069,7 +1069,7 @@ public:
 
                 cell_iterator++;
             }
-            times[i]=p_simulation_time->GetDimensionalisedTime();
+            times[i]=p_simulation_time->GetTime();
             i++;
         }
 
@@ -1130,7 +1130,7 @@ public:
             input_arch >> p_stem_cell;
 
             // Check the simulation time has been restored (through the cell)
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
+            TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 0.5);
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
 
             TS_ASSERT_EQUALS(p_stem_cell->GetLocationIndex(), 3u);

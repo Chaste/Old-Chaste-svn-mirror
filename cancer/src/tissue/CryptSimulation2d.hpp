@@ -301,7 +301,7 @@ void CryptSimulation2d::SetupSolve()
         && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
     {
         SetupWriteBetaCatenin();
-        double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
+        double current_time = SimulationTime::Instance()->GetTime();
         WriteBetaCatenin(current_time);
     }
 }
@@ -316,7 +316,7 @@ void CryptSimulation2d::PostSolve()
         if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
             && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
         {
-            double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
+            double time_next_step = p_time->GetTime() + p_time->GetTimeStep();
             WriteBetaCatenin(time_next_step);
         }
     }

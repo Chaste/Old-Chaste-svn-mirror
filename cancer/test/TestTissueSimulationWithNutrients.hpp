@@ -440,7 +440,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cancer/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
 
         // Coverage
-        TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetDimensionalisedTime(),5));
+        TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetTime(),5));
 
         CellwiseData<2>::Destroy();
     }

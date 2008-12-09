@@ -31,7 +31,7 @@ SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel() :
       mTimeSpentInG1Phase(0.0),
       mCurrentHypoxicDuration(0.0)
 {
-    mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetDimensionalisedTime();
+    mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetTime();
 }
 
 
@@ -93,7 +93,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     if ( oxygen_concentration < hypoxic_concentration)
     {
         // Update the duration of the current period of hypoxia
-        mCurrentHypoxicDuration = (SimulationTime::Instance()->GetDimensionalisedTime() - mCurrentHypoxiaOnsetTime);
+        mCurrentHypoxicDuration = (SimulationTime::Instance()->GetTime() - mCurrentHypoxiaOnsetTime);
 
         // Include a little bit of stochasticity here
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
@@ -106,6 +106,6 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     {
         // Reset the cell's hypoxic duration and update the time at which the onset of hypoxia occurs
         mCurrentHypoxicDuration = 0.0;
-        mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetDimensionalisedTime();
+        mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetTime();
     }
 }

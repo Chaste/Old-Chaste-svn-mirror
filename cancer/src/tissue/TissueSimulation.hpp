@@ -751,7 +751,7 @@ void TissueSimulation<DIM>::Solve()
 
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
-    double current_time = p_simulation_time->GetDimensionalisedTime();
+    double current_time = p_simulation_time->GetTime();
 
     unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);
 
@@ -769,7 +769,7 @@ void TissueSimulation<DIM>::Solve()
         EXCEPTION("OutputDirectory not set");
     }
 
-    double time_now = p_simulation_time->GetDimensionalisedTime();
+    double time_now = p_simulation_time->GetTime();
     std::ostringstream time_string;
     time_string << time_now;
 
@@ -829,7 +829,7 @@ void TissueSimulation<DIM>::Solve()
     
     while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccured()) )
     {
-        LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
+        LOG(1, "--TIME = " << p_simulation_time->GetTime() << "\n");
 
         // Remove dead cells then implement cell birth. Note that neither
         // of these methods use any element information, they just delete
@@ -937,7 +937,7 @@ void TissueSimulation<DIM>::Solve()
 template<unsigned DIM>
 void TissueSimulation<DIM>::AfterSolve()
 {
-    LOG(1, "--TIME = " << SimulationTime::Instance()->GetDimensionalisedTime() << "\n");
+    LOG(1, "--TIME = " << SimulationTime::Instance()->GetTime() << "\n");
 
     // Remove dead cells then implement cell birth
     CancerEventHandler::BeginEvent(DEATH);
@@ -1013,7 +1013,7 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     const SimulationTime* p_sim_time = SimulationTime::Instance();
     assert(p_sim_time->IsStartTimeSetUp());
     std::ostringstream time_stamp;
-    time_stamp << p_sim_time->GetDimensionalisedTime();
+    time_stamp << p_sim_time->GetTime();
 
     // Create an output file handler in order to get the full path of the
     // archive directory.  Note the false is so the handler doesn't clean

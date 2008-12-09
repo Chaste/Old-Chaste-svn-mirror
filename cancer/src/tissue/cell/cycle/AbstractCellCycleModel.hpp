@@ -110,7 +110,7 @@ public:
      */
     AbstractCellCycleModel()
         : mpCell(NULL),
-          mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()),
+          mBirthTime(SimulationTime::Instance()->GetTime()),
           mCurrentCellCyclePhase(M_PHASE),
           mGeneration(0),
           mG1Duration(DBL_MAX),

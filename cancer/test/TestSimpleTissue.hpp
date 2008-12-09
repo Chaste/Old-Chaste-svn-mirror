@@ -633,7 +633,7 @@ public:
             }
 
             // Check the simulation time has been restored (through the cell)
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
+            TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 0.0);
 
             // Check the tissue has been restored
             TS_ASSERT_EQUALS(p_tissue->rGetCells().size(), 5u);

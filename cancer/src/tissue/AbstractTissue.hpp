@@ -671,7 +671,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
-    double time = p_simulation_time->GetDimensionalisedTime();
+    double time = p_simulation_time->GetTime();
 
     // Set up cell type counter
     unsigned cell_type_counter[mCellTypeCount.size()];

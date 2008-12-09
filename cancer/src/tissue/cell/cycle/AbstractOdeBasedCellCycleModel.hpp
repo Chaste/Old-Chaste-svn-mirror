@@ -80,7 +80,7 @@ public:
      *
      * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
      */
-    AbstractOdeBasedCellCycleModel(double lastTime = SimulationTime::Instance()->GetDimensionalisedTime());
+    AbstractOdeBasedCellCycleModel(double lastTime = SimulationTime::Instance()->GetTime());
 
     /**
      * This destructor deletes the mpOdeSystem.

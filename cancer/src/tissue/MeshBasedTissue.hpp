@@ -676,7 +676,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
 
     // Write element data to file
 
-    *mpElementFile <<  SimulationTime::Instance()->GetDimensionalisedTime() << "\t";
+    *mpElementFile <<  SimulationTime::Instance()->GetTime() << "\t";
 
     for (unsigned elem_index=0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
@@ -711,7 +711,7 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 {
     // Write time to file
-    *mpVoronoiFile << SimulationTime::Instance()->GetDimensionalisedTime() << " ";
+    *mpVoronoiFile << SimulationTime::Instance()->GetTime() << " ";
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
@@ -741,7 +741,7 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 {
     // Write time to file
-    *mpTissueAreasFile << SimulationTime::Instance()->GetDimensionalisedTime() << " ";
+    *mpTissueAreasFile << SimulationTime::Instance()->GetTime() << " ";
 
     // Don't use the Voronoi tessellation to calculate the total area
     // because it gives huge areas for boundary cells

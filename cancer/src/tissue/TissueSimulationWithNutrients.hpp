@@ -328,7 +328,7 @@ void TissueSimulationWithNutrients<DIM>::SetupSolve()
     if (this->mrTissue.Begin() != this->mrTissue.End())
     {
         SetupWriteNutrient();
-        double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
+        double current_time = SimulationTime::Instance()->GetTime();
         WriteNutrient(current_time);
     }
 }
@@ -445,7 +445,7 @@ void TissueSimulationWithNutrients<DIM>::AfterSolve()
 
         if (mWriteAverageRadialNutrientResults)
         {
-            WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetDimensionalisedTime(), mNumRadialIntervals);
+            WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetTime(), mNumRadialIntervals);
             mpAverageRadialNutrientResultsFile->close();
         }
     }
@@ -720,7 +720,7 @@ void TissueSimulationWithNutrients<DIM>::PostSolve()
     // Save results to file
     SimulationTime* p_time = SimulationTime::Instance();
 
-    double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
+    double time_next_step = p_time->GetTime() + p_time->GetTimeStep();
 
     if ((p_time->GetTimeStepsElapsed()+1)%this->mSamplingTimestepMultiple == 0)
     {

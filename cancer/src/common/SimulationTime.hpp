@@ -47,7 +47,7 @@ public:
     double GetTimeStep() const;
     void IncrementTimeOneStep();
     unsigned GetTimeStepsElapsed() const;
-    double GetDimensionalisedTime() const;
+    double GetTime() const;
     static void Destroy();
     bool IsStartTimeSetUp() const;
     bool IsFinished() const;

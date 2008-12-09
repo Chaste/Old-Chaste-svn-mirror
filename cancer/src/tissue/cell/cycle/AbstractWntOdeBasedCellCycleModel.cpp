@@ -59,7 +59,7 @@ void AbstractWntOdeBasedCellCycleModel::UpdateCellType()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
-    if (SimulationTime::Instance()->GetDimensionalisedTime() > mLastTime)
+    if (SimulationTime::Instance()->GetTime() > mLastTime)
     {
         EXCEPTION("WntCellCycleModel::UpdateCellType() should only be called when the cell cycle model has been evaluated to the current time\n");
     }

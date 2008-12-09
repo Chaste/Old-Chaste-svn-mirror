@@ -188,7 +188,7 @@ void TissueCell::StartApoptosis()
     }
     mUndergoingApoptosis = true;
 
-    mDeathTime =    SimulationTime::Instance()->GetDimensionalisedTime()
+    mDeathTime =    SimulationTime::Instance()->GetTime()
                   + CancerParameters::Instance()->GetApoptosisTime();
 }
 
@@ -204,12 +204,12 @@ double TissueCell::TimeUntilDeath() const
         EXCEPTION("Shouldn't be checking time until apoptosis as it isn't undergoing apoptosis");
     }
 
-    return mDeathTime - SimulationTime::Instance()->GetDimensionalisedTime();
+    return mDeathTime - SimulationTime::Instance()->GetTime();
 }
 
 bool TissueCell::IsDead() const
 {
-    return ( mIsDead || ( (mUndergoingApoptosis) && (SimulationTime::Instance()->GetDimensionalisedTime() >= mDeathTime)) );
+    return ( mIsDead || ( (mUndergoingApoptosis) && (SimulationTime::Instance()->GetTime() >= mDeathTime)) );
 }
 
 void TissueCell::Kill()

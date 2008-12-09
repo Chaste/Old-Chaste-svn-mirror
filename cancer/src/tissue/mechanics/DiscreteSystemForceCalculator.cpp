@@ -80,7 +80,7 @@ std::vector< std::vector<double> > DiscreteSystemForceCalculator::CalculateExtre
 
 void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOutputDirectory)
 {
-    double time = SimulationTime::Instance()->GetDimensionalisedTime();
+    double time = SimulationTime::Instance()->GetTime();
     std::ostringstream time_string;
     time_string << time;
     std::string results_directory = simulationOutputDirectory +"/results_from_time_" + time_string.str();

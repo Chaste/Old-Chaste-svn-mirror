@@ -58,13 +58,13 @@ public:
 
         TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel;
         // Coverage
-        p_cell_model->SetBirthTime(p_simulation_time->GetDimensionalisedTime());
+        p_cell_model->SetBirthTime(p_simulation_time->GetTime());
         TissueCell cell(STEM, HEALTHY, p_cell_model);
 
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             bool result = p_cell_model->ReadyToDivide();
 
@@ -97,7 +97,7 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             bool result = p_cell_model->ReadyToDivide();
             bool result2 = p_cell_model2->ReadyToDivide();
@@ -151,7 +151,7 @@ public:
         for (int i=0; i<num_timesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
             bool result = p_cell_model->ReadyToDivide();
 
             // Reduces from 1 to 0 over the interval 1<t<2
@@ -238,7 +238,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model,6.1877);
         }
 
-        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 21.0, 1e-4);
+        TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 21.0, 1e-4);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
 
         std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
@@ -306,7 +306,7 @@ public:
         for (int i=0; i<9*num_timesteps/30.0; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
             bool result = p_cell_model->ReadyToDivide();
             bool result2 = p_cell_model2->ReadyToDivide();
 
@@ -323,7 +323,7 @@ public:
             TS_ASSERT_EQUALS(result, false);
             TS_ASSERT_EQUALS(result2, false);
         }
-        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 30.0, 1e-4);
+        TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 30.0, 1e-4);
 
         test_results = p_cell_model->GetProteinConcentrations();
 
@@ -410,7 +410,7 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
             bool result = p_cell_model_1->ReadyToDivide();
             if (time< second_cycle_start + 4.804 + SG2MDuration)
             {
@@ -575,7 +575,7 @@ public:
         for (int i=0; i<num_timesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
             bool result = p_cell_model->ReadyToDivide();
 
             if (time < 5.971 + 9.0676)
@@ -860,7 +860,7 @@ public:
 
             p_simulation_time->IncrementTimeOneStep(); // 5.5
 
-            while (p_simulation_time->GetDimensionalisedTime() < 4.0)
+            while (p_simulation_time->GetTime() < 4.0)
             {
                 p_simulation_time->IncrementTimeOneStep();
             }
@@ -910,21 +910,21 @@ public:
 
             // Check - stochastic should divide at 15.03
             // Wnt should divide at 15.971
-            while (p_simulation_time->GetDimensionalisedTime() < 15.0)
+            while (p_simulation_time->GetTime() < 15.0)
             {
                 p_simulation_time->IncrementTimeOneStep();
             }
             TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(),false);
             TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(),false);
 
-            while (p_simulation_time->GetDimensionalisedTime() < 15.5)
+            while (p_simulation_time->GetTime() < 15.5)
             {
                 p_simulation_time->IncrementTimeOneStep();
             }
             TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(),true);// only for stochastic
             TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(),false);
 
-            while (p_simulation_time->GetDimensionalisedTime() < 16.0)
+            while (p_simulation_time->GetTime() < 16.0)
             {
                 p_simulation_time->IncrementTimeOneStep();
             }

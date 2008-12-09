@@ -57,7 +57,7 @@ private:
     // define a stopping event with says stop if t>3.14
     bool StoppingEventHasOccured()
     {
-        return  (SimulationTime::Instance()->GetDimensionalisedTime() > 3.1415);
+        return  (SimulationTime::Instance()->GetTime() > 3.1415);
     }
 
 public:
@@ -321,7 +321,7 @@ public:
         // Run tissue simulation
         simulator.Solve();
         
-        double time = SimulationTime::Instance()->GetDimensionalisedTime();
+        double time = SimulationTime::Instance()->GetTime();
         TS_ASSERT_DELTA(time, 3.1415, 1e-1); // big tol, doesn't matter, just want t~3.14 and t!=10
         // t should be strictly greater than the 3.1415
         TS_ASSERT_LESS_THAN(3.1415, time);

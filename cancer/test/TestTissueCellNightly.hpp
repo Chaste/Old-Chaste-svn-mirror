@@ -74,12 +74,12 @@ public:
 
         unsigned i=0;
         unsigned divisions=0;
-        while (p_simulation_time->GetDimensionalisedTime()< end_time)
+        while (p_simulation_time->GetTime()< end_time)
         {
             // produce the offspring of the cells
 
             p_simulation_time->IncrementTimeOneStep();
-            times[i]=p_simulation_time->GetDimensionalisedTime();
+            times[i]=p_simulation_time->GetTime();
             cell_iterator = cells.begin();
             unsigned j=0;
             while (cell_iterator < cells.end())
@@ -119,12 +119,12 @@ public:
         std::vector<TissueCell>::iterator cell_iterator;
 
         unsigned i=0;
-        while (p_simulation_time->GetDimensionalisedTime()< end_time)
+        while (p_simulation_time->GetTime()< end_time)
         {
             // produce the offspring of the cells
 
             p_simulation_time->IncrementTimeOneStep();
-            times[i]=p_simulation_time->GetDimensionalisedTime();
+            times[i]=p_simulation_time->GetTime();
             cell_iterator = cells.begin();
             unsigned j=0;
             while (cell_iterator < cells.end())
@@ -200,7 +200,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             if (time>=4.804+SG2MDuration)
             {
@@ -229,7 +229,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             bool result1 = wnt_cell.ReadyToDivide();
             bool result2 = wnt_cell2.ReadyToDivide();
@@ -276,7 +276,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             if (time>=7.82+SG2MDuration)
             {
@@ -305,7 +305,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             bool result1=wnt_cell.ReadyToDivide();
             bool result2=wnt_cell2.ReadyToDivide();
@@ -367,7 +367,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             if (time>=3.9435+SG2MDuration)
             {
@@ -396,7 +396,7 @@ public:
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
+            double time = p_simulation_time->GetTime();
 
             bool result1=wnt_cell.ReadyToDivide();
             bool result2=wnt_cell2.ReadyToDivide();

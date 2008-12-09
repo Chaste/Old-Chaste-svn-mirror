@@ -89,7 +89,7 @@ void SimulationTime::SetStartTime(double startTime)
 /**
  * Get the simulation time step.
  * Warning: Use of this method may result in round errors
- *  -- see GetDimensionalisedTime.
+ *  -- see GetTime.
  * @return time step
  */
 double SimulationTime::GetTimeStep() const
@@ -127,7 +127,7 @@ unsigned SimulationTime::GetTimeStepsElapsed() const
  * Should not have rounding errors.
  * @return simulation time
  */
-double SimulationTime::GetDimensionalisedTime() const
+double SimulationTime::GetTime() const
 {
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //

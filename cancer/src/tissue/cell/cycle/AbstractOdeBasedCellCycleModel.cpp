@@ -75,7 +75,7 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
 {
     assert(mpOdeSystem!=NULL);
 
-    double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
+    double current_time = SimulationTime::Instance()->GetTime();
 
     // Update the phase from M to G1 when necessary
     if (mCurrentCellCyclePhase == M_PHASE)

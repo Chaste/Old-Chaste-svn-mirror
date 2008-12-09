@@ -184,7 +184,7 @@ void CryptSimulation1d::Solve()
                     // Note: May need to check which side element is put esp. at the ends
                     Element<1,1> *p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
 
-                    unsigned new_node_index = AddNodeToElement(p_element,mpSimulationTime->GetDimensionalisedTime());
+                    unsigned new_node_index = AddNodeToElement(p_element,mpSimulationTime->GetTime());
 
                     // Update cells
                     new_cell.SetLocationIndex(new_node_index);
@@ -299,8 +299,8 @@ void CryptSimulation1d::Solve()
         mpSimulationTime->IncrementTimeOneStep();
 
         // Writing Results To Tabulated File First And Then To Space Separated File
-        tabulated_writer.PutVariable(time_var_id, mpSimulationTime->GetDimensionalisedTime());
-        (*p_results_file) << mpSimulationTime->GetDimensionalisedTime() << "\t";
+        tabulated_writer.PutVariable(time_var_id, mpSimulationTime->GetTime());
+        (*p_results_file) << mpSimulationTime->GetTime() << "\t";
 
         unsigned cell=0; // NB this is not the index in mCells, but the index in the mesh!
         for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
