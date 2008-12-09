@@ -101,14 +101,14 @@ public:
     AbstractElement()
     {}
 
-    /**
-     * Element assignment - make this element equal to the other one.
-     */
-    virtual AbstractElement& operator=(const AbstractElement& rElement)
-    {
-        CommonConstructor(rElement);
-        return *this;
-    }
+//    /**
+//     * Element assignment - make this element equal to the other one.
+//     */
+//    virtual AbstractElement& operator=(const AbstractElement& rElement)
+//    {
+//        CommonConstructor(rElement);
+//        return *this;
+//    }
 
     virtual ~AbstractElement()
     {}
