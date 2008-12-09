@@ -171,7 +171,7 @@ public:
      * Note also that after calling this method the tissue will be in an inconsistent state until a
      * ReMesh is performed!  So don't try iterating over cells or anything like that.
      * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
-     *  between nodes and cells.
+     *  between nodes and cells see #430, most of the work will actually be in AbstractTissue.
      *
      *  @return number of cells removed
      */

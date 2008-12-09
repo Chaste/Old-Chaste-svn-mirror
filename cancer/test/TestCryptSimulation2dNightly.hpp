@@ -227,7 +227,6 @@ public:
         std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
         NumericFileComparison comp_elem(elem_results_file,"cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements");
         TS_ASSERT(comp_elem.CompareFiles());
-        //TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements").c_str()), 0);
     }
 
     void TestMonolayer() throw (Exception)

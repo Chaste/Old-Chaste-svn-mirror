@@ -40,7 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
 /**
- * \todo write some documentation for this class...
+ * Tissue cell is the basic container for all the biological information about a cell.
+ * It contains the cell cycle model and all other biological properties such as mutation 
+ * state, cell type, whether it is undergoing apoptosis or not.
+ * 
+ * This class should not store any spatial information - TissueCells are linked to space by the Tissue classes.
  */
 class TissueCell
 {
@@ -69,22 +73,26 @@ private:
 
 protected:
     // NB - if you add any member variables make sure CommonCopy includes them.
+    
+    /** The cell type - defined in CellTypes.hpp */
     CellType mCellType;
+    /** The cell's mutation state - defined in CellMutationStates.hpp */
     CellMutationState mMutationState;
+    /** The cell's cell-cycle model */
     AbstractCellCycleModel *mpCellCycleModel;
+    /** An index of either the node or vertex element that a cell is paired with */
     unsigned mLocationIndex;
     /** An index which is inherited by all children of this cell */
     unsigned mAncestor;
-    /// When the cell will/did die.
+    /** When the cell will/did die. */
     double mDeathTime;
+    /** Whether the cell is currently in apoptosis - don't divide */
     bool mUndergoingApoptosis;
+    /** Whether the cell is dead or not (they exist in the Tissue until they are removed by AbstractTissue::RemoveDeadCells() */
     bool mIsDead;
-    /// Whether the cell is being tracked specially.
+    /** Whether the cell is being tracked specially. */
     bool mIsLogged;
-
-    /**
-     * Contains code common to both the copy constructor and operator=.
-     */
+    /** Contains code common to both the copy constructor and operator=. */
     void CommonCopy(const TissueCell &other_cell);
 
 public:
@@ -108,33 +116,39 @@ public:
      */
     ~TissueCell();
 
+    /**
+     * Create a new tissue cell that is a copy of an existing cell
+     * @param other_cell  An existing TissueCell
+     */
     TissueCell(const TissueCell &other_cell);
 
     /**
      * Copy all the attributes of one cell to another
-     * (used for periodic boundaries - does not copy node or position information)
      *
-     * \todo Is this the way we should be doing it?  Seems a bit counter-intuitive if the comment above is correct!
-     *
-     * \todo Also, since cell cycle models don't have an operator=, only copies data members of AbstractCellCycleModel when the model is copied.
+     * \todo Since cell cycle models don't have an operator=, only copies data members of AbstractCellCycleModel when the model is copied.
      */
     TissueCell& operator=(const TissueCell &other_cell);
 
+    /**
+     * Set the birth time of the cell - can be negative so that your cells have an age when a simulation begins
+     * @param birthTime  The time the cell was born (in hours)
+     */
     void SetBirthTime(double birthTime);
 
     /**
      * Change the cell cycle model used.  This takes effect immediately.
      */
     void SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel);
+    
+    /**
+     * Returns a pointer to the TissueCell's cell cycle model.
+     */
     AbstractCellCycleModel *GetCellCycleModel() const;
 
     /**
      * Calls Initialise on the cell cycle model associated with this cell.
      */
     void InitialiseCellCycleModel();
-
-    // This method doesn't appear to actually be defined anywhere...
-    // void UpdateCellCycleModel();
 
     /**
      * Set the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
@@ -170,16 +184,47 @@ public:
      */
     TissueCell Divide();
 
+    /**
+     * Makes the cell enter apoptosis and sets mDeathTime using the apoptosis time from the cancer parameters.
+     */
     void StartApoptosis();
+    
+    /**
+     * This labels the cell as dead, it does not delete the cell, it remains 
+     * in the Tissue until AbstractTissue::RemoveDeadCells() is called.
+     */
     void Kill();
+    
+    /**
+     * Returns whether the cell is undergoing apoptosis or not.
+     */
     bool HasApoptosisBegun() const;
+    
+    /**
+     * @return How long until the cell dies (if it is in apoptosis, throws an exception if not)
+     */
     double TimeUntilDeath() const;
     bool IsDead() const;
 
+    /**
+     * Sets a flag to perform special output on this cell only.
+     */
     void SetLogged();
+    /**
+     * @return Whether the cell is being tracked.
+     */
     bool IsLogged();
 
+    /**
+     * Give the TissueCell an index which it passes to its children.
+     * @param ancestorIndex 
+     */
     void SetAncestor(unsigned ancestorIndex);
+    
+    /**
+     * @return The ancestor index, inherited from parents or set using the method above, 
+     * used for monoclonality experiments.
+     */
     unsigned GetAncestor() const;
 };
 

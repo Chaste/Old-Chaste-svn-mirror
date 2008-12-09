@@ -369,8 +369,9 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
          it != mCells.end();
          ++it)
     {
-        /// \todo Check it points to a real cell; if not do
-        /// it = this->mCells.erase(it); --it; continue;
+        /// \todo Check it points to a real cell, see #430,
+        /// if not do:
+        /// it = this->mCells.erase(it); --it; continue; 
         unsigned index = it->GetLocationIndex();
         mLocationCellMap[index] = &(*it);
     }
