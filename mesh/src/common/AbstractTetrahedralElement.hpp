@@ -46,50 +46,15 @@ protected:
     c_vector<double, SPACE_DIM> mWeightedDirection; 
     double mJacobianDeterminant;
 
-    /**
-     * Method that constructs the element. This is required because of having
-     * two different copy constructors, one with a new index and another without
-     */
-    void CommonConstructor(const AbstractTetrahedralElement& rElement)
-    {
-        mJacobianDeterminant = rElement.mJacobianDeterminant;
-        mJacobian = rElement.mJacobian;
-        mInverseJacobian = rElement.mInverseJacobian;
-        mWeightedDirection = rElement.mWeightedDirection;
-        
-        AbstractElement<ELEMENT_DIM,SPACE_DIM>::CommonConstructor(rElement);
-    }
-
-
 public:
     ///Main constructor
     AbstractTetrahedralElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
-
-    /**
-     * Copy constructor. This is needed so that copies of an element don't
-     * share pointers to the same matrices, which causes problems when copies
-     * get destroyed.
-     */
-    AbstractTetrahedralElement(const AbstractTetrahedralElement &element)
-        : AbstractElement<ELEMENT_DIM, SPACE_DIM>(element)
-    {
-//        CommonConstructor(element);
-    }
 
     /**
      * \todo Why does the default constructor not do anything?
      */
     AbstractTetrahedralElement()
     {}
-
-    /**
-     * Element assignment - make this element equal to the other one.
-     */
-    virtual AbstractTetrahedralElement& operator=(const AbstractTetrahedralElement &element)
-    {
-        CommonConstructor(element);
-        return *this;
-    }
 
     virtual ~AbstractTetrahedralElement()
     {}

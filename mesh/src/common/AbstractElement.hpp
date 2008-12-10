@@ -42,35 +42,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // constant is used instead.
 const unsigned INDEX_IS_NOT_USED=0;
 
-
+/**
+ * Abstract base class for all elements that can occur in meshes.
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractElement
 {
 protected:
-    unsigned mIndex;
+    /** The nodes forming this element */
     std::vector<Node<SPACE_DIM>*> mNodes;
-
-    bool mIsDeleted;
-    bool mOwnership;
-    bool mFlag;
+    /** The index of this element within the mesh */
+    unsigned mIndex;
+    /** A region ID */
     unsigned mRegion;
+
+    /**
+     * Whether this element has been deleted, and hence it's location in the
+     * mesh can be re-used.
+     */
+    bool mIsDeleted;
+    /** Whether the current process owns this element */
+    bool mOwnership;
+    /** A flag for the use of higher level algorithms */
+    bool mFlag;
     
-
-    virtual void CommonConstructor(const AbstractElement& rElement)
-    {
-        mIndex = rElement.mIndex;
-        mNodes = rElement.mNodes;
-
-        // Copy various flags
-        mIsDeleted = rElement.mIsDeleted;
-        mOwnership = rElement.mOwnership;
-        mFlag = rElement.mFlag;
-        mRegion = rElement.mRegion;
-    }
-
 public:
     AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
-        : mIndex(index), mNodes(rNodes)
+        : mNodes(rNodes), mIndex(index)
     {
         // Sanity checking
         assert(ELEMENT_DIM <= SPACE_DIM);
@@ -84,32 +82,21 @@ public:
         mRegion = 0;
     }
 
-
-    /**
-     * Copy constructor. This is needed so that copies of an element don't
-     * share pointers to the same matrices, which causes problems when copies
-     * get destroyed.
-     */
-    AbstractElement(const AbstractElement& rElement)
-    {
-       CommonConstructor(rElement);
-    }
-
     /**
      * \todo Why does the default constructor not do anything?
      */
     AbstractElement()
+        : mIndex(INDEX_IS_NOT_USED),
+          mRegion(0),
+          mIsDeleted(false),
+          mOwnership(true),
+          mFlag(false)
     {}
 
-//    /**
-//     * Element assignment - make this element equal to the other one.
-//     */
-//    virtual AbstractElement& operator=(const AbstractElement& rElement)
-//    {
-//        CommonConstructor(rElement);
-//        return *this;
-//    }
-
+    /**
+     * Virtual destructor, since this class has virtual methods.
+     * Does nothing special.
+     */
     virtual ~AbstractElement()
     {}
 
@@ -121,9 +108,15 @@ public:
      */
     virtual void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)=0;
 
-
+    /**
+     * Replace one of the nodes in this element with another.
+     * 
+     * @param pOldNode  pointer to the current node
+     * @param pNewNode  pointer to the replacement node
+     */
     void ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode)
     {
+        //assert(pOldNode != pNewNode); /// \todo this will sometimes trip; is it a logic error?
         for (unsigned i=0; i<this->mNodes.size(); i++)
         {
             if (this->mNodes[i]==pOldNode)
@@ -142,10 +135,19 @@ public:
     virtual void MarkAsDeleted()=0;
 
 
-
+    /**
+     * Inform all nodes forming this element that they are in this element.
+     */
     virtual void RegisterWithNodes()=0;
 
-
+    /**
+     * Get a single component of the location in space of one of the nodes
+     * in this element.
+     * 
+     * @param localIndex  the index of the node to query, in [0,N) where N
+     *   is the number of nodes in this element.
+     * @param dimension  the spatial dimension to query.
+     */
     double GetNodeLocation(unsigned localIndex, unsigned dimension) const
     {
         assert(dimension < SPACE_DIM);
@@ -154,6 +156,11 @@ public:
     }
 
     /**
+     * Get the location in space of one of the nodes in this element.
+     * 
+     * @param localIndex  the index of the node to query, in [0,N) where N
+     *   is the number of nodes in this element.
+     *
      * \todo this used to return a reference to a c_vector, in which case a
      * weird error arose where it compiled, ran and passed on some machines
      * but failed the tests (bad_size errors) on another machine.
@@ -192,7 +199,8 @@ public:
         return mIsDeleted;
     }
 
-    /** Get the index of this element
+    /**
+     *  Get the index of this element
      */
     unsigned GetIndex(void) const
     {

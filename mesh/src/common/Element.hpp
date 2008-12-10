@@ -45,11 +45,13 @@ public:
     }
 
     /**
-     * Copy constructor which allows a new index to be specified
+     * Copy constructor which allows a new index to be specified.
+     * 
+     * \todo this is rather dubious; a factory method might be better.
      */
     Element(const Element &element, const unsigned index)
     {
-        CommonConstructor(element);
+        *this = element; // might work...
         this->mIndex=index;
 
         RegisterWithNodes();
