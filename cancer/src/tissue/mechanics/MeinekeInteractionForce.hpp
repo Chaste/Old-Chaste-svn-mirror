@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTwoBodyInteractionForce.hpp"
 #include "MeshBasedTissue.hpp"
-#include "IngeWntSwatCellCycleModel.hpp"
 #include "VoronoiTessellation.hpp"
 
 #include <boost/serialization/access.hpp>
@@ -50,33 +49,9 @@ private :
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<DIM> >(*this);
-        archive & mUseEdgeBasedSpringConstant;
-        archive & mUseMutantSprings;
-        archive & mMutantMutantMultiplier;
-        archive & mNormalMutantMultiplier;
-        archive & mUseBCatSprings;
-        archive & mUseApoptoticSprings;
     }
 
 protected :
-    
-    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
-    bool mUseEdgeBasedSpringConstant;
-
-    /** Whether to use different stiffnesses depending on whether either cell is a mutant */
-    bool mUseMutantSprings;
-
-    /** Multiplier for spring stiffness if mutant */
-    double mMutantMutantMultiplier;
-
-    /** Multiplier for spring stiffness if mutant */
-    double mNormalMutantMultiplier;
-
-    /** Use springs which are dependent on beta-catenin levels */
-    bool mUseBCatSprings;
-
-    /** Use springs which are dependent on whether cells are necrotic */
-    bool mUseApoptoticSprings;
 
 public :
 
@@ -88,27 +63,6 @@ public :
      * Use an area based viscosity
      */
     void SetAreaBasedViscosity(bool useAreaBasedViscosity);
-    
-    /**
-     * Use an edge-based spring constant
-     */
-    void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
-
-    /**
-     * Use Different spring strengths depending on two cells:
-     * Normal-normal, Normal-mutant, mutant-mutant
-     */
-    void SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier=2, double normalMutantMultiplier=1.5);
-
-    /**
-     * Use the amount of B-Catenin on an edge to find spring constant.
-     */
-    void SetBCatSprings(bool useBCatSprings);
-
-    /**
-     * Set spring stiffness to be dependent on whether cells are necrotic
-     */
-    void SetApoptoticSprings(bool useApoptoticSprings);    
 
     /**
      *  Get the damping constant for this cell - ie d in drdt = F/d
@@ -118,6 +72,9 @@ public :
     double GetDampingConstant(TissueCell& rCell, AbstractTissue<DIM>& rTissue);
     
     bool NeedsVoronoiTessellation();
+    
+    virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
+                                                           AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength);
     
     /**
      * Calculates the force between two nodes.
@@ -141,20 +98,14 @@ public :
 template<unsigned DIM>
 MeinekeInteractionForce<DIM>::MeinekeInteractionForce()
    : AbstractTwoBodyInteractionForce<DIM>()
-{    
-    // Edge-based springs
-    mUseEdgeBasedSpringConstant = false;
+{
+}
 
-    // Cell-type dependent springs
-    mUseMutantSprings = false;
-    mMutantMutantMultiplier = DOUBLE_UNSET;
-    mNormalMutantMultiplier = DOUBLE_UNSET;
-
-    // Beta-cat springs
-    mUseBCatSprings = false;
-
-    // Apoptotic springs
-    mUseApoptoticSprings = false;
+template<unsigned DIM>
+double MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, 
+                                                                                        AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength)
+{
+    return 1.0;
 }
 
 template<unsigned DIM>
@@ -167,33 +118,6 @@ void MeinekeInteractionForce<DIM>::SetAreaBasedViscosity(bool useAreaBasedViscos
 {
     assert(DIM == 2);
     this->mUseAreaBasedViscosity = useAreaBasedViscosity;
-}
-
-template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant)
-{
-    assert(DIM == 2);
-    mUseEdgeBasedSpringConstant = useEdgeBasedSpringConstant;
-}
-
-template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier)
-{
-    mUseMutantSprings = useMutantSprings;
-    mMutantMutantMultiplier = mutantMutantMultiplier;
-    mNormalMutantMultiplier = normalMutantMultiplier;
-}
-
-template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::SetBCatSprings(bool useBCatSprings)
-{
-    mUseBCatSprings = useBCatSprings;
-}
-
-template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::SetApoptoticSprings(bool useApoptoticSprings)
-{
-    mUseApoptoticSprings = useApoptoticSprings;
 }
 
 template<unsigned DIM>
@@ -250,25 +174,42 @@ double MeinekeInteractionForce<DIM>::GetDampingConstant(TissueCell& rCell, Abstr
 template<unsigned DIM>
 bool MeinekeInteractionForce<DIM>::NeedsVoronoiTessellation()
 {
-    return (this->mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
+    return (this->mUseAreaBasedViscosity);
 }
 
 template<unsigned DIM>
 c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue)
 {
+    // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
 
+    // Get the node locations
     c_vector<double, DIM> node_a_location = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
     c_vector<double, DIM> node_b_location = rTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
 
-    // There is reason not to substract one position from the other (cylindrical meshes)
-    c_vector<double, DIM> unit_difference = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
+    // Get the unit vector parallel to the line joining the two nodes
+    c_vector<double, DIM> unit_difference;
+    if (rTissue.HasMesh())
+    {
+        // We use the mesh method GetVectorFromAtoB() to compute the direction of the unit vector
+        // along the line joining the two nodes, rather than simply subtract their positions, 
+        // because this method can be overloaded, e.g. to enforce a periodic boundary in Cylindrical2dMesh
+        unit_difference = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
+    }
+    else
+    {
+        unit_difference = node_b_location - node_a_location;
+    }
 
+    // Calculate the distance between the two nodes
     double distance_between_nodes = norm_2(unit_difference);
+    assert(distance_between_nodes > 0);
     assert(!isnan(distance_between_nodes));
 
     unit_difference /= distance_between_nodes;
 
+    // If mUseCutoffPoint has been set, then there is zero force between 
+    // two nodes located a distance apart greater than mUseCutoffPoint 
     if (this->mUseCutoffPoint)
     {
         if (distance_between_nodes >= this->mCutoffPoint)
@@ -277,17 +218,21 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
         }
     }
 
+    // Calculate the rest length of the spring connecting the two nodes
+
     double rest_length = 1.0;
 
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
-    
+
     assert(!isnan(ageA));
     assert(!isnan(ageB));
 
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
+    // If the cells are both newly divided, then the rest length of the spring
+    // connecting them grows linearly with time, until 1 hour after division
     if ( ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
         if (rTissue.HasMesh())
@@ -315,6 +260,8 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
+    // If either of the cells has begun apoptosis, then the length of the spring 
+    // connecting them decreases linearly with time
     if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
         double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
@@ -330,109 +277,11 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
     assert(rest_length<=1.0+1e-12);
 
+    // Although in this class the 'spring constant' is a constant parameter, in 
+    // subclasses it can depend on properties of each of the cells
     double multiplication_factor = 1.0;
-
-    if (mUseEdgeBasedSpringConstant)
-    {
-        assert(rTissue.HasMesh());
-        assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
-
-        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
-
-        multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
-    }
-
-    if (mUseMutantSprings)
-    {
-        unsigned number_of_mutants=0;
-
-        if (r_cell_A.GetMutationState() == APC_TWO_HIT || r_cell_A.GetMutationState() == BETA_CATENIN_ONE_HIT)
-        {
-            // If cell A is mutant
-            number_of_mutants++;
-        }
-
-        if (r_cell_B.GetMutationState() == APC_TWO_HIT || r_cell_B.GetMutationState() == BETA_CATENIN_ONE_HIT)
-        {
-            // If cell B is mutant
-            number_of_mutants++;
-        }
-
-        switch (number_of_mutants)
-        {
-            case 1u:
-            {
-                multiplication_factor *= mNormalMutantMultiplier;
-                break;
-            }
-            case 2u:
-            {
-                multiplication_factor *= mMutantMutantMultiplier;
-                break;
-            }
-        }
-    }
-
-    if (mUseBCatSprings)
-    {
-        assert(rTissue.HasMesh());
-        // If using beta-cat dependent springs, both cell-cycle models has better be IngeWntSwatCellCycleModel
-        IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
-        IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
-
-        assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
-        double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();
-        double beta_cat_cell_2 = p_model_B->GetMembraneBoundBetaCateninLevel();
-
-        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
-
-        double perim_cell_1 = tess.GetFacePerimeter(nodeAGlobalIndex);
-        double perim_cell_2 = tess.GetFacePerimeter(nodeBGlobalIndex);
-        double edge_length_between_1_and_2 = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
-
-        double beta_cat_on_cell_1_edge = beta_cat_cell_1 *  edge_length_between_1_and_2 / perim_cell_1;
-        double beta_cat_on_cell_2_edge = beta_cat_cell_2 *  edge_length_between_1_and_2 / perim_cell_2;
-
-        double min_beta_Cat_of_two_cells = std::min(beta_cat_on_cell_1_edge, beta_cat_on_cell_2_edge);
-
-        double beta_cat_scaling_factor = CancerParameters::Instance()->GetBetaCatSpringScaler();
-        multiplication_factor *= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
-    }
-
-    if (mUseApoptoticSprings)
-    {
-        if (r_cell_A.GetCellType()==APOPTOTIC || r_cell_B.GetCellType()==APOPTOTIC)
-        {
-            double spring_a_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
-            double spring_b_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
-
-            if (r_cell_A.GetCellType()==APOPTOTIC)
-            {
-                if (distance_between_nodes-rest_length > 0) // if under tension
-                {
-                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
-                }
-                else // if under compression
-                {
-                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
-                }
-            }
-            if (r_cell_B.GetCellType()==APOPTOTIC)
-            {
-                if (distance_between_nodes-rest_length > 0) // if under tension
-                {
-                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
-                }
-                else // if under compression
-                {
-                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
-                }
-            }
-
-            multiplication_factor *= 1.0 / (( 1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*CancerParameters::Instance()->GetSpringStiffness());
-        }
-    }
-
+    multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, distance_between_nodes, rest_length);
+    
     if (rTissue.HasMesh())
     {
         return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
@@ -466,20 +315,52 @@ template<unsigned DIM>
 void MeinekeInteractionForce<DIM>::AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
                                                            AbstractTissue<DIM>& rTissue)
 {
-    for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
-        spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
-        ++spring_iterator)
+    if (rTissue.HasMesh())
     {
-        unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-        unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+        // Iterate over all springs and add velocity contributions
+        for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
+            spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
+            ++spring_iterator)
+        {
+            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+    
+            // Calculate the force between nodes
+            c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
+    
+            // Get the damping constant for each cell
+            double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA(), rTissue);
+            double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB(), rTissue);
+    
+            // Add the contribution to each node's velocity
+            rNodeVelocities[nodeB_global_index] -= force / damping_constantB;
+            rNodeVelocities[nodeA_global_index] += force / damping_constantA;
+        }
+    }
+    else
+    {
+        // Iterate over nodes
+        for (unsigned node_a_index=0; node_a_index<rTissue.GetNumNodes(); node_a_index++)
+        {
+            // Iterate over nodes
+            for (unsigned node_b_index=node_a_index+1; node_b_index<rTissue.GetNumNodes(); node_b_index++)
+            {                
+                // Calculate the force between nodes    
+                c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
+                for (unsigned j=0; j<DIM; j++)
+                {
+                    assert(!isnan(force[j]));
+                }
+         
+                // Get the damping constant for each cell
+                double damping_constantA = GetDampingConstant(rTissue.rGetCellUsingLocationIndex(node_a_index), rTissue);
+                double damping_constantB = GetDampingConstant(rTissue.rGetCellUsingLocationIndex(node_b_index), rTissue);
 
-        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
-
-        double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA(), *(static_cast<MeshBasedTissue<DIM>*>(&rTissue)));
-        double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB(), *(static_cast<MeshBasedTissue<DIM>*>(&rTissue)));
-
-        rNodeVelocities[nodeB_global_index] -= force / damping_constantB;
-        rNodeVelocities[nodeA_global_index] += force / damping_constantA;
+                // Add the contribution to each node's velocity
+                rNodeVelocities[node_a_index] += force/damping_constantA;
+                rNodeVelocities[node_b_index] -= force/damping_constantB;                
+            }
+        }        
     }
 }
 

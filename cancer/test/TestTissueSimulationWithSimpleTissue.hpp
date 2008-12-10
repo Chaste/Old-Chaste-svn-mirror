@@ -223,51 +223,51 @@ public:
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);// this needs changing to suit actual answer when test works!
         LogFile::Close();
     }
-//
-//    /**
-//     * Test archiving of a TissueSimulation that uses a SimpleTissue.
-//     */
-//    void TestArchiving() throw (Exception)
-//    {
-//        // Create a simple mesh
-//        int num_cells_depth = 5;
-//        int num_cells_width = 5;
-//        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-//        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
-//
-//        // Get node vector from mesh
-//        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
-//
-//        // Set up cells, one for each node. Get each a random birth time.
-//        std::vector<TissueCell> cells = SetUpCells(p_mesh);
-//
-//        // Create a simple tissue
-//        SimpleTissue<2> simple_tissue(nodes, cells);
-//
-//        // Create a mechanics system
-//        MeinekeInteractionForce<2> meineke_force;
-//        meineke_force.UseCutoffPoint(1.5);
-//        std::vector<AbstractForce<2>*> force_collection;
-//        force_collection.push_back(&meineke_force);
-//
-//        // Set up tissue simulation
-//        TissueSimulation<2> simulator(simple_tissue, force_collection);
-//        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueSaveAndLoad");
-//        simulator.SetEndTime(0.5);
-//
-//        simulator.Solve();
-//
-//        TS_ASSERT_THROWS_NOTHING(simulator.Save());
-//
-//        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load("TestTissueSimulationWithSimpleTissueSaveAndLoad", 0.5);
-//
-//        p_simulator->SetEndTime(1.0);
-//
-//        TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
-//
-//        /// \todo test results against previous test, once cell death and a stable force law are implemented (see #642 and #678)
-//        delete p_simulator;
-//    }
+
+    /**
+     * Test archiving of a TissueSimulation that uses a SimpleTissue.
+     */
+    void TestArchiving() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Get node vector from mesh
+        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
+
+        // Set up cells, one for each node. Get each a random birth time.
+        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+
+        // Create a simple tissue
+        SimpleTissue<2> simple_tissue(nodes, cells);
+
+        // Create a mechanics system
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(simple_tissue, force_collection);
+        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueSaveAndLoad");
+        simulator.SetEndTime(0.5);
+
+        simulator.Solve();
+
+        TS_ASSERT_THROWS_NOTHING(simulator.Save());
+
+        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load("TestTissueSimulationWithSimpleTissueSaveAndLoad", 0.5);
+
+        p_simulator->SetEndTime(1.0);
+
+        TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
+
+        /// \todo test results against previous test, once cell death and a stable force law are implemented (see #642 and #678)
+        delete p_simulator;
+    }
 
 };
 

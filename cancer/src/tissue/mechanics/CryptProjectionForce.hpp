@@ -28,14 +28,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CRYPTPROJECTIONFORCE_HPP_
 #define CRYPTPROJECTIONFORCE_HPP_
 
-#include "AbstractTwoBodyInteractionForce.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "MeshBasedTissue.hpp"
 #include "WntConcentration.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-class CryptProjectionForce : public AbstractTwoBodyInteractionForce<2>
+class CryptProjectionForce : public MeinekeInteractionForce<2>
 {
     friend class TestForces;
     
@@ -47,7 +47,10 @@ private :
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<2> >(*this);
+        archive & boost::serialization::base_object<MeinekeInteractionForce<2> >(*this);
+        archive & mA;
+        archive & mB;
+        archive & mIncludeWntChemotaxis;
     }
     
     /**
@@ -133,7 +136,7 @@ public :
 };
 
 CryptProjectionForce::CryptProjectionForce()
-   : AbstractTwoBodyInteractionForce<2>()
+   : MeinekeInteractionForce<2>()
 {
     mA = CancerParameters::Instance()->GetCryptProjectionParameterA();
     mB = CancerParameters::Instance()->GetCryptProjectionParameterB();
@@ -203,45 +206,64 @@ double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(c_vector<dou
 
 c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<2>& rTissue)
 {
-       // Assert that the nodes are not identical
+    assert(rTissue.HasMesh());    
+    
+    // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
-
+    
     // Get the node locations in 2D
     c_vector<double,2> node_a_location_2d = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
     c_vector<double,2> node_b_location_2d = rTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
 
-    // Create a unit vector in the direction of the 3D spring (we don't need to worry about cylindrical meshes)
-    c_vector<double,3> unit_difference_3d = mNode3dLocationMap[nodeBGlobalIndex] - mNode3dLocationMap[nodeAGlobalIndex];
-    double distance_between_nodes_3d = norm_2(unit_difference_3d);
+    // "Get the unit vector parallel to the line joining the two nodes" [MeinekeInteractionForce]
+    
+    // Create a unit vector in the direction of the 3D spring
+    c_vector<double,3> unit_difference = mNode3dLocationMap[nodeBGlobalIndex] - mNode3dLocationMap[nodeAGlobalIndex];
 
-    unit_difference_3d /= distance_between_nodes_3d;
+    // Calculate the distance between the two nodes
+    double distance_between_nodes = norm_2(unit_difference);
+    assert(distance_between_nodes > 0);
+    assert(!isnan(distance_between_nodes));
+    
+    unit_difference /= distance_between_nodes;
 
-    // A bit of code for implementing a cutoff point
+    // If mUseCutoffPoint has been set, then there is zero force between 
+    // two nodes located a distance apart greater than mUseCutoffPoint 
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes_3d >= this->mCutoffPoint)
+        if (distance_between_nodes >= this->mCutoffPoint)
         {
-            // Return zero force
+            // Return zero (2D projected) force
             return zero_vector<double>(2);
         }
     }
-
-    // Calculate of the 3D spring's rest length...
-    double rest_length_3d = 1.0;
+    
+    // Calculate the rest length of the spring connecting the two nodes
+    
+    double rest_length = 1.0;
+    
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
+    
+    assert(!isnan(ageA));
+    assert(!isnan(ageB));
 
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
-    // ... a bit of code for recently born cells...
+    // If the cells are both newly divided, then the rest length of the spring
+    // connecting them grows linearly with time, until 1 hour after division
     if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
-        // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
+        // The static_cast of rTissue to a MeshBasedTissue below should always be okay, 
+        // since we have previously asserted that the tissue has a mesh
+        
+        // The spring rest length increases from a predefined small parameter to a normal rest length of 1.0,
+        // over a period of one hour
         if ( (static_cast<MeshBasedTissue<2>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
         {
             double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
-            rest_length_3d = (lambda+(1.0 - lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));
+            rest_length = (lambda + (1.0 - lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));
         }
 
         if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
@@ -250,40 +272,57 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
             (static_cast<MeshBasedTissue<2>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
         }
     }
+    
+    double a_rest_length = rest_length*0.5;
+    double b_rest_length = a_rest_length;
 
-    /// \todo This is where the code for for apoptosing cells would go (see #627)
-
+    // If either of the cells has begun apoptosis, then the length of the spring 
+    // connecting them decreases linearly with time
+    if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    {
+        double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
+        a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
+    }
+    if (rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    {
+        double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
+        b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
+    }
+    
+    rest_length = a_rest_length + b_rest_length;
+    
     // Assert that the rest length does not exceed 1
-    assert(rest_length_3d <= 1.0+1e-12);
+    assert(rest_length <= 1.0+1e-12);
 
-    /// \todo This is where the code for the cases mUseMutantSprings=true and mUseBCatSprings=true would go (see #627)
+    double multiplication_factor = 1.0;
+    multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, distance_between_nodes, rest_length);
 
     // Calculate the 3D force between the two points
-    c_vector<double,3> force_between_nodes_3d = CancerParameters::Instance()->GetSpringStiffness() * unit_difference_3d * (distance_between_nodes_3d - rest_length_3d);
+    c_vector<double,3> force_between_nodes = multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 
     // Calculate an outward normal unit vector to the tangent plane of the crypt surface at the 3D point corresponding to node B
-    c_vector<double,3> outward_normal_unit_vector_3d;
+    c_vector<double,3> outward_normal_unit_vector;
 
     double dfdr = CalculateCryptSurfaceDerivativeAtPoint(node_b_location_2d);
     double theta_B = atan2(node_b_location_2d[1], node_b_location_2d[0]); // use atan2 to determine the quadrant
     double normalization_factor = sqrt(1 + dfdr*dfdr);
 
-    outward_normal_unit_vector_3d[0] = dfdr*cos(theta_B)/normalization_factor;
-    outward_normal_unit_vector_3d[1] = dfdr*sin(theta_B)/normalization_factor;
-    outward_normal_unit_vector_3d[2] = -1.0/normalization_factor;
+    outward_normal_unit_vector[0] = dfdr*cos(theta_B)/normalization_factor;
+    outward_normal_unit_vector[1] = dfdr*sin(theta_B)/normalization_factor;
+    outward_normal_unit_vector[2] = -1.0/normalization_factor;
 
     // Calculate the projection of the force onto the plane z=0
     c_vector<double,2> projected_force_between_nodes_2d;
-    double force_dot_normal = inner_prod(force_between_nodes_3d, outward_normal_unit_vector_3d);
+    double force_dot_normal = inner_prod(force_between_nodes, outward_normal_unit_vector);
 
     for (unsigned i=0; i<2; i++)
     {
-        projected_force_between_nodes_2d[i] = force_between_nodes_3d[i]
-                                              - force_dot_normal*outward_normal_unit_vector_3d[i]
-                                              + force_dot_normal*outward_normal_unit_vector_3d[2];
+        projected_force_between_nodes_2d[i] = force_between_nodes[i]
+                                              - force_dot_normal*outward_normal_unit_vector[i]
+                                              + force_dot_normal*outward_normal_unit_vector[2];
     }
 
-    return projected_force_between_nodes_2d;    
+    return projected_force_between_nodes_2d;
 }
 
 void CryptProjectionForce::AddVelocityContribution(std::vector<c_vector<double,2> >& rNodeVelocities,

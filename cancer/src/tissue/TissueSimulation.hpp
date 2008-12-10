@@ -451,9 +451,11 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 
     // This labels cells as dead or apoptosing. It does not actually remove the cells,
     // tissue.RemoveDeadCells() needs to be called for this.
-    for (unsigned killer_index=0; killer_index<mCellKillers.size(); killer_index++)
+    for (typename std::vector<AbstractCellKiller<DIM>*>::iterator killer_iter = mCellKillers.begin();
+                 killer_iter != mCellKillers.end();
+                 ++killer_iter)
     {
-        mCellKillers[killer_index]->TestAndLabelCellsForApoptosisOrDeath();
+        (*killer_iter)->TestAndLabelCellsForApoptosisOrDeath();
     }
 
     num_deaths_this_step += mrTissue.RemoveDeadCells();

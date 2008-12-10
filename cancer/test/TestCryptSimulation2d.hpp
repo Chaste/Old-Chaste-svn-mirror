@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "TysonNovakCellCycleModelCellsGenerator.hpp"
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "MeinekeInteractionWithVariableSpringConstantsForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
@@ -419,7 +419,7 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
         
-        MeinekeInteractionForce<2> meineke_force;
+        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
         meineke_force.SetAreaBasedViscosity(true);
         meineke_force.SetEdgeBasedSpringConstant(true);
         

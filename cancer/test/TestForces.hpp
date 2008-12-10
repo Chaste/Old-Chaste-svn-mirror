@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "MeinekeInteractionWithVariableSpringConstantsForce.hpp"
 #include "ChemotacticForce.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "CryptProjectionForce.hpp"
@@ -206,7 +206,7 @@ public:
         cells_generator.GenerateForCrypt(cells, *p_mesh, true); // true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
-        MeinekeInteractionForce<2> meineke_force;
+        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
 
         // Check that the force between nodes is correctly calculated when the 'spring constant' is constant
         meineke_force.SetEdgeBasedSpringConstant(false);
@@ -282,7 +282,7 @@ public:
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
-        MeinekeInteractionForce<2> meineke_force;
+        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
 
         // Check that the force between nodes is correctly calculated when the spring constant is constant (!)
         meineke_force.SetEdgeBasedSpringConstant(false);
@@ -468,7 +468,7 @@ public:
 
         MeshBasedTissue<2> tissue(mesh, cells);
 
-        MeinekeInteractionForce<2> meineke_force;
+        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
 
         // Set cells mutation states
         tissue.rGetCellUsingLocationIndex(0).SetMutationState(HEALTHY);
@@ -518,7 +518,7 @@ public:
         // As there is no tissue simulation, we must explicitly initialise the cells
         crypt.InitialiseCells();
 
-        MeinekeInteractionForce<2> meineke_force;
+        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
 
         TS_ASSERT_DELTA(norm_2(meineke_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.50, 1e-10);
 
@@ -556,7 +556,7 @@ public:
         // Set one of the non-boundary cells to be necrotic
         stretched_tissue.rGetCellUsingLocationIndex(6).SetCellType(APOPTOTIC);
 
-        MeinekeInteractionForce<2> meineke_force;
+        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
         meineke_force.SetApoptoticSprings(true);
 
         TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(6).GetCellType(), APOPTOTIC);
@@ -582,7 +582,7 @@ public:
 
         squashed_tissue.rGetCellUsingLocationIndex(6).SetCellType(APOPTOTIC);
 
-        MeinekeInteractionForce<2> meineke_force2;
+        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force2;
         meineke_force2.SetApoptoticSprings(true);
 
         TS_ASSERT_DELTA( norm_2(meineke_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 4.0909, 1e-4);
@@ -742,13 +742,13 @@ public:
             }
 
             MeshBasedTissue<2> tissue(mesh,cells);
-            MeinekeInteractionForce<2> meineke_force;
+            MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            MeinekeInteractionForce<2>* const p_meineke_force = &meineke_force;
+            MeinekeInteractionWithVariableSpringConstantsForce<2>* const p_meineke_force = &meineke_force;
             
             p_meineke_force->UseCutoffPoint(1.1);
             p_meineke_force->SetAreaBasedViscosity(true);
@@ -767,7 +767,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            MeinekeInteractionForce<2>* p_meineke_force;
+            MeinekeInteractionWithVariableSpringConstantsForce<2>* p_meineke_force;
 
             // Restore from the archive
             input_arch >> p_meineke_force;
@@ -963,7 +963,7 @@ public:
         p_params->SetCryptProjectionParameterA(2.0);
         p_params->SetCryptProjectionParameterB(1.0);       
         CryptProjectionForce crypt_projection_force;
-                        
+                   
         TS_ASSERT(!crypt_projection_force.NeedsVoronoiTessellation()) // for coverage
 
         // Test get methods
@@ -983,7 +983,7 @@ public:
         new_point.rGetLocation()[0] = node_location_2d[0]+0.05;
         new_point.rGetLocation()[1] = node_location_2d[1];
         p_mesh->SetNode(0, new_point, false);
-
+ 
 
         // Test UpdateNode3dLocationMap()
 
@@ -1005,7 +1005,7 @@ public:
         TS_ASSERT_DELTA(calculated_new_node_location_3d[1], correct_new_node_location_3d[1], 1e-12);
         TS_ASSERT_DELTA(calculated_new_node_location_3d[2], correct_new_node_location_3d[2], 1e-12);
 
-
+   
         // Test force calculation on a normal spring
 
         c_vector<double,2> force_on_spring; // between nodes 0 and 1
@@ -1025,11 +1025,13 @@ public:
         TS_ASSERT_DELTA(force_on_spring[0], -5.7594, 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0230 , 1e-4);
 
-
+///////////////////////////////////////////////////////////////// 
         // Test force calculation with a cutoff
 
-        double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(), p_element->GetNode(1)->rGetLocation()) );
-        crypt_projection_force.UseCutoffPoint(dist-0.1);
+        double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(), 
+                              p_element->GetNode(1)->rGetLocation()) );
+                              
+        crypt_projection_force.UseCutoffPoint(dist - 0.1);
 
         force_on_spring = crypt_projection_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),
                                                                             p_element->GetNodeGlobalIndex(0),
@@ -1041,7 +1043,7 @@ public:
         // Test force calculation for a pair of newly born neighbouring cells
         force_on_spring = crypt_projection_force.CalculateForceBetweenNodes(4, 5, tissue);
         TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
-        TS_ASSERT_DELTA(force_on_spring[1], 0.0 , 1e-4);
+        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
 
         tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(4), tissue.rGetCellUsingLocationIndex(5));
 
