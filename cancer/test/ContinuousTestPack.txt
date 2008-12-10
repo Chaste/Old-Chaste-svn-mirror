@@ -30,6 +30,7 @@ TestTissueSimulationWithNutrientsAssembler.hpp
 TestTissueSimulationWithSimpleTissue.hpp
 TestTysonNovak2001OdeSystem.hpp
 TestVertexMesh.hpp
+TestVertexMeshWriter2d.hpp
 TestVertexElement.hpp
 TestVoronoiAreaOnPeriodicMesh.hpp
 TestWntCellCycleOdeSystem.hpp

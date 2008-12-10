@@ -190,15 +190,15 @@ public:
     std::vector<unsigned> GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint);
 
 
-    /**
-     * Sets the ownership of each element according to which nodes are owned by the
-     * process.
-     * @param lo is the lowest node number owned by the process
-     * @param hi is one higher than the highest node number owned by the process
-     * ie. this process owns nodes [lo..hi)
-     * and element is "owned" if one or more of its nodes are owned
-     */
-    void SetElementOwnerships(unsigned lo, unsigned hi);
+//    /**
+//     * Sets the ownership of each element according to which nodes are owned by the
+//     * process.
+//     * @param lo is the lowest node number owned by the process
+//     * @param hi is one higher than the highest node number owned by the process
+//     * ie. this process owns nodes [lo..hi)
+//     * and element is "owned" if one or more of its nodes are owned
+//     */
+//    void SetElementOwnerships(unsigned lo, unsigned hi);
 
     /**
      *  Clear all the data in the mesh
@@ -1187,26 +1187,26 @@ std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElem
     return element_indices;
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
-{
-    assert(hi>=lo);
-    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
-    {
-        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
-        p_element->SetOwnership(false);
-        for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
-        {
-            unsigned global_node_index = p_element->GetNodeGlobalIndex(local_node_index);
-            if (lo<=global_node_index && global_node_index<hi)
-            {
-                p_element->SetOwnership(true);
-                break;
-            }
-        }
-
-    }
-}
+//template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
+//{
+//    assert(hi>=lo);
+//    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
+//    {
+//        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
+//        p_element->SetOwnership(false);
+//        for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
+//        {
+//            unsigned global_node_index = p_element->GetNodeGlobalIndex(local_node_index);
+//            if (lo<=global_node_index && global_node_index<hi)
+//            {
+//                p_element->SetOwnership(true);
+//                break;
+//            }
+//        }
+//
+//    }
+//}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,

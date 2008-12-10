@@ -71,8 +71,8 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     *p_node_file<< num_nodes << "\t";
     *p_node_file<< SPACE_DIM << "\t";
     *p_node_file<< num_attr << "\t";
-    *p_node_file<<max_bdy_marker <<"\n";
-    *p_node_file << std::setprecision(20);
+    *p_node_file<< max_bdy_marker <<"\n";
+    *p_node_file<< std::setprecision(20);
 
     //Write each node's data
     unsigned default_marker=0;
@@ -97,7 +97,6 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         WriteFacesAsEdges();
         return;
     }
-
 
     //Write Element file
     std::string element_file_name = this->mBaseName+".ele";

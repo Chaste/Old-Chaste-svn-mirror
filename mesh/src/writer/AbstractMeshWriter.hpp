@@ -78,7 +78,7 @@ public:
     std::string GetOutputDirectory(void);
 
     void SetNextNode(std::vector<double> nextNode);
-    void SetNextElement(std::vector<unsigned> nextElement);
+    virtual void SetNextElement(std::vector<unsigned> nextElement);
     void SetNextBoundaryFace(std::vector<unsigned> nextFace);
     void SetNextBoundaryEdge(std::vector<unsigned> nextEdge);
     virtual void WriteFiles()=0;
@@ -124,6 +124,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<unsigned> nextElement)
 {
+    std::cout << "AbstractSetNextElement entered \n";
     assert (nextElement.size() == ELEMENT_DIM+1);
     mElementData.push_back(nextElement);
 }
@@ -176,13 +177,13 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     {
         if ((*iter)->IsDeleted() == false)
         {
-            std::vector<unsigned> indices(ELEMENT_DIM+1);
-            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+            std::vector<unsigned> indices((*iter)->GetNumNodes());
+            for (unsigned j=0; j<indices.size(); j++)
             {
                 unsigned old_index=(*iter)->GetNodeGlobalIndex(j);
                 indices[j] = node_map.GetNewIndex(old_index);
             }
-            SetNextElement(indices);
+            this->SetNextElement(indices);
         }
 
         iter++;
@@ -219,7 +220,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     }
     for (unsigned i=0; i<rMeshReader.GetNumElements();i++)
     {
-        SetNextElement(rMeshReader.GetNextElementData().NodeIndices);
+        this->SetNextElement(rMeshReader.GetNextElementData().NodeIndices);
     }
     for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
     {

@@ -26,19 +26,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTVERTEXMESH_HPP_
-#define TESTVERTEXMESH_HPP_
+#ifndef TESTVERTEXMESHWRITER2D_HPP_
+#define TESTVERTEXMESHWRITER2D_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "VertexElement.hpp"
 #include "VertexMesh.hpp"
-//#include "VertexMeshWriter2d.hpp"
+#include "VertexMeshWriter2d.hpp"
+#include "OutputFileHandler.hpp"
+#include <string>
+#include <fstream>
 
-class TestVertexMesh : public CxxTest::TestSuite
+
+class TestVertexMeshWriter2d : public CxxTest::TestSuite
 {
 public:
-    void TestBasicVertexMesh() throw(Exception)
-    {   // Make four nodes to assign to two elements
+    void TestMeshWriter() throw(Exception)
+    {
         std::vector<Node<2>*> basic_nodes;
         basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
@@ -64,35 +67,23 @@ public:
         std::vector<VertexElement<2,2>*> basic_vertex_elements;
         basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
         basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        
         // Make a vertex mesh
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
-               
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 7u);
         
-        TS_ASSERT_DELTA(basic_vertex_mesh.GetNode(2)->rGetLocation()[0],1.5,1e-3);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(),6u);
+        // Create a vertex mesh writer
+        VertexMeshWriter2d vertex_mesh_writer("TestVertexMeshWriter","vertex_mesh");
+        vertex_mesh_writer.WriteFiles(basic_vertex_mesh);
         
-        // Check that the nodes know which elements they are in
-        std::set<unsigned> temp_list1;
-        temp_list1.insert(0u);
-        
-        // Nodes 1 & 4 only in element 0
-        TS_ASSERT_EQUALS(basic_nodes[1]->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(basic_nodes[4]->rGetContainingElementIndices(), temp_list1);
-        
-        // Node 2 in elements 0 and 1
-        temp_list1.insert(1u);
-        TS_ASSERT_EQUALS(basic_nodes[2]->rGetContainingElementIndices(), temp_list1);
-        
-        // Node 5 only in element 1
-        std::set<unsigned> temp_list2;
-        temp_list2.insert(1u);
-        TS_ASSERT_EQUALS(basic_nodes[5]->rGetContainingElementIndices(), temp_list2);
-    }
-      
+        OutputFileHandler handler("TestVertexMeshWriter",false);
+        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
+        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.cell";
+
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
+    }        
+};
     
 
-};    
 
-#endif /*TESTVERTEXMESH_HPP_*/
+#endif /*TESTVERTEXMESHWRITER2D_HPP_*/

@@ -36,6 +36,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMesh
 {
+private:
+    virtual unsigned SolveNodeMapping(unsigned index) const = 0;
+    virtual unsigned SolveElementMapping(unsigned index) const = 0;        
+    virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0; 
+    
 protected:  // Give access of these variables to subclasses
     std::vector<Node<SPACE_DIM> *> mNodes;
     std::vector<Node<SPACE_DIM> *> mBoundaryNodes;
@@ -73,7 +78,7 @@ public:
      * ie. this process owns nodes [lo..hi)
      * and element is "owned" if one or more of its nodes are owned
      */
-    virtual void SetElementOwnerships(unsigned lo, unsigned hi)=0;
+    virtual void SetElementOwnerships(unsigned lo, unsigned hi);
     
     virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                          bool cullInternalFaces=false)=0;
@@ -140,13 +145,28 @@ public:
         return mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateJacobianDeterminant();
     }
     
-private:
-    virtual unsigned SolveNodeMapping(unsigned index) const = 0;
-    virtual unsigned SolveElementMapping(unsigned index) const = 0;        
-    virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0;
-
 };
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
+{
+    assert(hi>=lo);
+    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
+    {
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
+        p_element->SetOwnership(false);
+        for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
+        {
+            unsigned global_node_index = p_element->GetNodeGlobalIndex(local_node_index);
+            if (lo<=global_node_index && global_node_index<hi)
+            {
+                p_element->SetOwnership(true);
+                break;
+            }
+        }
+
+    }
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()

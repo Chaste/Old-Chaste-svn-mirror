@@ -48,79 +48,70 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class VertexMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
+class VertexMesh //: public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
 private:
-    
-    unsigned SolveNodeMapping(unsigned index) const;
-    unsigned SolveElementMapping(unsigned index) const;
-    unsigned SolveBoundaryElementMapping(unsigned index) const;   
-    
-    std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> mVertexElements;
-//    std::vector< std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> > mVertexElementsOwnedByNodes;
+    std::vector<Node<SPACE_DIM> *> mNodes;
+    std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> mElements;
     
     void SetupVertexElementsOwnedByNodes();
     
 public:
-    
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
-                                         bool cullInternalFaces=false)
-    {}
-    
-    void SetElementOwnerships(unsigned lo, unsigned hi)
-    {}
-    
-    VertexMesh(std::vector<Node<SPACE_DIM> *> nodes);
-    
+    /**
+     *  Constructor takes in node and VertexElements
+     */
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertex_elements);
+    ~VertexMesh();
+
+
+    unsigned GetNumNodes() const;
+    unsigned GetNumElements() const;
+
+//// when will these be needed?
+//    unsigned GetNumAllNodes() const;
+//    unsigned GetNumAllElements();
+
+    Node<SPACE_DIM>* GetNode(unsigned index) const;    
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
+
+
+//    
+//    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+//                                         bool cullInternalFaces=false)
+//    {}
     
-    unsigned GetNumVertexElements();
     std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> GetElementsOwnedByNode(Node<SPACE_DIM>* p_node);
     
     void Clear();
-    
-    ~VertexMesh();
-    
 };
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM> *> nodes)
-{
-    Clear();
-    for (unsigned index=0; index<nodes.size(); index++)
-    {
-        Node<SPACE_DIM>* temp_node = nodes[index];
-        this->mNodes.push_back(temp_node);
-    }
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
-                        std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertex_elements)
+                                               std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertex_elements)
 {
     Clear();
     for (unsigned index=0; index<nodes.size(); index++)
     {
         Node<SPACE_DIM>* temp_node = nodes[index];
-        this->mNodes.push_back(temp_node);
+        mNodes.push_back(temp_node);
     }
     
     for (unsigned index=0; index<vertex_elements.size(); index++)
     {
         VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertex_elements[index];
-        this->mVertexElements.push_back(temp_vertex_element);
+        mElements.push_back(temp_vertex_element);
     }
     
-    this->SetupVertexElementsOwnedByNodes();
+    SetupVertexElementsOwnedByNodes();
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
 {
-    for (unsigned index=0; index<mVertexElements.size(); index++)
+    for (unsigned index=0; index<mElements.size(); index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = mVertexElements[index];
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = mElements[index];
         for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
         {
             Node<SPACE_DIM>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
@@ -132,60 +123,68 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
-    for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
+    for (unsigned i=0; i<mElements.size(); i++)
     {
-        delete this->mBoundaryElements[i];
+        delete mElements[i];
     }
-    for (unsigned i=0; i<this->mElements.size(); i++)
+    for (unsigned i=0; i<mNodes.size(); i++)
     {
-        delete this->mElements[i];
-    }
-    for (unsigned i=0; i<this->mNodes.size(); i++)
-    {
-        delete this->mNodes[i];
+        delete mNodes[i];
     }
 
-    this->mNodes.clear();
-    this->mElements.clear();
-    this->mBoundaryElements.clear();
-    this->mBoundaryNodes.clear();      
+    mNodes.clear();
+    mElements.clear();
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
+{
+    return mNodes.size();
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
+{
+    return mElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
+Node<SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
 {
-    assert(index < this->mNodes.size() );
-    return index;
+    assert(index < mNodes.size());
+    return mNodes[index];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
+VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
 {
-    assert(index < this->mElements.size() );
-    return index;
+    assert(index < mElements.size());
+    return mElements[index];
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
-{
-    assert(index < this->mBoundaryElements.size() );
-    return index;
-}
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumVertexElements()
-{
-    return mVertexElements.size();
-}
+//
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
+//{
+//    return mNodes.size();
+//}
+//
+//
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
+//{
+//    return mElements.size();
+//}
+//
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 {
-    for (unsigned i=0; i<mVertexElements.size(); ++i)
-    {
-        delete mVertexElements[i];
-    }
+    //Clear();
 }
     
 
