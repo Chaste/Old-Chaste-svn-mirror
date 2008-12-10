@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CRYPTPROJECTIONSTATISTICS_HPP_
 
 #include "AbstractCryptStatistics.hpp"
-#include "CryptProjectionSpringSystem.hpp"
 
 class CryptProjectionStatistics : public AbstractCryptStatistics
 {

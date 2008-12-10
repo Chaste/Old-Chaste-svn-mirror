@@ -9,10 +9,8 @@ TestCryptSimulation2d.hpp
 TestCylindrical2dMesh.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
-TestMeineke2001SpringSystem.hpp
 TestMeshBasedTissue.hpp
 TestSimpleTissue.hpp
-TestSimpleTissueMechanicsSystem.hpp
 TestSimulationTime.hpp
 TestTissueCell.hpp
 TestTissueSimulation3d.hpp
