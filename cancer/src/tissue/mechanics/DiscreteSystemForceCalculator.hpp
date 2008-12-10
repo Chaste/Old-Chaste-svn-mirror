@@ -28,7 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef DISCRETESYSTEMFORCECALCULATOR_HPP_
 #define DISCRETESYSTEMFORCECALCULATOR_HPP_
 
-#include "Meineke2001SpringSystem.hpp"
+#include "AbstractTwoBodyInteractionForce.hpp"
+#include "MeshBasedTissue.hpp"
 #include "OutputFileHandler.hpp"
 
 
@@ -38,11 +39,14 @@ class DiscreteSystemForceCalculator
 
 private:
 
-    /**
-     * Spring system, used to get mesh and calculate forces between nodes.
+    /** 
+     * Reference to tissue.
      */
-    Meineke2001SpringSystem<2>& mrMeinekeSpringSystem;
-
+    MeshBasedTissue<2>& mrTissue;
+    
+    /** The mechanics used to determine the new location of the cells */
+    std::vector<AbstractTwoBodyInteractionForce<2>*> mForceCollection;
+    
     /**
      * Small parameter, used in GetSamplingAngles().
      */
@@ -85,7 +89,7 @@ private:
 
 public:
 
-    DiscreteSystemForceCalculator(Meineke2001SpringSystem<2>& rMeinekeSpringSystem);
+    DiscreteSystemForceCalculator(MeshBasedTissue<2>& rTissue, std::vector<AbstractTwoBodyInteractionForce<2>*> forceCollection);
 
     std::vector< std::vector<double> > CalculateExtremalNormalForces();
 

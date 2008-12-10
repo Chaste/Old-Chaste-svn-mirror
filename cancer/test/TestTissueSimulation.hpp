@@ -42,14 +42,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "FixedCellCycleModel.hpp"
-#include "CryptProjectionSpringSystem.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
+#include "CryptProjectionForce.hpp"
 
 
-// simple subclass of TissueSimulation which just overloads StoppingEventHasOccured
+// Simple subclass of TissueSimulation which just overloads StoppingEventHasOccured
 // for testing the stopping event functionality..
 class TissueSimulationWithMyStoppingEvent : public TissueSimulation<2>
 {
@@ -62,8 +63,8 @@ private:
 
 public:
     TissueSimulationWithMyStoppingEvent(AbstractTissue<2>& rTissue,
-                                        AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem)
-      : TissueSimulation<2>(rTissue,pMechanicsSystem)
+                                        std::vector<AbstractForce<2>* > forceCollection)
+      : TissueSimulation<2>(rTissue, forceCollection)
    {
    }
 };
@@ -92,6 +93,7 @@ private:
 
 public:
 
+    
     void TestOutputStatistics() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
@@ -120,11 +122,13 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulation<2> simulator(tissue, &spring_system);
+        TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TissueSimulationWritingProteins");
         simulator.SetEndTime(0.5);
         simulator.SetOutputCellVariables(true);
@@ -197,11 +201,13 @@ public:
         WntConcentration::Instance()->SetType(RADIAL);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        // Create the spring system
-        CryptProjectionSpringSystem spring_system(crypt);
+        // Create the force law and pass in to a std::list
+        CryptProjectionForce crypt_projection_force;
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&crypt_projection_force);
 
         // Make a tissue simulation
-        TissueSimulation<2> crypt_projection_simulator(crypt, &spring_system, false, false);
+        TissueSimulation<2> crypt_projection_simulator(crypt, force_collection, false);
 
         // Create a radial cell killer and pass it in to the tissue simulation
         c_vector<double,2> centre = zero_vector<double>(2);
@@ -270,11 +276,13 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a mechanics system
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulation<2> simulator(tissue, &spring_system);
+        TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimulationWithCellDeath");
         simulator.SetEndTime(0.5);
 
@@ -308,11 +316,13 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a mechanics system
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
-
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&meineke_force);
+        
         // Set up tissue simulation WITH the stopping event
-        TissueSimulationWithMyStoppingEvent simulator(tissue, &spring_system);
+        TissueSimulationWithMyStoppingEvent simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimWithStoppingEvent");
 
         // ** Set the end time to 10.0 - the stopping event is, however, t>3.1415.
@@ -326,5 +336,102 @@ public:
         // t should be strictly greater than the 3.1415
         TS_ASSERT_LESS_THAN(3.1415, time);
     }
+    
+//    
+//    void TestApoptosisSpringLengths() throw (Exception)
+//    {
+//        unsigned num_cells_depth = 2;
+//        unsigned num_cells_width = 2;
+//        double crypt_length = num_cells_depth-0.0;
+//        double crypt_width = num_cells_width-0.0;
+//
+//        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+//        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+//        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+//
+//        CancerParameters* p_params = CancerParameters::Instance();
+//        p_params->SetCryptLength(crypt_length);
+//        p_params->SetCryptWidth(crypt_width);
+//
+//        // Set up cells
+//        std::vector<TissueCell> cells;
+//        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+//        {
+//            TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+//            double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
+//                                               +p_params->GetSG2MDuration());
+//            cell.SetLocationIndex(i);
+//            cell.SetBirthTime(birth_time);
+//            cells.push_back(cell);
+//        }
+//
+//        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+//
+//        MeinekeInteractionForce<2> meineke_force;        
+//        std::vector<AbstractForce<2>* > force_collection;
+//        force_collection.push_back(&meineke_force);
+//        
+//        TissueSimulation<2> simulator(tissue, force_collection);
+//
+//        simulator.SetOutputDirectory("2dSpheroidApoptosis");
+//        simulator.SetEndTime(1.0);
+//
+//        CancerParameters::Instance()->SetApoptosisTime(2.0);
+//        tissue.rGetCellUsingLocationIndex(14).StartApoptosis();
+//        tissue.rGetCellUsingLocationIndex(15).StartApoptosis();
+//        simulator.SetNoBirth(true);
+//
+//        simulator.Solve();
+//
+//        /* We track the locations of two dying cells (a and b) and two
+//         * live cells adjacent to them (c and d)
+//         *
+//         * All cells begin distance 1 apart.
+//         *
+//         * a and b move together to leave a gap of 0.
+//         * a and c (and b and d) move to a distance of 0.5 apart.
+//         */
+//
+//        c_vector<double, 2> a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
+//        c_vector<double, 2> b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
+//        c_vector<double, 2> c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
+//        c_vector<double, 2> d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
+//
+//        double a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
+//                                (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
+//        double a_c_separation = sqrt((a_location[0]-c_location[0])*(a_location[0]-c_location[0]) +
+//                                (a_location[1]-c_location[1])*(a_location[1]-c_location[1]));
+//        double c_d_separation = sqrt((d_location[0]-c_location[0])*(d_location[0]-c_location[0]) +
+//                                (d_location[1]-c_location[1])*(d_location[1]-c_location[1]));
+//
+//        TS_ASSERT_DELTA(a_b_separation , 0.5, 1e-1);
+//        TS_ASSERT_DELTA(a_c_separation , 0.75, 1e-1);
+//        TS_ASSERT_DELTA(c_d_separation , 1.0, 1e-1);
+//
+//        simulator.SetEndTime(1.99);
+//        simulator.Solve();
+//
+//        a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
+//        b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
+//        c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
+//        d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
+//
+//        a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
+//                         (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
+//        a_c_separation = sqrt((a_location[0]-c_location[0])*(a_location[0]-c_location[0]) +
+//                         (a_location[1]-c_location[1])*(a_location[1]-c_location[1]));
+//        c_d_separation = sqrt((d_location[0]-c_location[0])*(d_location[0]-c_location[0]) +
+//                         (d_location[1]-c_location[1])*(d_location[1]-c_location[1]));
+//
+//        TS_ASSERT_DELTA(a_b_separation , 0.01, 1e-1);
+//        TS_ASSERT_DELTA(a_c_separation , 0.5, 1e-1);
+//        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 4u);
+//
+//        simulator.SetEndTime(2.01);
+//        simulator.Solve();
+//
+//        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
+//    }
+
 };
 #endif /*TESTTISSUESIMULATION_HPP_*/

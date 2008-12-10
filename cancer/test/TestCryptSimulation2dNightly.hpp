@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "CryptSimulation2d.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "OutputFileHandler.hpp"
 #include "WntConcentration.hpp"
 #include "RandomCellKiller.hpp"
@@ -141,7 +142,12 @@ public:
         cells_generator.GenerateForCrypt(cells, mesh, false, 0.0, 3.0, 6.5, 8.0);
 
         MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
-        CryptSimulation2d simulator(crypt);
+
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
@@ -207,7 +213,11 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
@@ -254,7 +264,11 @@ public:
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Monolayer");
         simulator.SetEndTime(1);
@@ -326,7 +340,11 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); // hours
@@ -393,7 +411,11 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
         simulator.SetEndTime(12.0);
@@ -432,7 +454,11 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicWntNightly");
 
@@ -502,7 +528,11 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");
         simulator.SetEndTime(12.0);
@@ -553,7 +583,11 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
         simulator.SetEndTime(4.6);
@@ -588,7 +622,11 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
         simulator.SetEndTime(4.0);
@@ -617,7 +655,11 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
         simulator.SetEndTime(4.0);
@@ -664,7 +706,11 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
 
@@ -723,10 +769,12 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         // Set up crypt simulation
-        Meineke2001SpringSystem<2> spring_system(crypt);
-        spring_system.UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
-
-        CryptSimulation2d simulator(crypt, &spring_system);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
         simulator.SetEndTime(12.0);

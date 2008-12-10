@@ -486,7 +486,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "radial_killer.arch";
 
-           c_vector<double,2> centre(2);
+        c_vector<double,2> centre(2);
         centre[0] = 0.1;
         centre[1] = 0.2;
 

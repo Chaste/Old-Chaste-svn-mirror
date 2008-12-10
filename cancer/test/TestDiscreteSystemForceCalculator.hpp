@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -58,12 +59,13 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
-        // Need to create a spring system explicitly so we can pass
-        // it in to the force calculator
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
+        // Create the force law and pass in to a std::list
+        MeinekeInteractionForce<2> force;
+        std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
+        force_collection.push_back(&force);
 
         // Create a force calculator
-        DiscreteSystemForceCalculator calculator(meineke_spring_system);
+        DiscreteSystemForceCalculator calculator(tissue, force_collection);
 
         unsigned node_index = 8;
 
@@ -137,7 +139,6 @@ public:
     void TestCalculateExtremalNormalForces() throw (Exception)
     {
         // Set up a tissue
-
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
@@ -147,11 +148,13 @@ public:
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
-        // Need to create a spring system explicitly so we can pass it in to the force calculator
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
+        // Create the force law and pass in to a std::list
+        MeinekeInteractionForce<2> force;
+        std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
+        force_collection.push_back(&force);
 
         // Create a force calculator
-        DiscreteSystemForceCalculator calculator(meineke_spring_system);
+        DiscreteSystemForceCalculator calculator(tissue, force_collection);
 
         // Test CalculateExtremalNormalForces
         std::vector< std::vector<double> > calculated_results = calculator.CalculateExtremalNormalForces();
@@ -214,12 +217,13 @@ public:
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
-        // Need to create a spring system explicitly so we can pass it in
-        // to the force calculator
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
+        // Create the force law and pass in to a std::list
+        MeinekeInteractionForce<2> force;
+        std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
+        force_collection.push_back(&force);
 
         // Create a force calculator
-        DiscreteSystemForceCalculator calculator(meineke_spring_system);
+        DiscreteSystemForceCalculator calculator(tissue, force_collection);
 
         // Test WriteResultsToFile
         calculator.WriteResultsToFile(output_directory);
@@ -233,7 +237,14 @@ public:
         // Run a simulation to generate some results.viz<other things> files
         // so the visualizer can display the results.vizstress file.
         // (These lines are not actually necessary for generating results.vizstress)
-        TissueSimulation<2> simulator(tissue);
+        
+        // This doesn't look very neat, but we need to pass in a std::vector of
+        // AbstractForces to TissueSimulation, compared with a std::vector of
+        // AbstractTwoBodyInteractionForces to DiscreteSystemForceCalculator
+        std::vector<AbstractForce<2>*> abstract_force_collection;
+        abstract_force_collection.push_back(&force);
+        
+        TissueSimulation<2> simulator(tissue, abstract_force_collection);
         simulator.SetEndTime(0.05);
         simulator.SetOutputDirectory(output_directory);
         simulator.Solve();

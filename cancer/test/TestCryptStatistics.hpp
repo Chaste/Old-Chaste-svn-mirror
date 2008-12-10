@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "StochasticCellCycleModelCellsGenerator.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "SimpleDataWriter.hpp"
@@ -181,8 +182,13 @@ public:
                                             0.3,2.0,3.0,4.0,true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection, false);
 
-        CryptSimulation2d simulator(crypt, NULL, false, false);
         simulator.SetOutputDirectory(output_directory);
         double time_of_each_run = simulator.GetDt(); // for each run
 
@@ -378,24 +384,29 @@ public:
         // Loop over the number of simulations
         for (unsigned simulation_index=0; simulation_index< num_simulations; simulation_index++)
         {
-            // create new structures for each simulation
+            // Create new structures for each simulation
             p_mesh = generator.GetCylindricalMesh();
 
-            // reset start time
+            // Reset start time
             SimulationTime::Destroy();
             p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
 
-            // set up cells
+            // Set up cells
             StochasticCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, true,
                                                 0.3,2.0,3.0,4.0,true);
 
-            // set up crypt
+            // Set up crypt
             p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);
 
-            // set up crypt simulation
-            CryptSimulation2d simulator(*p_crypt, NULL, false, false);
+            // Set up force law
+            MeinekeInteractionForce<2> meineke_force;
+            std::vector<AbstractForce<2>*> force_collection;
+            force_collection.push_back(&meineke_force);
+
+            // Set up crypt simulation
+            CryptSimulation2d simulator(*p_crypt, force_collection, false);
             simulator.SetOutputDirectory(output_directory);
 
             // Set simulation to output cell types
@@ -405,7 +416,7 @@ public:
             time_of_each_run = 10.0*simulator.GetDt(); // for each run
             simulator.SetEndTime(time_of_each_run);
 
-            // set up cell killer
+            // Set up cell killer
             p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
             simulator.AddCellKiller(p_cell_killer);
 

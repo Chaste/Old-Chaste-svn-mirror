@@ -43,8 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "Meineke2001SpringSystem.hpp"
-#include "SimpleTissueMechanicsSystem.hpp"
+#include "AbstractForce.hpp"
 #include "CellwiseData.hpp"
 #include "WntConcentration.hpp"
 #include "AbstractCellKiller.hpp"
@@ -112,9 +111,6 @@ protected:
     /** Facade encapsulating cells in the tissue being simulated */
     AbstractTissue<DIM>& mrTissue;
 
-    /** Whether to delete the facade in our destructor */
-    bool mDeleteTissue;
-
     /** Whether to initialise the cells */
     bool mInitialiseCells;
 
@@ -132,8 +128,6 @@ protected:
 
     /** Whether to count the number of each cell type and output to file*/
     bool mOutputCellTypes;
-
-    bool mAllocatedMemoryForMechanicsSystem;
 
     /** Whether to write the cell variables to a file */
     bool mOutputCellVariables;
@@ -172,7 +166,7 @@ protected:
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
 
     /** The mechanics used to determine the new location of the cells */
-    AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
+    std::vector<AbstractForce<DIM>*> mForceCollection;
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -202,6 +196,7 @@ protected:
         archive & mOutputCellVariables;
         archive & mOutputCellCyclePhases;
         archive & mSamplingTimestepMultiple;
+        archive & mForceCollection;
     }
 
     /**
@@ -285,13 +280,11 @@ public:
      *  Constructor
      *
      *  @param rTissue A tissue facade class (contains a mesh and cells)
-     *  @param pMechanicsSystem The spring system to use in the simulation
-     *  @param deleteTissue Whether to delete the tissue on destruction to free up memory
+     *  @param forceCollection The mechanics to use in the simulation    
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
     TissueSimulation(AbstractTissue<DIM>& rTissue,
-                     AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
-                     bool deleteTissueAndMechanicsSystem=false,
+                     std::vector<AbstractForce<DIM>*> forceCollection,
                      bool initialiseCells=true);
 
     /**
@@ -326,18 +319,8 @@ public:
 
     AbstractTissue<DIM>& rGetTissue();
     const AbstractTissue<DIM>& rGetTissue() const;
-
-    /**
-     * Get access to the spring system.
-     */
-    const AbstractDiscreteTissueMechanicsSystem<DIM>& rGetMechanicsSystem() const
-    {
-        return *mpMechanicsSystem;
-    }
-    AbstractDiscreteTissueMechanicsSystem<DIM>& rGetMechanicsSystem()
-    {
-        return *mpMechanicsSystem;
-    }
+        
+    const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
 
     // Serialization methods
     virtual void Save();
@@ -355,20 +338,18 @@ protected:
 
 template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
-                                        AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem,
-                                        bool deleteTissueAndMechanicsSystem,
+                                        std::vector<AbstractForce<DIM>*> forceCollection,
                                         bool initialiseCells)
   :  mrTissue(rTissue)
 {
     #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
     #undef COVERAGE_IGNORE
-
-
-    mDeleteTissue = deleteTissueAndMechanicsSystem;
+    
     mInitialiseCells = initialiseCells;
 
     mpParams = CancerParameters::Instance();
+    
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
 
@@ -397,22 +378,8 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     mNumBirths = 0;
     mNumDeaths = 0;
     mSamplingTimestepMultiple = 1;
-    mAllocatedMemoryForMechanicsSystem = deleteTissueAndMechanicsSystem;
-
-    if (pMechanicsSystem == NULL)
-    {
-        mAllocatedMemoryForMechanicsSystem = true;
-        if (mrTissue.HasMesh())
-        {
-            pMechanicsSystem = new Meineke2001SpringSystem<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(&mrTissue)));
-        }
-        else
-        {
-            pMechanicsSystem = new SimpleTissueMechanicsSystem<DIM>(*(static_cast<SimpleTissue<DIM>*>(&mrTissue)));
-        }
-    }
-    mpMechanicsSystem = pMechanicsSystem;
-
+    
+    mForceCollection = forceCollection;
     if (mInitialiseCells)
     {
         mrTissue.InitialiseCells();
@@ -426,20 +393,13 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
 template<unsigned DIM>
 TissueSimulation<DIM>::~TissueSimulation()
 {
-    if (mAllocatedMemoryForMechanicsSystem)
-    {
-        delete mpMechanicsSystem;
-    }
-    if (mDeleteTissue)
-    {
-        for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
-             it != mCellKillers.end();
-             ++it)
-        {
-            delete *it;
-        }
-        delete &mrTissue;
-    }
+//    for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it = mCellKillers.begin();
+//         it != mCellKillers.end();
+//         ++it)
+//    {
+//        delete *it;
+//    }
+//    delete &mrTissue;  
 }
 
 template<unsigned DIM>
@@ -499,6 +459,12 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
     num_deaths_this_step += mrTissue.RemoveDeadCells();
 
     return num_deaths_this_step;
+}
+
+template<unsigned DIM>
+const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollection() const
+{
+    return mForceCollection;
 }
 
 template<unsigned DIM>
@@ -878,8 +844,19 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::BeginEvent(TESSELLATION);
         if (mrTissue.HasMesh())
         {
+            bool needs_voronoi_tessellation = false;
+            for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
+                 iter != mForceCollection.end();
+                 ++iter)
+            {
+                if ((*iter)->NeedsVoronoiTessellation())
+                {
+                    needs_voronoi_tessellation = true;
+                }
+            }
+
             if ( (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteVoronoiData()
-                 || mpMechanicsSystem->NeedsVoronoiTessellation()
+                 || needs_voronoi_tessellation
                  || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteTissueAreas() )
             {
                 (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->CreateVoronoiTessellation();
@@ -889,12 +866,27 @@ void TissueSimulation<DIM>::Solve()
 
         // Calculate node velocities
         CancerEventHandler::BeginEvent(VELOCITY);
-        std::vector<c_vector<double, DIM> >& drdt = mpMechanicsSystem->rCalculateVelocitiesOfEachNode();
+        
+        // Initialise a vector of node velocities
+        std::vector<c_vector<double, DIM> > node_velocities;
+        node_velocities.reserve(mrTissue.GetNumNodes());
+        
+        for (unsigned i=0; i<mrTissue.GetNumNodes(); i++)
+        {
+             node_velocities.push_back(zero_vector<double>(DIM));
+        }
+        
+        for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
+             iter !=mForceCollection.end();
+             iter++)
+        {
+            (*iter)->AddVelocityContribution(node_velocities, mrTissue);
+        }
         CancerEventHandler::EndEvent(VELOCITY);
 
         // Update node positions
         CancerEventHandler::BeginEvent(POSITION);
-        UpdateNodePositions(drdt);
+        UpdateNodePositions(node_velocities);
         CancerEventHandler::EndEvent(POSITION);
 
         PostSolve();
@@ -1228,8 +1220,8 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
-    const AbstractDiscreteTissueMechanicsSystem<DIM> * p_mech_system = &(t->rGetMechanicsSystem());
-    ar & p_mech_system;
+    const std::vector<AbstractForce<DIM>*> force_collection = t->rGetForceCollection();
+    ar & force_collection;
 }
 
 /**
@@ -1242,11 +1234,11 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
-    AbstractDiscreteTissueMechanicsSystem<DIM>* p_mech_system;
-    ar >> p_mech_system;
+    std::vector<AbstractForce<DIM>*> force_collection;
+    ar >> force_collection;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulation<DIM>(*p_tissue, p_mech_system, true);
+    ::new(t)TissueSimulation<DIM>(*p_tissue, force_collection, true);
 }
 }
 } // namespace ...

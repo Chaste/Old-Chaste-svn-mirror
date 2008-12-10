@@ -28,26 +28,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MEINEKEINTERACTIONFORCE_HPP_
 #define MEINEKEINTERACTIONFORCE_HPP_
 
-#include "AbstractForce.hpp"
+#include "AbstractTwoBodyInteractionForce.hpp"
 #include "MeshBasedTissue.hpp"
 #include "IngeWntSwatCellCycleModel.hpp"
 #include "VoronoiTessellation.hpp"
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 template<unsigned DIM>
-class MeinekeInteractionForce : public AbstractForce<DIM>
+class MeinekeInteractionForce : public AbstractTwoBodyInteractionForce<DIM>
 {
     friend class TestForces;
     
 private :
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
-        archive & mUseCutoffPoint;
-        archive & mCutoffPoint;
+        archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<DIM> >(*this);
         archive & mUseEdgeBasedSpringConstant;
         archive & mUseMutantSprings;
         archive & mMutantMutantMultiplier;
@@ -57,12 +59,6 @@ private :
     }
 
 protected :
-
-    /** Whether to have zero force if the cells are far enough apart */
-    bool mUseCutoffPoint;
-
-    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
-    double mCutoffPoint;
     
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
@@ -87,12 +83,6 @@ public :
     MeinekeInteractionForce();
     
     ~MeinekeInteractionForce();
-       
-    /**
-     * Use a cutoff point, ie specify zero force if two cells are greater
-     * than the cutoff distance apart
-     */
-    void UseCutoffPoint(double cutoffPoint);    
         
     /**
      * Use an area based viscosity
@@ -150,12 +140,8 @@ public :
 
 template<unsigned DIM>
 MeinekeInteractionForce<DIM>::MeinekeInteractionForce()
-   : AbstractForce<DIM>()
-{   
-    // Use cutoff point  
-    mUseCutoffPoint = false;
-    mCutoffPoint = 1e10;
-    
+   : AbstractTwoBodyInteractionForce<DIM>()
+{    
     // Edge-based springs
     mUseEdgeBasedSpringConstant = false;
 
@@ -174,14 +160,6 @@ MeinekeInteractionForce<DIM>::MeinekeInteractionForce()
 template<unsigned DIM>
 MeinekeInteractionForce<DIM>::~MeinekeInteractionForce()
 {
-}
-
-template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
-{
-    assert(cutoffPoint > 0.0);
-    mUseCutoffPoint = true;
-    mCutoffPoint = cutoffPoint;
 }
 
 template<unsigned DIM>
@@ -275,25 +253,25 @@ bool MeinekeInteractionForce<DIM>::NeedsVoronoiTessellation()
     return (this->mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
 }
 
-
 template<unsigned DIM>
 c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue)
 {
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
 
-    c_vector<double, DIM> node_a_location = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->GetNode(nodeAGlobalIndex)->rGetLocation();
-    c_vector<double, DIM> node_b_location = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->GetNode(nodeBGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_a_location = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = rTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
 
     // There is reason not to substract one position from the other (cylindrical meshes)
     c_vector<double, DIM> unit_difference = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
 
     double distance_between_nodes = norm_2(unit_difference);
+    assert(!isnan(distance_between_nodes));
 
     unit_difference /= distance_between_nodes;
 
     if (this->mUseCutoffPoint)
     {
-        if( distance_between_nodes >= this->mCutoffPoint )
+        if (distance_between_nodes >= this->mCutoffPoint)
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }
@@ -301,39 +279,50 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
     double rest_length = 1.0;
 
-    double ageA = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
-    double ageB = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
+    double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
+    double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
+    
+    assert(!isnan(ageA));
+    assert(!isnan(ageB));
 
-    TissueCell& r_cell_A = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCell& r_cell_B = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex);
+    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
     if ( ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
-        // Spring rest length increases from ???? to normal rest length, 1.0, over 1 hour
-        if ( (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
+        if (rTissue.HasMesh())
         {
+            if ( (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
+            {
+                // Spring rest length increases from ???? to normal rest length, 1.0, over 1 hour
+                double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
+                rest_length = lambda + (1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration()));
+            }
+            if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
+            {
+                // This spring is about to go out of scope
+                (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
+            }
+        }
+        else
+        {
+            // Spring rest length increases from mDivisionRestingSpringLength to normal rest length, 1.0, over 1 hour
             double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
             rest_length = lambda + (1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration()));
-        }
-
-        if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
-        {
-            // This spring is about to go out of scope
-            (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
         }
     }
 
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
-    if ((static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_a = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
+        double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
         a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
     }
-    if ((static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    if (rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_b = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
+        double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
         b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
     }
 
@@ -345,11 +334,12 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
     if (mUseEdgeBasedSpringConstant)
     {
+        assert(rTissue.HasMesh());
         assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
 
         VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
 
-        multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
+        multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
     }
 
     if (mUseMutantSprings)
@@ -385,8 +375,8 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
     if (mUseBCatSprings)
     {
-        // if using beta-cat dependent springs, both cell-cycle models has better
-        // be IngeWntSwatCellCycleModel
+        assert(rTissue.HasMesh());
+        // If using beta-cat dependent springs, both cell-cycle models has better be IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
         IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
 
@@ -443,7 +433,33 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
         }
     }
 
-    return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    if (rTissue.HasMesh())
+    {
+        return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    }
+    else
+    {
+        // A reasonably stable simple force law
+        if (distance_between_nodes > rest_length)
+        {
+            double alpha = 5;
+            c_vector<double, DIM> temp = CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length)*exp(-alpha*(distance_between_nodes-rest_length));
+            for (unsigned i=0; i<DIM; i++)
+            {
+                assert(!isnan(temp[i]));
+            }
+            return temp;
+        }
+        else
+        {
+            c_vector<double, DIM> temp = CancerParameters::Instance()->GetSpringStiffness() * unit_difference * log(1 + distance_between_nodes - rest_length);
+            for (unsigned i=0; i<DIM; i++)
+            {
+                assert(!isnan(temp[i]));
+            }
+            return temp;
+        }
+    }
 }
 
 template<unsigned DIM>
@@ -466,6 +482,10 @@ void MeinekeInteractionForce<DIM>::AddVelocityContribution(std::vector<c_vector<
         rNodeVelocities[nodeA_global_index] += force / damping_constantA;
     }
 }
+
+#include "TemplatedExport.hpp"
+
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeinekeInteractionForce)
 
 
 #endif /*MEINEKEINTERACTIONFORCE_HPP_*/

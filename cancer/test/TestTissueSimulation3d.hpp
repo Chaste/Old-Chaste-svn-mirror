@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "TissueSimulation.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -92,7 +93,13 @@ public:
         }
 
         MeshBasedTissue<3> tissue(mesh,cells);
-        TissueSimulation<3> simulator(tissue);
+        
+        MeinekeInteractionForce<3> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<3>* > force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        TissueSimulation<3> simulator(tissue, force_collection);
 
         unsigned num_births = simulator.DoCellBirth();
 
@@ -121,7 +128,13 @@ public:
         cells.push_back(cell);
 
         MeshBasedTissue<3> tissue(mesh,cells);
-        TissueSimulation<3> simulator(tissue);
+        
+        MeinekeInteractionForce<3> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<3>* > force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        TissueSimulation<3> simulator(tissue, force_collection);
 
         TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth","StartMesh");
         mesh_writer1.WriteFilesUsingMesh(mesh);
@@ -165,8 +178,14 @@ public:
             cells.push_back(cell);
         }
 
-        MeshBasedTissue<3> tissue(mesh,cells);
-        TissueSimulation<3> simulator(tissue);
+        MeshBasedTissue<3> tissue(mesh,cells);        
+        
+        MeinekeInteractionForce<3> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<3>* > force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        TissueSimulation<3> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
 
         // Test SetSamplingTimestepMultiple method
@@ -247,41 +266,49 @@ public:
         TS_ASSERT_EQUALS(ghost_node_indices.size(), 56u);
 
         // Test Save with a MeshBasedTissueWithGhostNodes
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, ghost_node_indices);
-        TissueSimulation<3> simulator(tissue);
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, ghost_node_indices);        
+                
+        MeinekeInteractionForce<3> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<3>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        TissueSimulation<3> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
         simulator.SetEndTime(0.1);
         simulator.Solve();
         simulator.Save();
 
         // To generate results for below test
-        // std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
+//        std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
 
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
 
         // Test Save with a MeshBasedTissue - one cell born during this.
         MeshBasedTissue<3> tissue2(mesh, cells);
-        TissueSimulation<3> simulator2(tissue2);
+
+        TissueSimulation<3> simulator2(tissue2, force_collection);
         simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");
         simulator2.SetEndTime(0.1);
         simulator2.Solve();
         simulator2.Save();
 
         // To generate results for below test
-        // std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
+//        std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
 
     }
 
     void TestLoadOf3DSimulation() throw (Exception)
     {
-        {   // With ghost nodes - 56 ghosts 8 real cells.
+        {   
+            // With ghost nodes - 56 ghosts 8 real cells.
             TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 8u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
-            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u))[2] , 0.911736, 1e-6);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u))[2], 0.791668, 1e-6);
 
             delete p_simulator;
         }
@@ -289,13 +316,14 @@ public:
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        {   // Without ghost nodes - all 65 are real cells.
+        {   
+            // Without ghost nodes - all 65 are real cells.
             TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 65u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
-            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u))[2] , 1.13958, 1e-6);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u))[2] , 0.930292, 1e-6);
 
             delete p_simulator;
         }

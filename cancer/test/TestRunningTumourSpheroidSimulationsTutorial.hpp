@@ -72,6 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 /* PetscSetupAndFinalize.hpp must be included in all tests which use Petsc, which
  * is true of tumour spheroid simulations, as Petsc is used in the finite element
@@ -166,7 +167,8 @@ public:
          */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
 
-        /* There are a several different cell-cell force laws possible, which can be
+        /*/// \todo This needs updated comments. 
+         * There are a several different cell-cell force laws possible, which can be
          * passed into the simulator. Here, we
          * create a {{{Meineke2001SpringSystem}}}, which uses a triangulation
          * to determine which cells are connected, and assumes a linear spring
@@ -176,15 +178,17 @@ public:
          * (=3 cell widths) away from each other. This is necessary when no ghost
          * nodes are used.
          */
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(3);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(3);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         /*
          * The simulator object for these problems is
          * {{{TissueSimulationWithNutrients}}}. We pass in the tissue, the
          * mechanics system, and the PDE.
-         */
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+         */       
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
 
         /* As with {{{CryptSimulation2d}}} (which inherits from the same base class
          * as {{{TissueSimulationWithNutrients}}}), we can set the output directory

@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "CryptSimulation2d.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
@@ -85,7 +86,11 @@ public:
         CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        CryptSimulation2d simulator(crypt);
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory(output_directory);
 
         // Set simulation to output cell types

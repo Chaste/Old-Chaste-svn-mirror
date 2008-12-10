@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "TissueSimulationWithNutrients.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
@@ -140,15 +141,16 @@ public:
         // Set up PDE
         SimplePdeForTesting pde;
 
-        Meineke2001SpringSystem<2> spring_system(tissue);
-
+        MeinekeInteractionForce<2> meineke_force;
         // Use an extremely small cutoff so that no cells interact
         // - this is to ensure that in the Solve method, the cells don't move
         // (we need to call Solve to set up the .viznutrient file)
-        spring_system.UseCutoffPoint(0.0001);
+        meineke_force.UseCutoffPoint(0.0001);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
 
@@ -232,11 +234,14 @@ public:
         // Set up PDE
         SimpleNutrientPde<2> pde(0.1);
 
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
 
@@ -305,11 +310,13 @@ public:
         // Set up PDE
         CellwiseNutrientSinkPde<2> pde(tissue, 0.1);
 
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
         simulator.SetEndTime(0.5);
 
@@ -394,10 +401,12 @@ public:
         // Set up tissue simulation
         SimpleNutrientPde<2> pde(0.1);
 
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteAverageRadialNutrientResults(5);
@@ -489,11 +498,13 @@ public:
         AveragedSinksPde<2> pde(tissue, -0.1);
 
         // Set up mechanics system
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, NULL, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, NULL, &pde);
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
         simulator.SetEndTime(0.05);
 
@@ -638,11 +649,13 @@ public:
         AveragedSinksPde<2> pde(tissue, -0.01);
 
         // Set up mechanics system
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation to use a coarse nutrient mesh
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, NULL, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, NULL, &pde);
         simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
         simulator.SetEndTime(0.01);
         simulator.UseCoarseNutrientMesh(2.0);
@@ -708,11 +721,13 @@ public:
         // Set up PDE
         SimpleNutrientPde<2> pde(0.1);
 
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(1.5);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithNutrientsSaveAndLoad");
         simulator.SetEndTime(0.2);
 
@@ -808,11 +823,13 @@ public:
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
 
         // Set up mechanics system
-        Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(3.0);
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(3.0);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(end_time);
 

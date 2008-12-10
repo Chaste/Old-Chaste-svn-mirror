@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractForce.hpp"
 #include "CellwiseDataGradient.hpp"
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 
 template<unsigned DIM>
 class ChemotacticForce  : public AbstractForce<DIM>
@@ -157,5 +159,9 @@ void ChemotacticForce<DIM>::AddVelocityContribution(std::vector<c_vector<double,
         }
     }
 }
+
+#include "TemplatedExport.hpp"
+
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChemotacticForce)
 
 #endif /*CHEMOTACTICFORCE_HPP_*/

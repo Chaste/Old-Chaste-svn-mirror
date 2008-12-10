@@ -55,6 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModelCellsGenerator.hpp"
 /* These are the classes that will be used in these tests */
 #include "HoneycombMeshGenerator.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "CryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
@@ -121,8 +122,14 @@ public:
          */
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
-        /* That's most of the setup. Now we just define the Simulation object, passing in the tissue. */
-        CryptSimulation2d simulator(tissue);
+        /* That's most of the setup. We now have to define one or more force laws. 
+         * /// \todo this needs more commenting) 
+         * Now we just define the Simulation object, passing in the tissue. */
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        CryptSimulation2d simulator(crypt, force_collection);
 
         /* Set the output directory on the simulator (NOTE: this is relative to
          * "/tmp/<USER_NAME>/testoutput"), and the end time (NOTE: in hours).

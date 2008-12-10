@@ -53,9 +53,6 @@ private :
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<TissueSimulation<2> >(*this);
         archive & mUseJiggledBottomCells;
-
-        assert((mpMechanicsSystem == NULL) ||
-               (&(mpMechanicsSystem->rGetTissue()) == &mrTissue));
     }
 
     /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
@@ -107,9 +104,8 @@ public :
      *  @param deleteTissue whether to delete the tissue on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    CryptSimulation2d(AbstractTissue<2>& rTissue,
-                      AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem=NULL,
-                      bool deleteTissueAndMechanicsSystem=false,
+    CryptSimulation2d(AbstractTissue<2>& rTissue,                      
+                      std::vector<AbstractForce<2>*> forceCollection,
                       bool initialiseCells=true);
 
     void UseJiggledBottomCells();
@@ -335,11 +331,10 @@ void CryptSimulation2d::AfterSolve()
 }
 
 
-CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue,
-                  AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem,
-                  bool deleteTissueAndMechanicsSystem,
+CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue,                  
+                  std::vector<AbstractForce<2>*> forceCollection,
                   bool initialiseCells)
-    : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissueAndMechanicsSystem, initialiseCells),
+    : TissueSimulation<2>(rTissue, forceCollection, initialiseCells),
       mUseJiggledBottomCells(false)
 {
     mpStaticCastTissue = static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue);
@@ -402,9 +397,8 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractTissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
-
-    const AbstractDiscreteTissueMechanicsSystem<2> * p_spring_system = &(t->rGetMechanicsSystem());
-    ar & p_spring_system;
+    const std::vector<AbstractForce<2>*> force_collection = t->rGetForceCollection();
+    ar & force_collection;
 }
 
 /**
@@ -417,12 +411,11 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractTissue<2>* p_tissue;
     ar >> p_tissue;
-
-    AbstractDiscreteTissueMechanicsSystem<2>* p_spring_system;
-    ar >> p_spring_system;
+    std::vector<AbstractForce<2>*> force_collection;
+    ar >> force_collection;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)CryptSimulation2d(*p_tissue, p_spring_system, true, false);
+    ::new(t)CryptSimulation2d(*p_tissue, force_collection, false);
 }
 }
 } // namespace ...

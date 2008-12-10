@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 #include <iomanip>
 #include "CryptSimulation2d.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "TissueCell.hpp"
@@ -78,7 +79,7 @@ public:
         double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)
 
         // Open a new directory...
-        OutputFileHandler file_handler(test_to_profile,true);
+        OutputFileHandler file_handler(test_to_profile, true);
 
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.

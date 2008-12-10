@@ -183,12 +183,11 @@ public:
      *
      */
      TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
-                                   AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
+                                   std::vector<AbstractForce<DIM>*> forceCollection,
                                    AbstractLinearEllipticPde<DIM>* pPde=NULL,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde=NULL,
-                                   bool deleteTissueAndMechanicsSystem=false,
                                    bool initialiseCells=true);
-
+                     
     /**
      * Destructor
      *
@@ -263,16 +262,14 @@ public:
                                                     const double& rTimeStamp);
 
 };
-
-
+                   
 template<unsigned DIM>
 TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
-                                   AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem,
+                                   std::vector<AbstractForce<DIM>*> forceCollection,
                                    AbstractLinearEllipticPde<DIM>* pPde,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde,
-                                   bool deleteTissueAndMechanicsSystem,
                                    bool initialiseCells)
-    : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissueAndMechanicsSystem, initialiseCells),
+    : TissueSimulation<DIM>(rTissue, forceCollection, initialiseCells),
       mNutrientSolution(NULL),
       mpPde(pPde),
       mpAveragedSinksPde(pAveragedSinksPde),
@@ -458,7 +455,7 @@ void TissueSimulationWithNutrients<DIM>::AfterSolve()
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
 {
-    if(mpCoarseNutrientMesh!=NULL)
+    if (mpCoarseNutrientMesh!=NULL)
     {
         SolveNutrientPdeUsingCoarseMesh();
         return;
@@ -493,7 +490,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
 
     PetscInt size_of_soln_previous_step = 0;
 
-    if(mNutrientSolution)
+    if (mNutrientSolution)
     {
         VecGetSize(mNutrientSolution, &size_of_soln_previous_step);
     }
@@ -909,9 +906,8 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
-
-    const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
-    ar & p_spring_system;
+    const std::vector<AbstractForce<DIM>*> force_collection = t->rGetForceCollection();
+    ar & force_collection;
 }
 
 /**
@@ -924,12 +920,11 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
-
-    AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;
-    ar >> p_spring_system;
+    std::vector<AbstractForce<DIM>*> force_collection;
+    ar >> force_collection;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, p_spring_system, NULL,NULL, true, false);
+    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, force_collection, NULL, NULL, false);
 }
 }
 } // namespace ...

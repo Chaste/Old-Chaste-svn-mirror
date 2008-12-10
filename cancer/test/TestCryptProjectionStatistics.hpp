@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "CryptProjectionStatistics.hpp"
+#include "CryptProjectionForce.hpp"
 #include "TissueSimulation.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -111,11 +112,13 @@ public:
                               expected_indices[i]);
         }
 
-        // Create the spring system
-        CryptProjectionSpringSystem spring_system(crypt);
+        // Create the force law and pass in to a std::list
+        CryptProjectionForce crypt_projection_force;
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&crypt_projection_force);
 
         // Make a tissue simulation
-        TissueSimulation<2> crypt_projection_simulator(crypt, &spring_system, false, false);
+        TissueSimulation<2> crypt_projection_simulator(crypt, force_collection, false);
 
         // Create a radial cell killer and pass it in to the tissue simulation
         c_vector<double,2> centre = zero_vector<double>(2);
