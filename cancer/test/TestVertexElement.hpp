@@ -55,6 +55,11 @@ public:
         
         TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),1.0,1e-6);
         TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),4.0,1e-6);
+        
+        for (unsigned i=0; i<corner_nodes.size(); ++i)
+        {
+            delete corner_nodes[i];
+        }
      }
      
     void TestVertexElementAreaAndPerimeterOnCircle()
@@ -77,6 +82,11 @@ public:
         
         TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),M_PI,1e-4);
         TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),2.0*M_PI,1e-4);
+        
+        for (unsigned i=0; i<nodes.size(); ++i)
+        {
+            delete nodes[i];
+        }
      }
      
 //     void xTestAnticlockwisenessOfNodes() throw(Exception)
@@ -97,6 +107,15 @@ public:
 //        corner_nodes2.push_back(new Node<2>(3, false, 0.0, 1.0));
 //    
 //        VertexElement<2,2> vertex_element2(INDEX_IS_NOT_USED, corner_nodes2);
+//
+//        for (unsigned i=0; i<corner_nodes.size(); ++i)
+//        {
+//            delete corner_nodes[i];
+//        }
+//        for (unsigned i=0; i<corner_nodes2.size(); ++i)
+//        {
+//            delete corner_nodes2[i];
+//        }
 //     }
 
     void TestCalculateMoment() throw(Exception)
@@ -117,6 +136,11 @@ public:
         TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16, 1e-6);    // Ixx
         TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16, 1e-6);    // Iyy
         TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
+        
+        for (unsigned i=0; i<nodes.size(); ++i)
+        {
+            delete nodes[i];
+        }
     }
      
 };

@@ -65,10 +65,10 @@ public:
     
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                          bool cullInternalFaces=false)
-    {};
+    {}
     
     void SetElementOwnerships(unsigned lo, unsigned hi)
-    {};
+    {}
     
     VertexMesh(std::vector<Node<SPACE_DIM> *> nodes);
     
@@ -181,7 +181,12 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumVertexElements()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
-{};
+{
+    for (unsigned i=0; i<mVertexElements.size(); ++i)
+    {
+        delete mVertexElements[i];
+    }
+}
     
 
 #endif /*VERTEXMESH_HPP_*/
