@@ -45,10 +45,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodeMap.hpp"
 #include "Node.hpp"
 #include "Exception.hpp"
-
+#include "HoneycombMeshGenerator.hpp"
+#include "MutableMesh.hpp"
+#include "VoronoiTessellation.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class VertexMesh //: public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
+class VertexMesh
 {
 private:
     std::vector<Node<SPACE_DIM> *> mNodes;
@@ -62,7 +64,8 @@ public:
      */
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertex_elements);
     ~VertexMesh();
-
+    
+    VertexMesh(unsigned numAcross,unsigned numUp);
 
     unsigned GetNumNodes() const;
     unsigned GetNumElements() const;
@@ -105,6 +108,26 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     
     SetupVertexElementsOwnedByNodes();
 };
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp)
+{
+    HoneycombMeshGenerator generator(numAcross+1,numUp+1,0,false);
+    MutableMesh<2,2>* p_mesh = generator.GetMesh();
+    VoronoiTessellation<2> tessellation(*p_mesh);
+    
+    for (unsigned i = 0;i<tessellation.GetNumVertices();i++)
+    {
+        c_vector<double,2>* position = tessellation.GetVertex(i);
+        Node<2>* p_node = new Node<2>(0, false, (*position)(0), (*position)(1));
+        mNodes.push_back(p_node);
+    }    
+
+    // todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
+    // the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
+
+}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()

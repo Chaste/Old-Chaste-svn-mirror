@@ -106,9 +106,13 @@ public:
     double GetFacePerimeter(unsigned index) const;
 
     double GetEdgeLength(unsigned nodeIndex1, unsigned nodeIndex2) const;
+
+    unsigned GetNumVertices();
+    c_vector<double,DIM>* GetVertex(unsigned index);
+    
+    unsigned GetNumCells();
+
 };
-
-
 
 
 template<unsigned DIM>
@@ -509,5 +513,20 @@ double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
     normalised_face.OrderVerticesAntiClockwise();
 
     return normalised_face.GetPerimeter();
+       
 };
+
+template<unsigned DIM>
+unsigned VoronoiTessellation<DIM>::GetNumVertices()
+{
+    return mVertices.size();
+}
+
+template<unsigned DIM>
+c_vector<double,DIM>* VoronoiTessellation<DIM>::GetVertex(unsigned index)
+{
+    assert(index<mVertices.size());
+    return mVertices[index];
+}
+
 #endif /*VORONOITESSELLATION_HPP_*/

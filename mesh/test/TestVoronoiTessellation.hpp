@@ -112,7 +112,16 @@ public:
 
         tessellation.GenerateVerticesFromElementCircumcentres();
 
-        c_vector<double,3> this_vertex = *(tessellation.mVertices[0]);
+        TS_ASSERT_EQUALS(tessellation.GetNumVertices(),8u);
+        
+        c_vector<double,3> this_vertex = *(tessellation.GetVertex(0));
+        
+        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
+        
+        
+        this_vertex = *(tessellation.mVertices[0]);
 
         TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);

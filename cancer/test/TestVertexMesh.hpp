@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "VertexElement.hpp"
 #include "VertexMesh.hpp"
-//#include "VertexMeshWriter2d.hpp"
+#include "VertexMeshWriter2d.hpp"
 
 class TestVertexMesh : public CxxTest::TestSuite
 {
@@ -91,7 +91,16 @@ public:
         TS_ASSERT_EQUALS(basic_nodes[5]->rGetContainingElementIndices(), temp_list2);
     }
       
+    void TestVertexMeshGenerator() throw(Exception)
+    {
+        VertexMesh<2,2> mesh(3,3);
     
+        VertexMeshWriter2d vertex_mesh_writer("TestVertexMeshGeneration","mesh");
+        vertex_mesh_writer.WriteFiles(mesh);
+    
+        /// todo: write test
+    
+    }
 
 };    
 

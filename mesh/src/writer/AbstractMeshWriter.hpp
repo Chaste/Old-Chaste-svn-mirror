@@ -124,7 +124,6 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<unsigned> nextElement)
 {
-    std::cout << "AbstractSetNextElement entered \n";
     assert (nextElement.size() == ELEMENT_DIM+1);
     mElementData.push_back(nextElement);
 }
