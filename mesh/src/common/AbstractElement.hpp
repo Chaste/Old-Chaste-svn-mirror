@@ -83,10 +83,10 @@ public:
     }
 
     /**
-     * \todo Why does the default constructor not do anything?
+     * Default constructor, which doesn't add any nodes: they must be added later.
      */
-    AbstractElement()
-        : mIndex(INDEX_IS_NOT_USED),
+    AbstractElement(unsigned index=INDEX_IS_NOT_USED)
+        : mIndex(index),
           mRegion(0),
           mIsDeleted(false),
           mOwnership(true),

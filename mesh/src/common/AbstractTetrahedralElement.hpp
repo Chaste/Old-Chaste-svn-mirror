@@ -51,9 +51,12 @@ public:
     AbstractTetrahedralElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
-     * \todo Why does the default constructor not do anything?
+     * Default constructor, which doesn't fill in any nodes.
+     * The nodes must be added later.
      */
-    AbstractTetrahedralElement()
+    AbstractTetrahedralElement(unsigned index=INDEX_IS_NOT_USED)
+        : AbstractElement<ELEMENT_DIM,SPACE_DIM>(index),
+          mJacobianDeterminant(DOUBLE_UNSET)
     {}
 
     virtual ~AbstractTetrahedralElement()

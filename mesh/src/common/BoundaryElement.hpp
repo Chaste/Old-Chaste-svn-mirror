@@ -44,13 +44,13 @@ public:
     }
 
     /**
-     * Create a new boundary element from a Node
+     * Create a new boundary element from a Node.
      * The element has ELEMENT_DIM=0 and
-     * SPACE_DIM identical to that of the node from which it is constructed
-     *
+     * SPACE_DIM identical to that of the node from which it is constructed.
      */
     BoundaryElement(unsigned index,
                     Node<SPACE_DIM> *node)
+        : AbstractTetrahedralElement<ELEMENT_DIM,SPACE_DIM>(index)
     {
         assert (ELEMENT_DIM == 0);
 
@@ -62,8 +62,6 @@ public:
         this->mWeightedDirection(0) = 1.0;
         this->mJacobianDeterminant = 1.0;
 
-        this->mFlag = false;
-        this->mIsDeleted=false;
         RegisterWithNodes();
     }
 
