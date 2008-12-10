@@ -85,14 +85,6 @@ private:
     std::vector<unsigned > mBottomHaloNodes;
 
     /**
-     * @param pElement
-     * @param rImageNodes Left or right image nodes
-     * @param rOriginalNodes  Left or right original nodes
-     * @param nodeIndex
-     */
-    void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex );
-
-    /**
      * Calls GetWidthExtremes on the Conforming mesh class to calculate
      * mTop and mBottom for the cylindrical mesh.
      *

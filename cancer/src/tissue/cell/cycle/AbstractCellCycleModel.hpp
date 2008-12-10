@@ -113,7 +113,7 @@ public:
           mBirthTime(SimulationTime::Instance()->GetTime()),
           mCurrentCellCyclePhase(M_PHASE),
           mGeneration(0),
-          mG1Duration(DBL_MAX),
+          mG1Duration(DOUBLE_UNSET),
           mReadyToDivide(false)
     {}
 

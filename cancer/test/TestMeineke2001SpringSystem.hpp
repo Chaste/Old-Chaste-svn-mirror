@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VoronoiTessellation.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "WntConcentration.hpp"
 
 
 class TestMeineke2001SpringSystem : public AbstractCancerTestSuite

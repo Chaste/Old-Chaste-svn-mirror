@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cfloat>
 
+#include "AbstractOdeSystem.hpp"
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
-#include "WntConcentration.hpp"
 #include "CellMutationStates.hpp"
 #include "Exception.hpp"
 

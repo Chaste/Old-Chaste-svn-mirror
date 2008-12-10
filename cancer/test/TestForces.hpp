@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeinekeInteractionForce.hpp"
 #include "ChemotacticForce.hpp"
 #include "CellwiseDataGradient.hpp"
+#include "WntConcentration.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

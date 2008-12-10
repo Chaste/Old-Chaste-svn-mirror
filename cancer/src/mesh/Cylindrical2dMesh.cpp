@@ -58,18 +58,6 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
 }
 
 
-void Cylindrical2dMesh::ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex)
-{
-    for (unsigned j=0; j<rImageNodes.size(); j++)
-    {
-        if(nodeIndex==rImageNodes[j])
-        {
-            pElement->ReplaceNode(mNodes[rImageNodes[j]],mNodes[rOriginalNodes[j]]);
-        }
-    }
-}
-
-
 void Cylindrical2dMesh::UpdateTopAndBottom()
 {
     c_vector<double,2> extremes = GetWidthExtremes(1);
@@ -287,6 +275,16 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
             map.SetNewIndex(i, reindex_map.GetNewIndex(i) );
         }
     }
+    
+    // We can now clear the index vectors & maps; they are only used for remeshing
+    mLeftOriginals.clear();
+    mLeftImages.clear();
+    mImageToLeftOriginalNodeMap.clear();
+    mRightOriginals.clear();
+    mRightImages.clear();
+    mImageToRightOriginalNodeMap.clear();
+    mLeftPeriodicBoundaryElementIndices.clear();
+    mRightPeriodicBoundaryElementIndices.clear();
 }
 
 

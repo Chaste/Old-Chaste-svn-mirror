@@ -170,7 +170,11 @@ public:
         }
 
         std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
+#ifdef CHASTE_CVODE
+        TS_ASSERT_DELTA(test_results[0] , 0.7329922345, 1e-5);
+#else
         TS_ASSERT_DELTA(test_results[0] , 7.330036281693106e-01 , 1e-5);
+#endif //CHASTE_CVODE
         TS_ASSERT_DELTA(test_results[1] , 1.715690244022676e-01 , 1e-5);
         TS_ASSERT_DELTA(test_results[2] , 6.127460817296076e-02 , 1e-5);
         TS_ASSERT_DELTA(test_results[3] , 1.549402358669023e-07 , 1e-5);
@@ -235,7 +239,11 @@ public:
             // of calling ReadyToDivide on the model and test (in
             // CheckReadyToDivideAndPhaseIsUpdated).
             stem_cell.ReadyToDivide();
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model,6.1877);
+#ifdef CHASTE_CVODE
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, 6.186);
+#else
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, 6.1877);
+#endif //CHASTE_CVODE
         }
 
         TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 21.0, 1e-4);
@@ -386,7 +394,7 @@ public:
 
         stem_cell.InitialiseCellCycleModel();
 
-        double SG2MDuration = CancerParameters::Instance()->GetSG2MDuration();
+        double SG2M_duration = CancerParameters::Instance()->GetSG2MDuration();
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
@@ -397,22 +405,23 @@ public:
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 4.804 hrs and then finish dividing
         // 10 hours later at 14.804 hours.
+        const double expected_g1_duration = 4.804;
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, 4.804);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, expected_g1_duration);
         }
 
         p_cell_model_1->ResetForDivision();
         double second_cycle_start = p_cell_model_1->GetBirthTime();
 
-        TS_ASSERT_DELTA(SG2MDuration, 10.0, 1e-5);
+        TS_ASSERT_DELTA(SG2M_duration, 10.0, 1e-5);
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
             bool result = p_cell_model_1->ReadyToDivide();
-            if (time< second_cycle_start + 4.804 + SG2MDuration)
+            if (time< second_cycle_start + expected_g1_duration + SG2M_duration)
             {
                 TS_ASSERT(result==false);
             }

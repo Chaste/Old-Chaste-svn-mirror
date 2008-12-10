@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "CryptSimulation2d.hpp"
 #include "SloughingCellKiller.hpp"

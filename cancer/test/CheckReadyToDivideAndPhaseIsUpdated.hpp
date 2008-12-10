@@ -40,6 +40,15 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
 {
     double age = pModel->GetAge();
     CancerParameters* p_params = CancerParameters::Instance();
+    
+    if ((pModel->GetCell()->GetCellType() != DIFFERENTIATED) &&
+        (age >= p_params->GetMDuration()) &&
+        (pModel->GetG1Duration() != DOUBLE_UNSET) &&
+        (fabs(pModel->GetG1Duration() - g1Duration) > 1e-5))
+    {
+        std::cout << "G1 duration mismatch: actual = " << pModel->GetG1Duration()
+                  << ", expected = " << g1Duration << std::endl;
+    }
 
     if (pModel->GetCell()->GetCellType()==DIFFERENTIATED)
     {

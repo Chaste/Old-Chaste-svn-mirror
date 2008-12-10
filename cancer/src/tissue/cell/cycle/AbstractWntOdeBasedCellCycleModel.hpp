@@ -65,7 +65,12 @@ protected:
 #endif //CHASTE_CVODE
 
     AbstractWntOdeBasedCellCycleModel(double lastTime)
-        : AbstractOdeBasedCellCycleModel(lastTime) {};
+        : AbstractOdeBasedCellCycleModel(lastTime)
+    {
+#ifdef CHASTE_CVODE
+        msSolver.CheckForStoppingEvents();
+#endif //CHASTE_CVODE
+    }
 
     /**
      * Record when ODEs have been solved.
