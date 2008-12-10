@@ -218,7 +218,7 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     assert(endTime > startTime);
     assert(timeSampling > 0.0);
     
-    mStoppingEventOccured = false;
+    mStoppingEventOccurred = false;
     if (mCheckForRoots && pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true)
     {
         EXCEPTION("(Solve with sampling) Stopping event is true for initial condition");
@@ -273,7 +273,7 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
 {
     assert(endTime > startTime);
     
-    mStoppingEventOccured = false;
+    mStoppingEventOccurred = false;
     if (mCheckForRoots && pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true)
     {
         EXCEPTION("(Solve) Stopping event is true for initial condition");
