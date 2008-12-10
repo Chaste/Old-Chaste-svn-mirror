@@ -134,7 +134,7 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 {
     // WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
 #ifdef CHASTE_CVODE
-	const static double dt = SimulationTime::Instance()->GetTimeStep();
+	const double dt = SimulationTime::Instance()->GetTimeStep();
 #else
     double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
 #endif // CHASTE_CVODE

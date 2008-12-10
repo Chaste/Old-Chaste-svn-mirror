@@ -217,6 +217,13 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
 {
     assert(endTime > startTime);
     assert(timeSampling > 0.0);
+    
+    mStoppingEventOccured = false;
+    if (mCheckForRoots && pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true)
+    {
+        EXCEPTION("(Solve with sampling) Stopping event is true for initial condition");
+    }
+    
     SetupCvode(pOdeSystem, rYValues, startTime, maxStep);
 
     TimeStepper stepper(startTime, endTime, timeSampling);
@@ -265,6 +272,13 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
                          double maxStep)
 {
     assert(endTime > startTime);
+    
+    mStoppingEventOccured = false;
+    if (mCheckForRoots && pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true)
+    {
+        EXCEPTION("(Solve) Stopping event is true for initial condition");
+    }
+    
     SetupCvode(pOdeSystem, rYValues, startTime, maxStep);
 
     N_Vector yout = mInitialValues;

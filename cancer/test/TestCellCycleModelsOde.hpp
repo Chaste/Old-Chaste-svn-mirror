@@ -405,7 +405,11 @@ public:
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 4.804 hrs and then finish dividing
         // 10 hours later at 14.804 hours.
+#ifdef CHASTE_CVODE
+        const double expected_g1_duration = 4.79972;
+#else
         const double expected_g1_duration = 4.804;
+#endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -459,19 +463,30 @@ public:
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 7.82 hrs and then finish dividing
         // 10 hours later at 17.82 hours.
+#ifdef CHASTE_CVODE
+        double expected_g1_duration = 7.82068;
+#else
+        double expected_g1_duration = 7.82;
+#endif //CHASTE_CVODE
+        
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_THROWS_ANYTHING(p_cell_model_1->UpdateCellType());
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, 7.82);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, expected_g1_duration);
         }
 
         p_cell_model_1->ResetForDivision();
+#ifdef CHASTE_CVODE
+        expected_g1_duration = 7.81932;
+#else
+        expected_g1_duration = 7.82;
+#endif //CHASTE_CVODE
 
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, 7.82);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, expected_g1_duration);
         }
 
         WntConcentration::Destroy();
@@ -500,10 +515,15 @@ public:
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 3.943 hrs and then finish dividing
         // 10 hours later at 13.9435 hours.
+#ifdef CHASTE_CVODE
+        const double expected_g1_duration = 3.93697;
+#else
+        const double expected_g1_duration = 3.9435;
+#endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 3.9435);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, expected_g1_duration);
         }
 
         p_cell_model_2->ResetForDivision();
@@ -511,7 +531,7 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 3.9435);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, expected_g1_duration);
         }
 
         WntConcentration::Destroy();
@@ -540,18 +560,28 @@ public:
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 5.971 hrs and then finish dividing
         // 10 hours later at 15.971 hours.
+#ifdef CHASTE_CVODE
+        double expected_g1_duration = 5.96;
+#else
+        double expected_g1_duration = 5.971;
+#endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 5.971);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, expected_g1_duration);
         }
 
         p_cell_model_2->ResetForDivision();
+#ifdef CHASTE_CVODE
+        expected_g1_duration = 5.96489;
+#else
+        expected_g1_duration = 5.971;
+#endif //CHASTE_CVODE
 
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 5.971);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, expected_g1_duration);
         }
 
         WntConcentration::Destroy();

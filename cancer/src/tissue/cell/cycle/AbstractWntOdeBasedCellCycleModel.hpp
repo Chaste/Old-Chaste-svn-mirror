@@ -69,6 +69,7 @@ protected:
     {
 #ifdef CHASTE_CVODE
         msSolver.CheckForStoppingEvents();
+        msSolver.SetMaxSteps(1000);
         //msSolver.SetTolerances(1e-6, 1e-8);
 #endif //CHASTE_CVODE
     }

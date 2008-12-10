@@ -731,16 +731,18 @@ public:
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
         wnt_cell.GetCellCycleModel()->SetGeneration(1);
+        
+        const double expected_g1_duration = 5.971;
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
 
-            WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
-            if (time>=5.971+SG2MDuration)
+            if (time >= expected_g1_duration+SG2MDuration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+                std::cout << time << " " << SG2MDuration << std::endl;
             }
             else
             {
