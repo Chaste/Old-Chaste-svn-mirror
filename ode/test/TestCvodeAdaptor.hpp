@@ -91,6 +91,21 @@ private:
 #endif // CHASTE_CVODE
     
 public:
+    void TestBasics() throw (Exception)
+    {
+#ifdef CHASTE_CVODE
+        CvodeAdaptor solver;
+        solver.SetMaxSteps(1000);
+        TS_ASSERT_EQUALS(solver.GetMaxSteps(), 1000);
+        
+        TS_ASSERT_DELTA(solver.GetRelativeTolerance(), 1e-4, 1e-12);
+        TS_ASSERT_DELTA(solver.GetAbsoluteTolerance(), 1e-6, 1e-12);
+        
+        solver.SetTolerances(1e-5, 1e-5);
+        TS_ASSERT_DELTA(solver.GetRelativeTolerance(), 1e-5, 1e-12);
+        TS_ASSERT_DELTA(solver.GetAbsoluteTolerance(), 1e-5, 1e-12);
+#endif // CHASTE_CVODE
+    }
 
     void TestOnOde1() throw (Exception)
     {

@@ -170,6 +170,24 @@ public:
           mCheckForRoots(false)
     {
     }
+    
+    /**
+     * Set relative and absolute tolerances; both scalars.
+     * If no parameters are given, tolerances will be reset to default values.
+     */
+    void SetTolerances(double relTol=1e-4, double absTol=1e-6)
+    {
+        mRelTol = relTol;
+        mAbsTol = absTol;
+    }
+    double GetRelativeTolerance()
+    {
+        return mRelTol;
+    }
+    double GetAbsoluteTolerance()
+    {
+        return mAbsTol;
+    }
 
     /**
      * Solve the given ODE system, returning the solution at sampling intervals.
@@ -222,6 +240,10 @@ public:
     void SetMaxSteps(long int numSteps)
     {
         mMaxSteps = numSteps;
+    }
+    long int GetMaxSteps()
+    {
+        return mMaxSteps;
     }
 };
 

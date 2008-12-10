@@ -38,8 +38,6 @@ metis_path = '../../../metis-4.0/'
 intel_path = '/opt/intel/cce/10.0.025'
 icpc='icpc'
 
-use_cvode = True
-
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include']
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),
                     '../../../lib', '../../../hdf5/lib',
