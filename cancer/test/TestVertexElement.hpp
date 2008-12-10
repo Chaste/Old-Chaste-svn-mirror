@@ -118,6 +118,7 @@ public:
 //        }
 //     }
 
+    /// \todo this should be for a non regular polygon so Ixy ~= 0
     void TestCalculateMoment() throw(Exception)
     {
         std::vector<Node<2>*> nodes;
@@ -142,6 +143,79 @@ public:
             delete nodes[i];
         }
     }
+    
+    void TestCalculateCentroid() throw(Exception)
+    {
+        std::vector<Node<2>*> nodes;
+        unsigned N = 6;   //vertices
+        for(unsigned i=0; i<N; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(N); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
+        }
+        VertexElement<2,2> hexagon(INDEX_IS_NOT_USED, nodes);
+       
+        c_vector<double, 2> centroid = hexagon.CalculateCentroid();
+        TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6); 
+    }
      
+         void TestCalculateShortAxis() throw(Exception)
+    {
+        std::vector<Node<2>*> nodes1;
+       
+        // This is a rectangle, centre (0,0), width 2, length 2, parallel to x axis                       
+        nodes1.push_back(new Node<2>(0, false, 2.0 , 1.0));
+        nodes1.push_back(new Node<2>(1, false, -2.0, 1.0));
+        nodes1.push_back(new Node<2>(2, false, -2.0, -1.0));
+        nodes1.push_back(new Node<2>(3, false, 2.0, -1.0));
+        
+        VertexElement<2,2> rectangle1(INDEX_IS_NOT_USED, nodes1);
+       
+        TS_ASSERT_DELTA(rectangle1.GetVertexElementArea(),8.0,1e-4);
+        TS_ASSERT_DELTA(rectangle1.GetVertexElementPerimeter(),12.0,1e-4);
+        
+        c_vector<double, 2> centroid = rectangle1.CalculateCentroid();
+        TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6); 
+        
+        c_vector<double, 2> short_axis = rectangle1.CalculateShortAxis();
+        TS_ASSERT_DELTA(short_axis(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(short_axis(1), 1.0, 1e-6);
+       
+        std::vector<Node<2>*> nodes2;                      
+        // This is a rectangle, centre (0,0), width 1, length sqrt(3), rotated by 30 degrees anticlockwise                      
+        nodes2.push_back(new Node<2>(0, false, 1.0 , 0.0));
+        nodes2.push_back(new Node<2>(1, false, 0.5, sqrt(3.0)/2.0));
+        nodes2.push_back(new Node<2>(2, false, -1.0, 0.0));
+        nodes2.push_back(new Node<2>(3, false, -0.5, -sqrt(3.0)/2.0));
+        
+        VertexElement<2,2> rectangle2(INDEX_IS_NOT_USED, nodes2);
+       
+        TS_ASSERT_DELTA(rectangle2.GetVertexElementArea(),sqrt(3.0),1e-4);
+        TS_ASSERT_DELTA(rectangle2.GetVertexElementPerimeter(),2.0*sqrt(3.0)+2.0,1e-4);
+        
+        centroid = rectangle2.CalculateCentroid();
+        TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6); 
+        
+        short_axis = rectangle2.CalculateShortAxis();
+        TS_ASSERT_DELTA(short_axis(0), 0.5, 1e-6);
+        TS_ASSERT_DELTA(short_axis(1), -sqrt(3.0)*0.5, 1e-6);
+        
+        // Test on a regular polygon (generates a random vector)
+        std::vector<Node<2>*> hexagon_nodes;
+        unsigned N = 6;   //vertices
+        for(unsigned i=0; i<N; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(N); 
+            hexagon_nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
+        VertexElement<2,2> hexagon(INDEX_IS_NOT_USED, hexagon_nodes);
+        
+        short_axis = hexagon.CalculateShortAxis();
+        
+        TS_ASSERT_DELTA(short_axis(0)*short_axis(0)+short_axis(1)*short_axis(1), 1.0, 1e-6);
+    }
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/
