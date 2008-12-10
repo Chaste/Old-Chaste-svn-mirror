@@ -92,7 +92,7 @@ private :
         // no stopping event was specified in the ODE, so check the
         // solver correctly states it didn't stop due to a
         // stopping event.
-        TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), false);
+        TS_ASSERT_EQUALS(rSolver.StoppingEventOccurred(), false);
     }
 
 
@@ -118,8 +118,8 @@ private :
         // final y0 should be less than zero
         TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
 
-        // solver should correctly state the stopping event occured
-        TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), true);
+        // solver should correctly state the stopping event occurred
+        TS_ASSERT_EQUALS(rSolver.StoppingEventOccurred(), true);
 
         // This is to cover the exception when a stopping event occurs before the first timestep.
         TS_ASSERT_THROWS_ANYTHING(
@@ -143,8 +143,8 @@ private :
         // final y0 should be less than zero
         TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
 
-        // solver should correctly state the stopping event occured
-        TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), true);
+        // solver should correctly state the stopping event occurred
+        TS_ASSERT_EQUALS(rSolver.StoppingEventOccurred(), true);
 
         // cover the check event isn't initially true exception
         std::vector<double> bad_init_cond;

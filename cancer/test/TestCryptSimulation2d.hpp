@@ -154,7 +154,7 @@ public:
             Node<2>* p_node = p_mesh->GetNode(i);
             if (!is_a_ghost_node)
             {
-                if(old_posns[i][1]==0) // stem
+                if (old_posns[i][1]==0) // stem
                 {
                     // No wnt so shouldn't have been moved
                     TS_ASSERT_DELTA(p_node->rGetLocation()[0], old_posns[i][0], 1e-9);

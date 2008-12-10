@@ -46,9 +46,9 @@ protected :
      * boolean indicating whether the solver quit due to the ODEs
      * stopping event occuring
      */
-    bool mStoppingEventOccured;
+    bool mStoppingEventOccurred;
 
-    /** if a stopping event occured the time is stored here */
+    /** if a stopping event occurred the time is stored here */
     double mStoppingTime;
 
 
@@ -103,9 +103,9 @@ public :
      * Determine whether the solver quit due to the ODE's stopping event
      * triggering
      */
-    bool StoppingEventOccured()
+    bool StoppingEventOccurred()
     {
-        return mStoppingEventOccured;
+        return mStoppingEventOccurred;
     }
 
     double GetStoppingTime()
@@ -114,7 +114,7 @@ public :
     }
 
     AbstractIvpOdeSolver()
-            : mStoppingEventOccured(false)
+            : mStoppingEventOccurred(false)
     {}
 
 

@@ -236,7 +236,7 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     solutions.rGetTimes().push_back(startTime);
 
     // Main time sampling loop
-    while (!stepper.IsTimeAtEnd() && !mStoppingEventOccured)
+    while (!stepper.IsTimeAtEnd() && !mStoppingEventOccurred)
     {
 //        std::cout << "Solving to time " << stepper.GetNextTime() << std::endl << std::flush;
         double tend;
@@ -249,7 +249,7 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
         if (ierr == CV_ROOT_RETURN)
         {
             // Stopping event occurred
-            mStoppingEventOccured = true;
+            mStoppingEventOccurred = true;
             mStoppingTime = tend;
         }
         stepper.AdvanceOneTimeStep();
@@ -288,7 +288,7 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     if (ierr == CV_ROOT_RETURN)
     {
         // Stopping event occurred
-        mStoppingEventOccured = true;
+        mStoppingEventOccurred = true;
         mStoppingTime = tend;
     }
     assert(NV_DATA_S(yout) == &(rYValues[0]));

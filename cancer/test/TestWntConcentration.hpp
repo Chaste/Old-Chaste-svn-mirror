@@ -360,12 +360,12 @@ public:
 
         MeshBasedTissue<2>::Iterator iter = crypt.Begin();
 
-        while(iter!=crypt.End())
+        while (iter!=crypt.End())
         {
             const WntCellCycleModel* p_model = (WntCellCycleModel*) iter->GetCellCycleModel();
             std::vector<double> proteins = p_model->GetProteinConcentrations();
 
-            if(iter.GetNode()->rGetLocation()[1]==0.0)
+            if (iter.GetNode()->rGetLocation()[1]==0.0)
             {
                 TS_ASSERT_DELTA(proteins[5],4.975124378109454e-03, 1e-3);
                 TS_ASSERT_DELTA(proteins[6]+proteins[7],6.002649406788524e-01, 1e-3);

@@ -67,7 +67,7 @@ public :
 
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        if(mpTissue->GetNumRealCells()==0)
+        if (mpTissue->GetNumRealCells()==0)
         {
             return;
         }
@@ -511,7 +511,7 @@ public:
             double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             double dist_from_3_6 = sqrt((x-3)*(x-3)+(y-6)*(y-6));
 
-            if(dist_from_3_6<1.1)
+            if (dist_from_3_6<1.1)
             {
                 mutation_state = APC_TWO_HIT;
             }

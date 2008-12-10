@@ -38,7 +38,7 @@ TissueCell::TissueCell(CellType cellType,
         EXCEPTION("TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
     }
 
-    if(pCellCycleModel==NULL)
+    if (pCellCycleModel==NULL)
     {
         EXCEPTION("Cell cycle model is null");
     }

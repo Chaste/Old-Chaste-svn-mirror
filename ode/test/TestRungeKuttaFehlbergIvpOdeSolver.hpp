@@ -294,8 +294,8 @@ public:
         // final y0 should be less than -0.5
         TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[last][0], -0.5);
 
-        // solver should correctly state the stopping event occured
-        TS_ASSERT_EQUALS(rkf_solver.StoppingEventOccured(), true);
+        // solver should correctly state the stopping event occurred
+        TS_ASSERT_EQUALS(rkf_solver.StoppingEventOccurred(), true);
 
         // Coverage of exceptions
         TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1, 1e-5));

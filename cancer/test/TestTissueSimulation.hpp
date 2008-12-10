@@ -50,13 +50,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptProjectionForce.hpp"
 
 
-// Simple subclass of TissueSimulation which just overloads StoppingEventHasOccured
+// Simple subclass of TissueSimulation which just overloads StoppingEventHasOccurred
 // for testing the stopping event functionality..
 class TissueSimulationWithMyStoppingEvent : public TissueSimulation<2>
 {
 private:
     // define a stopping event with says stop if t>3.14
-    bool StoppingEventHasOccured()
+    bool StoppingEventHasOccurred()
     {
         return  (SimulationTime::Instance()->GetTime() > 3.1415);
     }

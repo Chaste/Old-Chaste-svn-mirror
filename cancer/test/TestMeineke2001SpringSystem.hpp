@@ -326,7 +326,7 @@ public:
         for (unsigned i=0; i<velocities.size(); i++)
         {
             // Check if this is a real cell
-            if(ghost_node_indices.find(i)==ghost_node_indices.end())
+            if (ghost_node_indices.find(i)==ghost_node_indices.end())
             {
                 norm_vel.push_back(norm_2(velocities[i]));
             }
@@ -342,7 +342,7 @@ public:
         for (unsigned i=0; i<velocities.size(); i++)
         {
             //check if this is a real cell
-            if(ghost_node_indices.find(i)==ghost_node_indices.end())
+            if (ghost_node_indices.find(i)==ghost_node_indices.end())
             {
                 norm_vel_area.push_back(norm_2(velocities[i]));
             }
@@ -388,7 +388,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             // Check if this is a real cell
-            if(ghost_node_indices.find(i)==ghost_node_indices.end())
+            if (ghost_node_indices.find(i)==ghost_node_indices.end())
             {
                 double area = tissue.rGetVoronoiTessellation().GetFaceArea(i);
                 TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);

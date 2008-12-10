@@ -103,7 +103,7 @@ public:
         std::cout <<  "1. Elapsed time = " << elapsed_time << "\n";
 
         // If you run it up to about 75min the ODE will stop, anything less and it will not and this test will fail
-        TS_ASSERT(backward_euler_solver.StoppingEventOccured());
+        TS_ASSERT(backward_euler_solver.StoppingEventOccurred());
 
         unsigned end = solutions.rGetSolutions().size() - 1;
 

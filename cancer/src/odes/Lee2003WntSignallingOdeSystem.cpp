@@ -97,7 +97,7 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     double X12 = rY[6];
     double WntLevel = rY[7];
 
-    for(unsigned i=0; i<rY.size(); i++)
+    for (unsigned i=0; i<rY.size(); i++)
     {
         assert( rY[i] >= 0.0 ); // all protein concentrations are positive...
     }

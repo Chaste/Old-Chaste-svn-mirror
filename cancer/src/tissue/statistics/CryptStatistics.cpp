@@ -43,7 +43,7 @@ bool CryptStatistics::CellIsInSection(double xBottom, double xTop, double yTop, 
 {
     c_vector<double,2> intercept;
 
-    if(xBottom==xTop)
+    if (xBottom==xTop)
     {
         intercept[0] = xTop;
         intercept[1] = cellPosition[1];
@@ -72,7 +72,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     double m; // gradient of line
     double offset;
 
-    if(xBottom<xTop)
+    if (xBottom<xTop)
     {
         offset = -crypt_width;
     }
@@ -90,7 +90,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
     double dist = norm_2(vec_from_A_to_B);
 
-    if(dist < widthOfSection)
+    if (dist < widthOfSection)
     {
         is_in_section=true;
     }
@@ -102,7 +102,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
     dist = norm_2(vec_from_A_to_B);
 
-    if(dist < widthOfSection)
+    if (dist < widthOfSection)
     {
         is_in_section=true;
     }
@@ -142,9 +142,9 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-        if(periodic)
+        if (periodic)
         {
-            if(CellIsInSectionPeriodic(xBottom, xTop, yTop, cell_iter.rGetLocation()))
+            if (CellIsInSectionPeriodic(xBottom, xTop, yTop, cell_iter.rGetLocation()))
             {
                 // set up a pair, equal to (cell,y_val) and insert
                 std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
@@ -153,7 +153,7 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
         }
         else
         {
-            if(CellIsInSection(xBottom, xTop, yTop, cell_iter.rGetLocation()))
+            if (CellIsInSection(xBottom, xTop, yTop, cell_iter.rGetLocation()))
             {
                 // set up a pair, equal to (cell,y_val) and insert
                 std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
@@ -167,7 +167,7 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
 
     // copy to a vector
     std::vector<TissueCell*> ordered_cells;
-    for(std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
+    for (std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
         iter!=cells_list.end();
         iter++)
     {
@@ -181,7 +181,4 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSectionPeriodic(double xBottom
 {
    return GetCryptSection(xBottom,xTop,yTop,true);
 }
-
-
-
 

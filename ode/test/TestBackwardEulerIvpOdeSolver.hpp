@@ -153,8 +153,8 @@ public:
         // final y0 should be less than -0.5
         TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[last][0], -0.5);
 
-        // solver should correctly state the stopping event occured
-        TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);
+        // solver should correctly state the stopping event occurred
+        TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccurred(), true);
     }
 
     void TestBackwardEulerAnotherNonlinearEquationAnalytic() throw(Exception)

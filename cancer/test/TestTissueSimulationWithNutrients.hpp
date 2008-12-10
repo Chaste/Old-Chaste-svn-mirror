@@ -283,7 +283,7 @@ public:
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
             double y = p_mesh->GetNode(i)->rGetLocation()[1];
             double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );
-            if(dist_from_centre < 1.5)
+            if (dist_from_centre < 1.5)
             {
                 cell.SetCellType(APOPTOTIC);
             }

@@ -132,10 +132,10 @@ std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(uns
          ++it)
     {
         Element<2,2>* p_element = r_mesh.GetElement(*it);
-        for(unsigned i=0; i<p_element->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_element->GetNumNodes(); i++)
         {
             unsigned node_index = p_element->GetNodeGlobalIndex(i);
-            if(node_index!=index)
+            if (node_index!=index)
             {
                 neighbouring_node_indices.insert(node_index);
             }

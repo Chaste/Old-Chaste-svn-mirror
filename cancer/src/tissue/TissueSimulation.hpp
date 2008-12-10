@@ -272,7 +272,7 @@ protected:
      *  based on certain conditions before the specified end time (for example,
      *  run until a crypt becomes monoclonal).
      */
-    virtual bool StoppingEventHasOccured();
+    virtual bool StoppingEventHasOccurred();
 
 public:
 
@@ -793,7 +793,7 @@ void TissueSimulation<DIM>::Solve()
     // Main time loop
     /////////////////////////////////////////////////////////////////////
     
-    while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccured()) )
+    while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccurred()) )
     {
         LOG(1, "--TIME = " << p_simulation_time->GetTime() << "\n");
 
@@ -969,7 +969,7 @@ void TissueSimulation<DIM>::AfterSolve()
 
 
 template<unsigned DIM>
-bool TissueSimulation<DIM>::StoppingEventHasOccured()
+bool TissueSimulation<DIM>::StoppingEventHasOccurred()
 {
     return false;
 }

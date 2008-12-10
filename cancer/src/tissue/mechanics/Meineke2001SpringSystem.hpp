@@ -201,7 +201,7 @@ c_vector<double, DIM> Meineke2001SpringSystem<DIM>::CalculateForceBetweenNodes(u
 
     if (this->mUseCutoffPoint)
     {
-        if( distance_between_nodes >= this->mCutoffPoint )
+        if ( distance_between_nodes >= this->mCutoffPoint )
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }

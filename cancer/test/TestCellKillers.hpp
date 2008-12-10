@@ -167,7 +167,7 @@ public:
             double x = iter.rGetLocation()[0];
             double y = iter.rGetLocation()[1];
 
-            if( (x<0) || (x>0.5) || (y>0.5))
+            if ( (x<0) || (x>0.5) || (y>0.5))
             {
                 TS_ASSERT_EQUALS(iter->IsDead(), true);
             }
@@ -220,12 +220,12 @@ public:
         SloughingCellKiller sloughing_cell_killer(&tissue);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator iter = tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
             double y = iter.rGetLocation()[1];
-            if(y>0.5)
+            if (y>0.5)
             {
                 TS_ASSERT_EQUALS(iter->IsDead(), true);
             }
@@ -285,7 +285,7 @@ public:
         {
             double r = norm_2(cell_iter.rGetLocation() - centre);
 
-            if( r > radius )
+            if (r > radius)
             {
                 TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }

@@ -551,7 +551,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 
     // Find max radius
     double max_radius = 0.0;
-    for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {

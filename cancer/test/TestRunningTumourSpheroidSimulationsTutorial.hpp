@@ -115,7 +115,7 @@ public:
          * define the cells vector. */
         std::vector<TissueCell> cells;
         /* then loop over the nodes... */
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /*.. then create a cell, and giving a particular cell cycle model
              * - {{{SimpleOxygenBasedCellCycleModel}}}. The index of the node that
@@ -154,7 +154,7 @@ public:
         /* Then we have to initialise the oxygen concentration for each node (to 1.0), by
          * calling {{{SetValue}}}. This takes in the concentration, and the node
          * which this concentration is for .*/
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             CellwiseData<2>::Instance()->SetValue(1.0, p_mesh->GetNode(i));
         }

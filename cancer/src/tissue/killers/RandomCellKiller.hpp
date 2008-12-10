@@ -81,7 +81,7 @@ RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue
         : AbstractCellKiller<SPACE_DIM>(pTissue),
           mProbabilityOfDeath(probabilityOfDeath)
 {
-    if((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
+    if ((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
     {
         EXCEPTION("Probability of death must be between zero and one");
     }

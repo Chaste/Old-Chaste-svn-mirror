@@ -127,7 +127,7 @@ public:
     /**
      * Calculate whether the conditions for the cell cycle to finish have been met.
      *
-     * @param time at which to calculate whether the stopping event has occured
+     * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS.
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);

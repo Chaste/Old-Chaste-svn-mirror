@@ -155,7 +155,7 @@ public:
             double y = mesh.GetNode(i)->rGetLocation()[1];
 
             double tol = 0.3;
-            if(x==0 || x==2 || y==0 || y==2) //ie on boundary
+            if (x==0 || x==2 || y==0 || y==2) //ie on boundary
             {
                 tol = 0.6;
             }

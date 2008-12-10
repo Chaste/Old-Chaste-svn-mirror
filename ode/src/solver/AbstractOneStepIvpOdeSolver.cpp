@@ -47,7 +47,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     assert(timeStep > 0.0);
     assert(timeSampling >= timeStep);
 
-    mStoppingEventOccured = false;
+    mStoppingEventOccurred = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
         EXCEPTION("(Solve with sampling) Stopping event is true for initial condition");
@@ -63,14 +63,14 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     mWorkingMemory.resize(rYValues.size());
 
     // Solve the ODE system
-    while ( !stepper.IsTimeAtEnd() && !mStoppingEventOccured )
+    while ( !stepper.IsTimeAtEnd() && !mStoppingEventOccurred )
     {
         InternalSolve(pOdeSystem, rYValues, mWorkingMemory, stepper.GetTime(), stepper.GetNextTime(), timeStep);
         stepper.AdvanceOneTimeStep();
         // write current solution into solutions
         solutions.rGetSolutions().push_back(rYValues);
         // Push back new time into the time solution vector
-        if ( mStoppingEventOccured )
+        if ( mStoppingEventOccurred )
         {
             solutions.rGetTimes().push_back(mStoppingTime);
         }
@@ -95,7 +95,7 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     assert(endTime > startTime);
     assert(timeStep > 0.0);
 
-    mStoppingEventOccured = false;
+    mStoppingEventOccurred = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
         EXCEPTION("(Solve without sampling) Stopping event is true for initial condition");
@@ -123,8 +123,8 @@ void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pOdeSystem,
     bool curr_is_curr = false;
 
     // should never get here if this bool has been set to true;
-    assert(!mStoppingEventOccured);
-    while ( !stepper.IsTimeAtEnd() && !mStoppingEventOccured )
+    assert(!mStoppingEventOccurred);
+    while ( !stepper.IsTimeAtEnd() && !mStoppingEventOccurred )
     {
         curr_is_curr = not curr_is_curr;
         // Function that calls the appropriate one-step solver
@@ -138,7 +138,7 @@ void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pOdeSystem,
                                                 curr_is_curr ? rWorkingMemory : rYValues) == true )
         {
             mStoppingTime = stepper.GetTime();
-            mStoppingEventOccured = true;
+            mStoppingEventOccurred = true;
         }
     }
     // Final answer must be in rYValues

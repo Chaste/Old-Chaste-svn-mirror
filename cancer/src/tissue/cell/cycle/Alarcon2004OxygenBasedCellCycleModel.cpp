@@ -145,12 +145,12 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
     static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
-    return msSolver.StoppingEventOccured();
+    return msSolver.StoppingEventOccurred();
 }
 
 
 double Alarcon2004OxygenBasedCellCycleModel::GetOdeStopTime()
 {
-    assert(msSolver.StoppingEventOccured());
+    assert(msSolver.StoppingEventOccurred());
     return msSolver.GetStoppingTime();
 }

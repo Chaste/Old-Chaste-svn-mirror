@@ -126,7 +126,7 @@ double AbstractVariableDampingMechanicsSystem<DIM>::GetDampingConstant(TissueCel
         damping_multiplier = d0 + area_cell*d1;
     }
 
-    if( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
+    if ( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
     {
         return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
     }

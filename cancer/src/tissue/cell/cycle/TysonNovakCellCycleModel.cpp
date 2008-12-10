@@ -92,12 +92,12 @@ bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
 
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem,mLastTime,currentTime,dt);
 
-    return msSolver.StoppingEventOccured();
+    return msSolver.StoppingEventOccurred();
 }
 
 double TysonNovakCellCycleModel::GetOdeStopTime()
 {
-    assert(msSolver.StoppingEventOccured());
+    assert(msSolver.StoppingEventOccurred());
     return msSolver.GetStoppingTime();
 }
 

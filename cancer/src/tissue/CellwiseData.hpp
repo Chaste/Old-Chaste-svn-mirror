@@ -197,7 +197,7 @@ template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
 {
     // To test a cell and cell cycle models without a tissue
-    if(mUseConstantDataForTesting)
+    if (mUseConstantDataForTesting)
     {
         return mConstantDataForTesting[variableNumber];
     }
@@ -226,7 +226,7 @@ void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variab
 template<unsigned DIM>
 void CellwiseData<DIM>::SetTissue(MeshBasedTissue<DIM>& rTissue)
 {
-    if(mAllocatedMemory == false)
+    if (mAllocatedMemory == false)
     {
         EXCEPTION("SetTissue must be called after SetNumNodesAndVars()");
     }
@@ -244,7 +244,7 @@ MeshBasedTissue<DIM>& CellwiseData<DIM>::rGetTissue()
 template<unsigned DIM>
 void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfVariables)
 {
-    if(mpTissue!=NULL)
+    if (mpTissue!=NULL)
     {
         EXCEPTION("SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
     }

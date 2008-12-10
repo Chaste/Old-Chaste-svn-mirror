@@ -81,7 +81,7 @@ std::vector<TissueCell*> CryptProjectionStatistics::GetCryptSection(double angle
          ++cell_iter)
     {
 
-        if( CellIsInSection(angle, cell_iter.rGetLocation()) )
+        if ( CellIsInSection(angle, cell_iter.rGetLocation()) )
         {
             // Set up a pair, equal to (cell,r) and insert
             std::pair<TissueCell*, double> pair(&(*cell_iter), norm_2(cell_iter.rGetLocation()));
@@ -94,7 +94,7 @@ std::vector<TissueCell*> CryptProjectionStatistics::GetCryptSection(double angle
 
     // Copy to a vector
     std::vector<TissueCell*> ordered_cells;
-    for(std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
+    for (std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
         iter!=cells_list.end();
         iter++)
     {

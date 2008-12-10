@@ -215,7 +215,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::SetGhostNodes(const std::set<unsigned>&
 
     // Update mIsGhostNode
     std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
-    while(iter!=ghostNodeIndices.end())
+    while (iter!=ghostNodeIndices.end())
     {
         this->mIsGhostNode[*iter] = true;
         iter++;

@@ -121,7 +121,7 @@ WntConcentrationType WntConcentration::GetType()
 
 void WntConcentration::SetType(WntConcentrationType type)
 {
-    if(mTypeSet==true)
+    if (mTypeSet==true)
     {
         EXCEPTION("Destroy has not been called");
     }

@@ -453,7 +453,7 @@ c_vector<double, DIM> AbstractTissue<DIM>::GetLocationOfCell(const TissueCell& r
 template<unsigned DIM>
 void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
 {
-    for(typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         cell_iter->SetAncestor(cell_iter->GetLocationIndex());
     }

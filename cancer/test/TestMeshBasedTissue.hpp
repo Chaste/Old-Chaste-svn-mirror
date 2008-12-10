@@ -689,7 +689,7 @@ public:
 
                     // If nodeA or node_B are <10 they will have been labelled a ghost node
                     // above
-                    if(node_A != node_B && node_A>=10 && node_B>=10)
+                    if (node_A != node_B && node_A>=10 && node_B>=10)
                     {
                         std::set<unsigned> node_pair;
                         node_pair.insert(node_A);

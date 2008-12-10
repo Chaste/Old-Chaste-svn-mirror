@@ -148,6 +148,6 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 
     mLastTime = currentTime;// normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
     UpdateCellType();
-    return msSolver.StoppingEventOccured();
+    return msSolver.StoppingEventOccurred();
 }
 

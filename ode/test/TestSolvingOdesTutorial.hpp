@@ -254,9 +254,9 @@ public:
         solutions = euler_solver.Solve(&my_ode_stopping, initial_condition, 0, 1, 0.01, 0.1);
         /* We can check with the solver that it stopped because of the stopping event, rather than because
          * it reached to end time. */
-        assert(euler_solver.StoppingEventOccured()==true);
+        assert(euler_solver.StoppingEventOccurred()==true);
         /* Finally, let's print the time of the stopping event (to the nearest dt or so). */
-        std::cout << "Stopping event occured at t="<<solutions.rGetTimes().back()<<"\n";
+        std::cout << "Stopping event occurred at t="<<solutions.rGetTimes().back()<<"\n";
     }
 
     /*

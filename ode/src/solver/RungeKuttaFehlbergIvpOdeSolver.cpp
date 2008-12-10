@@ -84,7 +84,7 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
     }
 
     // should never get here if this bool has been set to true;
-    assert(!mStoppingEventOccured);
+    assert(!mStoppingEventOccurred);
     while ( !got_to_end )
     {
         //std::cout << "New timestep\n" << std::flush;
@@ -143,10 +143,10 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
                                                 rWorkingMemory) == true )
         {
             mStoppingTime = current_time;
-            mStoppingEventOccured = true;
+            mStoppingEventOccurred = true;
         }
 
-        if (mStoppingEventOccured || current_time>=endTime)
+        if (mStoppingEventOccurred || current_time>=endTime)
         {
             got_to_end = true;
         }
@@ -275,7 +275,7 @@ OdeSolution RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     assert(endTime > startTime);
     assert(timeStep > 0.0);
 
-    mStoppingEventOccured = false;
+    mStoppingEventOccurred = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
         EXCEPTION("(Solve with sampling) Stopping event is true for initial condition");
@@ -300,7 +300,7 @@ void RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     assert(endTime > startTime);
     assert(timeStep > 0.0);
 
-    mStoppingEventOccured = false;
+    mStoppingEventOccurred = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
         EXCEPTION("(Solve without sampling) Stopping event is true for initial condition");

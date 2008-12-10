@@ -86,7 +86,7 @@ private:
         // no stopping event was specified in the ODE, so check the
         // solver correctly states it didn't stop due to a
         // stopping event.
-        TS_ASSERT_EQUALS(solver.StoppingEventOccured(), false);
+        TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), false);
     }
 #endif // CHASTE_CVODE
     
@@ -197,13 +197,13 @@ public:
         TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);
         // final y0 should be less than zero
         TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
-        // solver should correctly state the stopping event occured
-        TS_ASSERT_EQUALS(solver.StoppingEventOccured(), true);
+        // solver should correctly state the stopping event occurred
+        TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
         
         // Alternative Solve method
         state_variables = ode_system.GetInitialConditions();
         solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.01);
-        TS_ASSERT_EQUALS(solver.StoppingEventOccured(), true);
+        TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
         TS_ASSERT_DELTA(solver.GetStoppingTime(), M_PI_2, 0.01)
 #endif // CHASTE_CVODE
     }

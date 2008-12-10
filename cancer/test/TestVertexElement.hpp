@@ -66,7 +66,7 @@ public:
     {
         std::vector<Node<2>*> nodes;
         unsigned N = 1000;   //vertices
-        for(unsigned i=0; i<N; i++)
+        for (unsigned i=0; i<N; i++)
         {
             double theta = 2.0*M_PI*(double)(i)/(double)(N); 
             nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
@@ -123,7 +123,7 @@ public:
     {
         std::vector<Node<2>*> nodes;
         unsigned N = 6;   //vertices
-        for(unsigned i=0; i<N; i++)
+        for (unsigned i=0; i<N; i++)
         {
             double theta = 2.0*M_PI*(double)(i)/(double)(N); 
             nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   

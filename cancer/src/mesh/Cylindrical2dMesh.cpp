@@ -169,9 +169,9 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     map.ResetToIdentity();
 
     // Flag the deleted nodes as deleted in the map
-    for(unsigned i=0; i<old_num_all_nodes; i++)
+    for (unsigned i=0; i<old_num_all_nodes; i++)
     {
-        if(mNodes[i]->IsDeleted())
+        if (mNodes[i]->IsDeleted())
         {
             map.SetDeleted(i);
         }
@@ -261,9 +261,9 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
 
     // Go through the reindex map and use it to populate the original NodeMap
     // (the one that is returned to the user)
-    for(unsigned i=0; i<map.Size(); i++) // only going up to be size of map, not size of reindex_map
+    for (unsigned i=0; i<map.Size(); i++) // only going up to be size of map, not size of reindex_map
     {
-        if(reindex_map.IsDeleted(i))
+        if (reindex_map.IsDeleted(i))
         {
             // i < num_original_nodes and node is deleted, this should correspond to
             // a node that was labelled as before the remeshing, so should have already
@@ -488,7 +488,7 @@ bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std:
 {
     for (unsigned i=0; i<rListOfNodes.size(); i++)
     {
-        if(rNodeIndex==rListOfNodes[i])
+        if (rNodeIndex==rListOfNodes[i])
         {
             return true;
         }
@@ -557,13 +557,13 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
 
             bool is_coresponding_node = true;
 
-            for( unsigned i=0; i<3; i++)
+            for (unsigned i=0; i<3; i++)
             {
-                if( !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(0)) &&
+                if ( !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(0)) &&
                     !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(1)) &&
                     !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(2)) )
                 {
-                    is_coresponding_node=false;
+                    is_coresponding_node = false;
                 }
             }
 

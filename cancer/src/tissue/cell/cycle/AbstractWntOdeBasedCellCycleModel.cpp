@@ -37,7 +37,7 @@ RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
 
 double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 {
-    assert(msSolver.StoppingEventOccured());
+    assert(msSolver.StoppingEventOccurred());
     return msSolver.GetStoppingTime();
 }
 

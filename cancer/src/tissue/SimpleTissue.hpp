@@ -166,7 +166,7 @@ void SimpleTissue<DIM>::Validate()
 
     for (unsigned i=0; i<validated_node.size(); i++)
     {
-        if(!validated_node[i])
+        if (!validated_node[i])
         {
             std::stringstream ss;
             ss << "Node " << i << " does not appear to have a cell associated with it";
