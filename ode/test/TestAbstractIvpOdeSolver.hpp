@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSecondOrderWithEvents.hpp"
 #include "OdeThirdOrder.hpp"
 
+#include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 
@@ -168,7 +169,10 @@ public:
         solutions = solver.Solve(&ode_system, state_variables, 0.0, 0.1, 0.1, 0.1);
 
         // Write
-        solutions.WriteToFile("OdeSolution", "Ode2", &ode_system, "time");
+        if (PetscTools::AmMaster())
+        {
+            solutions.WriteToFile("OdeSolution", "Ode2", &ode_system, "time");
+        }
     }
 
     void TestEulerSolver() throw (Exception)
