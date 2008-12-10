@@ -36,6 +36,101 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestVertexElement : public CxxTest::TestSuite
 {
 public:
+
+ void TestVertexElementDeleteNode()
+    {
+//        std::vector<Node<2>*> corner_nodes;
+//        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+//        corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+//        corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+//        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+//    
+//        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
+//        
+//        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
+//        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),1.0,1e-6);
+//        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),4.0,1e-6);
+//       
+        std::vector<Node<2>*> nodes;
+        unsigned N = 6;   //vertices
+        for(unsigned i=0; i<N; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(N); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
+        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
+        
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),3*sqrt(3)/2.0,1e-4);
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),6.0,1e-4);
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
+             
+        vertex_element.DeleteNode(3); // Removes (-1,0) node
+        vertex_element.DeleteNode(0); // Removes (1,0) node
+        
+        // Test node is removed
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
+               
+        // Test other nodes are updated
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], -0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+ 
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);        
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+
+        // Tests Areas updated
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),sqrt(3.0),1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),2.0+2.0*sqrt(3.0),1e-6);
+                 
+        for (unsigned i=0; i<nodes.size(); ++i)
+        {
+            delete nodes[i];
+        }
+     }
+
+
+void TestVertexElementDivideEdge()
+    {
+        std::vector<Node<2>*> corner_nodes;
+        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+    
+        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
+        
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
+        // Pass pointer to new node position of node is not important as it will be changed
+        Node<2>* new_node= new Node<2>(4, false, 0.0, 0.0);
+        vertex_element.DivideEdge(0, new_node); // Divide edge between nodes (0,0) and (1,0)
+        
+        // Test edge is divided
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 5u);
+        
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),1.0,1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),4.0,1e-6);
+                 
+        // Test other nodes are updated
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.0, 1e-9);
+        
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], 0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.0, 1e-9);
+            
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], 1.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], 0.0, 1e-9);     
+                 
+        for (unsigned i=0; i<corner_nodes.size(); ++i)
+        {
+            delete corner_nodes[i];
+        }
+     }
+     
     void TestVertexElementAreaAndPerimeter()
     {
         std::vector<Node<2>*> corner_nodes;
@@ -183,6 +278,12 @@ public:
         TS_ASSERT_DELTA(short_axis(0), 0.0, 1e-6);
         TS_ASSERT_DELTA(short_axis(1), 1.0, 1e-6);
        
+        for (unsigned i=0; i<nodes1.size(); ++i)
+        {
+            delete nodes1[i];
+        }
+       
+       
         std::vector<Node<2>*> nodes2;                      
         // This is a rectangle, centre (0,0), width 1, length sqrt(3), rotated by 30 degrees anticlockwise                      
         nodes2.push_back(new Node<2>(0, false, 1.0 , 0.0));
@@ -203,6 +304,11 @@ public:
         TS_ASSERT_DELTA(short_axis(0), 0.5, 1e-6);
         TS_ASSERT_DELTA(short_axis(1), -sqrt(3.0)*0.5, 1e-6);
         
+        for (unsigned i=0; i<nodes2.size(); ++i)
+        {
+            delete nodes2[i];
+        }
+        
         // Test on a regular polygon (generates a random vector)
         std::vector<Node<2>*> hexagon_nodes;
         unsigned N = 6;   //vertices
@@ -216,6 +322,11 @@ public:
         short_axis = hexagon.CalculateShortAxis();
         
         TS_ASSERT_DELTA(short_axis(0)*short_axis(0)+short_axis(1)*short_axis(1), 1.0, 1e-6);
+        
+        for (unsigned i=0; i<hexagon_nodes.size(); ++i)
+        {
+            delete hexagon_nodes[i];
+        }
     }
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/

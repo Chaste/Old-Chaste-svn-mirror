@@ -131,6 +131,46 @@ public:
         this->mNodes[rIndex]->AddElement(this->mIndex);
     }
     
+    /** Deletes node from the given index
+     *  @param rIndex is an local index to which node to remove
+     */
+    void DeleteNode(const unsigned& rIndex)
+    {
+        assert(rIndex < this->mNodes.size());
+        
+        // Remove element from the node at this location
+        this->mNodes[rIndex]->RemoveElement(this->mIndex);
+        
+        // Remove the node at rIndex (removes node from element)
+        this->mNodes.erase( this->mNodes.begin( ) + rIndex );
+
+        // Update perimeter and area
+        CalculateVertexElementAreaAndPerimeter();
+  }
+    
+    /** Adds a node on the edge between nodes at rIndex and rIndex + 1
+     *  @param rIndex is an local index after which node is added
+     */
+    void DivideEdge(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+    {
+        assert(rIndex < this->mNodes.size());
+
+        // Update the pNode location
+        c_vector<double, SPACE_DIM> position;
+        for (unsigned i=0; i<SPACE_DIM; i++)
+        {
+            position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i]+this->mNodes[rIndex+1]->GetPoint()[i]);
+        }
+        ChastePoint<SPACE_DIM> point(position);
+        
+        pNode->SetPoint(point);
+        
+        // adds pNode to rIndex+1 element of mNodes pushing the others up.
+        this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
+
+        // Add element to this node
+        this->mNodes[rIndex+1]->AddElement(this->mIndex);
+    }
     
      /**
      *  Calculate the area and perimeter of the polygon
