@@ -116,16 +116,49 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp)
 {
-    HoneycombMeshGenerator generator(numAcross+1,numUp+1,0,false);
-    MutableMesh<2,2>* p_mesh = generator.GetMesh();
-    VoronoiTessellation<2> tessellation(*p_mesh);
-    
-    for (unsigned i = 0;i<tessellation.GetNumVertices();i++)
+    assert(numAcross>1);
+    for (unsigned j=0;j<=2*numUp+1;j++)
     {
-        c_vector<double,2>* position = tessellation.GetVertex(i);
-        Node<2>* p_node = new Node<2>(0, false, (*position)(0), (*position)(1));
-        mNodes.push_back(p_node);
-    }    
+        if (j%2 == 0)
+        {
+            for (unsigned i=1;i<=3*numAcross+1;i+=2)
+            {
+                if(j!=0 || i!= 3*numAcross+1)
+                {
+                    if (i%3 != 2)
+                    {
+                        Node<2>* p_node = new Node<2>(0, false, i/(2.0*sqrt(3)),j/2.0);
+                        mNodes.push_back(p_node);
+                    }
+                }
+            }
+        }
+        else 
+        {
+            for (unsigned i=0;i<=3*numAcross+1;i+=2)
+            {
+                if ((j!=2*numUp+1 || i != 0) && (j!=2*numUp+1 || i!= 3*numAcross+1))
+                {
+                    if (i%3 != 2)
+                    {
+                        Node<2>* p_node = new Node<2>(0, false, i/(2.0*sqrt(3)),j/2.0);
+                        mNodes.push_back(p_node);
+                    }
+                }
+            }
+        }
+    }  
+    
+//    HoneycombMeshGenerator generator(numAcross+1,numUp+1,0,false);
+//    MutableMesh<2,2>* p_mesh = generator.GetMesh();
+//    VoronoiTessellation<2> tessellation(*p_mesh);
+//    
+//    for (unsigned i = 0;i<tessellation.GetNumVertices();i++)
+//    {
+//        c_vector<double,2>* position = tessellation.GetVertex(i);
+//        Node<2>* p_node = new Node<2>(0, false, (*position)(0), (*position)(1));
+//        mNodes.push_back(p_node);
+//    }    
 
     // todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
     // the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.

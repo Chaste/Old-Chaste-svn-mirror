@@ -103,7 +103,7 @@ public:
       
     void TestVertexMeshGenerator() throw(Exception)
     {
-        VertexMesh<2,2> mesh(3,3);
+        VertexMesh<2,2> mesh(4,3);
     
         VertexMeshWriter2d vertex_mesh_writer("TestVertexMeshGeneration","mesh");
         vertex_mesh_writer.WriteFiles(mesh);

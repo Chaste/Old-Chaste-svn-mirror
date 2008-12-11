@@ -165,41 +165,9 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
         {
             unsigned node_global_index = mrMesh.GetElement(i)->GetNodeGlobalIndex(node_index);
             mFaces[node_global_index]->mVertices.push_back(p_circumcentre);
-//            if (node_global_index == 91)
-//            {
-//                std::cout<< "node 91 elem " << i << "\t nodes " << mrMesh.GetElement(i)->GetNodeGlobalIndex(0) << "\t" << mrMesh.GetElement(i)->GetNodeGlobalIndex(1) << "\t" << mrMesh.GetElement(i)->GetNodeGlobalIndex(2) << "\n" << std::flush;
-//            }
-//
-//            if (node_global_index == 188)
-//            {
-//                std::cout<< "\t \t \t \t \t \t node 188 elem " << i << "\t" << mrMesh.GetElement(i)->GetNodeGlobalIndex(0) << "\t" << mrMesh.GetElement(i)->GetNodeGlobalIndex(1) << "\t" << mrMesh.GetElement(i)->GetNodeGlobalIndex(2) << "\n" << std::flush;
-//            }
         }
     }
 
-//    std::cout<< "\n \n \n \n" << std::flush;
-//
-//    std::vector<unsigned> print_these;
-//    print_these.push_back(194);
-//    print_these.push_back(91);
-//    print_these.push_back(155);
-//    print_these.push_back(187);
-//    print_these.push_back(79);
-//    print_these.push_back(189);
-//    print_these.push_back(69);
-//    print_these.push_back(188);
-//    print_these.push_back(164);
-//    print_these.push_back(156);
-//    print_these.push_back(69);
-//
-//    for (unsigned i=0; i<print_these.size(); i++)
-//    {
-//        std::cout<< "node " << print_these[i] << " is at " << mrMesh.GetNode(print_these[i])->rGetLocation()[0] << " " << mrMesh.GetNode(print_these[i])->rGetLocation()[1] << "\n" << std::flush;
-//    }
-//    std::cout<< "\n \n \n \n" << std::flush;
-//    std::cout<< "node 91 is at " << mrMesh.GetNode(91)->rGetLocation()[0] << " " << mrMesh.GetNode(91)->rGetLocation()[1] << "\n" << std::flush;
-//    std::cout<< "node 69 is at " << mrMesh.GetNode(69)->rGetLocation()[0] << " " << mrMesh.GetNode(69)->rGetLocation()[1] << "\n \n" << std::flush;
-//
     // Reorder mVertices Anticlockwise
     for(unsigned i=0; i<mFaces.size(); i++)
     {
