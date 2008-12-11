@@ -81,6 +81,17 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
+
+
+        for(unsigned i=0; i<basic_nodes.size(); i++)
+        {
+            delete basic_nodes[i];
+        }
+
+        for(unsigned i=0; i<basic_vertex_elements.size(); i++)
+        {
+            delete basic_vertex_elements[i];
+        }
     }        
 };
     

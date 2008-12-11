@@ -129,6 +129,7 @@ void TestVertexElementDivideEdge()
         {
             delete corner_nodes[i];
         }
+        delete new_node;
      }
      
     void TestVertexElementAreaAndPerimeter()
@@ -252,7 +253,12 @@ void TestVertexElementDivideEdge()
        
         c_vector<double, 2> centroid = hexagon.CalculateCentroid();
         TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
-        TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6); 
+        TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6);
+        
+        for(unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
      
          void TestCalculateShortAxis() throw(Exception)

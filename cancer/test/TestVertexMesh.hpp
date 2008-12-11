@@ -89,6 +89,16 @@ public:
         std::set<unsigned> temp_list2;
         temp_list2.insert(1u);
         TS_ASSERT_EQUALS(basic_nodes[5]->rGetContainingElementIndices(), temp_list2);
+        
+        for(unsigned i=0; i<basic_nodes.size(); i++)
+        {
+            delete basic_nodes[i];
+        }
+
+        for(unsigned i=0; i<basic_vertex_elements.size(); i++)
+        {
+            delete basic_vertex_elements[i];
+        }
     }
       
     void TestVertexMeshGenerator() throw(Exception)

@@ -42,9 +42,9 @@ public:
     VertexMeshWriter2d(const std::string &rDirectory,
                         const std::string &rBaseName,
                         const bool clearOutputDir=true);
+    virtual ~VertexMeshWriter2d();
 
     void WriteFiles(VertexMesh<2,2>& rMesh);
-    virtual ~VertexMeshWriter2d(){};
 };
 
 VertexMeshWriter2d::VertexMeshWriter2d(const std::string &rDirectory,
@@ -53,6 +53,11 @@ VertexMeshWriter2d::VertexMeshWriter2d(const std::string &rDirectory,
 {
      mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
      mBaseName = rBaseName; 
+}
+
+VertexMeshWriter2d::~VertexMeshWriter2d()
+{
+    delete mpOutputFileHandler; 
 }
 
 void VertexMeshWriter2d::WriteFiles(VertexMesh<2,2>& rMesh)

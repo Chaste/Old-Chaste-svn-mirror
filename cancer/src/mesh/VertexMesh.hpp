@@ -58,6 +58,8 @@ private:
     
     void SetupVertexElementsOwnedByNodes();
     
+    bool mAllocatedMemory;
+    
 public:
     /**
      *  Constructor takes in node and VertexElements
@@ -107,6 +109,8 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     }
     
     SetupVertexElementsOwnedByNodes();
+    
+    mAllocatedMemory = false;
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -126,6 +130,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp
     // todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
     // the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
 
+    mAllocatedMemory = true;
 }
 
 
@@ -207,7 +212,10 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 {
-    //Clear();
+    if(mAllocatedMemory)
+    {
+        Clear();
+    }
 }
     
 
