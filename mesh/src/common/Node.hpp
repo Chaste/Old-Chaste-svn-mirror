@@ -37,6 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TetrahedralMesh;
 
+/**
+ * A node in a finite element mesh.
+ */
 template<unsigned SPACE_DIM>
 class Node
 {
@@ -56,92 +59,41 @@ private:
     /**
      * Extraction of commonality between the constructors
      */
-    void CommonConstructor(unsigned index, bool isBoundaryNode)
-    {
-        mIndex = index;
-        mIsBoundaryNode = isBoundaryNode;
-        mIsDeleted = false;
-        mElementIterator = ContainingElementsBegin();
-        mBoundaryElementIterator = ContainingBoundaryElementsBegin();
-        mRegion = 0;
-    }
+    void CommonConstructor(unsigned index, bool isBoundaryNode);
 
 public:
-    ~Node()
-    {
-    }
+    /**
+     * There are many ways of creating a node, depending on how you wish to specify it's
+     * spatial location.
+     */
+    Node(unsigned index, ChastePoint<SPACE_DIM> point, bool isBoundaryNode=false);
 
-    Node(unsigned index, ChastePoint<SPACE_DIM> point, bool isBoundaryNode=false)
-    {
-        mLocation = point.rGetLocation();
-        CommonConstructor(index, isBoundaryNode);
-    }
+    Node(unsigned index, std::vector<double> coords, bool isBoundaryNode=false);
 
-    Node(unsigned index, std::vector<double> coords, bool isBoundaryNode=false)
-    {
-        for (unsigned i=0; i<SPACE_DIM; i++)
-        {
-            mLocation(i) = coords.at(i);
-        }
-        CommonConstructor(index, isBoundaryNode);
-    }
+    Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false);
 
-    Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false)
-    {
-        mLocation = location;
-        CommonConstructor(index, isBoundaryNode);
-    }
-
-    Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0)
-    {
-        mLocation[0] = v1;
-        if (SPACE_DIM > 1)
-        {
-            mLocation[1] = v2;
-            if (SPACE_DIM > 2)
-            {
-                mLocation[2] = v3;
-            }
-        }
-        CommonConstructor(index, isBoundaryNode);
-    }
+    Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0);
 
     /**
-     * Note setting the point in space is dangerous
-     * Jacobian and JacobianDeterminant of element need to be updated
+     * Note: setting the point in space is dangerous.
+     * Jacobian and JacobianDeterminant of element need to be updated.
      */
-    void SetPoint(ChastePoint<SPACE_DIM> point)
-    {
-        mLocation = point.rGetLocation();
-    }
+    void SetPoint(ChastePoint<SPACE_DIM> point);
 
     /**
      * This method should only be called during mesh generation.
      */
-    void SetIndex(unsigned index)
-    {
-        mIndex = index;
-    }
+    void SetIndex(unsigned index);
 
-    void SetAsBoundaryNode(bool value=true)
-    {
-        mIsBoundaryNode = value;
-    }
+    void SetAsBoundaryNode(bool value=true);
 
-    ChastePoint<SPACE_DIM> GetPoint() const
-    {
-        return ChastePoint<SPACE_DIM>(mLocation);
-    }
+    ChastePoint<SPACE_DIM> GetPoint() const;
 
     /**
      * The returned location may not be modified; if you want that functionality use
      * rGetModifiableLocation instead.
      */
-    const c_vector<double, SPACE_DIM>& rGetLocation() const
-    {
-        assert(!mIsDeleted);
-        return mLocation;
-    }
+    const c_vector<double, SPACE_DIM>& rGetLocation() const;
 
     /**
      * If you modify the returned location,
@@ -149,113 +101,60 @@ public:
      *
      * Don't forget to assign the result of this call to a reference!
      */
-    c_vector<double, SPACE_DIM> &rGetModifiableLocation()
-    {
-        assert(!mIsDeleted);
-        return mLocation;
-    }
+    c_vector<double, SPACE_DIM> &rGetModifiableLocation();
 
-    unsigned GetIndex() const
-    {
-        return mIndex;
-    }
+    unsigned GetIndex() const;
 
-    bool IsBoundaryNode() const
-    {
-        return mIsBoundaryNode;
-    }
+    bool IsBoundaryNode() const;
 
     /**
      * Add an element that contains this node.
      *
      * @param index of the element to add.
      */
-    void AddElement(unsigned index)
-    {
-        mElementIndices.insert(index);
-        mElementIterator = mElementIndices.begin();
-    }
+    void AddElement(unsigned index);
 
     /**
      * Remove an element that contains this node.
      *
      * @param index of the element to be removed.
      */
-
-    void RemoveElement(unsigned index)
-    {
-        unsigned count = mElementIndices.erase(index);
-        if (count == 0)
-        {
-            EXCEPTION("Tried to remove an index which was not in the set");
-        }
-        mElementIterator = mElementIndices.begin();
-    }
+    void RemoveElement(unsigned index);
 
     /**
      * Remove an boundary element that contains this node.
      *
      * @param index of the boundary element to be removed.
      */
-    void RemoveBoundaryElement(unsigned index)
-    {
-        unsigned count = mBoundaryElementIndices.erase(index);
-        if (count == 0)
-        {
-            EXCEPTION("Tried to remove an index which was not in the set");
-        }
-        mBoundaryElementIterator = mBoundaryElementIndices.begin();
-    }
+    void RemoveBoundaryElement(unsigned index);
 
     /**
      * Add an boundary element that contains this node.
      *
      * @param index of the element to add.
      */
-    void AddBoundaryElement(unsigned index)
-    {
-        mBoundaryElementIndices.insert(index);
-        mBoundaryElementIterator=mBoundaryElementIndices.begin();
-    }
+    void AddBoundaryElement(unsigned index);
 
     /**
-     * Return a set of pointers to elements containing this node as a vertex.
+     * Return a set of indices of elements containing this node as a vertex.
      */
-    std::set<unsigned> &rGetContainingElementIndices()
-    {
-        return mElementIndices;
-    }
+    std::set<unsigned> &rGetContainingElementIndices();
 
     /**
-     * Return a set of pointers to boundary elements containing this node as a vertex.
+     * Return a set of indices of boundary elements containing this node as a vertex.
      */
-    std::set<unsigned> &rGetContainingBoundaryElementIndices()
-    {
-        return mBoundaryElementIndices;
-    }
+    std::set<unsigned> &rGetContainingBoundaryElementIndices();
 
-    unsigned GetNumContainingElements() const
-    {
-        return mElementIndices.size();
-    }
+    unsigned GetNumContainingElements() const;
 
-    unsigned GetNumBoundaryElements() const
-    {
-        return mBoundaryElementIndices.size();
-    }
+    unsigned GetNumBoundaryElements() const;
 
     /**
      * Mark a node as having been removed from the mesh
      */
-    void MarkAsDeleted()
-    {
-        mIsDeleted = true;
-    }
+    void MarkAsDeleted();
 
-    bool IsDeleted() const
-    {
-        return mIsDeleted;
-    }
+    bool IsDeleted() const;
 
     /**
      * Determine if a node lives within a flagged element.
@@ -277,15 +176,9 @@ public:
         return in_flagged_element;
     }
     
-    void SetRegion(unsigned region)
-    {
-        mRegion = region;
-    }
+    void SetRegion(unsigned region);
 
-    unsigned GetRegion()
-    {
-        return mRegion;
-    }
+    unsigned GetRegion() const;
 
     /**
      * An iterator over the indices of elements which contain this node.
@@ -384,12 +277,204 @@ public:
     {
         return ContainingBoundaryElementIterator(mBoundaryElementIndices.end());
     }
-
-private:
-    typename Node<SPACE_DIM>::ContainingElementIterator mElementIterator;
-    typename Node<SPACE_DIM>::ContainingBoundaryElementIterator mBoundaryElementIterator;
-
 };
 
+
+//////////////////////////////////////////////////////////////////////////
+// Constructors
+//////////////////////////////////////////////////////////////////////////
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::CommonConstructor(unsigned index, bool isBoundaryNode)
+{
+    mIndex = index;
+    mIsBoundaryNode = isBoundaryNode;
+    mIsDeleted = false;
+    mRegion = 0;
+}
+
+template<unsigned SPACE_DIM>
+Node<SPACE_DIM>::Node(unsigned index, ChastePoint<SPACE_DIM> point, bool isBoundaryNode)
+{
+    mLocation = point.rGetLocation();
+    CommonConstructor(index, isBoundaryNode);
+}
+
+template<unsigned SPACE_DIM>
+Node<SPACE_DIM>::Node(unsigned index, std::vector<double> coords, bool isBoundaryNode)
+{
+    for (unsigned i=0; i<SPACE_DIM; i++)
+    {
+        mLocation(i) = coords.at(i);
+    }
+    CommonConstructor(index, isBoundaryNode);
+}
+
+template<unsigned SPACE_DIM>
+Node<SPACE_DIM>::Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode)
+{
+    mLocation = location;
+    CommonConstructor(index, isBoundaryNode);
+}
+
+template<unsigned SPACE_DIM>
+Node<SPACE_DIM>::Node(unsigned index, bool isBoundaryNode, double v1, double v2, double v3)
+{
+    mLocation[0] = v1;
+    if (SPACE_DIM > 1)
+    {
+        mLocation[1] = v2;
+        if (SPACE_DIM > 2)
+        {
+            mLocation[2] = v3;
+        }
+    }
+    CommonConstructor(index, isBoundaryNode);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Methods dealing with node location
+//////////////////////////////////////////////////////////////////////////
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::SetPoint(ChastePoint<SPACE_DIM> point)
+{
+    mLocation = point.rGetLocation();
+}
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::SetIndex(unsigned index)
+{
+    mIndex = index;
+}
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::SetAsBoundaryNode(bool value)
+{
+    mIsBoundaryNode = value;
+}
+
+
+template<unsigned SPACE_DIM>
+ChastePoint<SPACE_DIM> Node<SPACE_DIM>::GetPoint() const
+{
+    return ChastePoint<SPACE_DIM>(mLocation);
+}
+
+template<unsigned SPACE_DIM>
+const c_vector<double, SPACE_DIM>& Node<SPACE_DIM>::rGetLocation() const
+{
+    assert(!mIsDeleted);
+    return mLocation;
+}
+
+template<unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM>& Node<SPACE_DIM>::rGetModifiableLocation()
+{
+    assert(!mIsDeleted);
+    return mLocation;
+}
+
+template<unsigned SPACE_DIM>
+unsigned Node<SPACE_DIM>::GetIndex() const
+{
+    return mIndex;
+}
+
+template<unsigned SPACE_DIM>
+bool Node<SPACE_DIM>::IsBoundaryNode() const
+{
+    return mIsBoundaryNode;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Tracking (boundary) elements which contain this node as a vertex
+//////////////////////////////////////////////////////////////////////////
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::AddElement(unsigned index)
+{
+    mElementIndices.insert(index);
+}
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::RemoveElement(unsigned index)
+{
+    unsigned count = mElementIndices.erase(index);
+    if (count == 0)
+    {
+        EXCEPTION("Tried to remove an index which was not in the set");
+    }
+}
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::RemoveBoundaryElement(unsigned index)
+{
+    unsigned count = mBoundaryElementIndices.erase(index);
+    if (count == 0)
+    {
+        EXCEPTION("Tried to remove an index which was not in the set");
+    }
+}
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::AddBoundaryElement(unsigned index)
+{
+    mBoundaryElementIndices.insert(index);
+}
+
+template<unsigned SPACE_DIM>
+std::set<unsigned>& Node<SPACE_DIM>::rGetContainingElementIndices()
+{
+    return mElementIndices;
+}
+
+template<unsigned SPACE_DIM>
+std::set<unsigned>& Node<SPACE_DIM>::rGetContainingBoundaryElementIndices()
+{
+    return mBoundaryElementIndices;
+}
+
+template<unsigned SPACE_DIM>
+unsigned Node<SPACE_DIM>::GetNumContainingElements() const
+{
+    return mElementIndices.size();
+}
+
+template<unsigned SPACE_DIM>
+unsigned Node<SPACE_DIM>::GetNumBoundaryElements() const
+{
+    return mBoundaryElementIndices.size();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Methods dealing with some node flags (deleted, region)
+//////////////////////////////////////////////////////////////////////////
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::MarkAsDeleted()
+{
+    mIsDeleted = true;
+}
+
+template<unsigned SPACE_DIM>
+bool Node<SPACE_DIM>::IsDeleted() const
+{
+    return mIsDeleted;
+}
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::SetRegion(unsigned region)
+{
+    mRegion = region;
+}
+
+template<unsigned SPACE_DIM>
+unsigned Node<SPACE_DIM>::GetRegion() const
+{
+    return mRegion;
+}
 
 #endif //_NODE_HPP_
