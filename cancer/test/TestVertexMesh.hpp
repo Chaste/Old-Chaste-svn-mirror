@@ -103,15 +103,39 @@ public:
       
     void TestVertexMeshGenerator() throw(Exception)
     {
-        VertexMesh<2,2> mesh(4,3);
+        VertexMesh<2,2> mesh(5,3); // Columns then rows
     
-        VertexMeshWriter2d vertex_mesh_writer("TestVertexMeshGeneration","mesh");
-        vertex_mesh_writer.WriteFiles(mesh);
-    
-        /// todo: write test
-    
+        //VertexMeshWriter2d vertex_mesh_writer("TestVertexMeshGeneration","mesh");
+        //vertex_mesh_writer.WriteFiles(mesh);
+            
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 15u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46u);
+        
+        // Test some random nodes are in the correct place
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[0],4.3301,1e-3);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[1],0.0,1e-3);
+               
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[0],1.732,1e-3);
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[1],3.5,1e-3);
+        
+        // Test random element has correct nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(6)->GetNode(0)->GetIndex(),19u);
+        TS_ASSERT_EQUALS(mesh.GetElement(6)->GetNode(3)->GetIndex(),32u);
+        
+        // Check that the nodes know which elements they are in
+        std::set<unsigned> temp_list1;
+        temp_list1.insert(0u);
+        
+        // Nodes 0 & 1 only in element 0
+        TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetContainingElementIndices(), temp_list1);
+        
+        // Node 13 in elements 0 and 1 and 5
+        temp_list1.insert(1u);
+        temp_list1.insert(5u);
+        
+        TS_ASSERT_EQUALS(mesh.GetNode(13)->rGetContainingElementIndices(), temp_list1);
     }
-
 };    
 
 #endif /*TESTVERTEXMESH_HPP_*/

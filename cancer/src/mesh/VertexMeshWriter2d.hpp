@@ -84,8 +84,9 @@ void VertexMeshWriter2d::WriteFiles(VertexMesh<2,2>& rMesh)
     unsigned default_marker=0;
     for (unsigned node_num=0; node_num<num_nodes; node_num++)
     {
+        unsigned global_node_index = rMesh.GetNode(node_num)->GetIndex();
         c_vector<double,2> position = rMesh.GetNode(node_num)->rGetLocation();  //this->mNodeData[item_num];
-        *p_node_file<< node_num;
+        *p_node_file<< global_node_index;
         for (unsigned i=0;i<SPACE_DIM;i++)
         {
             *p_node_file<<"\t"<<position(i);
