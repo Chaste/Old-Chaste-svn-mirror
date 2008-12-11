@@ -105,7 +105,7 @@ public :
      */
     void SetApoptoticSprings(bool useApoptoticSprings);    
         
-    double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength);
+    double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue, bool isCloserThanRestLength);
 
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                  AbstractTissue<DIM>& rTissue);
@@ -165,7 +165,7 @@ void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetApoptoticSpring
 
 template<unsigned DIM>
 double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
-                                                           AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength)
+                                                           AbstractTissue<DIM>& rTissue, bool isCloserThanRestLenth)
 {
     double multiplication_factor = 1.0;
     
@@ -248,7 +248,7 @@ double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringCo
 
             if (r_cell_A.GetCellType()==APOPTOTIC)
             {
-                if (distanceBetweenNodes - restLength > 0) // if under tension
+                if (!isCloserThanRestLenth) // if under tension
                 {
                     spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
                 }
@@ -259,7 +259,7 @@ double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringCo
             }
             if (r_cell_B.GetCellType()==APOPTOTIC)
             {
-                if (distanceBetweenNodes - restLength > 0) // if under tension
+                if (!isCloserThanRestLenth) // if under tension
                 {
                     spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
                 }

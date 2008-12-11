@@ -35,19 +35,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptSimulation2d.hpp"
 #include "OutputFileHandler.hpp"
+#include "StochasticWntCellCycleModel.hpp"
+#include "SloughingCellKiller.hpp"
+
+// Need to include all (or at least some) of these files!
+
+#include "MeinekeInteractionForce.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "SloughingCellKiller.hpp"
 
 
-class TestRepresentativeSimulation : public CxxTest::TestSuite
+class Test2DCryptRepresentativeSimulation : public CxxTest::TestSuite
 {
 public:
-void TestRepresentativeSimulationForProfiling() throw (Exception)
+    void TestRepresentativeSimulationForProfiling() throw (Exception)
     {
         SimulationTime::Instance()->SetStartTime(0.0);
 
@@ -58,7 +62,7 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
 
         // create a new clean directory...
         OutputFileHandler file_handler(test_to_profile,true);
-
+        
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -66,12 +70,12 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         std::string command = "cp -Rf --remove-destination " + test_data_directory +"* "+ test_output_directory +"/" + test_to_profile + "/";
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
-
+        
         CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_profile,t);
         p_simulator->SetEndTime(t+run_for); // start time + duration
-        p_simulator->Solve();
+        p_simulator->Solve();   
+        
         delete p_simulator;
-
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

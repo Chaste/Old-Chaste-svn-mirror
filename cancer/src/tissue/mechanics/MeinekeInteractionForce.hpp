@@ -59,8 +59,7 @@ public :
     ~MeinekeInteractionForce();
 
     virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
-                                                              AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength);
-    
+                                                              AbstractTissue<DIM>& rTissue, bool isCloserThanRestLenth);
     /**
      * Calculates the force between two nodes.
      *
@@ -89,8 +88,7 @@ template<unsigned DIM>
 double MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
                                                                                 unsigned nodeBGlobalIndex, 
                                                                                 AbstractTissue<DIM>& rTissue, 
-                                                                                double distanceBetweenNodes, 
-                                                                                double restLength)
+                                                                                bool isCloserThanRestLenth)
 {
     return 1.0;
 }
@@ -202,11 +200,19 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
     assert(rest_length<=1.0+1e-12);
 
+    bool is_closer_than_rest_length = true;
+    
+    if (distance_between_nodes - rest_length >0)
+    {
+        is_closer_than_rest_length = false;
+    }
+           
     // Although in this class the 'spring constant' is a constant parameter, in 
     // subclasses it can depend on properties of each of the cells
     double multiplication_factor = 1.0;
-    multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, distance_between_nodes, rest_length);
+    multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
     
+       
     if (rTissue.HasMesh())
     {
         return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
