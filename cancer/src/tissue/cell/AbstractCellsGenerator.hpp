@@ -181,9 +181,9 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
          * \todo
          * Not all cell cycle models use the generation, only some of them are generation based.
          * The following line does not do any harm, but does give redundant information to some of the models.
-         * We could create an AbstractGenerationBasedCellCycleModel, but not a priority at the moment.
+         * We could create an AbstractGenerationBasedCellCycleModel, but not a priority at the moment (see #839).
          */
-        p_cell_cycle_model->SetGeneration(generation); 
+        p_cell_cycle_model->SetGeneration(generation);
         
         TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
         if (initialiseCells)

@@ -127,7 +127,6 @@ public :
      */
     double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double,2>& rNodeLocation);
 
-    /// \todo eventually this should be a force contribution (see #627)
     void AddForceContribution(std::vector<c_vector<double,2> >& rForces,
                                  AbstractTissue<2>& rTissue);
  

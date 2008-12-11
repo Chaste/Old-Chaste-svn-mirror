@@ -74,7 +74,6 @@ public :
     c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
                                                      AbstractTissue<DIM>& rTissue);  
 
-    /// \todo eventually this should be a force contribution (see #627)
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);
  

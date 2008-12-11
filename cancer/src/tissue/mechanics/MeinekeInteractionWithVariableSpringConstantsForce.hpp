@@ -107,7 +107,6 @@ public :
         
     double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength);
 
-    /// \todo eventually this should be a force contribution (see #627)
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                  AbstractTissue<DIM>& rTissue);
  

@@ -68,9 +68,8 @@ CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
 #define COVERAGE_IGNORE
 std::vector<double> AbstractCellCycleModel::GetProteinConcentrations() const
 {
-    // this method will be overriden on those models which use protein concentrations
-    // (ie ODE-based models)
-    EXCEPTION("Called GetProteinConcentrations() on model which does not implement it");
+    // This method is overriden in suclasses of AbstractOdeBasedCellCycleModels
+    EXCEPTION("Called GetProteinConcentrations() on a non-ODE based cell cycle model");
     std::vector<double> return_vec;
     return return_vec;
 }

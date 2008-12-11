@@ -364,9 +364,7 @@ public:
 
         // It seems quite difficult to test this on a periodic mesh,
         // so just check the areas of all the cells are correct.
-        
-        /// \todo this doesn't test any method on MeinekeInteractionForce, 
-        // so perhaps should moved to TestMeshBasedTissue?
+
         tissue.CreateVoronoiTessellation();
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {

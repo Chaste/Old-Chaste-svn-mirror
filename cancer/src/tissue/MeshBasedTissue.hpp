@@ -179,11 +179,12 @@ public:
      * any element information is used.
      *
      * Note also that after calling this method the tissue will be in an inconsistent state until a
-     * ReMesh is performed!  So don't try iterating over cells or anything like that.
+     * ReMesh is performed! So don't try iterating over cells or anything like that.
+     * 
      * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
-     *  between nodes and cells see #430, most of the work will actually be in AbstractTissue.
+     * between nodes and cells (see #430) - most of the work will actually be in AbstractTissue.
      *
-     *  @return number of cells removed
+     * @return number of cells removed
      */
     unsigned RemoveDeadCells();
 
@@ -408,6 +409,8 @@ double MeshBasedTissue<DIM>::GetDampingConstant(TissueCell& rCell)
         //
         //  where d0, d1 are parameters, A is the cell's area, and old_damping_const
         //  is the damping constant if not using mUseAreaBasedViscosity
+        /// \todo the parameters d0, d1 should not really be hard-coded (see #836)
+        
         #define COVERAGE_IGNORE
         assert(DIM==2);
         #undef COVERAGE_IGNORE
@@ -427,7 +430,7 @@ double MeshBasedTissue<DIM>::GetDampingConstant(TissueCell& rCell)
         // The cell area should not be too large - the next assertion is to avoid
         // getting an infinite cell area, which may occur if area-based viscosity 
         // is chosen in the absence of ghost nodes.
-        /// \todo this is a rather unsatisfactory hack!
+        /// \todo this magic number should be removed (see #836)
         assert(area_cell < 1000);
 
         damping_multiplier = d0 + area_cell*d1;

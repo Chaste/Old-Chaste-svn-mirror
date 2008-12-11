@@ -167,7 +167,7 @@ public:
          */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
 
-        /*/// \todo This needs updated comments. 
+        /*/// \todo This needs updated comments (see #842). 
          * There are a several different cell-cell force laws possible, which can be
          * passed into the simulator. Here, we
          * create a {{{Meineke2001SpringSystem}}}, which uses a triangulation

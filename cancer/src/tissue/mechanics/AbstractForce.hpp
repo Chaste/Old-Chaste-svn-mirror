@@ -51,7 +51,6 @@ public :
 
     virtual ~AbstractForce();
 
-    /// \todo eventually this should be a force contribution (see #627)
     virtual void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                          AbstractTissue<DIM>& rTissue)=0;
 

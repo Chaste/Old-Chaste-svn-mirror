@@ -191,7 +191,7 @@ public:
             current_node = this->GetNodeLocation(i);
             anticlockwise_node = this->GetNodeLocation((i+1)%number_of_nodes);
             
-            /// \todo will need to change length calculation to something like GetVectorFromAtoB
+            /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
             
             temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1]
                 -anticlockwise_node[0]*current_node[1]);
@@ -290,7 +290,7 @@ public:
             current_node = this->GetNodeLocation(i);
             anticlockwise_node = this->GetNodeLocation((i+1)%number_of_nodes);
             
-            /// \todo will need to change length calculation to something like GetVectorFromAtoB
+            /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
             
             temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
             temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               

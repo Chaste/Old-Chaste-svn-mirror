@@ -214,7 +214,7 @@ void TestVertexElementDivideEdge()
 //        }
 //     }
 
-    /// \todo this should be for a non regular polygon so Ixy ~= 0
+    /// \todo this should be for a non regular polygon so Ixy ~= 0 (see #825)
     void TestCalculateMoment() throw(Exception)
     {
         std::vector<Node<2>*> nodes;

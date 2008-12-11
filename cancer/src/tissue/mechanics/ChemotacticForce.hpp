@@ -82,14 +82,13 @@ public:
     /**
      * Calculates the forces on each node
      *
-     * @return the velocity components on each node. Of size NUM_NODES x DIM.
+     * @return the force components on each node. Of size NUM_NODES x DIM.
      * The velocities are those that would be returned by the Meineke2001SpringSystem,
      * with a velocity due to the force by chemotaxis added on.
      *
      * Fc = chi(C,|gradC|) gradC/|gradC|  (if |gradC|>0, else Fc = 0)
      *
      */
-    /// \todo eventually this should be a force contribution (see #627)
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                  AbstractTissue<DIM>& rTissue);
 

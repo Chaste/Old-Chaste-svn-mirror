@@ -187,12 +187,9 @@ public:
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
 
-        /// \todo Note that this test is extrememly fragile.
-        //The output data was
-        //produced with IntelProduction.
-        // Version 10.0.025
-        //   Intel10, Intel9 and Gcc builds may currently produce
-        //similar (but quantitatively different results.
+        // Note that this test is extrememly fragile.
+        // The output data was produced with IntelProduction Version 10.0.025.
+        // Intel10, Intel9 and Gcc builds may currently produce similar but quantitatively different results.
 
         int num_cells_depth = 11;
         int num_cells_width = 6;

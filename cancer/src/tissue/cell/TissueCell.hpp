@@ -125,7 +125,9 @@ public:
     /**
      * Copy all the attributes of one cell to another
      *
-     * \todo Since cell cycle models don't have an operator=, only copies data members of AbstractCellCycleModel when the model is copied.
+     * \todo
+     * Since cell cycle models don't have an operator=, this operator only copies
+     * data members of AbstractCellCycleModel when the model is copied (see #840)
      */
     TissueCell& operator=(const TissueCell &other_cell);
 
@@ -136,7 +138,7 @@ public:
     void SetBirthTime(double birthTime);
 
     /**
-     * Change the cell cycle model used.  This takes effect immediately.
+     * Change the cell cycle model used. This takes effect immediately.
      */
     void SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel);
     

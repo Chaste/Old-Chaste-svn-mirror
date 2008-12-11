@@ -97,9 +97,7 @@ public:
         {
              node_forces.push_back(zero_vector<double>(2));
         }
-        
-        // Add velocity contribution from MeinekeInteractionForce 
-        /// \todo eventually this should be a force contribution (see #627)
+
         meineke_force.AddForceContribution(node_forces, tissue);
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
@@ -393,8 +391,8 @@ public:
         crypt.CreateVoronoiTessellation();  // this method is normally called in a simulation loop
 
         /// \todo this is currently a rather poor test - it just checks that
-        /// there is SOME dependency of the spring constant on the betat catenin level
-        /// experienced by both cells
+        /// there is SOME dependency of the spring constant on the beta catenin level
+        /// experienced by both cells (see #627)
         
         TS_ASSERT_DELTA( norm_2(meineke_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/18.14, 1e-5);
         
@@ -499,9 +497,7 @@ public:
         {
              node_forces.push_back(zero_vector<double>(3));
         }
-        
-        // Add velocity contribution from MeinekeInteractionForce 
-        /// \todo eventually this should be a force contribution (see #627)
+
         meineke_force.AddForceContribution(node_forces, tissue);
 
         for (unsigned j=0; j<4; j++)
@@ -572,8 +568,6 @@ public:
              node_forces2.push_back(zero_vector<double>(3));
         }
         
-        // Add velocity contribution from MeinekeInteractionForce 
-        /// \todo eventually this should be a force contribution (see #627)
         meineke_force2.AddForceContribution(node_forces2, tissue2);
 
         for (unsigned i=0; i<3; i++)
@@ -766,7 +760,7 @@ public:
             // Restore from the archive
             input_arch >> p_chemotactic_force;
 
-            /// \todo Test the member data
+            /// \todo Test the member data (see #627)
             delete p_chemotactic_force;
         }
     }
