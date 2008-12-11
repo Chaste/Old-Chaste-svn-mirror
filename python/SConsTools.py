@@ -41,7 +41,9 @@ except NameError:
 def IsTemplateCpp(filepath): 
     """Check if the .cpp file defines a templated class. 
      
-    We assume this is the case if one of the first 2 lines starts '#ifndef '. 
+    We assume this is the case if one of the first 2 lines starts '#ifndef '.
+    
+    TODO: Has this been silently broken by the copyright blocks?
     """ 
     fp = open(filepath) 
     line = fp.next() 
