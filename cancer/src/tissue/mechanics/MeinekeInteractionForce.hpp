@@ -58,8 +58,11 @@ public :
     
     ~MeinekeInteractionForce();
 
-    virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
-                                                              AbstractTissue<DIM>& rTissue, bool isCloserThanRestLenth);
+    virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
+                                                              unsigned nodeBGlobalIndex,
+                                                              AbstractTissue<DIM>& rTissue, 
+                                                              bool isCloserThanRestLength);
+    
     /**
      * Calculates the force between two nodes.
      *
@@ -212,7 +215,6 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
     double multiplication_factor = 1.0;
     multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
     
-       
     if (rTissue.HasMesh())
     {
         return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
@@ -248,7 +250,7 @@ void MeinekeInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<dou
 {
     if (rTissue.HasMesh())
     {
-        // Iterate over all springs and add velocity contributions
+        // Iterate over all springs and add force contributions
         for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
             spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
             ++spring_iterator)

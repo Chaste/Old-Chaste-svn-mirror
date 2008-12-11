@@ -226,14 +226,14 @@ void MeshBasedTissueWithGhostNodes<DIM>::SetGhostNodes(const std::set<unsigned>&
 template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
 {
-    // Initialise vector of ghost node velocities
+    // Initialise vector of forces on ghost nodes
     std::vector<c_vector<double, DIM> > drdt(this->GetNumNodes());
     for (unsigned i=0; i<drdt.size(); i++)
     {
         drdt[i] = zero_vector<double>(DIM);
     }
 
-    // Calculate ghost node velocities
+    // Calculate forces on ghost nodes
     for (typename MutableMesh<DIM, DIM>::EdgeIterator edge_iterator=this->mrMesh.EdgesBegin();
         edge_iterator!=this->mrMesh.EdgesEnd();
         ++edge_iterator)

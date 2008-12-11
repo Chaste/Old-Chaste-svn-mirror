@@ -201,7 +201,7 @@ void CryptSimulation1d::Solve()
             }
         }
 
-        // Calculate node velocities
+        // Calculate forces on nodes
         std::vector<double> drdt(mrMesh.GetNumAllNodes());
         if (mIncludeVariableRestLength && !mCells.empty())
         {

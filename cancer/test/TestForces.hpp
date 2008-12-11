@@ -523,7 +523,7 @@ public:
         }
         
         // Recalculate node forces (we can just re-use node_forces,
-        // as previously each node had zero velocity)
+        // as previously each node had zero net force on it)
         meineke_force.AddForceContribution(node_forces, tissue);
 
         for (unsigned j=0; j<4; j++)
@@ -896,7 +896,7 @@ public:
 
         tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(4), tissue.rGetCellUsingLocationIndex(5));
 
-        // Test velocity calculation for a particular node
+        // Test force calculation for a particular node
         
         // Initialise a vector of node forces
         std::vector<c_vector<double, 2> > node_forces;
@@ -999,7 +999,7 @@ public:
         // Calculate node forces
         crypt_projection_force.AddForceContribution(old_node_forces, tissue);
         
-        // Store the velocity of a particular node without Wnt-chemotaxis
+        // Store the force of a particular node without Wnt-chemotaxis
         c_vector<double,2> old_force = old_node_forces[11];      
 
         // Now turn on Wnt-chemotaxis
@@ -1017,7 +1017,7 @@ public:
         // Calculate node forces
         crypt_projection_force.AddForceContribution(new_node_forces, tissue);
 
-        // Store the velocity of the same node, but now with Wnt-chemotaxis
+        // Store the force of the same node, but now with Wnt-chemotaxis
         c_vector<double,2> new_force = new_node_forces[11];
 
         double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
@@ -1134,7 +1134,7 @@ public:
         forces.push_back(&meineke_force);
         forces.push_back(&crypt_projection_force);
         
-        // Test node velocity calculation
+        // Test node force calculation
 
         // Initialise a vector of node forces
         std::vector<c_vector<double, 2> > node_forces;
@@ -1145,7 +1145,7 @@ public:
              node_forces.push_back(zero_vector<double>(2));
         }
         
-        // Add velocity contributions
+        // Add force contributions
         for (std::vector<AbstractForce<2>* >::iterator iter = forces.begin();
              iter != forces.end();
              iter++)
@@ -1182,7 +1182,7 @@ public:
              new_node_forces.push_back(zero_vector<double>(2));
         }
 
-        // Add velocity contributions
+        // Add force contributions
         for (std::vector<AbstractForce<2>* >::iterator iter = forces.begin();
              iter != forces.end();
              iter++)

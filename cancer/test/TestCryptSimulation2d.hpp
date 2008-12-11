@@ -132,20 +132,20 @@ public:
         CryptSimulation2d simulator(tissue, force_collection);
 
         std::vector<c_vector<double, 2> > old_posns(p_mesh->GetNumNodes());
-        std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh->GetNumNodes());
+        std::vector<c_vector<double, 2> > forces(p_mesh->GetNumNodes());
 
-        // Make some velocities up..
+        // Make up some forces
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
             old_posns[i][0] = p_mesh->GetNode(i)->rGetLocation()[0];
             old_posns[i][1] = p_mesh->GetNode(i)->rGetLocation()[1];
 
-            velocities_on_each_node[i][0] = i*0.01;
-            velocities_on_each_node[i][1] = 2*i*0.01;
+            forces[i][0] = i*0.01;
+            forces[i][1] = 2*i*0.01;
        }
 
         simulator.SetDt(0.01);
-        simulator.UpdateNodePositions(velocities_on_each_node);
+        simulator.UpdateNodePositions(forces);
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -156,7 +156,7 @@ public:
             {
                 if (old_posns[i][1]==0) // stem
                 {
-                    // No wnt so shouldn't have been moved
+                    // No Wnt so shouldn't have been moved
                     TS_ASSERT_DELTA(p_node->rGetLocation()[0], old_posns[i][0], 1e-9);
                     TS_ASSERT_DELTA(p_node->rGetLocation()[1], old_posns[i][1], 1e-9);
                 }
@@ -415,7 +415,7 @@ public:
         cells_generator.GenerateForCrypt(cells, *p_mesh, false);
         
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
-        crypt.SetAreaBasedViscosity(true);
+        crypt.SetAreaBasedDampingConstant(true);
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);

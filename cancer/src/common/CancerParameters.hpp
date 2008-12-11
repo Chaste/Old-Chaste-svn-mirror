@@ -74,6 +74,7 @@ public:
     double GetApoptoticSpringCompressionStiffness();
     double GetWntChemotaxisStrength();
     double GetSymmetricDivisionProbability();
+    double GetAreaBasedDampingConstantParameter();
 
     /**
      * Set methods
@@ -108,6 +109,7 @@ public:
     void SetApoptoticSpringCompressionStiffness(double);
     void SetWntChemotaxisStrength(double);
     void SetSymmetricDivisionProbability(double);
+    void SetAreaBasedDampingConstantParameter(double);
 
     /**
      *  Reset all parameters to their defaults
@@ -115,6 +117,7 @@ public:
     void Reset();
 
 protected:
+
     CancerParameters();
     CancerParameters(const CancerParameters&);
     CancerParameters& operator= (const CancerParameters&);
@@ -287,6 +290,11 @@ private:
      * Probability of symmetric division.
      */
     double mSymmetricDivisionProbability;
+    
+    /**
+     * Non-dimensional parameter d0 for use in area-based damping constant calculations.
+     */
+    double mAreaBasedDampingConstantParameter;
 
     friend class boost::serialization::access;
     /**
@@ -324,6 +332,7 @@ private:
         archive & mApoptoticSpringCompressionStiffness;
         archive & mWntChemotaxisStrength;
         archive & mSymmetricDivisionProbability;
+        archive & mAreaBasedDampingConstantParameter;
     }
 };
 

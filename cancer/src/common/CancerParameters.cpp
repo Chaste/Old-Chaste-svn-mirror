@@ -76,6 +76,7 @@ CancerParameters::CancerParameters()
  * mApoptoticSpringCompressionStiffness has the same units as mSpringStiffness
  * mWntChemotaxisStrength has no units
  * mSymmetricDivisionProbability has no units
+ * mAreaBasedDampingConstantParameter has no units
  */
 void CancerParameters::Reset()
 {
@@ -112,9 +113,8 @@ void CancerParameters::Reset()
 
     mWntChemotaxisStrength = 100.0;
     mSymmetricDivisionProbability = 0.0;
-
-    // Calculated parameters
-    // This was used in non-dimensional case
+    
+    mAreaBasedDampingConstantParameter = 0.1;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -240,6 +240,10 @@ double CancerParameters::GetWntChemotaxisStrength()
 double CancerParameters::GetSymmetricDivisionProbability()
 {
     return mSymmetricDivisionProbability;
+}
+double CancerParameters::GetAreaBasedDampingConstantParameter()
+{
+    return mAreaBasedDampingConstantParameter;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -402,4 +406,9 @@ void CancerParameters::SetSymmetricDivisionProbability(double symmetricDivisionP
     assert(symmetricDivisionProbability<=1.0);
     assert(symmetricDivisionProbability>=0.0);
     mSymmetricDivisionProbability = symmetricDivisionProbability;
+}
+void CancerParameters::SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter)
+{
+    assert(areaBasedDampingConstantParameter>=0.0);
+    mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
 }

@@ -167,7 +167,10 @@ template<unsigned DIM>
 double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
                                                            AbstractTissue<DIM>& rTissue, bool isCloserThanRestLenth)
 {
-    double multiplication_factor = 1.0;
+    double multiplication_factor = MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
+                                                                                                            nodeBGlobalIndex,
+                                                                                                            rTissue,
+                                                                                                            isCloserThanRestLenth);
     
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);

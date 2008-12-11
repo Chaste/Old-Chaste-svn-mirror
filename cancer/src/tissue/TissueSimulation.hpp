@@ -321,6 +321,12 @@ public:
     const AbstractTissue<DIM>& rGetTissue() const;
         
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
+    
+    /**
+     * Apply any tissue boundary conditions. Can be overridden in subclasses.
+     */
+    virtual void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<DIM>& rPoint)
+    {}
 
     // Serialization methods
     virtual void Save();
@@ -534,6 +540,10 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         double damping_const = mrTissue.GetDampingConstant(cell);
         
         ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*nodeForces[index]/damping_const);
+        
+        ApplyTissueBoundaryConditions(cell, new_point);
+        
+        // Move the cell
         mrTissue.MoveCell(cell_iter, new_point);
     }
 }
@@ -848,7 +858,7 @@ void TissueSimulation<DIM>::Solve()
         if (mrTissue.HasMesh())
         {
             if ( (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteVoronoiData()
-                 || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UseAreaBasedViscosity()
+                 || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UseAreaBasedDampingConstant()
                  || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteTissueAreas() )
             {
                 (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->CreateVoronoiTessellation();
@@ -1197,7 +1207,6 @@ c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
     }
     return mrTissue.GetCellCyclePhaseCount();
 }
-
 
 namespace boost
 {

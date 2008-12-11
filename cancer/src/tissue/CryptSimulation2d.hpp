@@ -76,13 +76,6 @@ private :
      */
     c_vector<double, 2> CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell);
 
-    /**
-     * Moves each node to a new position for this timestep
-     *
-     * @param rDrDt the x and y force components on each node.
-     */
-    void UpdateNodePositions(const std::vector< c_vector<double, 2> >& nodeForces);
-
     void WriteVisualizerSetupFile();
 
     void SetupWriteBetaCatenin();
@@ -135,6 +128,8 @@ public :
      * Note that this method has to be implemented in this class, since it's a static method.
      */
     static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
+    
+    void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint);
 
 };
 
@@ -190,60 +185,6 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Abst
     ChastePoint<2> parent_coords_point(parent_coords);
     mrTissue.MoveCell(parentCell, parent_coords_point);
     return daughter_coords;
-}
-
-
-void CryptSimulation2d::UpdateNodePositions(const std::vector< c_vector<double, 2> >& nodeForces)
-{
-    if (mrTissue.HasGhostNodes())
-    {
-        // Update ghost positions first because they do not affect the real cells
-        (static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue))->UpdateGhostPositions(mDt);
-    }
-    
-    // Iterate over all cells to update their positions
-    for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
-         cell_iter != mrTissue.End();
-         ++cell_iter)
-    {
-        TissueCell& cell = *cell_iter;
-        unsigned index = cell.GetLocationIndex();
-        double damping_const = mrTissue.GetDampingConstant(cell);
-        
-        ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*nodeForces[index]/damping_const);
-
-        bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
-        if (!is_wnt_included) WntConcentration::Destroy();
-
-        // Stem cells are fixed if no Wnt, so reset the x-value to the old x-value
-        if ((cell.GetCellType()==STEM) && (!is_wnt_included))
-        {
-            new_point.rGetLocation()[0] = mrTissue.GetNode(index)->rGetLocation()[0];
-            new_point.rGetLocation()[1] = mrTissue.GetNode(index)->rGetLocation()[1];
-        }
-
-        // For all cells - move up if below the bottom surface
-        if (new_point.rGetLocation()[1] < 0.0)
-        {
-            new_point.rGetLocation()[1] = 0.0;
-            if (mUseJiggledBottomCells)
-            {
-               /*
-                * Here we give the cell a push upwards so that it doesn't
-                * get stuck on y=0 for ever (ticket:422).
-                *
-                * Note that all stem cells may get moved to same height and
-                * random numbers try to ensure we aren't left with the same
-                * problem at a different height!
-                */
-                new_point.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
-            }
-        }
-
-        // Move the cell
-        assert(new_point[1]>=0.0);
-        mrTissue.MoveCell(cell_iter, new_point);
-    }
 }
 
 
@@ -349,6 +290,45 @@ void CryptSimulation2d::UseJiggledBottomCells()
     mUseJiggledBottomCells = true;
 }
 
+void CryptSimulation2d::ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint)
+{
+    bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
+
+    if (!is_wnt_included) 
+    {
+        WntConcentration::Destroy();
+        
+        /**
+         * If WntConcentration is not set up then stem cells must be pinned,
+         * so we reset the x-coordinate of each stem cell.
+         */
+        if (rCell.GetCellType()==STEM)
+        {
+            unsigned index = rCell.GetLocationIndex();
+            rPoint.rGetLocation()[0] = mrTissue.GetNode(index)->rGetLocation()[0];
+            rPoint.rGetLocation()[1] = mrTissue.GetNode(index)->rGetLocation()[1];
+        }
+    }
+    
+    // Any cell that has moved below the bottom of the crypt must be moved back up
+    if (rPoint.rGetLocation()[1] < 0.0)
+    {
+        rPoint.rGetLocation()[1] = 0.0;
+        if (mUseJiggledBottomCells)
+        {
+           /*
+            * Here we give the cell a push upwards so that it doesn't
+            * get stuck on the bottom of the crypt (as per #422).
+            *
+            * Note that all stem cells may get moved to the same height, so
+            * we use a random perturbation to help ensure we are not simply 
+            * faced with the same problem at a different height!
+            */
+            rPoint.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
+        }
+    }
+    assert(rPoint[1]>=0.0);    
+}
 
 void CryptSimulation2d::Save()
 {

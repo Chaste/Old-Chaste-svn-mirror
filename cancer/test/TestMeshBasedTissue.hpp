@@ -140,7 +140,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
     }
     
-    void TestAreaBasedViscosity()
+    void TestAreaBasedDampingConstant()
     {
         // Create a simple mesh
         unsigned num_cells_depth = 5;
@@ -159,7 +159,7 @@ public:
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
-        TS_ASSERT_EQUALS(tissue.UseAreaBasedViscosity(), false);
+        TS_ASSERT_EQUALS(tissue.UseAreaBasedDampingConstant(), false);
         
         double damping_const = tissue.GetDampingConstant(cells[8]);
         
@@ -169,9 +169,9 @@ public:
         
         TS_ASSERT_DELTA(mutant_damping_const, CancerParameters::Instance()->GetDampingConstantMutant(), 1e-6);
 
-        tissue.SetAreaBasedViscosity(true);
+        tissue.SetAreaBasedDampingConstant(true);
 
-        TS_ASSERT_EQUALS(tissue.UseAreaBasedViscosity(), true);
+        TS_ASSERT_EQUALS(tissue.UseAreaBasedDampingConstant(), true);
         
         // Note that this method is usually called by TissueSimulation::Solve()
         tissue.CreateVoronoiTessellation();
@@ -865,7 +865,7 @@ public:
             p_tissue->MarkSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1));
 
             // Set area-based viscosity
-            p_tissue->SetAreaBasedViscosity(true);
+            p_tissue->SetAreaBasedDampingConstant(true);
             
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
@@ -921,7 +921,7 @@ public:
             TS_ASSERT_EQUALS(p_tissue->rGetCells().size(),5u);
 
             // Check area-based viscosity is still true
-            TS_ASSERT_EQUALS(p_tissue->UseAreaBasedViscosity(), true);
+            TS_ASSERT_EQUALS(p_tissue->UseAreaBasedDampingConstant(), true);
 
             // This won't pass because of the mesh not being archived
             // TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(),5u);

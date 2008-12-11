@@ -73,6 +73,7 @@ private:
         TS_ASSERT_DELTA(inst->GetApoptoticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetAreaBasedDampingConstantParameter(), 0.1, 1e-12);
     }
 
 public:
@@ -110,6 +111,7 @@ public:
         inst->SetCryptProjectionParameterB(1.3);
         inst->SetWntChemotaxisStrength(1.9);
         inst->SetSymmetricDivisionProbability(0.1);
+        inst->SetAreaBasedDampingConstantParameter(75.4);
         inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -146,6 +148,7 @@ public:
         inst1->SetApoptoticSpringCompressionStiffness(1.2);
         inst1->SetWntChemotaxisStrength(1.9);
         inst1->SetSymmetricDivisionProbability(0.1);
+        inst1->SetAreaBasedDampingConstantParameter(75.4);
 
         CancerParameters *inst2 = CancerParameters::Instance();
 
@@ -176,6 +179,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetApoptoticSpringCompressionStiffness(), 1.2, 1e-12);
         TS_ASSERT_DELTA(inst2->GetWntChemotaxisStrength(), 1.9, 1e-12);
         TS_ASSERT_DELTA(inst2->GetSymmetricDivisionProbability(), 0.1, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetAreaBasedDampingConstantParameter(), 75.4, 1e-12);
     }
 
     void TestArchiveCancerParameters()
@@ -214,13 +218,13 @@ public:
             inst1->SetApoptoticSpringCompressionStiffness(1.2);
             inst1->SetWntChemotaxisStrength(1.9);
             inst1->SetSymmetricDivisionProbability(0.1);
+            inst1->SetAreaBasedDampingConstantParameter(75.4);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             // Save messed up parameters
             output_arch << static_cast<const CancerParameters&>(*inst1);
-
         }
 
         {
@@ -253,6 +257,8 @@ public:
             inst1->SetApoptoticSpringCompressionStiffness(0.0);
             inst1->SetWntChemotaxisStrength(100.0);
             inst1->SetWntChemotaxisStrength(0.0);
+            inst1->SetSymmetricDivisionProbability(0.0);
+            inst1->SetAreaBasedDampingConstantParameter(0.1);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -289,6 +295,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetApoptoticSpringCompressionStiffness(), 1.2, 1e-12);
             TS_ASSERT_DELTA(inst1->GetWntChemotaxisStrength(), 1.9, 1e-12);
             TS_ASSERT_DELTA(inst1->GetSymmetricDivisionProbability(), 0.1, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetAreaBasedDampingConstantParameter(), 75.4, 1e-12);
         }
     }
 

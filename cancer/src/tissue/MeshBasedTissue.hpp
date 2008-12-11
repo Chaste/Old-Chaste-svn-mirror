@@ -90,7 +90,7 @@ protected:
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
     
     /** Whether to use a viscosity that is linear in the cell area, rather than constant */
-    bool mUseAreaBasedViscosity;
+    bool mUseAreaBasedDampingConstant;
 
     friend class boost::serialization::access;
     /**
@@ -115,7 +115,7 @@ protected:
         archive & mWriteVoronoiData;
         archive & mFollowLoggedCell;
         archive & mWriteTissueAreas;
-        archive & mUseAreaBasedViscosity;
+        archive & mUseAreaBasedDampingConstant;
 
         // In its present form, a call to MeshBasedTissue::Validate() here
         // would result in a seg fault in the situation where we are actually loading
@@ -160,13 +160,13 @@ public:
 
     bool GetWriteTissueAreas();
 
-    bool UseAreaBasedViscosity();
+    bool UseAreaBasedDampingConstant();
     
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
 
     void SetWriteTissueAreas(bool writeTissueAreas);
     
-    void SetAreaBasedViscosity(bool useAreaBasedViscosity);
+    void SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant);
     
     double GetDampingConstant(TissueCell& rCell);
 
@@ -348,7 +348,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
                mWriteVoronoiData(false),
                mFollowLoggedCell(false),
                mWriteTissueAreas(false),
-               mUseAreaBasedViscosity(false)
+               mUseAreaBasedDampingConstant(false)
 {
     // This must always be true
     assert( this->mCells.size() <= mrMesh.GetNumNodes() );
@@ -381,16 +381,16 @@ MeshBasedTissue<DIM>::~MeshBasedTissue()
 }
 
 template<unsigned DIM>
-bool MeshBasedTissue<DIM>::UseAreaBasedViscosity()
+bool MeshBasedTissue<DIM>::UseAreaBasedDampingConstant()
 {
-    return mUseAreaBasedViscosity;
+    return mUseAreaBasedDampingConstant;
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetAreaBasedViscosity(bool useAreaBasedViscosity)
+void MeshBasedTissue<DIM>::SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant)
 {
     assert(DIM==2);
-    mUseAreaBasedViscosity = useAreaBasedViscosity;
+    mUseAreaBasedDampingConstant = useAreaBasedDampingConstant;
 }
 
 template<unsigned DIM>
@@ -398,39 +398,40 @@ double MeshBasedTissue<DIM>::GetDampingConstant(TissueCell& rCell)
 {
     double damping_multiplier = AbstractTissue<DIM>::GetDampingConstant(rCell);
 
-    if (mUseAreaBasedViscosity)
+    if (mUseAreaBasedDampingConstant)
     {
-//        // We require the Voronoi tessellation to calculate the area of a cell
-//        assert(NeedsVoronoiTessellation());
-
-        //  We use a linear dependence of the form
-        //
-        //  new_damping_const = old_damping_const * (d0+d1*A)
-        //
-        //  where d0, d1 are parameters, A is the cell's area, and old_damping_const
-        //  is the damping constant if not using mUseAreaBasedViscosity
-        /// \todo the parameters d0, d1 should not really be hard-coded (see #836)
+        /**
+         * We use a linear dependence of the form
+         * 
+         * new_damping_const = old_damping_const * (d0+d1*A)
+         * 
+         * where d0, d1 are parameters, A is the cell's area, and old_damping_const
+         * is the damping constant if not using mUseAreaBasedDampingConstant
+         */
         
         #define COVERAGE_IGNORE
         assert(DIM==2);
         #undef COVERAGE_IGNORE
 
         double rest_length = 1.0;
-        double d0 = 0.1;
+        double d0 = CancerParameters::Instance()->GetAreaBasedDampingConstantParameter();
 
-        // Compute the parameter d1 such that d0+A*d1=1, where A is the equilibrium area 
-        // of a cell (this is equal to sqrt(3)/4, which is a third of the area of a regular
-        // hexagon of edge length 1)
+        /**
+         * Compute the parameter d1 such that d0+A*d1=1, where A is the equilibrium area
+         * of a cell (this is equal to sqrt(3)/4, which is a third of the area of a regular
+         * hexagon of edge length 1)
+         */
         double d1 = 2.0*(1.0 - d0)/(sqrt(3)*rest_length*rest_length);
 
         VoronoiTessellation<DIM>& tess = this->rGetVoronoiTessellation();
 
         double area_cell = tess.GetFaceArea(rCell.GetLocationIndex());
 
-        // The cell area should not be too large - the next assertion is to avoid
-        // getting an infinite cell area, which may occur if area-based viscosity 
-        // is chosen in the absence of ghost nodes.
-        /// \todo this magic number should be removed (see #836)
+        /**
+         * The cell area should not be too large - the next assertion is to avoid
+         * getting an infinite cell area, which may occur if area-based viscosity
+         * is chosen in the absence of ghost nodes.
+         */
         assert(area_cell < 1000);
 
         damping_multiplier = d0 + area_cell*d1;
