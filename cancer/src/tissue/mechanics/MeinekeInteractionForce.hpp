@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTwoBodyInteractionForce.hpp"
 #include "MeshBasedTissue.hpp"
-#include "VoronoiTessellation.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -58,23 +57,9 @@ public :
     MeinekeInteractionForce();
     
     ~MeinekeInteractionForce();
-        
-    /**
-     * Use an area based viscosity
-     */
-    void SetAreaBasedViscosity(bool useAreaBasedViscosity);
 
-    /**
-     *  Get the damping constant for this cell - ie d in drdt = F/d
-     *  This depends on whether using area-based viscosity has been switched on, and
-     *  on whether the cell is a mutant or not
-     */
-    double GetDampingConstant(TissueCell& rCell, AbstractTissue<DIM>& rTissue);
-    
-    bool NeedsVoronoiTessellation();
-    
     virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
-                                                           AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength);
+                                                              AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength);
     
     /**
      * Calculates the force between two nodes.
@@ -87,11 +72,11 @@ public :
      * @return The force exerted on Node A by Node B.
      */
     c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
-                                                           AbstractTissue<DIM>& rTissue);  
+                                                     AbstractTissue<DIM>& rTissue);  
 
     /// \todo eventually this should be a force contribution (see #627)
-    void AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
-                                 AbstractTissue<DIM>& rTissue);
+    void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
+                              AbstractTissue<DIM>& rTissue);
  
 };
 
@@ -102,8 +87,11 @@ MeinekeInteractionForce<DIM>::MeinekeInteractionForce()
 }
 
 template<unsigned DIM>
-double MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, 
-                                                                                        AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength)
+double MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
+                                                                                unsigned nodeBGlobalIndex, 
+                                                                                AbstractTissue<DIM>& rTissue, 
+                                                                                double distanceBetweenNodes, 
+                                                                                double restLength)
 {
     return 1.0;
 }
@@ -114,71 +102,9 @@ MeinekeInteractionForce<DIM>::~MeinekeInteractionForce()
 }
 
 template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::SetAreaBasedViscosity(bool useAreaBasedViscosity)
-{
-    assert(DIM == 2);
-    this->mUseAreaBasedViscosity = useAreaBasedViscosity;
-}
-
-template<unsigned DIM>
-double MeinekeInteractionForce<DIM>::GetDampingConstant(TissueCell& rCell, AbstractTissue<DIM>& rTissue)
-{
-    double damping_multiplier = 1.0;
-
-    if (this->mUseAreaBasedViscosity)
-    {
-        // We require the Voronoi tessellation to calculate the area of a cell
-        assert(NeedsVoronoiTessellation());
-
-        //  We use a linear dependence of the form
-        //
-        //  new_damping_const = old_damping_const * (d0+d1*A)
-        //
-        //  where d0, d1 are parameters, A is the cell's area, and old_damping_const
-        //  is the damping constant if not using mUseAreaBasedViscosity
-        #define COVERAGE_IGNORE
-        assert(DIM==2);
-        #undef COVERAGE_IGNORE
-
-        double rest_length = 1.0;
-        double d0 = 0.1;
-
-        // Compute the parameter d1 such that d0+A*d1=1, where A is the equilibrium area 
-        // of a cell (this is equal to sqrt(3)/4, which is a third of the area of a regular
-        // hexagon of edge length 1)
-        double d1 = 2.0*(1.0 - d0)/(sqrt(3)*rest_length*rest_length);
-
-        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
-
-        double area_cell = tess.GetFaceArea(rCell.GetLocationIndex());
-
-        // The cell area should not be too large - the next assertion is to avoid
-        // getting an infinite cell area, which may occur if area-based viscosity 
-        // is chosen in the absence of ghost nodes.
-        /// \todo this is a rather unsatisfactory hack!
-        assert(area_cell < 1000);
-
-        damping_multiplier = d0 + area_cell*d1;
-    }
-
-    if ( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
-    {
-        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
-    }
-    else
-    {
-        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
-    }
-}
-
-template<unsigned DIM>
-bool MeinekeInteractionForce<DIM>::NeedsVoronoiTessellation()
-{
-    return (this->mUseAreaBasedViscosity);
-}
-
-template<unsigned DIM>
-c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue)
+c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, 
+                                                                               unsigned nodeBGlobalIndex, 
+                                                                               AbstractTissue<DIM>& rTissue)
 {
     // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
@@ -312,7 +238,7 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 }
 
 template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
+void MeinekeInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                            AbstractTissue<DIM>& rTissue)
 {
     if (rTissue.HasMesh())
@@ -328,13 +254,9 @@ void MeinekeInteractionForce<DIM>::AddVelocityContribution(std::vector<c_vector<
             // Calculate the force between nodes
             c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
     
-            // Get the damping constant for each cell
-            double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA(), rTissue);
-            double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB(), rTissue);
-    
-            // Add the contribution to each node's velocity
-            rNodeVelocities[nodeB_global_index] -= force / damping_constantB;
-            rNodeVelocities[nodeA_global_index] += force / damping_constantA;
+            // Add the force contribution to each node
+            rForces[nodeB_global_index] -= force;
+            rForces[nodeA_global_index] += force;
         }
     }
     else
@@ -352,13 +274,9 @@ void MeinekeInteractionForce<DIM>::AddVelocityContribution(std::vector<c_vector<
                     assert(!isnan(force[j]));
                 }
          
-                // Get the damping constant for each cell
-                double damping_constantA = GetDampingConstant(rTissue.rGetCellUsingLocationIndex(node_a_index), rTissue);
-                double damping_constantB = GetDampingConstant(rTissue.rGetCellUsingLocationIndex(node_b_index), rTissue);
-
-                // Add the contribution to each node's velocity
-                rNodeVelocities[node_a_index] += force/damping_constantA;
-                rNodeVelocities[node_b_index] -= force/damping_constantB;                
+                // Add the force contribution to each node
+                rForces[node_a_index] += force;
+                rForces[node_b_index] -= force;                
             }
         }        
     }

@@ -39,7 +39,7 @@ typedef enum CancerEventType_
     BIRTH,
     REMESH,
     TESSELLATION,
-    VELOCITY,
+    FORCE,
     POSITION,
     OUTPUT,
     CANCER_EVERYTHING

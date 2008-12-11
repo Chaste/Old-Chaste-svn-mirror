@@ -90,13 +90,8 @@ public:
      *
      */
     /// \todo eventually this should be a force contribution (see #627)
-    void AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
+    void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                  AbstractTissue<DIM>& rTissue);
-                                         
-    /**
-     * Use an area based viscosity
-     */
-    void SetAreaBasedViscosity(bool useAreaBasedViscosity); 
 
 };
 
@@ -112,13 +107,6 @@ ChemotacticForce<DIM>::~ChemotacticForce()
 }
 
 template<unsigned DIM>
-void ChemotacticForce<DIM>::SetAreaBasedViscosity(bool useAreaBasedViscosity)
-{
-    assert(DIM == 2);
-    this->mUseAreaBasedViscosity = useAreaBasedViscosity;
-}
-
-template<unsigned DIM>
 double ChemotacticForce<DIM>::GetChemotacticForceMagnitude(const double concentration, const double concentrationGradientMagnitude)
 {
     return concentration; // temporary force law - can be changed to something realistic
@@ -126,7 +114,7 @@ double ChemotacticForce<DIM>::GetChemotacticForceMagnitude(const double concentr
 }
 
 template<unsigned DIM>
-void ChemotacticForce<DIM>::AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
+void ChemotacticForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                     AbstractTissue<DIM>& rTissue)
 {
     CellwiseDataGradient<DIM> gradients;
@@ -148,12 +136,10 @@ void ChemotacticForce<DIM>::AddVelocityContribution(std::vector<c_vector<double,
 
             double force_magnitude = GetChemotacticForceMagnitude(nutrient_concentration, magnitude_of_gradient);
 
-            double damping_constant = this->GetDampingConstant(cell, rTissue);
-
-            // velocity += viscosity * chi * gradC/|gradC|
+            // force +=  chi * gradC/|gradC|
             if (magnitude_of_gradient > 0)
             {
-                rNodeVelocities[node_global_index] += (force_magnitude/(damping_constant*magnitude_of_gradient))*r_gradient;
+                rForces[node_global_index] += (force_magnitude/magnitude_of_gradient)*r_gradient;
             }
             // else Fc=0
         }

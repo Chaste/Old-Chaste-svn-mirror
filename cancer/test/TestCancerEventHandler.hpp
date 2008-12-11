@@ -57,9 +57,9 @@ public:
         for (unsigned i=0; i<10000000; i++);
         CancerEventHandler::EndEvent(TESSELLATION);
 
-        CancerEventHandler::BeginEvent(VELOCITY);
+        CancerEventHandler::BeginEvent(FORCE);
         for (unsigned i=0; i<10000000; i++);
-        CancerEventHandler::EndEvent(VELOCITY);
+        CancerEventHandler::EndEvent(FORCE);
 
         CancerEventHandler::BeginEvent(POSITION);
         for (unsigned i=0; i<10000000; i++);

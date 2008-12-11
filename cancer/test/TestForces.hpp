@@ -84,23 +84,23 @@ public:
         /*
          ************************************************************************
          ************************************************************************
-         *  Test node velocity calculation
+         *  Test node force calculation
          ************************************************************************
          ************************************************************************
          */
 
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double, 2> > node_velocities;
-        node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             node_velocities.push_back(zero_vector<double>(2));
+             node_forces.push_back(zero_vector<double>(2));
         }
         
         // Add velocity contribution from MeinekeInteractionForce 
         /// \todo eventually this should be a force contribution (see #627)
-        meineke_force.AddVelocityContribution(node_velocities, tissue);
+        meineke_force.AddForceContribution(node_forces, tissue);
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -109,8 +109,8 @@ public:
 
             if (!is_a_ghost_node)
             {
-                TS_ASSERT_DELTA(node_velocities[i][0], 0.0, 1e-4);
-                TS_ASSERT_DELTA(node_velocities[i][1], 0.0, 1e-4);
+                TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);
+                TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
             }
         }
 
@@ -122,24 +122,24 @@ public:
 
         p_mesh->SetNode(59, new_point, false);
         
-        // Initialise a vector of new node velocities
-        std::vector<c_vector<double, 2> > new_node_velocities;
-        new_node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > new_node_forces;
+        new_node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             new_node_velocities.push_back(zero_vector<double>(2));
+             new_node_forces.push_back(zero_vector<double>(2));
         }
-        meineke_force.AddVelocityContribution(new_node_velocities, tissue);
+        meineke_force.AddForceContribution(new_node_forces, tissue);
 
-        TS_ASSERT_DELTA(new_node_velocities[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantMutant(), 1e-4);
-        TS_ASSERT_DELTA(new_node_velocities[60][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[60][0], 0.5*p_params->GetSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[60][1], 0.0, 1e-4);
 
-        TS_ASSERT_DELTA(new_node_velocities[59][0], (-3+4.0/sqrt(7))*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
-        TS_ASSERT_DELTA(new_node_velocities[59][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[59][0], (-3+4.0/sqrt(7))*p_params->GetSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[59][1], 0.0, 1e-4);
 
-        TS_ASSERT_DELTA(new_node_velocities[58][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
-        TS_ASSERT_DELTA(new_node_velocities[58][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[58][0], 0.5*p_params->GetSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
 
         /*
          ************************************************************************
@@ -318,139 +318,6 @@ public:
         }
     }
 
-
-    void TestMeinekeInteractionForceWithAreaBasedVisocity() throw (Exception)
-    {
-        // Set up the simulation time
-        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
-
-        unsigned cells_across = 3;
-        unsigned cells_up = 3;
-        unsigned thickness_of_ghost_layer = 2;
-
-        // Test a non-periodic mesh
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
-
-        // Scale the mesh in one direction
-        p_mesh->Scale(1.0,1.2);
-
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-
-        // Set up cells
-        std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
-
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
-
-        crypt.CreateVoronoiTessellation();  // normally done in a simulation loop
-
-        MeinekeInteractionForce<2> meineke_force;
-        
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double, 2> > node_velocities;
-        node_velocities.reserve(crypt.GetNumNodes());
-        
-        for (unsigned i=0; i<crypt.GetNumNodes(); i++)
-        {
-             node_velocities.push_back(zero_vector<double>(2));
-        }
-        
-        // Add velocity contribution from MeinekeInteractionForce 
-        /// \todo eventually this should be a force contribution (see #627)
-        meineke_force.AddVelocityContribution(node_velocities, crypt);
-        
-        std::vector<double> norm_vel;
-
-        for (unsigned i=0; i<node_velocities.size(); i++)
-        {
-            // Check if this is a real cell
-            if (ghost_node_indices.find(i)==ghost_node_indices.end())
-            {
-                norm_vel.push_back(norm_2(node_velocities[i]));
-            }
-        }
-
-        // Now check that the velocities scale correctly when the viscosity is area-dependent
-        meineke_force.SetAreaBasedViscosity(true);
-        
-        // Initialise a new vector of node velocities
-        std::vector<c_vector<double, 2> > new_node_velocities;
-        new_node_velocities.reserve(crypt.GetNumNodes());
-        
-        for (unsigned i=0; i<crypt.GetNumNodes(); i++)
-        {
-             new_node_velocities.push_back(zero_vector<double>(2));
-        }
-        
-        // Add velocity contribution from MeinekeInteractionForce 
-        /// \todo eventually this should be a force contribution (see #627)
-        meineke_force.AddVelocityContribution(new_node_velocities, crypt);
-        
-        std::vector<double> norm_vel_area;
-
-        for (unsigned i=0; i<new_node_velocities.size(); i++)
-        {
-            // Check if this is a real cell
-            if (ghost_node_indices.find(i)==ghost_node_indices.end())
-            {
-                norm_vel_area.push_back(norm_2(new_node_velocities[i]));
-            }
-        }
-
-        TS_ASSERT(norm_vel.size() > 0);
-
-        // Note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->rCalculateVelocitiesOfEachNode()
-        for (unsigned i=0; i<norm_vel.size(); i++)
-        {
-            TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);
-        }
-    }
-
-
-    void TestMeinekeInteractionForceWithAreaBasedVisocityOnAPeriodicMesh() throw (Exception)
-    {
-        // Set up the simulation time
-        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
-
-        unsigned cells_across = 3;
-        unsigned cells_up = 3;
-        unsigned thickness_of_ghost_layer = 2;
-
-        double scale_factor = 1.2;
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, scale_factor);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-
-        // Set up cells
-        std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true); // true = mature cells
-
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
-
-        MeinekeInteractionForce<2> meineke_force;
-
-        // It seems quite difficult to test this on a periodic mesh,
-        // so just check the areas of all the cells are correct.
-        
-        /// \todo this doesn't test any method on MeinekeInteractionForce, 
-        // so perhaps should moved to TestMeshBasedTissue?
-        tissue.CreateVoronoiTessellation();
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            // Check if this is a real cell
-            if (ghost_node_indices.find(i)==ghost_node_indices.end())
-            {
-                double area = tissue.rGetVoronoiTessellation().GetFaceArea(i);
-                TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
-            }
-        }
-    }
-
-
     void TestMeinekeInteractionForceWithSpringConstantsForMutantCells()
     {
         // Create a small tissue
@@ -624,24 +491,24 @@ public:
             TS_ASSERT_DELTA(force[i], 0.0, 1e-6);
         }
 
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double, 3> > node_velocities;
-        node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of node forces
+        std::vector<c_vector<double, 3> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             node_velocities.push_back(zero_vector<double>(3));
+             node_forces.push_back(zero_vector<double>(3));
         }
         
         // Add velocity contribution from MeinekeInteractionForce 
         /// \todo eventually this should be a force contribution (see #627)
-        meineke_force.AddVelocityContribution(node_velocities, tissue);
+        meineke_force.AddForceContribution(node_forces, tissue);
 
         for (unsigned j=0; j<4; j++)
         {
             for (unsigned k=0; k<3; k++)
             {
-                TS_ASSERT_DELTA(node_velocities[j](k), 0.0, 1e-6);
+                TS_ASSERT_DELTA(node_forces[j](k), 0.0, 1e-6);
             }
         }
 
@@ -659,15 +526,15 @@ public:
             mesh.SetNode(i, new_point, false);
         }
         
-        // Recalculate node velocities (we can just re-use node_velocities,
+        // Recalculate node forces (we can just re-use node_forces,
         // as previously each node had zero velocity)
-        meineke_force.AddVelocityContribution(node_velocities, tissue);
+        meineke_force.AddForceContribution(node_forces, tissue);
 
         for (unsigned j=0; j<4; j++)
         {
             for (unsigned k=0; k<3; k++)
             {
-                TS_ASSERT_DELTA(fabs(node_velocities[j](k)), p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(scale_factor-1)*sqrt(2),1e-6);
+                TS_ASSERT_DELTA(fabs(node_forces[j](k)), p_params->GetSpringStiffness()*(scale_factor-1)*sqrt(2),1e-6);
             }
         }
 
@@ -693,25 +560,25 @@ public:
 
         for (unsigned i=0; i<3; i++)
         {
-            TS_ASSERT_DELTA(fabs(force2[i]),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
+            TS_ASSERT_DELTA(fabs(force2[i]),p_params->GetSpringStiffness()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
 
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double,3> > node_velocities2;
-        node_velocities2.reserve(tissue.GetNumNodes());
+        // Initialise a vector of node forces
+        std::vector<c_vector<double,3> > node_forces2;
+        node_forces2.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             node_velocities2.push_back(zero_vector<double>(3));
+             node_forces2.push_back(zero_vector<double>(3));
         }
         
         // Add velocity contribution from MeinekeInteractionForce 
         /// \todo eventually this should be a force contribution (see #627)
-        meineke_force2.AddVelocityContribution(node_velocities2, tissue2);
+        meineke_force2.AddForceContribution(node_forces2, tissue2);
 
         for (unsigned i=0; i<3; i++)
         {
-            TS_ASSERT_DELTA(node_velocities2[0](i),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
+            TS_ASSERT_DELTA(node_forces2[0](i),p_params->GetSpringStiffness()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
     }
 
@@ -751,9 +618,8 @@ public:
             MeinekeInteractionWithVariableSpringConstantsForce<2>* const p_meineke_force = &meineke_force;
             
             p_meineke_force->UseCutoffPoint(1.1);
-            p_meineke_force->SetAreaBasedViscosity(true);
             p_meineke_force->SetEdgeBasedSpringConstant(true);
-            p_meineke_force->SetMutantSprings(true,0.2,0.3);
+            p_meineke_force->SetMutantSprings(true, 0.2, 0.3);
             p_meineke_force->SetBCatSprings(true);
             p_meineke_force->SetApoptoticSprings(true);
 
@@ -775,7 +641,6 @@ public:
             // Test the member data
             TS_ASSERT_EQUALS(p_meineke_force->mUseCutoffPoint,true);            
             TS_ASSERT_EQUALS(p_meineke_force->mUseEdgeBasedSpringConstant, true);
-            TS_ASSERT_EQUALS(p_meineke_force->mUseAreaBasedViscosity, true);
             TS_ASSERT_EQUALS(p_meineke_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_meineke_force->mUseMutantSprings, true);
             TS_ASSERT_EQUALS(p_meineke_force->mUseBCatSprings, true);
@@ -824,15 +689,15 @@ public:
 
         ChemotacticForce<2> chemotactic_force;
         
-        // Initialise a vector of new node velocities
-        std::vector<c_vector<double, 2> > node_velocities;
-        node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             node_velocities.push_back(zero_vector<double>(2));
+             node_forces.push_back(zero_vector<double>(2));
         }
-        chemotactic_force.AddVelocityContribution(node_velocities, tissue);
+        chemotactic_force.AddForceContribution(node_forces, tissue);
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -844,14 +709,10 @@ public:
                 double c = x/50;
                 double norm_grad_c = 1.0/50.0;
                 double force_magnitude = chemotactic_force.GetChemotacticForceMagnitude(c, norm_grad_c);
-
-                // As only labelled cells experience the chemotactic force, we must use
-                // the mutant damping constant
-                double damping = CancerParameters::Instance()->GetDampingConstantMutant();
-
-                // Fc = force_magnitude*(1,0), Fspring=0 => velocity = damping*force_magnitude*(1,0)
-                TS_ASSERT_DELTA(node_velocities[i][0], force_magnitude/damping, 1e-4);
-                TS_ASSERT_DELTA(node_velocities[i][1], 0.0, 1e-4);
+                
+                // Fc = force_magnitude*(1,0), Fspring=0
+                TS_ASSERT_DELTA(node_forces[i][0], force_magnitude, 1e-4);
+                TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
             }
         }
     }
@@ -890,8 +751,6 @@ public:
             // Serialize via pointer
             ChemotacticForce<2> * const p_chemotactic_force = &chemotactic_force;
 
-            p_chemotactic_force->SetAreaBasedViscosity(true);
-
             output_arch << p_chemotactic_force;
         }
 
@@ -907,9 +766,7 @@ public:
             // Restore from the archive
             input_arch >> p_chemotactic_force;
 
-            // Test the member data
-            TS_ASSERT_EQUALS(p_chemotactic_force->mUseAreaBasedViscosity, true);
-
+            /// \todo Test the member data
             delete p_chemotactic_force;
         }
     }
@@ -963,8 +820,6 @@ public:
         p_params->SetCryptProjectionParameterA(2.0);
         p_params->SetCryptProjectionParameterB(1.0);       
         CryptProjectionForce crypt_projection_force;
-                   
-        TS_ASSERT(!crypt_projection_force.NeedsVoronoiTessellation()) // for coverage
 
         // Test get methods
         TS_ASSERT_DELTA(crypt_projection_force.GetA(), 2.0, 1e-12);
@@ -1049,19 +904,19 @@ public:
 
         // Test velocity calculation for a particular node
         
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double, 2> > node_velocities;
-        node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             node_velocities.push_back(zero_vector<double>(2));
+             node_forces.push_back(zero_vector<double>(2));
         }
         
-        crypt_projection_force.AddVelocityContribution(node_velocities, tissue);      
+        crypt_projection_force.AddForceContribution(node_forces, tissue);      
 
-        TS_ASSERT_DELTA(node_velocities[0][0], 0.0, 1e-4);
-        TS_ASSERT_DELTA(node_velocities[0][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(node_forces[0][0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(node_forces[0][1], 0.0, 1e-4);
 
         // Test that in the case of a flat crypt surface (mA=mB=0), the results are the same as for Meineke2001SpringSystem
         p_params->SetCryptProjectionParameterA(0.001);
@@ -1069,7 +924,7 @@ public:
         CryptProjectionForce flat_crypt_projection_force;
         MeinekeInteractionForce<2> meineke_force;
 
-        // Normally this would be set up at the start of rCalculateVelocitiesOfEachNode
+        // Normally this would be set up at the start of rCalculateforcesOfEachNode
         flat_crypt_projection_force.UpdateNode3dLocationMap(tissue);
 
         for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
@@ -1138,44 +993,44 @@ public:
 
         crypt_projection_force.SetWntChemotaxis(false);
                
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double, 2> > old_node_velocities;
-        old_node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of node forces
+        std::vector<c_vector<double, 2> > old_node_forces;
+        old_node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             old_node_velocities.push_back(zero_vector<double>(2));
+             old_node_forces.push_back(zero_vector<double>(2));
         }
         
-        // Calculate node velocities
-        crypt_projection_force.AddVelocityContribution(old_node_velocities, tissue);
+        // Calculate node forces
+        crypt_projection_force.AddForceContribution(old_node_forces, tissue);
         
         // Store the velocity of a particular node without Wnt-chemotaxis
-        c_vector<double,2> old_velocity = old_node_velocities[11];      
+        c_vector<double,2> old_force = old_node_forces[11];      
 
         // Now turn on Wnt-chemotaxis
         crypt_projection_force.SetWntChemotaxis(true);
         
-        // Initialise a vector of new node velocities
-        std::vector<c_vector<double, 2> > new_node_velocities;
-        new_node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > new_node_forces;
+        new_node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             new_node_velocities.push_back(zero_vector<double>(2));
+             new_node_forces.push_back(zero_vector<double>(2));
         }
                 
-        // Calculate node velocities
-        crypt_projection_force.AddVelocityContribution(new_node_velocities, tissue);
+        // Calculate node forces
+        crypt_projection_force.AddForceContribution(new_node_forces, tissue);
 
         // Store the velocity of the same node, but now with Wnt-chemotaxis
-        c_vector<double,2> new_velocity = new_node_velocities[11];
+        c_vector<double,2> new_force = new_node_forces[11];
 
         double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
         c_vector<double,2> wnt_component = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(cells[11]));
 
-        TS_ASSERT_DELTA(new_velocity[0], old_velocity[0]+wnt_component[0], 1e-4);
-        TS_ASSERT_DELTA(new_velocity[1], old_velocity[1]+wnt_component[1], 1e-4);
+        TS_ASSERT_DELTA(new_force[0], old_force[0]+wnt_component[0], 1e-4);
+        TS_ASSERT_DELTA(new_force[1], old_force[1]+wnt_component[1], 1e-4);
     }
 
     void TestCryptProjectionForceWithArchiving() throw (Exception)
@@ -1287,13 +1142,13 @@ public:
         
         // Test node velocity calculation
 
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double, 2> > node_velocities;
-        node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             node_velocities.push_back(zero_vector<double>(2));
+             node_forces.push_back(zero_vector<double>(2));
         }
         
         // Add velocity contributions
@@ -1301,7 +1156,7 @@ public:
              iter != forces.end();
              iter++)
         {
-             (*iter)->AddVelocityContribution(node_velocities, tissue);
+             (*iter)->AddForceContribution(node_forces, tissue);
         }
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
@@ -1311,8 +1166,8 @@ public:
 
             if (!is_a_ghost_node)
             {
-                TS_ASSERT_DELTA(node_velocities[i][0], 0.0, 1e-4);
-                TS_ASSERT_DELTA(node_velocities[i][1], 0.0, 1e-4);
+                TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);
+                TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
             }
         }
 
@@ -1324,13 +1179,13 @@ public:
 
         p_mesh->SetNode(59, new_point, false);
         
-        // Initialise a vector of new node velocities
-        std::vector<c_vector<double, 2> > new_node_velocities;
-        new_node_velocities.reserve(tissue.GetNumNodes());
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > new_node_forces;
+        new_node_forces.reserve(tissue.GetNumNodes());
         
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             new_node_velocities.push_back(zero_vector<double>(2));
+             new_node_forces.push_back(zero_vector<double>(2));
         }
 
         // Add velocity contributions
@@ -1338,18 +1193,18 @@ public:
              iter != forces.end();
              iter++)
         {
-             (*iter)->AddVelocityContribution(new_node_velocities, tissue);
+             (*iter)->AddForceContribution(new_node_forces, tissue);
         }
 
         // Forces should be twice the forces found using Meineke alone (since a flat crypt is used)
-        TS_ASSERT_DELTA(new_node_velocities[60][0], 2*0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantMutant(), 1e-4);
-        TS_ASSERT_DELTA(new_node_velocities[60][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[60][0], 2*0.5*p_params->GetSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[60][1], 0.0, 1e-4);
 
-        TS_ASSERT_DELTA(new_node_velocities[59][0], 2*(-3+4.0/sqrt(7))*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
-        TS_ASSERT_DELTA(new_node_velocities[59][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[59][0], 2*(-3+4.0/sqrt(7))*p_params->GetSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[59][1], 0.0, 1e-4);
 
-        TS_ASSERT_DELTA(new_node_velocities[58][0], 2*0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
-        TS_ASSERT_DELTA(new_node_velocities[58][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[58][0], 2*0.5*p_params->GetSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
     }
     
 };

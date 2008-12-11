@@ -241,9 +241,9 @@ protected:
     /**
      * Moves each node to a new position for this timestep
      *
-     * @param rDrDt the x and y force components on each node.
+     * @param nodeForces the x and y force components on each node.
      */
-    virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
+    virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& nodeForces);
 
     /**
      *  A method for subclasses to do something at the end of each timestep
@@ -516,7 +516,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 }
 
 template<unsigned DIM>
-void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
+void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& nodeForces)
 {
     if (mrTissue.HasGhostNodes())
     {
@@ -531,8 +531,9 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     {
         TissueCell& cell = *cell_iter;
         unsigned index = cell.GetLocationIndex();
-
-        ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+        double damping_const = mrTissue.GetDampingConstant(cell);
+        
+        ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*nodeForces[index]/damping_const);
         mrTissue.MoveCell(cell_iter, new_point);
     }
 }
@@ -846,19 +847,8 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::BeginEvent(TESSELLATION);
         if (mrTissue.HasMesh())
         {
-            bool needs_voronoi_tessellation = false;
-            for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
-                 iter != mForceCollection.end();
-                 ++iter)
-            {
-                if ((*iter)->NeedsVoronoiTessellation())
-                {
-                    needs_voronoi_tessellation = true;
-                }
-            }
-
             if ( (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteVoronoiData()
-                 || needs_voronoi_tessellation
+                 || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UseAreaBasedViscosity()
                  || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteTissueAreas() )
             {
                 (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->CreateVoronoiTessellation();
@@ -866,29 +856,29 @@ void TissueSimulation<DIM>::Solve()
         }
         CancerEventHandler::EndEvent(TESSELLATION);
 
-        // Calculate node velocities
-        CancerEventHandler::BeginEvent(VELOCITY);
+        // Calculate Forces
+        CancerEventHandler::BeginEvent(FORCE);
         
-        // Initialise a vector of node velocities
-        std::vector<c_vector<double, DIM> > node_velocities;
-        node_velocities.reserve(mrTissue.GetNumNodes());
+        // Initialise a vector of forces on node
+        std::vector<c_vector<double, DIM> > forces;
+        forces.reserve(mrTissue.GetNumNodes());
         
         for (unsigned i=0; i<mrTissue.GetNumNodes(); i++)
         {
-             node_velocities.push_back(zero_vector<double>(DIM));
+             forces.push_back(zero_vector<double>(DIM));
         }
         
         for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
              iter !=mForceCollection.end();
              iter++)
         {
-            (*iter)->AddVelocityContribution(node_velocities, mrTissue);
+            (*iter)->AddForceContribution(forces, mrTissue);
         }
-        CancerEventHandler::EndEvent(VELOCITY);
+        CancerEventHandler::EndEvent(FORCE);
 
         // Update node positions
         CancerEventHandler::BeginEvent(POSITION);
-        UpdateNodePositions(node_velocities);
+        UpdateNodePositions(forces);
         CancerEventHandler::EndEvent(POSITION);
 
         PostSolve();
@@ -1123,6 +1113,7 @@ template<unsigned DIM>
 template<class Archive>
 void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
 {
+
     // Load simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     assert(p_simulation_time->IsStartTimeSetUp());
@@ -1130,13 +1121,14 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
 
     // Load Wnt concentration if it's used
     bool archive_wnt;
+
     rInputArch & archive_wnt;
+
     if (archive_wnt)
     {
         WntConcentration* p_wnt = WntConcentration::Instance();
         rInputArch & *p_wnt;
     }
-
     // Load CellwiseData if it's used
     bool archive_cellwise_data;
     rInputArch & archive_cellwise_data;

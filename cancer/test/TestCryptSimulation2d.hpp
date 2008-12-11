@@ -415,12 +415,13 @@ public:
         cells_generator.GenerateForCrypt(cells, *p_mesh, false);
         
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        crypt.SetAreaBasedViscosity(true);
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
         
         MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
-        meineke_force.SetAreaBasedViscosity(true);
+
         meineke_force.SetEdgeBasedSpringConstant(true);
         
         std::vector<AbstractForce<2>*> force_collection;
@@ -662,9 +663,9 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
         
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionWithVariableSpringConstantsForce<2> force; 
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&force);
         
         CryptSimulation2d simulator(crypt, force_collection);
         
@@ -675,7 +676,7 @@ public:
 
         simulator.SetEndTime(0.01);
 
-        // cover exceptions
+        // Cover exceptions
         TS_ASSERT_THROWS_ANYTHING(simulator.GetCellMutationStateCount());
         simulator.SetOutputCellMutationStates(true);
 
@@ -713,9 +714,11 @@ public:
 
         NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
         TS_ASSERT(comp.CompareFiles(2e-6));
+        
         //Cover writing logged cell
         crypt.SetWriteVoronoiData(true, true);
         simulator.SetEndTime(0.01 + 1./120.);
+        
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
 

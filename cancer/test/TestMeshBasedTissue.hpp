@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "MeshBasedTissueWithGhostNodes.hpp"
+#include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
@@ -137,6 +138,48 @@ public:
 
         // Fails as no cell or ghost correponding to node 0
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
+    }
+    
+    void TestAreaBasedViscosity()
+    {
+        // Create a simple mesh
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
+
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<TissueCell> cells;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells[9].SetMutationState(APC_TWO_HIT);
+
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        TS_ASSERT_EQUALS(tissue.UseAreaBasedViscosity(), false);
+        
+        double damping_const = tissue.GetDampingConstant(cells[8]);
+        
+        TS_ASSERT_DELTA(damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);
+        
+        double mutant_damping_const = tissue.GetDampingConstant(cells[9]);
+        
+        TS_ASSERT_DELTA(mutant_damping_const, CancerParameters::Instance()->GetDampingConstantMutant(), 1e-6);
+
+        tissue.SetAreaBasedViscosity(true);
+
+        TS_ASSERT_EQUALS(tissue.UseAreaBasedViscosity(), true);
+        
+        // Note that this method is usually called by TissueSimulation::Solve()
+        tissue.CreateVoronoiTessellation();
+        
+        double area_based_damping_const = tissue.GetDampingConstant(cells[8]);
+        
+        // Since the tissue is in equilibrium, we should get the same damping constant as before
+        TS_ASSERT_DELTA(area_based_damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);        
     }
 
     /*
@@ -293,6 +336,47 @@ public:
         // Check the index of the new cell
         TissueCell& new_cell = tissue.rGetCells().back();
         TS_ASSERT_EQUALS(new_cell.GetLocationIndex(), old_num_nodes);
+    }
+    
+    void TestAreaBasedVisocityOnAPeriodicMesh() throw (Exception)
+    {
+        // Set up the simulation time
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
+
+        unsigned cells_across = 3;
+        unsigned cells_up = 3;
+        unsigned thickness_of_ghost_layer = 2;
+
+        double scale_factor = 1.2;
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, scale_factor);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, true); // true = mature cells
+
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+
+        MeinekeInteractionForce<2> meineke_force;
+
+        // It seems quite difficult to test this on a periodic mesh,
+        // so just check the areas of all the cells are correct.
+        
+        /// \todo this doesn't test any method on MeinekeInteractionForce, 
+        // so perhaps should moved to TestMeshBasedTissue?
+        tissue.CreateVoronoiTessellation();
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            // Check if this is a real cell
+            if (ghost_node_indices.find(i)==ghost_node_indices.end())
+            {
+                double area = tissue.rGetVoronoiTessellation().GetFaceArea(i);
+                TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
+            }
+        }
     }
 
     void TestRemoveDeadCellsAndReMesh()
@@ -782,6 +866,9 @@ public:
 
             p_tissue->MarkSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1));
 
+            // Set area-based viscosity
+            p_tissue->SetAreaBasedViscosity(true);
+            
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -809,10 +896,9 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
 
-            // WARNING! This is here because the loading of a tissue is only ever called
-            // by TissueSimulation::Load() which has a line like this:
+            // The following line is required because the loading of a tissue 
+            // is usually called by he method TissueSimulation::Load()
             MeshBasedTissue<2>::meshPathname = "mesh/test/data/square_4_elements";
-            // This horribleness will go away when ticket:412 (proper mesh archiving) is done.
 
             input_arch >> p_tissue;
 
@@ -835,6 +921,9 @@ public:
 
             // Check the tissue has been restored
             TS_ASSERT_EQUALS(p_tissue->rGetCells().size(),5u);
+
+            // Check area-based viscosity is still true
+            TS_ASSERT_EQUALS(p_tissue->UseAreaBasedViscosity(), true);
 
             // This won't pass because of the mesh not being archived
             // TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(),5u);

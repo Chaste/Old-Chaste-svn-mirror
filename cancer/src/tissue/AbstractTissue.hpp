@@ -147,6 +147,13 @@ public:
      * Find where the given cell is in space.
      */
     c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
+    
+    /**
+     *  Get the damping constant for this cell - ie d in drdt = F/d
+     *  This depends on whether using area-based viscosity has been switched on, and
+     *  on whether the cell is a mutant or not
+     */
+    virtual double GetDampingConstant(TissueCell& rCell);
 
     /**
      * Add a new cell to the tissue.
@@ -389,6 +396,21 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     {
         mCellCyclePhaseCount[i] = 0;
     }
+}
+
+template<unsigned DIM>
+double AbstractTissue<DIM>::GetDampingConstant(TissueCell& rCell)
+{
+    double damping_multiplier = 1.0;
+
+    if ( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
+    {
+        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
+    }
+    else
+    {
+        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
+    }    
 }
 
 template<unsigned DIM>

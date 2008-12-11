@@ -97,8 +97,6 @@ public :
     CryptProjectionForce();
     
     ~CryptProjectionForce();
-    
-    bool NeedsVoronoiTessellation();
 
     double GetA() const;
 
@@ -130,7 +128,7 @@ public :
     double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double,2>& rNodeLocation);
 
     /// \todo eventually this should be a force contribution (see #627)
-    void AddVelocityContribution(std::vector<c_vector<double,2> >& rNodeVelocities,
+    void AddForceContribution(std::vector<c_vector<double,2> >& rForces,
                                  AbstractTissue<2>& rTissue);
  
 };
@@ -172,11 +170,6 @@ void CryptProjectionForce::UpdateNode3dLocationMap(AbstractTissue<2>& rTissue)
         // Add to map
         mNode3dLocationMap[node_index] = node_location_3d;
     }
-}
-
-bool CryptProjectionForce::NeedsVoronoiTessellation()
-{
-    return this->mUseAreaBasedViscosity;
 }
 
 double CryptProjectionForce::GetA() const
@@ -325,7 +318,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     return projected_force_between_nodes_2d;
 }
 
-void CryptProjectionForce::AddVelocityContribution(std::vector<c_vector<double,2> >& rNodeVelocities,
+void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >& rForces,
                                                         AbstractTissue<2>& rTissue)
 {
     // First work out the 3D location of each cell
@@ -340,11 +333,8 @@ void CryptProjectionForce::AddVelocityContribution(std::vector<c_vector<double,2
 
         c_vector<double, 2> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
 
-        double damping_constantA = this->GetDampingConstant(spring_iterator.rGetCellA(), rTissue);
-        double damping_constantB = this->GetDampingConstant(spring_iterator.rGetCellB(), rTissue);
-
-        rNodeVelocities[nodeB_global_index] -= force/damping_constantB;
-        rNodeVelocities[nodeA_global_index] += force/damping_constantA;
+        rForces[nodeB_global_index] -= force;
+        rForces[nodeA_global_index] += force;
     }
 
     if (mIncludeWntChemotaxis)
@@ -353,8 +343,8 @@ void CryptProjectionForce::AddVelocityContribution(std::vector<c_vector<double,2
 
         double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
 
-        for (MeshBasedTissue<2>::Iterator cell_iter=(static_cast<MeshBasedTissue<2>*>(&rTissue))->Begin();
-             cell_iter!=(static_cast<MeshBasedTissue<2>*>(&rTissue))->End();
+        for (AbstractTissue<2>::Iterator cell_iter = rTissue.Begin();
+             cell_iter != rTissue.End();
              ++cell_iter)
         {
             if (cell_iter->GetCellType()==STEM)
@@ -362,7 +352,7 @@ void CryptProjectionForce::AddVelocityContribution(std::vector<c_vector<double,2
                 c_vector<double, 2>  wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
                 unsigned index = rTissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
 
-                rNodeVelocities[index] += wnt_chemotactic_force/(this->GetDampingConstant(*cell_iter, rTissue));
+                rForces[index] += wnt_chemotactic_force;
             }
         }
     }

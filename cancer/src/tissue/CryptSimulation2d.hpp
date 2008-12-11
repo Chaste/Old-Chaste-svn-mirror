@@ -81,7 +81,7 @@ private :
      *
      * @param rDrDt the x and y force components on each node.
      */
-    void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt);
+    void UpdateNodePositions(const std::vector< c_vector<double, 2> >& nodeForces);
 
     void WriteVisualizerSetupFile();
 
@@ -186,39 +186,43 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Abst
     assert(daughter_coords(1)>=0.0); // to make sure dividing cells stay in the tissue
     assert(parent_coords(1)>=0.0);   // to make sure dividing cells stay in the tissue
 
-    // set the parent to use this location
+    // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
     mrTissue.MoveCell(parentCell, parent_coords_point);
     return daughter_coords;
 }
 
 
-void CryptSimulation2d::UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
+void CryptSimulation2d::UpdateNodePositions(const std::vector< c_vector<double, 2> >& nodeForces)
 {
-    // Update ghost positions first because they do not affect the real cells
-    mpStaticCastTissue->UpdateGhostPositions(mDt);
-
-    // Iterate over all cells to update their positions.
+    if (mrTissue.HasGhostNodes())
+    {
+        // Update ghost positions first because they do not affect the real cells
+        (static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue))->UpdateGhostPositions(mDt);
+    }
+    
+    // Iterate over all cells to update their positions
     for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
         TissueCell& cell = *cell_iter;
         unsigned index = cell.GetLocationIndex();
-
-        ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+        double damping_const = mrTissue.GetDampingConstant(cell);
+        
+        ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*nodeForces[index]/damping_const);
 
         bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
         if (!is_wnt_included) WntConcentration::Destroy();
 
-        // stem cells are fixed if no wnt, so reset the x-value to the old x-value
+        // Stem cells are fixed if no Wnt, so reset the x-value to the old x-value
         if ((cell.GetCellType()==STEM) && (!is_wnt_included))
         {
             new_point.rGetLocation()[0] = mrTissue.GetNode(index)->rGetLocation()[0];
             new_point.rGetLocation()[1] = mrTissue.GetNode(index)->rGetLocation()[1];
         }
 
-        // for all cells - move up if below the bottom surface
+        // For all cells - move up if below the bottom surface
         if (new_point.rGetLocation()[1] < 0.0)
         {
             new_point.rGetLocation()[1] = 0.0;
@@ -236,10 +240,9 @@ void CryptSimulation2d::UpdateNodePositions(const std::vector< c_vector<double, 
             }
         }
 
-        // move the cell
+        // Move the cell
         assert(new_point[1]>=0.0);
         mrTissue.MoveCell(cell_iter, new_point);
-
     }
 }
 
@@ -277,7 +280,7 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
         x = cell_iter.rGetLocation()[0];
         y = cell_iter.rGetLocation()[1];
 
-        // if writing beta-catenin, the model has be be IngeWntSwatCellCycleModel
+        // If writing beta-catenin, the model has be be IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
 
         b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
@@ -359,6 +362,7 @@ CryptSimulation2d* CryptSimulation2d::Load(const std::string& rArchiveDirectory,
 
     // Create an input archive
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+
     boost::archive::text_iarchive input_arch(ifs);
 
     TissueSimulation<2>::CommonLoad(input_arch);

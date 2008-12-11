@@ -75,7 +75,7 @@ protected :
     /** Use springs which are dependent on beta-catenin levels */
     bool mUseBCatSprings;
 
-    /** Use springs which are dependent on whether cells are necrotic */
+    /** Use springs which are dependent on whether cells are apoptotic */
     bool mUseApoptoticSprings;
 
 public :
@@ -106,11 +106,9 @@ public :
     void SetApoptoticSprings(bool useApoptoticSprings);    
         
     double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue, double distanceBetweenNodes, double restLength);
-    
-    bool NeedsVoronoiTessellation();
 
     /// \todo eventually this should be a force contribution (see #627)
-    void AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
+    void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                  AbstractTissue<DIM>& rTissue);
  
 };
@@ -280,13 +278,7 @@ double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringCo
 }
 
 template<unsigned DIM>
-bool MeinekeInteractionWithVariableSpringConstantsForce<DIM>::NeedsVoronoiTessellation()
-{
-    return (this->mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
-}
-
-template<unsigned DIM>
-void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::AddVelocityContribution(std::vector<c_vector<double, DIM> >& rNodeVelocities,
+void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                            AbstractTissue<DIM>& rTissue)
 {
     for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
@@ -298,11 +290,8 @@ void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::AddVelocityContrib
 
         c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
 
-        double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA(), *(static_cast<MeshBasedTissue<DIM>*>(&rTissue)));
-        double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB(), *(static_cast<MeshBasedTissue<DIM>*>(&rTissue)));
-
-        rNodeVelocities[nodeB_global_index] -= force / damping_constantB;
-        rNodeVelocities[nodeA_global_index] += force / damping_constantA;
+        rForces[nodeB_global_index] -= force;
+        rForces[nodeA_global_index] += force;
     }
 }
 
