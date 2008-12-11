@@ -123,13 +123,13 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
         /* That's most of the setup. We now have to define one or more force laws. 
-         * /// \todo this needs more commenting) 
-         * Now we just define the Simulation object, passing in the tissue. */
+         * '''TODO''' this needs more commenting */
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
+
+        /* Now we just define the simulation object, passing in the tissue. */
+        CryptSimulation2d simulator(tissue, force_collection);
 
         /* Set the output directory on the simulator (NOTE: this is relative to
          * "/tmp/<USER_NAME>/testoutput"), and the end time (NOTE: in hours).
@@ -210,8 +210,13 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(tissue);
 
+        /* '''TODO''' add comment */
+        MeinekeInteractionForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+
         /* Create a simulator as before (except setting a different output directory). */
-        CryptSimulation2d simulator(tissue);
+        CryptSimulation2d simulator(tissue,force_collection);
         simulator.SetOutputDirectory("CryptTutorialWntCellCycle");
         simulator.SetEndTime(1);
 
