@@ -187,6 +187,10 @@ public:
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
     
+    /**
+     * When using CVODE this function is called instead of CalculateStoppingEvent.
+     * It allows the point at which rY[1] reaches 1 to be found to greater precision.
+     */
     double CalculateRootFunction(double time, const std::vector<double> &rY);
 
 };

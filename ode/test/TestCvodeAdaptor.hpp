@@ -47,9 +47,9 @@ class OdeWithRootFunction : public OdeSecondOrderWithEvents
 {
 public :
     OdeWithRootFunction()
-            : OdeSecondOrderWithEvents() 
-            {
-            }
+        : OdeSecondOrderWithEvents() 
+    {
+    }
 
     double CalculateRootFunction(double time, const std::vector<double> &rY)
     {
@@ -57,6 +57,39 @@ public :
     }
 };
 
+
+class ExceptionalOdeWithRootFunction : public OdeSecondOrderWithEvents
+{
+private:
+    bool mNice;
+public :
+    ExceptionalOdeWithRootFunction()
+        : OdeSecondOrderWithEvents() 
+    {
+        mNice = false;
+    }
+    
+    void BeNice()
+    {
+        mNice = true;
+    }
+    
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    {
+        rDY[0] =  rY[1];
+        rDY[1] = -rY[0];
+        if (!mNice)
+        {
+            EXCEPTION("I'm feeling nasty!");
+        }
+    }
+
+    double CalculateRootFunction(double time, const std::vector<double> &rY)
+    {
+        EXCEPTION("I'm feeling nasty!");
+        return rY[0];
+    }
+};
 
 class TestCvodeAdaptor: public CxxTest::TestSuite
 {
@@ -219,11 +252,16 @@ public:
         
         TS_ASSERT_DELTA(solver.GetLastStepSize(), 0.1, 1e-6);
         
+        // If we try to continue, the stopping event is still true, which is an error
+        TS_ASSERT_THROWS_ANYTHING(solutions = solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.01));
+        
         // Alternative Solve method
         state_variables = ode_system.GetInitialConditions();
         solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.01);
         TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
         TS_ASSERT_DELTA(solver.GetStoppingTime(), M_PI_2, 0.01)
+        // If we try to continue, the stopping event is still true, which is an error
+        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
 #endif // CHASTE_CVODE
     }
     
@@ -260,6 +298,30 @@ public:
         solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1);
         TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
         TS_ASSERT_DELTA(solver.GetStoppingTime(), M_PI_2, 1e-4)
+#endif // CHASTE_CVODE
+    }
+    
+    void TestExceptions()
+    {
+#ifdef CHASTE_CVODE
+        ExceptionalOdeWithRootFunction ode_system;
+        CvodeAdaptor solver;
+        OdeSolution solutions;
+        
+        // Exception in EvaluateYDerivatives
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+        
+        // Not enough steps
+        ode_system.BeNice();
+        solver.SetMaxSteps(1);
+        state_variables = ode_system.GetInitialConditions();
+        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+        
+        // Exception in root function
+        solver.CheckForStoppingEvents();
+        state_variables = ode_system.GetInitialConditions();
+        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
 #endif // CHASTE_CVODE
     }
     

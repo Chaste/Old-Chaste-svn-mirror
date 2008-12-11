@@ -100,8 +100,6 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData);
  *
  * Throw an Exception to report errors, rather than the CVODE approach of magic
  * return codes.
- * 
- * \todo coverage
  */
 void CvodeErrorHandler(int errorCode, const char *module, const char *function,
                        char *message, void *pData);
@@ -153,7 +151,8 @@ protected:
     /**
      * Report an error from CVODE.
      * 
-     * \todo coverage
+     * This will (probably) never be called, since we supply an error handler function
+     * which throws an exception.
      */
     void CvodeError(int flag, const char * msg);
 

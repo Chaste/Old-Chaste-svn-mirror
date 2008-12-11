@@ -196,6 +196,7 @@ void CvodeAdaptor::FreeCvodeMemory()
 }
 
 
+#define COVERAGE_IGNORE
 void CvodeAdaptor::CvodeError(int flag, const char * msg)
 {
     std::stringstream err;
@@ -203,6 +204,7 @@ void CvodeAdaptor::CvodeError(int flag, const char * msg)
     std::cerr << err.str() << std::endl << std::flush;
     EXCEPTION(err.str());
 }
+#undef COVERAGE_IGNORE
 
 
 OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,

@@ -154,6 +154,13 @@ public:
      */
     virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
     
+    /**
+     * An alternative approach to stopping events; currently only useful with CVODE.
+     * CVODE can search for roots (zeros) of this function while solving the ODE system,
+     * and home in on them to find sign transitions to high precision.
+     * 
+     * The default implementation here fakes a root function using CalculateStoppingEvent.
+     */
     virtual double CalculateRootFunction(double time, const std::vector<double> &rY)
     {
         bool stop = CalculateStoppingEvent(time, rY);

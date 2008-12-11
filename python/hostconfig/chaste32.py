@@ -46,7 +46,7 @@ blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
 
-use_cvode = False
+use_cvode = True
 if use_cvode:
     other_includepaths.append('../../../cvode/include')
     other_libpaths.append('../../../cvode/lib')
