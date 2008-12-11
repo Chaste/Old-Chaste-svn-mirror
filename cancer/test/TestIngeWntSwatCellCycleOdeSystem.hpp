@@ -516,7 +516,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 6.109381124487460, 1e-2);
 
         // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that
-        // large tolerances are required for the tests to pass (see #238 and #316).
+        // large tolerances are required for the tests to pass (see #238, #316 and #810).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.885925504994788e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.0, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.461454077577112e+00, 1e-3);
@@ -525,17 +525,17 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5], 1.428571428571428e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6], 2.857142857142857e-02, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7], 1.826340175985522e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8], 8.847117964569135e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8], 8.847117964569135e+00, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][9], 0, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][10], 6.199836467090596e+00, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][11], 0, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][12], 9.735946067044630e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][13], 6.153733439469387e+01, 1e-2);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][14], 4.310129026467735e+01, 1e-2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][13], 6.153733439469387e+01, 1e-1);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][14], 4.310129026467735e+01, 1e-1);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][15], 2.476909200705334e+01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][16], 8.766188466378457e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][16], 8.766188466378457e+00, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][17], 0, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][18], 6.141626362262133e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][18], 6.141626362262133e+00, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][19], 0, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][20], 2.283368993736725e+00, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1, 1e-3);

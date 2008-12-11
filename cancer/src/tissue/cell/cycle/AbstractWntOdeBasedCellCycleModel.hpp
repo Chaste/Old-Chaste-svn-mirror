@@ -69,7 +69,7 @@ protected:
     {
 #ifdef CHASTE_CVODE
         msSolver.CheckForStoppingEvents();
-        msSolver.SetMaxSteps(1000);
+        msSolver.SetMaxSteps(10000);
         //msSolver.SetTolerances(1e-6, 1e-8);
 #endif //CHASTE_CVODE
     }
@@ -85,7 +85,14 @@ public:
     /**
      * Just a default constructor (no member variables)
      */
-    AbstractWntOdeBasedCellCycleModel() {};
+    AbstractWntOdeBasedCellCycleModel()
+    {
+#ifdef CHASTE_CVODE
+        msSolver.CheckForStoppingEvents();
+        msSolver.SetMaxSteps(10000);
+        //msSolver.SetTolerances(1e-6, 1e-8);
+#endif //CHASTE_CVODE
+    }
 
     /**
      * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)

@@ -153,6 +153,12 @@ public:
      *  it should stop there. By default, false is returned here.
      */
     virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
+    
+    virtual double CalculateRootFunction(double time, const std::vector<double> &rY)
+    {
+        bool stop = CalculateStoppingEvent(time, rY);
+        return stop ? 0.0 : 1.0;
+    }
 
     bool GetUseAnalytic()
     {

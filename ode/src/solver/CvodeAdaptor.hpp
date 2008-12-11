@@ -134,6 +134,7 @@ private:
     CvodeData mData;
     double mRelTol;
     double mAbsTol;
+    double mLastInternalStepSize;
     long int mMaxSteps;
     bool mCheckForRoots;
 protected:
@@ -166,6 +167,7 @@ public:
         : AbstractIvpOdeSolver(),
           mpCvodeMem(NULL), mInitialValues(NULL),
           mRelTol(relTol), mAbsTol(absTol),
+          mLastInternalStepSize(-0.0),
           mMaxSteps(0),
           mCheckForRoots(false)
     {
@@ -187,6 +189,14 @@ public:
     double GetAbsoluteTolerance()
     {
         return mAbsTol;
+    }
+    
+    /**
+     * Get the last step size used internally by CVODE in the last Solve call
+     */
+    double GetLastStepSize()
+    {
+        return mLastInternalStepSize;
     }
 
     /**

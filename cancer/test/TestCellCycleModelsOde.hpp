@@ -207,11 +207,13 @@ public:
         SimulationTime *p_simulation_time = SimulationTime::Instance();
 
         double end_time = 30; //hours
-        int num_timesteps = 1000*(int)end_time;
+        int num_timesteps = 100*(int)end_time;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
 
         double wnt_level = 1.0;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        
+        double tol = 1e-4;
 
         // Cover exception
         TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0));
@@ -231,48 +233,52 @@ public:
         // Check the Inge model has changed the cell type correctly.
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
+
+#ifdef CHASTE_CVODE
+        const double expected_g1_duration = 6.18252;
+        tol  = 1e-5;
+#else
+        const double expected_g1_duration = 6.1959;
+#endif //CHASTE_CVODE
         for (int i=0; i<21*num_timesteps/30.0; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-
             // Call ReadyToDivide on the cell, then test the results
             // of calling ReadyToDivide on the model and test (in
             // CheckReadyToDivideAndPhaseIsUpdated).
             stem_cell.ReadyToDivide();
-#ifdef CHASTE_CVODE
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, 6.186);
-#else
-            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, 6.1877);
-#endif //CHASTE_CVODE
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, expected_g1_duration);
         }
 
         TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 21.0, 1e-4);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
 
         std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
+        
 
-        TS_ASSERT_DELTA(test_results[0] , 2.937528298476724e-01, 1e-3);
-        TS_ASSERT_DELTA(test_results[1] , 1.000000000000000e+00, 1e-2);
-        TS_ASSERT_DELTA(test_results[2] , 2.400571020059542e+00, 1e-3);
-        TS_ASSERT_DELTA(test_results[3] , 1.392891502782046e+00, 1e-3);
-        TS_ASSERT_DELTA(test_results[4] , 1.358708742498684e-01, 1e-3);
-        TS_ASSERT_DELTA(test_results[5] , 1.428571428571429e-01, 1e-4);
-        TS_ASSERT_DELTA(test_results[6] , 2.857142857142857e-02, 1e-4);
-        TS_ASSERT_DELTA(test_results[7] , 2.120643654085205e-01, 1e-4);
-        TS_ASSERT_DELTA(test_results[8] , 1.439678172957377e+01, 1e-3);
-        TS_ASSERT_DELTA(test_results[9] ,                     0, 1e-4);
-        TS_ASSERT_DELTA(test_results[10],                     0, 1e-4);
-        TS_ASSERT_DELTA(test_results[11],                     0, 1e-4);
-        TS_ASSERT_DELTA(test_results[12], 1.000000000000002e+01, 1e-4);
-        TS_ASSERT_DELTA(test_results[13], 1.028341552112414e+02, 1e-2);
-        TS_ASSERT_DELTA(test_results[14],                     0, 1e-4);
-        TS_ASSERT_DELTA(test_results[15], 2.499999999999999e+01, 1e-4);
-        TS_ASSERT_DELTA(test_results[16], 1.439678172957377e+01, 1e-3);
-        TS_ASSERT_DELTA(test_results[17],                     0, 1e-4);
-        TS_ASSERT_DELTA(test_results[18],                     0, 1e-4);
-        TS_ASSERT_DELTA(test_results[19],                     0, 1e-4);
-        TS_ASSERT_DELTA(test_results[20], 2.235636835087684e+00, 1e-4);
-        TS_ASSERT_DELTA(test_results[21], 1.000000000000000e+00, 1e-4);
+        // Accurate to 10^-6ish from ode15s matlab
+        TS_ASSERT_DELTA(test_results[0] , 2.93699961539512e-01, 2*10*tol);
+        TS_ASSERT_DELTA(test_results[1] , 1.000000000000000e+00, 2*100*tol);
+        TS_ASSERT_DELTA(test_results[2] , 2.40050625298734e+00, 2*10*tol);
+        TS_ASSERT_DELTA(test_results[3] , 1.39281551739568e+00, 2*10*tol);
+        TS_ASSERT_DELTA(test_results[4] , 1.35836451056026e-01, 2*10*tol);
+        TS_ASSERT_DELTA(test_results[5] , 1.428571428571429e-01, tol);
+        TS_ASSERT_DELTA(test_results[6] , 2.857142857142857e-02, tol);
+        TS_ASSERT_DELTA(test_results[7] , 2.120643654085205e-01, tol);
+        TS_ASSERT_DELTA(test_results[8] , 1.439678172957377e+01, 10*tol);
+        TS_ASSERT_DELTA(test_results[9] ,                     0, tol);
+        TS_ASSERT_DELTA(test_results[10],                     0, tol);
+        TS_ASSERT_DELTA(test_results[11],                     0, tol);
+        TS_ASSERT_DELTA(test_results[12], 1.000000000000002e+01, tol);
+        TS_ASSERT_DELTA(test_results[13], 1.028341552112414e+02, 100*tol);
+        TS_ASSERT_DELTA(test_results[14],                     0, tol);
+        TS_ASSERT_DELTA(test_results[15], 2.499999999999999e+01, tol);
+        TS_ASSERT_DELTA(test_results[16], 1.439678172957377e+01, 10*tol);
+        TS_ASSERT_DELTA(test_results[17],                     0, tol);
+        TS_ASSERT_DELTA(test_results[18],                     0, tol);
+        TS_ASSERT_DELTA(test_results[19],                     0, tol);
+        TS_ASSERT_DELTA(test_results[20], 2.235636835087684e+00, tol);
+        TS_ASSERT_DELTA(test_results[21], 1.000000000000000e+00, tol);
 
         // Acts as if it was divided at time = 16.1877... which is OK
         // (cell cycle model dictates division time, not when the cell is manually
@@ -335,27 +341,28 @@ public:
 
         test_results = p_cell_model->GetProteinConcentrations();
 
-        TS_ASSERT_DELTA(test_results[0] , 0.3636, 1e-3);
-        TS_ASSERT_DELTA(test_results[1] , 0.9900, 1e-2);
-        TS_ASSERT_DELTA(test_results[2] , 1.4996, 1e-3);
-        TS_ASSERT_DELTA(test_results[3] , 0.8181, 1e-4);
-        TS_ASSERT_DELTA(test_results[4] , 0.1000, 1e-4);
+        // loose tolerances for some are so we don't need different answers for CVODE and RK4
+        TS_ASSERT_DELTA(test_results[0] , 0.3648, 2e-3);
+        TS_ASSERT_DELTA(test_results[1] , 1.000, 1e-2);
+        TS_ASSERT_DELTA(test_results[2] , 1.4955, 1e-2);
+        TS_ASSERT_DELTA(test_results[3] , 0.8125, 2e-2);
+        TS_ASSERT_DELTA(test_results[4] , 0.0996, 1e-2);
         TS_ASSERT_DELTA(test_results[5] , 0.6666, 1e-4);
         TS_ASSERT_DELTA(test_results[6] , 0.0666, 1e-4);
-        TS_ASSERT_DELTA(test_results[7] , 0.7311, 1e-3);
-        TS_ASSERT_DELTA(test_results[8] , 6.0481, 1e-3);
+        TS_ASSERT_DELTA(test_results[7] , 0.7311, 2e-3);
+        TS_ASSERT_DELTA(test_results[8] , 6.0299, 4e-2);
         TS_ASSERT_DELTA(test_results[9] , 0, 1e-4);
         TS_ASSERT_DELTA(test_results[10], 0, 1e-4);
         TS_ASSERT_DELTA(test_results[11], 0, 1e-4);
-        TS_ASSERT_DELTA(test_results[12], 17.5432, 1e-4);
-        TS_ASSERT_DELTA(test_results[13], 75.8316, 1e-2);
+        TS_ASSERT_DELTA(test_results[12], 17.5407, 1e-2);
+        TS_ASSERT_DELTA(test_results[13], 75.5926, .5);
         TS_ASSERT_DELTA(test_results[14], 0, 1e-4);
-        TS_ASSERT_DELTA(test_results[15], 29.5728, 1e-4);
-        TS_ASSERT_DELTA(test_results[16], 7.1564, 1e-3);
+        TS_ASSERT_DELTA(test_results[15], 29.5666, 1e-2);
+        TS_ASSERT_DELTA(test_results[16], 7.1333, 1e-1);
         TS_ASSERT_DELTA(test_results[17], 0, 1e-4);
         TS_ASSERT_DELTA(test_results[18], 0, 1e-4);
         TS_ASSERT_DELTA(test_results[19], 0, 1e-4);
-        TS_ASSERT_DELTA(test_results[20], 1.6048, 1e-4);
+        TS_ASSERT_DELTA(test_results[20], 1.5991, 2e-2);
         TS_ASSERT_DELTA(test_results[21], 0.0000, 1e-4);
 
         TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);
@@ -406,9 +413,9 @@ public:
         // Model should enter S phase at 4.804 hrs and then finish dividing
         // 10 hours later at 14.804 hours.
 #ifdef CHASTE_CVODE
-        const double expected_g1_duration = 4.79972;
+        double expected_g1_duration = 4.79772;
 #else
-        const double expected_g1_duration = 4.804;
+        double expected_g1_duration = 4.8015;
 #endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -417,22 +424,17 @@ public:
         }
 
         p_cell_model_1->ResetForDivision();
-        double second_cycle_start = p_cell_model_1->GetBirthTime();
+#ifdef CHASTE_CVODE
+        expected_g1_duration = 4.80678;
+#else
+        expected_g1_duration = 4.8015;
+#endif //CHASTE_CVODE
 
         TS_ASSERT_DELTA(SG2M_duration, 10.0, 1e-5);
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetTime();
-            bool result = p_cell_model_1->ReadyToDivide();
-            if (time< second_cycle_start + expected_g1_duration + SG2M_duration)
-            {
-                TS_ASSERT(result==false);
-            }
-            else
-            {
-                TS_ASSERT(result==true);
-            }
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, expected_g1_duration);
         }
 
         WntConcentration::Destroy();
@@ -464,9 +466,9 @@ public:
         // Model should enter S phase at 7.82 hrs and then finish dividing
         // 10 hours later at 17.82 hours.
 #ifdef CHASTE_CVODE
-        double expected_g1_duration = 7.82068;
+        double expected_g1_duration = 7.81718;
 #else
-        double expected_g1_duration = 7.82;
+        double expected_g1_duration = 7.8247;
 #endif //CHASTE_CVODE
         
         for (int i=0; i<num_timesteps/2; i++)
@@ -478,9 +480,9 @@ public:
 
         p_cell_model_1->ResetForDivision();
 #ifdef CHASTE_CVODE
-        expected_g1_duration = 7.81932;
+        expected_g1_duration = 7.81873;
 #else
-        expected_g1_duration = 7.82;
+        expected_g1_duration = 7.8247;
 #endif //CHASTE_CVODE
 
         for (int i=0; i<num_timesteps/2; i++)
@@ -516,9 +518,9 @@ public:
         // Model should enter S phase at 3.943 hrs and then finish dividing
         // 10 hours later at 13.9435 hours.
 #ifdef CHASTE_CVODE
-        const double expected_g1_duration = 3.93697;
+        double expected_g1_duration = 3.93959;
 #else
-        const double expected_g1_duration = 3.9435;
+        double expected_g1_duration = 3.9395;
 #endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -528,6 +530,11 @@ public:
 
         p_cell_model_2->ResetForDivision();
 
+#ifdef CHASTE_CVODE
+        expected_g1_duration = 3.94529;
+#else
+        expected_g1_duration = 3.9395;
+#endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -561,9 +568,9 @@ public:
         // Model should enter S phase at 5.971 hrs and then finish dividing
         // 10 hours later at 15.971 hours.
 #ifdef CHASTE_CVODE
-        double expected_g1_duration = 5.96;
+        double expected_g1_duration = 5.96441;
 #else
-        double expected_g1_duration = 5.971;
+        double expected_g1_duration = 5.9702;
 #endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -573,9 +580,9 @@ public:
 
         p_cell_model_2->ResetForDivision();
 #ifdef CHASTE_CVODE
-        expected_g1_duration = 5.96489;
+        expected_g1_duration = 5.96016;
 #else
-        expected_g1_duration = 5.971;
+        expected_g1_duration = 5.9702;
 #endif //CHASTE_CVODE
 
         for (int i=0; i<num_timesteps/2; i++)

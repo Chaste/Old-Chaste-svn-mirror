@@ -33,6 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystem.hpp"
 #include "OdeSystemInformation.hpp"
 
+/**
+ * Solutions to this system form circles about the origin.
+ */
 class OdeSecondOrderWithEvents : public AbstractOdeSystem
 {
 public :

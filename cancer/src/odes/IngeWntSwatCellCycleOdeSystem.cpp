@@ -382,9 +382,17 @@ CellMutationState& IngeWntSwatCellCycleOdeSystem::rGetMutationState()
 
 bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
 {
+    //std::cout << "Calculating Inge stopping event\t";
     std::vector<double> dy(rY.size());
     EvaluateYDerivatives(time, rY, dy);
-    return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
+    //std::cout << (rY[1] > 1.0 && dy[1] > 0.0) << std::endl;
+    return (rY[1] > 1.0 && dy[1] > 0.0);
+}
+
+double IngeWntSwatCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)
+{
+    //std::cout << "Calculating Inge root function\t" << rY[1]-1.0 << std::endl;
+    return rY[1]-1.0;
 }
 
 

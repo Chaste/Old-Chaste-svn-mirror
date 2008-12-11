@@ -276,7 +276,12 @@ bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vecto
 
     assert(!isnan(rY[1]));
     assert(!isnan(dY1));
-    return (fabs(rY[1]-1.0) < 1.0e-2 && dY1 > 0.0);
+    return (rY[1] > 1.0 && dY1 > 0.0);
+}
+
+double WntCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)
+{
+    return rY[1] - 1.0;
 }
 
 

@@ -186,6 +186,8 @@ public:
      * @param rY value of the solution vector used to evaluate the RHS.
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
+    
+    double CalculateRootFunction(double time, const std::vector<double> &rY);
 
 };
 

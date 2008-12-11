@@ -138,6 +138,8 @@ public:
      * Ensure they do not get out of sync!
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
+    
+    double CalculateRootFunction(double time, const std::vector<double> &rY);
 
 };
 

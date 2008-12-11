@@ -732,7 +732,12 @@ public:
         wnt_cell.InitialiseCellCycleModel();
         wnt_cell.GetCellCycleModel()->SetGeneration(1);
         
+        
+#ifdef CHASTE_CVODE 
+        const double expected_g1_duration = 5.96441; 
+#else
         const double expected_g1_duration = 5.971;
+#endif //CHASTE_CVODE
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -742,7 +747,6 @@ public:
             if (time >= expected_g1_duration+SG2MDuration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-                std::cout << time << " " << SG2MDuration << std::endl;
             }
             else
             {
@@ -770,7 +774,7 @@ public:
             bool result1=wnt_cell.ReadyToDivide();
             bool result2=wnt_cell2.ReadyToDivide();
 
-            if (time>=5.971+SG2MDuration+time_of_birth)
+            if (time>=expected_g1_duration+SG2MDuration+time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);

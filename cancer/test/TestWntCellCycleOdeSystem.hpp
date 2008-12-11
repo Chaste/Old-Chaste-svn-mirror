@@ -313,8 +313,8 @@ public:
 //
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
-        // Tests the simulation is ending at the right time...(going into S phase at 7.81 hours)
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 7.82 , 1e-2);
+        // Tests the simulation is ending at the right time...(going into S phase at 7.8 hours)
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 7.835 , 1e-2);
         // Proper values from MatLab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],3.242663439545868e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.999, 1e-2);

@@ -92,18 +92,15 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData)
     // Get y into a std::vector
     CopyToStdVector(y, * p_data->pY);
     // Call our function
-    bool stop;
     try
     {
-        stop = p_data->pSystem->CalculateStoppingEvent(t, * p_data->pY);
+        *pGOut = p_data->pSystem->CalculateRootFunction(t, * p_data->pY);
     }
     catch (Exception &e)
     {
         std::cerr << "CVODE Root Exception: " << e.GetMessage() << std::endl << std::flush;
         return -1;
     }
-    // Fake a g function
-    *pGOut = stop ? 0.0 : 1.0;
     return 0;
 }
 
@@ -259,6 +256,8 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     solutions.SetNumberOfTimeSteps(stepper.GetTimeStepsElapsed());
 
 //    std::cout << " Solved to " << stepper.GetTime() << " in " << stepper.GetTimeStepsElapsed() << " samples.\n" << std::flush;
+    int ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
+    assert(ierr == CV_SUCCESS);
     FreeCvodeMemory();
 
     return solutions;
@@ -290,6 +289,7 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
         // Stopping event occurred
         mStoppingEventOccurred = true;
         mStoppingTime = tend;
+//        std::cout << "CVODE Stopped at t = " << tend << std::endl;
     }
     assert(NV_DATA_S(yout) == &(rYValues[0]));
     assert(!NV_OWN_DATA_S(yout));
@@ -298,6 +298,12 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
 //    CVodeGetNumSteps(mpCvodeMem, &steps);
 //    std::cout << " Solved to " << endTime << " in " << steps << " steps.\n";
 
+    ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
+//    if (mStoppingEventOccurred)
+//    {
+//        std::cout << "Last internal dt was " << mLastInternalStepSize << std::endl;
+//    }
+    assert(ierr == CV_SUCCESS);
     FreeCvodeMemory();
 }
 

@@ -43,6 +43,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSecondOrderWithEvents.hpp"
 
 
+class OdeWithRootFunction : public OdeSecondOrderWithEvents
+{
+public :
+    OdeWithRootFunction()
+            : OdeSecondOrderWithEvents() 
+            {
+            }
+
+    double CalculateRootFunction(double time, const std::vector<double> &rY)
+    {
+        return rY[0];
+    }
+};
+
+
 class TestCvodeAdaptor: public CxxTest::TestSuite
 {
 private:
@@ -193,12 +208,16 @@ public:
         double tstop = solver.GetStoppingTime();
         TS_ASSERT_DELTA( tend, M_PI_2, 0.01);
         TS_ASSERT_EQUALS(tend, tstop);
-        // penultimate y0 should be greater than zero
-        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);
-        // final y0 should be less than zero
-        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
         // solver should correctly state the stopping event occurred
         TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
+        // ODE system should agree that this is a stopping event
+        TS_ASSERT(ode_system.CalculateStoppingEvent(tend, solutions.rGetSolutions()[num_timesteps]));
+        // i.e. penultimate y0 should be greater than zero
+        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);
+        // and final y0 should be less than zero
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
+        
+        TS_ASSERT_DELTA(solver.GetLastStepSize(), 0.1, 1e-6);
         
         // Alternative Solve method
         state_variables = ode_system.GetInitialConditions();
@@ -207,6 +226,43 @@ public:
         TS_ASSERT_DELTA(solver.GetStoppingTime(), M_PI_2, 0.01)
 #endif // CHASTE_CVODE
     }
+    
+    void TestWithRootFunction() throw (Exception)
+    {
+#ifdef CHASTE_CVODE
+        OdeWithRootFunction ode_system;
+        CvodeAdaptor solver;
+        OdeSolution solutions;
+        
+        solver.CheckForStoppingEvents();
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        solutions = solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.01);
+        int num_timesteps = solutions.GetNumberOfTimeSteps();
+        
+        // final time should be about pi/2
+        double tend = solutions.rGetTimes()[num_timesteps];
+        double tstop = solver.GetStoppingTime();
+        TS_ASSERT_DELTA( tend, M_PI_2, 1e-4);
+        TS_ASSERT_EQUALS(tend, tstop);
+        // solver should correctly state the stopping event occurred
+        TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
+        // ODE system should agree that this is a root
+        TS_ASSERT_DELTA(ode_system.CalculateRootFunction(tend, solutions.rGetSolutions()[num_timesteps]),0,1e-12);
+        // i.e. penultimate y0 should be greater than zero
+        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);
+        // and final y0 should be less than zero
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
+        
+        TS_ASSERT_DELTA(solver.GetLastStepSize(), 0.1, 1e-6);
+        
+        // Alternative Solve method
+        state_variables = ode_system.GetInitialConditions();
+        solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1);
+        TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
+        TS_ASSERT_DELTA(solver.GetStoppingTime(), M_PI_2, 1e-4)
+#endif // CHASTE_CVODE
+    }
+    
 };
 
 #endif //_TESTCVODEADAPTOR_HPP_
