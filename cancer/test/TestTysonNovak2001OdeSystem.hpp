@@ -165,7 +165,7 @@ public:
         // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.98913684535843, 1e-2);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.54216806705641, 1e-2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.54216806705641, 1e-1);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.95328206604519, 1e-2);

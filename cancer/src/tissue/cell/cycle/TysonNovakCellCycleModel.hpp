@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 #include "Exception.hpp"
 
 // Needs to be included last
@@ -53,7 +54,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
+#ifdef CHASTE_CVODE_TN
+    static CvodeAdaptor msSolver;
+#else
     static BackwardEulerIvpOdeSolver msSolver;
+#endif  //CHASTE_CVODE
 
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime, unsigned generation);
 

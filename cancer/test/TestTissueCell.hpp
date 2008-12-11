@@ -878,7 +878,7 @@ public:
      */
     void TestWithTysonNovakCellCycleModel() throw(Exception)
     {
-        double standard_tyson_duration = 75.19/60.0;
+        double standard_tyson_duration = 1.26;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps=100;
@@ -892,8 +892,9 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
-            if (time>=standard_tyson_duration)
+            if (time>standard_tyson_duration)
             {
+                std::cout << "Time = " << SimulationTime::Instance()->GetTime() << "\n" << std::flush;
                 TS_ASSERT(tn_cell.ReadyToDivide()==true);
             }
             else

@@ -51,7 +51,7 @@ public:
     void TestTysonNovakCellCycleModel(void) throw(Exception)
     {
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        int num_timesteps = 100;
+        unsigned num_timesteps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);
 
         double standard_divide_time = 75.19/60.0;
@@ -61,7 +61,7 @@ public:
         p_cell_model->SetBirthTime(p_simulation_time->GetTime());
         TissueCell cell(STEM, HEALTHY, p_cell_model);
 
-        for (int i=0; i<num_timesteps/2; i++)
+        for (unsigned i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
@@ -84,7 +84,7 @@ public:
 
         TS_ASSERT_DELTA(proteins[0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(proteins[1],0.98913684535843, 1e-2);
-        TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-2);
+        TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-1);
         TS_ASSERT_DELTA(proteins[3],1.40562614481544, 1e-2);
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
@@ -94,7 +94,7 @@ public:
 
         TissueCell stem_cell_2(STEM, APC_ONE_HIT, p_cell_model2);
 
-        for (int i=0; i<num_timesteps/2; i++)
+        for (unsigned i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
@@ -120,10 +120,60 @@ public:
 
         TS_ASSERT_DELTA(proteins[0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(proteins[1],0.98913684535843, 1e-2);
-        TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-2);
+        TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-1);
         TS_ASSERT_DELTA(proteins[3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
-        TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
+        TS_ASSERT_DELTA(proteins[5],0.9662, 1e-2);
+        
+        SimulationTime::Destroy();
+        
+     
+        {   // Test for #316 - model ODEs should be able to cycle themselves without having Initial Conditions reset.
+            // In the case of using CVODE the model resets itself by halving the mass of the cell
+            // otherwise it resets its initial conditions, because our solver can't cope!
+            SimulationTime::Instance();
+            SimulationTime::Instance()->SetStartTime(0.0);
+            unsigned num_timesteps = 100000;
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(100.1*standard_divide_time, num_timesteps);
+            
+            TysonNovakCellCycleModel* p_repeating_cell_model = new TysonNovakCellCycleModel;
+            TissueCell tyson_novak_cell(STEM, APC_ONE_HIT, p_repeating_cell_model);
+//            std::ofstream out("TN_output.txt");
+            unsigned num_divisions = 0u;
+            for (unsigned i=0; i<num_timesteps; i++)
+            {
+                SimulationTime::Instance()->IncrementTimeOneStep();
+                bool result = p_repeating_cell_model->ReadyToDivide();
+//                std::vector<double> proteins = p_repeating_cell_model->GetProteinConcentrations();
+//                out << SimulationTime::Instance()->GetTime() << "\t";
+//                for (unsigned j=0 ; j<proteins.size(); j++)
+//                {
+//                    out << proteins[j] << "\t";
+//                }
+//                out << "\n" << std::flush;
+                
+                if (result)
+                {
+                    p_repeating_cell_model->ResetForDivision();
+                    p_repeating_cell_model->SetBirthTime(SimulationTime::Instance()->GetTime());
+                    num_divisions++;
+                }
+            }
+            TS_ASSERT(num_divisions==99u || num_divisions==100u);// one for cvode one for chaste solvers!!
+            //out.close();
+            /* 
+             * Matlab to plot the output of above commented output
+             * cdchaste
+             * data = load('TN_output.txt');
+             * figure
+             * for i=1:6
+             *   subplot(3,2,i)
+             *   plot(data(:,1),data(:,1+i))
+             * end
+             * 
+             */
+        }
+        
     }
 
 
@@ -415,7 +465,7 @@ public:
 #ifdef CHASTE_CVODE
         double expected_g1_duration = 4.79772;
 #else
-        double expected_g1_duration = 4.8015;
+        double expected_g1_duration = 4.8084;
 #endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -427,7 +477,7 @@ public:
 #ifdef CHASTE_CVODE
         expected_g1_duration = 4.80678;
 #else
-        expected_g1_duration = 4.8015;
+        expected_g1_duration = 4.8084;
 #endif //CHASTE_CVODE
 
         TS_ASSERT_DELTA(SG2M_duration, 10.0, 1e-5);
@@ -468,7 +518,7 @@ public:
 #ifdef CHASTE_CVODE
         double expected_g1_duration = 7.81718;
 #else
-        double expected_g1_duration = 7.8247;
+        double expected_g1_duration = 7.8342;
 #endif //CHASTE_CVODE
         
         for (int i=0; i<num_timesteps/2; i++)
@@ -482,7 +532,7 @@ public:
 #ifdef CHASTE_CVODE
         expected_g1_duration = 7.81873;
 #else
-        expected_g1_duration = 7.8247;
+        expected_g1_duration = 7.8342;
 #endif //CHASTE_CVODE
 
         for (int i=0; i<num_timesteps/2; i++)
@@ -520,7 +570,7 @@ public:
 #ifdef CHASTE_CVODE
         double expected_g1_duration = 3.93959;
 #else
-        double expected_g1_duration = 3.9395;
+        double expected_g1_duration = 3.9455;
 #endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -533,7 +583,7 @@ public:
 #ifdef CHASTE_CVODE
         expected_g1_duration = 3.94529;
 #else
-        expected_g1_duration = 3.9395;
+        expected_g1_duration = 3.9455;
 #endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -570,7 +620,7 @@ public:
 #ifdef CHASTE_CVODE
         double expected_g1_duration = 5.96441;
 #else
-        double expected_g1_duration = 5.9702;
+        double expected_g1_duration = 5.9782;
 #endif //CHASTE_CVODE
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -582,7 +632,7 @@ public:
 #ifdef CHASTE_CVODE
         expected_g1_duration = 5.96016;
 #else
-        expected_g1_duration = 5.9702;
+        expected_g1_duration = 5.9782;
 #endif //CHASTE_CVODE
 
         for (int i=0; i<num_timesteps/2; i++)

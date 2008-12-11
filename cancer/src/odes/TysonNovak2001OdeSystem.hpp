@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TYSONNOVAK2001ODESYSTEM_HPP_
 
 #include <cmath>
+#include <iostream>
 
 #include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 
@@ -115,6 +116,8 @@ public:
      * @param rY value of the solution vector used to evaluate the RHS.
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
+    
+    double CalculateRootFunction(double time, const std::vector<double> &rY);
     
     /**
      * Compute the Jacobian of the ODE system.

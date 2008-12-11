@@ -27,12 +27,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TysonNovakCellCycleModel.hpp"
 
+#ifdef CHASTE_CVODE_TN
+CvodeAdaptor TysonNovakCellCycleModel::msSolver;
+#else
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
+#endif
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+#ifdef CHASTE_CVODE_TN
+    msSolver.CheckForStoppingEvents();
+    msSolver.SetMaxSteps(10000);
+    //msSolver.SetTolerances(1e-6, 1e-8);
+#endif //CHASTE_CVODE
 }
 
 /**
@@ -66,11 +75,12 @@ void TysonNovakCellCycleModel::ResetForDivision()
      * currently returns a solution that diverges after long times (see #316), so
      * we must reset the initial conditions each period.
      */
-
-    /// \todo Uncomment this line and comment the line after once #316 is fixed
-    // mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
-
+    
+#ifdef CHASTE_CVODE_TN
+    mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
+#else
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+#endif
 }
 
 void TysonNovakCellCycleModel::InitialiseDaughterCell()
