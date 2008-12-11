@@ -55,7 +55,6 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
     public static boolean drawAxes = true;
     public static boolean drawCells = true;
     public static boolean writeFiles = false;
-    public static boolean drawGhosts = false;
     public static boolean drawFibres = false;
     public static boolean drawCylinder = false;
     public static boolean drawCylinderOverride = true;
@@ -83,7 +82,6 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
     public static double min_y =  1e12;
     public static double crypt_width = 0.0;
     public static double half_width = 0.0;
-    public static double stress_time = 0.0;
     public static double[] times;
     
     public static RealPoint[][] positions;
@@ -93,7 +91,6 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
     
     public static Checkbox output = new Checkbox("Output");
     public static Checkbox cells = new Checkbox("Cells");
-    public static Checkbox ghost_nodes = new Checkbox("Ghosts");
     public static Checkbox ancestors = new Checkbox("Clonal Populations");
     public static Checkbox axes = new Checkbox("Axes");
     
@@ -195,11 +192,6 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
         else if (cb == cells)
         {
             System.out.println("Drawing cells = "+drawCells);
-        }
-        else if (cb == ghost_nodes)
-        {
-            drawGhosts = state;
-            System.out.println("Drawing ghost nodes = "+drawGhosts);    
         }
         else if (cb == axes)
         {
@@ -311,13 +303,11 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
         JPanel checkPanel = new JPanel(new GridLayout(0,5));
         output.addItemListener(this);
         cells.addItemListener(this);
-        ghost_nodes.addItemListener(this);
         axes.addItemListener(this);
         ancestors.addItemListener(this);
         
         checkPanel.add(output);
         checkPanel.add(cells);
-        checkPanel.add(ghost_nodes);
         checkPanel.add(axes);
         checkPanel.add(ancestors);
         checkPanel.add(nearest_label);
@@ -333,7 +323,6 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
         System.out.println("Copyright The Chaste Project");
         cells.setState(true);
         output.setState(false);
-        ghost_nodes.setState(false);
         axes.setState(true);
         ancestors.setState(false);
         
@@ -349,11 +338,6 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
                 drawCells = false;
                 cells.setState(false);
             }   
-            else if (args[i].equals("ghosts"))
-            {
-                drawGhosts = true;
-                ghost_nodes.setState(true);
-            }
             else if (args[i].equals("notcylindrical"))
             {
                 drawCylinderOverride = false;
@@ -547,7 +531,7 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
                 }
                 
                 times[row] = time.doubleValue();
-
+// old stuff
                 // Count the number of entries in the node file and check correct 
                 int entries = st_node.countTokens();
                                 
@@ -558,40 +542,46 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
                 }
                 numCells[row] = entries/3; 
 
-                if (elementFilePresent)
-                {
-                    // Count the number of entries in the element file and check correct 
-                    entries = st_element.countTokens();
-                    if (entries%3 != 0)
-                    {
-                    	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the element file is not of the required form: time,n1,n2,n3,n1,n2,n3..");
-                    	break;
-                    }
-                    numElements[row] = entries/3;
-                    element_nodes[row] = new int[memory_factor*3*numElements[row]];
-                } 
-                
-                
 //                if (elementFilePresent)
 //                {
 //                    // Count the number of entries in the element file and check correct 
-//                	int total_entries = st_element.countTokens();
-//                    entries = 0;
-//                    int entry_posn = 0;
-//                    System.out.println("About to loop over elems");
-//                	
-//                    while (entry_posn<total_entries)
+//                    entries = st_element.countTokens();
+//                    if (entries%3 != 0)
 //                    {
-//                    	entries++;
-//                    	entry_posn += 1;
-//                    	for (int i=0; i<Integer.parseInt(st_element.nextToken()); i++)
-//                    	{
-//                    		st_element.nextToken();
-//                    	}
+//                    	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the element file is not of the required form: time,n1,n2,n3,n1,n2,n3..");
+//                    	break;
 //                    }
-//                    numElements[row] = entries;
+//                    numElements[row] = entries/3;
 //                    element_nodes[row] = new int[memory_factor*3*numElements[row]];
-//                }                
+//                } 
+                
+                // new stuff
+                if (elementFilePresent)
+                {
+                    // Count the number of entries in the element file and check correct 
+                	int total_entries = st_element.countTokens();
+                    int total_elems = 0;
+                    int entry_posn = 0;
+                    System.out.println("About to loop over elems");
+                	
+                    while (entry_posn<total_entries)
+                    {
+                     	entry_posn ++;
+                     	total_elems++;
+                    	int num_elem_vertices = Integer.parseInt(st_element.nextToken());
+                    	for (int i=0; i<num_elem_vertices; i++)
+                    	{
+                    		st_element.nextToken();
+                         	entry_posn ++;
+                    	}
+                    }
+                    
+                    new int[total_elems];
+                    
+                    System.out.println("num elements = " + total_elems);
+                    numElements[row] = total_elems;
+                    element_nodes[row] = new int[memory_factor*(total_entries-total_elems)];
+                }                
 
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 if (ancestorsFilePresent)
@@ -653,15 +643,10 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
             
             System.out.println("Writing output files = "+writeFiles);
             System.out.println("Drawing cells = "+drawCells);
-            System.out.println("Drawing ghost nodes = "+drawGhosts);
-            System.out.println("Drawing cylindrically = "+ drawCylinder);
             System.out.println("Drawing axes = "+ drawAxes);
             System.out.println("Drawing clonal populations = "+ drawAncestors);
             
-            if (drawCylinder) 
-            {
-            	ConvertCylindricalDataToPlane();
-            }
+            
             
             CalculateCanvasDimensions();
             parsed_all_files = true;
@@ -701,51 +686,6 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
         }
     }
     
-    public static void ConvertCylindricalDataToPlane()
-    {
-        // Scan through each element
-        for (int time_index=0; time_index<numSteps ; time_index++)
-        {
-            image_cells[time_index] = new int[memory_factor*numCells[time_index]]; // reserve plenty of memory
-            
-            // Fill image_nodes with an identity map (at each time step each node maps to itself)            
-            for (int i=0; i<numCells[time_index]; i++) 
-            {
-                image_cells[time_index][i] = i;
-            }
-            
-            if (elementFilePresent)
-            {
-                // Draw elements first
-                for (int i=0; i<numElements[time_index]; i++)
-                {   
-                    // What nodes are we joining up?
-                    int indexA = element_nodes[time_index][3*i];
-                    int indexB = element_nodes[time_index][3*i+1];
-                    int indexC = element_nodes[time_index][3*i+2];
-                    
-                    // Find the x-co-ords of each node
-                    RealPoint rA = positions[time_index][indexA];
-                    RealPoint rB = positions[time_index][indexB];
-                    RealPoint rC = positions[time_index][indexC];
-                    
-                    // Identify edges that are oversized
-                    if ((Math.abs(rA.x - rB.x) > 0.75*crypt_width)
-                        ||(Math.abs(rB.x - rC.x) > 0.75*crypt_width)
-                        ||(Math.abs(rA.x - rC.x) > 0.75*crypt_width))
-                    {
-                        MakeNewImageCell(time_index,indexA);
-                        MakeNewImageCell(time_index,indexB);
-                        MakeNewImageCell(time_index,indexC);
-                        
-                        // Break those elements into two separate elements
-                        SplitElement(time_index,i);
-                    }
-                }
-            }            
-        }
-    }
-
     public static void SplitElement(int time_index,int element_index)
     {
         int indexA = element_nodes[time_index][3*element_index];
@@ -809,9 +749,7 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
                 new_point2.x = new_point.x - crypt_width;
             }
 
-            // New ghost node
-            positions[time_index][numCells[time_index]] = new_point2;
-            cell_type[time_index][numCells[time_index]] = canvas.INVISIBLE_COLOUR;
+
             
             // Update the image record
             image_cells[time_index][node_index] = numCells[time_index]; 
@@ -1046,23 +984,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	                {
 	                    g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
 	                }
-	                if (vis.drawGhosts)
-	                {
-	                    g2.setColor(garysSpringsSilver);
-	                    if ( (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) )
-	                    {
-	                        g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
-	                    }
-	                    if ( (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) )
-	                    {
-	                        g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
-	                    }
-	                    if ( (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) )
-	                    {
-	                        g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
-	                    }
-	                    g2.setColor(Color.black);
-	                }
+	                
 	            }
 	        }
         }
@@ -1311,14 +1233,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 g2.setColor(Color.black); 
                 break;
             case INVISIBLE_COLOUR: // sloughed cell
-                if (!vis.drawGhosts)
-                {
-                    g2.setColor(garysSexySilver);
-                }
-                else
-                {
-                    g2.setColor(Color.lightGray);
-                } 
+                g2.setColor(Color.lightGray);
                 break;
              default: 
                 g2.setColor(Color.white);
