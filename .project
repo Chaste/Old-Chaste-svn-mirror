@@ -31,7 +31,7 @@
 					<value></value>
 				</dictionary>
 				<dictionary>
-					<key>org.eclipse.cdt.make.core.buildLocation</key>
+					<key>org.eclipse.cdt.make.core.environment</key>
 					<value></value>
 				</dictionary>
 				<dictionary>
@@ -39,16 +39,16 @@
 					<value>false</value>
 				</dictionary>
 				<dictionary>
-					<key>org.eclipse.cdt.make.core.environment</key>
+					<key>org.eclipse.cdt.make.core.buildLocation</key>
+					<value></value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.target.inc</key>
 					<value></value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.enableFullBuild</key>
 					<value>true</value>
-				</dictionary>
-				<dictionary>
-					<key>org.eclipse.cdt.make.core.build.target.inc</key>
-					<value></value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.enabledIncrementalBuild</key>
@@ -59,12 +59,12 @@
 					<value></value>
 				</dictionary>
 				<dictionary>
-					<key>org.eclipse.cdt.make.core.build.command</key>
-					<value>scons</value>
-				</dictionary>
-				<dictionary>
 					<key>org.eclipse.cdt.make.core.build.target.clean</key>
 					<value>-c</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.command</key>
+					<value>scons</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.enableCleanBuild</key>
