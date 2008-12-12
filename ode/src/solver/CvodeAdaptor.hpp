@@ -203,6 +203,7 @@ public:
      * 
      * @param pOdeSystem  the ODE system to solve
      * @param rYValues  the initial state variable values
+     *   (note: this vector will also be used as working memory)
      * @param startTime  the time to start solving at
      * @param endTime  the time to solve to
      * @param maxStep  the maximum time step to be taken by the adaptive solver

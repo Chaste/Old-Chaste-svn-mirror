@@ -239,8 +239,17 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     {
 //        std::cout << "Solving to time " << stepper.GetNextTime() << std::endl << std::flush;
         double tend;
-        int ierr = CVode(mpCvodeMem, stepper.GetNextTime(), yout,
+        int ierr;
+        try
+        {
+            ierr = CVode(mpCvodeMem, stepper.GetNextTime(), yout,
                          &tend, CV_NORMAL);
+        }
+        catch (...)
+        {
+            FreeCvodeMemory();
+            throw;
+        }
         if (ierr<0) CvodeError(ierr, "CVODE failed to solve system");
         // Store solution
         solutions.rGetSolutions().push_back(rYValues);
@@ -259,7 +268,7 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
 
 //    std::cout << " Solved to " << stepper.GetTime() << " in " << stepper.GetTimeStepsElapsed() << " samples.\n" << std::flush;
     int ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
-    assert(ierr == CV_SUCCESS);
+    assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
     FreeCvodeMemory();
 
     return solutions;
@@ -284,7 +293,16 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
 
     N_Vector yout = mInitialValues;
     double tend;
-    int ierr = CVode(mpCvodeMem, endTime, yout, &tend, CV_NORMAL);
+    int ierr;
+    try
+    {
+        ierr = CVode(mpCvodeMem, endTime, yout, &tend, CV_NORMAL);
+    }
+    catch (...)
+    {
+        FreeCvodeMemory();
+        throw;
+    }
     if (ierr<0) CvodeError(ierr, "CVODE failed to solve system");
     if (ierr == CV_ROOT_RETURN)
     {
@@ -305,7 +323,7 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
 //    {
 //        std::cout << "Last internal dt was " << mLastInternalStepSize << std::endl;
 //    }
-    assert(ierr == CV_SUCCESS);
+    assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
     FreeCvodeMemory();
 }
 
