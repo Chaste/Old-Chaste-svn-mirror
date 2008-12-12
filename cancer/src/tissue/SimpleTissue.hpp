@@ -82,6 +82,9 @@ public:
      */
     SimpleTissue(const std::vector<Node<DIM> >& rNodes);
 
+    /**
+     * Destructor.
+     */
     ~SimpleTissue()
     {}
 
@@ -124,7 +127,14 @@ public:
      */
     void Validate();
 
+    /**
+     * Method for getting all nodes in the tissue.
+     */ 
     std::vector<Node<DIM> >& rGetNodes();
+    
+    /**
+     * Method for getting all nodes in the tissue (for archiving).
+     */
     const std::vector<Node<DIM> >& rGetNodes() const;
 
     /**
@@ -135,7 +145,6 @@ public:
     void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
 
 };
-
 
 
 #include "TemplatedExport.hpp"

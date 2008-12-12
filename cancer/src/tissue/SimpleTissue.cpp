@@ -25,8 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-
 #include "SimpleTissue.hpp"
 
 template<unsigned DIM>
@@ -37,6 +35,7 @@ SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes,
 {
     Validate();
 }
+
 
 template<unsigned DIM>
 SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes)
@@ -74,11 +73,13 @@ std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes()
     return mNodes;
 }
 
+
 template<unsigned DIM>
 const std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes() const
 {
     return mNodes;
 }
+
 
 template<unsigned DIM>
 Node<DIM>* SimpleTissue<DIM>::GetNode(unsigned index)
@@ -86,11 +87,13 @@ Node<DIM>* SimpleTissue<DIM>::GetNode(unsigned index)
     return &(mNodes[index]);
 }
 
+
 template<unsigned DIM>
 void SimpleTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM> point)
 {
     mNodes[index].SetPoint(point);
 }
+
 
 template<unsigned DIM>
 void SimpleTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
@@ -98,6 +101,7 @@ void SimpleTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, Ch
     unsigned index = iter.GetNode()->GetIndex();
     SetNode(index, rNewLocation);
 }
+
 
 template<unsigned DIM>
 TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
@@ -116,6 +120,7 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
 
     return p_created_cell;
 }
+
 
 template<unsigned DIM>
 void SimpleTissue<DIM>::ReMesh()
@@ -169,6 +174,7 @@ void SimpleTissue<DIM>::ReMesh()
     Validate();
 }
 
+
 template<unsigned DIM>
 unsigned SimpleTissue<DIM>::RemoveDeadCells()
 {
@@ -190,6 +196,7 @@ unsigned SimpleTissue<DIM>::RemoveDeadCells()
     return num_removed;
 }
 
+
 template<unsigned DIM>
 unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
 {
@@ -199,12 +206,12 @@ unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
     return pNewNode->GetIndex();
 }
 
+
 template<unsigned DIM>
 unsigned SimpleTissue<DIM>::GetNumNodes()
 {
     return mNodes.size();
 }
-
 
 
 /////////////////////////////////////////////////////////////////////////////

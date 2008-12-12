@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Contains a group of cells and associated methods.
  *
  */
+ /// \todo Some methods in this class needs documenting (see #736)
 template<unsigned DIM>
 class AbstractTissue
 {
@@ -101,6 +102,9 @@ protected:
 
 public:
 
+    /**
+     * Default constructor.
+     */
     AbstractTissue(const std::vector<TissueCell>& rCells);
 
     /**

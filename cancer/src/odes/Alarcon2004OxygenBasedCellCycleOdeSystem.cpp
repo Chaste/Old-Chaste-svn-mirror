@@ -25,7 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
@@ -160,9 +159,6 @@ bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double tim
 {
     return (rY[0] < mxThreshold && rY[1] > myThreshold);
 }
-
-
-
 
 template<>
 void CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>::Initialise(void)

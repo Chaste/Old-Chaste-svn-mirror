@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define INGEWNTSWATCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
-//#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include <cfloat>
@@ -92,6 +91,7 @@ public:
         }
     };
 
+    /// \todo These methods need documenting (see #736)
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                       AbstractOdeSystem* pParentOdeSystem,
                       const CellMutationState& rMutationState,
@@ -123,7 +123,7 @@ public:
      */
     double GetNuclearBetaCateninLevel();
 
-    unsigned GetHypothesis() const; // this function promises not to change the object.
+    unsigned GetHypothesis() const; // this function promises not to change the object
 
     /**
      * @return whether the cell cycle model uses beta-catenin levels in cell cycle model, ie Inge models.
@@ -131,7 +131,7 @@ public:
     bool UsesBetaCat();
 };
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(IngeWntSwatCellCycleModel)
 
 

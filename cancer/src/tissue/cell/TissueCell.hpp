@@ -72,26 +72,36 @@ private:
     }
 
 protected:
-    // NB - if you add any member variables make sure CommonCopy includes them.
+
+    // NB - if you add any member variables, make sure CommonCopy includes them.
     
     /** The cell type - defined in CellTypes.hpp */
     CellType mCellType;
+    
     /** The cell's mutation state - defined in CellMutationStates.hpp */
     CellMutationState mMutationState;
+    
     /** The cell's cell-cycle model */
     AbstractCellCycleModel *mpCellCycleModel;
+    
     /** An index of either the node or vertex element that a cell is paired with */
     unsigned mLocationIndex;
+    
     /** An index which is inherited by all children of this cell */
     unsigned mAncestor;
-    /** When the cell will/did die. */
+    
+    /** When the cell will/did die */
     double mDeathTime;
+    
     /** Whether the cell is currently in apoptosis - don't divide */
     bool mUndergoingApoptosis;
+    
     /** Whether the cell is dead or not (they exist in the Tissue until they are removed by AbstractTissue::RemoveDeadCells() */
     bool mIsDead;
+    
     /** Whether the cell is being tracked specially. */
     bool mIsLogged;
+    
     /** Contains code common to both the copy constructor and operator=. */
     void CommonCopy(const TissueCell &other_cell);
 
@@ -158,11 +168,13 @@ public:
      * @param index Index of the node / VertexElement in the mesh
      */
     void SetLocationIndex(unsigned index);
+    
      /**
      * Get the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
      */
     unsigned GetLocationIndex() const;
 
+    /// \todo These methods need documenting (see #736)
     double GetAge() const;
     double GetBirthTime() const;
     unsigned GetGeneration() const;
@@ -206,12 +218,15 @@ public:
      * @return How long until the cell dies (if it is in apoptosis, throws an exception if not)
      */
     double TimeUntilDeath() const;
+
+    /// \todo This method needs documenting (see #736)    
     bool IsDead() const;
 
     /**
      * Sets a flag to perform special output on this cell only.
      */
     void SetLogged();
+    
     /**
      * @return Whether the cell is being tracked.
      */

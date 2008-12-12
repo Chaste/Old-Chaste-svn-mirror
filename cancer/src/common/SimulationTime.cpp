@@ -25,13 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-
-
 #include "SimulationTime.hpp"
 #include "Exception.hpp"
 #include <assert.h>
-//#include <iostream>
+
 
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;

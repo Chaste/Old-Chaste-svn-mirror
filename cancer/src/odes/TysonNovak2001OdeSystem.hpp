@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _TYSONNOVAK2001ODESYSTEM_HPP_
-#define _TYSONNOVAK2001ODESYSTEM_HPP_
+#ifndef TYSONNOVAK2001ODESYSTEM_HPP_
+#define TYSONNOVAK2001ODESYSTEM_HPP_
 
 #include <cmath>
 #include <iostream>
@@ -130,4 +130,4 @@ public:
     virtual void AnalyticJacobian(const std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep);
 };
 
-#endif //_TYSONNOVAK2001ODESYSTEM_HPP_
+#endif /*TYSONNOVAK2001ODESYSTEM_HPP_*/

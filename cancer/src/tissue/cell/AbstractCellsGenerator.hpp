@@ -71,7 +71,6 @@ public:
     virtual ~AbstractCellsGenerator()
     {}
 
-
     /**
      * Generates cells of a specified cell cycle type under the correct
      * crypt conditions and gives random ages if required,

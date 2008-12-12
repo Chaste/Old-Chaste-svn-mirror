@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractForce.hpp"
 
+/// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class AbstractTwoBodyInteractionForce : public AbstractForce<DIM>
 {
@@ -49,6 +50,9 @@ private :
 
 public :
     
+    /**
+     * Constructor.
+     */
     AbstractTwoBodyInteractionForce();
     
     /** Whether to have zero force if the cells are far enough apart */
@@ -62,7 +66,8 @@ public :
      * than the cutoff distance apart
      */
     void UseCutoffPoint(double cutoffPoint);
-    
+
+    /// \todo This method needs documenting (see #736)
     virtual c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue)=0;
 
 };

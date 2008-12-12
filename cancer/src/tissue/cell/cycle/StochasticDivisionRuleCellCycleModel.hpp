@@ -92,6 +92,7 @@ public:
         : mDividedSymmetrically(dividedSymmetrically)
     {}
 
+    /// \todo These methods need documenting (see #736)
     void ResetForDivision();
 
     void InitialiseDaughterCell();

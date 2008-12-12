@@ -42,11 +42,9 @@ class AbstractForce
     {
     }
 
-protected :
-
-
 public :
 
+    /// \todo This class and its methods need documenting (see #736)
     AbstractForce();
 
     virtual ~AbstractForce();

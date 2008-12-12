@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  A simple nutrient PDE which is not directly coupled to the tissue.
  */
+ /// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class SimpleNutrientPde : public AbstractLinearEllipticPde<DIM>
 {

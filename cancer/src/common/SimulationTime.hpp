@@ -25,8 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-
 #ifndef SIMULATIONTIME_HPP_
 #define SIMULATIONTIME_HPP_
 
@@ -38,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Simulation time object stores the simulation time.
  * It uses the singleton pattern to provide a globally consistent time.
  */
+/// \todo These methods need documentation (see #736)
 class SimulationTime
 {
 public:

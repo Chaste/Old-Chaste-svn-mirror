@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _ABSTRACTWNTODEBASEDCELLCYCLEMODEL_HPP_
-#define _ABSTRACTWNTODEBASEDCELLCYCLEMODEL_HPP_
+#ifndef ABSTRACTWNTODEBASEDCELLCYCLEMODEL_HPP_
+#define ABSTRACTWNTODEBASEDCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -79,8 +79,6 @@ protected:
      */
     virtual double GetOdeStopTime();
 
-
-
 public:
     /**
      * Just a default constructor (no member variables)
@@ -117,11 +115,10 @@ public:
      */
     virtual void ChangeCellTypeDueToCurrentBetaCateninLevel() = 0;
 
-
 };
 
 BOOST_IS_ABSTRACT(AbstractWntOdeBasedCellCycleModel)
 
-#endif //_ABSTRACTWNTODEBASEDCELLCYCLEMODEL_HPP_
+#endif /*ABSTRACTWNTODEBASEDCELLCYCLEMODEL_HPP_*/
 
 

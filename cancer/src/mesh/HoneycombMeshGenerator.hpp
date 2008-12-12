@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  and generates a honeycomb (with distance between nodes=1) mesh, and ghost
  *  node info. NOTE: the user should delete the mesh after use.
  */
+/// \todo Lots of these methods and members need documentation (see #736)
 class HoneycombMeshGenerator
 {
 private:

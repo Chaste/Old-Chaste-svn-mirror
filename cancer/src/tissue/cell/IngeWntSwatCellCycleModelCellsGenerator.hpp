@@ -38,8 +38,12 @@ template<unsigned DIM>
 class IngeWntSwatCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
 private:
+
+    /// \todo This member needs documenting (see #736)
     unsigned mHypothesis;
+    
 public:
+
     IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis);
     
     AbstractCellCycleModel* CreateCellCycleModel();

@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _ABSTRACTSIMPLECELLCYCLEMODEL_HPP_
-#define _ABSTRACTSIMPLECELLCYCLEMODEL_HPP_
+#ifndef ABSTRACTSIMPLECELLCYCLEMODEL_HPP_
+#define ABSTRACTSIMPLECELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -111,4 +111,4 @@ public:
 
 BOOST_IS_ABSTRACT(AbstractSimpleCellCycleModel)
 
-#endif //_ABSTRACTSIMPLECELLCYCLEMODEL_HPP_
+#endif /*ABSTRACTSIMPLECELLCYCLEMODEL_HPP_*/

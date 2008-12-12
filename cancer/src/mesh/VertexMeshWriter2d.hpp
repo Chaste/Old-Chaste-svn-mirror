@@ -25,13 +25,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #ifndef VERTEXMESHWRITER2D_HPP_
 #define VERTEXMESHWRITER2D_HPP_
 
 #include "OutputFileHandler.hpp"
 #include <iomanip>
 
+/// \todo Lots of these methods and members need documentation (see #736)
 class VertexMeshWriter2d 
 {
 private:

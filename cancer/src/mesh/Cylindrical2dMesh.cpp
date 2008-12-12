@@ -25,9 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CYLINDRICAL2DMESH_CPP_
-#define CYLINDRICAL2DMESH_CPP_
-
 #include "Cylindrical2dMesh.hpp"
 
 
@@ -804,5 +801,3 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
     assert(found);
     return corresponding_node_index;
 }
-
-#endif //CYLINDRICAL2DMESH_CPP_

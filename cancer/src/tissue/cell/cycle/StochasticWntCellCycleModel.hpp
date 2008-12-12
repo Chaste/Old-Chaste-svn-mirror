@@ -70,6 +70,7 @@ private:
 
 public:
 
+    /// \todo These methods need documenting (see #736)
     void InitialiseDaughterCell();
 
     void Initialise();
@@ -115,7 +116,7 @@ public:
 };
 
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(StochasticWntCellCycleModel)
 
 namespace boost

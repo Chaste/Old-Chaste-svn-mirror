@@ -112,6 +112,7 @@ public:
      */
     StochasticOxygenBasedCellCycleModel();
 
+    /// \todo These method need documenting (see #736)
     void InitialiseDaughterCell();
 
     void Initialise();
@@ -139,7 +140,7 @@ public:
 
 };
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(StochasticOxygenBasedCellCycleModel)
 
 #endif /*STOCHASTICOXYGENBASEDCELLCYCLEMODEL_HPP_*/

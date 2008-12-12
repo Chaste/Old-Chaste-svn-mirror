@@ -39,6 +39,11 @@ other_libpaths = ['/scratch/chaste/hdf5/lib']
 blas_lapack = ['lapack', 'blas-3']
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5'] 
 
+use_cvode = True
+if use_cvode:
+    other_includepaths.append('/scratch/chaste/cvode/include')
+    other_libpaths.append('/scratch/chaste/cvode/lib')
+    other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
 ccflags = ''
 
 tools = {}

@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define WNTCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
-//#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include <cfloat>
@@ -79,6 +78,7 @@ public:
      */
     WntCellCycleModel() {};
 
+    /// \todo These methods need documenting (see #736)
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                       const CellMutationState& rMutationState,
                       double birthTime, double lastTime,
@@ -94,9 +94,9 @@ public:
     bool SolveOdeToTime(double currentTime);
 };
 
-// declare identifier for the serializer
-BOOST_CLASS_EXPORT(WntCellCycleModel)
 
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(WntCellCycleModel)
 
 namespace boost
 {

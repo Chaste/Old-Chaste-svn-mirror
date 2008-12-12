@@ -47,6 +47,7 @@ class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
 
+    /// \todo This member needs documenting (see #736)
     double mProbabilityOfDeath;
 
     friend class boost::serialization::access;
@@ -62,6 +63,7 @@ private:
 
 public:
 
+    /// \todo These methods need documenting (see #736)
     RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath);
 
     double GetDeathProbability() const;
@@ -110,7 +112,7 @@ inline void load_construct_data(
     ar >> p_tissue;
     double prob;
     ar >> prob;
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)RandomCellKiller<DIM>(p_tissue, prob);
 }
 }

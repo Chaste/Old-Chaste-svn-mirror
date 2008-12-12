@@ -67,7 +67,7 @@ public:
 
 };
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(FixedCellCycleModel)
 
 

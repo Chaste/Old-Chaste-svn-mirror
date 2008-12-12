@@ -101,6 +101,7 @@ public:
      */
     void UpdateHypoxicDuration();
 
+    /// \todo These methods need documenting (see #736)
     double GetCurrentHypoxicDuration();
 
     double GetCurrentHypoxiaOnsetTime();
@@ -109,7 +110,7 @@ public:
 
 };
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(SimpleOxygenBasedCellCycleModel)
 
 #endif /*SIMPLEOXYGENBASEDCELLCYCLEMODEL_HPP_*/

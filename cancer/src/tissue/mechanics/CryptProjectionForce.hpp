@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
+/// \todo This class needs documenting (see #736)
 class CryptProjectionForce : public MeinekeInteractionForce<2>
 {
     friend class TestForces;
@@ -92,14 +93,25 @@ private :
 
 public :
 
+    /**
+     * Constructor.
+     */
     CryptProjectionForce();
     
+    /**
+     * Destructor.
+     */
     ~CryptProjectionForce();
 
+    /**
+     * Get methods for member variables.
+     */
     double GetA() const;
-
     double GetB() const;
 
+    /**
+     * Set method for member variable.
+     */
     void SetWntChemotaxis(bool includeWntChemotaxis);    
 
     /**
@@ -125,6 +137,9 @@ public :
      */
     double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double,2>& rNodeLocation);
 
+    /**
+     * Overridden AddForceContribution method.
+     */
     void AddForceContribution(std::vector<c_vector<double,2> >& rForces,
                                  AbstractTissue<2>& rTissue);
  

@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
+/// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class MeinekeInteractionForce : public AbstractTwoBodyInteractionForce<DIM>
 {
@@ -49,14 +50,19 @@ private :
         archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<DIM> >(*this);
     }
 
-protected :
-
 public :
 
+    /**
+     * Constructor.
+     */
     MeinekeInteractionForce();
     
+    /**
+     * Destructor.
+     */  
     ~MeinekeInteractionForce();
 
+    /// \todo This method needs documenting (see #736)
     virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
                                                               unsigned nodeBGlobalIndex,
                                                               AbstractTissue<DIM>& rTissue, 
@@ -69,12 +75,16 @@ public :
      *
      * @param NodeAGlobalIndex
      * @param NodeBGlobalIndex
-     *
+     * @param rtissue
+     * 
      * @return The force exerted on Node A by Node B.
      */
-    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
+    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, 
+                                                     unsigned nodeBGlobalIndex,
                                                      AbstractTissue<DIM>& rTissue);  
-
+    /**
+     * Overridden AddForceContribution method.
+     */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);
  
@@ -83,6 +93,5 @@ public :
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeinekeInteractionForce)
-
 
 #endif /*MEINEKEINTERACTIONFORCE_HPP_*/

@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "DiscreteSystemForceCalculator.hpp"
 
-
 DiscreteSystemForceCalculator::DiscreteSystemForceCalculator(MeshBasedTissue<2>& rTissue, 
                                                              std::vector<AbstractTwoBodyInteractionForce<2>*> forceCollection)
         : mrTissue(rTissue),
@@ -118,7 +117,6 @@ void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOut
     mpStressResultsFile->close();
 }
 
-
 std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(unsigned index)
 {
     TetrahedralMesh<2,2>& r_mesh = mrTissue.rGetMesh();
@@ -143,7 +141,6 @@ std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(uns
     }
     return neighbouring_node_indices;
 }
-
 
 std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned index, double theta)
 {
@@ -195,7 +192,6 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
 
     return ret;
 }
-
 
 std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned index)
 {
@@ -268,7 +264,6 @@ std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned in
     return sampling_angles;
 }
 
-
 double DiscreteSystemForceCalculator::GetLocalExtremum(unsigned index, double angle1, double angle2)
 {
     // We always pass in angle1 and angle2 such that angle1<angle2,
@@ -299,7 +294,6 @@ double DiscreteSystemForceCalculator::GetLocalExtremum(unsigned index, double an
 
     return current_angle;
 }
-
 
 std::vector<double> DiscreteSystemForceCalculator::GetExtremalAngles(unsigned index, std::vector<double> samplingAngles)
 {

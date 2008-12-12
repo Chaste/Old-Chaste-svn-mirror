@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _LEE2003ODESYSTEM_HPP_
-#define _LEE2003ODESYSTEM_HPP_
+#ifndef LEE2003WNTSIGNALLINGODESYSTEM_HPP_
+#define LEE2003WNTSIGNALLINGODESYSTEM_HPP_
 
 #include <cmath>
 #include <iostream>
@@ -110,4 +110,4 @@ public:
 
 };
 
-#endif //_LEE2003ODESYSTEM_HPP_
+#endif /*LEE2003WNTSIGNALLINGODESYSTEM_HPP_*/

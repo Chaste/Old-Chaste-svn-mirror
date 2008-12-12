@@ -56,6 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
  */
+/// \todo Some members/methods in this class needs documenting (see #736)
 class CryptSimulation1d
 {
 private:

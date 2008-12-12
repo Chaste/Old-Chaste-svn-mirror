@@ -1,6 +1,3 @@
-#ifndef CYLINDRICAL2DMESH_HPP_
-#define CYLINDRICAL2DMESH_HPP_
-
 /*
 
 Copyright (C) University of Oxford, 2008
@@ -28,6 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef CYLINDRICAL2DMESH_HPP_
+#define CYLINDRICAL2DMESH_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -39,7 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/export.hpp>// at end of includes
 
-
+/**
+ * A subclass of MutableMesh<2,2> for a rectangular mesh with
+ * periodic left and right boundaries, representing a cylinder.
+ */
 class Cylindrical2dMesh : public MutableMesh<2,2>
 {
     friend class TestCylindrical2dMesh;
@@ -48,16 +50,16 @@ private:
     /** The circumference of the cylinder */
     double mWidth;
 
-    /** The top of the cylinder (y-coord) */
+    /** The top of the cylinder (y coordinate) */
     double mTop;
 
-    /** The bottom of the cylinder (y-coord) */
+    /** The bottom of the cylinder (y coordinate) */
     double mBottom;
 
     /** The left nodes which have been mirrored during the remesh */
     std::vector<unsigned> mLeftOriginals;
 
-    /** The image nodes relating to these left nodes (on right of mesh) */
+    /** The image nodes corresponding to these left nodes (on right of mesh) */
     std::vector<unsigned> mLeftImages;
 
     /** A map from image node index (on right of mesh) to original node index (on left of mesh) */
@@ -66,7 +68,7 @@ private:
     /** The right nodes which have been mirrored during the remesh */
     std::vector<unsigned> mRightOriginals;
 
-    /** The image nodes relating to these right nodes (on left of mesh) */
+    /** The image nodes corresponding to these right nodes (on left of mesh) */
     std::vector<unsigned> mRightImages;
 
     /** A map from image node index (on left of mesh) to original node index (on right of mesh) */
@@ -85,13 +87,14 @@ private:
     std::vector<unsigned > mBottomHaloNodes;
 
     /**
-     * Calls GetWidthExtremes on the Conforming mesh class to calculate
-     * mTop and mBottom for the cylindrical mesh.
-     *
+     * Calls TetrahedralMesh<2,2>::GetWidthExtremes() to calculate mTop and mBottom 
+     * for the cylindrical mesh. 
+     * 
      * This method should only ever be called by the public ReMesh method.
      */
     void UpdateTopAndBottom();
 
+    /// \todo This method needs documentation (see #736)
     void CreateHaloNodes();
 
     /**
@@ -132,11 +135,7 @@ private:
      */
     unsigned GetCorrespondingNodeIndex(unsigned nodeIndex);
 
-    /**
-     * This method should only ever be called by the public ReMesh method.
-     */
-    //void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
-
+    /// \todo This method needs documentation (see #736)
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -155,6 +154,8 @@ public:
      * @param width the width of the crypt (circumference)
      */
     Cylindrical2dMesh(double width);
+    
+    /// \todo This method needs documentation (see #736)
     Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes);
 
     /**
@@ -267,4 +268,4 @@ inline void load_construct_data(
 
 BOOST_CLASS_EXPORT(Cylindrical2dMesh)
 
-#endif //CYLINDRICAL2DMESH_HPP_
+#endif /*CYLINDRICAL2DMESH_HPP_*/

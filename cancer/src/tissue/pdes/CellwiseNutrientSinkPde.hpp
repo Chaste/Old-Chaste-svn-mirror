@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  A nutrient PDE which has a sink at each non-apoptotic cell.
  */
+ /// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class CellwiseNutrientSinkPde : public AbstractLinearEllipticPde<DIM>
 {

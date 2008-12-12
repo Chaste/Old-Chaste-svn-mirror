@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _WNTCELLCYCLEODESYSTEM_HPP_
-#define _WNTCELLCYCLEODESYSTEM_HPP_
+#ifndef WNTCELLCYCLEODESYSTEM_HPP_
+#define WNTCELLCYCLEODESYSTEM_HPP_
 
 #include <cmath>
 #include <iostream>
@@ -147,4 +147,4 @@ public:
 
 };
 
-#endif //_WNTCELLCYCLEODESYSTEM_HPP_
+#endif /*WNTCELLCYCLEODESYSTEM_HPP_*/

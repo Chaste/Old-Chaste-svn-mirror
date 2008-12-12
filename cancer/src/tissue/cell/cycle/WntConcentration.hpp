@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "Exception.hpp"
 
-
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 

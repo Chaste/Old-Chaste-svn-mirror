@@ -46,19 +46,19 @@ class CellwiseData
 
 private:
 
-    /* the single instance of the singleton object */
+    /* The single instance of the singleton object */
     static CellwiseData* mpInstance;
 
-    /* a reference to a Tissue so a cell's node can be found */
+    /* A reference to a Tissue so a cell's node can be found */
     MeshBasedTissue<DIM>* mpTissue;
 
-    /*< allocated memory for mData object */
+    /* Allocated memory for mData object */
     bool mAllocatedMemory;
 
-    /*< number of variables per node to be stored */
+    /* Number of variables per node to be stored */
     unsigned mNumberOfVariables;
 
-    /*< store of the data */
+    /* Store of the data */
     std::vector<double> mData;
 
     std::vector<double> mConstantDataForTesting;
@@ -80,17 +80,20 @@ private:
 protected:
 
     /**
-     *  Protected constuctor. Not to be called, use Instance() instead
+     *  Protected constuctor. Not to be called, use Instance() instead.
      */
     CellwiseData();
 
-
 public:
+
     /**
      *  Get an instance of the object
      */
     static CellwiseData* Instance();
 
+    /**
+     * Destructor.
+     */
     virtual ~CellwiseData();
 
     /**

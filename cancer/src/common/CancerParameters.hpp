@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <cassert>
 
+/// \todo This class needs documentation (see #736)
 class CancerParameters
 {
 public:

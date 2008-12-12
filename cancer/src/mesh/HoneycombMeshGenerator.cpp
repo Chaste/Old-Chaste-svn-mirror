@@ -26,9 +26,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef HONEYCOMBMESHGENERATOR_CPP_
-#define HONEYCOMBMESHGENERATOR_CPP_
-
 #include "HoneycombMeshGenerator.hpp"
 
 
@@ -326,7 +323,3 @@ void HoneycombMeshGenerator::Make2dPeriodicCryptMesh(double width, unsigned ghos
 #define COVERAGE_IGNORE
 }
 #undef COVERAGE_IGNORE
-
-
-#endif //HONEYCOMBMESHGENERATOR_CPP_
-

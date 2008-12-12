@@ -40,11 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CancerParameters.hpp"
 #include "TissueCell.hpp"
 
-
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa).
+class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa)
+
 
 /**
  * The AbstractCellCycleModel contains basic information to all cell cycle models.
@@ -122,6 +122,7 @@ public:
      */
     virtual ~AbstractCellCycleModel();
 
+    /// \todo This method needs documenting (see #736)
     void SetCell(TissueCell* pCell);
 
     /**
@@ -153,6 +154,7 @@ public:
     virtual void InitialiseDaughterCell()
     {}
 
+    /// \todo This method needs documenting (see #736)
     TissueCell* GetCell();
 
     /**

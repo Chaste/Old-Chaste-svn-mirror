@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractForce.hpp"
 
+/// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class ChemotacticForce  : public AbstractForce<DIM>
 {
@@ -40,6 +41,7 @@ friend class TestForces;
 
 private:
 
+    /// \todo This method needs documenting (see #736)
     double GetChemotacticForceMagnitude(const double concentration, const double concentrationGradientMagnitude);
 
     friend class boost::serialization::access;
@@ -71,8 +73,14 @@ private:
 
 public:
 
+    /**
+     * Constructor.
+     */
     ChemotacticForce();
     
+    /**
+     * Destructor.
+     */
     ~ChemotacticForce();
 
     /**

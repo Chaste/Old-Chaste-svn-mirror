@@ -92,6 +92,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * added to the simulation.
  *
  */
+/// \todo Some method in this class need documenting (see #736)
 template<unsigned DIM>
 class TissueSimulation
 {
@@ -288,10 +289,13 @@ public:
                      bool initialiseCells=true);
 
     /**
-     * Free any memory allocated by the constructor
+     * Destructor.
      */
     virtual ~TissueSimulation();
 
+    /**
+     * Get methods.
+     */
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
     c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
@@ -300,7 +304,10 @@ public:
     double GetDt();
     unsigned GetNumBirths();
     unsigned GetNumDeaths();
-
+    
+    /**
+     * Set methods.
+     */
     void SetDt(double dt);
     void SetEndTime(double endTime);
     void SetOutputDirectory(std::string outputDirectory);

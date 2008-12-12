@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
+/// \todo Some members/methods in this class needs documenting (see #736)
 class CryptSimulation2d : public TissueSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of

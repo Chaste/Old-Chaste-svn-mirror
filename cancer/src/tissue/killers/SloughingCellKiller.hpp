@@ -53,7 +53,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
         //archive & mSloughSides; // done in load_construct_data
-        // Make sure Cancer Parameters are archived.
+        // Make sure Cancer Parameters are archived
         CancerParameters* p_params = CancerParameters::Instance();
         archive & *p_params;
         archive & p_params;
@@ -61,6 +61,7 @@ private:
 
 public:
 
+    /// \todo These methods need documenting (see #736)
     SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false)
         : AbstractCellKiller<2>(pCrypt),
           mSloughSides(sloughSides)
@@ -109,7 +110,7 @@ inline void load_construct_data(
     ar >> p_crypt;
     bool slough_sides;
     ar >> slough_sides;
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)SloughingCellKiller(p_crypt, slough_sides);
 }
 }

@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * nodes in the mesh.
  *
  */
+/// \todo Some members/methods in this class needs documenting (see #736)
 template<unsigned DIM>
 class MeshBasedTissue : public AbstractTissue<DIM>
 {

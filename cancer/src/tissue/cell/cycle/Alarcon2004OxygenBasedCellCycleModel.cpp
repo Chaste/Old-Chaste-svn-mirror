@@ -148,7 +148,6 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
     return msSolver.StoppingEventOccurred();
 }
 
-
 double Alarcon2004OxygenBasedCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccurred());

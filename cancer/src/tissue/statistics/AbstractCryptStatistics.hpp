@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissue.hpp"
 
-
+/// \todo This class needs documenting (see #736)
 class AbstractCryptStatistics
 {
 protected:

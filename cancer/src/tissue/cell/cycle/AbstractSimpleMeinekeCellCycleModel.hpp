@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_
-#define _ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_
+#ifndef ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_
+#define ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -80,12 +80,14 @@ public:
     virtual ~AbstractSimpleMeinekeCellCycleModel()
     {}
 
+/// \todo This method needs documenting (see #736)
     void ResetForDivision();
 
+/// \todo This method needs documenting (see #736)
     void InitialiseDaughterCell();
 
 };
 
 BOOST_IS_ABSTRACT(AbstractSimpleMeinekeCellCycleModel)
 
-#endif //_ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_
+#endif /*ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_*/

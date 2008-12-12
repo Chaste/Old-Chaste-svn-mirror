@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Hides the 'ghost nodes' concept from the simulation class, so the latter
  * only ever deals with real cells.
  */
+/// \todo Some members/methods in this class needs documenting (see #736)
 template<unsigned DIM>
 class MeshBasedTissueWithGhostNodes : public MeshBasedTissue<DIM>
 {
@@ -62,7 +63,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<MeshBasedTissue<DIM> >(*this);
-
         archive & mIsGhostNode;
     }
 

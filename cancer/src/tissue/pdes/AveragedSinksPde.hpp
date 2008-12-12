@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A PDE which calculates the source term by adding the number of cells
  *  in the element containing that point and scaling by the element area.
  */
+ /// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class AveragedSinksPde : public AbstractLinearEllipticPde<DIM>
 {

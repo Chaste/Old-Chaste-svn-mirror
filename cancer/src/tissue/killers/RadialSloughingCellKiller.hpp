@@ -126,7 +126,7 @@ inline void load_construct_data(
     ar >> centre[1];
     double radius;
     ar >> radius;
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)RadialSloughingCellKiller(p_tissue, centre, radius);
 }
 }

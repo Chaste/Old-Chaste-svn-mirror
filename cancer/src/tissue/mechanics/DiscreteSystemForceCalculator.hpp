@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "OutputFileHandler.hpp"
 
-
+/// \todo This class needs documenting (see #736)
 class DiscreteSystemForceCalculator
 {
     friend class TestDiscreteSystemForceCalculator;
@@ -89,6 +89,7 @@ private:
 
 public:
 
+    /// \todo These methods need documenting (see #736)
     DiscreteSystemForceCalculator(MeshBasedTissue<2>& rTissue, std::vector<AbstractTwoBodyInteractionForce<2>*> forceCollection);
 
     std::vector< std::vector<double> > CalculateExtremalNormalForces();

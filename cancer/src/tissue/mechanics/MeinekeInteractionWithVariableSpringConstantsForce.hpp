@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
+/// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class MeinekeInteractionWithVariableSpringConstantsForce : public MeinekeInteractionForce<DIM>
 {
@@ -77,8 +78,14 @@ protected :
 
 public :
 
+    /**
+     * Constructor.
+     */
     MeinekeInteractionWithVariableSpringConstantsForce();
     
+    /**
+     * Destructor.
+     */
     ~MeinekeInteractionWithVariableSpringConstantsForce();
 
     /**
@@ -101,11 +108,18 @@ public :
      * Set spring stiffness to be dependent on whether cells are necrotic
      */
     void SetApoptoticSprings(bool useApoptoticSprings);    
-        
-    double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue, bool isCloserThanRestLength);
 
+    /// \todo This method needs documenting (see #736)
+    double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
+                                                      unsigned nodeBGlobalIndex, 
+                                                      AbstractTissue<DIM>& rTissue, 
+                                                      bool isCloserThanRestLength);
+    
+    /**
+     * Overridden AddForceContribution method.
+     */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                 AbstractTissue<DIM>& rTissue);
+                              AbstractTissue<DIM>& rTissue);
  
 };
 

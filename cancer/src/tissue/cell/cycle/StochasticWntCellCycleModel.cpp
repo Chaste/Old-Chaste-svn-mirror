@@ -71,7 +71,7 @@ double StochasticWntCellCycleModel::GetG2Duration()
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    // calls a cheeky version of the constructor which makes the new cell cycle model
+    // Calls a cheeky version of the constructor which makes the new cell cycle model
     // the same age as the old one - not a copy at this time.
     return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime, mGeneration, mG2Duration);
 }

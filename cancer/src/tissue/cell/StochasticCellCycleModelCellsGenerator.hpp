@@ -39,6 +39,7 @@ class StochasticCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM
 {
 public :
 
+
     virtual AbstractCellCycleModel* CreateCellCycleModel();
     
     virtual double GetTypicalTransitCellCycleTime();

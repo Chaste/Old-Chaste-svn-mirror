@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
-#define _ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
+#ifndef ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
+#define ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -60,14 +60,19 @@ private:
     }
 
 protected:
+
     /** The system of ODEs for the cell cycle model */
     AbstractOdeSystem* mpOdeSystem;
+    
     /** The last time the cell cycle ODEs were evaluated.*/
     double mLastTime;
+    
     /** The time at which the cell should divide - Set this to DBL_MAX in constructor.*/
     double mDivideTime;
+    
     /** Whether the cell cycle model is currently in a delay (not solving ODEs).*/
     bool mFinishedRunningOdes;
+    
     /** The start time for the G2 phase */
     double mG2PhaseStartTime;
 
@@ -145,4 +150,4 @@ public:
 
 BOOST_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)
 
-#endif //_ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
+#endif /*ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_*/

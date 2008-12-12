@@ -125,12 +125,12 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, OxygenBasedCellKiller<DIM> * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
+    // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
     double conc;
     ar >> conc;
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)OxygenBasedCellKiller<DIM>(p_tissue, conc);
 }
 }

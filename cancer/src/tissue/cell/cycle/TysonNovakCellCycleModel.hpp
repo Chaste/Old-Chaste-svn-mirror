@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TYSONNOVAKCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
-//#include <boost/serialization/vector.hpp>
 
 #include <iostream>
 
@@ -71,6 +70,7 @@ private:
 
 public:
 
+    /// \todo These methods need documenting (see #736)
     TysonNovakCellCycleModel();
 
     void ResetForDivision();
@@ -90,7 +90,7 @@ public:
 };
 
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(TysonNovakCellCycleModel)
 
 

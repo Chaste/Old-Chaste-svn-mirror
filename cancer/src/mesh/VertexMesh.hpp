@@ -25,7 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #ifndef VERTEXMESH_HPP_
 #define VERTEXMESH_HPP_
 
@@ -38,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/export.hpp>
 
-
 #include "AbstractMesh.hpp"
 #include "VertexElement.hpp"
 #include "BoundaryElement.hpp"
@@ -49,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "VoronoiTessellation.hpp"
 
+/// \todo Lots of these methods and members need documentation (see #736)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMesh
 {
