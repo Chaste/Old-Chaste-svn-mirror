@@ -46,22 +46,4 @@ public :
     double GetTypicalStemCellCycleTime();
 };
 
-template<unsigned DIM>
-AbstractCellCycleModel* StochasticWntCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
-{
-    return new StochasticWntCellCycleModel();
-}
-
-template<unsigned DIM>
-double StochasticWntCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
-{
-    return 16.0;
-}
-
-template<unsigned DIM>
-double StochasticWntCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
-{
-    return 16.0;
-}
-
 #endif /*STOCHASTICWNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/

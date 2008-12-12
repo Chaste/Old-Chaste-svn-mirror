@@ -25,25 +25,34 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
 
-#include "AbstractCellsGenerator.hpp"
-#include "WntCellCycleModel.hpp"
 
-/**
- * A helper class for generating a vector of cells for a given mesh
- */
+#include "SimpleWntCellCycleModelCellsGenerator.hpp"
+
 template<unsigned DIM>
-class WntCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+AbstractCellCycleModel* SimpleWntCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-public :
+    return new SimpleWntCellCycleModel();
+}
 
-    AbstractCellCycleModel* CreateCellCycleModel();
-    
-    double GetTypicalTransitCellCycleTime();
-    
-    double GetTypicalStemCellCycleTime();
-};
+template<unsigned DIM>
+double SimpleWntCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
+{
+    return CancerParameters::Instance()->GetTransitCellG1Duration()
+            + CancerParameters::Instance()->GetSG2MDuration();
+}
 
-#endif /*WNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+template<unsigned DIM>
+double SimpleWntCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
+{
+    return CancerParameters::Instance()->GetStemCellG1Duration()
+            + CancerParameters::Instance()->GetSG2MDuration();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+//template class SimpleWntCellCycleModelCellsGenerator<1>;
+template class SimpleWntCellCycleModelCellsGenerator<2>;
+//template class SimpleWntCellCycleModelCellsGenerator<3>;

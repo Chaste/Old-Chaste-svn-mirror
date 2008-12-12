@@ -25,25 +25,33 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
 
-#include "AbstractCellsGenerator.hpp"
-#include "WntCellCycleModel.hpp"
 
-/**
- * A helper class for generating a vector of cells for a given mesh
- */
+#include "StochasticWntCellCycleModelCellsGenerator.hpp"
+
 template<unsigned DIM>
-class WntCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+AbstractCellCycleModel* StochasticWntCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-public :
+    return new StochasticWntCellCycleModel();
+}
 
-    AbstractCellCycleModel* CreateCellCycleModel();
-    
-    double GetTypicalTransitCellCycleTime();
-    
-    double GetTypicalStemCellCycleTime();
-};
+template<unsigned DIM>
+double StochasticWntCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
+{
+    return 16.0;
+}
 
-#endif /*WNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+template<unsigned DIM>
+double StochasticWntCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
+{
+    return 16.0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+//template class StochasticWntCellCycleModelCellsGenerator<1>;
+template class StochasticWntCellCycleModelCellsGenerator<2>;
+//template class StochasticWntCellCycleModelCellsGenerator<3>;

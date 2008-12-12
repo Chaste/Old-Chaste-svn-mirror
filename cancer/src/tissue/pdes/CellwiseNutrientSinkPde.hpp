@@ -57,44 +57,4 @@ public:
 
 };
 
-template<unsigned DIM>
-CellwiseNutrientSinkPde<DIM>::CellwiseNutrientSinkPde(MeshBasedTissue<DIM>& rTissue, double coefficient)
-        : mrTissue(rTissue),
-          mCoefficient(coefficient)
-{
-}
-
-template<unsigned DIM>
-double CellwiseNutrientSinkPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x)
-{
-    return 0.0;
-}
-
-template<unsigned DIM>
-double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>*)
-{
-    NEVER_REACHED;
-    return 0.0;
-}
-
-template<unsigned DIM>
-double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
-{
-    TissueCell& r_cell = mrTissue.rGetCellUsingLocationIndex(rNode.GetIndex());
-    if (r_cell.GetCellType()!=APOPTOTIC)
-    {
-        return -mCoefficient;
-    }
-    else
-    {
-        return 0.0;
-    }
-}
-
-template<unsigned DIM>
-c_matrix<double,DIM,DIM> CellwiseNutrientSinkPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& )
-{
-    return identity_matrix<double>(DIM);
-}
-
 #endif /*CELLWISENUTRIENTSINKPDE_HPP_*/

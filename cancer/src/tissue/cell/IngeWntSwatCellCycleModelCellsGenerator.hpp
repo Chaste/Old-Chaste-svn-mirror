@@ -37,39 +37,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class IngeWntSwatCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
-public :
-
+private:
     unsigned mHypothesis;
-
-    IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis)
-    {
-        mHypothesis = hypothesis;
-    }
-                                 
+public:
+    IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis);
+    
     AbstractCellCycleModel* CreateCellCycleModel();
     
     double GetTypicalTransitCellCycleTime();
     
     double GetTypicalStemCellCycleTime();
-    
 };
-
-template<unsigned DIM>
-AbstractCellCycleModel* IngeWntSwatCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
-{
-    return new IngeWntSwatCellCycleModel(mHypothesis);
-}
-
-template<unsigned DIM>
-double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
-{
-    return 16.0;
-}
-
-template<unsigned DIM>
-double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
-{
-    return 16.0;
-}
 
 #endif /*INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_*/

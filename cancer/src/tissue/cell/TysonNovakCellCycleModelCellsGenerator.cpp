@@ -25,25 +25,33 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
 
-#include "AbstractCellsGenerator.hpp"
-#include "WntCellCycleModel.hpp"
 
-/**
- * A helper class for generating a vector of cells for a given mesh
- */
+#include "TysonNovakCellCycleModelCellsGenerator.hpp"
+
 template<unsigned DIM>
-class WntCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+AbstractCellCycleModel* TysonNovakCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-public :
+    return new TysonNovakCellCycleModel();
+}
 
-    AbstractCellCycleModel* CreateCellCycleModel();
-    
-    double GetTypicalTransitCellCycleTime();
-    
-    double GetTypicalStemCellCycleTime();
-};
+template<unsigned DIM>
+double TysonNovakCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
+{
+    return 1.25;
+}
 
-#endif /*WNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+template<unsigned DIM>
+double TysonNovakCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
+{
+    return 1.25;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+//template class TysonNovakCellCycleModelCellsGenerator<1>;
+template class TysonNovakCellCycleModelCellsGenerator<2>;
+//template class TysonNovakCellCycleModelCellsGenerator<3>;

@@ -48,31 +48,5 @@ public :
     virtual bool CellsCanDifferentiate();
 };
 
-template<unsigned DIM>
-AbstractCellCycleModel* StochasticCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
-{
-    return new StochasticCellCycleModel();
-}
-
-template<unsigned DIM>
-double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
-{    
-    return CancerParameters::Instance()->GetTransitCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();    
-}
-
-template<unsigned DIM>
-double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
-{
-    return CancerParameters::Instance()->GetStemCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();
-}
-
-template<unsigned DIM>
-bool StochasticCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
-{
-    return true;
-}
-
 
 #endif /*STOCHASTICCELLCYCLEMODELCELLSGENERATOR_HPP_*/

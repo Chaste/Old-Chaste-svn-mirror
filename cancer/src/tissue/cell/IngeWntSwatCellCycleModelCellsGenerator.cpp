@@ -25,25 +25,39 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
 
-#include "AbstractCellsGenerator.hpp"
-#include "WntCellCycleModel.hpp"
 
-/**
- * A helper class for generating a vector of cells for a given mesh
- */
+#include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
+
 template<unsigned DIM>
-class WntCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+IngeWntSwatCellCycleModelCellsGenerator<DIM>::IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis)
 {
-public :
+    mHypothesis = hypothesis;
+}
 
-    AbstractCellCycleModel* CreateCellCycleModel();
-    
-    double GetTypicalTransitCellCycleTime();
-    
-    double GetTypicalStemCellCycleTime();
-};
+template<unsigned DIM>
+AbstractCellCycleModel* IngeWntSwatCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
+{
+    return new IngeWntSwatCellCycleModel(mHypothesis);
+}
 
-#endif /*WNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+template<unsigned DIM>
+double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
+{
+    return 16.0;
+}
+
+template<unsigned DIM>
+double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
+{
+    return 16.0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+//template class IngeWntSwatCellCycleModelCellsGenerator<1>;
+template class IngeWntSwatCellCycleModelCellsGenerator<2>;
+//template class IngeWntSwatCellCycleModelCellsGenerator<3>;

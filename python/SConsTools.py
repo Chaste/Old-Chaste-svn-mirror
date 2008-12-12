@@ -39,19 +39,23 @@ except NameError:
     set = sets.Set
 
 def IsTemplateCpp(filepath): 
-    """Check if the .cpp file defines a templated class. 
-     
+    """Check if the .cpp file defines a templated class.
+    
     We assume this is the case if one of the first 2 lines starts '#ifndef '.
     
     TODO: Has this been silently broken by the copyright blocks?
-    """ 
-    fp = open(filepath) 
-    line = fp.next() 
-    template = line.startswith('#ifndef ') 
-    if not template: 
-        line = fp.next() 
-        template = line.startswith('#ifndef ') 
-    fp.close() 
+    """
+    fp = open(filepath)
+    try:
+        line = fp.next()
+    except StopIteration:
+        # Empty file, so not real source code
+        return True
+    template = line.startswith('#ifndef ')
+    if not template:
+        line = fp.next()
+        template = line.startswith('#ifndef ')
+    fp.close()
     return template
 
 def FindSourceFiles(rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):

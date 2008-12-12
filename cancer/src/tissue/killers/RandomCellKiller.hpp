@@ -76,44 +76,6 @@ public:
 
 };
 
-template <unsigned SPACE_DIM>
-RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
-        : AbstractCellKiller<SPACE_DIM>(pTissue),
-          mProbabilityOfDeath(probabilityOfDeath)
-{
-    if ((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
-    {
-        EXCEPTION("Probability of death must be between zero and one");
-    }
-}
-
-template <unsigned SPACE_DIM>
-double RandomCellKiller<SPACE_DIM>::GetDeathProbability() const
-{
-    return mProbabilityOfDeath;
-}
-
-template <unsigned SPACE_DIM>
-void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& cell)
-{
-    if (!cell.HasApoptosisBegun() &&
-        RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
-    {
-        cell.StartApoptosis();
-    }
-}
-
-template <unsigned SPACE_DIM>
-void RandomCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
-{
-    for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
-         cell_iter != this->mpTissue->End();
-         ++cell_iter)
-    {
-        TestAndLabelSingleCellForApoptosis(*cell_iter);
-    }
-}
-
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(RandomCellKiller)
@@ -123,7 +85,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a TissueSimulation.
+ * Serialize information required to construct a RandomCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -137,7 +99,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Tissue.
+ * De-serialize constructor parameters and initialise RandomCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(

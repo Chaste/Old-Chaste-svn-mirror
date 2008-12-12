@@ -96,46 +96,6 @@ public:
 
 };
 
-template <unsigned SPACE_DIM>
-OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue,
-                                                        double concentration)
-        : AbstractCellKiller<SPACE_DIM>(pTissue),
-          mHypoxicConcentration(concentration)
-{
-}
-
-template <unsigned SPACE_DIM>
-void OxygenBasedCellKiller<SPACE_DIM>::SetHypoxicConcentration(double hypoxicConcentration)
-{
-    mHypoxicConcentration = hypoxicConcentration;
-}
-
-template <unsigned SPACE_DIM>
-double OxygenBasedCellKiller<SPACE_DIM>::GetHypoxicConcentration() const
-{
-    return mHypoxicConcentration;
-}
-
-template <unsigned SPACE_DIM>
-void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
-{
-    if (rCell.GetCellType()==APOPTOTIC && !(rCell.HasApoptosisBegun()))
-    {
-        rCell.StartApoptosis();
-    }
-}
-
-template <unsigned SPACE_DIM>
-void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
-{
-    for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
-        cell_iter != this->mpTissue->End();
-        ++cell_iter)
-    {
-        TestAndLabelSingleCellForApoptosis(*cell_iter);
-    }
-}
-
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(OxygenBasedCellKiller)
@@ -145,7 +105,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a TissueSimulation.
+ * Serialize information required to construct a OxygenBasedCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -159,7 +119,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Tissue.
+ * De-serialize constructor parameters and initialise OxygenBasedCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(

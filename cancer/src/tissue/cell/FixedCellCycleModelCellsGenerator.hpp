@@ -60,49 +60,5 @@ public:
 };
 
 
-template<unsigned DIM>
-AbstractCellCycleModel* FixedCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
-{
-    return new FixedCellCycleModel();
-}
-
-template<unsigned DIM>
-double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
-{
-    return CancerParameters::Instance()->GetTransitCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();
-}
-
-template<unsigned DIM>
-double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
-{
-    return CancerParameters::Instance()->GetStemCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();
-}
-
-template<unsigned DIM>
-bool FixedCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
-{
-    return true;
-}
-
-template<unsigned DIM>
-void FixedCellCycleModelCellsGenerator<DIM>::GenerateBasic(
-    std::vector<TissueCell>& rCells,
-    TetrahedralMesh<DIM,DIM>& rMesh)
-{
-    rCells.clear();
-    rCells.reserve(rMesh.GetNumNodes());
-    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
-    {
-        AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
-        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);        
-        double birth_time = 0.0 - i;
-        cell.SetLocationIndex(i);
-        cell.SetBirthTime(birth_time);
-        rCells.push_back(cell);
-    }
-}
-
 
 #endif /*FIXEDCELLCYCLEMODELCELLSGENERATOR_HPP_*/

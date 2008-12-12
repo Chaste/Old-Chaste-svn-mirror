@@ -46,24 +46,4 @@ public :
     double GetTypicalStemCellCycleTime();
 };
 
-template<unsigned DIM>
-AbstractCellCycleModel* SimpleWntCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
-{
-    return new SimpleWntCellCycleModel();
-}
-
-template<unsigned DIM>
-double SimpleWntCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
-{
-    return CancerParameters::Instance()->GetTransitCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();
-}
-
-template<unsigned DIM>
-double SimpleWntCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
-{
-    return CancerParameters::Instance()->GetStemCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();
-}
-
 #endif /*SIMPLEWNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/

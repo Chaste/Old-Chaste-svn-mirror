@@ -25,25 +25,39 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define WNTCELLCYCLEMODELCELLSGENERATOR_HPP_
 
-#include "AbstractCellsGenerator.hpp"
-#include "WntCellCycleModel.hpp"
 
-/**
- * A helper class for generating a vector of cells for a given mesh
- */
+#include "SimpleNutrientPde.hpp"
+
 template<unsigned DIM>
-class WntCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+SimpleNutrientPde<DIM>::SimpleNutrientPde(double coefficient)
+    : mCoefficient(coefficient)
 {
-public :
+}
 
-    AbstractCellCycleModel* CreateCellCycleModel();
-    
-    double GetTypicalTransitCellCycleTime();
-    
-    double GetTypicalStemCellCycleTime();
-};
+template<unsigned DIM>
+double SimpleNutrientPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x)
+{
+    return 0.0;
+}
 
-#endif /*WNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+template<unsigned DIM>
+double SimpleNutrientPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>*)
+{
+    return -mCoefficient;
+}
+
+template<unsigned DIM>
+c_matrix<double,DIM,DIM> SimpleNutrientPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& )
+{
+    return identity_matrix<double>(DIM);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+//template class SimpleNutrientPde<1>;
+template class SimpleNutrientPde<2>;
+//template class SimpleNutrientPde<3>;

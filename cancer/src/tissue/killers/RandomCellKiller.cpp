@@ -1,0 +1,77 @@
+/*
+
+Copyright (C) University of Oxford, 2008
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+
+#include "RandomCellKiller.hpp"
+
+template <unsigned SPACE_DIM>
+RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
+        : AbstractCellKiller<SPACE_DIM>(pTissue),
+          mProbabilityOfDeath(probabilityOfDeath)
+{
+    if ((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
+    {
+        EXCEPTION("Probability of death must be between zero and one");
+    }
+}
+
+template <unsigned SPACE_DIM>
+double RandomCellKiller<SPACE_DIM>::GetDeathProbability() const
+{
+    return mProbabilityOfDeath;
+}
+
+template <unsigned SPACE_DIM>
+void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& cell)
+{
+    if (!cell.HasApoptosisBegun() &&
+        RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
+    {
+        cell.StartApoptosis();
+    }
+}
+
+template <unsigned SPACE_DIM>
+void RandomCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
+{
+    for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+         cell_iter != this->mpTissue->End();
+         ++cell_iter)
+    {
+        TestAndLabelSingleCellForApoptosis(*cell_iter);
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+template class RandomCellKiller<1>;
+template class RandomCellKiller<2>;
+template class RandomCellKiller<3>;
