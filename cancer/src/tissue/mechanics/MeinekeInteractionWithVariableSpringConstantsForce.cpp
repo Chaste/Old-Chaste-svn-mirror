@@ -1,0 +1,199 @@
+
+#include "MeinekeInteractionWithVariableSpringConstantsForce.hpp"
+#include "MeshBasedTissue.hpp"
+#include "IngeWntSwatCellCycleModel.hpp"
+#include "VoronoiTessellation.hpp"
+
+template<unsigned DIM>
+MeinekeInteractionWithVariableSpringConstantsForce<DIM>::MeinekeInteractionWithVariableSpringConstantsForce()
+   : MeinekeInteractionForce<DIM>()
+{    
+    // Edge-based springs
+    mUseEdgeBasedSpringConstant = false;
+
+    // Cell-type dependent springs
+    mUseMutantSprings = false;
+    mMutantMutantMultiplier = DOUBLE_UNSET;
+    mNormalMutantMultiplier = DOUBLE_UNSET;
+
+    // Beta-cat springs
+    mUseBCatSprings = false;
+
+    // Apoptotic springs
+    mUseApoptoticSprings = false;
+}
+
+template<unsigned DIM>
+MeinekeInteractionWithVariableSpringConstantsForce<DIM>::~MeinekeInteractionWithVariableSpringConstantsForce()
+{
+}
+
+template<unsigned DIM>
+void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant)
+{
+    assert(DIM == 2);
+    mUseEdgeBasedSpringConstant = useEdgeBasedSpringConstant;
+}
+
+template<unsigned DIM>
+void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier)
+{
+    mUseMutantSprings = useMutantSprings;
+    mMutantMutantMultiplier = mutantMutantMultiplier;
+    mNormalMutantMultiplier = normalMutantMultiplier;
+}
+
+template<unsigned DIM>
+void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetBCatSprings(bool useBCatSprings)
+{
+    mUseBCatSprings = useBCatSprings;
+}
+
+template<unsigned DIM>
+void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetApoptoticSprings(bool useApoptoticSprings)
+{
+    mUseApoptoticSprings = useApoptoticSprings;
+}
+
+template<unsigned DIM>
+double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
+                                                           AbstractTissue<DIM>& rTissue, bool isCloserThanRestLenth)
+{
+    double multiplication_factor = MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
+                                                                                                            nodeBGlobalIndex,
+                                                                                                            rTissue,
+                                                                                                            isCloserThanRestLenth);
+    
+    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
+    
+    if (mUseEdgeBasedSpringConstant)
+    {
+        assert(rTissue.HasMesh());
+        assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
+
+        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
+
+        multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
+    }
+
+    if (mUseMutantSprings)
+    {
+        unsigned number_of_mutants=0;
+
+        if (r_cell_A.GetMutationState() == APC_TWO_HIT || r_cell_A.GetMutationState() == BETA_CATENIN_ONE_HIT)
+        {
+            // If cell A is mutant
+            number_of_mutants++;
+        }
+
+        if (r_cell_B.GetMutationState() == APC_TWO_HIT || r_cell_B.GetMutationState() == BETA_CATENIN_ONE_HIT)
+        {
+            // If cell B is mutant
+            number_of_mutants++;
+        }
+
+        switch (number_of_mutants)
+        {
+            case 1u:
+            {
+                multiplication_factor *= mNormalMutantMultiplier;
+                break;
+            }
+            case 2u:
+            {
+                multiplication_factor *= mMutantMutantMultiplier;
+                break;
+            }
+        }
+    }
+
+    if (mUseBCatSprings)
+    {
+        assert(rTissue.HasMesh());
+        // If using beta-cat dependent springs, both cell-cycle models has better be IngeWntSwatCellCycleModel
+        IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
+        IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
+
+        assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
+        double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();
+        double beta_cat_cell_2 = p_model_B->GetMembraneBoundBetaCateninLevel();
+
+        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
+
+        double perim_cell_1 = tess.GetFacePerimeter(nodeAGlobalIndex);
+        double perim_cell_2 = tess.GetFacePerimeter(nodeBGlobalIndex);
+        double edge_length_between_1_and_2 = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
+
+        double beta_cat_on_cell_1_edge = beta_cat_cell_1 *  edge_length_between_1_and_2 / perim_cell_1;
+        double beta_cat_on_cell_2_edge = beta_cat_cell_2 *  edge_length_between_1_and_2 / perim_cell_2;
+
+        double min_beta_Cat_of_two_cells = std::min(beta_cat_on_cell_1_edge, beta_cat_on_cell_2_edge);
+
+        double beta_cat_scaling_factor = CancerParameters::Instance()->GetBetaCatSpringScaler();
+        multiplication_factor *= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
+    }
+
+    if (mUseApoptoticSprings)
+    {
+        if (r_cell_A.GetCellType()==APOPTOTIC || r_cell_B.GetCellType()==APOPTOTIC)
+        {
+            double spring_a_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
+            double spring_b_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
+
+            if (r_cell_A.GetCellType()==APOPTOTIC)
+            {
+                if (!isCloserThanRestLenth) // if under tension
+                {
+                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
+                }
+                else // if under compression
+                {
+                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
+                }
+            }
+            if (r_cell_B.GetCellType()==APOPTOTIC)
+            {
+                if (!isCloserThanRestLenth) // if under tension
+                {
+                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
+                }
+                else // if under compression
+                {
+                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
+                }
+            }
+
+            multiplication_factor *= 1.0 / (( 1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*CancerParameters::Instance()->GetSpringStiffness());
+        }
+    }
+    
+    return multiplication_factor;
+}
+
+template<unsigned DIM>
+void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
+                                                           AbstractTissue<DIM>& rTissue)
+{
+    for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
+        spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
+        ++spring_iterator)
+    {
+        unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+        unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+
+        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
+
+        rForces[nodeB_global_index] -= force;
+        rForces[nodeA_global_index] += force;
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+template class MeinekeInteractionWithVariableSpringConstantsForce<1>;
+template class MeinekeInteractionWithVariableSpringConstantsForce<2>;
+template class MeinekeInteractionWithVariableSpringConstantsForce<3>;
