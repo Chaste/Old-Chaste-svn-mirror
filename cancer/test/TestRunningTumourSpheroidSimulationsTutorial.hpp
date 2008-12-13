@@ -58,9 +58,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * is to include the following header
  */
 #include <cxxtest/TestSuite.h>
-/* The following have to be included, for technical reasons....... */
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 /* This header defines a helper class that is useful for generating a
  * vector of cells */
 #include "AbstractCellsGenerator.hpp"

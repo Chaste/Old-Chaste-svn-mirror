@@ -234,34 +234,6 @@ public:
      */
     void UseCoarseNutrientMesh(double coarseGrainScaleFactor=10.0);
 
-    /**
-     * Saves the whole tissue simulation for restarting later.
-     *
-     * Puts it in the folder mOutputDirectory/archive/
-     * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch"
-     *
-     * First archives simulation time then the simulation itself.
-     *
-     * Note that this method has to be implemented in this class,
-     * so you save the right sort of simulation to the archive.
-     * Not really sure why this is needed, but...
-     */
-    void Save();
-
-    /**
-     * Loads a saved tissue simulation to run further.
-     *
-     * @param rArchiveDirectory the name of the simulation to load
-     * (specified originally by simulation.SetOutputDirectory("wherever"); )
-     * @param rTimeStamp the time at which to load the simulation (this must
-     * be one of the times at which simulation.Save() was called)
-     *
-     * Note that this method has to be implemented in this class, since it's
-     * a static method.
-     */
-    static TissueSimulationWithNutrients<DIM>* Load(const std::string& rArchiveDirectory,
-                                                    const double& rTimeStamp);
-
 };
                    
 template<unsigned DIM>
@@ -849,44 +821,6 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
     (*mpAverageRadialNutrientResultsFile) << "\n";
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//                           Save/Load methods                              //
-//////////////////////////////////////////////////////////////////////////////
-
-template<unsigned DIM>
-void TissueSimulationWithNutrients<DIM>::Save()
-{
-    CommonSave(this);
-}
-
-template<unsigned DIM>
-TissueSimulationWithNutrients<DIM>* TissueSimulationWithNutrients<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
-{
-    std::string archive_filename =
-        TissueSimulation<DIM>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
-
-    // Create an input archive
-    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-    boost::archive::text_iarchive input_arch(ifs);
-
-    TissueSimulation<DIM>::CommonLoad(input_arch);
-
-    TissueSimulationWithNutrients<DIM>* p_sim;
-    input_arch >> p_sim;
-
-    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
-    {
-        #define COVERAGE_IGNORE
-        std::stringstream string_stream;
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes()
-                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()
-                      << ")";
-        EXCEPTION(string_stream.str());
-        #undef COVERAGE_IGNORE
-    }
-
-    return p_sim;
-}
 
 
 

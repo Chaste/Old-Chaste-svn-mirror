@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+// Must be included before other cancer headers
+#include "TissueSimulationArchiver.hpp"
 
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
@@ -225,7 +225,7 @@ public:
         }
 
         simulator.Solve();
-        simulator.Save();
+        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler("MakeMeinekeGraphs",false);
@@ -394,8 +394,8 @@ public:
 
             // Set up cells
             StochasticCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true,
-                                                0.3,2.0,3.0,4.0,true);
+            cells_generator.GenerateForCrypt(cells, *p_mesh, true,
+                                             0.3,2.0,3.0,4.0,true);
 
             // Set up crypt
             p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);

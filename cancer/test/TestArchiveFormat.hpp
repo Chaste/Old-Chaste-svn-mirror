@@ -30,8 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+// This must be included before other cancer headers
+#include "TissueSimulationArchiver.hpp"
+
 #include <iomanip>
 #include "CryptSimulation2d.hpp"
 #include "MeinekeInteractionForce.hpp"
@@ -89,7 +90,7 @@ public:
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
 
-        CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_profile,t);
+        CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t + 1);
         delete p_simulator;
 

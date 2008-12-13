@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+// Must be included before any other cancer headers
+#include "TissueSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
@@ -379,11 +379,11 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
 
         // Save
-        simulator.Save();
+        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Load
         CryptSimulation2d* p_simulator;
-        p_simulator = CryptSimulation2d::Load("Crypt2DMeshArchive", 0.0);
+        p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0.0);
 
         // Create an identical mesh for comparison purposes
         HoneycombMeshGenerator generator2(cells_across, cells_up, thickness_of_ghost_layer);
@@ -435,11 +435,11 @@ public:
         simulator.Solve();
 
         // Save
-        simulator.Save();
+        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Load
         CryptSimulation2d* p_simulator;
-        p_simulator = CryptSimulation2d::Load("Crypt2DMeshArchive2", 0.1);
+        p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive2", 0.1);
         p_simulator->SetEndTime(0.15);
         p_simulator->Solve();
 
@@ -553,7 +553,7 @@ public:
         simulator.Solve();
 
         // Save the results..
-        simulator.Save();
+        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         WntConcentration::Destroy();
     }
@@ -569,7 +569,7 @@ public:
         WntConcentration::Instance();   // Make sure there is no existing Wnt Gradient before load.
         WntConcentration::Destroy();
 
-        p_simulator1 = CryptSimulation2d::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
+        p_simulator1 = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
 
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
@@ -580,9 +580,9 @@ public:
 
         MutableMesh<2,2>& r_mesh1 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
         r_mesh1.ReMesh(map);
-        p_simulator1->Save();
+        TissueSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator1);
 
-        CryptSimulation2d* p_simulator2 = CryptSimulation2d::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
+        CryptSimulation2d* p_simulator2 = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
 
         MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
 
@@ -879,8 +879,8 @@ public:
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-            CancerParameters::Instance()->GetDivisionSeparation(),
-            1e-7);
+                        CancerParameters::Instance()->GetDivisionSeparation(),
+                        1e-7);
     }
 
 
@@ -923,8 +923,8 @@ public:
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
             TS_ASSERT(daughter_location[1]>=location[1]);
             TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                1.0*CancerParameters::Instance()->GetDivisionSeparation(),
-                1e-7);
+                            1.0*CancerParameters::Instance()->GetDivisionSeparation(),
+                            1e-7);
        }
     }
 
@@ -956,8 +956,8 @@ public:
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-            CancerParameters::Instance()->GetDivisionSeparation(),
-            1e-7);
+                        CancerParameters::Instance()->GetDivisionSeparation(),
+                        1e-7);
     }
 
     void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
@@ -994,8 +994,8 @@ public:
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-            CancerParameters::Instance()->GetDivisionSeparation(),
-            1e-7);
+                        CancerParameters::Instance()->GetDivisionSeparation(),
+                        1e-7);
     }
 
     // Short test which sets mNoBirth for coverage

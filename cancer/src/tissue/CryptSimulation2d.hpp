@@ -104,32 +104,6 @@ public :
 
     void UseJiggledBottomCells();
 
-    /**
-     * Saves the whole tissue simulation for restarting later.
-     *
-     * Puts it in the folder mOutputDirectory/archive/
-     * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch"
-     *
-     * First archives simulation time then the simulation itself.
-     *
-     * Note that this method has to be implemented in this class,
-     * so you save the right sort of simulation to the archive.
-     * Not really sure why this is needed, but...
-     */
-    void Save();
-
-    /**
-     * Loads a saved tissue simulation to run further.
-     *
-     * @param rArchiveDirectory the name of the simulation to load
-     * (specified originally by simulation.SetOutputDirectory("wherever"); )
-     * @param rTimeStamp the time at which to load the simulation (this must
-     * be one of the times at which simulation.Save() was called)
-     *
-     * Note that this method has to be implemented in this class, since it's a static method.
-     */
-    static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
-    
     void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint);
 
 };
@@ -331,39 +305,6 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(TissueCell& rCell, ChasteP
     assert(rPoint[1]>=0.0);    
 }
 
-void CryptSimulation2d::Save()
-{
-    CommonSave(this);
-}
-
-
-CryptSimulation2d* CryptSimulation2d::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
-{
-    std::string archive_filename = TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
-
-    // Create an input archive
-    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-
-    boost::archive::text_iarchive input_arch(ifs);
-
-    TissueSimulation<2>::CommonLoad(input_arch);
-
-    CryptSimulation2d* p_sim;
-    input_arch >> p_sim;
-
-    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
-    {
-        #define COVERAGE_IGNORE
-        std::stringstream string_stream;
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes()
-                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()
-                      << ")";
-        EXCEPTION(string_stream.str());
-        #undef COVERAGE_IGNORE
-    }
-
-    return p_sim;
-}
 
 // Declare identifier for the serializer
 BOOST_CLASS_EXPORT(CryptSimulation2d)

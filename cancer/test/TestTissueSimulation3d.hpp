@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+// Must be included before other cancer headers
+#include "TissueSimulationArchiver.hpp"
+
 #include "TissueSimulation.hpp"
 #include "MeinekeInteractionForce.hpp"
 #include "FixedCellCycleModel.hpp"
@@ -277,7 +280,7 @@ public:
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
         simulator.SetEndTime(0.1);
         simulator.Solve();
-        simulator.Save();
+        TissueSimulationArchiver<3, TissueSimulation<3> >::Save(&simulator);
 
         // To generate results for below test
 //        std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
@@ -292,7 +295,7 @@ public:
         simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");
         simulator2.SetEndTime(0.1);
         simulator2.Solve();
-        simulator2.Save();
+        TissueSimulationArchiver<3, TissueSimulation<3> >::Save(&simulator2);
 
         // To generate results for below test
 //        std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
@@ -303,7 +306,7 @@ public:
     {
         {   
             // With ghost nodes - 56 ghosts 8 real cells.
-            TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
+            TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 8u);
@@ -318,7 +321,7 @@ public:
 
         {   
             // Without ghost nodes - all 65 are real cells.
-            TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
+            TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 65u);

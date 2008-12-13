@@ -30,9 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-
 #include "CryptSimulation2d.hpp"
 #include "MeinekeInteractionForce.hpp"
 #include "OutputFileHandler.hpp"

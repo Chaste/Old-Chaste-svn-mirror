@@ -48,9 +48,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * following header, which allows us to use certain methods in our test:
  */
 #include <cxxtest/TestSuite.h>
-/* The following header files must be included for technical reasons: */
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 /* The next two header files define helper classes for generating a vector of
  * cells with fixed, and Wnt-dependent, cell cycle models: */
 #include "FixedCellCycleModelCellsGenerator.hpp"

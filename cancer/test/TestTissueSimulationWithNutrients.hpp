@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+// Must be included before other cancer headers
+#include "TissueSimulationArchiver.hpp"
 
 #include "TissueSimulationWithNutrients.hpp"
 #include "MeinekeInteractionForce.hpp"
@@ -737,9 +737,10 @@ public:
 
         simulator.Solve();
 
-        simulator.Save();
+        TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Save(&simulator);
 
-        TissueSimulationWithNutrients<2>* p_simulator = TissueSimulationWithNutrients<2>::Load("TissueSimulationWithNutrientsSaveAndLoad", 0.2);
+        TissueSimulationWithNutrients<2>* p_simulator
+            = TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Load("TissueSimulationWithNutrientsSaveAndLoad", 0.2);
         p_simulator->SetPde(&pde);
 
         p_simulator->SetEndTime(0.5);
@@ -837,10 +838,11 @@ public:
         simulator.Solve();
 
         // Save tissue simulation
-        simulator.Save();
+        TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Save(&simulator);
 
         // Load simulation
-        TissueSimulationWithNutrients<2>* p_simulator = TissueSimulationWithNutrients<2>::Load(output_directory, end_time);
+        TissueSimulationWithNutrients<2>* p_simulator
+            = TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Load(output_directory, end_time);
 
         /**
          * In this case, the PDE had a reference to the tissue. To avoid a

@@ -30,12 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-
-#include <stdio.h>
+#include <cstdio>
 #include <ctime>
-#include <math.h>
+#include <cmath>
 
 #include "TissueSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -135,6 +132,7 @@ public:
         simulator.SetOutputCellCyclePhases(true);
 
         // Run tissue simulation
+        TS_ASSERT_EQUALS(simulator.GetOutputDirectory(), "TissueSimulationWritingProteins");
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         OutputFileHandler handler("TissueSimulationWritingProteins",false);

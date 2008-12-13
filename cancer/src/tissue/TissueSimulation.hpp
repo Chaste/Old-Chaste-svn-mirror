@@ -28,9 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TISSUESIMULATION_HPP_
 #define TISSUESIMULATION_HPP_
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
@@ -304,6 +301,7 @@ public:
     double GetDt();
     unsigned GetNumBirths();
     unsigned GetNumDeaths();
+    std::string GetOutputDirectory();
     
     /**
      * Set methods.
@@ -335,17 +333,6 @@ public:
     virtual void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<DIM>& rPoint)
     {}
 
-    // Serialization methods
-    virtual void Save();
-    static TissueSimulation<DIM>* Load(const std::string& rArchiveDirectory,
-                                       const double& rTimeStamp);
-protected:
-    static std::string GetArchivePathname(const std::string& rArchiveDirectory,
-                                          const double& rTimeStamp);
-    template<class Archive>
-    static void CommonLoad(Archive& rInputArch);
-    template<class SIM>
-    void CommonSave(SIM* pSim);
 };
 
 
@@ -610,6 +597,15 @@ void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
     mSimulationOutputDirectory = mOutputDirectory;
+}
+
+/**
+ * Get the output directory of the simulation.
+ */
+template<unsigned DIM>
+std::string TissueSimulation<DIM>::GetOutputDirectory()
+{
+    return mOutputDirectory;
 }
 
 /**
@@ -983,178 +979,6 @@ bool TissueSimulation<DIM>::StoppingEventHasOccurred()
     return false;
 }
 
-/**
- * Saves the whole tissue simulation for restarting later.
- *
- * Puts it in the folder mOutputDirectory/archive/
- * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch".
- * The mesh is written to files in the same folder.
- *
- * First archives simulation time then the simulation itself.
- */
-template<unsigned DIM>
-void TissueSimulation<DIM>::Save()
-{
-    CommonSave(this);
-}
-
-/**
- * The function that does the actual work.  Templated over the type
- * of simulation that's actually being saved, since normal inheritance
- * doesn't seem to work for this - we get segfaults on loading.
- * Not sure why this is so, but...
- *
- * @param pSim = this, but with the type explicit
- */
-template<unsigned DIM>
-template<class SIM>
-void TissueSimulation<DIM>::CommonSave(SIM* pSim)
-{
-    // Get the simulation time as a string
-    const SimulationTime* p_sim_time = SimulationTime::Instance();
-    assert(p_sim_time->IsStartTimeSetUp());
-    std::ostringstream time_stamp;
-    time_stamp << p_sim_time->GetTime();
-
-    // Create an output file handler in order to get the full path of the
-    // archive directory.  Note the false is so the handler doesn't clean
-    // the directory.
-    std::string archive_directory = mOutputDirectory + "/archive/";
-    OutputFileHandler handler(archive_directory, false);
-    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
-    std::string mesh_filename = std::string("mesh_") + time_stamp.str();
-
-    // Write the mesh to file.  Remesh first to ensure it's in a good state.
-    mrTissue.ReMesh();
-
-    if (mrTissue.HasMesh())
-    {
-        // The false is so the directory isn't cleaned
-        TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh((static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->rGetMesh());
-    }
-
-    // Create a new archive
-    std::ofstream ofs(archive_filename.c_str());
-    boost::archive::text_oarchive output_arch(ofs);
-
-    // Save the simulation.  We save the time directly first to maintain its
-    // singleton-ness on load.
-    output_arch << *p_sim_time;
-
-    // Archive the Wnt concentration if it's used
-    bool archive_wnt = WntConcentration::Instance()->IsWntSetUp();
-    output_arch & archive_wnt;
-    if (archive_wnt)
-    {
-        WntConcentration* p_wnt = WntConcentration::Instance();
-        output_arch & *p_wnt;
-    }
-
-    // Archive the CellwiseData if it's used
-    bool archive_cellwise_data = CellwiseData<DIM>::Instance()->IsSetUp();
-    output_arch & archive_cellwise_data;
-    if (archive_cellwise_data)
-    {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
-        output_arch & *p_cellwise_data;
-    }
-    output_arch & pSim; // const-ness would be a pain here
-}
-
-/**
- * Loads a saved tissue simulation to run further.
- *
- * @param rArchiveDirectory the name of the simulation to load
- * (specified originally by simulation.SetOutputDirectory("wherever"); )
- * @param rTimeStamp the time at which to load the simulation (this must
- * be one of the times at which simulation.Save() was called)
- */
-template<unsigned DIM>
-TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
-{
-    std::string archive_filename = TissueSimulation<DIM>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
-
-    // Create an input archive
-    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-    boost::archive::text_iarchive input_arch(ifs);
-
-    TissueSimulation<DIM>::CommonLoad(input_arch);
-
-    TissueSimulation<DIM>* p_sim;
-    input_arch >> p_sim;
-
-    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
-    {
-        #define COVERAGE_IGNORE
-        std::stringstream string_stream;
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes()
-                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()
-                      << ")";
-        EXCEPTION(string_stream.str());
-        #undef COVERAGE_IGNORE
-    }
-
-    return p_sim;
-}
-
-/**
- * Find the right archive (and mesh) to load.  The files are contained within
- * the 'archive' folder in rArchiveDirectory, with the archive itself called
- * 'tissue_sim_at_time_`rTimeStamp`.arch'.  The path to this file is returned.
- *
- * The path to the mesh is stored as Tissue<DIM>::meshPathname for use by the
- * Tissue de-serialization routines.
- */
-template<unsigned DIM>
-std::string TissueSimulation<DIM>::GetArchivePathname(const std::string& rArchiveDirectory, const double& rTimeStamp)
-{
-    // Find the right archive and mesh to load
-    std::ostringstream time_stamp;
-    time_stamp << rTimeStamp;
-
-    std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-
-    std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_"+time_stamp.str() +".arch";
-    std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
-    MeshBasedTissue<DIM>::meshPathname = mesh_filename;
-    return archive_filename;
-}
-
-
-/**
- * Load any data from the archive that isn't the simulation class itself.
- * At present this is just the simulation time.
- */
-template<unsigned DIM>
-template<class Archive>
-void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
-{
-
-    // Load simulation time
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    assert(p_simulation_time->IsStartTimeSetUp());
-    rInputArch >> *p_simulation_time;
-
-    // Load Wnt concentration if it's used
-    bool archive_wnt;
-
-    rInputArch & archive_wnt;
-
-    if (archive_wnt)
-    {
-        WntConcentration* p_wnt = WntConcentration::Instance();
-        rInputArch & *p_wnt;
-    }
-    // Load CellwiseData if it's used
-    bool archive_cellwise_data;
-    rInputArch & archive_cellwise_data;
-    if (archive_cellwise_data)
-    {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
-        rInputArch & *p_cellwise_data;
-    }
-}
 
 /**
  * Find out how many cells of each mutation state there are
