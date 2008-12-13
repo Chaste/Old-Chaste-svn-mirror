@@ -39,47 +39,56 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * = An example showing how to run tumour spheroid simulations =
  * 
+ * EMPTYLINE
+ * 
+ * == Introduction ==
+ * 
+ * EMPTYLINE
+ * 
  * In this tutorial we show how Chaste is used to run discrete tumour
- * spheroid simulations. These types of simulation are similar to
- * crypt simulations, in that they consist of cell cycle models and
- * discrete mechanics laws determining how cells divide and move, but
- * these are coupled to a PDE determining the concentration of nutrients,
- * eg oxygen, throughout the domain. Also, unlike the crypt simulation,
- * the domain grows substantially as the simulation runs.
+ * spheroid simulations. Like crypt simulations, tumour spheroid simulations 
+ * include cell cycle models and force laws to determine how cells divide and 
+ * move. In tumour spheroid simulations, however, these are also coupled to a 
+ * system of partial differential equations that determine the concentration 
+ * of specified nutrients (e.g. oxygen) throughout the tissue. Also, unlike 
+ * in crypt simulation, the tissue grows substantially as the tissue simulation 
+ * progresses.
  *
- * The main differences between this tutorial and the crypt tutorials are
- * (i) a PDE is defined, to be used in the simulation, (ii) a non-periodic mesh
- * is used, and (iii) the cell-cell force law is defined and explicitly
- * used (in the previous tutorials, the default cell-cell force law was used).
+ * In summary, the main differences between this tutorial and the crypt simulation 
+ * tutorials are
+ * 
+ *  * a PDE is defined, to be used in the simulation, and 
+ *  * a non-periodic mesh is used.
  *
  * EMPTYLINE
  *
- * The first thing that needs to be done, when writing any Chaste test,
- * is to include the following header
+ * == The test ==
+ * 
+ * EMPTYLINE
+ *  
+ * The first thing to do is include the following header, which allows us 
+ * to use certain methods in our test (this header file should be included 
+ * in any Chaste test):
  */
 #include <cxxtest/TestSuite.h>
-/* This header defines a helper class that is useful for generating a
- * vector of cells */
-#include "AbstractCellsGenerator.hpp"
-/* These are the classes that will be used in these tests.
- * {{{TissueSimulationWithNutrients}}} is used for tumour spheroid
- * simulations.
+/* This header file defines a helper class for generating a suitable mesh: */
+#include "HoneycombMeshGenerator.hpp"
+/* These are the classes that will be used in these tests (note that we use a 
+ * tissue simulation subclass called {{{TissueSimulationWithNutrients}}}):
  */
 #include "TissueSimulationWithNutrients.hpp"
-#include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "HoneycombMeshGenerator.hpp"
 #include "MeinekeInteractionForce.hpp"
+#include "OxygenBasedCellKiller.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
-/* PetscSetupAndFinalize.hpp must be included in all tests which use Petsc, which
- * is true of tumour spheroid simulations, as Petsc is used in the finite element
- * PDE solvers, and tumour spheroid simulations solve PDEs (for the nutrient
- * concentration).
+/* PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is 
+ * a suite of data structures and routines that are used in the finite element
+ * PDE solvers, which is how we solve the nutrient PDE(s).
  */
 #include "PetscSetupAndFinalize.hpp"
 
 
-/* Now we can define the test class, and write the test
+/* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
 class TestRunningTumourSpheroidSimulationsTutorial : public CxxTest::TestSuite
 {
@@ -164,16 +173,19 @@ public:
          */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
 
-        /*/// \todo This needs updated comments (see #842). 
-         * There are a several different cell-cell force laws possible, which can be
-         * passed into the simulator. Here, we
-         * create a {{{Meineke2001SpringSystem}}}, which uses a triangulation
-         * to determine which cells are connected, and assumes a linear spring
-         * between any connected cells. We can the method {{{UseCutoffPoint}}}
-         * on the spring system before passing it into the simulator. This tells
-         * it to return zero force if two cells are more than 3 units
-         * (=3 cell widths) away from each other. This is necessary when no ghost
-         * nodes are used.
+        /* We must now create one or more force laws, which determine the mechanics of
+         * the tissue. For this test, we assume that a cell experiences a force from each
+         * neighbour that can be represented as a linear overdamped spring. Since this 
+         * model was first proposed in the context of crypt modelling by Meineke ''et al'' 
+         * (Cell Prolif. 34:253-266, 2001), we call this object a 
+         * {{{MeinekeInteractionForce}}}. We pass a pointer to this force into a vector. 
+         * Note that we have called the method {{{UseCutoffPoint}}} on the 
+         * {{{MeinekeInteractionForce}}} before passing it into the collection of force 
+         * laws - this modifies the force law so that two neighbouring cells do not impose 
+         * a force on each other if they are located more than 3 units (=3 cell widths) 
+         * away from each other. This modification is necessary when no ghost nodes are used, 
+         * for example to avoid artificially large forces between cells that lie close together 
+         * on the spheroid boundary.
          */
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(3);

@@ -38,14 +38,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * = Examples showing how to run crypt simulations on periodic meshes with different cell cycle models =
  *
+ * EMPTYLINE
+ *  
  * == Introduction ==
- *
+ * 
+ * EMPTYLINE
+ * 
  * In this tutorial we show how Chaste is used to run crypt simulations. 
  * Full details of the computational model can be found in the paper by 
  * van Leeuwen ''et al'' (to appear in Cell Prolif.)  
  *
- * When writing any Chaste test, the first thing to do is include the 
- * following header, which allows us to use certain methods in our test:
+ * The first thing to do is include the following header, which allows us 
+ * to use certain methods in our test (this header file should be included 
+ * in any Chaste test):
  */
 #include <cxxtest/TestSuite.h>
 /* The next two header files define helper classes for generating a vector of
