@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "CancerEventHandler.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
 
 /**

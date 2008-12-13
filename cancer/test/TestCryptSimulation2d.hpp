@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCancerTestSuite.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
 #include "CancerEventHandler.hpp"
+#include "LogFile.hpp"
 
 class TestCryptSimulation2d : public AbstractCancerTestSuite
 {

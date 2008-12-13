@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "MeshBasedTissueWithGhostNodes.hpp"
 
 
 class TestTissueSimulation3d : public AbstractCancerTestSuite

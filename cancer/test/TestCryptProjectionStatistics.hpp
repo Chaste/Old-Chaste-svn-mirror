@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RadialSloughingCellKiller.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "MeshBasedTissueWithGhostNodes.hpp"
+#include "WntConcentration.hpp"
 
 
 class TestCryptProjectionStatistics : public AbstractCancerTestSuite

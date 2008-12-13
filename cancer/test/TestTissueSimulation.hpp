@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCancerTestSuite.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "CryptProjectionForce.hpp"
+#include "MeshBasedTissueWithGhostNodes.hpp"
 
 
 // Simple subclass of TissueSimulation which just overloads StoppingEventHasOccurred
