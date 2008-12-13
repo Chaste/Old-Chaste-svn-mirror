@@ -532,6 +532,9 @@ void TissueSimulation<DIM>::Solve()
 
     CancerEventHandler::EndEvent(SETUP);
 
+    // Initialise a vector of forces on node
+    std::vector<c_vector<double, DIM> > forces(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
+    
     /////////////////////////////////////////////////////////////////////
     // Main time loop
     /////////////////////////////////////////////////////////////////////
@@ -596,18 +599,23 @@ void TissueSimulation<DIM>::Solve()
         }
         CancerEventHandler::EndEvent(TESSELLATION);
 
-        // Calculate Forces
+        // Calculate forces
         CancerEventHandler::BeginEvent(FORCE);
-        
-        // Initialise a vector of forces on node
-        std::vector<c_vector<double, DIM> > forces;
-        forces.reserve(mrTissue.GetNumNodes());
-        
-        for (unsigned i=0; i<mrTissue.GetNumNodes(); i++)
+               
+        // First reset all forces to zero
+        for (unsigned i=0; i<forces.size(); i++)
         {
-             forces.push_back(zero_vector<double>(DIM));
+             forces[i].clear(); 
+        }
+
+        // Then resize the vector of forces if the number of cells has changed 
+        // since the last time step (this should be done after the above zeroing)
+        if (mrTissue.GetNumNodes()!=forces.size())
+        {
+            forces.resize(mrTissue.GetNumNodes(), zero_vector<double>(DIM));
         }
         
+        // Now add force contributions from each force law
         for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
              iter !=mForceCollection.end();
              iter++)
