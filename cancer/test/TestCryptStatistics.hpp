@@ -187,7 +187,7 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
         
-        CryptSimulation2d simulator(crypt, force_collection, false);
+        CryptSimulation2d simulator(crypt, force_collection, false, false);
 
         simulator.SetOutputDirectory(output_directory);
         double time_of_each_run = simulator.GetDt(); // for each run
@@ -406,7 +406,7 @@ public:
             force_collection.push_back(&meineke_force);
 
             // Set up crypt simulation
-            CryptSimulation2d simulator(*p_crypt, force_collection, false);
+            CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
             simulator.SetOutputDirectory(output_directory);
 
             // Set simulation to output cell types

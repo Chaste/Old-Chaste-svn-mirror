@@ -319,7 +319,7 @@ public:
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        {   
+        {
             // Without ghost nodes - all 65 are real cells.
             TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();

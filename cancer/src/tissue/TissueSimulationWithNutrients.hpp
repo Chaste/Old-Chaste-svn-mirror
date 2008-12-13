@@ -178,7 +178,9 @@ public:
      * Constructor
      *
      * @param rTissue A tissue facade class (contains a mesh and cells)
-     * @
+     * @param forceCollection The mechanics to use in the simulation
+     * @param pPde The PDE for the nutrient concentration(s)
+     * @param pAveragedSinksPde The PDE for the nutrient concentration(s)
      * @param deleteTissue whether to delete the tissue on destruction to free up memory
      * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      *
@@ -187,6 +189,7 @@ public:
                                    std::vector<AbstractForce<DIM>*> forceCollection,
                                    AbstractLinearEllipticPde<DIM>* pPde=NULL,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde=NULL,
+                                   bool deleteTissueAndForceCollection=false,
                                    bool initialiseCells=true);
                      
     /**
@@ -241,8 +244,12 @@ TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue
                                    std::vector<AbstractForce<DIM>*> forceCollection,
                                    AbstractLinearEllipticPde<DIM>* pPde,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde,
+                                   bool deleteTissueAndForceCollection,
                                    bool initialiseCells)
-    : TissueSimulation<DIM>(rTissue, forceCollection, initialiseCells),
+    : TissueSimulation<DIM>(rTissue, 
+                            forceCollection, 
+                            deleteTissueAndForceCollection, 
+                            initialiseCells),
       mNutrientSolution(NULL),
       mpPde(pPde),
       mpAveragedSinksPde(pAveragedSinksPde),
@@ -859,7 +866,7 @@ inline void load_construct_data(
     ar >> force_collection;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, force_collection, NULL, NULL, false);
+    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, force_collection, NULL, NULL, true, false);
 }
 }
 } // namespace ...

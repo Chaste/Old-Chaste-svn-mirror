@@ -89,7 +89,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * added to the simulation.
  *
  */
-/// \todo Some method in this class need documenting (see #736)
+/// \todo Some methods in this class need documenting (see #736)
 template<unsigned DIM>
 class TissueSimulation
 {
@@ -108,7 +108,12 @@ protected:
 
     /** Facade encapsulating cells in the tissue being simulated */
     AbstractTissue<DIM>& mrTissue;
+    
+    /** Whether to delete the facade in our destructor */ 
+    bool mDeleteTissue;
 
+    bool mAllocatedMemoryForForceCollection;
+    
     /** Whether to initialise the cells */
     bool mInitialiseCells;
 
@@ -278,11 +283,13 @@ public:
      *  Constructor
      *
      *  @param rTissue A tissue facade class (contains a mesh and cells)
-     *  @param forceCollection The mechanics to use in the simulation    
-     *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
+     *  @param forceCollection The mechanics to use in the simulation
+     *  @param deleteTissueAndForceCollection Whether to delete the tissue and force collection on destruction to free up memory
+     *  @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     TissueSimulation(AbstractTissue<DIM>& rTissue,
                      std::vector<AbstractForce<DIM>*> forceCollection,
+                     bool deleteTissueAndForceCollection=false,
                      bool initialiseCells=true);
 
     /**
@@ -301,6 +308,7 @@ public:
     double GetDt();
     unsigned GetNumBirths();
     unsigned GetNumDeaths();
+    
     std::string GetOutputDirectory();
     
     /**
@@ -339,12 +347,15 @@ public:
 template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
                                         std::vector<AbstractForce<DIM>*> forceCollection,
+                                        bool deleteTissueAndForceCollection,
                                         bool initialiseCells)
   :  mrTissue(rTissue)
 {
     #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
     #undef COVERAGE_IGNORE
+    
+    mDeleteTissue = deleteTissueAndForceCollection;
     
     mInitialiseCells = initialiseCells;
 
@@ -379,6 +390,8 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     mNumDeaths = 0;
     mSamplingTimestepMultiple = 1;
     
+    mAllocatedMemoryForForceCollection = deleteTissueAndForceCollection;
+    
     mForceCollection = forceCollection;
     if (mInitialiseCells)
     {
@@ -392,14 +405,27 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
  */
 template<unsigned DIM>
 TissueSimulation<DIM>::~TissueSimulation()
-{
-//    for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it = mCellKillers.begin();
-//         it != mCellKillers.end();
-//         ++it)
-//    {
-//        delete *it;
-//    }
-//    delete &mrTissue;  
+{   
+    if (mAllocatedMemoryForForceCollection) 
+    {    
+        for (typename std::vector<AbstractForce<DIM>*>::iterator force_iter = mForceCollection.begin();
+             force_iter != mForceCollection.end();
+             ++force_iter)
+        {     
+            delete *force_iter;
+        }
+    }
+
+    if (mDeleteTissue) 
+    { 
+        for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin(); 
+             it != mCellKillers.end(); 
+             ++it) 
+        { 
+            delete *it; 
+        } 
+        delete &mrTissue; 
+    }
 }
 
 template<unsigned DIM>

@@ -118,7 +118,7 @@ public:
         force_collection.push_back(&crypt_projection_force);
 
         // Make a tissue simulation
-        TissueSimulation<2> crypt_projection_simulator(crypt, force_collection, false);
+        TissueSimulation<2> crypt_projection_simulator(crypt, force_collection, false, false);
 
         // Create a radial cell killer and pass it in to the tissue simulation
         c_vector<double,2> centre = zero_vector<double>(2);

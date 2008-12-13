@@ -135,7 +135,7 @@ public:
         TS_ASSERT_EQUALS(simulator.GetOutputDirectory(), "TissueSimulationWritingProteins");
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-        OutputFileHandler handler("TissueSimulationWritingProteins",false);
+        OutputFileHandler handler("TissueSimulationWritingProteins", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat").c_str()), 0);
     }
@@ -205,7 +205,7 @@ public:
         force_collection.push_back(&crypt_projection_force);
 
         // Make a tissue simulation
-        TissueSimulation<2> crypt_projection_simulator(crypt, force_collection, false);
+        TissueSimulation<2> crypt_projection_simulator(crypt, force_collection, false, false);
 
         // Create a radial cell killer and pass it in to the tissue simulation
         c_vector<double,2> centre = zero_vector<double>(2);

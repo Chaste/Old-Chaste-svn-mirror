@@ -126,7 +126,7 @@ public:
         // Set up tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
-        // Set up cellwisedata and associate it with the tissue
+        // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);
@@ -141,6 +141,7 @@ public:
         // Set up PDE
         SimplePdeForTesting pde;
 
+        // Set up force law
         MeinekeInteractionForce<2> meineke_force;
         // Use an extremely small cutoff so that no cells interact
         // - this is to ensure that in the Solve method, the cells don't move
@@ -158,6 +159,7 @@ public:
         OxygenBasedCellKiller<2> killer(&tissue);
         simulator.AddCellKiller(&killer);
 
+        // Run tissue simulation
         simulator.Solve();
 
         // Check the correct solution was obtained
@@ -186,6 +188,7 @@ public:
             }
         }
 
+        // Tidy up
         CellwiseData<2>::Destroy();
     }
 
@@ -234,7 +237,7 @@ public:
         // Set up PDE
         SimpleNutrientPde<2> pde(0.1);
 
-
+        // Set up force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>*> force_collection;
@@ -252,6 +255,7 @@ public:
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
+        // Tidy up
         CellwiseData<2>::Destroy();
     }
 
@@ -310,6 +314,7 @@ public:
         // Set up PDE
         CellwiseNutrientSinkPde<2> pde(tissue, 0.1);
 
+        // Set up force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>*> force_collection;
@@ -334,6 +339,7 @@ public:
         TissueCell* p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(5));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9702, 1e-4);
 
+        // Tidy up
         CellwiseData<2>::Destroy();
     }
 
@@ -362,14 +368,15 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        // Set up a simple tissue
         CancerParameters::Instance()->SetHepaOneParameters();
 
+        // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        // Set up cells
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -385,6 +392,7 @@ public:
             cells.push_back(cell);
         }
 
+        // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
@@ -398,23 +406,26 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i));
         }
 
-        // Set up tissue simulation
+        // Set up PDE
         SimpleNutrientPde<2> pde(0.1);
-
+        
+        // Set up force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
 
+        // Set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteAverageRadialNutrientResults(5);
 
+        // Add an oxygen-dependent cell killer to the tissue simulation
         OxygenBasedCellKiller<2> killer(&tissue);
         simulator.AddCellKiller(&killer);
 
-        // Solve for one timestep
+        // Run the tissue simulation for one timestep
         simulator.Solve();
 
         // Just check that we do indeed have three apoptotic cells
@@ -430,15 +441,17 @@ public:
         }
         TS_ASSERT_EQUALS(num_apoptotic_cells, 3u);
 
-        // We have 25 cells. Adding up the boundary cell areas, we
-        // should have the equivalent area of 16 full regular hexagonal
-        // cells.
-        //
-        // The area of a single hexagonal cell is sqrt(3)/2, so
-        // the correct spheroid radius is given by sqrt((16*sqrt(3)/2)/pi).
-        //
-        // Since there are 3 apoptotic cells, the correct apoptotic radius is
-        // given by sqrt((3*sqrt(3)/2)/pi).
+        /**
+         * We have 25 cells. Adding up the boundary cell areas, we
+         * should have the equivalent area of 16 full regular hexagonal
+         * cells.
+         * 
+         * The area of a single hexagonal cell is sqrt(3)/2, so the 
+         * correct spheroid radius is given by sqrt((16*sqrt(3)/2)/pi).
+         * 
+         * Since there are 3 apoptotic cells, the correct apoptotic radius 
+         * is given by sqrt((3*sqrt(3)/2)/pi).
+         */
 
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics",false);
@@ -451,6 +464,7 @@ public:
         // Coverage
         TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetTime(),5));
 
+        // Tidy up
         CellwiseData<2>::Destroy();
     }
 
@@ -497,7 +511,7 @@ public:
         // Set up PDE
         AveragedSinksPde<2> pde(tissue, -0.1);
 
-        // Set up mechanics system
+        // Set up force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>*> force_collection;
@@ -601,6 +615,7 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(value_at_cell, max);
         }
 
+        // Tidy up
         CellwiseData<2>::Destroy();
     }
 
@@ -648,7 +663,7 @@ public:
         // Set up PDE
         AveragedSinksPde<2> pde(tissue, -0.01);
 
-        // Set up mechanics system
+        // Set up force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>*> force_collection;
@@ -660,6 +675,7 @@ public:
         simulator.SetEndTime(0.01);
         simulator.UseCoarseNutrientMesh(2.0);
 
+        // Run tissue simulation
         simulator.Solve();
 
         // Test that boundary cells experience the right boundary condition
@@ -673,6 +689,7 @@ public:
             }
         }
 
+        // Tidy up
         CellwiseData<2>::Destroy();
         delete p_mesh;
     }
@@ -735,8 +752,10 @@ public:
         OxygenBasedCellKiller<2> killer(&tissue);
         simulator.AddCellKiller(&killer);
 
+        // Run tissue simulation
         simulator.Solve();
 
+        // Save tissue simulation
         TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Save(&simulator);
 
         TissueSimulationWithNutrients<2>* p_simulator
@@ -765,6 +784,7 @@ public:
         p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(15));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
 
+        // Run tissue simulation
         delete p_simulator;
         CellwiseData<2>::Destroy();
     }

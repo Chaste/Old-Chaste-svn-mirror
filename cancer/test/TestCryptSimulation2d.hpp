@@ -421,13 +421,12 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
         
         MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
-
         meineke_force.SetEdgeBasedSpringConstant(true);
         
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
         
-        CryptSimulation2d simulator(crypt, force_collection, true);
+        CryptSimulation2d simulator(crypt, force_collection, false, true);
 
         simulator.SetOutputDirectory("Crypt2DMeshArchive2");
         simulator.SetEndTime(0.1);
@@ -1212,7 +1211,7 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
         
-        CryptSimulation2d simulator(*p_crypt, force_collection, false);
+        CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
         
         simulator.SetOutputDirectory(output_directory);
         simulator.SetOutputCellAncestors(true);

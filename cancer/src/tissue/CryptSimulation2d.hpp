@@ -95,11 +95,13 @@ public :
      *  Constructor
      *
      *  @param rTissue A tissue facade class (contains a mesh and cells)
-     *  @param deleteTissue whether to delete the tissue on destruction to free up memory
+     *  @param forceCollection The mechanics to use in the simulation
+     *  @param deleteTissueAndForceCollection Whether to delete the tissue and force collection on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
     CryptSimulation2d(AbstractTissue<2>& rTissue,                      
                       std::vector<AbstractForce<2>*> forceCollection,
+                      bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
 
     void UseJiggledBottomCells();
@@ -107,6 +109,7 @@ public :
     void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint);
 
 };
+
 
 c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell)
 {
@@ -252,8 +255,12 @@ void CryptSimulation2d::AfterSolve()
 
 CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue,                  
                   std::vector<AbstractForce<2>*> forceCollection,
+                  bool deleteTissueAndForceCollection,
                   bool initialiseCells)
-    : TissueSimulation<2>(rTissue, forceCollection, initialiseCells),
+    : TissueSimulation<2>(rTissue, 
+                          forceCollection, 
+                          deleteTissueAndForceCollection, 
+                          initialiseCells),
       mUseJiggledBottomCells(false)
 {
     mpStaticCastTissue = static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue);
@@ -341,7 +348,7 @@ inline void load_construct_data(
     ar >> force_collection;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)CryptSimulation2d(*p_tissue, force_collection, false);
+    ::new(t)CryptSimulation2d(*p_tissue, force_collection, true, false);
 }
 }
 } // namespace ...
