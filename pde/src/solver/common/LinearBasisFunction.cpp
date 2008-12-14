@@ -351,7 +351,6 @@ void LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(c
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////
 
-template class LinearBasisFunction<0>;
 template class LinearBasisFunction<1>;
 template class LinearBasisFunction<2>;
 template class LinearBasisFunction<3>;
