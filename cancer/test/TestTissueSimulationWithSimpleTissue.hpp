@@ -267,7 +267,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
 
-        /// \todo test results against previous test, once cell death and a stable force law are implemented (see #642 and #678)
+        /// \todo test results against previous test, once cell death and a stable force law are implemented (see #678)
         delete p_simulator;
     }
 

@@ -465,7 +465,7 @@ public:
         }
 
          //Write data to file
-        SimpleDataWriter writer1(output_directory , "percentage_of_labelled_cells.dat", percentage_of_labelled_cells, false);
+        SimpleDataWriter writer1(output_directory, "percentage_of_labelled_cells.dat", percentage_of_labelled_cells, false);
 
         // Test against previous run
         // ... and checking visualization of labelled cells against previous run

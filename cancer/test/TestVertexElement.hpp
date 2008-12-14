@@ -266,10 +266,10 @@ void TestVertexElementDivideEdge()
         std::vector<Node<2>*> nodes1;
        
         // This is a rectangle, centre (0,0), width 2, length 2, parallel to x axis                       
-        nodes1.push_back(new Node<2>(0, false, 2.0 , 1.0));
-        nodes1.push_back(new Node<2>(1, false, -2.0, 1.0));
+        nodes1.push_back(new Node<2>(0, false,  2.0,  1.0));
+        nodes1.push_back(new Node<2>(1, false, -2.0,  1.0));
         nodes1.push_back(new Node<2>(2, false, -2.0, -1.0));
-        nodes1.push_back(new Node<2>(3, false, 2.0, -1.0));
+        nodes1.push_back(new Node<2>(3, false,  2.0, -1.0));
         
         VertexElement<2,2> rectangle1(INDEX_IS_NOT_USED, nodes1);
        
@@ -292,8 +292,8 @@ void TestVertexElementDivideEdge()
        
         std::vector<Node<2>*> nodes2;                      
         // This is a rectangle, centre (0,0), width 1, length sqrt(3), rotated by 30 degrees anticlockwise                      
-        nodes2.push_back(new Node<2>(0, false, 1.0 , 0.0));
-        nodes2.push_back(new Node<2>(1, false, 0.5, sqrt(3.0)/2.0));
+        nodes2.push_back(new Node<2>(0, false,  1.0, 0.0));
+        nodes2.push_back(new Node<2>(1, false,  0.5, sqrt(3.0)/2.0));
         nodes2.push_back(new Node<2>(2, false, -1.0, 0.0));
         nodes2.push_back(new Node<2>(3, false, -0.5, -sqrt(3.0)/2.0));
         

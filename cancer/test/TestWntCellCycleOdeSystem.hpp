@@ -59,7 +59,7 @@ public:
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.0074,1e-4);
 
         // Test derivatives are correct at t=0 for these initial conditions
-        // (figures from MatLab code)
+        // (figures from Matlab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
         TS_ASSERT_DELTA(derivs[2],-9.370533804903016e-03, 1e-5);
@@ -76,14 +76,13 @@ public:
         wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level,LABELLED);
         initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
-        //std::cout << "mutation 0 beta-cat = " << initial_conditions[6] << "\n";
 
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.6002,1e-4);
 
         wnt_cell_cycle_system2.EvaluateYDerivatives(time, initial_conditions, derivs);
 
         // Test derivatives are correct at t=0 for these initial conditions
-        // (figures from MatLab code)
+        // (figures from Matlab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
         TS_ASSERT_DELTA(derivs[2],5.845305754146019e+00, 1e-5);
@@ -108,7 +107,7 @@ public:
         wnt_cell_cycle_system3.EvaluateYDerivatives(time, initial_conditions, derivs);
 
         // Test derivatives are correct at t=0 for these initial conditions
-        // (figures from MatLab code)
+        // (figures from Matlab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
         TS_ASSERT_DELTA(derivs[2],7.3260e+00, 1e-4);
@@ -133,7 +132,7 @@ public:
         wnt_cell_cycle_system4.EvaluateYDerivatives(time, initial_conditions, derivs);
 
         // Test derivatives are correct at t=0 for these initial conditions
-        // (figures from MatLab code)
+        // (figures from Matlab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
         TS_ASSERT_DELTA(derivs[2],7.8190e+00, 1e-4);
@@ -159,7 +158,7 @@ public:
         wnt_cell_cycle_system5.EvaluateYDerivatives(time, initial_conditions, derivs);
 
         // Test derivatives are correct at t=0 for these initial conditions
-        // (figures from MatLab code)
+        // (figures from Matlab code)
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
         TS_ASSERT_DELTA(derivs[2],9.7928e+00, 1e-4);
@@ -223,12 +222,12 @@ public:
         // Test solutions are OK for a small time increase...
         int end = solutions_rk4.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
-        TS_ASSERT_DELTA(solutions_rk4.rGetTimes()[end] , 5.971 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        TS_ASSERT_DELTA(solutions_rk4.rGetTimes()[end], 5.971, 1e-2);
+        // Proper values from Matlab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][1],1.000220438771564e+00, 1.02e-2);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][2],2.453870380958196e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][3],1.446185835615586e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][1],1.000220438771564, 1.02e-2);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][2],2.453870380958196, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][3],1.446185835615586, 1e-3);
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][6]+solutions_rk4.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
@@ -239,8 +238,8 @@ public:
         // Test solutions are OK for a small time increase...
         end = solutions_rkf.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
-        TS_ASSERT_DELTA(solutions_rkf.rGetTimes()[end] , 5.971 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        TS_ASSERT_DELTA(solutions_rkf.rGetTimes()[end], 5.971, 1e-2);
+        // Proper values from Matlab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
         TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][1],1.000220438771564e+00, 1.02e-2);
         TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][2],2.453870380958196e+00, 1e-3);
@@ -273,8 +272,8 @@ public:
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 4.804 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end], 4.804, 1e-2);
+        // Proper values from Matlab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],2.493601889546602e-01, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],1.0, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],2.922278616458120e+00, 1e-2);
@@ -314,8 +313,8 @@ public:
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 7.8 hours)
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 7.835 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end], 7.835, 1e-2);
+        // Proper values from Matlab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],3.242663439545868e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.999, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],2.153277726022381e+00, 1e-3);
@@ -351,8 +350,8 @@ public:
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 3.9435 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end], 3.9435, 1e-2);
+        // Proper values from Matlab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],2.058373151310055e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.999, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],3.699024514542648e+00, 1e-3);

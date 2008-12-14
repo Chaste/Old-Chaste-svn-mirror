@@ -128,7 +128,7 @@ public:
         TS_ASSERT(!stem_cell.ReadyToDivide());
         TS_ASSERT(daughter_cell.GetCellCycleModel()->GetGeneration() == 1);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
-        TS_ASSERT_DELTA(daughter_cell.GetAge(), 0 , 1e-9);
+        TS_ASSERT_DELTA(daughter_cell.GetAge(), 0, 1e-9);
 
         p_simulation_time->IncrementTimeOneStep(); //t=36
 

@@ -40,11 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
-
+/**
+ * This class contains tests for methods on the class CellwiseData.
+ */
 class TestCellwiseDataGradient : public AbstractCancerTestSuite
 {
 
 public:
+
     void TestCellwiseDataGradientVerySmallMesh() throw(Exception)
     {
         // Create a simple mesh

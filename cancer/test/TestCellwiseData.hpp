@@ -39,7 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
-
+/**
+ * This class contains tests for methods on the class CellwiseData.
+ */
 class TestCellwiseData : public AbstractCancerTestSuite
 {
 public:
@@ -62,11 +64,11 @@ public:
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
 
-        // 1 variable tests
+        // One variable tests
+        
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
-
         TS_ASSERT_THROWS_ANYTHING(p_data->SetTissue(tissue));
 
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
@@ -74,7 +76,7 @@ public:
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetTissue(tissue);
-
+        
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(1.23, mesh.GetNode(0));
@@ -100,34 +102,38 @@ public:
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
 
-        // 2 variable test
+        // Two variable tests
 
         p_data = CellwiseData<2>::Instance();
 
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 2);
         p_data->SetTissue(tissue);
+        
         TS_ASSERT_THROWS_ANYTHING(p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1));
-
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
         MeshBasedTissue<2>::Iterator iter2 = tissue.Begin();
+        
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
 
         p_data->SetValue(4.23, mesh.GetNode(1), 1);
         ++iter2;
+        
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 4.23, 1e-12);
 
         // Other values should have been initialised to zero
         ++iter2;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 0), 0.0, 1e-12);
 
+        // Tidy up
         CellwiseData<2>::Destroy();
     }
 
 
     void TestArchiveCellwiseData()
     {
+        // Set up simulation time
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
         // Create a simple mesh
@@ -162,10 +168,11 @@ public:
 
             TS_ASSERT(p_data->IsSetUp());
 
-            // Write to the archive
+            // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-
+            
+            // Write to the archive
             output_arch << static_cast<const CellwiseData<2>&>(*CellwiseData<2>::Instance());
 
             CellwiseData<2>::Destroy();
@@ -194,6 +201,7 @@ public:
                 TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0), (double) iter->GetLocationIndex(), 1e-12);
             }
 
+            // Tidy up
             delete p_data->mpTissue;
             CellwiseData<2>::Destroy();
         }

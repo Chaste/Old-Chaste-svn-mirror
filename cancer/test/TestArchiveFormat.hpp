@@ -46,7 +46,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 
-
+/**
+ * This class consists of a single crypt simulation archiving test.
+ */
 class TestArchiveFormat : public CxxTest::TestSuite
 {
 public:
@@ -54,54 +56,56 @@ public:
     /**
      * This test is required because Test2DCryptRepresentativeSimulation loads
      * an archive stored in cancer/test/data. When the archiving of
-     * TissueSimulation and associate classes is updated the stored archive
+     * TissueSimulation and associate classes is updated, the stored archive
      * needs to be updated. This test checks that the archive can be loaded,
      * and will seg fault if not. It does nothing more, so it runs quickly
      * and can be in the continuous test pack.
      *
      * IF THIS TEST FAILS:
-     * - You have probably changed an archiving function somewhere
+     * - You have probably changed an archiving method somewhere
      * - You need to remake cancer/test/data/<test below>/archive/
      * - To do this re-run TestGenerateSteadyStateCrypt.hpp
-     * - Archives produced can be copied to :
-     *   cancer/test/data/<test below>/archive/
+     * - Archives produced can then be copied to cancer/test/data/<test below>/archive/
      *
-     * (it is a long test, currently just < 5hours, and could be
-     * run overnight - please do this rather than just moving it
-     * to the failing test pack(!) because these files are now
-     * the basis of some proper simulations for
-     * the papers that are on the way...)
+     * Note that when updating the archive, you can run TestGenerateSteadyStateCrypt.hpp 
+     * with build=GccOpt to speed up the test.
      */
     void TestLoadArchive() throw (Exception)
     {
+        // Set start time
         SimulationTime::Instance()->SetStartTime(0.0);
-
+        
+        // Directory in which the stored results were archived
         std::string test_to_profile = "SteadyStateCrypt";
-        double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+        
+        // Simulation time at which the stored results were archived
+        double t = 150;
 
-        // Open a new directory...
+        // Open a new directory
         OutputFileHandler file_handler(test_to_profile, true);
 
-        // The archive needs to be copied from cancer/test/data/<test_to_profile>
-        // to the testoutput directory to continue running the simulation.
+        // The archive must be copied from cancer/test/data/<test_to_profile>
+        // to the testoutput directory to continue running the simulation
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string test_data_directory = "cancer/test/data/" + test_to_profile +"/";
         std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";
+ 
+        // Test that the above command was implemented successfully
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
-
+        
+        // Load and run crypt simulation
         CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t + 1);
         delete p_simulator;
 
-        /* Check that something hasn't crept into the middle of the cancer parameters archive*/
+        // Check that archiving of cancer parameters has not been affected
         CancerParameters *inst = CancerParameters::Instance();
-
-        TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0 , 1e-12);
-        TS_ASSERT_DELTA(inst->GetSDuration(), 5.0 , 1e-12);
-        TS_ASSERT_DELTA(inst->GetG2Duration(), 4.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetSDuration(), 5.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetG2Duration(), 4.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetMinimumGapDuration(), 0.01, 1e-12);
-        TS_ASSERT_DELTA(inst->GetMDuration(), 1.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetMDuration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellG1Duration(), 8.0, 1e-12);
@@ -111,7 +115,7 @@ public:
         TS_ASSERT_DELTA(inst->GetSpringStiffness(), 30.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetDampingConstantNormal(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetDampingConstantMutant(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetBetaCatSpringScaler(), 18.14/6.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetApoptosisTime(), 0.25, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellQuiescentConcentration(), 1.0, 1e-12);
@@ -125,8 +129,8 @@ public:
         TS_ASSERT_DELTA(inst->GetApoptoticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
-
-
+        
+        // Tidy up
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

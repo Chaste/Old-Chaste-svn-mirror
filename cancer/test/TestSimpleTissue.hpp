@@ -414,14 +414,14 @@ public:
              ++cell_iter)
         {
             // Record node location
-            c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
+            c_vector<double, 2> node_location = cell_iter.GetNode()->rGetLocation();
 
             // Get cell at each node
             TissueCell& r_cell = simple_tissue.rGetCellUsingLocationIndex(cell_iter.GetNode()->GetIndex());
 
             // Test GetLocationOfCell()
-            TS_ASSERT_DELTA(node_location[0] , simple_tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
-            TS_ASSERT_DELTA(node_location[1] , simple_tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
+            TS_ASSERT_DELTA(node_location[0], simple_tissue.GetLocationOfCell(r_cell)[0], 1e-9);
+            TS_ASSERT_DELTA(node_location[1], simple_tissue.GetLocationOfCell(r_cell)[1], 1e-9);
         }
     }
 

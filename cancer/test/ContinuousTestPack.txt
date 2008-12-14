@@ -2,9 +2,9 @@ TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 TestArchiveFormat.hpp
 TestCancerEventHandler.hpp
 TestCancerParameters.hpp
-TestCellCycleModelsOde.hpp
-TestCellCycleModelsSimple.hpp
+TestCellCycleModelsNotForRelease.hpp
 TestCellKillers.hpp
+TestCellKillersNotForRelease.hpp
 TestCellsGenerator.hpp
 TestCellwiseData.hpp
 TestCellwiseDataGradient.hpp
@@ -20,11 +20,14 @@ TestIngeWntSwatCellCycleOdeSystem.hpp
 TestLee2003WntSignallingOdeSystem.hpp
 TestMeshBasedTissue.hpp
 TestNutrientPdes.hpp
+TestOdeBasedCellCycleModels.hpp
+TestSimpleCellCycleModels.hpp
 TestSimpleTissue.hpp
 TestSimulationTime.hpp
 TestTissueCell.hpp
 TestTissueSimulation.hpp
 TestTissueSimulation3d.hpp
+TestTissueSimulationNotForRelease.hpp
 TestTissueSimulationWithNutrients.hpp
 TestTissueSimulationWithNutrientsAssembler.hpp
 TestTissueSimulationWithSimpleTissue.hpp

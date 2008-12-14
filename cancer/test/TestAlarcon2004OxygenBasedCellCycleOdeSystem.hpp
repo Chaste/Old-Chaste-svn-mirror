@@ -40,18 +40,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 
-
+/**
+ * This class contains tests for Alarcon2004OxygenBasedCellCycleOdeSystem, 
+ * a system of ODEs that are used by the cell cycle model 
+ * Alarcon2004OxygenBasedCellCycleModel to determine when a cell is ready 
+ * to divide.
+ */
 class TestAlarcon2004OxygenBasedCellCycleOdeSystem : public CxxTest::TestSuite
 {
 public:
 
+    /**
+     * Test derivative calculations (correct values calculated using Matlab). 
+     */
     void TestAlarcon2004Equations()
     {
+        // Set up
+        double time = 0.0;
         double oxygen_concentration = 1.0;
+        
         Alarcon2004OxygenBasedCellCycleOdeSystem normal_system(oxygen_concentration, HEALTHY);
         Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system(oxygen_concentration, LABELLED);
-
-        double time = 0.0;
+        
         std::vector<double> initial_conditions = normal_system.GetInitialConditions();
 
         std::vector<double> normal_derivs(initial_conditions.size());
@@ -59,15 +69,20 @@ public:
         normal_system.EvaluateYDerivatives(time, initial_conditions, normal_derivs);
         cancer_system.EvaluateYDerivatives(time, initial_conditions, cancer_derivs);
 
-        // Test derivatives are correct at t=0 for a normal cell...
-        // (figures from MatLab code)
+        /**
+         * Test derivatives are correct initially
+         * (correct values calculated using Matlab code)
+         */
+
+        // Normal cell
         TS_ASSERT_DELTA(normal_derivs[0], 455.630699088, 1e-5);
         TS_ASSERT_DELTA(normal_derivs[1], 1.83000000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs[2], 3.00000000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs[3], 1.50000000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs[4], -5.4060000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs[5], 0.00000000000, 1e-5);
-        // ...and a cancer cell
+        
+        // Cancer cell
         TS_ASSERT_DELTA(cancer_derivs[0], 455.630699088, 1e-5);
         TS_ASSERT_DELTA(cancer_derivs[1], 1.83600000000, 1e-5);
         TS_ASSERT_DELTA(cancer_derivs[2], 0.42000000000, 1e-5);
@@ -75,9 +90,12 @@ public:
         TS_ASSERT_DELTA(cancer_derivs[4], -5.4060000000, 1e-5);
         TS_ASSERT_DELTA(cancer_derivs[5], 0.00000000000, 1e-5);
 
-        // Same thing for a low oxygen concentration
-        // (the usual initial condition for z is zero, so we need to change it
-        // to see any difference)
+        /**
+         * Again test derivatives are correct initially, but for 
+         * different initial conditions (corresponding to a low 
+         * oxygen concentration). The usual initial condition for 
+         * z is zero, so we need to change it to see any difference.
+         */
         oxygen_concentration = 0.1;
 
         Alarcon2004OxygenBasedCellCycleOdeSystem normal_system2(oxygen_concentration,HEALTHY);
@@ -89,20 +107,20 @@ public:
         std::vector<double> cancer_derivs2(initial_conditions.size());
         cancer_system2.SetInitialConditionsComponent(2, 0.1);
 
-        // initial conditions have changed
         std::vector<double> initial_conditions2 = normal_system2.GetInitialConditions();
 
         normal_system2.EvaluateYDerivatives(time, initial_conditions2, normal_derivs2);
         cancer_system2.EvaluateYDerivatives(time, initial_conditions2, cancer_derivs2);
 
+        // Normal cell
         TS_ASSERT_DELTA(normal_derivs2[0], 455.630699088, 1e-5);
         TS_ASSERT_DELTA(normal_derivs2[1], 1.81500000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs2[2], 2.94545454545, 1e-5);
         TS_ASSERT_DELTA(normal_derivs2[3], 1.50000000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs2[4], -5.4060000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs2[5], 0.00000000000, 1e-5);
-        // ...and a cancer cell
 
+        // Cancer cell
         TS_ASSERT_DELTA(cancer_derivs2[0], 455.630699088, 1e-5);
         TS_ASSERT_DELTA(cancer_derivs2[1], 1.82100000000, 1e-5);
         TS_ASSERT_DELTA(cancer_derivs2[2], 0.36545454545, 1e-5);
@@ -111,32 +129,40 @@ public:
         TS_ASSERT_DELTA(cancer_derivs2[5], 0.00000000000, 1e-5);
     }
 
+    /**
+     * Test two ODE solvers with this ODE system (correct values calculated using the Matlab solver ode15s).
+     * 
+     */ 
     void TestAlarcon2004Solver() throw(Exception)
     {
+        // Set up
         double oxygen_concentration = 1.0;
-        Alarcon2004OxygenBasedCellCycleOdeSystem alarcon_system(oxygen_concentration,HEALTHY);
-        // Solve system using rk4 solver
-        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
-
-        double h_value = 1e-4;
-
+        Alarcon2004OxygenBasedCellCycleOdeSystem alarcon_system(oxygen_concentration, HEALTHY);
+        
+        // Create ODE solvers
         RungeKutta4IvpOdeSolver rk4_solver;
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         BackwardEulerIvpOdeSolver back_solver(6);
 
+        // Set up for solver      
         OdeSolution solutions;
-
         std::vector<double> initial_conditions = alarcon_system.GetInitialConditions();
-
-        double start_time, end_time, elapsed_time = 0.0;
+        double start_time = 0.0;
+        double end_time = 0.0;
+        double elapsed_time = 0.0;
+        double h_value = 1e-4; // maximum tolerance
+        
+        // Solve the ODE system using a Runge Kutta fourth order solver
         start_time = std::clock();
         solutions = rk4_solver.Solve(&alarcon_system, initial_conditions, 0.0, 10.0, h_value, h_value);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
 
+        // Reset maximum tolerance for Runge Kutta Fehlber solver
         h_value = 1e-1;
-
+        
+        // Solve the ODE system using a Runge Kutta Fehlber solver
         initial_conditions = alarcon_system.GetInitialConditions();
         start_time = std::clock();
         solutions = rkf_solver.Solve(&alarcon_system, initial_conditions, 0.0, 10.0, h_value, 1e-4);
@@ -144,14 +170,13 @@ public:
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
 
-
-        // test solutions are OK for a small time increase
+        // Test that solutions are accurate for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
 
-        // tests the simulation is ending at the right time
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 9.286356375 , 1e-2);
+        // Test that the solver stops at the right time
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end], 9.286356375, 1e-2);
 
-        // proper values found using MatLab ode15s - shocking tolerances though
+        // Test solution - note the high tolerances
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 0.004000000000000, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 0.379221366479055, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 0.190488726735972, 1e-3);

@@ -161,7 +161,7 @@ public:
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.85000777753272, 1e-5);
 //
 
-        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that
+        // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
         // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.98913684535843, 1e-2);

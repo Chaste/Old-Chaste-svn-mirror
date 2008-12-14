@@ -819,8 +819,8 @@ public:
             TissueCell& r_cell = tissue.rGetCellUsingLocationIndex(cell_iter.GetNode()->GetIndex());
 
             // Test GetLocationOfCell()
-            TS_ASSERT_DELTA(node_location[0] , tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
-            TS_ASSERT_DELTA(node_location[1] , tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
+            TS_ASSERT_DELTA(node_location[0], tissue.GetLocationOfCell(r_cell)[0], 1e-9);
+            TS_ASSERT_DELTA(node_location[1], tissue.GetLocationOfCell(r_cell)[1], 1e-9);
         }
     }
 

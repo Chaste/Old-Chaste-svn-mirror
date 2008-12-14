@@ -1,8 +1,8 @@
 TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 TestCancerParameters.hpp
-TestCellCycleModelsOde.hpp
-TestCellCycleModelsSimple.hpp
+TestCellCycleModelsNotForRelease.hpp
 TestCellKillers.hpp
+TestCellKillersNotForRelease.hpp
 TestCellwiseData.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
@@ -10,6 +10,8 @@ TestCylindrical2dMesh.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeshBasedTissue.hpp
+TestOdeBasedCellCycleModels.hpp
+TestSimpleCellCycleModels.hpp
 TestSimpleTissue.hpp
 TestSimulationTime.hpp
 TestTissueCell.hpp

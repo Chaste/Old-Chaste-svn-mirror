@@ -96,7 +96,7 @@ public:
         // Test the simulation is ending at the right time
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 100.0, 1e-2);
 
-        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that
+        // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
         // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],9.090909090909091e+01, 1e-5);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],7.275154952501657e-04, 1e-5);

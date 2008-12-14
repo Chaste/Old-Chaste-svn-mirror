@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedCellCycleModel.hpp"
 #include "MeinekeInteractionForce.hpp"
 #include "RandomCellKiller.hpp"
-#include "RadialSloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "CryptProjectionForce.hpp"
@@ -141,105 +140,6 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat").c_str()), 0);
     }
 
-    /**
-     *  Test a tissue simulation with a non-Meineke spring system.
-     *
-     *  This test consists of a standard crypt projection model simulation with a
-     *  radial sloughing cell killer, a crypt projection cell cycle model that
-     *  depends on a radial Wnt gradient, and the crypt projection model spring
-     *  system, and store the results for use in later archiving tests.
-     */
-    void TestTissueSimulationWithCryptProjectionSpringSystem() throw (Exception)
-    {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->SetWntStemThreshold(0.95);
-
-        double a = 0.2;
-        double b = 2.0;
-        p_params->SetCryptProjectionParameterA(a);
-        p_params->SetCryptProjectionParameterB(b);
-
-        // Set up mesh
-        int num_cells_depth = 20;
-        int num_cells_width = 20;
-        unsigned thickness_of_ghost_layer = 3;
-
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-
-        c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
-        c_vector<double,2> height_extremes = p_mesh->GetWidthExtremes(1u);
-
-        double width_of_mesh = (num_cells_width/(num_cells_width+2.0*thickness_of_ghost_layer))*(width_extremes[1] - width_extremes[0]);
-        double height_of_mesh = (num_cells_depth/(num_cells_depth+2.0*thickness_of_ghost_layer))*(height_extremes[1] - height_extremes[0]);
-
-        p_mesh->Translate(-width_of_mesh/2,-height_of_mesh/2);
-
-        // To start off with, set up all cells to be of type TRANSIT
-        std::vector<TissueCell> cells;
-
-        std::cout << "num nodes = " << p_mesh->GetNumNodes() << "\n" << std::flush;
-
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel());
-            cell.InitialiseCellCycleModel();
-            double birth_time = - RandomNumberGenerator::Instance()->ranf()*
-                                  ( p_params->GetTransitCellG1Duration()
-                                   +p_params->GetSG2MDuration());
-            cell.SetLocationIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        // Make a tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
-
-        // Set up the Wnt gradient
-        WntConcentration::Instance()->SetType(RADIAL);
-        WntConcentration::Instance()->SetTissue(crypt);
-
-        // Create the force law and pass in to a std::list
-        CryptProjectionForce crypt_projection_force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&crypt_projection_force);
-
-        // Make a tissue simulation
-        TissueSimulation<2> crypt_projection_simulator(crypt, force_collection, false, false);
-
-        // Create a radial cell killer and pass it in to the tissue simulation
-        c_vector<double,2> centre = zero_vector<double>(2);
-        double crypt_radius = pow(CancerParameters::Instance()->GetCryptLength()/a, 1.0/b);
-
-        RadialSloughingCellKiller killer(&crypt, centre, crypt_radius);
-        crypt_projection_simulator.AddCellKiller(&killer);
-
-        // Set up the simulation
-        crypt_projection_simulator.SetOutputDirectory("CryptProjectionSimulation");
-        crypt_projection_simulator.SetEndTime(0.25);
-
-        // Run the simulation
-        TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
-
-        // These cells just divided and have been gradually moving apart.
-        // These results are from time 0.25.
-        std::vector<double> node_302_location = crypt_projection_simulator.GetNodeLocation(302);
-        std::vector<double> node_506_location = crypt_projection_simulator.GetNodeLocation(506);
-        c_vector<double, 2> distance_between;
-        distance_between(0) = node_506_location[0]-node_302_location[0];
-        distance_between(1) = node_506_location[1]-node_302_location[1];
-        TS_ASSERT_DELTA(norm_2(distance_between), 0.7029, 1e-3);
-
-        // Test the Wnt gradient result
-        TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(302));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.999, 1e-3);
-        p_cell = &(crypt.rGetCellUsingLocationIndex(506));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.989, 1e-3);
-
-        // Tidy up
-        WntConcentration::Destroy();
-    }
 
     /**
      *  Test a tissue simulation with a cell killer.
@@ -336,101 +236,101 @@ public:
         TS_ASSERT_LESS_THAN(3.1415, time);
     }
     
-//    
-//    void TestApoptosisSpringLengths() throw (Exception)
-//    {
-//        unsigned num_cells_depth = 2;
-//        unsigned num_cells_width = 2;
-//        double crypt_length = num_cells_depth-0.0;
-//        double crypt_width = num_cells_width-0.0;
-//
-//        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-//        MutableMesh<2,2>* p_mesh = generator.GetMesh();
-//        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-//
-//        CancerParameters* p_params = CancerParameters::Instance();
-//        p_params->SetCryptLength(crypt_length);
-//        p_params->SetCryptWidth(crypt_width);
-//
-//        // Set up cells
-//        std::vector<TissueCell> cells;
-//        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-//        {
-//            TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
-//            double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
-//                                               +p_params->GetSG2MDuration());
-//            cell.SetLocationIndex(i);
-//            cell.SetBirthTime(birth_time);
-//            cells.push_back(cell);
-//        }
-//
-//        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
-//
-//        MeinekeInteractionForce<2> meineke_force;        
-//        std::vector<AbstractForce<2>* > force_collection;
-//        force_collection.push_back(&meineke_force);
-//        
-//        TissueSimulation<2> simulator(tissue, force_collection);
-//
-//        simulator.SetOutputDirectory("2dSpheroidApoptosis");
-//        simulator.SetEndTime(1.0);
-//
-//        CancerParameters::Instance()->SetApoptosisTime(2.0);
-//        tissue.rGetCellUsingLocationIndex(14).StartApoptosis();
-//        tissue.rGetCellUsingLocationIndex(15).StartApoptosis();
-//        simulator.SetNoBirth(true);
-//
-//        simulator.Solve();
-//
-//        /* We track the locations of two dying cells (a and b) and two
-//         * live cells adjacent to them (c and d)
-//         *
-//         * All cells begin distance 1 apart.
-//         *
-//         * a and b move together to leave a gap of 0.
-//         * a and c (and b and d) move to a distance of 0.5 apart.
-//         */
-//
-//        c_vector<double, 2> a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
-//        c_vector<double, 2> b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
-//        c_vector<double, 2> c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
-//        c_vector<double, 2> d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
-//
-//        double a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
-//                                (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
-//        double a_c_separation = sqrt((a_location[0]-c_location[0])*(a_location[0]-c_location[0]) +
-//                                (a_location[1]-c_location[1])*(a_location[1]-c_location[1]));
-//        double c_d_separation = sqrt((d_location[0]-c_location[0])*(d_location[0]-c_location[0]) +
-//                                (d_location[1]-c_location[1])*(d_location[1]-c_location[1]));
-//
-//        TS_ASSERT_DELTA(a_b_separation , 0.5, 1e-1);
-//        TS_ASSERT_DELTA(a_c_separation , 0.75, 1e-1);
-//        TS_ASSERT_DELTA(c_d_separation , 1.0, 1e-1);
-//
-//        simulator.SetEndTime(1.99);
-//        simulator.Solve();
-//
-//        a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
-//        b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
-//        c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
-//        d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
-//
-//        a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
-//                         (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
-//        a_c_separation = sqrt((a_location[0]-c_location[0])*(a_location[0]-c_location[0]) +
-//                         (a_location[1]-c_location[1])*(a_location[1]-c_location[1]));
-//        c_d_separation = sqrt((d_location[0]-c_location[0])*(d_location[0]-c_location[0]) +
-//                         (d_location[1]-c_location[1])*(d_location[1]-c_location[1]));
-//
-//        TS_ASSERT_DELTA(a_b_separation , 0.01, 1e-1);
-//        TS_ASSERT_DELTA(a_c_separation , 0.5, 1e-1);
-//        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 4u);
-//
-//        simulator.SetEndTime(2.01);
-//        simulator.Solve();
-//
-//        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
-//    }
+    
+    void TestApoptosisSpringLengths() throw (Exception)
+    {
+        unsigned num_cells_depth = 2;
+        unsigned num_cells_width = 2;
+        double crypt_length = num_cells_depth-0.0;
+        double crypt_width = num_cells_width-0.0;
+
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
+                                               +p_params->GetSG2MDuration());
+            cell.SetLocationIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+
+        MeinekeInteractionForce<2> meineke_force;        
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&meineke_force);
+        
+        TissueSimulation<2> simulator(tissue, force_collection);
+
+        simulator.SetOutputDirectory("2dSpheroidApoptosis");
+        simulator.SetEndTime(1.0);
+
+        CancerParameters::Instance()->SetApoptosisTime(2.0);
+        tissue.rGetCellUsingLocationIndex(14).StartApoptosis();
+        tissue.rGetCellUsingLocationIndex(15).StartApoptosis();
+        simulator.SetNoBirth(true);
+
+        simulator.Solve();
+
+        /* We track the locations of two dying cells (a and b) and two
+         * live cells adjacent to them (c and d)
+         *
+         * All cells begin distance 1 apart.
+         *
+         * a and b move together to leave a gap of 0.
+         * a and c (and b and d) move to a distance of 0.5 apart.
+         */
+
+        c_vector<double, 2> a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
+        c_vector<double, 2> b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
+        c_vector<double, 2> c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
+        c_vector<double, 2> d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
+
+        double a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
+                                (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
+        double a_c_separation = sqrt((a_location[0]-c_location[0])*(a_location[0]-c_location[0]) +
+                                (a_location[1]-c_location[1])*(a_location[1]-c_location[1]));
+        double c_d_separation = sqrt((d_location[0]-c_location[0])*(d_location[0]-c_location[0]) +
+                                (d_location[1]-c_location[1])*(d_location[1]-c_location[1]));
+
+        TS_ASSERT_DELTA(a_b_separation, 0.5, 1e-1);
+        TS_ASSERT_DELTA(a_c_separation, 0.75, 1e-1);
+        TS_ASSERT_DELTA(c_d_separation, 1.0, 1e-1);
+
+        simulator.SetEndTime(1.99);
+        simulator.Solve();
+
+        a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
+        b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
+        c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
+        d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
+
+        a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
+                         (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
+        a_c_separation = sqrt((a_location[0]-c_location[0])*(a_location[0]-c_location[0]) +
+                         (a_location[1]-c_location[1])*(a_location[1]-c_location[1]));
+        c_d_separation = sqrt((d_location[0]-c_location[0])*(d_location[0]-c_location[0]) +
+                         (d_location[1]-c_location[1])*(d_location[1]-c_location[1]));
+
+        TS_ASSERT_DELTA(a_b_separation, 0.01, 1e-1);
+        TS_ASSERT_DELTA(a_c_separation, 0.5, 1e-1);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 4u);
+
+        simulator.SetEndTime(2.01);
+        simulator.Solve();
+
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
+    }
 
 };
 #endif /*TESTTISSUESIMULATION_HPP_*/

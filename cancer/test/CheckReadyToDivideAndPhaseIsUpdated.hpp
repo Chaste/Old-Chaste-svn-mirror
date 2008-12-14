@@ -34,56 +34,84 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellCycleModel.hpp"
 
+/**
+ * A helper method that is called in cell cycle model tests
+ * to check that a cell is progressing through the cell cycle 
+ * correctly.
+ * 
+ * @param pModel Pointer to the cell cycle model
+ * @param g1Duration Correct duration of the G1 phase, to test against
+ * @param g2Duration Correct duration of the G1 phase, to test against
+ */ 
 void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
                                          double g1Duration,
                                          double g2Duration=CancerParameters::Instance()->GetG2Duration())
 {
-    double age = pModel->GetAge();
+    // A number of cancer parameters are called in this method, 
+    // so for convenience we create a pointer to the instance
     CancerParameters* p_params = CancerParameters::Instance();
     
-    const double G1TOL = 1e-5; // How accurate the expected G1 duration is
+    double age = pModel->GetAge();    
     
+    const double G1TOL = 1e-5; // how accurate the expected G1 duration is
+    
+    // If the G1 duration is incorrect, print out the mismatch
     if ((pModel->GetCell()->GetCellType() != DIFFERENTIATED) &&
         (age >= p_params->GetMDuration()) &&
         (pModel->GetG1Duration() != DOUBLE_UNSET) &&
         (fabs(pModel->GetG1Duration() - g1Duration) > G1TOL))
     {
         std::cout << "G1 duration mismatch: actual = " << pModel->GetG1Duration()
-                  << ", expected = " << g1Duration << std::endl;
+                  << ", expected = " << g1Duration 
+                  << std::endl;
     }
 
     if (pModel->GetCell()->GetCellType()==DIFFERENTIATED)
     {
+        // If the cell is differentiated, then it must be in G0 phase and must never divide
         TS_ASSERT(!pModel->ReadyToDivide());
-        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO_PHASE);
+        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), G_ZERO_PHASE);
     }
     else if (age < p_params->GetMDuration())
-    {   // if in M phase
+    {   
+        // If the cell in M phase, then it must not be ready to divide
         TS_ASSERT(!pModel->ReadyToDivide());
-        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),M_PHASE);
+        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), M_PHASE);
     }
     else if (age < p_params->GetMDuration() + g1Duration - G1TOL)
-    {   // if in G1 phase
+    {
+        // The next cell cycle phase after M is G1; cells in G1 phase 
+        // must still not be ready to divide
         TS_ASSERT(!pModel->ReadyToDivide());
-        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ONE_PHASE);
+        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), G_ONE_PHASE);
+        
+        // If the cell is not in G1 phase when it should be, print out the mismatch
         if (pModel->GetCurrentCellCyclePhase() != G_ONE_PHASE)
         {
-            std::cout << "Expected G1: " << g1Duration << "; actual: " << pModel->GetG1Duration()
-                      << "; age = " << age << "; G1-S transition = " << p_params->GetMDuration() + g1Duration << std::endl;
+            std::cout << "Expected G1: " << g1Duration 
+                      << "; actual: " << pModel->GetG1Duration()
+                      << "; age = " << age 
+                      << "; G1-S transition = " << p_params->GetMDuration() + g1Duration 
+                      << std::endl;
         }
     }
     else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() - G1TOL)
-    {   // if in S phase
+    {
+        // The next cell cycle phase after G1 is S; cells in S phase 
+        // must still not be ready to divide
         TS_ASSERT(!pModel->ReadyToDivide());
-        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S_PHASE);
+        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), S_PHASE);
     }
     else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + g2Duration  - G1TOL)
-    {   // if in G2 phase
+    {
+        // The next cell cycle phase after S is G2; cells in G2 phase 
+        // must still not be ready to divide
         TS_ASSERT(!pModel->ReadyToDivide());
-        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO_PHASE);
+        TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), G_TWO_PHASE);
     }
     else
     {
+        // Cells must be ready to divide as soon as they leave G2 phase
         TS_ASSERT(pModel->ReadyToDivide());
     }
 }

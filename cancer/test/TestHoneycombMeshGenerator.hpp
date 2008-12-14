@@ -111,7 +111,7 @@ public:
 
         // zeroth node
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],0.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-(double)ghosts*sqrt(3.0)/2.0 , 1e-5);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-(double)ghosts*sqrt(3.0)/2.0, 1e-5);
 
         // first real node
         int index = (num_cells_width)*ghosts; // 4 here is the number of ghost nodes in a row
@@ -175,8 +175,8 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width)*(num_cells_depth+2*ghosts));
 
         // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],0.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-x_factor*(double)ghosts*sqrt(3.0)/2.0 , 1e-5);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1], -x_factor*(double)ghosts*sqrt(3.0)/2.0, 1e-5);
 
         // first real node
         int index = (num_cells_width)*ghosts; // 4 here is the number of ghost nodes in a row

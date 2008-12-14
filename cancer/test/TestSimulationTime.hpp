@@ -118,7 +118,7 @@ public:
         }
         //Reset the end time and number of steps
         num_steps = 20;
-        p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(second_end , num_steps);
+        p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(second_end, num_steps);
 
         for (unsigned i=0; i<num_steps; i++)
         {

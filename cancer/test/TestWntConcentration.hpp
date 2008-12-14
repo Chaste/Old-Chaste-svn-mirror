@@ -108,7 +108,7 @@ public:
         p_params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
 
-        TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
         // Test GetWntGradient() method
 
@@ -144,16 +144,16 @@ public:
         height = 21.0;
         wnt_level = p_wnt->GetWntLevel(height);
 
-        TS_ASSERT_DELTA(wnt_level, 0.0 , 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
         params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         // under a third of the way up the crypt.
         params->SetCryptLength(22.0);
         height = 7.0;
         wnt_level = p_wnt->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level , 1.0 - height/((1.0/3.0)*params->GetCryptLength()) , 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 1.0 - height/((1.0/3.0)*params->GetCryptLength()), 1e-9);
         // more than a third of the way up the crypt.
         height = 10.0;
         wnt_level = p_wnt->GetWntLevel(height);
@@ -182,11 +182,11 @@ public:
         height = 21.0;
         wnt_level = p_wnt->GetWntLevel(height);
 
-        TS_ASSERT_DELTA(wnt_level, 0.0454 , 1e-4);
+        TS_ASSERT_DELTA(wnt_level, 0.0454, 1e-4);
 
         params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
         params->SetCryptLength(22.0);
         height = 7.0;
@@ -319,7 +319,7 @@ public:
         params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
 
-        TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
         TS_ASSERT_THROWS_ANYTHING(p_wnt->SetConstantWntValueForTesting(-10));
     }

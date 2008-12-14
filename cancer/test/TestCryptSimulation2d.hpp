@@ -334,11 +334,11 @@ public:
 
         std::vector<double> node_35_location = simulator.GetNodeLocation(35);
 
-        TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
+        TS_ASSERT_DELTA(node_35_location[0], 5.5000, 1e-4);
 
         // Old version of this test had cells with age zero, therefore small spring lengths.
         // Variable spring lengths now only associated with cell division.
-        TS_ASSERT_DELTA(node_35_location[1], 4.33013 , 1e-4);
+        TS_ASSERT_DELTA(node_35_location[1], 4.33013, 1e-4);
 
         WntConcentration::Destroy();
     }
@@ -491,12 +491,12 @@ public:
         // These results are from time 0.25, which is also tested below
         // after a save and a load. (See #420, #479.)
         std::vector<double> node_28_location = simulator.GetNodeLocation(28);
-        TS_ASSERT_DELTA(node_28_location[0], 3.7875 , 1e-4);
-        TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 3.7875, 1e-4);
+        TS_ASSERT_DELTA(node_28_location[1], 0.0, 1e-4);
         
         std::vector<double> node_120_location = simulator.GetNodeLocation(120);
-        TS_ASSERT_DELTA(node_120_location[0], 4.2035 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[0], 4.2035, 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(28));
@@ -594,12 +594,12 @@ public:
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25 in the StandardResult test above.
         std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
-        TS_ASSERT_DELTA(node_28_location[0], 3.7875 , 1e-4);
-        TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 3.7875, 1e-4);
+        TS_ASSERT_DELTA(node_28_location[1], 0.0, 1e-4);
         
         std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
-        TS_ASSERT_DELTA(node_120_location[0], 4.2035 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[0], 4.2035, 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
         // Test Wnt Gradient was set up correctly
         TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(),true);

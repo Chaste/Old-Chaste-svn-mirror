@@ -38,17 +38,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 
+/**
+ * This class contains tests for methods on the 
+ * CancerParameters singleton class.
+ */
 class TestCancerParameters : public CxxTest::TestSuite
 {
 private:
+
+    /**
+     * Test that all default cancer parameter values are correct.
+     */
     void CheckValuesAreTheDefaultValues()
     {
         CancerParameters *inst = CancerParameters::Instance();
 
-        TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0 , 1e-12);
-        TS_ASSERT_DELTA(inst->GetSDuration(), 5.0 , 1e-12);
-        TS_ASSERT_DELTA(inst->GetG2Duration(), 4.0 , 1e-12);
-        TS_ASSERT_DELTA(inst->GetMDuration(), 1.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetSDuration(), 5.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetG2Duration(), 4.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetMDuration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellG1Duration(), 8.0, 1e-12);
@@ -152,10 +160,10 @@ public:
 
         CancerParameters *inst2 = CancerParameters::Instance();
 
-        TS_ASSERT_DELTA(inst2->GetSG2MDuration(), 9.0 , 1e-12);
-        TS_ASSERT_DELTA(inst2->GetSDuration(), 4.0 , 1e-12);
-        TS_ASSERT_DELTA(inst2->GetG2Duration(), 3.0 , 1e-12);
-        TS_ASSERT_DELTA(inst2->GetMDuration(), 2.0 , 1e-12);
+        TS_ASSERT_DELTA(inst2->GetSG2MDuration(), 9.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetSDuration(), 4.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetG2Duration(), 3.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetMDuration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetStemCellG1Duration(), 35.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetTransitCellG1Duration(), 45.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetHepaOneCellG1Duration(), 10.0, 1e-12);
@@ -191,7 +199,8 @@ public:
         // Create an ouput archive
         {
             CancerParameters *inst1 = CancerParameters::Instance();
-            // Mess up the cancer parameters
+            
+            // Change the cancer parameter values
             inst1->SetSDuration(4.0);
             inst1->SetG2Duration(3.0);
             inst1->SetMDuration(2.0);
@@ -223,14 +232,14 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Save messed up parameters
+            // Save the changed cancer parameter values
             output_arch << static_cast<const CancerParameters&>(*inst1);
         }
 
         {
             CancerParameters *inst1 = CancerParameters::Instance();
 
-            // Restore to nice parameters
+            // Restore the cancer parameters to their deault values
             inst1->SetSDuration(5.0);
             inst1->SetG2Duration(4.0);
             inst1->SetMDuration(1.0);
@@ -264,14 +273,14 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore messed up parameters from the archive
+            // Restore changed parameter values from the archive
             input_arch >> *inst1;
 
-            // Check they are messed up
-            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 9.0 , 1e-12);
-            TS_ASSERT_DELTA(inst1->GetSDuration(), 4.0 , 1e-12);
-            TS_ASSERT_DELTA(inst1->GetG2Duration(), 3.0 , 1e-12);
-            TS_ASSERT_DELTA(inst1->GetMDuration(), 2.0 , 1e-12);
+            // Check they are the changed values
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 9.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetSDuration(), 4.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetG2Duration(), 3.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetMDuration(), 2.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetStemCellG1Duration(), 35.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetTransitCellG1Duration(), 45.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetHepaOneCellG1Duration(), 10.0, 1e-12);

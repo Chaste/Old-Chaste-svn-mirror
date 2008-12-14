@@ -30,7 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CancerEventHandler.hpp"
 
-
+/**
+ * This class consists of a single test for the CancerEventHandler 
+ * class.
+ */
 class TestCancerEventHandler : public CxxTest::TestSuite
 {
 public:
@@ -38,37 +41,61 @@ public:
     void TestEvents() throw(Exception)
     {
         CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
+        
         CancerEventHandler::BeginEvent(SETUP);
-        for (unsigned i=0; i<1000000; i++);
+        for (unsigned i=0; i<1000000; i++)
+        {
+            // do nothing
+        }
         CancerEventHandler::EndEvent(SETUP);
 
         CancerEventHandler::BeginEvent(DEATH);
-        for (unsigned i=0; i<10000000; i++);
+        for (unsigned i=0; i<10000000; i++)
+        {
+            // do nothing
+        }
         CancerEventHandler::EndEvent(DEATH);
 
         CancerEventHandler::BeginEvent(BIRTH);
-        for (unsigned i=0; i<20000000; i++);
+        for (unsigned i=0; i<20000000; i++)
+        {
+            // do nothing
+        }
         CancerEventHandler::EndEvent(BIRTH);
         CancerEventHandler::BeginEvent(REMESH);
-        for (unsigned i=0; i<30000000; i++);
+        for (unsigned i=0; i<30000000; i++)
+        {
+            // do nothing
+        }
         CancerEventHandler::EndEvent(REMESH);
 
         CancerEventHandler::BeginEvent(TESSELLATION);
-        for (unsigned i=0; i<10000000; i++);
+        for (unsigned i=0; i<10000000; i++)
+        {
+            // do nothing
+        }        
         CancerEventHandler::EndEvent(TESSELLATION);
 
         CancerEventHandler::BeginEvent(FORCE);
-        for (unsigned i=0; i<10000000; i++);
+        for (unsigned i=0; i<10000000; i++)
+        {
+            // do nothing
+        }        
         CancerEventHandler::EndEvent(FORCE);
 
         CancerEventHandler::BeginEvent(POSITION);
-        for (unsigned i=0; i<10000000; i++);
+        for (unsigned i=0; i<10000000; i++)
+        {
+            // do nothing
+        }        
         CancerEventHandler::EndEvent(POSITION);
 
         CancerEventHandler::BeginEvent(OUTPUT);
-        for (unsigned i=0; i<10000000; i++);
+        for (unsigned i=0; i<10000000; i++)
+        {
+            // do nothing
+        }        
         CancerEventHandler::EndEvent(OUTPUT);
-
 
         CancerEventHandler::EndEvent(CANCER_EVERYTHING);
 
@@ -77,7 +104,6 @@ public:
         CancerEventHandler::Report();
 
         CancerEventHandler::Report();
-
     }
 };
 

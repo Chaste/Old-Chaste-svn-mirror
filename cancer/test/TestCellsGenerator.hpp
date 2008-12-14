@@ -40,23 +40,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
-
+/**
+ * This class contains tests for methods on classes 
+ * inheriting from AbstractCellsGenerator.
+ */
 class TestCellsGenerator : public AbstractCancerTestSuite
 {
 public:
 
     void TestFixedCellCycleModelCellsGeneratorGenerateBasic() throw(Exception)
     {
+        // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        // Create cells
         std::vector<TissueCell> cells;
-
         FixedCellCycleModelCellsGenerator<2> generator;
         generator.GenerateBasic(cells, mesh);
 
+        // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
 
         for (unsigned i=0; i<cells.size(); i++)
@@ -68,9 +72,11 @@ public:
 
     void TestFixedCellCycleModelCellsGeneratorGenerateForCrypt() throw(Exception)
     {
+        // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
+        // Create cells
         std::vector<TissueCell> cells;
 
         double y0 = 0.2;
@@ -79,10 +85,11 @@ public:
         double y3 = 3.0;
         
         FixedCellCycleModelCellsGenerator<2> generator;
-        generator.GenerateForCrypt(cells, *p_mesh, true, y0, y1, y2 ,y3 );
+        generator.GenerateForCrypt(cells, *p_mesh, true, y0, y1, y2,y3 );
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
+        // Test that cells were generated correctly
         for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
@@ -113,12 +120,13 @@ public:
 
     void TestStochasticCellCycleModelCellsGenerator() throw(Exception)
     {
+        // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
-        StochasticCellCycleModelCellsGenerator<2> generator;
-
+        // Create cells
         std::vector<TissueCell> cells;
+        StochasticCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, false);
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -128,6 +136,7 @@ public:
         double y2 = 3.0;
         double y3 = 4.0;
 
+        // Test that cells were generated correctly
         for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
@@ -161,14 +170,16 @@ public:
     
     void TestTysonNovakCellCycleModelCellsGenerator() throw(Exception)
     {
+        // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
-
-        TysonNovakCellCycleModelCellsGenerator<2> generator;
-
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        
+        // Create cells
         std::vector<TissueCell> cells;
+        TysonNovakCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, true);
-
+        
+        // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
         for (unsigned i=0; i<cells.size(); i++)
@@ -180,16 +191,18 @@ public:
 
     void TestWntCellCycleModelCellsGenerator() throw(Exception)
     {
+        // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
-
-        WntCellCycleModelCellsGenerator<2> generator;
-
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        
+        // Create cells
         std::vector<TissueCell> cells;
+        WntCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, false);
-
+        
+        // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
-
+        
         for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetLocationIndex(), i);
@@ -200,14 +213,16 @@ public:
     
     void TestSimpleWntCellCycleModelCellsGenerator() throw(Exception)
     {
+        // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
+        // Create cells
+        std::vector<TissueCell> cells; 
         SimpleWntCellCycleModelCellsGenerator<2> generator;
-
-        std::vector<TissueCell> cells;
         generator.GenerateForCrypt(cells, *p_mesh, false);
 
+        // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
         double y0 = 0.3;
@@ -249,14 +264,16 @@ public:
     
     void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
     {
+        // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
+        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
-        StochasticWntCellCycleModelCellsGenerator<2> generator;
-
+        // Create cells
         std::vector<TissueCell> cells;
+        StochasticWntCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, false);
 
+        // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
         double y0 = 0.3;
