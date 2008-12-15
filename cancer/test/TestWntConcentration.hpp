@@ -65,7 +65,9 @@ public:
     void TestNoWnt() throw(Exception)
     {
         WntConcentration* p_wnt = WntConcentration::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(NONE);
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // NONE does not register as a set up Wnt Gradient (so stem cells are not moved)
 
         TS_ASSERT_EQUALS(p_wnt->GetType(), NONE);
 
@@ -86,6 +88,7 @@ public:
     void TestLinearWntConcentration() throw(Exception)
     {
         WntConcentration* p_wnt = WntConcentration::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
 
         CancerParameters *p_params = CancerParameters::Instance();
@@ -126,7 +129,7 @@ public:
     void TestOffsetLinearWntConcentration() throw(Exception)
     {
         WntConcentration* p_wnt = WntConcentration::Instance();
-
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
         CancerParameters *params = CancerParameters::Instance();
         params->SetTopOfLinearWntConcentration(1.0/3.0);
@@ -164,8 +167,9 @@ public:
     void TestRadialWntConcentration() throw(Exception)
     {
         WntConcentration* p_wnt = WntConcentration::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(RADIAL);
-
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a tissue is assigned.
         CancerParameters *params = CancerParameters::Instance();
 
         // Test GetWntLevel(double) method
@@ -218,6 +222,18 @@ public:
         MeshBasedTissue<2> crypt(mesh,cells);
         CancerParameters::Instance()->SetCryptLength(1.0);
         p_wnt->SetTissue(crypt);
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // fully set up now
+
+        WntConcentration::Destroy();
+        WntConcentration::Instance()->SetType(NONE);
+        WntConcentration::Instance()->SetTissue(crypt);
+        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(), false);    // not fully set up now it is a NONE type
+
+        WntConcentration::Destroy();
+        WntConcentration::Instance()->SetType(RADIAL);
+        WntConcentration::Instance()->SetTissue(crypt);
+        p_wnt = WntConcentration::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // set up again
 
         MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
 
@@ -243,6 +259,8 @@ public:
 
             ++cell_iter;
         }
+
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
     }
 
     void TestArchiveWntConcentration()

@@ -213,7 +213,7 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
 bool WntConcentration::IsWntSetUp()
 {
     bool result = false;
-    if (mTypeSet && mpTissue!=NULL)
+    if (mTypeSet && mpTissue!=NULL && mWntType!=NONE)
     {
         result = true;
     }
