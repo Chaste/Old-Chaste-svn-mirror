@@ -79,8 +79,8 @@ public:
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.cell";
 
-        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
 
 
         for(unsigned i=0; i<basic_nodes.size(); i++)

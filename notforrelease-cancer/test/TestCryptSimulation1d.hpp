@@ -86,7 +86,7 @@ private:
                                                              "tabulated_results",
                                                              true);
 
-        ColumnDataReader expected_results = ColumnDataReader("cancer/test/data/" + resultDirectory,
+        ColumnDataReader expected_results = ColumnDataReader("notforrelease-cancer/test/data/" + resultDirectory,
                                                              "tabulated_results",
                                                              false);
 
