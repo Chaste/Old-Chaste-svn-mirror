@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class ChemotacticForce  : public AbstractForce<DIM>
 {
-friend class TestForces;
+friend class TestForcesNotForRelease;
 
 private:
 
@@ -52,7 +52,7 @@ private:
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
     }
-    
+
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
 
@@ -77,7 +77,7 @@ public:
      * Constructor.
      */
     ChemotacticForce();
-    
+
     /**
      * Destructor.
      */

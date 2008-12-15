@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /// \todo This class needs documenting (see #736)
 class CryptProjectionForce : public MeinekeInteractionForce<2>
 {
-    friend class TestForces;
-    
+    friend class TestForcesNotForRelease;
+
 private :
 
     friend class boost::serialization::access;
@@ -51,7 +51,7 @@ private :
         archive & mB;
         archive & mIncludeWntChemotaxis;
     }
-    
+
     /**
      *  The value of the constant a in the definition of the crypt surface
      *      z = f(r) = a*r^b.
@@ -63,11 +63,11 @@ private :
      *      z = f(r) = a*r^b.
      */
     double mB;
-    
+
     /**
      *  Map node indices to 3D locations on the crypt surface.
      */
-    std::map<unsigned, c_vector<double, 3> > mNode3dLocationMap;    
+    std::map<unsigned, c_vector<double, 3> > mNode3dLocationMap;
 
     /**
      * Whether to include Wnt-dependent chemotaxis for stem cells.
@@ -78,7 +78,7 @@ private :
      * Fix up the mappings between node indices and 3D locations
      */
     void UpdateNode3dLocationMap(AbstractTissue<2>& rTissue);
-    
+
     /**
      * Calculates the force between two nodes.
      *
@@ -97,7 +97,7 @@ public :
      * Constructor.
      */
     CryptProjectionForce();
-    
+
     /**
      * Destructor.
      */
@@ -112,7 +112,7 @@ public :
     /**
      * Set method for member variable.
      */
-    void SetWntChemotaxis(bool includeWntChemotaxis);    
+    void SetWntChemotaxis(bool includeWntChemotaxis);
 
     /**
      *  Calculates the height of the crypt surface given by
@@ -142,7 +142,7 @@ public :
      */
     void AddForceContribution(std::vector<c_vector<double,2> >& rForces,
                                  AbstractTissue<2>& rTissue);
- 
+
 };
 
 // Declare identifier for the serializer
