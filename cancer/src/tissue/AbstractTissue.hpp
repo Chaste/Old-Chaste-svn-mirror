@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <list>
 
+#include <climits> // work around boost bug
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 #include <boost/serialization/list.hpp>
