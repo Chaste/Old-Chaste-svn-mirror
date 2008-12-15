@@ -49,6 +49,10 @@ blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
 
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
 
+use_cvode = True
+if use_cvode:
+    other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
+
 tools = {'mpirun': '/home/pc-gary/wolf1768/bin/mpirun',
          'mpicxx': '/home/pc-gary/wolf1768/bin/mpicxx'}
 
