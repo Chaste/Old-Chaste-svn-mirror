@@ -894,8 +894,9 @@ public:
             double time = p_simulation_time->GetTime();
             if (time>standard_tyson_duration)
             {
-                std::cout << "Time = " << SimulationTime::Instance()->GetTime() << "\n" << std::flush;
+                std::cout << "Time = " << SimulationTime::Instance()->GetTime() << std::endl;
                 TS_ASSERT(tn_cell.ReadyToDivide()==true);
+                std::cout << "Parent G1 duration = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
@@ -923,7 +924,9 @@ public:
             if (time>=standard_tyson_duration+time_of_birth)
             {
                 TS_ASSERT(result1==true);
+                std::cout << "Parent G1 duration (post division) = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
                 TS_ASSERT(result2==true);
+                std::cout << "Daughter G1 duration = " << tn_cell2.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
