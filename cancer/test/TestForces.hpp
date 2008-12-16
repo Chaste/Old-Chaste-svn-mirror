@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "MeinekeInteractionWithVariableSpringConstantsForce.hpp"
-#include "CellwiseDataGradient.hpp"
 #include "WntConcentration.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
