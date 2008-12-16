@@ -47,19 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestTissueSimulationWithSimpleTissue : public AbstractCancerTestSuite
 {
 private:
-
-    template<unsigned DIM>
-    std::vector<Node<DIM> > SetUpNodes(TetrahedralMesh<DIM,DIM>* pMesh)
-    {
-        std::vector<Node<DIM> > nodes;
-
-        for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
-        {
-            nodes.push_back(*(pMesh->GetNode(i)));
-        }
-        return nodes;
-    }
-
     template<unsigned DIM>
     std::vector<TissueCell> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
@@ -105,14 +92,11 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Get node vector from mesh
-        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
-
         // Set up cells, one for each node. Get each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a simple tissue
-        SimpleTissue<2> simple_tissue(nodes, cells);
+        SimpleTissue<2> simple_tissue(*p_mesh, cells);
 
         // Create a mechanics system
         MeinekeInteractionForce<2> meineke_force;
@@ -158,9 +142,6 @@ public:
 //        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
 //        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 //
-//        // Get node vector from mesh
-//        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
-//
 //        // Set up cells, one for each node. Get each a random birth time.
 //        std::vector<TissueCell> cells = SetUpCells(p_mesh);
 //
@@ -194,14 +175,11 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Get node vector from mesh
-        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
-
         // Set up cells, one for each node. Get each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a simple tissue
-        SimpleTissue<2> simple_tissue(nodes, cells);
+        SimpleTissue<2> simple_tissue(*p_mesh, cells);
 
         // Create a mechanics system
         MeinekeInteractionForce<2> meineke_force;
@@ -236,14 +214,11 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Get node vector from mesh
-        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
-
         // Set up cells, one for each node. Get each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a simple tissue
-        SimpleTissue<2> simple_tissue(nodes, cells);
+        SimpleTissue<2> simple_tissue(*p_mesh, cells);
 
         // Create a mechanics system
         MeinekeInteractionForce<2> meineke_force;
