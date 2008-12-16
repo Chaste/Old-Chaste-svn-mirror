@@ -542,21 +542,28 @@ void TissueSimulation<DIM>::Solve()
     while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccurred()) )
     {
         LOG(1, "--TIME = " << p_simulation_time->GetTime() << "\n");
-
-        // Remove dead cells then implement cell birth. Note that neither
-        // of these methods use any element information, they just delete
-        // and create nodes
+        
+        /////////////////////////
+        // Remove dead cells 
+        /////////////////////////
         CancerEventHandler::BeginEvent(DEATH);
         unsigned deaths_this_step = DoCellRemoval();
         mNumDeaths += deaths_this_step;
         LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
         CancerEventHandler::EndEvent(DEATH);
 
+        /////////////////////////
+        // Divide cells
+        /////////////////////////
         CancerEventHandler::BeginEvent(BIRTH);
         unsigned births_this_step = DoCellBirth();
         mNumBirths += births_this_step;
         LOG(1, "\tNum births = " << mNumBirths << "\n");
         CancerEventHandler::EndEvent(BIRTH);
+
+        /////////////////////////
+        // Remesh
+        /////////////////////////
 
         // If the tissue has a mesh, then we currently must call a ReMesh at
         // each timestep. Otherwise, we only need to call a ReMesh after there
@@ -577,7 +584,7 @@ void TissueSimulation<DIM>::Solve()
             }
         }
 
-        // Remesh
+        // Do the remesh
         CancerEventHandler::BeginEvent(REMESH);
         if (mReMesh)
         {
@@ -587,6 +594,9 @@ void TissueSimulation<DIM>::Solve()
         }
         CancerEventHandler::EndEvent(REMESH);
 
+        /////////////////////////
+        // Tessellate if needed
+        /////////////////////////
         CancerEventHandler::BeginEvent(TESSELLATION);
         if (mrTissue.HasMesh())
         {
@@ -599,23 +609,25 @@ void TissueSimulation<DIM>::Solve()
         }
         CancerEventHandler::EndEvent(TESSELLATION);
 
-        // Calculate forces
+        /////////////////////////
+        // Calculate Forces
+        /////////////////////////
         CancerEventHandler::BeginEvent(FORCE);
-               
-        // First reset all forces to zero
+        
+        // first zero all the forces
         for (unsigned i=0; i<forces.size(); i++)
         {
              forces[i].clear(); 
         }
 
-        // Then resize the vector of forces if the number of cells has changed 
-        // since the last time step (this should be done after the above zeroing)
-        if (mrTissue.GetNumNodes()!=forces.size())
+        // then resize the std::vector if the number of cells has increased or decreased
+        // (note this should be done after the above zeroing)
+        if(mrTissue.GetNumNodes()!=forces.size())
         {
-            forces.resize(mrTissue.GetNumNodes(), zero_vector<double>(DIM));
+            forces.resize(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
         }
         
-        // Now add force contributions from each force law
+        // now add force contributions from each AbstractForce
         for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
              iter !=mForceCollection.end();
              iter++)
@@ -624,16 +636,26 @@ void TissueSimulation<DIM>::Solve()
         }
         CancerEventHandler::EndEvent(FORCE);
 
+        ////////////////////////////
         // Update node positions
+        ////////////////////////////
         CancerEventHandler::BeginEvent(POSITION);
         UpdateNodePositions(forces);
         CancerEventHandler::EndEvent(POSITION);
 
+        //////////////////////////////////////////
+        // PostSolve, which may be implemented by 
+        // child classes (eg to solve nutrient pdes)
+        //////////////////////////////////////////
         PostSolve();
 
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
 
+
+        ////////////////////////////
+        // Output current results
+        ////////////////////////////
         CancerEventHandler::BeginEvent(OUTPUT);
 
         // Write results to file
@@ -647,6 +669,7 @@ void TissueSimulation<DIM>::Solve()
         }
 
         CancerEventHandler::EndEvent(OUTPUT);
+
     }
 
     AfterSolve();

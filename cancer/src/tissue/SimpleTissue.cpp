@@ -46,6 +46,19 @@ SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes)
 
 
 template<unsigned DIM>
+SimpleTissue<DIM>::SimpleTissue(const AbstractMesh<DIM,DIM>& rMesh,
+                                const std::vector<TissueCell>& rCells)
+        : AbstractTissue<DIM>(rCells)
+{
+    for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    {
+        mNodes.push_back(*(rMesh.GetNode(i)));
+    }
+    
+    Validate();
+}
+
+template<unsigned DIM>
 void SimpleTissue<DIM>::Validate()
 {
     std::vector<bool> validated_node(GetNumNodes());

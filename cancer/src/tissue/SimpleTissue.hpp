@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define SIMPLETISSUE_HPP_
 
 #include "AbstractTissue.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractMesh.hpp" // for constructor which takes in a mesh
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -74,13 +74,24 @@ private:
 
 public:
 
-    SimpleTissue(const std::vector<Node<DIM> >& rNodes, const std::vector<TissueCell>& rCells);
+    SimpleTissue(const std::vector<Node<DIM> >& rNodes, 
+                 const std::vector<TissueCell>& rCells);
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
      * dealt with by the serialize method of our base class.
      */
     SimpleTissue(const std::vector<Node<DIM> >& rNodes);
+
+    /**
+     * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
+     * changed and no references to any of its data are created.
+     * 
+     * This constructor is a helper constructor: it is generally easier for the user 
+     * create a mesh than a set of nodes.
+     */
+    SimpleTissue(const AbstractMesh<DIM,DIM>& rMesh,
+                 const std::vector<TissueCell>& rCells);
 
     /**
      * Destructor.
