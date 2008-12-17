@@ -55,7 +55,11 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
  : AbstractOdeBasedCellCycleModel(divideTime)
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
+#ifdef CHASTE_CVODE_TN
+    mpOdeSystem->SetStateVariables(parentProteinConcentrations);
+#else
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+#endif
     mGeneration = generation;
 }
 
@@ -78,6 +82,16 @@ void TysonNovakCellCycleModel::ResetForDivision()
     
 #ifdef CHASTE_CVODE_TN
     mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
+    std::vector<double> inits = mpOdeSystem->GetInitialConditions();
+    for (unsigned i=0; i<6; i++)
+    {
+        if (fabs(mpOdeSystem->rGetStateVariables()[i] - inits[i]) > 1e-5)
+        {
+            std::cout << "State var " << i << " differs from initial condition:"
+                << " expected " << inits[i] << "; got " << mpOdeSystem->rGetStateVariables()[i]
+                << std::endl;
+        }
+    }
 #else
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 #endif

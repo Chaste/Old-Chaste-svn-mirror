@@ -878,7 +878,7 @@ public:
      */
     void TestWithTysonNovakCellCycleModel() throw(Exception)
     {
-        double standard_tyson_duration = 1.26;
+        double standard_tyson_duration = 1.242;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps=100;
@@ -894,9 +894,9 @@ public:
             double time = p_simulation_time->GetTime();
             if (time>standard_tyson_duration)
             {
-                std::cout << "Time = " << SimulationTime::Instance()->GetTime() << std::endl;
+                //std::cout << "Time = " << SimulationTime::Instance()->GetTime() << std::endl;
                 TS_ASSERT(tn_cell.ReadyToDivide()==true);
-                std::cout << "Parent G1 duration = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
+                //std::cout << "Parent G1 duration = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
@@ -924,9 +924,9 @@ public:
             if (time>=standard_tyson_duration+time_of_birth)
             {
                 TS_ASSERT(result1==true);
-                std::cout << "Parent G1 duration (post division) = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
+                //std::cout << "Parent G1 duration (post division) = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
                 TS_ASSERT(result2==true);
-                std::cout << "Daughter G1 duration = " << tn_cell2.GetCellCycleModel()->GetG1Duration() << std::endl;
+                //std::cout << "Daughter G1 duration = " << tn_cell2.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
@@ -935,6 +935,35 @@ public:
             }
         }
     }
+    
+//    void TestTysonNovakSteadyState()
+//    {    
+//        // Keep dividing until we reach steady-state
+//        SimulationTime* p_simulation_time = SimulationTime::Instance();
+//        unsigned num_steps=100000;
+//        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200000.0/60.0, num_steps+1);
+//
+//        TissueCell tn_cell(TRANSIT, HEALTHY, new TysonNovakCellCycleModel());
+//        tn_cell.InitialiseCellCycleModel();
+//        tn_cell.GetCellCycleModel()->SetGeneration(1);
+//
+//        unsigned num_divisions = 0;
+//
+//        while (!p_simulation_time->IsFinished())
+//        {
+//            while (!p_simulation_time->IsFinished() && !tn_cell.ReadyToDivide())
+//            {
+//                p_simulation_time->IncrementTimeOneStep();
+//            }
+//            if (tn_cell.ReadyToDivide())
+//            {
+//                std::cout << "G1 duration = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
+//                TissueCell tn_cell2 = tn_cell.Divide();
+//                ++num_divisions;
+//            }
+//        }
+//        std::cout << "Did " << num_divisions << " divisions." << std::endl;
+//    }
 
     void TestApoptosisAndDeath()
     {
