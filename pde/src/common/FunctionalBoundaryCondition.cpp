@@ -25,34 +25,25 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _CONSTBOUNDARYCONDITION_HPP_
-#define _CONSTBOUNDARYCONDITION_HPP_
 
-#include "AbstractBoundaryCondition.hpp"
+#include "FunctionalBoundaryCondition.hpp"
 
-/**
- * Boundary condition that takes a constant value wherever it is applied.
- */
 template<unsigned SPACE_DIM>
-class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
+FunctionalBoundaryCondition<SPACE_DIM>::FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& x))
+    : mFunction(func)
 {
-private:
-    double mValue;
+}
+    
+template<unsigned SPACE_DIM>    
+double FunctionalBoundaryCondition<SPACE_DIM>::GetValue( const ChastePoint<SPACE_DIM>& x) const
+{
+    return mFunction(x);
+}
 
-public:
-    /**
-     * Create a new boundary condition object.
-     *
-     * @param value The value of this boundary condition at all points where it
-     *    is applied.
-     */
-    ConstBoundaryCondition(const double value);
+////////////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * @param x The point at which this boundary condition is to be evaluated.
-     * @return The constant value given in the constructor.
-     */
-    double GetValue( const ChastePoint<SPACE_DIM>& ) const;
-};
-
-#endif //_CONSTBOUNDARYCONDITION_HPP_
+template class FunctionalBoundaryCondition<1>;
+template class FunctionalBoundaryCondition<2>;
+template class FunctionalBoundaryCondition<3>;

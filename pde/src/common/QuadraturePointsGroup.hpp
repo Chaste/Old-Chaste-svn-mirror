@@ -58,72 +58,22 @@ public :
      *  the quad points in physical space
      */
     QuadraturePointsGroup(TetrahedralMesh<DIM,DIM>& rMesh,
-                          GaussianQuadratureRule<DIM>& rQuadRule)
-    {
-        mNumElements = rMesh.GetNumElements();
-        mNumQuadPointsPerElement = rQuadRule.GetNumQuadPoints();
-        data.resize(mNumElements*mNumQuadPointsPerElement, zero_vector<double>(DIM));
-
-        // loop over elements
-        for(unsigned elem_index=0; elem_index<rMesh.GetNumElements(); elem_index++)        
-        {
-            Element<DIM,DIM>& r_elem = *(rMesh.GetElement(elem_index));
-
-            c_vector<double, DIM+1> linear_phi;
-            for (unsigned quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
-            {
-                const ChastePoint<DIM>& quadrature_point = rQuadRule.rGetQuadPoint(quad_index);
-    
-                LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
-    
-                // interpolate to calculate quad point
-                c_vector<double,DIM> X = zero_vector<double>(DIM);
-                for(unsigned node_index=0; node_index<DIM+1; node_index++)
-                {
-                    X += linear_phi(node_index)*rMesh.GetNode( r_elem.GetNodeGlobalIndex(node_index) )->rGetLocation();
-                }
-                
-                // save the quad point
-                assert(elem_index<mNumElements);
-                assert(quad_index<mNumQuadPointsPerElement);
-                data[ elem_index*mNumQuadPointsPerElement + quad_index ] = X;
-            }
-        }
-    }
+                          GaussianQuadratureRule<DIM>& rQuadRule);
 
     /*< Access the stored quad point by element index and quad index in the element */
-    c_vector<double,DIM>& Get(unsigned elementIndex, unsigned quadIndex)
-    {
-        assert(elementIndex<mNumElements);
-        assert(quadIndex<mNumQuadPointsPerElement);
-        return data[ elementIndex*mNumQuadPointsPerElement + quadIndex ];
-    }
+    c_vector<double,DIM>& Get(unsigned elementIndex, unsigned quadIndex);
 
     /*< Get the i-th stored quad point */
-    c_vector<double,DIM>& Get(unsigned i)
-    {
-        assert(i < mNumElements*mNumQuadPointsPerElement);
-        return data[i];
-    }
+    c_vector<double,DIM>& Get(unsigned i);
 
     /*< Number of elements in the mesh that was given in the constructor */
-    unsigned GetNumElements()
-    {
-        return mNumElements;
-    }
+    unsigned GetNumElements() const;
     
     /*< Number of quad points per element in the rule that was given in the constructor */
-    unsigned GetNumQuadPointsPerElement()
-    {
-        return mNumQuadPointsPerElement;
-    }
+    unsigned GetNumQuadPointsPerElement() const;
     
     /*< Total size, ie total number of quad points, ie num_elem times num_quad_points_per_elem */
-    unsigned Size()
-    {
-        return mNumElements*mNumQuadPointsPerElement;
-    }
+    unsigned Size() const;
 };
-
 
 #endif /*QUADRATUREPOINTSGROUP_HPP_*/

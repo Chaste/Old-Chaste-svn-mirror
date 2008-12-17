@@ -25,29 +25,37 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+#include "NonlinearElasticityTools.hpp"
 
-#ifndef NONLINEARELASTICITYTOOLS_HPP_
-#define NONLINEARELASTICITYTOOLS_HPP_
-
-#include "TetrahedralMesh.hpp"
-    
-/**
- *  A class of helper methods for problems which use NonlinearElasticityAssembler
- */
-template<unsigned DIM>
-class NonlinearElasticityTools
-{
-public:
-    /** 
-     *  Collect all the nodes which satisfy x[k] = c, for given k and c, in order
-     *  to be set as fixed (or displacement boundary condition) nodes. Note that
-     *  this method does not check if the nodes on the required surface are actually
-     *  boundary nodes. It does however throw an exception if no nodes on the given
-     *  surface are found.
-     */
-    static std::vector<unsigned> GetNodesByComponentValue(TetrahedralMesh<DIM,DIM>& rMesh,
+template<unsigned DIM>        
+std::vector<unsigned> NonlinearElasticityTools<DIM>::GetNodesByComponentValue(TetrahedralMesh<DIM,DIM>& rMesh,
                                                           unsigned component,
-                                                          double value);
-};
+                                                          double value)
+{
+    std::vector<unsigned> fixed_nodes;
+    double tol = 1e-8;
+    for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    {
+        if( fabs(rMesh.GetNode(i)->rGetLocation()[component] - value)<1e-8)
+        {
+            fixed_nodes.push_back(i);
+        }
+    }
+    
+    if(fixed_nodes.size()==0)
+    {
+        std::stringstream error;
+        error << "Could not find any nodes on requested surface (note: tolerance = "<<tol<<")";
+        EXCEPTION(error.str());
+    }
+    
+    return fixed_nodes;
+}
 
-#endif /*NONLINEARELASTICITYTOOLS_HPP_*/
+////////////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+////////////////////////////////////////////////////////////////////////////////////
+
+//template class NonlinearElasticityTools<1>;
+template class NonlinearElasticityTools<2>;
+template class NonlinearElasticityTools<3>;

@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleDataWriter.hpp"
 #include "BoundaryConditionsContainer.hpp"
+#include "ConstBoundaryCondition.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "CellwiseData.hpp"

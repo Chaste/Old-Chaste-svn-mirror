@@ -28,16 +28,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTSOLVINGCOUPLEDPDES_HPP_
 #define TESTSOLVINGCOUPLEDPDES_HPP_
 
-
 #include <cxxtest/TestSuite.h>
-#include "TetrahedralMesh.hpp"
-#include <petsc.h>
+
 #include <vector>
 #include <cmath>
+
+#include <petsc.h>
+
+#include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "TrianglesMeshReader.hpp"
+#include "ConstBoundaryCondition.hpp"
 #include "AbstractLinearAssembler.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"

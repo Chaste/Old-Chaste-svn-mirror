@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "ConstBoundaryCondition.hpp"
 
 
 class TestTissueSimulationWithNutrientsAssembler : public CxxTest::TestSuite

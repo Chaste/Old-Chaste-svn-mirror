@@ -49,14 +49,10 @@ public :
      * @param func Pointer to a function to be used for evaluating this boundary
      *     condition.
      */
-    FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& x)) : mFunction(func)
-    {
-    }
+    FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& x));
 
-    double GetValue( const ChastePoint<SPACE_DIM>& x) const
-    {
-        return mFunction(x);
-    }
+    double GetValue( const ChastePoint<SPACE_DIM>& x) const;
+  
 };
 
 #endif //_FUNCTIONALBOUNDARYCONDITION_HPP_

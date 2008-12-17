@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractDynamicAssemblerMixin.hpp"
 #include "AbstractLinearAssembler.hpp"
 #include "DistributedVector.hpp"
+#include "ConstBoundaryCondition.hpp"
 
 
 /**

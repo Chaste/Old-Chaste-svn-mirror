@@ -25,34 +25,25 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _CONSTBOUNDARYCONDITION_HPP_
-#define _CONSTBOUNDARYCONDITION_HPP_
 
-#include "AbstractBoundaryCondition.hpp"
+#include "ConstBoundaryCondition.hpp"
 
-/**
- * Boundary condition that takes a constant value wherever it is applied.
- */
 template<unsigned SPACE_DIM>
-class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
+ConstBoundaryCondition<SPACE_DIM>::ConstBoundaryCondition(const double value)
 {
-private:
-    double mValue;
+    mValue = value;
+}
 
-public:
-    /**
-     * Create a new boundary condition object.
-     *
-     * @param value The value of this boundary condition at all points where it
-     *    is applied.
-     */
-    ConstBoundaryCondition(const double value);
+template<unsigned SPACE_DIM>
+double ConstBoundaryCondition<SPACE_DIM>::GetValue( const ChastePoint<SPACE_DIM>& ) const
+{
+    return mValue;
+}
 
-    /**
-     * @param x The point at which this boundary condition is to be evaluated.
-     * @return The constant value given in the constructor.
-     */
-    double GetValue( const ChastePoint<SPACE_DIM>& ) const;
-};
+////////////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+////////////////////////////////////////////////////////////////////////////////////
 
-#endif //_CONSTBOUNDARYCONDITION_HPP_
+template class ConstBoundaryCondition<1>;
+template class ConstBoundaryCondition<2>;
+template class ConstBoundaryCondition<3>;

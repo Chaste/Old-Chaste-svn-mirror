@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <cmath>
 #include "BoundaryConditionsContainer.hpp"
+#include "ConstBoundaryCondition.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshReader.hpp"
