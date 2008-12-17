@@ -30,11 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTINCOMPRESSIBLEMATERIALLAW_HPP_
 #define ABSTRACTINCOMPRESSIBLEMATERIALLAW_HPP_
 
-#include <boost/numeric/ublas/vector.hpp>
+#include "UblasCustomFunctions.hpp"
 #include <cassert>
 #include <vector>
 #include "Exception.hpp"
-#include "UblasCustomFunctions.hpp"
 #include "FourthOrderTensor2.hpp"
 
 /**
@@ -90,41 +89,8 @@ public :
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void ComputeCauchyStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& sigma)
-    {
-        double detF = Determinant(F);
-
-        c_matrix<double,DIM,DIM> C = prod(trans(F),F);
-        c_matrix<double,DIM,DIM> invC = Inverse(C);
-
-        c_matrix<double,DIM,DIM> T;
-
-        static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
-
-        ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
-
-        // looping it probably more eficient then doing sigma = (1/detF)F*T*transpose(F)
-        // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
-        // SymmetricTensor<2,DIM>
-        for (unsigned i=0; i<DIM; i++)
-        {
-            for (unsigned j=0; j<DIM; j++)
-            {
-                sigma(i,j) = 0.0;
-                for (unsigned M=0; M<DIM; M++)
-                {
-                    for (unsigned N=0; N<DIM; N++)
-                    {
-                        sigma(i,j) += F(i,M)*T(M,N)*F(j,N);
-                    }
-                }
-                sigma(i,j) /= detF;
-            }
-        }
-    }
-
-
-
+    void ComputeCauchyStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& sigma);
+;
     /**
      *  Compute the 1st Piola Kirchoff stress, given the deformation gradient F
      *  and the pressure. The 1st Piola Kirchoff stress given by
@@ -143,21 +109,7 @@ public :
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& S)
-    {
-        c_matrix<double,DIM,DIM> C = prod(trans(F),F);
-        c_matrix<double,DIM,DIM> invC = Inverse(C);
-
-        c_matrix<double,DIM,DIM> T;
-
-        static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
-
-        ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
-
-        S = prod(T,trans(F));
-    }
-
-
+    void Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& S);
 
     /**
      *  Compute the 2nd Piola Kirchoff stress, given the deformation tensor C
@@ -172,22 +124,14 @@ public :
      *  Note: to compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& C, double pressure, c_matrix<double,DIM,DIM>& T)
-    {
-        c_matrix<double,DIM,DIM> invC = Inverse(C);
-
-        static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
-
-        ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
-    }
+    void Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& C, double pressure, c_matrix<double,DIM,DIM>& T);
 
     /**
      *  Get the pressure corresponding to E=0, ie C=identity
      */
     virtual double GetZeroStrainPressure()=0;
 
-    virtual ~AbstractIncompressibleMaterialLaw()
-    {}
+    virtual ~AbstractIncompressibleMaterialLaw();
 
     /**
      *  Set a scale factor by which (dimensional) material parameters are scaled. This method
@@ -197,13 +141,7 @@ public :
      *  (eg gravity, tractions, active tensions) must also be scaled. Also, computed pressure
      *  will come out scaled.
      */
-    virtual void ScaleMaterialParameters(double scaleFactor)
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("[the material law you are using]::ScaleMaterialParameters() has not be implemented\n");
-        #undef COVERAGE_IGNORE
-    }
+    virtual void ScaleMaterialParameters(double scaleFactor);
 };
-
 
 #endif /*ABSTRACTINCOMPRESSIBLEMATERIALLAW_HPP_*/

@@ -61,84 +61,29 @@ private :
     double mC2;
 
 public :
-    double Get_dW_dI1(double I1, double I2)
-    {
-        return mC1;
-    }
-    double Get_dW_dI2(double I1, double I2)
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert(DIM==3);
-        #undef COVERAGE_IGNORE
-        return mC2;
-    }
-    double Get_d2W_dI1(double I1, double I2)
-    {
-        return 0.0;
-    }
-    double Get_d2W_dI2(double I1, double I2)
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert(DIM==3);
-        #undef COVERAGE_IGNORE
-        return 0.0;
-    }
-    double Get_d2W_dI1I2(double I1, double I2)
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert(DIM==3);
-        #undef COVERAGE_IGNORE
-        return 0.0;
-    }
+    double Get_dW_dI1(double I1, double I2);
+    
+    double Get_dW_dI2(double I1, double I2);
+    
+    double Get_d2W_dI1(double I1, double I2);
+    
+    double Get_d2W_dI2(double I1, double I2);
+    
+    double Get_d2W_dI1I2(double I1, double I2);
 
-    double GetC1()
-    {
-        return mC1;
-    }
+    double GetC1();
 
-    double GetC2()
-    {
-        assert(DIM==3);
-        return mC2;
-    }
+    double GetC2();
 
 public :
     /**
      *  Constructor, Taking in mooney-rivlin parameters c1 and c2.
      *  Note: c2 is not used if the dimension is 2. Just pass in c1 if 2d.
      */
-    MooneyRivlinMaterialLaw(double c1, double c2 = MINUS_LARGE)
-    {
-        assert(DIM==2 || DIM ==3);
-
-        // if dim==3, check that c2 was passed in, ie c2 isn't the default value
-        if ((DIM==3) && (c2<MINUS_LARGE+1))
-        {
-            EXCEPTION("Two parameters needed for 3d Mooney-Rivlin");
-        }
-
-        if (c1 < 0.0)
-        {
-            EXCEPTION("c1 must be positive in mooney-rivlin"); // is this correct?
-        }
-
-        mC1 = c1;
-        mC2 = c2;
-    }
+    MooneyRivlinMaterialLaw(double c1, double c2 = MINUS_LARGE);
 
     /** Scale the dimensional material parameters */
-    void ScaleMaterialParameters(double scaleFactor)
-    {
-        assert(scaleFactor > 0.0);
-        mC1 /= scaleFactor;
-        mC2 /= scaleFactor;
-    }
+    void ScaleMaterialParameters(double scaleFactor);
 };
 
 

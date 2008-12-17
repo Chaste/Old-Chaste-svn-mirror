@@ -59,69 +59,21 @@ private :
     double mB;
 
 public :
-    double Get_dW_dI1(double I1, double I2)
-    {
-        return mA * mB * exp(mB*(I1-DIM));
-    }
-    double Get_dW_dI2(double I1, double I2)
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert(DIM==3);
-        #undef COVERAGE_IGNORE
+    double Get_dW_dI1(double I1, double I2);
+    double Get_dW_dI2(double I1, double I2);
+    double Get_d2W_dI1(double I1, double I2);
+    double Get_d2W_dI2(double I1, double I2);
+    double Get_d2W_dI1I2(double I1, double I2);
 
-        return 0.0;
-    }
-    double Get_d2W_dI1(double I1, double I2)
-    {
-        return mA * mB * mB * exp(mB*(I1-DIM));
-    }
-    double Get_d2W_dI2(double I1, double I2)
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert(DIM==3);
-        #undef COVERAGE_IGNORE
-
-        return 0.0;
-    }
-    double Get_d2W_dI1I2(double I1, double I2)
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert(DIM==3);
-        #undef COVERAGE_IGNORE
-
-        return 0.0;
-    }
-
-    double GetA()
-    {
-        return mA;
-    }
-    double GetB()
-    {
-        return mB;
-    }
+    double GetA();
+    
+    double GetB();
 
 public :
     /**
-     *  Constructor, Taking in the parameters a and b. a must be positive.
+     *  Constructor, taking in the parameters a and b. a must be positive.
      */
-    ExponentialMaterialLaw(double a, double b)
-    {
-        assert(DIM==2 || DIM ==3);
-        if (a<0.0)
-        {
-            EXCEPTION("a must be positive");
-        }
-
-        mA = a;
-        mB = b;
-    }
+    ExponentialMaterialLaw(double a, double b);
 };
 
 #endif /*EXPONENTIALMATERIALLAW_HPP_*/

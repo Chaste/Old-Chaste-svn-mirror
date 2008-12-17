@@ -70,9 +70,7 @@ protected :
      *  Protected default constructor doing nothing. Just saw inherited classes
      *  can be instantiated and THEN set up the parameters
      */
-    PoleZeroMaterialLaw()
-    {
-    }
+    PoleZeroMaterialLaw();
 
     /**
      *  Set k, a, and b. To be called by the constuctor or a child class
@@ -80,43 +78,8 @@ protected :
      */
     void SetParameters(std::vector<std::vector<double> > k,
                        std::vector<std::vector<double> > a,
-                       std::vector<std::vector<double> > b)
-    {
-        if (DIM!=2 && DIM !=3)
-        {
-            EXCEPTION("Can only have a 2 or 3d incompressible pole-zero law");
-        }
-
-        assert(k.size()==DIM);
-        assert(a.size()==DIM);
-        assert(b.size()==DIM);
-
-        for(unsigned i=0; i<DIM; i++)
-        {
-            assert(k[i].size()==DIM);
-            assert(a[i].size()==DIM);
-            assert(b[i].size()==DIM);
-
-            for(unsigned j=0; j<DIM; j++)
-            {
-                assert( k[i][j] = k[j][i] );
-                assert( a[i][j] = a[j][i] );
-                assert( b[i][j] = b[j][i] );
-            }
-        }
-
-        mK = k;
-        mA = a;
-        mB = b;
-
-        for(unsigned M=0; M<DIM; M++)
-        {
-            for(unsigned N=0; N<DIM; N++)
-            {
-                mIdentity(M,N) = M==N ? 1.0 : 0.0;
-            }
-        }
-    }
+                       std::vector<std::vector<double> > b);
+  
 
 public :
     /**
@@ -127,101 +90,19 @@ public :
      */
      PoleZeroMaterialLaw(std::vector<std::vector<double> > k,
                          std::vector<std::vector<double> > a,
-                         std::vector<std::vector<double> > b)
-    {
-        SetParameters(k,a,b);
-    }
+                         std::vector<std::vector<double> > b);
 
     void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& C,
                                           c_matrix<double,DIM,DIM>& invC,
                                           double                    pressure,
                                           c_matrix<double,DIM,DIM>& T,
                                           FourthOrderTensor2<DIM>&  dTdE,
-                                          bool                      computeDTdE)
-    {
-        assert(fabs(C(0,1)-C(1,0)) < 1e-6);
+                                          bool                      computeDTdE);
 
-        c_matrix<double,DIM,DIM> E = 0.5*(C-mIdentity);
-
-        for(unsigned M=0; M<DIM; M++)
-        {
-            for(unsigned N=0; N<DIM; N++)
-            {
-                double e = E(M,N);
-              //  if(e > 0)
-                {
-                    double b = mB[M][N];
-                    double a = mA[M][N];
-                    double k = mK[M][N];
-
-                    //if this fails one of the strain values got too large for the law
-                    assert(e < a);
-
-                    T(M,N) =   k
-                              * e
-                              * (2*(a-e) + b*e)
-                              * pow(a-e,-b-1)
-                              - pressure*invC(M,N);
-                }
-//                else
-//                {
-//                    T(M,N) = 0.0;
-//                }
-            }
-        }
-
-        if(computeDTdE)
-        {
-            for(unsigned M=0; M<DIM; M++)
-            {
-                for(unsigned N=0; N<DIM; N++)
-                {
-                    for(unsigned P=0; P<DIM; P++)
-                    {
-                        for(unsigned Q=0; Q<DIM; Q++)
-                        {
-                            dTdE(M,N,P,Q) = 2 * pressure * invC(M,P) * invC(Q,N);
-                        }
-                    }
-
-                    double e = E(M,N);
-                 //   if(e > 0)
-                    {
-                        double b = mB[M][N];
-                        double a = mA[M][N];
-                        double k = mK[M][N];
-
-                        dTdE(M,N,M,N) +=   k
-                                         * pow(a-e, -b-2)
-                                         * (
-                                              2*(a-e)*(a-e)
-                                            + 4*b*e*(a-e)
-                                            + b*(b+1)*e*e
-                                           );
-                    }
-                }
-            }
-        }
-    }
-
-    double GetZeroStrainPressure()
-    {
-        return 0.0;
-    }
+    double GetZeroStrainPressure();
 
     /** Scale the dimensional material parameters (ie the K's) */
-    void ScaleMaterialParameters(double scaleFactor)
-    {
-        assert(scaleFactor > 0.0);
-        for(unsigned i=0; i<mK.size(); i++)
-        {
-            for(unsigned j=0; j<mK[i].size(); j++)
-            {
-                mK[i][j] /= scaleFactor;
-            }
-        }
-    }
+    void ScaleMaterialParameters(double scaleFactor);
 };
-
 
 #endif /*POLEZEROMATERIALLAW_HPP_*/

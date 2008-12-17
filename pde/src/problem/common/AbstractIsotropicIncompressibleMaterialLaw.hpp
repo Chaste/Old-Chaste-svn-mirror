@@ -81,98 +81,9 @@ public :
                                           double                    pressure,
                                           c_matrix<double,DIM,DIM>& T,
                                           FourthOrderTensor2<DIM>&  dTdE,
-                                          bool                      computeDTdE)
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert((DIM==2) || (DIM==3));
-        #undef COVERAGE_IGNORE
+                                          bool                      computeDTdE);
 
-        static c_matrix<double,DIM,DIM> identity = identity_matrix<double>(DIM);
-
-        double I1 = Trace(C);
-        double I2 = SecondInvariant(C);
-
-        double  dW_dI1 = Get_dW_dI1(I1,I2);
-        double  dW_dI2; // only computed if DIM==3
-
-        double  d2W_dI1;
-        double  d2W_dI2;
-        double  d2W_dI1I2;
-
-        // Compute stress:
-        //
-        //  T = dW_dE
-        //    = 2 * dI1_dC_MN * dI1_dC_MN   +   2 * dI1_dC_MN * dI1_dC_MN  -  p * invC
-        //    = 2 * dI1_dC_MN * delta_MN    +   2 * dI1_dC_MN * (I1 delta_MN - C_MN)  -  p * invC
-
-        T = 2*dW_dI1*identity - pressure*invC;
-        if (DIM==3)
-        {
-            dW_dI2 = Get_dW_dI2(I1,I2);
-            T += 2*dW_dI2*(I1*identity - C);
-        }
-
-
-        // Compute stress derivative if required:
-        //
-        // The stress derivative dT_{MN}/dE_{PQ} can be expanded to be seen to be
-        //
-        //  dT_dE =    4 * true_d2WdI1 * dI1_dC_MN * dI1_dC_PQ
-        //           + 4 * true_dWdI1  * d2I1_dC2
-        //           + 4 * true_d2WdI2 * dI2_dC_MN * dI2_dC_PQ
-        //           + 4 * true_dWdI2  * d2I2_dC2
-        //           + 4 * true_d2WdI1I2 * (dI1_dC_MN*dI2_dC_PQ + dI1_dC_PQ*dI2_dC_MN)
-        //          - 2 * pressure * d_invC_dC;
-        //
-        // where
-        //   dI1_dC_MN = (M==N); // ie delta_{MN}
-        //   dI1_dC_PQ = (P==Q);
-        //   d2I1_dC2  = 0;
-        //
-        //   dI2_dC_MN = I1*(M==N)-C[M][N];
-        //   dI2_dC_PQ = I1*(P==Q)-C[P][Q];
-        //   d2I2_dC2  = (M==N)*(P==Q)-(M==P)*(N==Q);
-        //
-        //   d_invC_dC = -invC[M][P]*invC[Q][N];
-        if (computeDTdE)
-        {
-            d2W_dI1 = Get_d2W_dI1(I1,I2);
-
-            if (DIM==3)
-            {
-                d2W_dI2   = Get_d2W_dI2(I1,I2);
-                d2W_dI1I2 = Get_d2W_dI1I2(I1,I2);
-            }
-
-            for (unsigned M=0;M<DIM;M++)
-            {
-                for (unsigned N=0;N<DIM;N++)
-                {
-                    for (unsigned P=0;P<DIM;P++)
-                    {
-                        for (unsigned Q=0;Q<DIM;Q++)
-                        {
-                            dTdE(M,N,P,Q)  =    4 * d2W_dI1  * (M==N) * (P==Q)
-                                              + 2 * pressure * invC(M,P) * invC(Q,N);
-
-                            if (DIM==3)
-                            {
-                                dTdE(M,N,P,Q) +=    4 * d2W_dI2   * (I1*(M==N)-C(M,N)) * (I1*(P==Q)-C(P,Q))
-                                                  + 4 * dW_dI2    * ((M==N)*(P==Q)-(M==P)*(N==Q))
-                                                  + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q)-C(P,Q)) + (P==Q)*(I1*(M==N)-C(M,N)));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    virtual ~AbstractIsotropicIncompressibleMaterialLaw()
-    {}
-
+    virtual ~AbstractIsotropicIncompressibleMaterialLaw();
 
     /**
      *  Get the pressure corresponding to E=0, ie corresponding to C=identity
@@ -180,24 +91,7 @@ public :
      *  Since T = 2*Get_dW_dI1 identity + 4*Get_dW_dI2 (I1*identity - C) - p inverse(C),
      *  this is equal to 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3) in 3D
      */
-    double GetZeroStrainPressure()
-    {
-        // this is covered, but gcov doesn't see this as being covered
-        // for some reason, maybe because of optimisations
-        #define COVERAGE_IGNORE
-        assert(DIM>=2 && DIM<=3);
-        #undef COVERAGE_IGNORE
-
-        if (DIM==2)
-        {
-            return 2*Get_dW_dI1(2,0);
-        }
-
-        // else DIM==3
-        return 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3);
-    }
+    double GetZeroStrainPressure();
 };
-
-
 
 #endif /*ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_*/
