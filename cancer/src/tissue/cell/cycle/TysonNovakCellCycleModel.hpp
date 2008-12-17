@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-// #318
+// #316
 #ifdef CHASTE_CVODE
 //#define CHASTE_CVODE_TN
 #endif
