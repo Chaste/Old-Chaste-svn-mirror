@@ -416,7 +416,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 6.193774457302713, 1e-2);
 
         // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
-        // large tolerances are required for the tests to pass (see #238 and #316).
+        // large tolerances are required for the tests to pass with both chaste and CVODE solvers
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.937457584307182e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.000117721173146e+00, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.400566063511684e+00, 1e-3);
@@ -466,7 +466,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 4.722377242770206, 1e-2);
 
         // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
-        // large tolerances are required for the tests to pass (see #238 and #316).
+        // large tolerances are required for the tests to pass with both chaste and CVODE solvers
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.449671985497571e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.00, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.970519972449688, 1e-3);
@@ -516,7 +516,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 6.109381124487460, 1e-2);
 
         // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
-        // large tolerances are required for the tests to pass (see #238, #316 and #810).
+        // large tolerances are required for the tests to pass with both chaste and CVODE solvers
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.885925504994788e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.0, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.461454077577112e+00, 1e-3);
@@ -566,7 +566,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 3.912928619944499e+00, 1e-2);
 
         // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
-        // large tolerances are required for the tests to pass (see #238 and #316).
+        // large tolerances are required for the tests to pass with both chaste and CVODE solvers
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.040531616988712e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.000000000000046e+00, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 3.738096511672503e+00, 1e-3);
@@ -634,7 +634,7 @@ public:
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("IngeCellsNiceCryptSim_long");
 

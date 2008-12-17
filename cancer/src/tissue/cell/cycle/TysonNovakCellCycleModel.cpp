@@ -27,17 +27,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TysonNovakCellCycleModel.hpp"
 
-#ifdef CHASTE_CVODE_TN
+#ifdef CHASTE_CVODE
 CvodeAdaptor TysonNovakCellCycleModel::msSolver;
 #else
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
-#endif
+#endif //CHASTE_CVODE
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-#ifdef CHASTE_CVODE_TN
+#ifdef CHASTE_CVODE
     msSolver.CheckForStoppingEvents();
     msSolver.SetMaxSteps(10000);
     //msSolver.SetTolerances(1e-6, 1e-8);
@@ -55,7 +55,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
  : AbstractOdeBasedCellCycleModel(divideTime)
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
-#ifdef CHASTE_CVODE_TN
+#ifdef CHASTE_CVODE
     mpOdeSystem->SetStateVariables(parentProteinConcentrations);
 #else
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
@@ -76,25 +76,16 @@ void TysonNovakCellCycleModel::ResetForDivision()
      * oscillations, and we only need to halve the mass of the cell each period.
      *
      * However, the backward Euler solver used to solve the equations
-     * currently returns a solution that diverges after long times (see #316), so
+     * currently returns a solution that diverges after long times, so
      * we must reset the initial conditions each period.
+     *
+     * When running with CVODE however we can use the halving the mass of the cell method.
      */
-    
-#ifdef CHASTE_CVODE_TN
+#ifdef CHASTE_CVODE
     mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
-    std::vector<double> inits = mpOdeSystem->GetInitialConditions();
-    for (unsigned i=0; i<6; i++)
-    {
-        if (fabs(mpOdeSystem->rGetStateVariables()[i] - inits[i]) > 1e-5)
-        {
-            std::cout << "State var " << i << " differs from initial condition:"
-                << " expected " << inits[i] << "; got " << mpOdeSystem->rGetStateVariables()[i]
-                << std::endl;
-        }
-    }
 #else
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-#endif
+#endif //CHASTE_CVODE
 }
 
 void TysonNovakCellCycleModel::InitialiseDaughterCell()

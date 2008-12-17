@@ -153,7 +153,7 @@ public:
 
         // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
         // large tolerances are required for the tests to pass with both chaste solvers
-        // and CVODE (see #238 and #316).
+        // and CVODE.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.98913684535843, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.54216806705641, 1e-1);

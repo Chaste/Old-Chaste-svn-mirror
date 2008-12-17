@@ -41,24 +41,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-// #316
-#ifdef CHASTE_CVODE
-//#define CHASTE_CVODE_TN
-#endif
-
 /**
- *  Tyson Novak cell cycle model
+ *  Tyson-Novak 2001 cell cycle model, taken from the version at  doi:10.1006/jtbi.2001.2293
  *
- *  Time taken to progress through the cycle is actually deterministic as ODE system
- *  independent of external factors.
+ *  Note that this is not a model for murine or human colonic-cell cycling, but is
+ *  included in chaste as one of the most commonly known ODE based cell cycle models.
  *
- * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
- * or operator=.
+ *  Time taken to progress through the cycle is deterministic and given by
+ *  an ODE system independent of external factors.
+ *
+ *  Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
+ *  or operator=.
  */
 class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
-#ifdef CHASTE_CVODE_TN
+#ifdef CHASTE_CVODE
     static CvodeAdaptor msSolver;
 #else
     static BackwardEulerIvpOdeSolver msSolver;

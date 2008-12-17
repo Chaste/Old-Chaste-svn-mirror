@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "TysonNovakCellCycleModel.hpp"
+#include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "MeinekeInteractionForce.hpp"
@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCancerTestSuite.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
+#include "../../global/test/NumericFileComparison.hpp"
 
 
 // Simple subclass of TissueSimulation which just overloads StoppingEventHasOccurred
@@ -89,12 +90,10 @@ private:
 
 public:
 
-    
+
     void TestOutputStatistics() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
-        RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
-        CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
         unsigned num_cells_depth = 5;
@@ -104,19 +103,16 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            TissueCell cell(STEM, HEALTHY, new TysonNovakCellCycleModel());
-            double birth_time = -1.0*p_gen->ranf();
-            cell.SetLocationIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
+        StochasticWntCellCycleModelCellsGenerator<2> cell_generator;
+        cell_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
+
+        // Set up Wnt Gradient
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(tissue);
 
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
@@ -136,7 +132,10 @@ public:
 
         OutputFileHandler handler("TissueSimulationWritingProteins", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat").c_str()), 0);
+
+        NumericFileComparison comp_bcat(results_file,"cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat");
+        TS_ASSERT(comp_bcat.CompareFiles(1e-2));
+        WntConcentration::Destroy();
     }
 
 
@@ -218,24 +217,24 @@ public:
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         // Set up tissue simulation WITH the stopping event
         TissueSimulationWithMyStoppingEvent simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimWithStoppingEvent");
 
         // ** Set the end time to 10.0 - the stopping event is, however, t>3.1415.
-        simulator.SetEndTime(10.0); 
+        simulator.SetEndTime(10.0);
 
         // Run tissue simulation
         simulator.Solve();
-        
+
         double time = SimulationTime::Instance()->GetTime();
         TS_ASSERT_DELTA(time, 3.1415, 1e-1); // big tol, doesn't matter, just want t~3.14 and t!=10
         // t should be strictly greater than the 3.1415
         TS_ASSERT_LESS_THAN(3.1415, time);
     }
-    
-    
+
+
     void TestApoptosisSpringLengths() throw (Exception)
     {
         unsigned num_cells_depth = 2;
@@ -265,10 +264,10 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         TissueSimulation<2> simulator(tissue, force_collection);
 
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
