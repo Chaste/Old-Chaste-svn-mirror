@@ -64,6 +64,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimplePoissonEquation.hpp"
 /* This is needed to read mesh datafiles of the 'Triangles' format */
 #include "TrianglesMeshReader.hpp"
+/* This class represents the mesh internally */
+#include "TetrahedralMesh.hpp"
+/* These are used to specify boundary conditions for the PDEs */
+#include "BoundaryConditionsContainer.hpp"
+#include "ConstBoundaryCondition.hpp"
+/* This class helps us deal with output files */
+#include "OutputFileHandler.hpp"
 /* !PetscSetupAndFinalize.hpp must be included in every test that uses PETSc. Note that it
  * cannot be included in the source code. */
 #include "PetscSetupAndFinalize.hpp"

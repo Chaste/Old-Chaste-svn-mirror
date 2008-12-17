@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "SimpleNonlinearEllipticAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
+#include "ConstBoundaryCondition.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractNonlinearAssembler.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"

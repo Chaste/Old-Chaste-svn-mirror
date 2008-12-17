@@ -65,6 +65,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "TetrahedralMesh.hpp"
+#include "BoundaryConditionsContainer.hpp"
+#include "ConstBoundaryCondition.hpp"
+#include "OutputFileHandler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 /* This is the assembler for nonlinear elliptic PDEs */
 #include "SimpleNonlinearEllipticAssembler.hpp"
