@@ -272,7 +272,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
             map.SetNewIndex(i, reindex_map.GetNewIndex(i) );
         }
     }
-    
+
     // We can now clear the index vectors & maps; they are only used for remeshing
     mLeftOriginals.clear();
     mLeftImages.clear();
@@ -593,36 +593,26 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     }
     else
     {
-        NEVER_REACHED;
-        //Check if this code is still needed now that remeshing is more robust.
-        /*       
-        //std::cout << "Problem elements\n" << std::flush;
         if (temp_right_hand_side_elements.size()==2u)
-        {   
+        {
             // Use the right hand side meshing and map to left
             #define COVERAGE_IGNORE
             UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
             #undef COVERAGE_IGNORE
-
         }
         else if (temp_left_hand_side_elements.size()==2u)
-        {   
+        {
             // Use the left hand side meshing and map to right
             UseTheseElementsToDecideMeshing(temp_left_hand_side_elements);
         }
         else
-        {   
+        {
             // If you get here there are more than two mixed up elements on the periodic edge.
             NEVER_REACHED;
         }
-        */
     }
 }
 
-
-
-/*
- * 
 void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements)
 {
     assert(mainSideElements.size()==2u);
@@ -699,9 +689,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
     NodeMap map(GetNumAllNodes());
     this->ReIndex(map);
 }
-*
-* 
-*/
+
 
 void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
 {

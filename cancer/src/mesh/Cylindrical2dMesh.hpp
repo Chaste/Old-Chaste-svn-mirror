@@ -73,7 +73,7 @@ private:
 
     /** A map from image node index (on left of mesh) to original node index (on right of mesh) */
     std::map<unsigned, unsigned> mImageToRightOriginalNodeMap;
-    
+
     /** The indices of elements which straddle the left periodic boundary */
     std::set<unsigned> mLeftPeriodicBoundaryElementIndices;
 
@@ -87,9 +87,9 @@ private:
     std::vector<unsigned > mBottomHaloNodes;
 
     /**
-     * Calls TetrahedralMesh<2,2>::GetWidthExtremes() to calculate mTop and mBottom 
-     * for the cylindrical mesh. 
-     * 
+     * Calls TetrahedralMesh<2,2>::GetWidthExtremes() to calculate mTop and mBottom
+     * for the cylindrical mesh.
+     *
      * This method should only ever be called by the public ReMesh method.
      */
     void UpdateTopAndBottom();
@@ -154,7 +154,7 @@ public:
      * @param width the width of the crypt (circumference)
      */
     Cylindrical2dMesh(double width);
-    
+
     /// \todo This method needs documentation (see #736)
     Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes);
 
@@ -229,6 +229,8 @@ public:
      * @return the global index of the new node
      */
     unsigned AddNode(Node<2> *pNewNode);
+
+    void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
 
 };
 

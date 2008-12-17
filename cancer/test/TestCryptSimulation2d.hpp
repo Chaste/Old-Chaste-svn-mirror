@@ -129,7 +129,7 @@ public:
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(tissue, force_collection);
 
         std::vector<c_vector<double, 2> > old_posns(p_mesh->GetNumNodes());
@@ -191,7 +191,7 @@ public:
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetEndTime(0.1);
@@ -257,7 +257,7 @@ public:
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
@@ -319,9 +319,9 @@ public:
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
-        
+
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
 
         // Set length of simulation here
@@ -359,7 +359,7 @@ public:
 
         WntCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, false);
-        
+
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
@@ -368,9 +368,9 @@ public:
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
-        
+
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
         simulator.SetEndTime(0.1);
 
@@ -414,19 +414,19 @@ public:
 
         WntCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, false);
-        
+
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
         crypt.SetAreaBasedDampingConstant(true);
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
-        
+
         MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
         meineke_force.SetEdgeBasedSpringConstant(true);
-        
+
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection, false, true);
 
         simulator.SetOutputDirectory("Crypt2DMeshArchive2");
@@ -471,10 +471,10 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicStandardResult");
@@ -493,7 +493,7 @@ public:
         std::vector<double> node_28_location = simulator.GetNodeLocation(28);
         TS_ASSERT_DELTA(node_28_location[0], 3.7875, 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0, 1e-4);
-        
+
         std::vector<double> node_120_location = simulator.GetNodeLocation(120);
         TS_ASSERT_DELTA(node_120_location[0], 4.2035, 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
@@ -501,7 +501,7 @@ public:
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(28));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
-        
+
         p_cell = &(crypt.rGetCellUsingLocationIndex(120));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
         WntConcentration::Destroy();
@@ -536,10 +536,10 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicSaveAndLoad");
@@ -596,7 +596,7 @@ public:
         std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
         TS_ASSERT_DELTA(node_28_location[0], 3.7875, 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0, 1e-4);
-        
+
         std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
         TS_ASSERT_DELTA(node_120_location[0], 4.2035, 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
@@ -607,7 +607,7 @@ public:
         // Test the Wnt gradient result
         TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
-        
+
         p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(120));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
 
@@ -662,13 +662,13 @@ public:
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
-        
-        MeinekeInteractionWithVariableSpringConstantsForce<2> force; 
+
+        MeinekeInteractionWithVariableSpringConstantsForce<2> force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
-        
+
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
 
         // If you want to visualize this use the 'notcylindrical' option
@@ -714,11 +714,11 @@ public:
 
         NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
         TS_ASSERT(comp.CompareFiles(2e-6));
-        
+
         //Cover writing logged cell
         crypt.SetWriteVoronoiData(true, true);
         simulator.SetEndTime(0.01 + 1./120.);
-        
+
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
 
@@ -746,10 +746,10 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         SloughingCellKiller sloughing_cell_killer(&crypt);
@@ -774,8 +774,8 @@ public:
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
 
         TS_ASSERT_EQUALS(number_of_nodes,ghost_cells.size());
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 75u);
-        TS_ASSERT_EQUALS(number_of_nodes, 123u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 76u);
+        TS_ASSERT_EQUALS(number_of_nodes, 124u);
     }
 
     /*
@@ -829,10 +829,10 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
@@ -869,11 +869,11 @@ public:
 
         MeshBasedTissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(conf_crypt, force_collection);        
+
+        CryptSimulation2d simulator(conf_crypt, force_collection);
 
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
@@ -902,10 +902,10 @@ public:
 
         MeshBasedTissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(conf_crypt, force_collection);
 
         // Repeat two times for coverage
@@ -946,12 +946,12 @@ public:
 
         MeshBasedTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(cyl_crypt, force_collection);
-        
+
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
@@ -974,17 +974,17 @@ public:
         std::vector<TissueCell> cyl_cells;
         TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cyl_cells, cyl_mesh, true);
-        
+
         MeshBasedTissue<2> cyl_crypt(cyl_mesh, cyl_cells);
 
         MeshBasedTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(cyl_crypt, force_collection);
-        
+
         c_vector<double,2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
         c_vector<double,2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double,2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
@@ -1018,12 +1018,12 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
-        
+
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(2.0); // long enough for a cell to be born were SetNoBirth not called
 
@@ -1067,10 +1067,10 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
@@ -1099,10 +1099,10 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DJiggledBottomCells");
@@ -1140,12 +1140,12 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
-        
+
         simulator.SetOutputDirectory("CryptBetaCatenin");
         simulator.SetEndTime(0.01);
 
@@ -1208,12 +1208,12 @@ public:
 
 
         // Set up crypt simulation
-        MeinekeInteractionForce<2> meineke_force;        
+        MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
-        
+
         simulator.SetOutputDirectory(output_directory);
         simulator.SetOutputCellAncestors(true);
 
