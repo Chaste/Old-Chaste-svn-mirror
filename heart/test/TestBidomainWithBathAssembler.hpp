@@ -49,24 +49,38 @@ class BathCellFactory : public AbstractCardiacCellFactory<DIM>
 private:
     // define a new stimulus
     SimpleStimulus* mpStimulus;
+    c_vector<double,DIM> mStimulatedPoint;
 
 public:
-    BathCellFactory() : AbstractCardiacCellFactory<DIM>()
-    {
-        // set the new stimulus
-        mpStimulus = new SimpleStimulus(-600, 0.5);
-    }
-
-    BathCellFactory(double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>()
+    BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint) : AbstractCardiacCellFactory<DIM>()
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
+        mStimulatedPoint = stimulatedPoint;
     }
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         // stimulate centre node normally.. 
-        if (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-0.5)<1e-6)
+        bool is_centre;
+        
+        if (DIM==1)
+        {
+            is_centre = (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6);
+        }
+        else if (DIM==2)
+        {
+            is_centre = (    (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6) 
+                          && (fabs(this->mpMesh->GetNode(node)->GetPoint()[1]-mStimulatedPoint(1)) < 1e-6) );
+        }
+        else
+        {
+            is_centre = (    (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6) 
+                          && (fabs(this->mpMesh->GetNode(node)->GetPoint()[1]-mStimulatedPoint(1)) < 1e-6) 
+                          && (fabs(this->mpMesh->GetNode(node)->GetPoint()[2]-mStimulatedPoint(2)) < 1e-6) );
+        }
+        
+        if (is_centre)
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus, this->mpZeroStimulus);
         }
@@ -81,9 +95,6 @@ public:
         delete mpStimulus;
     }
 };
-
-
-
 
 
 
@@ -162,7 +173,9 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_1d");
                         
-        BathCellFactory<1> cell_factory(-1e6); // stimulates x=0.5 node
+        c_vector<double,1> centre;
+        centre(0) = 0.5;                        
+        BathCellFactory<1> cell_factory(-1e6, centre); // stimulates x=0.5 node
   
         BidomainProblem<1> bidomain_problem( &cell_factory, true );
 
@@ -221,7 +234,9 @@ public:
         
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
                 
-        BathCellFactory<1> cell_factory(-1e6);
+        c_vector<double,1> centre;
+        centre(0) = 0.5;
+        BathCellFactory<1> cell_factory(-1e6, centre);
 
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements");
         TetrahedralMesh<1,1> mesh;
@@ -277,7 +292,58 @@ public:
             TS_ASSERT_DELTA(sol_repl[2*i+1], x*boundary_val/7.0, 1e-4);   // phi_e
         }
     }
- 
+    
+    void Test2dBathIntracellularStimulation() throw (Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBath2d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d");
+                        
+        c_vector<double,2> centre;
+        centre(0) = 0.05;                        
+        centre(1) = 0.05;
+        BathCellFactory<2> cell_factory(-5e6, centre); // stimulates x=0.05 node
+  
+        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+
+        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        // Set everything outside a central circle (radius 0.4) to be bath
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            double x = mesh.GetElement(i)->CalculateCentroid()[0];
+            double y = mesh.GetElement(i)->CalculateCentroid()[1];
+            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
+            {
+                mesh.GetElement(i)->SetRegion(1);
+            }
+        }
+
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        bidomain_problem.Solve();
+        
+        Vec sol = bidomain_problem.GetVoltage();
+        ReplicatableVector sol_repl(sol);
+
+        // test V = 0 for all bath nodes
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        {
+            if(mesh.GetNode(i)->GetRegion()==1) // bath
+            {
+                TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+            }
+        }
+        
+        // a couple of hardcoded values
+        TS_ASSERT_DELTA(sol_repl[2*50], 28.3912, 1e-3);
+        TS_ASSERT_DELTA(sol_repl[2*70], 28.3912, 1e-3);
+    }
 };
     
 #endif /*TESTBIDOMAINWITHBATHASSEMBLER_HPP_*/
