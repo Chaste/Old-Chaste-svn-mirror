@@ -213,9 +213,9 @@ public:
     }
 
 
-    void doesntpass_Test1dProblemOnlyBath() throw (Exception)
+    void Test1dProblemOnlyBathGroundedOneSide() throw (Exception)
     {
-        HeartConfig::Instance()->SetSimulationDuration(10.0);  //ms
+        HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBathOnlyBath");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath");
         
@@ -223,7 +223,7 @@ public:
                 
         BathCellFactory<1> cell_factory(-1e6);
 
-        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
         
@@ -233,21 +233,21 @@ public:
         }
 
         // create boundary conditions container
+        double boundary_val = 1.0;
         BoundaryConditionsContainer<1,1,2> bcc;
-        ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(1);
+        ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(boundary_val);
         ConstBoundaryCondition<1>* p_zero_stim = new ConstBoundaryCondition<1>(0.0);
 
-        // loop over boundary elements
+        // loop over boundary elements and set (sigma\gradphi).n = 1.0 on RHS edge 
         for(TetrahedralMesh<1,1>::BoundaryElementIterator iter 
               = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
         {
-            // if the element is on the left of the mesh, add a stimulus to the bcc
-            if (((*iter)->GetNodeLocation(0))[0]==0.0)
+            if (((*iter)->GetNodeLocation(0))[0]==1.0)
             {
-                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim, 1);
+                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
+                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim,   1);
             }
         }
 
@@ -257,9 +257,25 @@ public:
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 
+        // fix phi=0 on LHS edge
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+        bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
+
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
-        bidomain_problem.Solve(); // diverges..?
+        bidomain_problem.Solve();
+        
+        Vec sol = bidomain_problem.GetVoltage();
+        ReplicatableVector sol_repl(sol);
+        
+        // test phi = x*boundary_val/sigma (solution of phi''=0, phi(0)=0, sigma*phi'=boundary_val
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        {
+            double x = mesh.GetNode(i)->rGetLocation()[0];
+            TS_ASSERT_DELTA(sol_repl[2*i],   0.0,   1e-12);               // V
+            TS_ASSERT_DELTA(sol_repl[2*i+1], x*boundary_val/7.0, 1e-4);   // phi_e
+        }
     }
  
 };
