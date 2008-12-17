@@ -155,6 +155,63 @@ public:
         bidomain_problem.Solve();
     }
  
+    
+    void TestBathIntracellularStimulation() throw (Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(10.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBath1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_1d");
+                        
+        BathCellFactory<1> cell_factory(-1e6); // stimulates x=0.5 node
+  
+        BidomainProblem<1> bidomain_problem( &cell_factory, true );
+
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        // set the x<0.25 and x>0.75 regions as the bath region
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            double x = mesh.GetElement(i)->CalculateCentroid()[0];
+            if( (x<0.25) || (x>0.75) )
+            {
+                mesh.GetElement(i)->SetRegion(1);
+            }
+        }
+
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        bidomain_problem.Solve();
+        
+        Vec sol = bidomain_problem.GetVoltage();
+        ReplicatableVector sol_repl(sol);
+
+        // test V = 0 for all bath nodes
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        {
+            if(mesh.GetNode(i)->GetRegion()==1) // bath
+            {
+                TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+            }
+        }
+        
+        // test symmetry of V and phi_e
+        for(unsigned i=0; i<=(mesh.GetNumNodes()-1)/2; i++)
+        {
+            unsigned opposite = mesh.GetNumNodes()-i-1;
+            TS_ASSERT_DELTA(sol_repl[2*i], sol_repl[2*opposite], 1e-4);      // V
+            TS_ASSERT_DELTA(sol_repl[2*i+1], sol_repl[2*opposite+1], 1e-4);  // phi_e
+        }
+        
+        // a couple of hardcoded values
+        TS_ASSERT_DELTA(sol_repl[2*50], 3.7674, 1e-3);
+        TS_ASSERT_DELTA(sol_repl[2*70], 5.1784, 1e-3);
+    }
+
 
     void doesntpass_Test1dProblemOnlyBath() throw (Exception)
     {
@@ -205,40 +262,6 @@ public:
         bidomain_problem.Solve(); // diverges..?
     }
  
-    
-    void doesntwork_Test1DBathProblem() throw (Exception)
-    {
-        HeartConfig::Instance()->SetSimulationDuration(10.0);  //ms
-        HeartConfig::Instance()->SetOutputDirectory("BidomainBath1d");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_1d");
-        
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-                
-        BathCellFactory<1> cell_factory(-1e6);
-        BidomainProblem<1> bidomain_problem( &cell_factory, true );
-
-        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
-        TetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(reader);
-        
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            double x = mesh.GetElement(i)->CalculateCentroid()[0];
-            if( (x<0.25) || (x>0.75) )
-            {
-                mesh.GetElement(i)->SetRegion(1);
-            }
-        }
-
-        bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.Initialise();
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
-        bidomain_problem.Solve();
-        
-        ///\todo test..
-    }
 };
     
 #endif /*TESTBIDOMAINWITHBATHASSEMBLER_HPP_*/
