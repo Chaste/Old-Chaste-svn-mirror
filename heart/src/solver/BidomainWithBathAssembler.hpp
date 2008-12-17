@@ -126,18 +126,14 @@ public:
         }
     }
 
-
+    /**
+     *  This alters the linear system so that all rows and columns corresponding to 
+     *  bath nodes voltages are zero, except for the diagonal (set to 1). The
+     *  corresponding rhs vector entry is also set to 0, so the equation for the
+     *  bath node voltage is 1*V = 0.
+     */
     void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix)
     {
-        unsigned mat_size = 2*this->mpMesh->GetNumNodes();
-        PetscInt index_of_rows[mat_size];
-        PetscScalar zeros[mat_size];
-        for(unsigned i=0; i<mat_size; i++)
-        {
-            index_of_rows[i] = i;
-            zeros[i] = 0.0;
-        }
-        
         for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
             if(this->mpMesh->GetNode(i)->GetRegion()==1) // ie is a bath node
@@ -147,29 +143,23 @@ public:
 
                 if(assembleMatrix)
                 {
+                    // zero the row corresponding to V for this bath node
+                    (*(this->GetLinearSystem()))->ZeroMatrixRow(2*i);
+                    // zero the column corresponding to V for this bath node.
+                    (*(this->GetLinearSystem()))->ZeroMatrixColumn(2*i);
+
+                    // put 1.0 on the diagonal
                     Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
-    
-                    // zero all the columns corresponding to V for this bath node.
-                    MatSetValues(r_matrix,mat_size,index_of_rows,1,index,zeros,INSERT_VALUES);
-    
-                    // now zero the row corresponding to V for this bath node, but
-                    // putting 1.0 on the diagonal
-                    //MatZeroRows(r_matrix,1,index,1.0);
-     
-                    MatSetValues(r_matrix,1,index,mat_size,index_of_rows,zeros,INSERT_VALUES);
                     MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
                 }
                 
                 if(assembleVector)
                 {
+                    // zero rhs vector entry
                     VecSetValue((*(this->GetLinearSystem()))->rGetRhsVector(), index[0], 0.0, INSERT_VALUES);
                 }
             }
         }
-//        (*(this->GetLinearSystem()))->AssembleFinalLhsMatrix();
-//        MatView( (*(this->GetLinearSystem()))->rGetLhsMatrix(), 0);
-//        VecView( (*(this->GetLinearSystem()))->rGetRhsVector(), 0);
-//        assert(0);
     }
 
 public:

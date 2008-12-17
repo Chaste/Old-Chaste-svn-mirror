@@ -255,6 +255,49 @@ void LinearSystem::ZeroMatrixRow(PetscInt row)
 
 }
 
+/**
+ *  Zero the column of a matrix.
+ *  Unfortunately there is no equivalent method in Petsc, so this has to be 
+ *  done carefully to ensure that the sparsity structure of the matrix
+ *  is not broken. Only owned entries which are non-zero are zeroed.
+ */
+void LinearSystem::ZeroMatrixColumn(PetscInt col)
+{
+    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+
+//#if (PETSC_VERSION_MINOR == 2) //Old API
+   // hello Joe.
+//#else
+    // determine which rows in this column are non-zero (and
+    // therefore need to be zeroed)
+    std::vector<unsigned> nonzero_rows;
+    for (PetscInt row = mOwnershipRangeLo; row < mOwnershipRangeHi; row++)
+    {
+        if (GetMatrixElement(row, col) != 0.0)
+        {
+            nonzero_rows.push_back(row);
+        }    
+    }
+
+    // set those rows to be zero by calling MatSetValues    
+    unsigned size = nonzero_rows.size();
+    PetscInt* rows = new PetscInt[size];
+    PetscInt cols[1];
+    double* zeros = new double[size];
+    
+    cols[0] = col;
+    
+    for (unsigned i=0; i<size; i++)
+    {
+        rows[i] = nonzero_rows[i];
+        zeros[i] = 0.0;        
+    }
+    
+    MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
+//#endif
+}
+
 void LinearSystem::ZeroRhsVector()
 {
     double *p_rhs_vector_array;
@@ -566,5 +609,3 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
     return lhs_vector;
 }
-
-

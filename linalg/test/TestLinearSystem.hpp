@@ -153,6 +153,45 @@ public:
             ls.AssembleFinalLinearSystem();
             TS_ASSERT_EQUALS(ls.GetMatrixElement(lo, 1), 0.0);
         }
+        
+    }
+    
+    void TestZeroingLinearSystemByColumn()
+    {
+        LinearSystem ls(5);
+        for (int i=0; i<5; i++)
+        {
+            ls.SetMatrixElement(i, i, 3.0);
+        }
+        ls.SetMatrixElement(0, 1, 4.0);
+        
+        ls.AssembleFinalLinearSystem();
+        
+        for (unsigned col=0; col<5; col++)
+        {
+            ls.ZeroMatrixColumn(col);
+        }
+        ls.AssembleFinalLinearSystem();        
+        
+        int lo, hi;
+        ls.GetOwnershipRange(lo, hi);
+        for (int row=lo; row<hi; row++)
+        {
+            TS_ASSERT_EQUALS(ls.GetRhsVectorElement(row), 0);
+            for (int col=0; col<5; col++)
+            {
+                TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), 0);
+            }
+        }
+        
+        MatInfo info;
+        double num_nonzeros;
+
+        MatGetInfo(ls.rGetLhsMatrix(),MAT_GLOBAL_SUM,&info);
+
+        num_nonzeros = info.nz_used;
+        
+        TS_ASSERT_EQUALS(int(num_nonzeros),6);
     }
 
     void TestCreateFromVector(void)

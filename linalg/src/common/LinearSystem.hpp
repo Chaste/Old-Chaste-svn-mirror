@@ -98,6 +98,7 @@ public:
     void DisplayRhs();
     void SetMatrixRow(PetscInt row, double value);
     void ZeroMatrixRow(PetscInt row);
+    void ZeroMatrixColumn(PetscInt col);
     void ZeroLhsMatrix();
     void ZeroRhsVector();
     void ZeroLinearSystem();
