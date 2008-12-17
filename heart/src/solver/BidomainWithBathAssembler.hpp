@@ -127,11 +127,6 @@ public:
     }
 
 
-
-
-
-
-
     void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix)
     {
         unsigned mat_size = 2*this->mpMesh->GetNumNodes();

@@ -216,8 +216,9 @@ public:
     }
 
     // Perhaps this should be a method of AbstractCardiacPde??
-
-    Vec CreateInitialCondition()
+    // This is virtual so BidomainProblem can overwrite V to zero for bath nodes, if 
+    // there are any.
+    virtual Vec CreateInitialCondition()
     {
         //if (DistributedVector::GetProblemSize()==0)
         //{

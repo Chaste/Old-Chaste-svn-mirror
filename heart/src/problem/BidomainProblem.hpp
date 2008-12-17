@@ -61,6 +61,34 @@ private:
     unsigned mRowMeanPhiEZero;
     bool mHasBath;
 
+    /**
+     *  Create normal initial condition but overwrite V to zero for bath nodes, if 
+     *  there are any.
+     */
+    Vec CreateInitialCondition()
+    {
+        Vec init_cond = AbstractCardiacProblem<SPACE_DIM,2>::CreateInitialCondition();
+        if(mHasBath)
+        {
+            // get the voltage stripe
+            DistributedVector ic(init_cond);
+            DistributedVector::Stripe voltage_stripe = DistributedVector::Stripe(ic,0);
+
+            for (DistributedVector::Iterator index = DistributedVector::Begin();
+                 index!= DistributedVector::End();
+                 ++index)
+            {
+                if(this->mpMesh->GetNode( index.Global )->GetRegion()==BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM>::BATH)
+                {
+                    voltage_stripe[index] = 0.0;
+                }
+            }
+            ic.Restore();
+        }
+        
+        return init_cond;
+    }
+
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
