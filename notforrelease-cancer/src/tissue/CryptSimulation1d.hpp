@@ -72,9 +72,6 @@ private:
 
     std::vector<TissueCell> mCells;
 
-    CancerParameters *mpParams;
-    SimulationTime *mpSimulationTime;
-    RandomNumberGenerator *mpGen;
     bool mCreatedRng;
 
     unsigned AddNodeToElement(Element<1,1>* pElement, double time);

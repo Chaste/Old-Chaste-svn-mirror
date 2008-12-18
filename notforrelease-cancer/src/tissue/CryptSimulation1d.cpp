@@ -40,18 +40,14 @@ CryptSimulation1d::CryptSimulation1d(MutableMesh<1,1> &rMesh,
         : mrMesh(rMesh),
         mCells(cells)
 {
-    mpSimulationTime = SimulationTime::Instance();
-    mpGen = RandomNumberGenerator::Instance();
-    mpParams = CancerParameters::Instance();
-    mpParams->SetSpringStiffness(30.0);
+    CancerParameters::Instance()->SetSpringStiffness(30.0);
     mDt = 1.0/(120.0); // Timestep of 30 seconds (as per Meineke)
     mEndTime = 120.0; // hours
 
     mIncludeVariableRestLength = false;
     mOutputDirectory = "";
 
-    mpSimulationTime = SimulationTime::Instance();
-    if (!mpSimulationTime->IsStartTimeSetUp())
+    if (!SimulationTime::Instance()->IsStartTimeSetUp())
     {
         EXCEPTION("Start time not set in simulation time singleton object");
     }
@@ -152,7 +148,7 @@ void CryptSimulation1d::Solve()
     tabulated_writer.EndDefineMode();
 
     unsigned num_time_steps = (unsigned)(mEndTime/mDt+0.5);
-    mpSimulationTime->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
+    SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
 
     double time_since_last_birth = 15.0; // 15 hours - only used in non-random birth
 
@@ -164,39 +160,44 @@ void CryptSimulation1d::Solve()
     // Creating Simple File Handler
     OutputFileHandler output_file_handler(mOutputDirectory, false);
     out_stream p_results_file = output_file_handler.OpenOutputFile("results");
-    while ( mpSimulationTime->GetTimeStepsElapsed() < num_time_steps)
+    while ( SimulationTime::Instance()->GetTimeStepsElapsed() < num_time_steps)
     {
         // Cell birth
         if (!mCells.empty())
         {
-            for (unsigned i=0; i<mCells.size(); i++)
+            unsigned original_number_of_cells = mCells.size();
+            for (unsigned i=0; i<original_number_of_cells; i++)
             {
                 if (mrMesh.GetNode(i)->IsDeleted()) continue; // Skip deleted cells
                 // Check for this cell dividing
-                if (mCells[i].ReadyToDivide())
+                if (mCells[i].GetAge()>0)
                 {
-                    // Create new cell
-                    TissueCell new_cell = mCells[i].Divide();
-
-                    // Add new node to mesh
-                    Node<1> *p_our_node = mrMesh.GetNode(i);
-
-                    // Note: May need to check which side element is put esp. at the ends
-                    Element<1,1> *p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
-
-                    unsigned new_node_index = AddNodeToElement(p_element,mpSimulationTime->GetTime());
-
-                    // Update cells
-                    new_cell.SetLocationIndex(new_node_index);
-                    if (new_node_index == mCells.size())
+                    if (mCells[i].ReadyToDivide())
                     {
-                        mCells.push_back(new_cell);
+                        std::cout << "Cell[" << i << "] at age" << mCells[i].GetAge() << " is ready to divide\n" << std::flush;
+                        // Create new cell
+                        TissueCell new_cell = mCells[i].Divide();
+
+                        // Add new node to mesh
+                        Node<1> *p_our_node = mrMesh.GetNode(i);
+
+                        // Note: May need to check which side element is put esp. at the ends
+                        Element<1,1> *p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
+
+                        unsigned new_node_index = AddNodeToElement(p_element,SimulationTime::Instance()->GetTime());
+
+                        // Update cells
+                        new_cell.SetLocationIndex(new_node_index);
+                        if (new_node_index == mCells.size())
+                        {
+                            mCells.push_back(new_cell);
+                        }
+                        else
+                        {
+                            mCells[new_node_index] = new_cell;
+                        }
+                        num_births++;
                     }
-                    else
-                    {
-                        mCells[new_node_index] = new_cell;
-                    }
-                    num_births++;
                 }
             }
         }
@@ -231,8 +232,9 @@ void CryptSimulation1d::Solve()
 
                         assert(rest_length<=1.0);
                     }
-                    drdt_contributions(0) = ( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
-                    drdt_contributions(1) = ( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - rest_length) );
+                    CancerParameters* params = CancerParameters::Instance();
+                    drdt_contributions(0) = ( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
+                    drdt_contributions(1) = ( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - rest_length) );
                     drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                     drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
                 }
@@ -249,9 +251,9 @@ void CryptSimulation1d::Solve()
                     double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
                     double unit_vector_backward = -1;
                     double unit_vector_forward = 1;
-
-                    drdt_contributions(0) =( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - 1.0) );
-                    drdt_contributions(1) =( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - 1.0) );
+                    CancerParameters* params = CancerParameters::Instance();
+                    drdt_contributions(0) =( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - 1.0) );
+                    drdt_contributions(1) =( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - 1.0) );
 
                     drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                     drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
@@ -281,7 +283,7 @@ void CryptSimulation1d::Solve()
             {
                 it--;
                 const Node<1> *p_node = *it;
-                if (p_node->rGetLocation()[0] > mpParams->GetCryptLength())
+                if (p_node->rGetLocation()[0] > CancerParameters::Instance()->GetCryptLength())
                 {
                     // It's fallen off
                     mrMesh.DeleteBoundaryNodeAt(p_node->GetIndex());
@@ -292,15 +294,15 @@ void CryptSimulation1d::Solve()
             }
             if (!sloughed_node) break;
         }
-        // Check nodes havent crossed
+        // Check nodes haven't crossed
         mrMesh.RefreshMesh();
 
         // Increment simulation time here, so results files look sensible
-        mpSimulationTime->IncrementTimeOneStep();
+        SimulationTime::Instance()->IncrementTimeOneStep();
 
         // Writing Results To Tabulated File First And Then To Space Separated File
-        tabulated_writer.PutVariable(time_var_id, mpSimulationTime->GetTime());
-        (*p_results_file) << mpSimulationTime->GetTime() << "\t";
+        tabulated_writer.PutVariable(time_var_id, SimulationTime::Instance()->GetTime());
+        (*p_results_file) << SimulationTime::Instance()->GetTime() << "\t";
 
         unsigned cell=0; // NB this is not the index in mCells, but the index in the mesh!
         for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
@@ -357,39 +359,37 @@ unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time
 
     double displacement;
     double left_position= pElement->GetNodeLocation(0,0);
+    double element_length = pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0);
+
+    assert(element_length>0);
     if (mIncludeVariableRestLength)
     {
         double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge();
         double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge();
-
         if (fabs(age0)<1e-6)
         {
-            // Place the new node to 0.1 to the right of the left-hand node
-            displacement = 0.1;
+            // Place the new node 10% to the right of the left-hand node
+            displacement = 0.1*element_length;
         }
         else if (fabs(age1)<1e-6)
         {
-            // Place the new node to 0.1 to the left of the right-hand node
-            double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
-            displacement = element_length - 0.1;
+            // Place the new node 10% to the left of the right-hand node
+            displacement = 0.9*element_length;
         }
         else
         {
             // This called by Tyson Novak cells which might not be age 0 when the simulation divides them.
-            double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
             // Pick a random position in the central 60% of the element
-            displacement = 0.2 + (mpGen->ranf())*(element_length-0.4);
+            displacement = 0.2*element_length + (RandomNumberGenerator::Instance()->ranf())*0.6*element_length;
         }
     }
     else
     {
-        double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
         // Pick a random position in the central 60% of the element
-        displacement = 0.2 + (mpGen->ranf())*(element_length-0.4);
-
+        displacement = 0.2*element_length + (RandomNumberGenerator::Instance()->ranf())*0.6*element_length;
     }
     ChastePoint<1> new_point(left_position + displacement);
-
+    assert(displacement <= element_length);
     return mrMesh.RefineElement(pElement, new_point);
 }
 
