@@ -94,6 +94,17 @@ public:
     {
         return mJacobianDeterminant;
     }
+
+    void GetWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection)
+    {
+        if (ELEMENT_DIM >= SPACE_DIM)
+        {
+            assert(ELEMENT_DIM == SPACE_DIM);
+            EXCEPTION("WeightedDirection undefined for fully dimensional element");
+
+        }
+        rWeightedDirection = mWeightedDirection;
+    }           
 ///////////////////////////////////
 
     /** Get the volume of an element (or area in 2d, or length in 1d) */
@@ -112,19 +123,6 @@ public:
         }
         return mJacobianDeterminant/scale_factor;
     }
-
-    c_vector<double, SPACE_DIM> *pGetWeightedDirection(void)
-    {
-        if (ELEMENT_DIM >= SPACE_DIM)
-        {
-            assert(ELEMENT_DIM == SPACE_DIM);
-            EXCEPTION("WeightedDirection undefined for fully dimensional element");
-
-        }
-        return &mWeightedDirection;
-    }
-
-
 
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)

@@ -586,7 +586,7 @@ public:
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         BoundaryElement<1,3> element_1d(0, nodes);
 
-        direction = *(element_1d.pGetWeightedDirection());
+        element_1d.GetWeightedDirection(direction);
         //1D element in higher space is orientated by vector between endpoints
         TS_ASSERT_EQUALS(direction[0],1.0);
         TS_ASSERT_EQUALS(direction[1],0.0);
@@ -601,7 +601,7 @@ public:
         nodes.push_back(new Node<3>(3, false, 0.0, 1.0, 0.0));
         BoundaryElement<2,3> element_2d(0, nodes);
 
-        direction = *(element_2d.pGetWeightedDirection());
+        element_2d.GetWeightedDirection(direction);
         //2D element in higher space is orientated by a normal
         TS_ASSERT_EQUALS(direction[0],0.0);
         TS_ASSERT_EQUALS(direction[1],0.0);
@@ -616,7 +616,7 @@ public:
         nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
         Element<3,3> element_3d(0, nodes);
 
-        TS_ASSERT_THROWS_ANYTHING(direction = *(element_3d.pGetWeightedDirection()));
+        TS_ASSERT_THROWS_ANYTHING(element_3d.GetWeightedDirection(direction));
         //3D element in 3D space has no orientation (other than JacobianDeterminant)
 
         centroid=element_3d.CalculateCentroid();
