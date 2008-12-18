@@ -60,6 +60,9 @@ typedef enum StimulusType_
     NEUMANN
 } StimulusType;
 
+/**
+ * \todo Documentation...
+ */
 template <class CELL, unsigned DIM>
 class QuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
@@ -94,9 +97,11 @@ public:
 };
 
 
+/**
+ * \todo Documentation...
+ */
 class AbstractUntemplatedConvergenceTester
 {
-
 protected:
     double mMeshWidth;
     double mKspTolerance;
@@ -117,63 +122,19 @@ public:
     StimulusType Stimulus;
     double NeumannStimulus;
 
-    AbstractUntemplatedConvergenceTester()
-    : mMeshWidth(0.2),//cm
-      mKspTolerance(2e-4),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
-      mUseKspAbsoluteTolerance(true),
-      OdeTimeStep(0.0025),//Justification from 1D test with this->PdeTimeStep held at 0.01 (allowing two hits at convergence)
-      PdeTimeStep(0.005),//Justification from 1D test with this->OdeTimeStep held at 0.0025
-      MeshNum(5u),//Justification from 1D test
-      RelativeConvergenceCriterion(1e-4),
-      LastDifference(1),
-      AbsoluteStimulus(-1e7),
-      PopulatedResult(false),
-      FixedResult(false),
-      UseAbsoluteStimulus(false),
-      //UseNeumannStimulus(false),
-      Converged(false),
-      //StimulateRegion(false)
-      Stimulus(PLANE),
-      NeumannStimulus(4000)
-    {
-    }
+    AbstractUntemplatedConvergenceTester();
 
     virtual void Converge(std::string nameOfTest)=0;
 
-    void SetKspRelativeTolerance(const double& relativeTolerance)
-    {
-       mKspTolerance = relativeTolerance;
-       mUseKspAbsoluteTolerance = false;
-    }
+    void SetKspRelativeTolerance(const double relativeTolerance);
 
-    void SetKspAbsoluteTolerance(const double& absoluteTolerance)
-    {
-       mKspTolerance = absoluteTolerance;
-       mUseKspAbsoluteTolerance = true;
-    }
+    void SetKspAbsoluteTolerance(const double absoluteTolerance);
 
-    double GetKspAbsoluteTolerance()
-    {
-        if (!mUseKspAbsoluteTolerance)
-        {
-            EXCEPTION("Currently using relative tolerance");
-        }
-        return mKspTolerance;
-    }
+    double GetKspAbsoluteTolerance();
 
-    double GetKspRelativeTolerance()
-    {
-        if (mUseKspAbsoluteTolerance)
-        {
-            EXCEPTION("Currently using absolute tolerance");
-        }
-        return mKspTolerance;
-    }
+    double GetKspRelativeTolerance();
 
-    virtual ~AbstractUntemplatedConvergenceTester()
-    {
-    }
-
+    virtual ~AbstractUntemplatedConvergenceTester();
 };
 
 /**
@@ -212,10 +173,16 @@ void SetConductivities(MonodomainProblem<DIM>& rProblem)
 
 
 
+/**
+ * \todo Documentation...
+ */
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {
 public:
+    /**
+     * \todo This is a scarily long method; could do with some parts extracted?
+     */
     void Converge(std::string nameOfTest)
     {
         std::cout << "=========================== Beginning Test...==================================\n";
@@ -635,4 +602,5 @@ public:
         mMeshWidth=meshWidth;
     }
 };
+
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/

@@ -30,22 +30,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPDE_HPP_
 #define ABSTRACTCARDIACPDE_HPP_
 
-#include <iostream>
 #include <vector>
-#include "Node.hpp"
-#include "AbstractStimulusFunction.hpp"
-#include "AbstractLinearParabolicPde.hpp"
-#include "ReplicatableVector.hpp"
-#include "AbstractCardiacCellFactory.hpp"
+#include <petscvec.h>
+#include <boost/numeric/ublas/matrix.hpp>
+
 #include "AbstractCardiacCell.hpp"
-#include "DistributedVector.hpp"
-#include "EventHandler.hpp"
-#include "PetscTools.hpp"
+#include "AbstractCardiacCellFactory.hpp"
+#include "AbstractConductivityTensors.hpp"
 
+#include "ReplicatableVector.hpp"
 #include "HeartConfig.hpp"
-
-#include "AxisymmetricConductivityTensors.hpp"
-#include "OrthotropicConductivityTensors.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -102,167 +96,41 @@ protected:
      * Defaults to true.
      */
     bool mDoCacheReplication;
-    bool mDoOneCacheReplication; //This is to mark the conventional assembly on the first time step.
-    ///\todo maybe we don't want the conventional assembly even in the first time step.
+    /**
+     * This is to mark the conventional assembly on the first time step.
+     * 
+     * \todo maybe we don't want the conventional assembly even in the first time step.
+     */
+    bool mDoOneCacheReplication;
 
 public:
-    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
-            : mStride(stride),
-              mDoCacheReplication(true),
-              mDoOneCacheReplication(true)
-    {
-        //This constructor is called from the Initialise() method of the CardiacProblem class
-        assert(pCellFactory!=NULL);
-        assert(pCellFactory->GetMesh()!=NULL);
+    /**
+     * This constructor is called from the Initialise() method of the CardiacProblem class.
+     * It creates all the cell objects, and sets up the conductivities.
+     * 
+     * \todo tidy up using extract method refactoring?
+     * 
+     * @param pCellFactory  factory to use to create cells.
+     * @param stride  determines how to access V_m in the solution vector (1 for monodomain, 2 for bidomain).
+     */
+    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1);
 
-        std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();        
-
-        // check number of processor agrees with definition in mesh
-        if((r_nodes_per_processor.size() != 0) && (r_nodes_per_processor.size() != PetscTools::NumProcs()) )
-        {
-            EXCEPTION("Number of processors defined in mesh class not equal to number of processors used");
-        }
-
-        if(r_nodes_per_processor.size() != 0)
-        {
-            unsigned num_local_nodes = r_nodes_per_processor[ PetscTools::GetMyRank() ];
-            DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
-        }
-        else
-        {
-            DistributedVector::SetProblemSize(pCellFactory->GetMesh()->GetNumNodes());
-        }
-
-        mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
-
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
-        {
-            mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
-        }
-        pCellFactory->FinaliseCellCreation(&mCellsDistributed,
-                                           DistributedVector::Begin().Global,
-                                           DistributedVector::End().Global);
-
-
-        mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
-        mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
-        
-        mpConfig = HeartConfig::Instance();
-
-        if (mpConfig->GetIsMeshProvided() && mpConfig->GetLoadMesh())
-        {
-        	switch (mpConfig->GetConductivityMedia())
-        	{
-        		case media_type::Orthotropic:
-            		mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
-            		mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".ortho");        		
-        			break;
-        			
-        		case media_type::Axisymmetric:
-		            mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
-		            mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".axi");
-        			break;
-
-        		case media_type::NoFibreOrientation:
-        			/// \todo: Create a class defining constant tensors to be used when no fibre orientation is provided
-            		mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;        		
-        			break;
-        			
-	            default :
-    	            NEVER_REACHED;    			        		
-        	}        	
-        }
-        else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
-        {
-        	// See previous todo.
-        mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;       	
-        }
-
-        c_vector<double, SPACE_DIM> intra_conductivities; 	        
-        mpConfig->GetIntracellularConductivities(intra_conductivities);	        
-
-        // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep 
-        // a pointer to it and we don't want it to go out of scope before Init() is called
-        unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();                      
-        std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities(num_elements); 
-        		
-        if (mpConfig->GetConductivityHeterogeneitiesProvided())
-        {
-            std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
-            std::vector< c_vector<double,3> > intra_h_conductivities;
-            std::vector< c_vector<double,3> > extra_h_conductivities;
-            HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
-                                                                    intra_h_conductivities,
-                                                                    extra_h_conductivities);
-
-            for (unsigned element_index=0; element_index<num_elements; element_index++)
-            {
-                for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
-                {
-                    // if element centroid is contained in the region
-                    ChastePoint<SPACE_DIM> element_centroid(pCellFactory->GetMesh()->GetElement(element_index)->CalculateCentroid());
-                    if ( conductivities_heterogeneity_areas[region_index].DoesContain(element_centroid) )
-                    {
-                        hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];
-                    }
-                    else
-                    {
-                        hetero_intra_conductivities[element_index] = intra_conductivities;						
-                    }
-                }
-            }
-
-            mpIntracellularConductivityTensors->SetNonConstantConductivities(&hetero_intra_conductivities);
-        }
-        else
-        {               
-            mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
-        }
-
-        mpIntracellularConductivityTensors->Init();        
-    }
-
-
-    virtual ~AbstractCardiacPde()
-    {
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
-        {
-            delete mCellsDistributed[index.Local];
-        }
-
-        delete mpIntracellularConductivityTensors;
-    }
+    virtual ~AbstractCardiacPde();
     
     /**
      * Set whether or not to replicate the caches across all processors.
      * 
      * See also mDoCacheReplication.
      */
-    void SetCacheReplication(bool doCacheReplication)
-    {
-        mDoCacheReplication = doCacheReplication;
-    }
+    void SetCacheReplication(bool doCacheReplication);
 
-    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex)
-    {
-        assert( mpIntracellularConductivityTensors);
-        return (*mpIntracellularConductivityTensors)[elementIndex];
-    }
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex);
 
     /**
      *  Get a pointer to a cell, indexed by the global node index. Should only called by the process
      *  owning the cell though.
      */
-    AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
-    {
-        assert(DistributedVector::Begin().Global <= globalIndex &&
-               globalIndex < DistributedVector::End().Global);
-        return mCellsDistributed[globalIndex - DistributedVector::Begin().Global];
-    }
+    AbstractCardiacCell* GetCardiacCell( unsigned globalIndex );
 
 
     /**
@@ -274,56 +142,11 @@ public:
      *  NOTE: this used to be PrepareForAssembleSystem, but that method is now
      *  a virtual method in the assemblers not the pdes.
      */
-    virtual void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
-    {
-        EventHandler::BeginEvent(SOLVE_ODES);
+    virtual void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime);
 
-        DistributedVector dist_solution(currentSolution);
-        DistributedVector::Stripe voltage(dist_solution, 0);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
-        {
-            // overwrite the voltage with the input value
-            mCellsDistributed[index.Local]->SetVoltage( voltage[index] );
-            try
-            {
-                // solve
-                // Note: Voltage should not be updated. GetIIonic will be called later
-                // and needs the old voltage. The voltage will be updated from the pde.
-                mCellsDistributed[index.Local]->ComputeExceptVoltage(currentTime, nextTime);
-            }
-            catch (Exception &e)
-            {
-                PetscTools::ReplicateException(true);
-                throw e;
-            }
+    ReplicatableVector& rGetIionicCacheReplicated();
 
-            // update the Iionic and stimulus caches
-            UpdateCaches(index.Global, index.Local, nextTime);
-        }
-        EventHandler::EndEvent(SOLVE_ODES);
-
-        PetscTools::ReplicateException(false);
-
-        EventHandler::BeginEvent(COMMUNICATION);
-        if ((mDoCacheReplication)||mDoOneCacheReplication)
-        {
-            ReplicateCaches();
-            mDoOneCacheReplication=false;
-        }
-        EventHandler::EndEvent(COMMUNICATION);
-    }
-
-    ReplicatableVector& rGetIionicCacheReplicated()
-    {
-        return mIionicCacheReplicated;
-    }
-
-    ReplicatableVector& rGetIntracellularStimulusCacheReplicated()
-    {
-        return mIntracellularStimulusCacheReplicated;
-    }
+    ReplicatableVector& rGetIntracellularStimulusCacheReplicated();
 
 
     /**
@@ -331,22 +154,14 @@ public:
      *  The method is overridden in the BidomainPde to also update the
      *  extracellular stimulus.
      */
-    virtual void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
-    {
-        mIionicCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIIonic();
-        mIntracellularStimulusCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIntracellularStimulus(nextTime);
-    }
+    virtual void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime);
 
     /**
      *  Replicate the Iionic and intracellular stimulus caches.
      *  The method is overridden in the BidomainPde to also replicate the
      *  extracellular stimulus.
      */
-    virtual void ReplicateCaches()
-    {
-        mIionicCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
-        mIntracellularStimulusCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
-    }
+    virtual void ReplicateCaches();
 };
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
