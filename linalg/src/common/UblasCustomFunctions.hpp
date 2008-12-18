@@ -97,8 +97,6 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,2> &m, const unsigned
 {
     using namespace boost::numeric::ublas;
 
-//    assert(missrow>=0 && missrow<2);
-//    assert(misscol>=0 && misscol<2);
     assert(missrow<2);
     assert(misscol<2);
 
@@ -253,7 +251,7 @@ T SecondInvariant(const c_matrix<T,3,3> &m)
 }
 
 /**
- *  Second invariant of a 2d matrix, ie the determinant. This funcion
+ *  Second invariant of a 2d matrix, ie the determinant. This function
  *  is mainly here just so that the same code can be used in 2d and 3d.
  */
 template<class T>

@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
 
 #include "NonlinearElasticityAssembler.hpp"
+#include "QuadraticBasisFunction.hpp"
+#include "LinearBasisFunction.hpp"
 #include "NhsSystemWithImplicitSolver.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
 #include "LogFile.hpp"

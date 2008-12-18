@@ -30,13 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <vector>
-#include <petscsnes.h>
 #include <petscvec.h>
 #include <petscmat.h>
 
 #include "AbstractNonlinearAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
+#include "AbstractMesh.hpp"
 
 
 
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * USAGE: call the constructor with the mesh, pde and boundary conditions,
  * then call Solve() with the initial guess.
  *
- * ///\todo [old todo, maybe not true anymore after refactor(?)]
+ * \todo [old todo, maybe not true anymore after refactor(?)]
  * This class could do with some tidying. More (3D) tests are also needed.
  * It probably needs re-writing to take advantage of parallel machines.
  */
@@ -86,32 +86,7 @@ private:
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
         c_matrix<double,1,SPACE_DIM> &rGradU,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-    {
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
-
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX,u(0));
-
-        //LinearSourceTerm(x)   not needed as it is a constant wrt u
-        double forcing_term_prime = mpNonlinearEllipticPde->ComputeNonlinearSourceTermPrime(rX, u(0));
-
-        // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
-        // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector
-        matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
-        c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,rGradU0);
-        c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, rGradPhi);
-
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, rPhi);
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(f_of_u, rGradPhi);
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2 = prod(trans(rGradPhi), temp2);
-        c_vector<double, ELEMENT_DIM+1> integrand_values3 = forcing_term_prime * rPhi;
-
-        ret = integrand_values1 + integrand_values2 - outer_prod( scalar_vector<double>(ELEMENT_DIM+1), integrand_values3);
-
-        return ret;
-    }
-
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      *  This method returns the vector to be added to element stiffness vector
@@ -126,32 +101,7 @@ private:
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
         c_matrix<double,1,SPACE_DIM> &rGradU,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-    {
-        c_vector<double, 1*(ELEMENT_DIM+1)> ret;
-
-        //c_vector<double, SPACE_DIM> gradU = prod(grad_phi, Ui);
-
-        // For solving NonlinearEllipticEquation
-        // which should be defined in/by NonlinearEllipticEquation.hpp:
-        // d/dx [f(U,x) du/dx ] = -g
-        // where g(x,U) is the forcing term
-        double ForcingTerm = mpNonlinearEllipticPde->ComputeLinearSourceTerm(rX);
-        ForcingTerm += mpNonlinearEllipticPde->ComputeNonlinearSourceTerm(rX, u(0));
-        //make RHS general: consists of linear and nonlinear source terms
-
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
-
-        // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
-        // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector.
-        matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
-        c_vector<double, ELEMENT_DIM+1> integrand_values1 =
-            prod(c_vector<double, ELEMENT_DIM>(prod(rGradU0, FOfU)), rGradPhi);
-
-        ret = integrand_values1 - (ForcingTerm * rPhi);
-        return ret;
-    }
-
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      *  This method returns the vector to be added to element stiffness vector
@@ -163,40 +113,19 @@ private:
     virtual c_vector<double, 1*ELEMENT_DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         c_vector<double, ELEMENT_DIM> &rPhi,
-        ChastePoint<SPACE_DIM> &rX )
-    {
-        double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
-
-        // I'm not sure why we want -phi, but it seems to work:)
-        return  (-Dgradu_dot_n)* rPhi;
-    }
-
-
+        ChastePoint<SPACE_DIM> &rX );
+;
 public :
 
     /**
      * Constructor - takes in the mesh, pde and boundary conditions container to be solved. Can
-     * also define the number of quad points (in each dimension), the default value of which is 2
+     * also define the number of quad points (in each dimension), the default value of which is 2.
      */
     SimpleNonlinearEllipticAssembler( AbstractMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                       AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
-                                      unsigned numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            BaseClassType(numQuadPoints)
-    {
-        // Store data structures
-        assert(pMesh!=NULL);
-        assert(pPde!=NULL);
-        assert(pBoundaryConditions!=NULL);
-
-        this->SetMesh(pMesh);
-        mpNonlinearEllipticPde = pPde;
-        this->SetBoundaryConditionsContainer(pBoundaryConditions);
-    }
+                                      unsigned numQuadPoints = 2);
 };
-
-
 
 
 #endif  // _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_

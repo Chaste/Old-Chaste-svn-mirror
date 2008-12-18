@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 
-#include "SimpleDg0ParabolicAssembler.hpp"
+#include "SimpleDg0ParabolicAssemblerImplementation.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "MonodomainPde.hpp"
 
