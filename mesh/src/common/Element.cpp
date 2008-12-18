@@ -143,7 +143,8 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
         rhs[j]=squared_location/2.0;
     }
 
-    c_vector <double, ELEMENT_DIM> centre=prod(rhs, this->mInverseJacobian);
+    c_vector <double, ELEMENT_DIM> centre;
+    centre = prod(rhs, this->mInverseJacobian);
     c_vector <double, ELEMENT_DIM+1> circum;
     double squared_radius=0.0;
     for (unsigned i=0; i<SPACE_DIM; i++)
