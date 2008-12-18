@@ -186,7 +186,8 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
             bool assembleResidual,
             bool assembleJacobian)
 {
-    const c_matrix<double, DIM, DIM>* p_inverse_jacobian = mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex());
+    c_matrix<double, DIM, DIM> inverse_jacobian;
+    mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
     double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
     if (assembleJacobian)
@@ -257,7 +258,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         //////////////////////////////////////
         LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
         QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
-        QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, *p_inverse_jacobian, grad_quad_phi);
+        QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
         
 
         ////////////////////////////////////////////////////

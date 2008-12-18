@@ -229,7 +229,8 @@ private:
         assert(mNextTime != DBL_MAX);
         assert(mOdeTimestep != DBL_MAX);
         
-        const c_matrix<double, DIM, DIM>* p_inverse_jacobian = this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex());
+        c_matrix<double, DIM, DIM> inverse_jacobian;
+        this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
         double jacobian_determinant = this->mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
         if (assembleJacobian)
@@ -312,7 +313,7 @@ private:
             //////////////////////////////////////
             LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
             QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
-            QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, *p_inverse_jacobian, grad_quad_phi);
+            QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
             
             ////////////////////////////////////////////////////
             // (dont get the body force)

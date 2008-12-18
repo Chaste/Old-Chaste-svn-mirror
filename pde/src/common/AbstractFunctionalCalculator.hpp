@@ -69,7 +69,8 @@ private:
         /// NOTE: This assumes that the Jacobian is constant on an element, ie
         /// no curvilinear bases were used for position
         /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method. 
-        const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = rElement.CalculateInverseJacobian();
+        c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
+        rElement.CalculateInverseJacobian(inverse_jacobian);
         double jacobian_determinant = rElement.CalculateJacobianDeterminant();
 
         const unsigned num_nodes = rElement.GetNumNodes();
@@ -82,7 +83,7 @@ private:
             c_vector<double, ELEMENT_DIM+1> phi;
             LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(quad_point, phi);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
-            LinearBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, grad_phi);
+            LinearBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
 
             // Location of the gauss point in the original element will be stored in x
             ChastePoint<SPACE_DIM> x(0,0,0);

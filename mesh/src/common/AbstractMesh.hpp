@@ -127,9 +127,9 @@ public:
     {
         return mElements[SolveElementMapping(elementIndex)]->CalculateJacobian();
     }
-    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobianForElement(unsigned elementIndex) const
+    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>& rInverseJacobian) const
     {
-        return mElements[SolveElementMapping(elementIndex)]->CalculateInverseJacobian();
+        mElements[SolveElementMapping(elementIndex)]->CalculateInverseJacobian(rInverseJacobian);
     }
     double GetJacobianDeterminantForElement(unsigned elementIndex) const
     {

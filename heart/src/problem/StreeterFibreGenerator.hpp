@@ -451,7 +451,9 @@ public:
             basis_functions(1,0) = basis_functions(2,1) = basis_functions(3,2) =  1.0;
 
             c_matrix<double, SPACE_DIM+1, SPACE_DIM> temp;
-            noalias(temp) = prod (basis_functions, *(mrMesh.GetInverseJacobianForElement(element_index)) );
+            c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
+            mrMesh.GetInverseJacobianForElement(element_index, inverse_jacobian);
+            noalias(temp) = prod (basis_functions, inverse_jacobian);
             noalias(grad_ave_wall_thickness) = prod(elem_nodes_ave_thickness, temp);
             
             grad_ave_wall_thickness /= norm_2(grad_ave_wall_thickness);

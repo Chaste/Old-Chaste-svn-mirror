@@ -72,13 +72,13 @@ private:
          * This is true for linear basis functions, but not for any other type of
          * basis function. <--- not true, as we don't have curvilinear elements!
          */
-        const c_matrix<double, DIM, DIM>* p_inverse_jacobian = NULL;
+        c_matrix<double, DIM, DIM> inverse_jacobian;
         double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
         // Initialise element contributions to zero
         if ( assembleMatrix )
         {
-            p_inverse_jacobian = mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex());
+            mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
         }
 
         if (assembleMatrix)
@@ -104,7 +104,7 @@ private:
 
             if ( assembleMatrix )
             {
-                QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, grad_phi);
+                QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
             }
 
             // Location of the gauss point in the original element will be stored in x

@@ -78,13 +78,17 @@ public:
     }
 
 ///////////////////////////////////
-    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *CalculateJacobian(void) const
+    void CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const
     {
-        return &mJacobian;
+        assert(ELEMENT_DIM==SPACE_DIM);
+        //return &mJacobian;
+        rJacobian = mJacobian;
     }
-    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *CalculateInverseJacobian(void) const
+    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
     {
-        return &mInverseJacobian;
+        assert(ELEMENT_DIM==SPACE_DIM);        
+        //return &mInverseJacobian;
+        rInverseJacobian = mInverseJacobian;
     }
     double CalculateJacobianDeterminant(void) const
     {

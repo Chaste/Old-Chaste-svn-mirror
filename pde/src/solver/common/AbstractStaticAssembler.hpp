@@ -163,13 +163,13 @@ protected:
          * This is true for linear basis functions, but not for any other type of
          * basis function.
          */
-        const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = NULL;
+        c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
         double jacobian_determinant = mpMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
 
         // Initialise element contributions to zero
         if ( assembleMatrix || this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
         {
-            p_inverse_jacobian = this->mpMesh->GetInverseJacobianForElement(rElement.GetIndex());
+            this->mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
         }
 
         if (assembleMatrix)
@@ -197,7 +197,7 @@ protected:
 
             if ( assembleMatrix || this->ProblemIsNonlinear() )
             {
-                BasisFunction::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, grad_phi);
+                BasisFunction::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
             }
 
             // Location of the gauss point in the original element will be stored in x
