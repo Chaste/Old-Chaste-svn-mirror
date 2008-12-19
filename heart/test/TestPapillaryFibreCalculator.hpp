@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
+#include "SimpleDataWriter.hpp"
+#include "UblasCustomFunctions.hpp"
 
 class TestPapillaryFibreCalculator : public CxxTest::TestSuite
 {
@@ -43,165 +45,75 @@ public:
 
     void TestPapillaryFibre(void) throw(Exception)
     {
-    
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cylinder_muscle");
+        std::cout<<"\n Hello, beginning! \n"<<std::flush;
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cylinder_14748_elem");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        //ifstream coordsfile;
         std::ifstream pap_facefile;
         //coordsfile.open("notforrelease/test/data/OxfordHeart_i_triangles/heartT_renum_i.pts");
-        pap_facefile.open("mesh/test/data/cylinder_muscle.surflist");
-        
+        //pap_facefile.open("mesh/test/data/cylinder_muscle.surflist");
+        std::cout<<"\n Hello! \n"<<std::flush;
         
         /////////////////////////////////////////////////////////////
         // Defines the numbers of nodes and face nodes
         /////////////////////////////////////////////////////////////
-        int num_nodes = mesh.GetNumNodes();
-        int num_elements = mesh.GetNumElements();
-        int num_pap_face = mesh.GetNumBoundaryNodes();
-        
-        
-        
-        // Defines coordinate list
-        double **coords;
-        coords = new double *[num_nodes];
-        for (int i=0;i<num_nodes;i++)
-        {
-            coords[i] = new double[3];
-        }   
-        // Defines list of all papillary face nodes
-        int *pap_face;
-        pap_face = new int [num_pap_face];
-        /////////////////////////////////////////////////////////////////
-        // Reads the centroids of the elements
-        /////////////////////////////////////////////////////////////////
-        std::ifstream centsfile("notforrelease/test/data/OxfordHeart_i_triangles/centroids.pts");
-        
-        // Defines the number of centroids (same as number of elements...)
-        int num_cents = 24217344;
-        // Defines scaling factors for coords file
-        double x_factor = 0.053/1000;
-        double y_factor = x_factor;
-        double z_factor = 0.049/1000;
-        
-        double **cents;
-        cents = new double *[num_cents];
-        for (int i=0;i<num_cents;i++)
-        {
-            cents[i] = new double[3];
-        }    
-        std::cout << "b"<<"\n";
-        
-        // Reads in cents file
-        for (int i=0;i<num_cents;i++)
-        {
-            double x,y,z;
-            centsfile >> x >> y >> z;
-            cents[i][0] = x*x_factor;
-            cents[i][1] = y*y_factor;
-            cents[i][2] = z*z_factor;
-        }
-        std::cout << cents[10][0] << " " << cents[10][2] << "\n ";
-        
-        // Reads-in list of only papillary elements
-        std::ifstream papselemsfile("notforrelease/test/data/OxfordHeart_i_triangles/paps_elems.dat");
-        int num_paps_elems = 1278265;
-        int *paps_elems;
-        paps_elems = new int [num_paps_elems];
-        
-        int pap_element;
-        for (int i=0;i<num_paps_elems;i++)
-        {
-            papselemsfile >> pap_element;
-            paps_elems[i] = pap_element;
-        }
-        std::cout << paps_elems[1278262] << "\n";
-        
-        
-        
-        // Reads in list of papillary nodes
-        int pap_face_value;
-        for (int i=0;i<num_pap_face;i++)
-        {
-            pap_facefile >> pap_face_value;
-            pap_face[i] = pap_face_value;
-        }
-        std::cout << pap_face[10] << "\n ";
-        
+        unsigned int num_elements = mesh.GetNumElements();
+   
         // Defines a list into which radial vectors are stored
-        double **gradients;
-        gradients = new double *[num_elements];
-        for (int i=0;i<num_elements;i++)
-        {
-            gradients[i] = new double[3];
-        }   
-        // Defines quantities used below
-        double x_c,y_c,z_c,x_f,y_f,z_f;
+        c_vector<double, 3> gradients;
+
         double nearest_r_squared,r_squared;
         int nearest_face_node = 0;
         
-        
         // Loops over all elements finding radius vector
-        //  for(int i=0;i<num_paps_elems;i++)
-        for (int i=0;i<10;i++)
+        TetrahedralMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        while (iter != mesh.GetElementIteratorEnd())
         {
-            // Sets the distance to be very big by default
-            nearest_r_squared = DBL_MAX;
-            c_vector<double,3> centroid;
-            for (unsigned j=0;j<3;j++)
-            {
-                centroid[j]=cents[paps_elems[i]][j];
-            }
+            c_vector<double, 3> centroid = (*iter)->CalculateCentroid();
             // Loops over all papillary face nodes
-            for (int j=0;j<num_pap_face;j++)
+            c_vector<double,3> coordinates;
+            
+            
+//            for (unsigned int j=0;j<num_pap_face;j++)
+            TetrahedralMesh<3,3>::BoundaryNodeIterator bound_node_iter = mesh.GetBoundaryNodeIteratorBegin();
+            while (bound_node_iter != mesh.GetBoundaryNodeIteratorEnd())
             {
-                // Defines the coordinates of the papillary face node
-                x_f = coords[pap_face[j]][0];
-                y_f = coords[pap_face[j]][1];
-                z_f = coords[pap_face[j]][2];
-                c_vector<double,3> coord;
-                for (unsigned k=0;k<3;k++)
-                {
-                    coord[k]=coords[pap_face[j]][k];
-                }
-                
+//                for (unsigned k=0;k<3;k++)
+//                {
+//                    //coord[k]=coords[pap_face[j]][k];
+//                    coordinates[k]=(mesh.GetNode(j)->rGetLocation()[k]);
+//                }
+                unsigned bound_node_index =  (*bound_node_iter)->GetIndex();           
+                coordinates=mesh.GetNode(bound_node_index)->rGetLocation();
+
+
                 // Calculates the distance between the papillary face node and the centroid
-                r_squared =  norm_2(centroid-coord);
-                
+                r_squared =  norm_2(centroid-coordinates);
                 // Checks to see if it is the smallest so far - if it is, update the current smallest distance
                 if (r_squared < nearest_r_squared)
                 {
                     nearest_r_squared = r_squared;
-                    nearest_face_node = j;
-                }
-                
+                    nearest_face_node = bound_node_index;
+                }   
             }
             // Once we have the papillary face node which is closest, use this to re-define its coordinates
-            x_f = coords[pap_face[nearest_face_node]][0];
-            y_f = coords[pap_face[nearest_face_node]][1];
-            z_f = coords[pap_face[nearest_face_node]][2];
-            
-            // Defines the radius vector to be r = r1 - r2
-            gradients[i][0] = x_c - x_f;
-            gradients[i][1] = y_c - y_f;
-            gradients[i][2] = z_c - z_f;
-            
-            
+//            for (unsigned k=0;k<3;k++)
+//            {
+//                coordinates[k]=(mesh.GetNode(nearest_face_node)->rGetLocation()[k]);
+//            }
+            coordinates = mesh.GetNode(nearest_face_node)->rGetLocation();
+            c_vector<double,3> gradients = coordinates-centroid;
         }
         
-        std::cout << "c"<<"\n";
+        std::cout << "After first nested loop" << std::endl;
         
-        // Writes-out the radius vector file
-        std::ofstream vectorfile("notforrelease/test/data/OxfordHeart_i_triangles/radius_vector.dat");
-        for (int i=0;i<num_elements;i++)
+        // Writes-out the radius vector file, we copy the c vector into an std vector to be used by SimpleDataWriter
+        std::vector<double> copy_for_writing(3);
+        for (unsigned int index=0;index<3;index++)
         {
-            vectorfile << gradients[i][0] << " " << gradients[i][1] << " " << gradients[i][2] << "\n";
-            
-        }
-        vectorfile.close();
-        
-        std::cout << "done! \n";
+            copy_for_writing[index]=gradients[index];
+        }  
+        SimpleDataWriter writer("Fibres", "radius_vector.dat",copy_for_writing, false);
         
         /////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////
@@ -210,109 +122,46 @@ public:
         // vector with the smallest eigen value corresponds to the axial direction
         // of the muslce
         //////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////
-        
-        
-        
+          
         // Defines entries in (unsmoothed) structure tensor component vectors, where each entry of [I11,I12,I13;I21,I22,I23;I31,I32,I33] is defined to be
         // g^T * g, where g = (g1,g2,g3) is the x,y,z components of the radius vector at that element.
-
-        std::vector< c_matrix<double,3,3> > tensorI(num_paps_elems, zero_matrix<double>(3,3));
-        std::vector< c_matrix<double,3,3> > tensorS(num_paps_elems, zero_matrix<double>(3,3));
-        // c_matrix<double,3,3> computed(zero_matrix<double>(3,3));
-
-        // Initialises structure tensor component vectors
-
-//     for(int k=0;k<3;k++)
-//     {
-//        for(int j=0;j<3;j++)
-//        {
-//         computed(j,k)=0;
-//        }
-//     }
-
-//     for(int i=0;i<num_paps_elems;i++)
-//     {
-//        tensorI[i]=computed;
-//        tensorS[i]=computed;
-//     }
-        //TS_ASSERT_EQUALS(tensorI[1](0,0), 24217344U);
-        
-        
+        std::vector< c_matrix<double,3,3> > tensorI(num_elements, zero_matrix<double>(3,3));
+        std::vector< c_matrix<double,3,3> > tensorS(num_elements, zero_matrix<double>(3,3));
         
         // Assigns entries in (unsmoothed) structure tensor component vectors, where each entry of [I11,I12,I13;I21,I22,I23;I31,I32,I33] is defined to be
         // g^T * g, where g = (g1,g2,g3) is the x,y,z components of the radius vector at that element.
-        int n,m;
-        
-        for (int i=0;i<10;i++)
-        {
-            n = paps_elems[i];
-            
+       // int n,m;     
+        for (unsigned int i=0;i<num_elements;i++)
+        {       
             c_vector<double, 3> gradient;
             for (unsigned j=0;j<3;j++)
             {
-                gradient[j]=gradients[n][j];
+                gradient[j]=gradients[3*i+j];
             }
-            
-//      c_matrix <double, 3, 3> tensor = outer_prod(gradient, gradient);
-
-//      for(int k=0;k<3;k++)
-//      {
-//        for(int j=0;j<3;j++)
-//        {
-//            tensorI[i](j,k) = tensor(j,k);
-//        }
-//      }
             tensorI[i] = outer_prod(gradient, gradient);
-            
-            
-//      TS_ASSERT_DELTA(I11[i], tensor(0,0), 1e-16);
-
-        }
-        
-//   assert(0);
-        std::cout << "d"<<"\n";
-        
+        }   
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Smoothes the structure tensor components for each papillary elements by looping over all other papillary elements, calculating
         // distance geometric distance between the two elements; if it is within a certain limit, include this in the Gaussian kernel
         ////////////////////////////////////////////////////////////////////////////////////////////
-        double x_p,y_p,z_p,r_max;
         double g_factor = 0;
         double sigma = 0.5;
         double g_factor_sum = 0;
-        r_max = 1.0;
-        
-        
-        
-        for (int i=0;i<10;i++)
+        double r_max = 1.0;
+   
+        TetrahedralMesh<3,3>::ElementIterator elem_iter = mesh.GetElementIteratorBegin();
+        while (elem_iter != mesh.GetElementIteratorEnd())
         {
-        
-            if (i == 100 || i == 1000 || i == 10000 || i == 100000 || i == 500000 || i == 800000 || i == 1000000)
-            {
-                std::cout << i << "\n";
-            }    
+            c_vector<double, 3> centroid = (*iter)->CalculateCentroid();  
             g_factor_sum = 0;
-            
-            n = paps_elems[i];
-            
-            x_p = cents[n][0];
-            y_p = cents[n][1];
-            z_p = cents[n][2];
-            
-            for (int j=0;j<num_paps_elems;j++)
+            TetrahedralMesh<3,3>::ElementIterator iter_2 = mesh.GetElementIteratorBegin();
+            while (iter_2 != mesh.GetElementIteratorEnd())
             {
-                m = paps_elems[j];
-                
-                x_c = cents[m][0];
-                y_c = cents[m][1];
-                z_c = cents[m][2];
-                
-                double r = sqrt((x_p - x_c)*(x_p - x_c) + (y_p - y_c)*(y_p - y_c) + (z_p - z_c)*(z_p - z_c) );
-                
+            c_vector<double, 3> centroid_2 = (*iter_2)->CalculateCentroid();
+            double r = norm_2(centroid-centroid_2);             
                 if (r < r_max)
                 {
-                    g_factor = exp(-( (x_c - x_p)*(x_c - x_p) + (y_c - y_p)*(y_c - y_p) + (z_c - z_p)*(z_c - z_p) )/(2*sigma*sigma));
+                    g_factor = exp(-r/(2*sigma*sigma));
                     
                     g_factor_sum = g_factor + g_factor_sum;
                     
@@ -320,29 +169,25 @@ public:
                     {
                         for (int k=0;k<3;k++)
                         {
-                            tensorS[i](k,l) = tensorS[i](k,l) + g_factor*tensorI[j](k,l);
+                            tensorS[ (*iter)->GetIndex()](k,l) = tensorS[ (*iter)->GetIndex()](k,l) + g_factor*tensorI[ (*iter_2)->GetIndex()](k,l);
                         }
-                    }
-                    
-                    
+                    }     
                 }
-            }
-            
-            for (int l=0;l<3;l++)
+        }         
+        for (unsigned int l=0;l<3;l++)
+        {
+            for (unsigned int k=0;k<3;k++)
             {
-                for (int k=0;k<3;k++)
-                {
-                    tensorS[i](k,l) = tensorS[i](k,l)/g_factor_sum;
-                }
+                tensorS[ (*iter)->GetIndex()](k,l) = tensorS[ (*iter)->GetIndex()](k,l)/g_factor_sum;
             }
-            
-        }
-        
-        
-        pap_facefile.close();
-        
-        
-    }
+        } 
+        //calculate Eigenvector for smalles eigen value
+        c_vector<double, 3> eigenvector;
+        c_matrix<double, 3, 3> A;
+        A= tensorS[ (*iter)->GetIndex()];   
+        eigenvector = CalculateEigenvectorForSmallestEigenvalue(A);        
+        }      
+    }/*end of the test*/
 };
 
 #endif /*TESTPAPILLARYFIBRECALCULATOR_HPP_*/
