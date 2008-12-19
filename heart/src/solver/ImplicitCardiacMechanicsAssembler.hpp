@@ -213,7 +213,7 @@ private:
 
     /**
      *  Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and 
-     *  the lack of the body force term in the residual, the bits were this is
+     *  the lack of the body force term in the residual, the bits where this is
      *  different to the base class AssembleOnElement are restricted to two bits
      *  (see code): calculating Ta implicitly and using it to compute the stress,
      *  and the addition of a corresponding extra term to the Jacobian

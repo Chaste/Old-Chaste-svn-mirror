@@ -30,11 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _MONODOMAINDG0ASSEMBLER_HPP_
 #define _MONODOMAINDG0ASSEMBLER_HPP_
 
-#include <vector>
 #include <petscvec.h>
 
-#include "SimpleDg0ParabolicAssemblerImplementation.hpp"
-#include "GaussianQuadratureRule.hpp"
+#include "SimpleDg0ParabolicAssembler.hpp"
 #include "MonodomainPde.hpp"
 
 
@@ -89,49 +87,19 @@ protected:
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-    {
-        return  rPhi * (mSourceTerm + this->mDtInverse *
-                        mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * u(0));
-    }
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
 
-    void ResetInterpolatedQuantities( void )
-    {
-        mSourceTerm=0;
-    }
+    void ResetInterpolatedQuantities( void );
 
 
-    void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
-    {
-        mSourceTerm += phi_i * mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionOrGuessReplicated[ pNode->GetIndex() ] );
-    }
+    void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode);
 
 
-    virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime)
-    {
-        mpMonodomainPde->SolveCellSystems(currentSolution, currentTime, currentTime+this->mDt);
-    }
+    virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime);
 
     
-    void InitialiseForSolve(Vec initialSolution)
-    {
-        if (this->mpLinearSystem != NULL)
-        {
-            return;
-        }
-        BaseClassType::InitialiseForSolve(initialSolution);
-        if(HeartConfig::Instance()->GetUseAbsoluteTolerance())
-        {
-            this->mpLinearSystem->SetAbsoluteTolerance(HeartConfig::Instance()->GetAbsoluteTolerance());
-        }
-        else
-        {
-            this->mpLinearSystem->SetRelativeTolerance(HeartConfig::Instance()->GetRelativeTolerance());
-        }
-        this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
-        this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());        
-     }
+    void InitialiseForSolve(Vec initialSolution);
 
 
 public:
@@ -141,22 +109,9 @@ public:
     MonodomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            MonodomainPde<SPACE_DIM>* pPde,
                            BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
-                           unsigned numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            BaseClassType(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
-    {
-        mpMonodomainPde = pPde;
+                           unsigned numQuadPoints = 2);
 
-        this->mpBoundaryConditions = pBcc;
-
-        this->SetMesh(pMesh);
-
-        this->SetMatrixIsConstant();
-    }
-
-    ~MonodomainDg0Assembler()
-    {
-    }
+    ~MonodomainDg0Assembler();
 };
 
 /**

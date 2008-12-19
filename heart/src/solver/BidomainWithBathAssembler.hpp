@@ -29,9 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINWITHBATHASSEMBLER_HPP_
 #define BIDOMAINWITHBATHASSEMBLER_HPP_
 
-#include <vector>
-#include <petscvec.h>
-
 #include "BidomainDg0Assembler.hpp"
 
 
@@ -57,46 +54,7 @@ public:
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,2> &u,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-    {
-        if(pElement->GetRegion()==0) // ie if a tissue element
-        {
-            return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
-        }
-        else // bath element
-        {
-///\todo: the conductivity here is hardcoded to be 7!   also see hardcoded value in TS_ASSERT in Test1dProblemOnlyBathGroundedOneSide         
-            const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = 7.0*identity_matrix<double>(SPACE_DIM);
-
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
-            c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_b_grad_phi =
-                prod(trans(rGradPhi), temp);
-
-            c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ret = zero_matrix<double>(2*(ELEMENT_DIM+1));
-
-            // even rows, even columns
-            //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-            //slice00(ret, slice (0, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
-            //slice00 = 0;
-    
-            // odd rows, even columns
-            //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-            //slice10(ret, slice (1, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
-            //slice10 = 0
-    
-            // even rows, odd columns
-            //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-            //slice01(ret, slice (0, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
-            //slice01 = 0;
-    
-            // odd rows, odd columns
-            matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-            slice11(ret, slice (1, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
-            slice11 = grad_phi_sigma_b_grad_phi;
-    
-            return ret;
-        }
-    }
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
 
     virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
@@ -105,26 +63,7 @@ public:
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,2> &u,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-    {
-        if(pElement->GetRegion()==0) // ie if a tissue element
-        {
-            return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
-        }
-        else // bath element
-        {
-            c_vector<double,2*(ELEMENT_DIM+1)> ret = zero_vector<double>(2*(ELEMENT_DIM+1));
-    
-            vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
-            vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
-    
-            // u(0) = voltage
-           // noalias(slice_V)   =  0; 
-            noalias(slice_Phi) =  -this->mIExtracellularStimulus * rPhi;
-    
-            return ret;
-        }
-    }
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      *  This alters the linear system so that all rows and columns corresponding to 
@@ -132,35 +71,7 @@ public:
      *  corresponding rhs vector entry is also set to 0, so the equation for the
      *  bath node voltage is 1*V = 0.
      */
-    void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix)
-    {
-        for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-        {
-            if(this->mpMesh->GetNode(i)->GetRegion()==1) // ie is a bath node
-            {
-                PetscInt index[1];
-                index[0] = 2*i;
-
-                if(assembleMatrix)
-                {
-                    // zero the row corresponding to V for this bath node
-                    (*(this->GetLinearSystem()))->ZeroMatrixRow(2*i);
-                    // zero the column corresponding to V for this bath node.
-                    (*(this->GetLinearSystem()))->ZeroMatrixColumn(2*i);
-
-                    // put 1.0 on the diagonal
-                    Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
-                    MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
-                }
-                
-                if(assembleVector)
-                {
-                    // zero rhs vector entry
-                    VecSetValue((*(this->GetLinearSystem()))->rGetRhsVector(), index[0], 0.0, INSERT_VALUES);
-                }
-            }
-        }
-    }
+    void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix);
 
 public:
     /**
@@ -169,41 +80,7 @@ public:
     BidomainWithBathAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                               BidomainPde<SPACE_DIM>* pPde,
                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
-                              unsigned numQuadPoints = 2) :
-            BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
-    {        
-        // Initialize all nodes to be bath nodes
-        for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-        {
-            this->mpMesh->GetNode(i)->SetRegion(BATH);
-        }
-        
-        bool any_bath_element_found = false;
-        
-        // Set nodes that are part of a heart element to be heart nodes
-        for (unsigned i=0; i<this->mpMesh->GetNumElements(); i++)
-        {
-            Element<ELEMENT_DIM, SPACE_DIM>& r_element = *(this->mpMesh->GetElement(i));
-            
-            if (r_element.GetRegion() == CARDIAC_TISSUE)
-            {
-                for (unsigned j=0; j<r_element.GetNumNodes(); j++)
-                {
-                    r_element.GetNode(j)->SetRegion(CARDIAC_TISSUE);
-                }
-            }
-            else
-            {
-                assert(r_element.GetRegion()==BATH);
-                any_bath_element_found = true;
-            }
-        }
-        
-        if (!any_bath_element_found)
-        {
-            EXCEPTION("No bath element found");
-        }
-    }
+                              unsigned numQuadPoints = 2);
 };
 
 #endif /*BIDOMAINWITHBATHASSEMBLER_HPP_*/

@@ -32,13 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _BIDOMAINMATRIXBASEDASSEMBLER_HPP_
 #define _BIDOMAINMATRIXBASEDASSEMBLER_HPP_
 
-
-#include <vector>
-#include <petscvec.h>
-
 #include "BidomainDg0Assembler.hpp"
-
-
 
 /**
  *  BidomainRhsMatrixAssembler
@@ -76,28 +70,7 @@ public:
         ChastePoint<DIM> &rX,
         c_vector<double,2> &u,
         c_matrix<double,2,DIM> &rGradU /* not used */,
-        Element<DIM,DIM>* pElement)
-    {
-        c_matrix<double, DIM+1, DIM+1> basis_outer_prod =
-            outer_prod(rPhi, rPhi);
-
-        c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1),2*(DIM+1));
-
-        // even rows, even columns
-        matrix_slice<c_matrix<double, 2*DIM+2, 2*DIM+2> >
-        slice00(ret, slice (0, 2, DIM+1), slice (0, 2, DIM+1));
-        slice00 =  basis_outer_prod;
-
-        // odd rows, even columns: are zero
-        // even rows, odd columns: are zero
-
-        // odd rows, odd columns
-        matrix_slice<c_matrix<double, 2*DIM+2, 2*DIM+2> >
-        slice11(ret, slice (1, 2, DIM+1), slice (1, 2, DIM+1));
-        slice11 = basis_outer_prod;
-
-        return ret;
-    }
+        Element<DIM,DIM>* pElement);
 
     /**
      *  The term to be added to the element stiffness vector - except this class
@@ -109,16 +82,7 @@ public:
         ChastePoint<DIM> &rX,
         c_vector<double,2> &u,
         c_matrix<double, 2, DIM> &rGradU /* not used */,
-        Element<DIM,DIM>* pElement)
-
-    {
-        #define COVERAGE_IGNORE
-        NEVER_REACHED;
-        return zero_vector<double>(2*(DIM+1));
-        #undef COVERAGE_IGNORE
-    }
-
-
+        Element<DIM,DIM>* pElement);
 
     /**
      *  The term arising from boundary conditions to be added to the element
@@ -128,51 +92,35 @@ public:
     virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
         c_vector<double, DIM> &rPhi,
-        ChastePoint<DIM> &rX )
-    {
-        #define COVERAGE_IGNORE
-        NEVER_REACHED;
-        return zero_vector<double>(2*DIM);
-        #undef COVERAGE_IGNORE
-    }
-
+        ChastePoint<DIM> &rX );
 
 public:
     /**
      * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
      */
-    BidomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh)
-        :  AbstractLinearAssembler<DIM,DIM,2,false,BidomainRhsMatrixAssembler<DIM> >()
-    {
-        this->mpMesh = pMesh;
-    
-        // this needs to be set up, though no boundary condition values are used in the matrix
-        this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,2>;
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
+    BidomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
 
-        //DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes()); WOULD BE WRONG -- we need the maintain an uneven distribution, if given
-        Vec template_vec = DistributedVector::CreateVec(2);
-        this->mpLinearSystem = new LinearSystem(template_vec);
-        VecDestroy(template_vec);
-
-
-        this->AssembleSystem(false,true);
-    }
-
-    ~BidomainRhsMatrixAssembler()
-    {
-        delete this->mpBoundaryConditions;
-    }
+    ~BidomainRhsMatrixAssembler();
     
     /** 
      *  Allow access to the matrix
      */
-    Mat* GetMatrix()
-    {
-        return &(this->mpLinearSystem->rGetLhsMatrix());
-    }
+    Mat* GetMatrix();
 };
 
+
+/**
+ * Specialization of AssemblerTraits for the BidomainRhsMatrixAssembler.
+ *
+ * Only ComputeMatrixTerm should ever actually be called.
+ */
+template<unsigned DIM>
+struct AssemblerTraits<BidomainRhsMatrixAssembler<DIM> >
+{
+    typedef BidomainRhsMatrixAssembler<DIM> CVT_CLS;
+    typedef BidomainRhsMatrixAssembler<DIM> CMT_CLS;
+    typedef AbstractAssembler<DIM, DIM, 2> INTERPOLATE_CLS;
+};
 
 
 
@@ -210,67 +158,16 @@ public:
     BidomainMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                  BidomainPde<SPACE_DIM>* pPde,
                                  BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
-                                 unsigned numQuadPoints = 2) :
-            BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
-    {
-        // construct matrix using the helper class
-        mpBidomainRhsMatrixAssembler = new BidomainRhsMatrixAssembler<SPACE_DIM>(pMesh);
-        this->mpMatrixForMatrixBasedRhsAssembly = mpBidomainRhsMatrixAssembler->GetMatrix();
+                                 unsigned numQuadPoints = 2);
 
-        // set variables on parent class so that we do matrix-based assembly, and allocate
-        // memory for the vector 'z'
-        this->mUseMatrixBasedRhsAssembly = true;
-        this->mVectorForMatrixBasedRhsAssembly = DistributedVector::CreateVec(2);
-
-        // Tell pde there's no need to replicate ionic caches
-        pPde->SetCacheReplication(false);
-        
-    }
-
-    ~BidomainMatrixBasedAssembler()
-    {
-        delete mpBidomainRhsMatrixAssembler;
-        VecDestroy(this->mVectorForMatrixBasedRhsAssembly);
-    }
+    ~BidomainMatrixBasedAssembler();
     
 
     /**
      *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class 
      *  documentation.
      */
-    void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
-    {
-        
-        // dist stripe for the current Voltage
-        DistributedVector distributed_current_solution(currentSolution);
-        DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0); 
-             
-        // dist stripe for z
-        DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);     
-        DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
-        DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
-
-        double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
-        double Cm  = HeartConfig::Instance()->GetCapacitance();
-        
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
-             ++index)
-        {
-            double V = distributed_current_solution_vm[index];
-            double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
-                       - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global]; 
-            double G = - this->mpBidomainPde->rGetExtracellularStimulusCacheReplicated()[index.Global]; 
-            
-            dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
-            dist_vec_matrix_based_phie[index] = G; 
-        }
-
-        dist_vec_matrix_based.Restore();
-        
-        VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
-        VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly); 
-    }
+    void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
 };
 
 /**

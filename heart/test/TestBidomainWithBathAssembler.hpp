@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainWithBathAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "ConstBoundaryCondition.hpp"
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 
