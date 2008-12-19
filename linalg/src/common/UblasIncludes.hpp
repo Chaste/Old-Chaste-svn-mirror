@@ -25,36 +25,16 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef UBLASINCLUDES_HPP_
+#define UBLASINCLUDES_HPP_
 
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 
-#ifndef STIMULUSBOUNDARYCONDITION_HPP_
-#define STIMULUSBOUNDARYCONDITION_HPP_
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/numeric/ublas/matrix_expression.hpp>
+#include <boost/numeric/ublas/io.hpp>
 
-#include "AbstractBoundaryCondition.hpp"
-#include "AbstractStimulusFunction.hpp"
+using namespace boost::numeric::ublas;
 
-/**
- * Boundary condition defined by an AbstractStimlus object.
- */
-template<unsigned SPACE_DIM>
-class StimulusBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
-{
-private:
-    AbstractStimulusFunction* mpStimulus;
-
-public:
-    /**
-     * Create a new boundary condition object.
-     *
-     * @param pStimulus Stimulus object defining the parameters of the boundary condition
-     */
-    StimulusBoundaryCondition(AbstractStimulusFunction* pStimulus);
-
-    /**
-     * @param x The point at which this boundary condition is to be evaluated.
-     * @return The constant value given in the constructor.
-     */
-    double GetValue( const ChastePoint<SPACE_DIM>& ) const;
-};
-
-#endif /*STIMULUSBOUNDARYCONDITION_HPP_*/
+#endif /*UBLASINCLUDES_HPP_*/

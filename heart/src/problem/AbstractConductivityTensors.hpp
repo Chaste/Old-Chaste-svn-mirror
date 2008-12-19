@@ -28,6 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCONDUCTIVITYTENSORS_HPP_
 #define ABSTRACTCONDUCTIVITYTENSORS_HPP_
 
+#include <vector>
+#include <string>
+#include <fstream>
+#include "UblasIncludes.hpp"
+#include "Exception.hpp"
+
 template<unsigned SPACE_DIM>
 class AbstractConductivityTensors
 {
@@ -52,99 +58,26 @@ protected:
     std::ifstream mDataFile;
 
 
-    void OpenFibreOrientationFile()
-    {
-        mDataFile.open(mFibreOrientationFilename.c_str());
-        if (!mDataFile.is_open())
-        {
-            EXCEPTION("Wrong fibre orientation file name.");
-        }
-    }
+    void OpenFibreOrientationFile();
 
-    void CloseFibreOrientationFile()
-    {
-        mDataFile.close();
-    }
+    void CloseFibreOrientationFile();
 
-    unsigned GetTokensAtNextLine(std::vector<double>& tokens)
-    {
-        std::string line;
+    unsigned GetTokensAtNextLine(std::vector<double>& tokens);
 
-        bool comment_line;
-        bool blank_line;
-
-        do
-        {
-            getline(mDataFile, line);
-
-            if (mDataFile.eof())
-            {
-                CloseFibreOrientationFile();
-                EXCEPTION("Fibre orientation file contains less fibre definitions than the number of elements in the mesh");
-            }
-
-            comment_line = (line.find('#',0) != std::string::npos);
-            blank_line = (line.find_first_not_of(" \t",0) == std::string::npos);
-        }
-        while(comment_line || blank_line);
-
-
-        std::stringstream line_stream(line);
-
-        // Read all the numbers from the line
-        while (!line_stream.eof())
-        {
-            double item;
-            line_stream >> item;
-            tokens.push_back(item);
-        }
-
-        return tokens.size();
-    }
-
-    unsigned GetNumElementsFromFile()
-    {
-        std::vector<double> tokens;
-
-        if (GetTokensAtNextLine(tokens) != 1)
-        {
-            CloseFibreOrientationFile();
-            EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of elements of the mesh (and nothing else)");
-        }
-
-        return (unsigned) tokens[0];
-    }
+    unsigned GetNumElementsFromFile();
 
 public:
 
-    AbstractConductivityTensors()
-        : mNumElements(1),
-          mUseNonConstantConductivities(false),
-          mUseFibreOrientation(false),
-          mInitialised(false)
-    {
-        double init_data[]={DBL_MAX, DBL_MAX, DBL_MAX};
+    AbstractConductivityTensors();
 
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-             mConstantConductivities[dim] = init_data[dim];
-        }
-    }
-
-    virtual ~AbstractConductivityTensors()
-    {
-    }
+    virtual ~AbstractConductivityTensors();
 
     /**
      *  Sets a file for reading the fibre orientation from.
      *
      *  @param rFibreOrientationFilename Relative path to the file defining the fibre orientation
      */
-    void SetFibreOrientationFile(const std::string &rFibreOrientationFilename)
-    {
-        mUseFibreOrientation = true;
-        mFibreOrientationFilename = rFibreOrientationFilename;
-    }
+    void SetFibreOrientationFile(const std::string &rFibreOrientationFilename);
 
     /**
      *  Sets constant conductivities for all the elements of the mesh.
@@ -153,40 +86,13 @@ public:
      *  @param constTransConduc Transverse conductivity (y axis)
      *  @param constNormalConduc Normal conductivity (z axis)
      *
-     *  Explain problem with c_vector and SPACE_DIM
+     *  \todo Explain problem with c_vector and SPACE_DIM
      */
-    void SetConstantConductivities(c_vector<double, 1> constantConductivities)
-    {
-        if (SPACE_DIM != 1)
-        {
-            EXCEPTION("Wrong number of conductivities provided");
-        }
+    void SetConstantConductivities(c_vector<double, 1> constantConductivities);
 
-        mUseNonConstantConductivities = false;
-        mConstantConductivities = constantConductivities;
-    }
+    void SetConstantConductivities(c_vector<double, 2> constantConductivities);
 
-    void SetConstantConductivities(c_vector<double, 2> constantConductivities)
-    {
-        if (SPACE_DIM != 2)
-        {
-            EXCEPTION("Wrong number of conductivities provided");
-        }
-
-        mUseNonConstantConductivities = false;
-        mConstantConductivities = constantConductivities;
-    }
-
-    virtual void SetConstantConductivities(c_vector<double, 3> constantConductivities)
-    {
-        if (SPACE_DIM != 3)
-        {
-            EXCEPTION("Wrong number of conductivities provided");
-        }
-
-        mUseNonConstantConductivities = false;
-        mConstantConductivities = constantConductivities;
-    }
+    virtual void SetConstantConductivities(c_vector<double, 3> constantConductivities);
 
 
     /**
@@ -196,11 +102,7 @@ public:
      *  @param rTransverseConductivities Vector containing transverse conductivities of the elements (y axis)
      *  @param rNormalConductivities Vector containing normal conductivities of the elements (z axis)
      */
-    void SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities)
-    {
-        mUseNonConstantConductivities = true;
-        mpNonConstantConductivities = pNonConstantConductivities;
-    }
+    void SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities);
 
     /**
      *  Computes the tensors based in all the info set
@@ -212,21 +114,9 @@ public:
      *
      *  @param index Index of the element of the mesh
      */
-    c_matrix<double,SPACE_DIM,SPACE_DIM>& operator[](const unsigned index)
-    {
-        assert(mInitialised);
-
-        if (!mUseNonConstantConductivities && !mUseFibreOrientation)
-        {
-            return mTensors[0];
-        }
-        else
-        {
-            assert(index < mNumElements);
-            return mTensors[index];
-        }
-    }
-
+    c_matrix<double,SPACE_DIM,SPACE_DIM>& operator[](const unsigned index);
 };
+
+
 
 #endif /*ABSTRACTCONDUCTIVITYTENSORS_HPP_*/

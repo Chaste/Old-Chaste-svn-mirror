@@ -32,9 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCell.hpp"
 #include "AbstractMesh.hpp"
-#include "ZeroStimulus.hpp"
-#include "SimpleStimulus.hpp"
+#include "AbstractIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
+#include "ZeroStimulus.hpp"
 
 /**
  * Class which returns cardiac cells.
@@ -62,36 +62,17 @@ protected:
 
 public:
     virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned)=0;
-    virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
-    {}
+    virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed,
+                                      unsigned lo, unsigned hi);
 
-    virtual unsigned GetNumberOfCells()
-    {
-        assert(mpMesh != NULL);
-        return mpMesh->GetNumNodes();
-    }
+    virtual unsigned GetNumberOfCells();
 
-    AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver)
-    {
-        mpMesh = NULL;
-        mpSolver = pSolver;
-        mpZeroStimulus = new ZeroStimulus;
-    }
-    virtual ~AbstractCardiacCellFactory()
-    {
-        delete mpSolver;
-        delete mpZeroStimulus;
-    }
-    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh)
-    {
-        mpMesh = pMesh;
-    }
+    AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver);
+    virtual ~AbstractCardiacCellFactory();
+    
+    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
-    AbstractMesh<SPACE_DIM,SPACE_DIM>* GetMesh()
-    {
-        assert(mpMesh != NULL);
-        return mpMesh;
-    }
+    AbstractMesh<SPACE_DIM,SPACE_DIM>* GetMesh();
 };
 
 #endif /*ABSTRACTCARDIACCELLFACTORY_HPP_*/

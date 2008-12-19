@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTSTIMULUSFUNCTION_HPP_
 #define _ABSTRACTSTIMULUSFUNCTION_HPP_
 
-#include <float.h>
+#include <cfloat>
 
 /**
  * Represents an abstract stimulus function. Sub-classes will implement the

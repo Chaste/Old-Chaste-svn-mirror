@@ -43,11 +43,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define LAPACKgeev_ LAgeev_
 #endif
 
-#include <iostream>
-#include <fstream>
-#include <vector>
+//#include <iostream>
+//#include <fstream>
+//#include <vector>
 
-#include <float.h>
+#include <cfloat>
 #define TINY DBL_EPSILON
 
 #include "Exception.hpp"

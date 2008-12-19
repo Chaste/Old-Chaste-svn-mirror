@@ -39,18 +39,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ZeroStimulus : public AbstractStimulusFunction
 {
 public:
-    ZeroStimulus()
-    {
-    }
+    ZeroStimulus();
 
-    virtual ~ZeroStimulus()
-    {
-    }
+    virtual ~ZeroStimulus();
 
-    double GetStimulus(double time)
-    {
-        return 0.0;
-    }
+    double GetStimulus(double time);
 };
 
 

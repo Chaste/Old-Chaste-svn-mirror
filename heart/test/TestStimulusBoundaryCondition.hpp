@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "StimulusBoundaryCondition.hpp"
 #include "SimpleStimulus.hpp"
+#include "PdeSimulationTime.hpp"
 
 class TestStimulusBoundaryCondition : public CxxTest::TestSuite
 {
