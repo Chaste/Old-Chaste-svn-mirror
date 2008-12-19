@@ -30,10 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTBIDOMAINPARALLELMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
-#include <vector>
-
-#include "PetscSetupAndFinalize.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
 #include "DistributedVector.hpp"

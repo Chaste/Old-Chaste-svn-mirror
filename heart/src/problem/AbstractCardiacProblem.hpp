@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <vector>
-#include <petscvec.h>
 
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacPde.hpp"

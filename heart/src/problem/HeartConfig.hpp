@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef HEARTCONFIG_HPP_
 #define HEARTCONFIG_HPP_
 
+#include "UblasCustomFunctions.hpp"
 #include "ChasteParameters.hpp"
 #include <iostream>
-#include "UblasCustomFunctions.hpp"
 #include "Exception.hpp"
 #include <vector>
 #include "AbstractStimulusFunction.hpp"

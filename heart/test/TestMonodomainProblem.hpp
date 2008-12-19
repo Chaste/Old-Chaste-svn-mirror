@@ -32,9 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
 #include <vector>
-#include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -44,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>

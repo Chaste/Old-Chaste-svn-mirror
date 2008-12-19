@@ -29,14 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_
 #define ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_
 
-#include <petsc.h>
 #include <vector>
 #include <cmath>
-#include "PetscTools.hpp"
 #include "LinearSystem.hpp"
 #include "AbstractIncompressibleMaterialLaw.hpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
+#include "PetscTools.hpp"
 
 //#define ___USE_DEALII_LINEAR_SYSTEM___
 

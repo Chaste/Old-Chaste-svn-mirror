@@ -28,8 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 #define _TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 
-#include <vector>
-#include <petscvec.h>
 
 #include "TetrahedralMesh.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"

@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define BIDOMAINPROBLEM_HPP_
 
 #include <vector>
-#include <petscvec.h>
 
 #include "AbstractCardiacProblem.hpp"
 #include "AbstractCardiacPde.hpp"

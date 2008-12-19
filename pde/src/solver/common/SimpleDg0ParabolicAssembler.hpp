@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _SIMPLEDG0PARABOLICASSEMBLER_HPP_
 
 #include <vector>
-#include <petscvec.h>
 
 #include "UblasCustomFunctions.hpp"
 #include "AbstractMesh.hpp"

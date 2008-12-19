@@ -28,11 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 #define _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 
-
-#include <vector>
-#include <petscvec.h>
-#include <petscmat.h>
-
 #include "AbstractNonlinearAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"

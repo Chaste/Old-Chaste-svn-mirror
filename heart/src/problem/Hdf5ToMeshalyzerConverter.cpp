@@ -26,14 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "Hdf5ToMeshalyzerConverter.hpp"
 
 #include <vector>
-#include <petscvec.h>
 
-#include "Hdf5DataReader.hpp"
-#include "PetscTools.hpp"
+#include "UblasCustomFunctions.hpp"
 #include "HeartConfig.hpp"
+#include "Hdf5ToMeshalyzerConverter.hpp"
+#include "PetscTools.hpp"
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 #include "ReplicatableVector.hpp"

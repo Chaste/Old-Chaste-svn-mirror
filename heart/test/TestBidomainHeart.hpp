@@ -31,10 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTBIDOMAINHEART_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
 #include <vector>
 
-#include "PetscSetupAndFinalize.hpp"
 
 #include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -43,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 
 

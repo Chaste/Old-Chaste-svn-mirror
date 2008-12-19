@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <vector>
-#include <petscvec.h>
 
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "TetrahedralMesh.hpp"

@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCARDIACPDE_HPP_
 
 #include <vector>
-#include <petscvec.h>
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include "AbstractCardiacCell.hpp"

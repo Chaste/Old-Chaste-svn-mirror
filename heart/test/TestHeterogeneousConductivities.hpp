@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 
-#include "PetscSetupAndFinalize.hpp"
 #include "BidomainProblem.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -44,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 using std::ofstream;
 

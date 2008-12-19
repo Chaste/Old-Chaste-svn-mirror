@@ -30,8 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _CHASTEPOINT_HPP_
 #define _CHASTEPOINT_HPP_
 
-
-#include <boost/numeric/ublas/vector.hpp>
+#include "UblasIncludes.hpp"
 #include <cassert>
 #include <vector>
 #include "Exception.hpp"

@@ -5,11 +5,11 @@ TestFace.hpp
 TestInventorVoronoiWriter.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
+TestMutableMesh.hpp
 TestNode.hpp
 TestParallelTetrahedralMesh.hpp
 TestPoint.hpp
 TestQuadraticMesh.hpp
-TestRefinableMesh.hpp
 TestRemesh.hpp
 TestTetrahedralMesh.hpp
 TestTransformations.hpp

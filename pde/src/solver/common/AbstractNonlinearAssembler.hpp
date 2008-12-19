@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * for a nonlinear elliptic PDE.
  */
 
-#include <petscsnes.h>
-#include <petscvec.h>
 #include <vector>
 
 #include "AbstractStaticAssembler.hpp"

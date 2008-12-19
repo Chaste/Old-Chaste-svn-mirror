@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _MONODOMAINMATRIXBASEDASSEMBLER_HPP_
 #define _MONODOMAINMATRIXBASEDASSEMBLER_HPP_
 
-#include <petscmat.h>
 
 #include "MonodomainDg0Assembler.hpp"
 #include "AbstractLinearAssembler.hpp"

@@ -31,13 +31,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTBIDOMAINWITHBATHASSEMBLERLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
 #include <vector>
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "BidomainWithBathAssembler.hpp"
 #include "TetrahedralMesh.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 template<unsigned DIM>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>

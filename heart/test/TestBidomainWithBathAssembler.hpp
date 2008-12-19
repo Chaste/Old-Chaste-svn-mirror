@@ -32,10 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
 #include <vector>
 
-#include "PetscSetupAndFinalize.hpp"
 
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
@@ -44,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ConstBoundaryCondition.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 

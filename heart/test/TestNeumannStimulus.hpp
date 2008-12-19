@@ -32,9 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
 #include <vector>
-#include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -44,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StimulusBoundaryCondition.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "ZeroStimulusCellFactory.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 
 class TestNeumannStimulus : public CxxTest::TestSuite
