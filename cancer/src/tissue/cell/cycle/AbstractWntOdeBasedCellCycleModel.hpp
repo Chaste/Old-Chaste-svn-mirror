@@ -75,7 +75,7 @@ protected:
     }
 
     /**
-     * Record when ODEs have been solved.
+     * @return time when the ODEs reached their stopping condition.
      */
     virtual double GetOdeStopTime();
 
@@ -86,6 +86,7 @@ public:
     AbstractWntOdeBasedCellCycleModel()
     {
 #ifdef CHASTE_CVODE
+        // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so.
         msSolver.CheckForStoppingEvents();
         msSolver.SetMaxSteps(10000);
         //msSolver.SetTolerances(1e-6, 1e-8);

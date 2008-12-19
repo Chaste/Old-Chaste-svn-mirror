@@ -126,11 +126,21 @@ double TysonNovakCellCycleModel::GetSDuration()
     return 0.0;
 }
 
+/**
+ * Tyson & Novak pretends it is running ODEs in just G1,
+ * but they really represent the whole cell cycle so
+ * we set the other phases to zero.
+ */
 double TysonNovakCellCycleModel::GetG2Duration()
 {
     return 0.0;
 }
 
+/**
+ * Tyson & Novak pretends it is running ODEs in just G1,
+ * but they really represent the whole cell cycle so
+ * we set the other phases to zero.
+ */
 double TysonNovakCellCycleModel::GetMDuration()
 {
     return 0.0;

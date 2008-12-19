@@ -35,8 +35,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Simulation time object stores the simulation time.
  * It uses the singleton pattern to provide a globally consistent time.
+ *
+ * Note that the start time, end time and number of time steps must
+ * be set before time can be incremented and returned.
+ *
+ * You should generally use the calls
+ * IncrementTimeOneStep() and GetTime() when using this class.
  */
-/// \todo These methods need documentation (see #736)
 class SimulationTime
 {
 public:
@@ -57,14 +62,43 @@ protected:
     SimulationTime(const SimulationTime&);
     SimulationTime& operator= (const SimulationTime&);
 private:
+    /**
+     * A pointer to the singleton instance of this class.
+     */
     static SimulationTime* mpInstance;
+    /**
+     * The duration of the simulation (cancer time units are in hours).
+     */
     double mDurationOfSimulation;
+    /**
+     * The total number of steps for this simualation.
+     */
     unsigned mTotalTimeStepsInSimulation;
+    /**
+     * The number of time steps which have been taken to date.
+     */
     unsigned mTimeStepsElapsed;
+    /**
+     * A flag allowing us to determine whether the simulation time is ready to
+     * be used.
+     */
     bool mEndTimeAndNumberOfTimeStepsSet;
-    double mCurrentDimensionalisedTime;
+    /**
+     * The current time (in hours)
+     */
+    double mCurrentTime;
+    /**
+     * The time at which the simulation should stop
+     */
     double mEndTime;
-    double mTimeAtEndOfLastRun;
+    /**
+     * Stores the time at which the simulation started
+     */
+    double mStartTime;
+    /**
+     * A flag allowing us to determine whether the start time of the simulation
+     * has been set.
+     */
     bool mStartTimeSet;
 
     friend class boost::serialization::access;
@@ -83,10 +117,10 @@ private:
         archive & mTotalTimeStepsInSimulation;
         archive & mTimeStepsElapsed;
         archive & mEndTimeAndNumberOfTimeStepsSet;
-        archive & mCurrentDimensionalisedTime;
+        archive & mCurrentTime;
         archive & mEndTime;
         archive & mStartTimeSet;
-        archive & mTimeAtEndOfLastRun;
+        archive & mStartTime;
     }
 };
 

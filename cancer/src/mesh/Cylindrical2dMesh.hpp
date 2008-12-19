@@ -40,7 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A subclass of MutableMesh<2,2> for a rectangular mesh with
- * periodic left and right boundaries, representing a cylinder.
+ * periodic left and right boundaries, representing a cylindrical geometry.
+ *
+ * The class works by overriding calls such as ReMesh() and
+ * GetVectorFromAtoB() so that simulation classes can treat this
+ * class in exactly the same way as a MutableMesh<2,2>.
  */
 class Cylindrical2dMesh : public MutableMesh<2,2>
 {
@@ -90,11 +94,18 @@ private:
      * Calls TetrahedralMesh<2,2>::GetWidthExtremes() to calculate mTop and mBottom
      * for the cylindrical mesh.
      *
-     * This method should only ever be called by the public ReMesh method.
+     * This method should only ever be called by the public ReMesh() method.
      */
     void UpdateTopAndBottom();
 
-    /// \todo This method needs documentation (see #736)
+    /**
+     * This method creates a compressed row of nodes, just above and below the main mesh
+     * at a constant height (a 'halo'). These will mesh to a known configuration
+     * (each one on the boundary), this avoids boundary elements of lengths over
+     * half a crypt width which prevent the process of cylindrical meshing.
+     *
+     * The nodes which are created are later removed by DeleteHaloNodes().
+     */
     void CreateHaloNodes();
 
     /**
@@ -106,10 +117,14 @@ private:
     void CreateMirrorNodes();
 
     /**
-     * Deletes the mirror image nodes, elements and boundary elements created
+     *
+     * After any corrections have been made to the boundary elements (see UseTheseElementsToDecideMeshing())
+     * this method deletes the mirror image nodes, elements and boundary elements created
      * for a cylindrical remesh by cycling through the elements and changing
      * elements with partly real and partly imaginary elements to be real with
-     * periodic real nodes instead of mirror image nodes.
+     * periodic real nodes instead of mirror image nodes. We end up with very
+     * strangely shaped elements which cross the whole mesh but specify the correct
+     * connections between nodes.
      *
      * This method should only ever be called by the public ReMesh method.
      */
@@ -117,25 +132,70 @@ private:
 
     /**
      * This method should only ever be called by the public ReMesh method.
+     *
+     * This method removes the nodes which were added by CreateHaloNodes()
+     * before the remeshing algorithm was called.
      */
     void DeleteHaloNodes();
 
     /**
      * This method should only ever be called by the public ReMesh method.
+     *
+     * Uses mLeftPeriodicBoundaryElementIndices and mRightPeriodicBoundaryElementIndices
+     * and compares the nodes in each to ensure that both boundaries have been meshed
+     * identically. If they have not it calls UseTheseElementsToDecideMeshing() to
+     * sort out the troublesome elements which have been meshed differently on each
+     * side.
      */
     void CorrectNonPeriodicMesh();
 
     /**
      * This method should only ever be called by the public ReMesh method.
+     *
+     * The elements which straddle the periodic boundaries need to be
+     * identified in order to compare the list on the right with
+     * the list on the left and reconstruct a cylindrical mesh.
+     *
+     * Empties and repopulates the member variables
+     * mLeftPeriodicBoundaryElementIndices and mRightPeriodicBoundaryElementIndices
      */
     void GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
 
     /**
      * This method should only ever be called by the public ReMesh method.
+     *
+     * @param nodeIndex  The index of an original/mirrored node
+     * @return the index of the corresponding mirror image of that node (can be either an original or mirror node)
      */
     unsigned GetCorrespondingNodeIndex(unsigned nodeIndex);
 
-    /// \todo This method needs documentation (see #736)
+    /**
+     * This method takes in two elements which are not meshed in the same way on the opposite boundary.
+     * It deletes the corresponding two elements (connecting the same four nodes) and makes two new
+     * elements which are connected in the same way. We should then be able to reconstruct
+     * the cylindrical mesh properly.
+     *
+     * @param mainSideElements  two elements (usually in a square) which have been meshed differently on the opposite boundary
+     */
+    void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
+
+    /**
+     * Returns true if an unsigned is contained in a vector of unsigneds
+     *
+     * @param rNodeIndex an unsigned value
+     * @param rListOfNodes a list of unsigned values
+     *
+     * @return whether the unsigned is in this std::vector
+     */
+    bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
+
+    /**
+     * Archives the member variables of the CylindricalReMesh class which
+     * have to be preserved during the lifetime of the mesh.
+     *
+     * The remaining member variables are re-initialised before being used
+     * by each ReMesh() call so they do not need to be archived.
+     */
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -155,7 +215,13 @@ public:
      */
     Cylindrical2dMesh(double width);
 
-    /// \todo This method needs documentation (see #736)
+    /**
+     * A constructor which reads in a width and collection of nodes, then
+     * calls a ReMesh() command to create the elements of the mesh.
+     *
+     * @param width  the periodic length scale.
+     * @param nodes  a collection of nodes to construct the mesh with.
+     */
     Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes);
 
     /**
@@ -203,16 +269,6 @@ public:
     void SetNode(unsigned index, ChastePoint<2> point, bool concreteMove);
 
     /**
-     * Returns true if an unsigned is contained in a vector of unsigneds
-     *
-     * @param rNodeIndex an unsigned value
-     * @param rListOfNodes a list of unsigned values
-     *
-     * @return whether the unsigned is in this std::vector
-     */
-    bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
-
-    /**
      * OVERRIDDEN FUNCTION
      * @param rDimension must be 0 (x) or 1 (y)
      * @return width the CryptWidth or current height
@@ -229,8 +285,6 @@ public:
      * @return the global index of the new node
      */
     unsigned AddNode(Node<2> *pNewNode);
-
-    void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
 
 };
 

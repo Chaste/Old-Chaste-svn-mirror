@@ -78,15 +78,33 @@ public:
      */
     WntCellCycleModel() {};
 
-    /// \todo These methods need documenting (see #736)
+    /**
+     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
+     * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
+     *
+     * @param pParentOdeSystem  to copy the state of.
+     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+     * @param lastTime last time the cell cycle model was evaluated
+     * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
+     * @param readyToDivide
+     * @param divideTime If in the future this is the time at which the cell is going to divide
+     */
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                       const CellMutationState& rMutationState,
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation);
 
+    /**
+     * A private constructor for archiving
+     *
+     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+     * @param rMutationState the mutation state of the cell (used by ODEs)
+     */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                       const CellMutationState& rMutationState);
 
+    // Documentation in .cpp
     AbstractCellCycleModel *CreateDaughterCellCycleModel();
 
     void Initialise();

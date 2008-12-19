@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SimulationTime.hpp"
 #include "Exception.hpp"
-#include <assert.h>
+#include <cassert>
 
 
 /** Pointer to the single instance */
@@ -36,7 +36,7 @@ SimulationTime* SimulationTime::mpInstance = NULL;
 /**
  * Return a pointer to the simulation time object.
  * The first time this is called the simulation time object is created.
- * */
+ */
 SimulationTime* SimulationTime::Instance()
 {
     if (mpInstance == NULL)
@@ -46,6 +46,12 @@ SimulationTime* SimulationTime::Instance()
     return mpInstance;
 }
 
+/**
+ * Default simulation time constructor
+ *
+ * Sets up time, you must set the start time,
+ * end time and number of time steps before using the object.
+ */
 SimulationTime::SimulationTime()
 {
     // Make sure there's only one instance - enforces correct serialization
@@ -53,8 +59,8 @@ SimulationTime::SimulationTime()
 
     mEndTimeAndNumberOfTimeStepsSet = false;
     mTimeStepsElapsed = 0;
-    mCurrentDimensionalisedTime = 0.0;
-    mTimeAtEndOfLastRun = 0.0;
+    mCurrentTime = 0.0;
+    mStartTime = 0.0;
     mStartTimeSet = false;
 }
 
@@ -76,18 +82,24 @@ void SimulationTime::Destroy()
     }
 }
 
+/**
+ * Set the start time of the simulation
+ *
+ * @param startTime  The time at which the simulation begins (usually 0.0 hours)
+ */
 void SimulationTime::SetStartTime(double startTime)
 {
     assert(mStartTimeSet==false);
-    mCurrentDimensionalisedTime = startTime;
+    mStartTime = startTime;
+    mCurrentTime = startTime;
     mStartTimeSet = true;
 }
 
 /**
- * Get the simulation time step.
+ * Get the simulation time step, set in earlier calls.
  * Warning: Use of this method may result in round errors
- *  -- see GetTime.
- * @return time step
+ *  -- generally use GetTime() instead.
+ * @return time step for this run of the simulation
  */
 double SimulationTime::GetTimeStep() const
 {
@@ -97,21 +109,24 @@ double SimulationTime::GetTimeStep() const
 }
 
 /**
- * Increment the simulation time by one time step
+ * Increment the simulation time by one time step.
+ *
+ * GetTime() will return an updated current time after this call.
  */
 void SimulationTime::IncrementTimeOneStep()
 {
     assert(mStartTimeSet);
     assert(mEndTimeAndNumberOfTimeStepsSet);
     mTimeStepsElapsed++;
-    mCurrentDimensionalisedTime = mTimeAtEndOfLastRun
-                                  + ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
-                                  * mDurationOfSimulation;
+    mCurrentTime = mStartTime
+                   + ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
+                   * mDurationOfSimulation;
 }
 
 /**
  * Get the number of time steps that have elapsed.
- * @return number of time steps
+ *
+ * @return number of time steps which have been taken
  */
 unsigned SimulationTime::GetTimeStepsElapsed() const
 {
@@ -120,8 +135,8 @@ unsigned SimulationTime::GetTimeStepsElapsed() const
 }
 
 /**
- * Get the dimensionalised simulation time.
- * Should not have rounding errors.
+ * Get the simulation time (in hours), should not have rounding errors.
+ *
  * @return simulation time
  */
 double SimulationTime::GetTime() const
@@ -132,14 +147,15 @@ double SimulationTime::GetTime() const
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     assert(mStartTimeSet);
 
-    return mCurrentDimensionalisedTime;
+    return mCurrentTime;
 }
 
 /**
  * Sets the end time and the number of time steps.
- * This must be called before any other methods.
- * @param durationOfSimulation Total dimensionalized time of the simulation
- * @param totalTimeStepsInSimulation the number of time steps into which the above will be broken
+ * This must be called after SetStartTime() but before using any other methods.
+ *
+ * @param endTime  Time at which to end this run of the simulation
+ * @param totalTimeStepsInSimulation  the number of time steps into which the above will be broken
  *
  */
 void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation)
@@ -150,17 +166,18 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned tot
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     assert(mStartTimeSet);
     assert(!mEndTimeAndNumberOfTimeStepsSet);
-    assert(endTime>mCurrentDimensionalisedTime);
+    assert(endTime>mCurrentTime);
     mEndTime = endTime;
-    mDurationOfSimulation = mEndTime - mCurrentDimensionalisedTime;
+    mDurationOfSimulation = mEndTime - mCurrentTime;
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
 
 /**
- * Reset method for the end time and the number of time steps.
+ * Reset method for the end time and the number of time steps, to run the simulation
+ * further after a first initial run.
  *
- * @param rEndTime The new end time for this simulation (probably now extended)
+ * @param rEndTime The new end time for this simulation (now extended)
  * note that the simulation will run from the current time to this new end time
  * NOT from 0 to this end time.
  * @param rNumberOfTimeStepsInThisRun the number of time steps to
@@ -173,14 +190,14 @@ void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, co
     // wasn't called in the previous test                                   //
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     assert(mStartTimeSet);
-    assert(rEndTime>mCurrentDimensionalisedTime);
+    assert(rEndTime>mCurrentTime);
     assert(mTimeStepsElapsed>0); // if this throws you should be using set rather than reset.
     //reset the machinery that works out the time
-    mTimeAtEndOfLastRun = mCurrentDimensionalisedTime;
+    mStartTime = mCurrentTime;
     mTimeStepsElapsed = 0;
     // set up the new end time and stuff
     mEndTime = rEndTime;
-    mDurationOfSimulation = mEndTime - mCurrentDimensionalisedTime;
+    mDurationOfSimulation = mEndTime - mCurrentTime;
     mTotalTimeStepsInSimulation = rNumberOfTimeStepsInThisRun;
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
@@ -188,17 +205,25 @@ void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, co
 
 /**
  * Allows lower classes to check whether the simulation time class has been set up before using it
+ *
+ * @return whether the start time of the simulation has been set.
  */
 bool SimulationTime::IsStartTimeSetUp() const
 {
     return mStartTimeSet;
 }
 
+/**
+ * @return whether the simulation has finished.
+ */
 bool SimulationTime::IsFinished() const
 {
-    return(mCurrentDimensionalisedTime>=mEndTime);
+    return(mCurrentTime>=mEndTime);
 }
 
+/**
+ * @return the total number of time steps to be taken in this run.
+ */
 unsigned SimulationTime::GetTotalNumberOfTimeSteps() const
 {
     return mTotalTimeStepsInSimulation;

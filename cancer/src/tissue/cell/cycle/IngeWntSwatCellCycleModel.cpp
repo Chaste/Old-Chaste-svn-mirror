@@ -29,19 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleModel.hpp"
 #include "WntConcentration.hpp"
 
-/**
- * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
- * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
- *
- * @param rHypothesis  which hypothesis to use (supply one or two)
- * @param pParentOdeSystem  to copy the state of.
- * @param rMutationState the mutation state of the cell (used by ODEs)
- * @param birthTime the simulation time when the cell divided (birth time of parent cell)
- * @param lastTime last time the cell cycle model was evaluated
- * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
- * @param readyToDivide
- * @param divideTime If in the future this is the time at which the cell is going to divide
- */
+
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                      AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState,
@@ -75,12 +63,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     mGeneration = generation;
 }
 
-/**
- * A private constructor for archiving
- *
- * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
- * @param rMutationState the mutation state of the cell (used by ODEs)
- */
+
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                      const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState)
@@ -91,11 +74,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
-/**
- * Returns a new IngeWntSwatCellCycleModel created with the correct initial conditions.
- *
- * Should be called just after the parent cell cycle model has been Reset().
- */
+
 AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
@@ -108,10 +87,7 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel(
                                  mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
 }
 
-/**
- * This carries out the work for ::UpdateCellType();
- * But does not check the current time so it can be used by the initialise method.
- */
+
 void IngeWntSwatCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
 {
     assert(mpOdeSystem!=NULL);

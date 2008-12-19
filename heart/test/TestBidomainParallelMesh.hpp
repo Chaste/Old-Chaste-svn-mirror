@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ParallelTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestBidomainParallelMesh : public CxxTest::TestSuite
 {
@@ -45,12 +46,12 @@ public:
 
     void TestBidomainProblemWithDistributedMesh1D()
     {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("DistributedMesh1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral1d");
-            
+
         Vec nondistributed_results;
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
@@ -88,7 +89,7 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ParallelTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         BidomainProblem<1> distributed_problem( &cell_factory );
 
         distributed_problem.SetMesh(&mesh);

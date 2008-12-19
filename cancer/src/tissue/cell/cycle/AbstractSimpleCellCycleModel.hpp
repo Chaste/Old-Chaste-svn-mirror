@@ -38,13 +38,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 
 /**
- * This class contains all the things common to simple cell cycle models
+ * This class contains all the things common to 'simple' cell cycle models
  *
  * i.e. models where the length of cell cycle phases are determined when
- * the cell cycle model is created,
- * rather than evaluated 'on the fly' by ODEs and suchlike.
+ * the cell cycle model is created, rather than evaluated 'on the fly' by ODEs and suchlike.
  *
- * N.B. Whether or not the cell should actually divide may depend on
+ * N.B. Whether or not the cell should actually divide may still depend on
  * Wnt / Oxygen etc. in subclasses...
  */
 class AbstractSimpleCellCycleModel : public AbstractCellCycleModel
@@ -91,6 +90,7 @@ public:
     virtual ~AbstractSimpleCellCycleModel()
     {}
 
+    /** See AbstractCellCycleModel::ResetForDivision() */
     virtual void ResetForDivision();
 
     /**
@@ -106,6 +106,7 @@ public:
      */
     void InitialiseDaughterCell();
 
+    /** See AbstractCellCycleModel::Initialise() */
     virtual void Initialise();
 };
 

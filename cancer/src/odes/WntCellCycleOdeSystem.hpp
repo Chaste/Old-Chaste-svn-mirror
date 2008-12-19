@@ -36,7 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Represents the Mirams et al. system of ODEs, based on Swat et al. (2004)
- * and a simple Wnt model.
+ * [doi:10.1093/bioinformatics/bth110]
+ * and a simple Wnt model (unpublished)
  *
  * The variables are
  *
@@ -81,6 +82,7 @@ private:
     double mk61d;
     double mPhiE2F1;
 
+    /** The mutation state of the cell - Wnt pathway behaviour (and hence cell cycle time) changes depending on this */
     CellMutationState mMutationState;
 
 public:
@@ -136,12 +138,16 @@ public:
     /**
      * This also contains a calculation of dY[1], copied from EvaluateYDerivatives.
      * Ensure they do not get out of sync!
+     *
+     * @return whether we have reached the stopping event
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
-    
+
     /**
      * When using CVODE this function is called instead of CalculateStoppingEvent.
      * It allows the point at which rY[1] reaches 1 to be found to greater precision.
+     *
+     * @return function value - giving CVODE an estimate of how close we are to the root.
      */
     double CalculateRootFunction(double time, const std::vector<double> &rY);
 

@@ -80,10 +80,13 @@ public:
     virtual ~AbstractSimpleMeinekeCellCycleModel()
     {}
 
-/// \todo This method needs documenting (see #736)
+    /** See AbstractCellCycleModel::ResetForDivision() */
     void ResetForDivision();
 
-/// \todo This method needs documenting (see #736)
+    /**
+     * Set the new cell's G1 duration once it has been created after division.
+     * The duration will be based on cell type.
+     */
     void InitialiseDaughterCell();
 
 };

@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * some of the system information *can* vary across instances.  As with
  * OdeSystemInformation it is templated by ODE system class, to aid developers of
  * ODE system classes - only a specialisation of the Initialise method is required.
- * 
+ *
  * Note: unexpected behaviour can occur if ODE system objects are copied
  * (via copy constructor or operator=).  The AbstractOdeSystem maintains a smart
  * pointer (boost::shared_ptr) to the system information object.  Hence both the
@@ -47,7 +47,7 @@ class CellwiseOdeSystemInformation : public AbstractOdeSystemInformation
 public:
     /**
      * Default constructor; calls Initialise.
-     * 
+     *
      * Designed to be used as follows by ODE system classes in their constructors:
      *   mpSystemInfo.reset(new CellwiseOdeSystemInformation<CLASS>);
      */
@@ -55,18 +55,18 @@ public:
 protected:
     /**
      * Generic implementation of Initialise, which does nothing.
-     * 
+     *
      * Developers should specialise this method to their ODE system.  For example,
- 
-template<>
-void CellwiseOdeSystemInformation<MyNewOdeSystem>::Initialise(void)
-{
-    this->mVariableNames.push_back("Variable_1");
-    this->mVariableUnits.push_back("Units_1");
-    this->mInitialConditions.push_back(0.0);
-    
-    this->mInitialised = true;
-}
+
+        template<>
+        void CellwiseOdeSystemInformation<MyNewOdeSystem>::Initialise(void)
+        {
+            this->mVariableNames.push_back("Variable_1");
+            this->mVariableUnits.push_back("Units_1");
+            this->mInitialConditions.push_back(0.0);
+
+            this->mInitialised = true;
+        }
      */
     void Initialise(void);
 };

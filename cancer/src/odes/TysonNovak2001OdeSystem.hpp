@@ -79,49 +79,61 @@ private:
     double mJ16;
     double mMu;
     double mMstar;
-    
+
 public:
 
     /**
      * Constructor.
      */
     TysonNovak2001OdeSystem();
-    
+
     /**
      *  Destructor.
      */
     ~TysonNovak2001OdeSystem();
-    
+
     /**
      * Initialise parameter values.
      */
     void Init();
-    
+
     /**
      * Compute the RHS of the Alarcon et al. (2004) system of ODEs.
      *
      * Returns a vector representing the RHS of the ODEs at each time step, y' = [y1' ... yn'].
      * An ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
-     *  
+     *
      * @param time used to evaluate the RHS.
      * @param rY value of the solution vector used to evaluate the RHS.
      * @param rDY filled in with the resulting derivatives (using Alarcons et al. (2004) system of equations).
-     */ 
+     */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
     /**
      * Calculate whether the conditions for the cell cycle to finish have been met.
-     * 
+     * (Used by Chaste solvers to find whether or not to stop solving)
+     *
      * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS.
+     *
+     * @return whether or not stopping conditions have been met
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
-    
+
+    /**
+     * Calculate whether the conditions for the cell cycle to finish have been met.
+     * (Used by CVODE solver to find exact stopping position)
+     *
+     * @param time at which to calculate whether the stopping event has occurred
+     * @param rY value of the solution vector used to evaluate the RHS.
+     *
+     * @return How close we are to the root of the stopping condition
+     */
     double CalculateRootFunction(double time, const std::vector<double> &rY);
-    
+
     /**
      * Compute the Jacobian of the ODE system.
-     * 
+     *
      * @param solutionGuess initial guess for the solution vector.
      * @param jacobian the Jacobian of the ODE system.
      * @param time at which to calculate the Jacobian.

@@ -27,18 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WntCellCycleModel.hpp"
 
-/**
- * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
- * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
- *
- * @param pParentOdeSystem  to copy the state of.
- * @param rMutationState the mutation state of the cell (used by ODEs)
- * @param birthTime the simulation time when the cell divided (birth time of parent cell)
- * @param lastTime last time the cell cycle model was evaluated
- * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
- * @param readyToDivide
- * @param divideTime If in the future this is the time at which the cell is going to divide
- */
+
 WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState,
                                      double birthTime, double lastTime,
@@ -70,12 +59,7 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
     mGeneration = generation;
 }
 
-/**
- * A private constructor for archiving
- *
- * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
- * @param rMutationState the mutation state of the cell (used by ODEs)
- */
+
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState)
 {
@@ -121,6 +105,9 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
     mpCell->SetCellType(cell_type);
 }
 
+/**
+ * Set up a new cell cycle model ODE and set the cell type.
+ */
 void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
@@ -130,6 +117,9 @@ void WntCellCycleModel::Initialise()
     ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
 
+/**
+ * Solve the ODEs up to the current time and return whether a stopping event occurred.
+ */
 bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 {
     // WE ARE IN G0 or G1 PHASE - running cell cycle ODEs

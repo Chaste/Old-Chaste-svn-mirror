@@ -36,8 +36,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Represents the van Leeuwen et al. (2007) system of ODEs
+ * [doi:10.1016/j.jtbi.2007.01.019]
  * coupled to the Swat et al. cell cycle model equations.
- * doi:10.1016/j.jtbi.2007.01.019
+ * [doi:10.1093/bioinformatics/bth110]
+ *
  *
  * The variables are
  *
@@ -124,8 +126,16 @@ private:
     double mXiX;
     double mXiC;
 
+    /**
+     * The mutation state of the cell
+     */
     CellMutationState mMutationState;
 
+    /**
+     * The hypothesis we are using
+     *  = 1u for Van Leeuwen Hypothesis I
+     *  = 2u for Van Leeuwen Hypothesis II
+     */
     unsigned mHypothesis;
 
 public:
@@ -186,7 +196,7 @@ public:
      * @param rY value of the solution vector used to evaluate the RHS.
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
-    
+
     /**
      * When using CVODE this function is called instead of CalculateStoppingEvent.
      * It allows the point at which rY[1] reaches 1 to be found to greater precision.

@@ -122,7 +122,13 @@ public:
      */
     virtual ~AbstractCellCycleModel();
 
-    /// \todo This method needs documenting (see #736)
+    /**
+     * Gives the cell cycle model a pointer to its host cell.
+     *
+     * Some cell cycle models pass this pointer to other classes (e.g. WntConcentration),
+     * which use this information to determine other information based upon the location
+     * of the cell (e.g. the Wnt concentration at this location).
+     */
     void SetCell(TissueCell* pCell);
 
     /**
@@ -154,7 +160,9 @@ public:
     virtual void InitialiseDaughterCell()
     {}
 
-    /// \todo This method needs documenting (see #736)
+    /**
+     * @return The cell which plays host to this cell cycle model.
+     */
     TissueCell* GetCell();
 
     /**
@@ -250,19 +258,19 @@ public:
     virtual AbstractCellCycleModel *CreateDaughterCellCycleModel()=0;
 
     /**
-     * @return whether the cell cycle model uses the beta-catenin level. 
-     * 
+     * @return whether the cell cycle model uses the beta-catenin level.
+     *
      * \todo Since this method only makes sense when using an IngeWntSwatCellCycleModel,
      *       it may be better to use dynamic_cast and/or multiple inheritance (see #838)
-     *  
+     *
      */
     virtual bool UsesBetaCat();
 
     /**
-     * Returns the protein concentrations at the current time. 
+     * Returns the protein concentrations at the current time.
      *
      * \todo This method only makes sense when using a subclass of AbstractOdeBasedCellCycleModel. Rather
-     *       than our current "work-around", in which an exception is thrown if this method is called for 
+     *       than our current "work-around", in which an exception is thrown if this method is called for
      *       a non-ODE-based cell cycle model, it may be better to use dynamic_cast and/or multiple inheritance
      *       (see #838)
      *

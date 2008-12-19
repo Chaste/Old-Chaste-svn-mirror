@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class contains all the things common to standard cell cycle
- * ODE models for intracellular protein concentrations. Along the lines
- * of Tyson & Novak etc...
+ * ODE models for intracellular protein concentrations (long the lines
+ * of Tyson & Novak). Such as solving the ODEs until a stopping condition is met etc.
  */
 class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel
 {
@@ -63,16 +63,16 @@ protected:
 
     /** The system of ODEs for the cell cycle model */
     AbstractOdeSystem* mpOdeSystem;
-    
+
     /** The last time the cell cycle ODEs were evaluated.*/
     double mLastTime;
-    
+
     /** The time at which the cell should divide - Set this to DBL_MAX in constructor.*/
     double mDivideTime;
-    
+
     /** Whether the cell cycle model is currently in a delay (not solving ODEs).*/
     bool mFinishedRunningOdes;
-    
+
     /** The start time for the G2 phase */
     double mG2PhaseStartTime;
 
@@ -108,10 +108,10 @@ public:
 
     /**
      * This method must be implemented by each subclass
-     * 
+     *
      * When the ODEs have reached a stopping event it returns the time at which
      * the ODEs stopped running so a delay can be added in for S-G2-M phases if necessary.
-     * 
+     *
      * @return The time at which the ODE reached its stopping event.
      */
     virtual double GetOdeStopTime() = 0;

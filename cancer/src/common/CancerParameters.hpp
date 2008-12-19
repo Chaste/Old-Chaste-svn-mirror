@@ -31,7 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <cassert>
 
-/// \todo This class needs documentation (see #736)
+/**
+ * A special singleton class which holds all of the parameters used in the cancer simulations
+ *
+ * Because this is a singleton class it can be called from whichever part of the code needs
+ * to find out a parameter value, the structure is quite simple with default values given
+ * upon initialisation and Set() and Get() methods for each parameter.
+ *
+ * For details of each parameter refer to the member variable documentation for this class
+ * rather than the Get() and Set() function descriptions.
+ */
 class CancerParameters
 {
 public:
@@ -291,7 +300,7 @@ private:
      * Probability of symmetric division.
      */
     double mSymmetricDivisionProbability;
-    
+
     /**
      * Non-dimensional parameter d0 for use in area-based damping constant calculations.
      */
