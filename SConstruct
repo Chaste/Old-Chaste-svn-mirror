@@ -174,7 +174,7 @@ Export("other_libpaths", "other_libs")
 extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
               + ' -DTRILIBRARY -DANSI_DECLARATORS '\
               + ' -DCHASTE_ROOT=\'"' + Dir('#').abspath + '"\' '
-link_flags  = build.LinkFlags()
+link_flags  = build.LinkFlags() + ' ' + hostconfig.ldflags()
 
 # Search path for Chaste #includes
 cpppath = ['.', 'cxxtest']

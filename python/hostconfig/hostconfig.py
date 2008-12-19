@@ -100,6 +100,8 @@ elif machine_fqdn.endswith(".fle.fujitsu.com"):
     import fle as conf
 elif machine_fqdn.startswith('alex-laptop'):
     import alexf as conf
+elif machine_fqdn.startswith('clfh6829'):
+    import ozzy64 as conf
 
 else:
     import default as conf
@@ -248,3 +250,7 @@ def ccflags():
     opt_lib_flags = optional_library_defines()
     conf_flags = getattr(conf, 'ccflags', '')
     return conf_flags + ' ' + ' '.join(opt_lib_flags)
+
+def ldflags():
+    return getattr(conf, 'ldflags', '')
+
