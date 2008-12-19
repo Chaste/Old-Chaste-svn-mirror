@@ -32,16 +32,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include "MonodomainProblem.hpp"
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "Hdf5DataReader.hpp"
 #include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
 #include "PlaneStimulusCellFactory.hpp"
+#include "TetrahedralMesh.hpp"
+#include "PetscTools.hpp"
 
 
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>

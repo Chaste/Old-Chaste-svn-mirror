@@ -32,13 +32,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
+#include <petscvec.h>
+#include <vector>
+
+#include "PetscSetupAndFinalize.hpp"
+
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include <petscvec.h>
-#include <vector>
-#include "PetscSetupAndFinalize.hpp"
 #include "BidomainWithBathAssembler.hpp"
+#include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 

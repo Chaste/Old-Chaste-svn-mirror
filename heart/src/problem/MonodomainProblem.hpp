@@ -30,12 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MONODOMAINPROBLEM_HPP_
 #define MONODOMAINPROBLEM_HPP_
 
-#include <boost/numeric/ublas/matrix.hpp>
-
-#include "MonodomainDg0Assembler.hpp"
-#include "MonodomainMatrixBasedAssembler.hpp"
-#include "MonodomainPde.hpp"
 #include "AbstractCardiacProblem.hpp"
+#include "AbstractCardiacPde.hpp"
+#include "AbstractDynamicAssemblerMixin.hpp"
+#include "AbstractCardiacCellFactory.hpp"
+#include "MonodomainPde.hpp"
 
 
 /**
@@ -48,35 +47,9 @@ protected:
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;
 
 public:
-    AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde()
-    {
-        mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
-        return mpMonodomainPde;
-    }
+    AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde();
 
-    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
-    {
-        assert(mpMonodomainPde);
-
-        if(!this->mUseMatrixBasedRhsAssembly)
-        {
-            MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
-              = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                mpMonodomainPde,
-                                                                this->mpBoundaryConditionsContainer,
-                                                                2);
-            return p_assembler;
-        }
-        else
-        {
-            MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>* p_assembler
-              = new MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                        mpMonodomainPde,
-                                                                        this->mpBoundaryConditionsContainer,
-                                                                        2);
-            return p_assembler;
-        }            
-    }
+    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler();
 
 public:
 
@@ -85,54 +58,19 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
-              mpMonodomainPde(NULL)
-    {
-    }
+    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
     /**
      * Destructor
      */
-    ~MonodomainProblem()
-    {
-    }
+    ~MonodomainProblem();
 
-    MonodomainPde<SPACE_DIM> * GetMonodomainPde()
-    {
-        assert(mpMonodomainPde != NULL);
-        return mpMonodomainPde;
-    }
+    MonodomainPde<SPACE_DIM> * GetMonodomainPde();
 
     /**
      *  Print out time and max/min voltage values at current time.
      */
-    void WriteInfo(double time)
-    {
-        std::cout << "Solved to time " << time << "\n" << std::flush;
-        ReplicatableVector voltage_replicated;
-        voltage_replicated.ReplicatePetscVector(this->mVoltage);
-        double v_max = -DBL_MAX, v_min = DBL_MAX;
-        for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-        {
-            double v=voltage_replicated[i];
-            #define COVERAGE_IGNORE
-            if (isnan(v))
-            {
-                EXCEPTION("Not-a-number encountered");
-            }
-            #undef COVERAGE_IGNORE
-            if ( v > v_max)
-            {
-                v_max = v;
-            }
-            if ( v < v_min)
-            {
-                v_min = v;
-            }
-        }
-        std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
-    }
+    void WriteInfo(double time);
 };
 
 #endif /*MONODOMAINPROBLEM_HPP_*/

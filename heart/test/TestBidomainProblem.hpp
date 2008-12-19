@@ -32,16 +32,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
+#include <petscvec.h>
+#include <vector>
+
+#include "PetscSetupAndFinalize.hpp"
+
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
 #include "Hdf5DataReader.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include <petscvec.h>
-#include <vector>
-#include "PetscSetupAndFinalize.hpp"
 #include "EventHandler.hpp"
-//#include <iostream>
+#include "PetscTools.hpp"
+#include "BidomainDg0Assembler.hpp"
 
 class DelayedTotalStimCellFactory : public AbstractCardiacCellFactory<1>
 {

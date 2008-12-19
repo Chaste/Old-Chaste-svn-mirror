@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "StreeterFibreGenerator.hpp"
 #include "OutputFileHandler.hpp"
+#include "MemfemMeshReader.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
 
 

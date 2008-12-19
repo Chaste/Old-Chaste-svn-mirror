@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
+#include "TetrahedralMesh.hpp"
 
 //const double mesh_width = 0.2; // cm
 

@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "BidomainWithBathAssembler.hpp"
+#include "TetrahedralMesh.hpp"
 
 template<unsigned DIM>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>

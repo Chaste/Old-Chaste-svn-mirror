@@ -30,16 +30,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTBIDOMAINPARALLELMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "LuoRudyIModel1991OdeSystem.hpp"
-#include "BidomainProblem.hpp"
-#include "MonodomainProblem.hpp"
-#include "Hdf5DataReader.hpp"
-#include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include <vector>
+
 #include "PetscSetupAndFinalize.hpp"
-#include "EventHandler.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "BidomainProblem.hpp"
+#include "DistributedVector.hpp"
+#include "HeartConfig.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 #include "ParallelTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 
 class TestBidomainParallelMesh : public CxxTest::TestSuite
 {

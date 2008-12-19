@@ -31,14 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTBIDOMAINHEART_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "BidomainProblem.hpp"
 #include <petscvec.h>
 #include <vector>
 
 #include "PetscSetupAndFinalize.hpp"
+
+#include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "TrianglesMeshWriter.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
 
 

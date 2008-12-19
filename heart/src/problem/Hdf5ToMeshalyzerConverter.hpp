@@ -26,13 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef HDF5TOMESHALYZERCONVERTER_HPP_
 #define HDF5TOMESHALYZERCONVERTER_HPP_
 
+#include <string>
 #include "Hdf5DataReader.hpp"
-#include "PetscTools.hpp"
-#include "HeartConfig.hpp"
 
 /**
  *  This class converts from Hdf5 format to meshalyzer format, ie, for
@@ -64,45 +62,7 @@ private:
      *  and reads the data corresponding to that string, writing it out in
      *  meshalyzer format.
      */
-    void Write(std::string type)
-    {
-        assert(type=="V" || type=="Phi_e");
-        
-        out_stream p_file=out_stream(NULL);
-        if (PetscTools::AmMaster())
-        {
-            //Note that we don't want the child processes to create
-            //a fresh directory if it doesn't already exist
-            OutputFileHandler output_file_handler(mOutputDirectory, false);
-            p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + type + ".dat");
-        }
-
-        unsigned num_nodes = mpReader->GetNumberOfRows();
-        unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
-
-        DistributedVector::SetProblemSize(num_nodes);
-        Vec data = DistributedVector::CreateVec();
-        for (unsigned time_step=0; time_step<num_timesteps; time_step++)
-        {
-            mpReader->GetVariableOverNodes(data, type, time_step);
-            ReplicatableVector repl_data(data);
-
-            assert(repl_data.size()==num_nodes);
-
-            if(PetscTools::AmMaster())
-            {
-                for(unsigned i=0; i<num_nodes; i++)
-                {
-                    *p_file << repl_data[i] << "\n";
-                }
-            }
-        }
-        VecDestroy(data);
-        if(PetscTools::AmMaster())
-        {
-            p_file->close();
-        }
-    }
+    void Write(std::string type);
 
 
 public:
@@ -114,73 +74,9 @@ public:
      */
     Hdf5ToMeshalyzerConverter(std::string inputDirectory,
                               std::string outputDirectory,
-                              std::string fileBaseName)
-    {
-        // store dir and filenames, and create a reader
-        mOutputDirectory = outputDirectory;
-        mFileBaseName = fileBaseName;
-        mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
+                              std::string fileBaseName);
 
-        // check the data file read has one or two variables (ie V; or V and PhiE)
-        std::vector<std::string> variable_names = mpReader->GetVariableNames();
-        if((variable_names.size()==0) || (variable_names.size()>2))
-        {
-            delete mpReader;
-            EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
-        }
-
-        // if one variable, a monodomain problem
-        if(variable_names.size()==1)
-        {
-            if(variable_names[0]!="V")
-            {
-                delete mpReader;
-                EXCEPTION("One variable, but it is not called 'V'");
-            }
-
-            Write("V");
-        }
-
-        // if two variable, a bidomain problem
-        if(variable_names.size()==2)
-        {
-            if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
-            {
-                delete mpReader;
-                EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
-            }
-
-            Write("V");
-            Write("Phi_e");
-        }
-        
-        if (PetscTools::AmMaster())
-        {
-            //Note that we don't want the child processes to create
-            //a fresh directory if it doesn't already exist
-            OutputFileHandler output_file_handler(mOutputDirectory, false);
-            out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_times.info");
-            unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
-            *p_file << "Number of timesteps "<<num_timesteps<<"\n";
-            *p_file << "timestep "<<HeartConfig::Instance()->GetPrintingTimeStep()<<"\n";
-            double first_timestep=mpReader->GetUnlimitedDimensionValues().front();
-            *p_file << "First timestep "<<first_timestep<<"\n";
-            double last_timestep=mpReader->GetUnlimitedDimensionValues().back();
-            *p_file << "Last timestep "<<last_timestep<<"\n";
-            
-            p_file->close();
-            
-        }
-
-        MPI_Barrier(PETSC_COMM_WORLD);
-
-
-    }
-
-    ~Hdf5ToMeshalyzerConverter()
-    {
-        delete mpReader;
-    }
+    ~Hdf5ToMeshalyzerConverter();
 };
 
 #endif /*HDF5TOMESHALYZERCONVERTER_HPP_*/

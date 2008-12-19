@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
+#include "PetscTools.hpp"
 
 class TestHdf5ToMeshalyzerConverter : public CxxTest::TestSuite
 {

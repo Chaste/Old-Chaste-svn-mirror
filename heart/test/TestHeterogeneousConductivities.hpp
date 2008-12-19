@@ -29,10 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTHETEROGENEOUSCONDUCTIVITIES_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <iostream>
+#include <fstream>
+
+#include "PetscSetupAndFinalize.hpp"
 #include "BidomainProblem.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "TetrahedralMesh.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "Hdf5DataReader.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
@@ -40,8 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
-#include <iostream>
-#include <fstream>
+
 using std::ofstream;
 
 

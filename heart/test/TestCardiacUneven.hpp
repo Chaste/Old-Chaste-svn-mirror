@@ -32,17 +32,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include "MonodomainProblem.hpp"
-#include "BidomainProblem.hpp"
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-#include "AbstractCardiacCellFactory.hpp"
+#include "MonodomainProblem.hpp"
+#include "BidomainProblem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "DistributedVector.hpp"
+#include "PetscTools.hpp"
+#include "EventHandler.hpp"
+#include "HeartConfig.hpp"
 
 class TestCardiacUneven : public CxxTest::TestSuite
 {
@@ -131,12 +132,10 @@ public:
         {
             bidomain_problem.Initialise();
 
-
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
 
             bidomain_problem.Solve();
-
 
             PetscInt petsc_lo, petsc_hi;
             VecGetOwnershipRange(bidomain_problem.GetVoltage(),&petsc_lo,&petsc_hi);
@@ -151,7 +150,6 @@ public:
                 TS_ASSERT_EQUALS(8*2, petsc_lo);
                 TS_ASSERT_EQUALS(11*2, petsc_hi);
             }
-
         }
         else
         {

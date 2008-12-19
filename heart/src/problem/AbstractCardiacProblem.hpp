@@ -30,24 +30,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPROBLEM_HPP_
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
-#include "TetrahedralMesh.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "MeshalyzerMeshWriter.hpp"
-#include "OutputFileHandler.hpp"
-#include "Hdf5DataWriter.hpp"
+#include <string>
+#include <vector>
+#include <petscvec.h>
+
 #include "AbstractCardiacCellFactory.hpp"
-#include "DistributedVector.hpp"
-#include "TimeStepper.hpp"
-#include "DistributedVector.hpp"
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
-#include "EventHandler.hpp"
-#include "PetscTools.hpp"
-#include "Hdf5ToMeshalyzerConverter.hpp"
-#include "OrthotropicConductivityTensors.hpp"
-#include "AxisymmetricConductivityTensors.hpp"
-#include "ProgressReporter.hpp"
+#include "AbstractMesh.hpp"
 
+#include "BoundaryConditionsContainer.hpp"
+#include "Hdf5DataReader.hpp"
+#include "Hdf5DataWriter.hpp"
+
+/**
+ * Base class for cardiac problems; contains code generic to both mono- and bidomain.
+ * 
+ * \todo further documentation, including of member variables.
+ */
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
@@ -55,22 +55,25 @@ friend class TestBidomainWithBathAssembler;
     
 protected:
     std::string mMeshFilename;
-    bool mAllocatedMemoryForMesh;
     std::string mNodesPerProcessorFilename;
-
-    bool mWriteInfo;
-    bool mPrintOutput;
-    bool mCallChaste2Meshalyzer;
-    std::vector<unsigned> mNodesToOutput;
-
-    AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
 
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
     bool mUseMatrixBasedRhsAssembly;
+    bool mAllocatedMemoryForMesh;
+    bool mWriteInfo;
+    bool mPrintOutput;
+    bool mCallChaste2Meshalyzer;
 
-protected:
+    std::vector<unsigned> mNodesToOutput;
+
+    unsigned mVoltageColumnId;
+    unsigned mTimeColumnId;
+    unsigned mNodeColumnId;
+
+    AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
+
     BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
 
@@ -78,7 +81,6 @@ protected:
     AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
     Vec mVoltage; // Current solution
-
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.
@@ -94,10 +96,6 @@ protected:
      */
     virtual AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
-    unsigned mVoltageColumnId;
-    unsigned mTimeColumnId;
-    unsigned mNodeColumnId;
-
 public:
     // This (and things in MonodomainProblem) being public are hacks for
     // CardiacElectroMechanicsProblem to work.
@@ -111,144 +109,27 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : mMeshFilename(""),     // i.e. undefined
-              mNodesPerProcessorFilename(""),     // i.e. undefined
-              mOutputDirectory(""),  // i.e. undefined
-              mOutputFilenamePrefix(""),   // i.e. undefined
-              mUseMatrixBasedRhsAssembly(true),
-              mpBoundaryConditionsContainer(NULL),
-              mpCellFactory(pCellFactory),
-              mpMesh(NULL),
-              mpWriter(NULL)
-    {
-        mWriteInfo = false;
-        mPrintOutput = true;
-        mCallChaste2Meshalyzer = false;
-        mpCardiacPde = NULL;
-        mpAssembler = NULL;
-        mVoltage = NULL;
-        mAllocatedMemoryForMesh = false;
-        assert(mNodesToOutput.empty());
+    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
-        EventHandler::BeginEvent(EVERYTHING);
-    }
-
-    virtual ~AbstractCardiacProblem()
-    {
-        delete mpCardiacPde;
-        if (mVoltage)
-        {
-            VecDestroy(mVoltage);
-        }
-
-        if(mAllocatedMemoryForMesh)
-        {
-            delete mpMesh;
-        }
-    };
+    virtual ~AbstractCardiacProblem();
 
     /*
      *  Initialise the system. Must be called before Solve()
      */
-    void Initialise()
-    {
-    	mOutputDirectory = HeartConfig::Instance()->GetOutputDirectory();
-		mOutputFilenamePrefix = HeartConfig::Instance()->GetOutputFilenamePrefix();
-    	
-        if (mpMesh==NULL)
-        {
-        	// If no mesh has been passed, we get it from the configuration file
-            try
-        	{
-                /// \todo: Only considering <LoadMesh/> definition. Consider <Slab/> too
-		        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
-		        mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
-		        mAllocatedMemoryForMesh = true;
-		
-		        EventHandler::BeginEvent(READ_MESH);
-		        mpMesh->ConstructFromMeshReader(mesh_reader);
-		        EventHandler::EndEvent(READ_MESH);        		
-        	}
-        	catch (Exception& e)
-        	{               
-        		EXCEPTION(std::string("No mesh given: define it in XML parameters file or call SetMesh()\n") + e.GetMessage());
-        	}
-        }
-        mpCellFactory->SetMesh( mpMesh );
+    void Initialise();
 
-        if (mNodesPerProcessorFilename != "")
-        {
-            mpMesh->ReadNodesPerProcessorFile(mNodesPerProcessorFilename);
-        }
-		///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
-        delete mpCardiacPde; // In case we're called twice
-        mpCardiacPde = CreateCardiacPde();
-    }
+    void SetNodesPerProcessorFilename(const std::string& filename);
 
-    void SetNodesPerProcessorFilename(const std::string& filename)
-    {
-        mNodesPerProcessorFilename = filename;
-    }
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc);
 
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc)
-    {
-        this->mpBoundaryConditionsContainer = bcc;
-    }
+    virtual void PreSolveChecks();
 
-    virtual void PreSolveChecks()
-    {
-        if ( mpCardiacPde == NULL ) // if pde is NULL, Initialise() probably hasn't been called
-        {
-            EXCEPTION("Pde is null, Initialise() probably hasn't been called");
-        }
-        if ( HeartConfig::Instance()->GetSimulationDuration() <= 0.0)
-        {
-            EXCEPTION("End time should be greater than 0");
-        }
-        if (mPrintOutput==true)
-        {
-            if( (mOutputDirectory=="") || (mOutputFilenamePrefix==""))
-            {
-                EXCEPTION("Either explicitly specify not to print output (call PrintOutput(false)) or specify the output directory and filename prefix");
-            }
-        }
-    }
-
-    // Perhaps this should be a method of AbstractCardiacPde??
-    // This is virtual so BidomainProblem can overwrite V to zero for bath nodes, if 
-    // there are any.
-    virtual Vec CreateInitialCondition()
-    {
-        //if (DistributedVector::GetProblemSize()==0)
-        //{
-        //    DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
-        //}
-        Vec initial_condition=DistributedVector::CreateVec(PROBLEM_DIM);
-        DistributedVector ic(initial_condition);
-        std::vector< DistributedVector::Stripe > stripe;
-        stripe.reserve(PROBLEM_DIM);
-
-        for (unsigned i=0; i<PROBLEM_DIM; i++)
-        {
-            stripe.push_back(DistributedVector::Stripe(ic, i));
-        }
-
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
-             ++index)
-        {
-            stripe[0][index] = mpCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
-            if (PROBLEM_DIM==2)
-            {
-                stripe[1][index] = 0;
-            }
-        }
-
-        ic.Restore();
-
-        return initial_condition;
-    }
+    /**
+     * Perhaps this should be a method of AbstractCardiacPde??
+     * This is virtual so BidomainProblem can overwrite V to zero for bath nodes, if 
+     * there are any.
+     */
+    virtual Vec CreateInitialCondition();
 
     /** 
      *  Set whether to call the Chaste2Meshalyzer script.
@@ -256,36 +137,19 @@ public:
      *  and is useful in testing. By default the script is called.
      *  In performance testing for example it desirable to disable the script.
      */
-    void ConvertOutputToMeshalyzerFormat(bool call = true)
-    {
-        mCallChaste2Meshalyzer=call;
-    }
+    void ConvertOutputToMeshalyzerFormat(bool call = true);
 
-    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh)
-    {
-        // If this fails the mesh has already been set. We assert rather throw an exception
-        // to avoid a memory leak when checking it throws correctly
-        assert(mpMesh==NULL);
-        mAllocatedMemoryForMesh = false;
-        assert(pMesh!=NULL);
-        mpMesh = pMesh;
-    }
+    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     /**
      *  Set whether the simulation will generate results files.
      */
-    void PrintOutput(bool rPrintOutput)
-    {
-        mPrintOutput = rPrintOutput;
-    }
+    void PrintOutput(bool rPrintOutput);
 
     /**
      *  Set whether extra info will be written to stdout during computation.
      */
-    void SetWriteInfo(bool writeInfo = true)
-    {
-        mWriteInfo = writeInfo;
-    }
+    void SetWriteInfo(bool writeInfo = true);
 
     /**
      *  Get the final solution vector. This vector is distributed over all processes.
@@ -297,225 +161,33 @@ public:
      *
      *  Use with caution since we don't want to alter the state of the PETSc vector.
      */
-    Vec GetVoltage()
-    {
-        return mVoltage;
-    }
+    Vec GetVoltage();
 
-    AbstractMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
-    {
-    	assert (mpMesh);    	
-        return *mpMesh;
-    }
+    AbstractMesh<SPACE_DIM,SPACE_DIM> & rGetMesh();
 
-    AbstractCardiacPde<SPACE_DIM>* GetPde()
-    {
-        return mpCardiacPde;
-    }
+    AbstractCardiacPde<SPACE_DIM>* GetPde();
 
-    void Solve()
-    {
-        PreSolveChecks();
+    void Solve();
 
-        // set default bcc if required
-        BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> default_bcc;
-        if(mpBoundaryConditionsContainer == NULL) // the user didnt supply a bcc
-        {
-            for (unsigned problem_index=0; problem_index<PROBLEM_DIM; problem_index++)
-            {
-                default_bcc.DefineZeroNeumannOnMeshBoundary(mpMesh, problem_index);
-            }
-            mpBoundaryConditionsContainer = &default_bcc;
-        }
-
-        mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
-        Vec initial_condition = CreateInitialCondition();
-
-        TimeStepper stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), 
-                            HeartConfig::Instance()->GetPrintingTimeStep());
-
-        std::string progress_reporter_dir;
-
-        if (mPrintOutput)
-        {
-            EventHandler::BeginEvent(WRITE_OUTPUT);
-            InitialiseWriter();
-            WriteOneStep(stepper.GetTime(), initial_condition);
-            EventHandler::EndEvent(WRITE_OUTPUT);
-            
-            progress_reporter_dir = mOutputDirectory;
-        }
-        else
-        {
-            progress_reporter_dir = ""; // progress printed to CHASTE_TEST_OUTPUT
-        }
-
-        // create a progress reporter so users can track how much has gone and 
-        // estimate how much time is left. (Note this has to be done after the
-        // InitialiseWriter above (if mPrintOutput==true)
-        ProgressReporter progress_reporter(progress_reporter_dir, 0.0, HeartConfig::Instance()->GetSimulationDuration());
-        progress_reporter.Update(0);
-
-        // If we have already run a simulation, free the old solution vec
-        if (mVoltage)
-        {
-            VecDestroy(mVoltage);
-        }
-
-        while ( !stepper.IsTimeAtEnd() )
-        {
-            // solve from now up to the next printing time
-            mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
-            mpAssembler->SetInitialCondition( initial_condition );
-
-            try
-            {
-                mVoltage = mpAssembler->Solve();
-            }
-            catch (Exception &e)
-            {
-                // Free memory.
-                delete mpAssembler;
-                //VecDestroy(initial_condition);
-                
-                PetscTools::ReplicateException(true);
-                // Re-throw
-                EventHandler::Reset();//EndEvent(EVERYTHING);
-                
-                CloseFilesAndPostProcess();
-                throw e;
-            }
-            PetscTools::ReplicateException(false);
-
-            // Free old initial condition
-            VecDestroy(initial_condition);
-
-            // Initial condition for next loop is current solution
-            initial_condition = mVoltage;
-
-            // update the current time
-            stepper.AdvanceOneTimeStep();
-
-            if (mPrintOutput)
-            {
-                // print out details at current time if asked for
-                if (mWriteInfo)
-                {
-                    WriteInfo(stepper.GetTime());
-                }
-
-                // Writing data out to the file <mOutputFilenamePrefix>.dat
-                EventHandler::BeginEvent(WRITE_OUTPUT);
-                mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
-                WriteOneStep(stepper.GetTime(), mVoltage);
-                EventHandler::EndEvent(WRITE_OUTPUT);
-            }
-            
-            progress_reporter.Update(stepper.GetTime());
-        }
-
-        // Free assembler
-        delete mpAssembler;
-
-        // close the file that stores voltage values
-        progress_reporter.PrintFinalising();
-        CloseFilesAndPostProcess();
-        EventHandler::EndEvent(EVERYTHING);
-    }
-
-
-            
-    void CloseFilesAndPostProcess()
-    {
-        // Close files
-        if (!mPrintOutput)
-        { 
-            //Nothing to do
-            return;
-        }
-        mpWriter->Close();
-        delete mpWriter;
-
-        EventHandler::BeginEvent(USER2); //Temporarily using USER2 to instrument post-processing
-        // Only if results files were written and we are outputting all nodes
-        if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
-        {
-            //Convert simulation data to Meshalyzer format
-            std::string output_directory =  mOutputDirectory + "/output";
-            Hdf5ToMeshalyzerConverter converter(mOutputDirectory, output_directory, mOutputFilenamePrefix);
-            
-            //Write mesh in a suitable form for meshalyzer
-            if (PetscTools::AmMaster())
-            {
-                //Write the mesh
-                MeshalyzerMeshWriter<SPACE_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
-                mesh_writer.WriteFilesUsingMesh(*mpMesh);
-                
-                //Write the parameters out
-                HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
-            }
-        }
-        EventHandler::EndEvent(USER2); //Temporarily using USER2 to instrument post-processing
-    }
+    void CloseFilesAndPostProcess();
 
 
     virtual void WriteInfo(double time) =0;
 
-    virtual void DefineWriterColumns()
-    {
-        if ( mNodesToOutput.empty() )
-        {
-            //Set writer to output all nodes
-            mpWriter->DefineFixedDimension( mpMesh->GetNumNodes() );
-        }
-        else
-        {
-            //Output only the nodes indicted
-            mpWriter->DefineFixedDimension( mNodesToOutput, mpMesh->GetNumNodes() );
-        }
-        //mNodeColumnId = mpWriter->DefineVariable("Node", "dimensionless");
-        mVoltageColumnId = mpWriter->DefineVariable("V","mV");
+    virtual void DefineWriterColumns();
 
-        mpWriter->DefineUnlimitedDimension("Time","msecs");
+    virtual void WriteOneStep(double time, Vec voltageVec);
 
-    }
+    void InitialiseWriter();
 
-    virtual void WriteOneStep(double time, Vec voltageVec)
-    {
-        mpWriter->PutUnlimitedVariable(time);
-
-        //DistributedVector::Stripe transmembrane(voltageVec, 0);
-        mpWriter->PutVector(mVoltageColumnId, voltageVec);
-    }
-
-    void InitialiseWriter()
-    {
-        mpWriter = new Hdf5DataWriter(mOutputDirectory,mOutputFilenamePrefix);
-        DefineWriterColumns();
-        mpWriter->EndDefineMode();
-    }
-
-    void SetOutputNodes(std::vector<unsigned> &nodesToOutput)
-    {
-        mNodesToOutput = nodesToOutput;
-    }
+    void SetOutputNodes(std::vector<unsigned> &nodesToOutput);
     
-    Hdf5DataReader GetDataReader()
-    {
-        if( (mOutputDirectory=="") || (mOutputFilenamePrefix==""))
-        {
-            EXCEPTION("Data reader invalid as data writer cannot be initialised");
-        }
-        return Hdf5DataReader(mOutputDirectory, mOutputFilenamePrefix);
-    }
+    Hdf5DataReader GetDataReader();
     
     /** 
      *  Whether to use matrix-based RHS assembly or not
      */    
-    void UseMatrixBasedRhsAssembly(bool usematrix=true)
-    {
-        mUseMatrixBasedRhsAssembly = usematrix;
-    }
+    void UseMatrixBasedRhsAssembly(bool usematrix=true);
     
 };
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/
