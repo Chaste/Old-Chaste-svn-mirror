@@ -377,7 +377,7 @@ public:
         }
     }
 
-    void TestRemoveDeadCellsAndReMesh()
+    void TestRemoveDeadCellsAndUpdate()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -410,7 +410,7 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 80u);
         TS_ASSERT_DIFFERS(tissue.rGetCells().size(), cells.size()); // Tissue now copies cells
 
-        tissue.ReMesh();
+        tissue.Update();
         tissue.Validate();
 
         // For coverage
@@ -497,7 +497,7 @@ public:
         TS_ASSERT_EQUALS(tissue_with_ghost_nodes.GetNumRealCells(), 69u);
         TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetGhostNodes().size(), mesh.GetNumAllNodes());
 
-        tissue_with_ghost_nodes.ReMesh();
+        tissue_with_ghost_nodes.Update();
         tissue_with_ghost_nodes.Validate();
 
         // For coverage
@@ -542,7 +542,7 @@ public:
         TS_ASSERT_EQUALS(node_indices_with_ghost_nodes, expected_node_indices);
     }
 
-    void TestAddAndRemoveAndAddWithOutRemesh()
+    void TestAddAndRemoveAndAddWithOutUpdate()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -975,8 +975,8 @@ public:
         ChastePoint<2> new_location(1,10);
         tissue.MoveCell(it, new_location);
 
-        // Remesh
-        tissue.ReMesh();
+        // Update tissue
+        tissue.Update();
         tissue.Validate();
 
         tissue.CheckTissueCellPointers();

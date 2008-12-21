@@ -116,8 +116,8 @@ protected:
     /** Whether to run the simulation with no birth (defaults to false). */
     bool mNoBirth;
 
-    /** Whether to remesh at each timestep or not (defaults to true).*/
-    bool mReMesh;
+    /** Whether to update the topology of the tissue at each time step (defaults to true).*/
+    bool mUpdateTissue;
 
     /** Whether to count the number of each cell mutation state and output to file*/
     bool mOutputCellMutationStates;
@@ -184,7 +184,7 @@ protected:
         archive & mDt;
         archive & mEndTime;
         archive & mNoBirth;
-        archive & mReMesh;
+        archive & mUpdateTissue;
         archive & mOutputDirectory;
         archive & mNumBirths;
         archive & mNumDeaths;
@@ -259,7 +259,7 @@ protected:
     }
 
     /**
-     *  Implements out cell birth, cell death and a remesh if necessary for a
+     *  Implements out cell birth, cell death and a tissue update if necessary for a
      *  final time. This method may be overridden in subclasses to do something
      *  at the end of each time loop. Note that each subclass should also call
      *  the base class method.
@@ -320,7 +320,7 @@ public:
     void SetOutputCellTypes(bool outputCellTypes);
     void SetOutputCellVariables(bool outputCellVariables);
     void SetOutputCellCyclePhases(bool outputCellCyclePhases);
-    void SetReMeshRule(bool remesh);
+    void SetUpdateTissueRule(bool updateTissue);
 
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
 

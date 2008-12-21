@@ -200,7 +200,7 @@ public:
 
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
-        simulator.SetReMeshRule(true);
+        simulator.SetUpdateTissueRule(true);
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindrical");
 
@@ -1026,7 +1026,7 @@ public:
 
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
-        simulator.SetReMeshRule(true);
+        simulator.SetUpdateTissueRule(true);
         simulator.SetNoBirth(true);
 
         SloughingCellKiller sloughing_cell_killer(&crypt, true);

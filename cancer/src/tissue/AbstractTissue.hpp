@@ -186,7 +186,7 @@ public:
      */
     virtual unsigned RemoveDeadCells()=0;
 
-    virtual void ReMesh()=0;
+    virtual void Update()=0;
 
     /**
      * Check consistency of our internal data structures.

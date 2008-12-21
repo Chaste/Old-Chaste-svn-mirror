@@ -237,7 +237,7 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DI
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::ReMesh()
+void MeshBasedTissue<DIM>::Update()
 {
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);

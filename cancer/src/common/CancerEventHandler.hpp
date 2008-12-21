@@ -35,7 +35,7 @@ typedef enum CancerEventType_
     SETUP=0,
     DEATH,
     BIRTH,
-    REMESH,
+    UPDATE,
     TESSELLATION,
     FORCE,
     POSITION,

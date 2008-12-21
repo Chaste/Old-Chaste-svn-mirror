@@ -62,12 +62,12 @@ public:
             // do nothing
         }
         CancerEventHandler::EndEvent(BIRTH);
-        CancerEventHandler::BeginEvent(REMESH);
+        CancerEventHandler::BeginEvent(UPDATE);
         for (unsigned i=0; i<30000000; i++)
         {
             // do nothing
         }
-        CancerEventHandler::EndEvent(REMESH);
+        CancerEventHandler::EndEvent(UPDATE);
 
         CancerEventHandler::BeginEvent(TESSELLATION);
         for (unsigned i=0; i<10000000; i++)

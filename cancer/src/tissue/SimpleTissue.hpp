@@ -131,7 +131,7 @@ public:
     /**
      * Remove nodes that have been marked as deleted and update the node cell map.
      */
-    void ReMesh();
+    void Update();
 
     /**
      * Check consistency of our internal data structures.

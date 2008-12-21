@@ -209,7 +209,7 @@ public:
     }
 
 
-    void TestRemoveDeadCellsAndReMesh()
+    void TestRemoveDeadCellsAndUpdate()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -235,7 +235,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
 
         unsigned num_removed = simple_tissue.RemoveDeadCells();
-        simple_tissue.ReMesh();
+        simple_tissue.Update();
 
         // Test that one cell has been removed
         TS_ASSERT_EQUALS(num_removed, 1u);
@@ -296,7 +296,7 @@ public:
 
         // Test that the apoptotic cell has been removed
         unsigned num_removed = simple_tissue.RemoveDeadCells();
-        simple_tissue.ReMesh();
+        simple_tissue.Update();
 
         TS_ASSERT_EQUALS(num_removed, 1u);
         TS_ASSERT_EQUALS(simple_tissue.GetNumNodes(), 81u);

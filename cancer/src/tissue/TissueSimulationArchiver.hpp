@@ -169,8 +169,9 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
-    // Write the mesh to file.  Remesh first to ensure it's in a good state.
-    pSim->rGetTissue().ReMesh();
+    // Write the mesh to file. Call Update() first to 
+    // ensure that the tissue is in a good state.
+    pSim->rGetTissue().Update();
     if (pSim->rGetTissue().HasMesh())
     {
         // The false is so the directory isn't cleaned

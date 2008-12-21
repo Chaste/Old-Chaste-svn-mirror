@@ -74,11 +74,11 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
 
     if (mrTissue.HasMesh())
     {
-        mReMesh = true;
+        mUpdateTissue = true;
     }
     else
     {
-        mReMesh = false;
+        mUpdateTissue = false;
     }
 
     mOutputCellMutationStates = false;
@@ -359,12 +359,12 @@ const AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
 }
 
 /**
- * Set whether the mesh should be remeshed at every time step.
+ * Set whether to update the topology of the tissue at each time step.
  */
 template<unsigned DIM>
-void TissueSimulation<DIM>::SetReMeshRule(bool remesh)
+void TissueSimulation<DIM>::SetUpdateTissueRule(bool updateTissue)
 {
-    mReMesh = remesh;
+    mUpdateTissue = updateTissue;
 }
 
 /**
@@ -561,38 +561,40 @@ void TissueSimulation<DIM>::Solve()
         LOG(1, "\tNum births = " << mNumBirths << "\n");
         CancerEventHandler::EndEvent(BIRTH);
 
-        /////////////////////////
-        // Remesh
-        /////////////////////////
+        ////////////////////////////
+        // Update topology of tissue
+        ////////////////////////////
 
-        // If the tissue has a mesh, then we currently must call a ReMesh at
-        // each timestep. Otherwise, we only need to call a ReMesh after there
-        // has been any cell birth or cell death.
+        /**
+         * If the tissue has a mesh, then we currently must call the Update() 
+         * method at each time step. Otherwise, we only need to call Update() 
+         * after there has been any cell birth or cell death.
+         */
         if (mrTissue.HasMesh())
         {
             //This assertion is not necessarily true
-            //assert(mReMesh);
+            //assert(mUpdateTissue);
             //See TestCryptSimulation2dNightly::Test2DSpringSystem where the
             //default value is over-written
         }
         else
         {
-            mReMesh = false;
+            mUpdateTissue = false;
             if ( (births_this_step>0) || (deaths_this_step>0) )
             {
-                mReMesh = true;
+                mUpdateTissue = true;
             }
         }
 
-        // Do the remesh
-        CancerEventHandler::BeginEvent(REMESH);
-        if (mReMesh)
+        // Update the topology of the tissue
+        CancerEventHandler::BeginEvent(UPDATE);
+        if (mUpdateTissue)
         {
-            LOG(1, "\tRemeshing...");
-            mrTissue.ReMesh();
+            LOG(1, "\tUpdating tissue...");
+            mrTissue.Update();
             LOG(1, "\tdone.\n");
         }
-        CancerEventHandler::EndEvent(REMESH);
+        CancerEventHandler::EndEvent(UPDATE);
 
         /////////////////////////
         // Tessellate if needed
@@ -705,27 +707,27 @@ void TissueSimulation<DIM>::AfterSolve()
     LOG(1, "\tNum births = " << mNumBirths << "\n");
     CancerEventHandler::EndEvent(BIRTH);
 
-    // Carry out a final remesh if necessary
+    // Carry out a final tissue update if necessary
     if (mrTissue.HasMesh())
     {
         //This assertion is not necessarily true
-        //assert(mReMesh);
+        //assert(mUpdateTissue);
         //See TestCryptSimulation2dNightly::Test2DSpringSystem where the
         //default value is over-written
     }
     else
     {
-        mReMesh = false;
+        mUpdateTissue = false;
         if ( (mNumBirths>0) || (mNumDeaths>0) )
         {
-            mReMesh = true;
+            mUpdateTissue = true;
         }
     }
 
-    if (mReMesh)
+    if (mUpdateTissue)
     {
-        LOG(1, "\tRemeshing...");
-        mrTissue.ReMesh();
+        LOG(1, "\tUpdating tissue...");
+        mrTissue.Update();
         LOG(1, "\tdone.\n");
     }
 }

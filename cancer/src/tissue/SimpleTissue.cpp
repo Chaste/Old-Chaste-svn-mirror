@@ -136,7 +136,7 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
 
 
 template<unsigned DIM>
-void SimpleTissue<DIM>::ReMesh()
+void SimpleTissue<DIM>::Update()
 {
     // Create and reserve space for a temporary vector
     std::vector<Node<DIM> > old_nodes;

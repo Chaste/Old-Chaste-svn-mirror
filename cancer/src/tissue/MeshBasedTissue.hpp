@@ -172,15 +172,14 @@ public:
     double GetDampingConstant(TissueCell& rCell);
 
     /**
-     * Remove all cells labelled as dead.
+     * Remove all cells that are labelled as dead.
      *
-     * Note that this now calls
-     * MutableMesh::DeleteNodePriorToReMesh()
-     * and therefore a ReMesh(map) must be called before
-     * any element information is used.
+     * Note that this now calls MutableMesh::DeleteNodePriorToReMesh() 
+     * and therefore a ReMesh(map) must be called before any element 
+     * information is used.
      *
-     * Note also that after calling this method the tissue will be in an inconsistent state until a
-     * ReMesh is performed! So don't try iterating over cells or anything like that.
+     * Note also that after calling this method the tissue will be in an inconsistent state until 
+     * Update() is called! So don't try iterating over cells or anything like that.
      * 
      * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
      * between nodes and cells (see #430) - most of the work will actually be in AbstractTissue.
@@ -218,7 +217,7 @@ public:
      */
     TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
-    virtual void ReMesh();
+    virtual void Update();
 
     Node<DIM>* GetNode(unsigned index);
 
@@ -246,7 +245,7 @@ public:
 
     void WriteTissueAreaResultsToFile();
 
-    /** Get a reference to a Voronoi Tessellation of the mesh */
+    /** Get a reference to a Voronoi tessellation of the mesh */
     void CreateVoronoiTessellation();
 
     VoronoiTessellation<DIM>& rGetVoronoiTessellation();

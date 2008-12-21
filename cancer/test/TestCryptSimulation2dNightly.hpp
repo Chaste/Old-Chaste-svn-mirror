@@ -161,7 +161,7 @@ public:
 
         simulator.SetEndTime(1.0);
 
-        simulator.SetReMeshRule(false);
+        simulator.SetUpdateTissueRule(false);
         simulator.SetNoBirth(true);
 
         // Destroy the simulation time class because of failed solve
