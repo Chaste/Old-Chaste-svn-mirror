@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACELECTROMECHANICSPROBLEM_HPP_
 #define ABSTRACTCARDIACELECTROMECHANICSPROBLEM_HPP_
 
+#include "TetrahedralMesh.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacMechanicsAssembler.hpp"
 #include "EulerIvpOdeSolver.hpp"
@@ -39,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "LogFile.hpp"
 #include "ImplicitCardiacMechanicsAssembler2.hpp"
+#include "PetscTools.hpp"
 
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"

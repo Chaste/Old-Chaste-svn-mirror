@@ -62,7 +62,7 @@ public:
         // Defines a list into which radial vectors are stored
         c_vector<double, 3> gradients;
 
-        double nearest_r_squared,r_squared;
+        double nearest_r_squared=DBL_MAX,r_squared;
         int nearest_face_node = 0;
         
         // Loops over all elements finding radius vector

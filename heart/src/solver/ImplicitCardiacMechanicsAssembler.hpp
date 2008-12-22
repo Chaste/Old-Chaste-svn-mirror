@@ -392,7 +392,7 @@ private:
             // see NOTE below
             system.SetLambdaAndDerivative(lam, dlam_dt);
 
-            double active_tension;
+            double active_tension=0.0;
             try
             {
                 system.SolveDoNotUpdate(mCurrentTime,mNextTime,mOdeTimestep);
