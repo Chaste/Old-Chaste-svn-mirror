@@ -268,6 +268,7 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
 
 //#if (PETSC_VERSION_MINOR == 2) //Old API
    // hello Joe.
+   // Hello
 //#else
     // determine which rows in this column are non-zero (and
     // therefore need to be zeroed)
@@ -295,6 +296,8 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
     }
     
     MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
+    delete [] rows;
+    delete [] zeros;
 //#endif
 }
 

@@ -169,6 +169,25 @@
    fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
 }
 
+#Another getpwuid related suppression
+{
+   get--user-name-3
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib/tls/i686/cmov/libc-2.8.90.so
+   fun:__nss_database_lookup
+   obj:*
+   obj:*
+   fun:getpwuid_r
+   fun:getpwuid
+   fun:_Z16PetscGetUserNamePcj
+   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
+
 #
 # HDF5 free lists (see http://hdf.ncsa.uiuc.edu/HDF5/faq/valgrind.html )
 #
