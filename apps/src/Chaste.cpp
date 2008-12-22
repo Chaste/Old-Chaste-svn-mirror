@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
+#include "TetrahedralMesh.hpp"
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
 #include "PetscTools.hpp"
