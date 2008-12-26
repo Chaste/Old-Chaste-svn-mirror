@@ -430,7 +430,7 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestNodeBasedTissueWriters/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cancer/test/data/TestNodeBasedTissueWriters/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cancer/test/data/TestNodeBasedTissueWriters/results.vizAncestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cancer/test/data/TestNodeBasedTissueWriters/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cancer/test/data/TestNodeBasedTissueWriters/cellmutationstates.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
