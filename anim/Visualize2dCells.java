@@ -121,6 +121,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static JLabel nearest_label = new JLabel();
     
     public static File node_file;
+    public static File cell_type_file;
     public static File element_file;
     public static File nutrient_file;
     public static File beta_catenin_file;
@@ -352,9 +353,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
                 if (updateThread != null) 
                 {
-                    Thread fred = updateThread;
+                    Thread thread = updateThread;
                     updateThread = null;
-                    fred.interrupt();
+                    thread.interrupt();
                     run.setLabel("Run");
                 }
             }
@@ -462,6 +463,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static void main(String args[]) 
     {
         System.out.println("Copyright The Chaste Project");
+
+        // Set default states for options
         cells.setState(true);
         output.setState(false);
         springs.setState(false);
@@ -475,6 +478,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         axes.setState(true);
         ancestors.setState(false);
         
+        // Update states for options according to input args
         for (int i=1; i<args.length; i++)
         {
             if (args[i].equals("output"))
@@ -540,22 +544,31 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 System.out.println("Input option not recognised");
             }
         }
+
+        // Read in results files for visualization
+
         node_file = new File(args[0]+"/results.viznodes");
+        cell_type_file = new File(args[0]+"/results.vizcelltypes");
         element_file = new File(args[0]+"/results.vizelements");
         nutrient_file = new File(args[0]+"/results.viznutrient");
-        beta_catenin_file = new File(args[0]+"/results.vizbCat");
+        beta_catenin_file = new File(args[0]+"/results.vizbetacatenin");
         stress_file = new File(args[0]+"/results.vizstress");
-        ancestors_file = new File(args[0]+"/results.vizAncestors");
+        ancestors_file = new File(args[0]+"/results.vizancestors");
                 
         if (!node_file.isFile())
         {
             System.out.println("The file "+args[0]+"/results.viznodes doesn't exist");
             return;
         }
+        if (!cell_type_file.isFile())
+        {
+            System.out.println("The file "+args[0]+"/results.vizcelltypes doesn't exist");
+            return;
+        }
         if (!element_file.isFile())
         {
         	// If the results.vizelements does not exist, then assume the results 
-        	// were generated using a SimpleTissue
+        	// were generated using a NodeBasedTissue
         	elementFilePresent = false;
         }
         if (!nutrient_file.isFile())
@@ -687,8 +700,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     {
     	parsed_all_files = false;
         try 
-        {
-                  	
+        {                  	
         	BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
 
             int num_lines = 0;
@@ -697,10 +709,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 num_lines++;
             }
             
-            // by default we don't read or print the final line, so
+            // By default we don't read or print the final line, so
             // the visualiser can be run as a simulation is being run,
             // and the visualiser will work on incomplete data.
-            if(num_lines>1 && !showLastStep)
+            if (num_lines>1 && !showLastStep)
             {
             	num_lines -= 1;
             }
@@ -787,6 +799,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
             String line_node = in_node_file.readLine(); // from console input example
             
+            BufferedReader in_cell_type_file = new BufferedReader(new FileReader(cell_type_file));
+            String line_cell_type = in_cell_type_file.readLine(); // from console input example
+
             BufferedReader in_element_file = null;
             String line_element = null;
             if (elementFilePresent)
@@ -806,6 +821,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
             	// Create a StringTokenizer with a colon sign as a delimiter
                 StringTokenizer st_node = new StringTokenizer(line_node);
+                StringTokenizer st_cell_type = new StringTokenizer(line_cell_type);
                 StringTokenizer st_element = null;
                 if (elementFilePresent)
                 {
@@ -818,6 +834,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 StringTokenizer st_stress = null;
                 
                 Double time = Double.valueOf(st_node.nextToken());
+                Double cell_type_time = Double.valueOf(st_cell_type.nextToken());
                 
                 if (drawFibres)
                 {
@@ -891,13 +908,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 // Count the number of entries in the node file and check correct 
                 int entries = st_node.countTokens();
                                 
-                if (entries%3 != 0)
+                if (entries%2 != 0)
                 {
-                	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the node file is not of the required form: time,x,y,type,x,y,type...");
+                	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the node file is not of the required form: time,x,y,x,y,...");
                 	break;
                 }
-                numCells[row] = entries/3; 
+                numCells[row] = entries/2; 
 
+				int entries_from_cell_type_file = st_cell_type.countTokens();
+				if (numCells[row] != entries_from_cell_type_file)
+				{
+					System.out.println("Warning: At time "+time.doubleValue()+", node file gives "+numCells[row]+" cells, but cell type file gives "+entries_from_cell_type_file+" cell");
+					break;
+				}
 
                 if (elementFilePresent)
                 {
@@ -952,7 +975,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         fibres[row][i] = new RealPoint(f1,f2);
                     }
                     
-                    cell_type[row][i] = Integer.parseInt(st_node.nextToken());
+                    cell_type[row][i] = Integer.parseInt(st_cell_type.nextToken());
+
                     if ( cell_type[row][i] < 0 )
                     {
                         System.out.println("Error: Cell type must be a non-negative integer");
@@ -975,7 +999,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }	
                     
                     if (drawAncestors)
-                    {	// If this is a real cell then read in ancestor from row
+                    {	
+                    	// If this is a real cell then read in ancestor from row
                     	if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
                     	{
                     		int ancestor_value = Integer.parseInt(st_ancestors.nextToken()); // index
@@ -985,7 +1010,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     
                     if (drawBetaCatenin)
                     {
-                    	if (cell_type[row][i] != canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
+                    	if (cell_type[row][i] != canvas.INVISIBLE_COLOUR) // if this is not a ghost cell
                     	{
                     		String skip; 
                         	int index = Integer.parseInt(st_beta_catenin.nextToken()); // index
@@ -1029,8 +1054,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }                	
                 }
                 
-                // Read next line of the file
+                // Read next line of each file
+
                 line_node = in_node_file.readLine();
+                line_cell_type = in_cell_type_file.readLine();
                 
                 if (drawFibres)
                 {
@@ -1081,14 +1108,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         {
             System.out.println("Error occured. Exception message: "+e.getMessage());
         }
-    	
-    	
+    	    	
     }
     
     
     public static void CalculateCanvasDimensions()
     {
-        for (int row=0 ; row<numSteps; row++)
+        for (int row=0; row<numSteps; row++)
         {
             for (int i=0; i < numCells[row]; i++) 
             {
@@ -1115,7 +1141,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static void ConvertCylindricalDataToPlane()
     {
         // Scan through each element
-        for (int time_index=0; time_index<numSteps ; time_index++)
+        for (int time_index=0; time_index<numSteps; time_index++)
         {
             image_cells[time_index] = new int[memory_factor*numCells[time_index]]; // reserve plenty of memory
             
@@ -1186,7 +1212,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             element_nodes[time_index][3*numElements[time_index]+1] = image_cells[time_index][indexB];
         }
         
-        //If node C is far away 
+        // If node C is far away 
         if (Math.abs(rA.x - rC.x) > 0.75*crypt_width)
         {   
         	// Add it to new element and add image of C to this element.
@@ -1275,15 +1301,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     BufferedImage buffered_image = null;
     Graphics g2 = null;
     
-    Color garysSexySilver = new Color(238,238,238);
-    Color garysSpringsSilver = new Color(200,200,200);
-    Color ozzysDirtyGrey = new Color(80,80,80);
+    Color background_silver = new Color(238,238,238);
+    Color spring_silver = new Color(200,200,200);
+    Color apoptotic_grey = new Color(80,80,80);
     Color purple = new Color(121,126,234);
     
     public CustomCanvas2D(Visualize2dCells v) 
     {
         vis = v;
-        setBackground(garysSexySilver);
+        setBackground(background_silver);
     }
 
     public void paint(Graphics graphics)
@@ -1346,7 +1372,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             g2 = buffered_image.getGraphics();
         }
         
-        g2.setColor(garysSexySilver);
+        g2.setColor(background_silver);
         g2.fillRect(0, 0, width, height);
         g2.setColor(Color.black);
         g2.drawString("Time = " + vis.times[vis.timeStep], 10, 10);
@@ -1419,7 +1445,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         if (vis.elementFilePresent)
         {        	
 	        // Draw elements first
-	        for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
+	        for (int i=0; i < vis.numElements[vis.timeStep]; i++)
 	        {       
 	            // What nodes are we joining up?
 	        	int index[] = new int[3];
@@ -1666,7 +1692,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	                }
 	                if (vis.drawGhosts)
 	                {
-	                    g2.setColor(garysSpringsSilver);
+	                    g2.setColor(spring_silver);
 	                    if ( (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) )
 	                    {
 	                        g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
@@ -1795,7 +1821,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         int blockWidth = blockHeight;
         
         double stress_max = 40;
-    	double stress_min = 0 ;
+    	double stress_min = 0;
     	int r = 0;
     	int g = 0;
     	int b = 0;
@@ -2044,43 +2070,43 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         }
         else
         {
-    	switch (vis.cell_type[vis.timeStep][index]) 
-    	{
-    	    case STEM_COLOUR: // stem cell
-                g2.setColor(Color.green); 
-                break;
-            case TRANSIT_COLOUR: // transit cell
-                g2.setColor(Color.orange); 
-                break;
-            case DIFFERENTIATED_COLOUR: // differentiated cell
-                g2.setColor(Color.red); 
-                break;
-            case EARLY_CANCER_COLOUR: // early cancer
-                g2.setColor(Color.gray); 
-                break;
-            case LATE_CANCER_COLOUR:  // late cancer
-                g2.setColor(Color.black);
-                break;
-            case LABELLED_COLOUR: // labelled cell
-                g2.setColor(Color.blue); 
-                break;
-            case APOPTOSIS_COLOUR: // apoptotic cell
-                g2.setColor(Color.black); 
-                break;
-            case INVISIBLE_COLOUR: // sloughed cell
-                if (!vis.drawGhosts)
-                {
-                    g2.setColor(garysSexySilver);
-                }
-                else
-                {
-                    g2.setColor(Color.lightGray);
-                } 
-                break;
-             default: 
-                g2.setColor(Color.white);
-                break;
-    	}  
+    		switch (vis.cell_type[vis.timeStep][index]) 
+    		{
+    	    	case STEM_COLOUR: // stem cell
+            	    g2.setColor(Color.green); 
+            	    break;
+           	 	case TRANSIT_COLOUR: // transit cell
+            	    g2.setColor(Color.orange); 
+            	    break;
+	            case DIFFERENTIATED_COLOUR: // differentiated cell
+    	            g2.setColor(Color.red); 
+    	            break;
+    	        case EARLY_CANCER_COLOUR: // early cancer
+    	            g2.setColor(Color.gray); 
+    	            break;
+    	        case LATE_CANCER_COLOUR:  // late cancer
+    	            g2.setColor(Color.black);
+    	            break;
+    	        case LABELLED_COLOUR: // labelled cell
+    	            g2.setColor(Color.blue); 
+    	            break;
+    	        case APOPTOSIS_COLOUR: // apoptotic cell
+    	            g2.setColor(Color.black); 
+    	            break;
+    	        case INVISIBLE_COLOUR: // sloughed cell
+    	            if (!vis.drawGhosts)
+    	            {
+    	                g2.setColor(background_silver);
+    	            }
+    	            else
+    	            {
+    	                g2.setColor(Color.lightGray);
+    	            } 
+    	            break;
+				default: 
+                	g2.setColor(Color.white);
+                	break;
+			}  
         }  	
     }
  
@@ -2117,10 +2143,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     		switch (vis.cell_type[vis.timeStep][index]) 
         	{
         		case APOPTOSIS_COLOUR: // apoptotic cell
-        			g2.setColor(ozzysDirtyGrey); 
+        			g2.setColor(apoptotic_grey); 
         			break;
         		case INVISIBLE_COLOUR: // sloughed cell
-        			g2.setColor(garysSexySilver); 
+        			g2.setColor(background_silver); 
         			break;
         		case LABELLED_COLOUR: // labelled cell
         			g2.setColor(Color.red);
@@ -2148,7 +2174,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             }
         	
     		double stress_max = 40;
-        	double stress_min = 0 ;
+        	double stress_min = 0;
         	int r = 0;
         	int g = 0;
         	int b = 0;
@@ -2158,7 +2184,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
             {
             	// Sloughed cell
-                g2.setColor(garysSexySilver);
+                g2.setColor(background_silver);
             }
             else
             {
@@ -2194,7 +2220,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
       	{	// If we are drawing ancestors and this cell's value has been set in simulation.
     		if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
     		{
-    			g2.setColor(garysSexySilver);      			
+    			g2.setColor(background_silver);      			
     		}
     		else
     		{
@@ -2225,13 +2251,13 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(purple); 
         			break;
         		case APOPTOSIS_COLOUR: // apoptotic cell
-        			g2.setColor(ozzysDirtyGrey); 
+        			g2.setColor(apoptotic_grey); 
         			break;
         		case INVISIBLE_COLOUR: // sloughed cell
-        			g2.setColor(garysSexySilver);                    
+        			g2.setColor(background_silver);                    
         			break;
         		default: 
-        			g2.setColor(garysSexySilver);                    
+        			g2.setColor(background_silver);                    
         			break;
         	}
     	}
@@ -2266,7 +2292,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     	if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
         {
             // Sloughed cell
-            g2.setColor(garysSexySilver);
+            g2.setColor(background_silver);
         }
     	else
     	{

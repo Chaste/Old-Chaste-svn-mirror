@@ -8,7 +8,7 @@ TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeshBasedTissue.hpp
 TestOdeBasedCellCycleModels.hpp
 TestSimpleCellCycleModels.hpp
-TestSimpleTissue.hpp
+TestNodeBasedTissue.hpp
 TestSimulationTime.hpp
 TestTissueCell.hpp
 TestTissueSimulation3d.hpp

@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_
-#define TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_
+#ifndef TESTTISSUESIMULATIONWITHNODEBASEDTISSUE_HPP_
+#define TESTTISSUESIMULATIONWITHNODEBASEDTISSUE_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationArchiver.hpp"
 
 #include "TissueSimulation.hpp"
-#include "SimpleTissue.hpp"
+#include "NodeBasedTissue.hpp"
 #include "MeinekeInteractionForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 
 
-class TestTissueSimulationWithSimpleTissue : public AbstractCancerTestSuite
+class TestTissueSimulationWithNodeBasedTissue : public AbstractCancerTestSuite
 {
 private:
     template<unsigned DIM>
@@ -81,7 +81,7 @@ private:
 public:
 
     /**
-     * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem.
+     * Create a simulation of a NodeBasedTissue with a NodeBasedTissueMechanicsSystem.
      * Test that no exceptions are thrown, and write the results to file.
      */
     void TestSimpleMonolayer() throw (Exception)
@@ -95,8 +95,8 @@ public:
         // Set up cells, one for each node. Get each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
-        // Create a simple tissue
-        SimpleTissue<2> simple_tissue(*p_mesh, cells);
+        // Create a node based tissue
+        NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
 
         // Create a mechanics system
         MeinekeInteractionForce<2> meineke_force;
@@ -105,8 +105,8 @@ public:
         force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulation<2> simulator(simple_tissue, force_collection);
-        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissue");
+        TissueSimulation<2> simulator(node_based_tissue, force_collection);
+        simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissue");
         simulator.SetEndTime(10.0);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -145,7 +145,7 @@ public:
 //        // Set up cells, one for each node. Get each a random birth time.
 //        std::vector<TissueCell> cells = SetUpCells(p_mesh);
 //
-//        // Create a simple tissue
+//        // Create a tissue
 //        MeshBasedTissue<2> tissue(*p_mesh, cells);
 //
 //        Meineke2001SpringSystem<2> mechanics_system(tissue);
@@ -159,14 +159,14 @@ public:
 //    }
 
     /**
-     * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem
+     * Create a simulation of a NodeBasedTissue with a NodeBasedTissueMechanicsSystem
      * and a CellKiller. Test that no exceptions are thrown, and write the results to file.
      *
      *  ** NOT RUN as currently fails with positions of some cells becoming NaN **
      */
     void failingTestCellDeath() throw (Exception)
     {
-        std::string test_folder = "TestTissueSimulationWithSimpleTissueCellDeath";
+        std::string test_folder = "TestTissueSimulationWithNodeBasedTissueCellDeath";
         LogFile::Instance()->Set(2, test_folder, "log.dat");
 
         // Create a simple mesh
@@ -178,8 +178,8 @@ public:
         // Set up cells, one for each node. Get each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
-        // Create a simple tissue
-        SimpleTissue<2> simple_tissue(*p_mesh, cells);
+        // Create a node based tissue
+        NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
 
         // Create a mechanics system
         MeinekeInteractionForce<2> meineke_force;
@@ -188,12 +188,12 @@ public:
         force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulation<2> simulator(simple_tissue, force_collection);
+        TissueSimulation<2> simulator(node_based_tissue, force_collection);
         simulator.SetOutputDirectory(test_folder);
         simulator.SetEndTime(0.5);
 
         // Add cell killer
-        RandomCellKiller<2> random_cell_killer(&simple_tissue, 0.05);
+        RandomCellKiller<2> random_cell_killer(&node_based_tissue, 0.05);
         simulator.AddCellKiller(&random_cell_killer);
 
         simulator.Solve();
@@ -204,7 +204,7 @@ public:
     }
 
     /**
-     * Test archiving of a TissueSimulation that uses a SimpleTissue.
+     * Test archiving of a TissueSimulation that uses a NodeBasedTissue.
      */
     void TestArchiving() throw (Exception)
     {
@@ -217,8 +217,8 @@ public:
         // Set up cells, one for each node. Get each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
-        // Create a simple tissue
-        SimpleTissue<2> simple_tissue(*p_mesh, cells);
+        // Create a node based tissue
+        NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
 
         // Create a mechanics system
         MeinekeInteractionForce<2> meineke_force;
@@ -227,8 +227,8 @@ public:
         force_collection.push_back(&meineke_force);
 
         // Set up tissue simulation
-        TissueSimulation<2> simulator(simple_tissue, force_collection);
-        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueSaveAndLoad");
+        TissueSimulation<2> simulator(node_based_tissue, force_collection);
+        simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissueSaveAndLoad");
         simulator.SetEndTime(0.5);
 
         simulator.Solve();
@@ -236,7 +236,7 @@ public:
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
 
         TissueSimulation<2>* p_simulator
-            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithSimpleTissueSaveAndLoad", 0.5);
+            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 0.5);
 
         p_simulator->SetEndTime(1.0);
 
@@ -248,5 +248,5 @@ public:
 
 };
 
-#endif /*TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_*/
+#endif /*TESTTISSUESIMULATIONWITHNODEBASEDTISSUE_HPP_*/
 

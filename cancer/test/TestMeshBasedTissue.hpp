@@ -634,6 +634,7 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cancer/test/data/TestTissueWriters/results.vizcelltypes").c_str()), 0);
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
         c_vector<unsigned,5> cell_mutation_states = tissue.GetCellMutationStateCount();

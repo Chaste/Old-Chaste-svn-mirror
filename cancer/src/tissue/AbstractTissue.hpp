@@ -67,8 +67,11 @@ protected:
     /** Current cell cycle phase counts */
     c_vector<unsigned, 5> mCellCyclePhaseCount;
 
-    /** Results file for nodes */
-    out_stream mpNodeFile;
+    /** Results file for node visualization */
+    out_stream mpVizNodesFile;
+    
+    /** Results file for cell visualization */
+    out_stream mpVizCellTypesFile;
 
     /** Results file for cell mutation states */
     out_stream mpCellMutationStatesFile;
@@ -545,6 +548,8 @@ TissueCell* AbstractTissue<DIM>::Iterator::operator->()
     return &(*mCellIter);
 }
 
+///\todo We may need to generalize this method when 
+///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
 {
@@ -552,6 +557,8 @@ Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
     return mrTissue.GetNode(mNodeIndex);
 }
 
+///\todo We may need to generalize this method when 
+///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 const c_vector<double, DIM>& AbstractTissue<DIM>::Iterator::rGetLocation()
 {
@@ -564,6 +571,8 @@ bool AbstractTissue<DIM>::Iterator::operator!=(const AbstractTissue<DIM>::Iterat
     return mCellIter != other.mCellIter;
 }
 
+///\todo We may need to generalize this method when 
+///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator++()
 {
@@ -580,6 +589,8 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
     return (*this);
 }
 
+///\todo We may need to generalize this method when 
+///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
@@ -592,6 +603,8 @@ bool AbstractTissue<DIM>::Iterator::IsAtEnd()
     return mCellIter == mrTissue.rGetCells().end();
 }
 
+///\todo We may need to generalize this method when 
+///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<TissueCell>::iterator cellIter)
     : mrTissue(rTissue),
@@ -636,15 +649,17 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                             bool outputCellAncestors)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
-    mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
+    mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
+    mpVizCellTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
+    
     if (outputCellAncestors)
     {
-        mpCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizAncestors");
+        mpCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizancestors");
     }
     if (outputCellMutationStates)
     {
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
-        *mpCellMutationStatesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+        *mpCellMutationStatesFile << "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
     if (outputCellTypes)
     {
@@ -667,7 +682,9 @@ void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                            bool outputCellCyclePhases,
                                            bool outputCellAncestors)
 {
-    mpNodeFile->close();
+    mpVizNodesFile->close();
+    mpVizCellTypesFile->close();
+    
     if (outputCellMutationStates)
     {
         mpCellMutationStatesFile->close();
@@ -722,30 +739,28 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         cell_cycle_phase_counter[i] = 0;
     }
 
-    *mpNodeFile <<  time << "\t";
+    *mpVizNodesFile << time << "\t";
+    *mpVizCellTypesFile << time << "\t";
+    
     if (outputCellAncestors)
     {
-        *mpCellAncestorsFile <<  time << "\t";
+        *mpCellAncestorsFile << time << "\t";
     }
-
     if (outputCellMutationStates)
     {
-        *mpCellMutationStatesFile <<  time << "\t";
+        *mpCellMutationStatesFile << time << "\t";
     }
-
     if (outputCellTypes)
     {
-        *mpCellTypesFile <<  time << "\t";
+        *mpCellTypesFile << time << "\t";
     }
-
     if (outputCellVariables)
     {
-        *mpCellVariablesFile <<  time << "\t";
+        *mpCellVariablesFile << time << "\t";
     }
-
     if (outputCellCyclePhases)
     {
-        *mpCellCyclePhasesFile <<  time << "\t";
+        *mpCellCyclePhasesFile << time << "\t";
     }
 
     // Write node data to file
@@ -790,7 +805,6 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                         NEVER_REACHED;
                 }
             }
-
 
             if (mCells.size() > 0)
             {
@@ -903,14 +917,18 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
 
             for (unsigned i=0; i<DIM; i++)
             {
-                *mpNodeFile << position[i] << " ";
+                *mpVizNodesFile << position[i] << " ";
             }
-            *mpNodeFile << colour << " ";
+            
+            *mpVizCellTypesFile << colour << " ";
 
             // Write cell variable data to file if required
             if (outputCellVariables)
             {
                 // Loop over cell positions
+                ///\todo This assumes a one-one correspondence between cells 
+                ///      and nodes, which is not the case for a vertex-based 
+                ///      tissue (see #827)
                 for (unsigned i=0; i<DIM; i++)
                 {
                     *mpCellVariablesFile << position[i] << " ";
@@ -927,7 +945,9 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     {
         *mpCellAncestorsFile << "\n";
     }
-    *mpNodeFile << "\n";
+    
+    *mpVizNodesFile << "\n";
+    *mpVizCellTypesFile << "\n";
 
     // Write cell mutation state data to file if required
     if (outputCellMutationStates)
@@ -935,9 +955,9 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
         {
             mCellMutationStateCount[i] = cell_mutation_state_counter[i];
-            *mpCellMutationStatesFile <<  cell_mutation_state_counter[i] << "\t";
+            *mpCellMutationStatesFile << cell_mutation_state_counter[i] << "\t";
         }
-        *mpCellMutationStatesFile <<  "\n";
+        *mpCellMutationStatesFile << "\n";
     }
 
     // Write cell type data to file if required
@@ -946,14 +966,14 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         for (unsigned i=0; i<NUM_CELL_TYPES; i++)
         {
             mCellTypeCount[i] = cell_type_counter[i];
-            *mpCellTypesFile <<  cell_type_counter[i] << "\t";
+            *mpCellTypesFile << cell_type_counter[i] << "\t";
         }
-        *mpCellTypesFile <<  "\n";
+        *mpCellTypesFile << "\n";
     }
 
     if (outputCellVariables)
     {
-        *mpCellVariablesFile <<  "\n";
+        *mpCellVariablesFile << "\n";
     }
 
     // Write cell cycle phase data to file if required
@@ -962,9 +982,9 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         for (unsigned i=0; i<5; i++)
         {
             mCellCyclePhaseCount[i] = cell_cycle_phase_counter[i];
-            *mpCellCyclePhasesFile <<  cell_cycle_phase_counter[i] << "\t";
+            *mpCellCyclePhasesFile << cell_cycle_phase_counter[i] << "\t";
         }
-        *mpCellCyclePhasesFile <<  "\n";
+        *mpCellCyclePhasesFile << "\n";
     }
 }
 

@@ -175,8 +175,12 @@ public:
 
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DSprings",false);
+
         std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DSpringsResults/results.viznodes").c_str()), 0);
+
+        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " cancer/test/data/Crypt2DSpringsResults/results.vizcelltypes").c_str()), 0);
 
         std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
         TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);
@@ -223,14 +227,18 @@ public:
         simulator.Solve();
 
         // Work out where the previous test wrote its files
-        OutputFileHandler handler("Crypt2DHoneycombMesh",false);
-        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        OutputFileHandler handler("Crypt2DHoneycombMesh", false);
 
-        NumericFileComparison comp_node(node_results_file,"cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes");
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        NumericFileComparison comp_node(node_results_file, "cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes");
         TS_ASSERT(comp_node.CompareFiles());
 
+        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        NumericFileComparison comp_cell_type(cell_type_results_file, "cancer/test/data/Crypt2DHoneycombMeshResults/results.vizcelltypes");
+        TS_ASSERT(comp_cell_type.CompareFiles());
+        
         std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
-        NumericFileComparison comp_elem(elem_results_file,"cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements");
+        NumericFileComparison comp_elem(elem_results_file, "cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements");
         TS_ASSERT(comp_elem.CompareFiles());
     }
 
@@ -271,7 +279,7 @@ public:
         simulator.Solve();
 
         //Check writing of voronoi data
-        OutputFileHandler handler("Monolayer",false);
+        OutputFileHandler handler("Monolayer", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/results.vizvoronoi").c_str()), 0);
     }

@@ -124,7 +124,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp
         {
             for (unsigned i=1;i<=3*numAcross+1;i+=2)
             {
-                if(j!=0 || i!= 3*numAcross+1)
+                if (j!=0 || i!= 3*numAcross+1)
                 {
                     if (i%3 != 2)
                     {
@@ -208,14 +208,14 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp
                 node_indices[4] = node_indices[0]+2*numAcross+2;
                 node_indices[5] = node_indices[0]+numAcross+1;
                  
-                if((j==numUp-1)&&(i%2 == 1))
+                if ((j==numUp-1)&&(i%2 == 1))
                 {
                     // On top row and its an odd column nodes 
                     node_indices[3]-=1;
                     node_indices[4]-=1;
                 }
                   
-                if((j==0)&&(i%2 == 0)&&(numAcross%2==0))
+                if ((j==0)&&(i%2 == 0)&&(numAcross%2==0))
                 {
                     // On bottom row and its an even column and there is
                     // an even number of columns in total, (i.e. the very bottom) 
@@ -227,7 +227,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp
 
                 std::vector<Node<2>*> element_nodes;
                 
-                for(int i=0; i<6; i++)
+                for (int i=0; i<6; i++)
                 {
                    element_nodes.push_back(mNodes[node_indices[i]]);
                 }

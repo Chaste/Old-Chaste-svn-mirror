@@ -53,7 +53,7 @@ public:
 //       
         std::vector<Node<2>*> nodes;
         unsigned N = 6;   //vertices
-        for(unsigned i=0; i<N; i++)
+        for (unsigned i=0; i<N; i++)
         {
             double theta = 2.0*M_PI*(double)(i)/(double)(N); 
             nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
@@ -243,8 +243,8 @@ void TestVertexElementDivideEdge()
     void TestCalculateCentroid() throw(Exception)
     {
         std::vector<Node<2>*> nodes;
-        unsigned N = 6;   //vertices
-        for(unsigned i=0; i<N; i++)
+        unsigned N = 6;   // vertices
+        for (unsigned i=0; i<N; i++)
         {
             double theta = 2.0*M_PI*(double)(i)/(double)(N); 
             nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
@@ -255,7 +255,7 @@ void TestVertexElementDivideEdge()
         TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
         TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6);
         
-        for(unsigned i=0; i<nodes.size(); i++)
+        for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
@@ -317,8 +317,8 @@ void TestVertexElementDivideEdge()
         
         // Test on a regular polygon (generates a random vector)
         std::vector<Node<2>*> hexagon_nodes;
-        unsigned N = 6;   //vertices
-        for(unsigned i=0; i<N; i++)
+        unsigned N = 6;   // vertices
+        for (unsigned i=0; i<N; i++)
         {
             double theta = 2.0*M_PI*(double)(i)/(double)(N); 
             hexagon_nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   

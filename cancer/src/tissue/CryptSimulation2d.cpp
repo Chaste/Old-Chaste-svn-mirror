@@ -94,7 +94,7 @@ void CryptSimulation2d::WriteVisualizerSetupFile()
 void CryptSimulation2d::SetupWriteBetaCatenin()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
-    mBetaCatResultsFile = output_file_handler.OpenOutputFile("results.vizbCat");
+    mBetaCatResultsFile = output_file_handler.OpenOutputFile("results.vizbetacatenin");
     *mpSetupFile << "BetaCatenin\n";
 }
 

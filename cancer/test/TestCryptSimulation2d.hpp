@@ -794,12 +794,15 @@ public:
         OutputFileHandler handler("Crypt2DCylindricalMultipleDivisions",false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
 
-        NumericFileComparison comp_ele(results_dir + "/results.vizelements","cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements");
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements");
         TS_ASSERT(comp_ele.CompareFiles());
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements").c_str()), 0);
 
-        NumericFileComparison comp_nodes(results_dir + "/results.viznodes","cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.viznodes");
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles(1e-15));
+        
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.vizcelltypes");
+        TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
 
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.vizsetup").c_str()), 0);
     }
@@ -925,6 +928,7 @@ public:
        }
     }
 
+
     void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
     {
         // Make a mesh
@@ -956,6 +960,7 @@ public:
                         CancerParameters::Instance()->GetDivisionSeparation(),
                         1e-7);
     }
+
 
     void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
     {
@@ -994,6 +999,7 @@ public:
                         CancerParameters::Instance()->GetDivisionSeparation(),
                         1e-7);
     }
+
 
     // Short test which sets mNoBirth for coverage
     void TestNoBirth() throw (Exception)
@@ -1082,6 +1088,7 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     }
 
+
     void TestUsingJiggledBottomSurface()
     {
         HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
@@ -1121,6 +1128,7 @@ public:
         TS_ASSERT_LESS_THAN(0.0, cell_iter.rGetLocation()[1]);
     }
 
+
     void TestWriteBetaCatenin() throw (Exception)
     {
         HoneycombMeshGenerator generator(5, 4, 1);
@@ -1150,12 +1158,12 @@ public:
 
         // Check writing of beta-catenin data
         OutputFileHandler handler("CryptBetaCatenin",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbCat";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
         std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
 
-        NumericFileComparison comp_bcat(results_file,"cancer/test/data/CryptBetaCatenin/results.vizbCat");
+        NumericFileComparison comp_bcat(results_file, "cancer/test/data/CryptBetaCatenin/results.vizbetacatenin");
         TS_ASSERT(comp_bcat.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbetacatenin").c_str()), 0);
 
         TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);
 
@@ -1200,9 +1208,7 @@ public:
                                             0.3,2.0,3.0,4.0,true);
         // Set up crypt
         MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);
-
         p_crypt->SetBottomCellAncestors();
-
 
         // Set up crypt simulation
         MeinekeInteractionForce<2> meineke_force;
@@ -1210,7 +1216,6 @@ public:
         force_collection.push_back(&meineke_force);
 
         CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
-
         simulator.SetOutputDirectory(output_directory);
         simulator.SetOutputCellAncestors(true);
 
@@ -1235,16 +1240,21 @@ public:
         delete p_crypt;
 
         // ... and checking visualization of labelled cells against previous run
-        OutputFileHandler handler("AncestorCrypt",false);
+        OutputFileHandler handler("AncestorCrypt", false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
-        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizAncestors";
-        NumericFileComparison comp_nodes(results_file1,"cancer/test/data/AncestorCrypt/results.viznodes");
+        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizancestors";
+        std::string results_file3 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        
+        NumericFileComparison comp_nodes(results_file1, "cancer/test/data/AncestorCrypt/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles());
-        NumericFileComparison comp_ans(results_file2,"cancer/test/data/AncestorCrypt/results.vizAncestors");
+        NumericFileComparison comp_ans(results_file2, "cancer/test/data/AncestorCrypt/results.vizancestors");
         TS_ASSERT(comp_ans.CompareFiles());
-
+        NumericFileComparison comp_celltypes(results_file3, "cancer/test/data/AncestorCrypt/results.vizcelltypes");
+        TS_ASSERT(comp_celltypes.CompareFiles());
+        
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/AncestorCrypt/results.vizAncestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/AncestorCrypt/results.vizancestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file3 + " cancer/test/data/AncestorCrypt/results.vizcelltypes").c_str()), 0);
 
         delete p_params;
     }

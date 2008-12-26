@@ -13,12 +13,12 @@ TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeshBasedTissue.hpp
 TestOdeBasedCellCycleModels.hpp
 TestSimpleCellCycleModels.hpp
-TestSimpleTissue.hpp
+TestNodeBasedTissue.hpp
 TestSimulationTime.hpp
 TestTissueCell.hpp
 TestTissueSimulation.hpp
 TestTissueSimulation3d.hpp
-TestTissueSimulationWithSimpleTissue.hpp
+TestTissueSimulationWithNodeBasedTissue.hpp
 TestTysonNovak2001OdeSystem.hpp
 TestVoronoiAreaOnPeriodicMesh.hpp
 TestWntCellCycleOdeSystem.hpp

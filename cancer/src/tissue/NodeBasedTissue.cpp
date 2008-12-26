@@ -25,11 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "SimpleTissue.hpp"
+#include "NodeBasedTissue.hpp"
 
 template<unsigned DIM>
-SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes,
-                                const std::vector<TissueCell>& rCells)
+NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM> >& rNodes,
+                                      const std::vector<TissueCell>& rCells)
         : AbstractTissue<DIM>(rCells),
           mNodes(rNodes)
 {
@@ -38,7 +38,7 @@ SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes,
 
 
 template<unsigned DIM>
-SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes)
+NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM> >& rNodes)
         : AbstractTissue<DIM>(),
           mNodes(rNodes)
 {
@@ -46,11 +46,11 @@ SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes)
 
 
 template<unsigned DIM>
-SimpleTissue<DIM>::SimpleTissue(const AbstractMesh<DIM,DIM>& rMesh,
-                                const std::vector<TissueCell>& rCells)
+NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
+                                      const std::vector<TissueCell>& rCells)
         : AbstractTissue<DIM>(rCells)
 {
-    for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
         mNodes.push_back(*(rMesh.GetNode(i)));
     }
@@ -59,7 +59,7 @@ SimpleTissue<DIM>::SimpleTissue(const AbstractMesh<DIM,DIM>& rMesh,
 }
 
 template<unsigned DIM>
-void SimpleTissue<DIM>::Validate()
+void NodeBasedTissue<DIM>::Validate()
 {
     std::vector<bool> validated_node(GetNumNodes());
 
@@ -80,36 +80,37 @@ void SimpleTissue<DIM>::Validate()
     }
 }
 
+
 template<unsigned DIM>
-std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes()
+std::vector<Node<DIM> >& NodeBasedTissue<DIM>::rGetNodes()
 {
     return mNodes;
 }
 
 
 template<unsigned DIM>
-const std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes() const
+const std::vector<Node<DIM> >& NodeBasedTissue<DIM>::rGetNodes() const
 {
     return mNodes;
 }
 
 
 template<unsigned DIM>
-Node<DIM>* SimpleTissue<DIM>::GetNode(unsigned index)
+Node<DIM>* NodeBasedTissue<DIM>::GetNode(unsigned index)
 {
     return &(mNodes[index]);
 }
 
 
 template<unsigned DIM>
-void SimpleTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM> point)
+void NodeBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM> point)
 {
     mNodes[index].SetPoint(point);
 }
 
 
 template<unsigned DIM>
-void SimpleTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
+void NodeBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
 {
     unsigned index = iter.GetNode()->GetIndex();
     SetNode(index, rNewLocation);
@@ -117,7 +118,7 @@ void SimpleTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, Ch
 
 
 template<unsigned DIM>
-TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* NodeBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
     // Create a new node
     Node<DIM> new_node(GetNumNodes(), newLocation, false); // never on boundary
@@ -136,7 +137,7 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
 
 
 template<unsigned DIM>
-void SimpleTissue<DIM>::Update()
+void NodeBasedTissue<DIM>::Update()
 {
     // Create and reserve space for a temporary vector
     std::vector<Node<DIM> > old_nodes;
@@ -189,7 +190,7 @@ void SimpleTissue<DIM>::Update()
 
 
 template<unsigned DIM>
-unsigned SimpleTissue<DIM>::RemoveDeadCells()
+unsigned NodeBasedTissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
 
@@ -211,7 +212,7 @@ unsigned SimpleTissue<DIM>::RemoveDeadCells()
 
 
 template<unsigned DIM>
-unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
+unsigned NodeBasedTissue<DIM>::AddNode(Node<DIM> *pNewNode)
 {
     /// \todo employ a std::vector of deleted node indices to re-use indices? (see #841)
     pNewNode->SetIndex(mNodes.size());
@@ -221,7 +222,7 @@ unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
 
 
 template<unsigned DIM>
-unsigned SimpleTissue<DIM>::GetNumNodes()
+unsigned NodeBasedTissue<DIM>::GetNumNodes()
 {
     return mNodes.size();
 }
@@ -232,6 +233,6 @@ unsigned SimpleTissue<DIM>::GetNumNodes()
 /////////////////////////////////////////////////////////////////////////////
 
 
-template class SimpleTissue<1>;
-template class SimpleTissue<2>;
-template class SimpleTissue<3>;
+template class NodeBasedTissue<1>;
+template class NodeBasedTissue<2>;
+template class NodeBasedTissue<3>;

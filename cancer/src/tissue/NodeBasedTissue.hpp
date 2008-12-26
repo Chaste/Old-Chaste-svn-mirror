@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SIMPLETISSUE_HPP_
-#define SIMPLETISSUE_HPP_
+#ifndef NODEBASEDTISSUE_HPP_
+#define NODEBASEDTISSUE_HPP_
 
 #include "AbstractTissue.hpp"
 #include "AbstractMesh.hpp" // for constructor which takes in a mesh
@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-class SimpleTissue : public AbstractTissue<DIM>
+class NodeBasedTissue : public AbstractTissue<DIM>
 {
-    friend class TestSimpleTissue;
+    friend class TestNodeBasedTissue;
 private:
 
     /** List of nodes */
@@ -74,14 +74,14 @@ private:
 
 public:
 
-    SimpleTissue(const std::vector<Node<DIM> >& rNodes, 
+    NodeBasedTissue(const std::vector<Node<DIM> >& rNodes, 
                  const std::vector<TissueCell>& rCells);
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
      * dealt with by the serialize method of our base class.
      */
-    SimpleTissue(const std::vector<Node<DIM> >& rNodes);
+    NodeBasedTissue(const std::vector<Node<DIM> >& rNodes);
 
     /**
      * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
@@ -90,13 +90,13 @@ public:
      * This constructor is a helper constructor: it is generally easier for the user 
      * create a mesh than a set of nodes.
      */
-    SimpleTissue(const AbstractMesh<DIM,DIM>& rMesh,
+    NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
                  const std::vector<TissueCell>& rCells);
 
     /**
      * Destructor.
      */
-    ~SimpleTissue()
+    ~NodeBasedTissue()
     {}
 
     /**
@@ -159,7 +159,7 @@ public:
 
 
 #include "TemplatedExport.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(SimpleTissue)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(NodeBasedTissue)
 
 namespace boost {
 namespace serialization {
@@ -264,31 +264,31 @@ inline void load_construct_data(
 
 
 /**
- * Serialize information required to construct a SimpleTissue facade.
+ * Serialize information required to construct a NodeBasedTissue facade.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const SimpleTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const NodeBasedTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     ar & t->rGetNodes();
 }
 
 /**
- * De-serialize constructor parameters and initialise SimpleTissue.
+ * De-serialize constructor parameters and initialise NodeBasedTissue.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, SimpleTissue<DIM> * t, const unsigned int file_version)
+    Archive & ar, NodeBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Load the nodes
     std::vector<Node<DIM> > nodes;
     ar >> nodes;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)SimpleTissue<DIM>(nodes);
+    ::new(t)NodeBasedTissue<DIM>(nodes);
 }
 
 }} // close namespaces
 
 
-#endif /*SIMPLETISSUE_HPP_*/
+#endif /*NODEBASEDTISSUE_HPP_*/

@@ -616,20 +616,20 @@ void TissueSimulation<DIM>::Solve()
         /////////////////////////
         CancerEventHandler::BeginEvent(FORCE);
         
-        // first zero all the forces
+        // First set all the forces to zero
         for (unsigned i=0; i<forces.size(); i++)
         {
              forces[i].clear(); 
         }
 
-        // then resize the std::vector if the number of cells has increased or decreased
+        // Then resize the std::vector if the number of cells has increased or decreased
         // (note this should be done after the above zeroing)
-        if(mrTissue.GetNumNodes()!=forces.size())
+        if (mrTissue.GetNumNodes()!=forces.size())
         {
             forces.resize(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
         }
         
-        // now add force contributions from each AbstractForce
+        // Now add force contributions from each AbstractForce
         for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
              iter !=mForceCollection.end();
              iter++)
