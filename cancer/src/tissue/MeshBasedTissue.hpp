@@ -135,12 +135,13 @@ public:
      *
      * There must be precisely 1 cell for each node of the mesh.
      *
-     * @param rMesh a mutable tetrahedral mesh.
-     * @param cells TissueCells corresponding to the nodes of the mesh.
+     * @param rMesh a mutable tetrahedral mesh
+     * @param rCells TissueCells corresponding to the nodes of the mesh
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
+     * @param validate whether to validate the tissue
      */
-    MeshBasedTissue(MutableMesh<DIM, DIM>&,
-                    const std::vector<TissueCell>&,
+    MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
+                    const std::vector<TissueCell>& rCells,
                     bool deleteMesh=false,
                     bool validate=true);
 
@@ -149,7 +150,7 @@ public:
      *
      * @param rMesh a mutable tetrahedral mesh.
      */
-    MeshBasedTissue(MutableMesh<DIM, DIM>&);
+    MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh);
 
     ~MeshBasedTissue();
 
@@ -378,7 +379,7 @@ inline void load_construct_data(
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);
 
-    // Invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialise instance
     ::new(t)MeshBasedTissue<DIM>(*p_mesh);
 }
 }

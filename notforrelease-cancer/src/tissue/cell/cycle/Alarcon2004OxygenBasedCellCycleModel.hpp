@@ -95,7 +95,7 @@ public:
 
     virtual void ResetForDivision();
 
-    AbstractCellCycleModel *CreateDaughterCellCycleModel();
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     void Initialise();
 
@@ -131,11 +131,12 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
-    // It doesn't actually matter what values we pass to our standard
-    // constructor, provided they are valid parameter values, since the
-    // state loaded later from the archive will overwrite their effect in
-    // this case.
-    // Invoke inplace constructor to initialize instance of my_class
+    /**
+     * Invoke inplace constructor to initialise an instance of Alarcon2004OxygenBasedCellCycleModel. 
+     * It doesn't actually matter what values we pass to our standard constructor, 
+     * provided they are valid parameter values, since the state loaded later 
+     * from the archive will overwrite their effect in this case.
+     */
 
     std::vector<double> state_vars;
     for (unsigned i=0; i<6; i++)

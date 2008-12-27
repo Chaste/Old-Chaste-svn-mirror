@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 TissueCell::TissueCell(CellType cellType,
                        CellMutationState mutationState,
-                       AbstractCellCycleModel *pCellCycleModel,
+                       AbstractCellCycleModel* pCellCycleModel,
                        bool archiving)
     : mpCellCycleModel(pCellCycleModel)
 {
@@ -100,7 +100,7 @@ TissueCell::~TissueCell()
     delete mpCellCycleModel;
 }
 
-void TissueCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
+void TissueCell::SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel)
 {
     if (mpCellCycleModel != pCellCycleModel)
     {
@@ -130,7 +130,6 @@ unsigned TissueCell::GetLocationIndex() const
 {
     return mLocationIndex;
 }
-
 
 double TissueCell::GetAge() const
 {

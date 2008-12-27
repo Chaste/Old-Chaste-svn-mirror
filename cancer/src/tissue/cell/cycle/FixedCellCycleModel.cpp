@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FixedCellCycleModel.hpp"
 
-AbstractCellCycleModel *FixedCellCycleModel::CreateDaughterCellCycleModel()
+AbstractCellCycleModel* FixedCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new FixedCellCycleModel(mG1Duration, mGeneration);
 }

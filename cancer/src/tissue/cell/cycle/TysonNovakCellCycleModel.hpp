@@ -56,13 +56,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
+
 #ifdef CHASTE_CVODE
     static CvodeAdaptor msSolver;
 #else
     static BackwardEulerIvpOdeSolver msSolver;
 #endif  //CHASTE_CVODE
 
-    TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime, unsigned generation);
+    /**
+    * A private constructor for daughter cells called only by the CreateDaughterCellCycleModel function
+     *
+    * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
+    * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
+    * @param generation the cell's generation
+    */
+    TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
+                             double divideTime,
+                             unsigned generation);
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -73,21 +83,61 @@ private:
 
 public:
 
-    /// \todo These methods need documenting (see #736)
+    /**
+     * Default constructor.
+     */
     TysonNovakCellCycleModel();
 
+    /**
+     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision() 
+     * and setting initial conditions for protein concentrations.
+     */
     void ResetForDivision();
 
-    AbstractCellCycleModel *CreateDaughterCellCycleModel();
+    /**
+     * Returns a new TysonNovakCellCycleModel, created with the correct 
+     * initial conditions.
+     *
+     * This method should be called just after the parent cell cycle model 
+     * has been reset.
+     * 
+     * @return pointer to the daughter cell cycle model
+     */
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
+    /**
+     * Solve the ODEs up to the current time and return whether a stopping event occurred.
+     * 
+     * @param currentTime the current time
+     * @return whether a stopping event occured
+     */
     bool SolveOdeToTime(double currentTime);
 
+    /**
+     * Get the time at which the ODE stopping event occured.
+     * 
+     * @return the stopping event time
+     */
     double GetOdeStopTime();
 
+    /**
+     * Get the duration of the cell's S phase.
+     */
     double GetSDuration();
+
+    /**
+     * Get the duration of the cell's G2 phase.
+     */
     double GetG2Duration();
+    
+    /**
+     * Get the duration of the cell's M phase.
+     */
     double GetMDuration();
 
+    /**
+     * If the daughter cell type is stem, change it to transit.
+     */
     void InitialiseDaughterCell();
 
 };

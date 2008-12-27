@@ -238,7 +238,7 @@ public:
      * CreateDaughterCellCycleModel, in order to reduce coding effort
      * for the refactor.
      */
-    virtual AbstractCellCycleModel *CreateCellCycleModel()
+    virtual AbstractCellCycleModel* CreateCellCycleModel()
     {
         return CreateDaughterCellCycleModel();
     }
@@ -255,7 +255,7 @@ public:
      * cycle model will have had ResetModel called just before
      * CreateDaughterCellCycleModel is called.
      */
-    virtual AbstractCellCycleModel *CreateDaughterCellCycleModel()=0;
+    virtual AbstractCellCycleModel* CreateDaughterCellCycleModel()=0;
 
     /**
      * @return whether the cell cycle model uses the beta-catenin level.

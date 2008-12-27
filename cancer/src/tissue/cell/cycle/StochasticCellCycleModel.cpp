@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticCellCycleModel.hpp"
 
 
-AbstractCellCycleModel *StochasticCellCycleModel::CreateDaughterCellCycleModel()
+AbstractCellCycleModel* StochasticCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new StochasticCellCycleModel(mG1Duration, mGeneration);  // use a private constructor that doesn't reset mG1Duration.
 }

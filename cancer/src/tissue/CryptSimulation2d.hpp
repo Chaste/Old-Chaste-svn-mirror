@@ -146,7 +146,7 @@ inline void load_construct_data(
     std::vector<AbstractForce<2>*> force_collection;
     ar >> force_collection;
 
-    // Invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialise instance
     ::new(t)CryptSimulation2d(*p_tissue, force_collection, true, false);
 }
 }

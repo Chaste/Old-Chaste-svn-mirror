@@ -82,7 +82,7 @@ protected:
     CellMutationState mMutationState;
     
     /** The cell's cell-cycle model */
-    AbstractCellCycleModel *mpCellCycleModel;
+    AbstractCellCycleModel* mpCellCycleModel;
     
     /** An index of either the node or vertex element that a cell is paired with */
     unsigned mLocationIndex;
@@ -118,7 +118,7 @@ public:
      */
     TissueCell(CellType cellType,
                CellMutationState mutationState,
-               AbstractCellCycleModel *pCellCycleModel,
+               AbstractCellCycleModel* pCellCycleModel,
                bool archiving = false);
 
     /**
@@ -150,12 +150,12 @@ public:
     /**
      * Change the cell cycle model used. This takes effect immediately.
      */
-    void SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel);
+    void SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel);
     
     /**
      * Returns a pointer to the TissueCell's cell cycle model.
      */
-    AbstractCellCycleModel *GetCellCycleModel() const;
+    AbstractCellCycleModel* GetCellCycleModel() const;
 
     /**
      * Calls Initialise on the cell cycle model associated with this cell.
@@ -260,7 +260,7 @@ inline void save_construct_data(
     // Save data required to construct instance
     const CellType cell_type = t->GetCellType();
     const CellMutationState mutation_state = t->GetMutationState();
-    const AbstractCellCycleModel * const p_cell_cycle_model = t->GetCellCycleModel();
+    const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
     ar << cell_type;
     ar << mutation_state;
     ar << p_cell_cycle_model;
@@ -276,13 +276,14 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     CellType cell_type;
     CellMutationState mutation_state;
-    AbstractCellCycleModel *p_cell_cycle_model;
+    AbstractCellCycleModel* p_cell_cycle_model;
     ar >> cell_type;
     ar >> mutation_state;
     ar >> p_cell_cycle_model;
     bool archiving = true;
-    // Invoke inplace constructor to initialize instance
-    ::new(t)TissueCell(cell_type, mutation_state,p_cell_cycle_model,archiving);
+    
+    // Invoke inplace constructor to initialise instance
+    ::new(t)TissueCell(cell_type, mutation_state, p_cell_cycle_model, archiving);
 }
 }
 } // namespace ...

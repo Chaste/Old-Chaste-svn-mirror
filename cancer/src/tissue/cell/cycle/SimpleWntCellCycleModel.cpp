@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SimpleWntCellCycleModel.hpp"
 
-AbstractCellCycleModel *SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
+AbstractCellCycleModel* SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     // Use a private constructor that doesn't reset mG1Duration
     return new SimpleWntCellCycleModel(mG1Duration, mGeneration, mUseCellTypeDependentG1Duration);

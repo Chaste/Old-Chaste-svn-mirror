@@ -258,7 +258,7 @@ inline void load_construct_data(
         ar >> loc[i];
     }
 
-    // Invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialise instance
     ::new(t)Node<DIM>(index, loc, is_boundary);
 }
 

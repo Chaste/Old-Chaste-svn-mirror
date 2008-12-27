@@ -37,6 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
+/**
+ * Wnt-dependent cell cycle model with a stochastic G2 duration.
+ *
+ * Note that this class uses C++'s default copying semantics, and so 
+ * doesn't implement a copy constructor or operator=.
+ */
 class StochasticWntCellCycleModel : public WntCellCycleModel
 {
 private:
@@ -54,62 +60,95 @@ private:
         archive & mG2Duration;
     }
 
+    /** The duration of the G2 phase, set stochastically. */
+    double mG2Duration;
+    
     /**
-     * This is a function which overrides that in WntCellCycleModel and
+     * This method overrides that in WntCellCycleModel and
      * introduces the stochastic element of this class.
+     * 
      * We allow the duration of the G2 phase of the cell cycle to
-     * vary with a mean of its deterministic duration and a standard
-     * deviation of 0.9 hours.
+     * vary as a normal random deviate with a mean of its deterministic 
+     * duration, a standard deviation of 0.9 hours, and a cutoff to 
+     * ensure that it is greater than some minimum value.
      *
      * @return the duration of the G2 phases of the cell cycle.
      */
     void SetG2Duration();
 
-    /// The duration of the G2 phase, set stochastically
-    double mG2Duration;
-
 public:
 
-    /// \todo These methods need documenting (see #736)
+    /**
+     * Set the duration of the G2 phase for the daughter cell.
+     */
     void InitialiseDaughterCell();
 
+    /**
+     * Initialise the cell cycle model at the start of a simulation.
+     * 
+     * This overridden method sets up a new WntCellCycleOdeSystem, 
+     * sets the cell type according to the current beta catenin level 
+     * and sets a random G2 duration.
+     */
     void Initialise();
 
+    /**
+     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision() 
+     * and setting a new random G2 duration.
+     */
     void ResetForDivision();
 
+    /**
+     * Get the duration of the G2 phase.
+     */
     double GetG2Duration();
 
     /**
-     * The standard constructor called in tests
+     * The standard constructor called in tests.
      */
-    StochasticWntCellCycleModel()
-      :  WntCellCycleModel() {};
+    StochasticWntCellCycleModel();
 
-    /**
-     * This is needed because a wnt model which is not to be run from the current time is
-     * sometimes needed. Should only be called by the cell itself when it wants to divide.
+     /**
+     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
+     * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
+     *
+     * @param pParentOdeSystem  to copy the state of
+     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+     * @param lastTime last time the cell cycle model was evaluated
+     * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
+     * @param readyToDivide whether the cell is ready to divide
+     * @param divideTime if in the future this is the time at which the cell is going to divide
+     * @param generation the cell's generation
+     * @param g2Duration the duration of the cell's G2 phase
      */
     StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                 CellMutationState mutationState,
-                                double birthTime, double lastTime,
-                                bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation, double g2Duration)
-      : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime,
-                          inSG2MPhase, readyToDivide, divideTime, generation),
-        mG2Duration(g2Duration) {};
+                                double birthTime,
+                                double lastTime,
+                                bool inSG2MPhase,
+                                bool readyToDivide,
+                                double divideTime,
+                                unsigned generation,
+                                double g2Duration);
 
     /**
-     * This is needed because a wnt model which is not to be run from the current time is
-     * sometimes needed. Should only be called by the archiver.
+     * A private constructor for archiving.
+     *
+     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+     * @param rMutationState the mutation state of the cell (used by ODEs)
      */
     StochasticWntCellCycleModel(std::vector<double> proteinConcentrations,
-                                CellMutationState mutationState)
-      : WntCellCycleModel(proteinConcentrations, mutationState) {};
+                                CellMutationState mutationState);
 
     /**
-     * Returns a new StochasticWntCellCycleModel created with the correct initial conditions.
+     * Returns a new StochasticWntCellCycleModel, created with the correct 
+     * initial conditions.
      *
-     * Should be called just after the parent cell cycle model has been .Reset().
-     *
+     * This method should be called just after the parent cell cycle model 
+     * has been reset.
+     * 
+     * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
@@ -141,11 +180,12 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
-    // It doesn't actually matter what values we pass to our standard
-    // constructor, provided they are valid parameter values, since the
-    // state loaded later from the archive will overwrite their effect in
-    // this case.
-    // Invoke inplace constructor to initialize instance of my_class
+    /**
+     * Invoke inplace constructor to initialise an instance of StochasticWntCellCycleModel. 
+     * It doesn't actually matter what values we pass to our standard constructor, 
+     * provided they are valid parameter values, since the state loaded later 
+     * from the archive will overwrite their effect in this case.
+     */
 
     std::vector<double> state_vars;
     for (unsigned i=0; i<9; i++)
@@ -158,6 +198,6 @@ inline void load_construct_data(
     ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state);
 }
 }
-} // namespace ...
+} // namespace
 
 #endif /*STOCHASTICWNTCELLCYCLEMODEL_HPP_*/

@@ -63,7 +63,7 @@ public:
      */
     FixedCellCycleModel() {};
 
-    AbstractCellCycleModel *CreateDaughterCellCycleModel();
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
 };
 

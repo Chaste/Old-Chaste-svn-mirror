@@ -44,14 +44,10 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 #endif //CHASTE_CVODE
 }
 
-/**
- * A private constructor for daughter cells called only by the CreateDaughterCellCycleModel function
- *
- * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
- * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
- */
+
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
-                                                   double divideTime, unsigned generation)
+                                                   double divideTime,
+                                                   unsigned generation)
  : AbstractOdeBasedCellCycleModel(divideTime)
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;

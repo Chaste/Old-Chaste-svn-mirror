@@ -316,7 +316,7 @@ inline void load_construct_data(
     double width;
     ar >> width;
 
-    // Invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialise instance
     ::new(t)Cylindrical2dMesh(width);
 }
 }

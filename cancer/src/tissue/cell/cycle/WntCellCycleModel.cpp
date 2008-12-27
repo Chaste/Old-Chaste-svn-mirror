@@ -28,17 +28,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModel.hpp"
 
 
-WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
+WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                      const CellMutationState& rMutationState,
-                                     double birthTime, double lastTime,
-                                     bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
+                                     double birthTime,
+                                     double lastTime,
+                                     bool inSG2MPhase,
+                                     bool readyToDivide,
+                                     double divideTime,
+                                     unsigned generation)
    : AbstractWntOdeBasedCellCycleModel(lastTime)
 {
-    if (pParentOdeSystem !=NULL)
+    if (pParentOdeSystem != NULL)
     {
         std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
         mpOdeSystem = new WntCellCycleOdeSystem(parent_protein_concs[8], rMutationState);// wnt pathway is reset in a couple of lines.
-        // Set the model to be the same as the parent cell.
+
+        // Set the initial conditions to be the same as the parent cell
         mpOdeSystem->rGetStateVariables() = parent_protein_concs;
     }
     else
@@ -64,30 +69,32 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
                                      const CellMutationState& rMutationState)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
-    // Set the model to be the same as the parent cell.
+    
+    // Set the initial conditions to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
-/**
- * Returns a new WntCellCycleModel created with the correct initial conditions.
- *
- * Should be called just after the parent cell cycle model has been .Reset().
- */
+
 AbstractCellCycleModel* WntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    // calls a cheeky version of the constructor which makes the new cell
-    // cycle model the same as the old one - not a dividing copy at this time.
-    // unless the parent cell has just divided.
+    
+    /**
+     * We call a cheeky version of the constructor which makes the new cell 
+     * cycle model the same as the old one - not a dividing copy at this time,
+     * unless the parent cell has just divided.
+     */
     return new WntCellCycleModel(mpOdeSystem,
-                                 mpCell->GetMutationState(), mBirthTime, mLastTime,
-                                 mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
+                                 mpCell->GetMutationState(), 
+                                 mBirthTime,
+                                 mLastTime,
+                                 mFinishedRunningOdes,
+                                 mReadyToDivide,
+                                 mDivideTime,
+                                 mGeneration);
 }
 
-/**
- * This carries out the work for ::UpdateCellType();
- * But does not check the current time so it can be used by the initialise method.
- */
+
 void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
 {
     assert(mpOdeSystem!=NULL);
@@ -105,9 +112,7 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
     mpCell->SetCellType(cell_type);
 }
 
-/**
- * Set up a new cell cycle model ODE and set the cell type.
- */
+
 void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
@@ -117,20 +122,19 @@ void WntCellCycleModel::Initialise()
     ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
 
-/**
- * Solve the ODEs up to the current time and return whether a stopping event occurred.
- */
+
 bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 {
-    // WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
+    // We are in G0 or G1 phase - running cell cycle ODEs
 #ifdef CHASTE_CVODE
 	const double dt = SimulationTime::Instance()->GetTimeStep();
 #else
     double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
 #endif // CHASTE_CVODE
 
-    // feed this time step's Wnt stimulus into the solver as a constant over this timestep.
+    // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
     mpOdeSystem->rGetStateVariables()[8] = WntConcentration::Instance()->GetWntLevel(mpCell);
+
     // Use the cell's current mutation status as another input
     static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 

@@ -110,7 +110,8 @@ inline void load_construct_data(
     ar >> p_crypt;
     bool slough_sides;
     ar >> slough_sides;
-    // Invoke inplace constructor to initialize instance
+
+    // Invoke inplace constructor to initialise instance
     ::new(t)SloughingCellKiller(p_crypt, slough_sides);
 }
 }

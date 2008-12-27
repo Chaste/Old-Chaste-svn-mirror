@@ -372,7 +372,7 @@ inline void load_construct_data(
     std::vector<AbstractForce<DIM>*> force_collection;
     ar >> force_collection;
 
-    // Invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialise instance
     ::new(t)TissueSimulation<DIM>(*p_tissue, force_collection, true);
 }
 }

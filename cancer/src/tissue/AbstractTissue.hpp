@@ -548,8 +548,6 @@ TissueCell* AbstractTissue<DIM>::Iterator::operator->()
     return &(*mCellIter);
 }
 
-///\todo We may need to generalize this method when 
-///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
 {
@@ -557,8 +555,6 @@ Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
     return mrTissue.GetNode(mNodeIndex);
 }
 
-///\todo We may need to generalize this method when 
-///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 const c_vector<double, DIM>& AbstractTissue<DIM>::Iterator::rGetLocation()
 {
@@ -571,8 +567,6 @@ bool AbstractTissue<DIM>::Iterator::operator!=(const AbstractTissue<DIM>::Iterat
     return mCellIter != other.mCellIter;
 }
 
-///\todo We may need to generalize this method when 
-///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator++()
 {
@@ -589,8 +583,6 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
     return (*this);
 }
 
-///\todo We may need to generalize this method when 
-///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
@@ -603,8 +595,6 @@ bool AbstractTissue<DIM>::Iterator::IsAtEnd()
     return mCellIter == mrTissue.rGetCells().end();
 }
 
-///\todo We may need to generalize this method when 
-///      implementing a vertex-based tissue (see #827)
 template<unsigned DIM>
 AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<TissueCell>::iterator cellIter)
     : mrTissue(rTissue),

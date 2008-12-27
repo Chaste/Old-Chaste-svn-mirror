@@ -193,7 +193,7 @@ inline void load_construct_data(
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);
 
-    // Invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialise instance
     ::new(t)MeshBasedTissueWithGhostNodes<DIM>(*p_mesh);
 
 }

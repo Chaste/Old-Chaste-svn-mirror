@@ -27,6 +27,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "StochasticWntCellCycleModel.hpp"
 
+
+StochasticWntCellCycleModel::StochasticWntCellCycleModel()
+    : WntCellCycleModel()
+{
+}
+      
+StochasticWntCellCycleModel::StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
+                                                         CellMutationState mutationState,
+                                                         double birthTime,
+                                                         double lastTime,
+                                                         bool inSG2MPhase,
+                                                         bool readyToDivide,
+                                                         double divideTime,
+                                                         unsigned generation,
+                                                         double g2Duration)
+    : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, inSG2MPhase, readyToDivide, divideTime, generation),
+      mG2Duration(g2Duration)
+{
+}
+
+StochasticWntCellCycleModel::StochasticWntCellCycleModel(std::vector<double> proteinConcentrations,
+                                                         CellMutationState mutationState)
+    : WntCellCycleModel(proteinConcentrations, mutationState)
+{
+}
+
 void StochasticWntCellCycleModel::SetG2Duration()
 {
     CancerParameters* p_params = CancerParameters::Instance();
@@ -71,7 +97,18 @@ double StochasticWntCellCycleModel::GetG2Duration()
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    // Calls a cheeky version of the constructor which makes the new cell cycle model
-    // the same age as the old one - not a copy at this time.
-    return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime, mGeneration, mG2Duration);
+    /**
+     * We call a cheeky version of the constructor which makes the new cell 
+     * cycle model the same as the old one - not a dividing copy at this time,
+     * unless the parent cell has just divided.
+     */
+    return new StochasticWntCellCycleModel(mpOdeSystem,
+                                           mpCell->GetMutationState(),
+                                           mBirthTime,
+                                           mLastTime,
+                                           mFinishedRunningOdes,
+                                           mReadyToDivide,
+                                           mDivideTime,
+                                           mGeneration,
+                                           mG2Duration);
 }

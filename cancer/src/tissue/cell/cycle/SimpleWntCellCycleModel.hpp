@@ -109,7 +109,7 @@ public:
      */
     void InitialiseDaughterCell();
 
-    AbstractCellCycleModel *CreateDaughterCellCycleModel();
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 };
 
 // Declare identifier for the serializer

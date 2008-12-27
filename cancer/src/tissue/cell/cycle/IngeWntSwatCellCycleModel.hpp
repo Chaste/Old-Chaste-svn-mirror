@@ -128,7 +128,7 @@ public:
      *
      * Should be called just after the parent cell cycle model has been Reset().
      */
-    AbstractCellCycleModel *CreateDaughterCellCycleModel();
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * See AbstractCellCycleModel::Initialise()
@@ -194,20 +194,24 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, IngeWntSwatCellCycleModel * t, const unsigned int file_version)
 {
-    // It doesn't actually matter what values we pass to our standard
-    // constructor, provided they are valid parameter values, since the
-    // state loaded later from the archive will overwrite their effect in
-    // this case.
-    // Invoke inplace constructor to initialize instance of my_class
-
+    /**
+     * Invoke inplace constructor to initialise an instance of IngeWntSwatCellCycleModel. 
+     * It doesn't actually matter what values we pass to our standard constructor, 
+     * provided they are valid parameter values, since the state loaded later 
+     * from the archive will overwrite their effect in this case.
+     */
+    
     std::vector<double> state_vars;
     for (unsigned i=0; i<22; i++)
     {
         state_vars.push_back(0.0);
     }
+    
     CellMutationState mutation_state = HEALTHY;
+    
     unsigned hypothesis;
     ar & hypothesis;
+    
     ::new(t)IngeWntSwatCellCycleModel(hypothesis, state_vars, mutation_state);
 }
 }

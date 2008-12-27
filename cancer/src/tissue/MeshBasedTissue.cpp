@@ -646,7 +646,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
     {
         TissueCell* p_cell=&(*it);
         assert(p_cell);
-        AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
+        AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
         assert(p_model);
 
         // Check cell exists in tissue
@@ -683,7 +683,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         {
             TissueCell* p_cell = *it2;
             assert(p_cell);
-            AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
             assert(p_model);
             unsigned node_index = p_cell->GetLocationIndex();
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;

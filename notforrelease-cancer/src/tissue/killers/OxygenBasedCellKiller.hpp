@@ -130,7 +130,8 @@ inline void load_construct_data(
     ar >> p_tissue;
     double conc;
     ar >> conc;
-    // Invoke inplace constructor to initialize instance
+
+    // Invoke inplace constructor to initialise instance
     ::new(t)OxygenBasedCellKiller<DIM>(p_tissue, conc);
 }
 }

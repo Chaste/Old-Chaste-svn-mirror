@@ -112,7 +112,8 @@ inline void load_construct_data(
     ar >> p_tissue;
     double prob;
     ar >> prob;
-    // Invoke inplace constructor to initialize instance
+
+    // Invoke inplace constructor to initialise instance
     ::new(t)RandomCellKiller<DIM>(p_tissue, prob);
 }
 }

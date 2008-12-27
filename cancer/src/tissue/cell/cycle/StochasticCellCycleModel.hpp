@@ -76,7 +76,7 @@ public:
     StochasticCellCycleModel()
     {}
 
-    AbstractCellCycleModel *CreateDaughterCellCycleModel();
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
 };
 
