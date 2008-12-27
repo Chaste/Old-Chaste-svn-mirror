@@ -76,7 +76,7 @@ public:
     /**
      * Destructor.
      */
-    ~VertexBasedTissue();
+    virtual ~VertexBasedTissue();
 
     VertexElement<DIM, DIM>* GetElement(unsigned elementIndex);
     
