@@ -27,11 +27,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SimpleWntCellCycleModel.hpp"
 
+
+SimpleWntCellCycleModel::SimpleWntCellCycleModel(double g1Duration,
+                                                 unsigned generation,
+                                                 bool useCellTypeDependentG1Duration)
+    : AbstractSimpleCellCycleModel(g1Duration, generation),
+      mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
+{
+}
+
+
+SimpleWntCellCycleModel::SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration)
+    : mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
+{
+}
+    
+       
 AbstractCellCycleModel* SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     // Use a private constructor that doesn't reset mG1Duration
     return new SimpleWntCellCycleModel(mG1Duration, mGeneration, mUseCellTypeDependentG1Duration);
 }
+
 
 void SimpleWntCellCycleModel::SetG1Duration()
 {
@@ -49,7 +66,7 @@ void SimpleWntCellCycleModel::SetG1Duration()
             }
             else
             {
-                // Normally STEM cells should behave just like transit cells in a Wnt simulation
+                // Normally stem cells should behave just like transit cells in a Wnt simulation
                 mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(), 1.0);
             }
             break;
@@ -70,6 +87,7 @@ void SimpleWntCellCycleModel::SetG1Duration()
     }
 }
 
+
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
     CancerParameters *p_params = CancerParameters::Instance();
@@ -82,7 +100,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     double wnt_division_threshold = DBL_MAX;
     double healthy_threshold = p_params->GetWntTransitThreshold();
 
-    // In the case of a RADIAL Wnt gradient, set up under what level
+    // In the case of a RADIAL Wnt concentration, set up under what level
     // of Wnt stimulus a cell will change type
     if (p_wnt->GetType()==RADIAL)
     {
@@ -125,6 +143,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
                 cell_type = STEM;
             }
         }
+
         // Update the cell type to reflect the Wnt concentration
         mpCell->SetCellType(cell_type);
 
@@ -139,6 +158,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     }
 }
 
+
 void SimpleWntCellCycleModel::ResetForDivision()
 {
     AbstractSimpleCellCycleModel::ResetForDivision();
@@ -150,6 +170,7 @@ void SimpleWntCellCycleModel::ResetForDivision()
         }
     }
 }
+
 
 void SimpleWntCellCycleModel::InitialiseDaughterCell()
 {

@@ -46,7 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Contains a group of cells and associated methods.
  *
  */
- /// \todo Some methods in this class needs documenting (see #736)
 template<unsigned DIM>
 class AbstractTissue
 {
@@ -129,11 +128,24 @@ public:
      */
     void InitialiseCells();
 
+    /**
+     * Get method for mCells.
+     */
     std::list<TissueCell>& rGetCells();
+    
+    /**
+     * Get method for mCells (used in archiving).
+     */
     const std::list<TissueCell>& rGetCells() const;
 
+    /**
+     * @return whether the tissue contains a mesh.
+     */
     bool HasMesh();
 
+    /**
+     * @return whether the tissue contains ghost nodes.
+     */
     bool HasGhostNodes();
 
     /**
@@ -189,6 +201,7 @@ public:
      */
     virtual unsigned RemoveDeadCells()=0;
 
+    /// \todo Document this method (see #736)
     virtual void Update()=0;
 
     /**
@@ -231,13 +244,13 @@ public:
      */
     c_vector<unsigned, 5> GetCellCyclePhaseCount();
 
+    /// \todo Document this method (see #736)
     virtual bool IsGhostNode(unsigned index);
 
     /**
      * Get the number of real cells.
      */
     unsigned GetNumRealCells();
-
 
     /* Sets the Ancestor index of all the cells at this time to be the
      * same as their node index, can be used to trace clonal populations.
@@ -260,6 +273,7 @@ public:
      */
     TissueCell& rGetCellUsingLocationIndex(unsigned index);
 
+    /// \todo Document this method (see #736)
     virtual void CreateOutputFiles(const std::string &rDirectory,
                                    bool rCleanOutputDirectory,
                                    bool outputCellMutationStates,
@@ -268,12 +282,14 @@ public:
                                    bool outputCellCyclePhases,
                                    bool outputCellAncestors);
 
+    /// \todo Document this method (see #736)
     virtual void WriteResultsToFiles(bool outputCellMutationStates,
                                      bool outputCellTypes,
                                      bool outputCellVariables,
                                      bool outputCellCyclePhases,
                                      bool outputCellAncestors);
 
+    /// \todo Document this method (see #736)
     virtual void CloseOutputFiles(bool outputCellMutationStates,
                                   bool outputCellTypes,
                                   bool outputCellVariables,
@@ -296,6 +312,7 @@ public:
          */
         inline TissueCell& operator*();
 
+        /// \todo Document this operator (see #736)
         inline TissueCell* operator->();
 
         /**
@@ -308,6 +325,7 @@ public:
          */
         inline const c_vector<double, DIM>& rGetLocation();
 
+        /// \todo Document this operator (see #736)
         inline bool operator!=(const Iterator& other);
 
         /**
@@ -341,8 +359,13 @@ public:
          */
         inline bool IsAtEnd();
 
+        /** The tissue member. */
         AbstractTissue& mrTissue;
+        
+        /** Cell iterator member. */
         std::list<TissueCell>::iterator mCellIter;
+        
+        /** Node index member. */
         unsigned mNodeIndex;
     };
 
@@ -916,7 +939,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
             if (outputCellVariables)
             {
                 // Loop over cell positions
-                ///\todo This assumes a one-one correspondence between cells 
+                /// \todo This assumes a one-one correspondence between cells 
                 ///      and nodes, which is not the case for a vertex-based 
                 ///      tissue (see #827)
                 for (unsigned i=0; i<DIM; i++)

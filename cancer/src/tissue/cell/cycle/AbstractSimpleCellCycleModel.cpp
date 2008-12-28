@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AbstractSimpleCellCycleModel.hpp"
 
+
 void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
 {
     AbstractCellCycleModel::InitialiseDaughterCell();
@@ -98,4 +99,3 @@ void AbstractSimpleCellCycleModel::UpdateCellCyclePhase()
         mCurrentCellCyclePhase = G_TWO_PHASE;
     }
 }
-

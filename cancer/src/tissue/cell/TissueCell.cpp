@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TissueCell.hpp"
 
+
 TissueCell::TissueCell(CellType cellType,
                        CellMutationState mutationState,
                        AbstractCellCycleModel* pCellCycleModel,
@@ -56,10 +57,12 @@ TissueCell::TissueCell(CellType cellType,
     mpCellCycleModel->SetCell(this);
 }
 
+
 void TissueCell::CommonCopy(const TissueCell &other_cell)
 {
     // Copy private data members
     mCanDivide = other_cell.mCanDivide;
+
     // Copy 'easy' protected data members
     mCellType = other_cell.mCellType;
     mMutationState = other_cell.mMutationState;
@@ -80,10 +83,12 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mpCellCycleModel->SetCell(this);
 }
 
+
 TissueCell::TissueCell(const TissueCell &other_cell)
 {
     CommonCopy(other_cell);
 }
+
 
 TissueCell& TissueCell::operator=(const TissueCell &other_cell)
 {
@@ -95,10 +100,12 @@ TissueCell& TissueCell::operator=(const TissueCell &other_cell)
     return *this;
 }
 
+
 TissueCell::~TissueCell()
 {
     delete mpCellCycleModel;
 }
+
 
 void TissueCell::SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel)
 {
@@ -110,10 +117,12 @@ void TissueCell::SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel)
     mpCellCycleModel->SetCell(this);
 }
 
+
 AbstractCellCycleModel* TissueCell::GetCellCycleModel() const
 {
     return mpCellCycleModel;
 }
+
 
 void TissueCell::InitialiseCellCycleModel()
 {
@@ -126,20 +135,24 @@ void TissueCell::SetLocationIndex(unsigned index)
     mLocationIndex = index;
 }
 
+
 unsigned TissueCell::GetLocationIndex() const
 {
     return mLocationIndex;
 }
+
 
 double TissueCell::GetAge() const
 {
     return mpCellCycleModel->GetAge();
 }
 
+
 double TissueCell::GetBirthTime() const
 {
     return mpCellCycleModel->GetBirthTime();
 }
+
 
 void TissueCell::SetBirthTime(double birthTime)
 {
@@ -152,30 +165,36 @@ void TissueCell::SetCellType(CellType cellType)
     mCellType = cellType;
 }
 
+
 CellType TissueCell::GetCellType() const
 {
     return mCellType;
 }
+
 
 void TissueCell::SetMutationState(CellMutationState mutationState)
 {
     mMutationState = mutationState;
 }
 
+
 CellMutationState TissueCell::GetMutationState() const
 {
     return mMutationState;
 }
+
 
 void TissueCell::SetLogged()
 {
     mIsLogged = true;
 }
 
+
 bool TissueCell::IsLogged()
 {
     return mIsLogged;
 }
+
 
 void TissueCell::StartApoptosis()
 {
@@ -187,14 +206,16 @@ void TissueCell::StartApoptosis()
     }
     mUndergoingApoptosis = true;
 
-    mDeathTime =    SimulationTime::Instance()->GetTime()
-                  + CancerParameters::Instance()->GetApoptosisTime();
+    mDeathTime = SimulationTime::Instance()->GetTime()
+                 + CancerParameters::Instance()->GetApoptosisTime();
 }
+
 
 bool TissueCell::HasApoptosisBegun() const
 {
     return mUndergoingApoptosis;
 }
+
 
 double TissueCell::TimeUntilDeath() const
 {
@@ -206,25 +227,30 @@ double TissueCell::TimeUntilDeath() const
     return mDeathTime - SimulationTime::Instance()->GetTime();
 }
 
+
 bool TissueCell::IsDead() const
 {
     return ( mIsDead || ( (mUndergoingApoptosis) && (SimulationTime::Instance()->GetTime() >= mDeathTime)) );
 }
+
 
 void TissueCell::Kill()
 {
     mIsDead = true;
 }
 
+
 void TissueCell::SetAncestor(unsigned ancestorIndex)
 {
     mAncestor = ancestorIndex;
 }
 
+
 unsigned TissueCell::GetAncestor() const
 {
     return mAncestor;
 }
+
 
 bool TissueCell::ReadyToDivide()
 {
@@ -238,6 +264,7 @@ bool TissueCell::ReadyToDivide()
 
     return mCanDivide;
 }
+
 
 TissueCell TissueCell::Divide()
 {

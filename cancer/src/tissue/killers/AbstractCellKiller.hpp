@@ -33,6 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 
+
+/**
+ * An abstract cell killer class.
+ */
 template <unsigned SPACE_DIM>
 class AbstractCellKiller
 {
@@ -64,7 +68,7 @@ public:
 
 protected:
 
-    // The tissue
+    /** The tissue. */
     AbstractTissue<SPACE_DIM>* mpTissue;
 
 private:

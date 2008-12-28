@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Hides the 'ghost nodes' concept from the simulation class, so the latter
  * only ever deals with real cells.
  */
-/// \todo Some members/methods in this class needs documenting (see #736)
 template<unsigned DIM>
 class MeshBasedTissueWithGhostNodes : public MeshBasedTissue<DIM>
 {
@@ -90,10 +89,13 @@ public:
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh);
 
+    /// \todo Document this method (see #736)
     std::vector<bool>& rGetGhostNodes();
 
+    /// \todo Document this method (see #736)
     bool IsGhostNode(unsigned index);
 
+    /// \todo Document this method (see #736)
     std::set<unsigned> GetGhostNodeIndices();
 
     /**
@@ -198,6 +200,6 @@ inline void load_construct_data(
 
 }
 }
-} // namespace ...
+} // namespace
 
 #endif /*MESHBASEDTISSUEWITHGHOSTNODES_HPP_*/

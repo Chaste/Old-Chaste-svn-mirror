@@ -30,7 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractForce.hpp"
 
-/// \todo This class needs documenting (see #736)
+/**
+ * An abstract class for two-body force laws.
+ */
 template<unsigned DIM>
 class AbstractTwoBodyInteractionForce : public AbstractForce<DIM>
 {
@@ -67,7 +69,18 @@ public :
      */
     void UseCutoffPoint(double cutoffPoint);
 
-    /// \todo This method needs documenting (see #736)
+    
+    /**
+     * Calculates the force between two nodes.
+     *
+     * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
+     *
+     * @param NodeAGlobalIndex
+     * @param NodeBGlobalIndex
+     * @param rtissue
+     * 
+     * @return The force exerted on Node A by Node B.
+     */
     virtual c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue)=0;
 
 };

@@ -31,10 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /** Pointer to the single instance */
 WntConcentration* WntConcentration::mpInstance = NULL;
 
-/*
- * Return a pointer to the WntConcentration object.
- * The first time this is called, the object is created.
- */
+
 WntConcentration* WntConcentration::Instance()
 {
     if (mpInstance == NULL)
@@ -43,6 +40,7 @@ WntConcentration* WntConcentration::Instance()
     }
     return mpInstance;
 }
+
 
 WntConcentration::WntConcentration()
  :  mpCancerParams(CancerParameters::Instance()),
@@ -55,9 +53,11 @@ WntConcentration::WntConcentration()
     assert(mpInstance == NULL);
 }
 
+
 WntConcentration::~WntConcentration()
 {
 }
+
 
 void WntConcentration::Destroy()
 {
@@ -67,6 +67,7 @@ void WntConcentration::Destroy()
         mpInstance = NULL;
     }
 }
+
 
 double WntConcentration::GetWntLevel(TissueCell* pCell)
 {
@@ -94,6 +95,7 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     return GetWntLevel(height);
 }
 
+
 c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
 {
     if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
@@ -109,15 +111,18 @@ c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
     return GetWntGradient(location_of_cell);
 }
 
+
 void WntConcentration::SetTissue(AbstractTissue<2>& rTissue)
 {
     mpTissue = &rTissue;
 }
 
+
 WntConcentrationType WntConcentration::GetType()
 {
     return mWntType;
 }
+
 
 void WntConcentration::SetType(WntConcentrationType type)
 {
@@ -129,10 +134,7 @@ void WntConcentration::SetType(WntConcentrationType type)
     mTypeSet = true;
 }
 
-/**
- * @param height The height of the cell we want the Wnt concentration at
- * @return wnt_level The concentration of Wnt at this height in the crypt (dimensionless)
- */
+
 double WntConcentration::GetWntLevel(double height)
 {
     double wnt_level = -1.0;
@@ -142,15 +144,15 @@ double WntConcentration::GetWntLevel(double height)
         wnt_level=0.0;
     }
 
-    // The first Wnt gradient to try
+    // The first type of Wnt concentration to try
     if (mWntType==LINEAR || mWntType==RADIAL)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
-        double top_of_gradient = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
+        double top_of_wnt = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
 
-        if ((height >= -1e-9) && (height < top_of_gradient*crypt_height))
+        if ((height >= -1e-9) && (height < top_of_wnt*crypt_height))
         {
-            wnt_level = 1.0 - height/(top_of_gradient*crypt_height);
+            wnt_level = 1.0 - height/(top_of_wnt*crypt_height);
         }
         else
         {
@@ -163,10 +165,7 @@ double WntConcentration::GetWntLevel(double height)
     return wnt_level;
 }
 
-/**
- * @param location The location of the cell we want the Wnt gradient at
- * @return wnt_gradient The Wnt gradient at this height in the crypt (dimensionless)
- */
+
 c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
 {
     c_vector<double,2> wnt_gradient = zero_vector<double>(2);
@@ -174,27 +173,27 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
     if (mWntType!=NONE)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
-        double top_of_gradient = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
+        double top_of_wnt = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
 
         if (mWntType==LINEAR)
         {
-            if ((location[1] >= -1e-9) && (location[1] < top_of_gradient*crypt_height))
+            if ((location[1] >= -1e-9) && (location[1] < top_of_wnt*crypt_height))
             {
-                wnt_gradient[1] = -1.0/(top_of_gradient*crypt_height);
+                wnt_gradient[1] = -1.0/(top_of_wnt*crypt_height);
             }
         }
-        else // RADIAL Wnt
+        else // RADIAL Wnt concentration
         {
             double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
             double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
             double r = norm_2(location);
-            double r_critical = pow(top_of_gradient*crypt_height/a,1.0/b);
+            double r_critical = pow(top_of_wnt*crypt_height/a,1.0/b);
 
             double dwdr = 0.0;
 
             if ( r>=-1e-9 && r<r_critical )
             {
-                dwdr = -top_of_gradient*crypt_height*pow(r,b-1.0)/a;
+                dwdr = -top_of_wnt*crypt_height*pow(r,b-1.0)/a;
             }
 
             wnt_gradient[0] = location[0]*dwdr/r;
@@ -204,12 +203,7 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
     return wnt_gradient;
 }
 
-/**
- * This allows the TissueSimulation to ask whether a WntConcentration has been set up or not
- * To let it know whether it should move stem cells around!!
- *
- * @return result  True if the Wnt concentration is set up.
- */
+
 bool WntConcentration::IsWntSetUp()
 {
     bool result = false;

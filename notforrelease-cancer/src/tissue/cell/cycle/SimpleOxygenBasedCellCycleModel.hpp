@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleCellCycleModel.hpp"
 #include "CellwiseData.hpp"
 
+
 /**
  *  Simple oxygen-based cell cycle model
  *
@@ -57,55 +58,61 @@ private:
     }
 
     /**
-     * The time spent in G1 phase so far
+     * The time spent in G1 phase so far.
      */
     double mTimeSpentInG1Phase;
 
     /**
-     * How long the current period of hypoxia has lasted
+     * How long the current period of hypoxia has lasted.
      */
     double mCurrentHypoxicDuration;
 
-    /*
-     * The time when the current period of hypoxia began
+    /**
+     * The time when the current period of hypoxia began.
      */
     double mCurrentHypoxiaOnsetTime;
 
     /**
-     * Private constructor for creating an identical daughter cell
+     * Private constructor for creating an identical daughter cell.
+     * 
+     * @param g1Duration
+     * @param generation
+     * @param currentHypoxicDuration
+     * @param currentHypoxiaOnsetTime
      */
     SimpleOxygenBasedCellCycleModel(double g1Duration,
                                     unsigned generation,
                                     double currentHypoxicDuration,
-                                    double currentHypoxiaOnsetTime)
-        : AbstractSimpleCellCycleModel(g1Duration,generation),
-          mTimeSpentInG1Phase(0.0),
-          mCurrentHypoxicDuration(currentHypoxicDuration),
-          mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime) {};
+                                    double currentHypoxiaOnsetTime);
 
 public:
 
     /**
-     * Constructor
+     * Constructor.
      */
     SimpleOxygenBasedCellCycleModel();
 
     /**
-     * Overridden UpdateCellCyclePhase() method
+     * Overridden UpdateCellCyclePhase() method.
      */
     void UpdateCellCyclePhase();
 
     /**
      * Method for updating mCurrentHypoxicDuration,
-     * called at the start of ReadyToDivide()
+     * called at the start of ReadyToDivide().
      */
     void UpdateHypoxicDuration();
 
-    /// \todo These methods need documenting (see #736)
+    /**
+     * Get methods for member variables.
+     */
     double GetCurrentHypoxicDuration();
-
     double GetCurrentHypoxiaOnsetTime();
 
+    /** 
+     * Overridden builder method to create new instances of 
+     * the cell cycle model.
+     */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
 };

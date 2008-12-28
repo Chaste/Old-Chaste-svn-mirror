@@ -73,8 +73,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * When creating an element within a mesh one needs to specify its global index.
  * If the element is not used within a mesh the following constant is used instead.
  */
-
-/// \todo Lots of these methods and members need documentation (see #736)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {

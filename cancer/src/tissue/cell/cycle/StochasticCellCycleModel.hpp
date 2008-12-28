@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- *  Stochastic cell model
+ *  Stochastic cell cycle model.
  *
  */
 class StochasticCellCycleModel : public AbstractSimpleMeinekeCellCycleModel
@@ -64,11 +64,10 @@ private:
     /**
      * Private constructor for identical cells.
      */
-    StochasticCellCycleModel(double g1Duration, unsigned generation)
-        : AbstractSimpleMeinekeCellCycleModel(g1Duration, generation)
-    {}
+    StochasticCellCycleModel(double g1Duration, unsigned generation);
 
 public:
+
     /**
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
@@ -76,6 +75,10 @@ public:
     StochasticCellCycleModel()
     {}
 
+    /** 
+     * Overridden builder method to create new instances of 
+     * the cell cycle model.
+     */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
 };

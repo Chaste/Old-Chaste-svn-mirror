@@ -55,7 +55,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
 
     mMutationState = rMutationState;
 
-    // These three lines set up a wnt signalling pathway in a steady state
+    // These three lines set up a Wnt signalling pathway in a steady state
     if (mMutationState == HEALTHY || mMutationState == LABELLED)    // healthy cells
     {
         beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);

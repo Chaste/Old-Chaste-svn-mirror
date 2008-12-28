@@ -59,6 +59,10 @@ class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleMod
     friend class boost::serialization::access;
 
 private:
+
+    /**
+     * Fourth-order Runge Kutta solver for ODE system.
+     */
     static RungeKutta4IvpOdeSolver msSolver;
 
     template<class Archive>
@@ -66,7 +70,7 @@ private:
     {
         assert(mpOdeSystem!=NULL);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
-        // reference can be read or written into once mpOdeSystem has been set up
+        // Reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
         archive & static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState();
@@ -77,9 +81,21 @@ public:
     /**
      * Default constructor, variables are set by abstract classes.
      */
-    Alarcon2004OxygenBasedCellCycleModel() {};
+    Alarcon2004OxygenBasedCellCycleModel();
 
-
+    /**
+     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
+     * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
+     *
+     * @param pParentOdeSystem  to copy the state of
+     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+     * @param lastTime last time the cell cycle model was evaluated
+     * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
+     * @param readyToDivide whether the cell is ready to divide
+     * @param divideTime if in the future this is the time at which the cell is going to divide
+     * @param generation the cell's generation
+     */
     Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                          const CellMutationState& rMutationState,
                                          double birthTime,
@@ -89,18 +105,56 @@ public:
                                          double divideTime,
                                          unsigned generation);
 
-/// \todo These methods need documenting (see #736)
+    /**
+     * A private constructor for archiving.
+     *
+     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+     * @param rMutationState the mutation state of the cell (used by ODEs)
+     */
     Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                          const CellMutationState& rMutationState);
 
+    /**
+     * Resets the oxygen-based model to the start of the cell cycle 
+     * (this model does not cycle naturally). Cells are given a new 
+     * birth time and cell cycle proteins are reset. Note that the 
+     * oxygen concentration maintains its current value.
+     * 
+     * Should only be called by the TissueCell Divide() method.
+     */
     virtual void ResetForDivision();
 
+    /**
+     * Returns a new Alarcon2004OxygenBasedCellCycleModel, created with 
+     * the correct initial conditions.
+     *
+     * This method should be called just after the parent cell cycle model 
+     * has been reset.
+     * 
+     * @return pointer to the daughter cell cycle model
+     */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
+    /**
+     * Initialise the cell cycle model at the start of a simulation.
+     * 
+     * This overridden method sets up a new ODE system.
+     */
     void Initialise();
-
+    
+    /**
+     * Solve the ODEs up to the current time and return whether a stopping event occurred.
+     * 
+     * @param currentTime the current time
+     * @return whether a stopping event occured
+     */
     bool SolveOdeToTime(double currentTime);
-
+    
+    /**
+     * Get the time at which the ODE stopping event occured.
+     * 
+     * @return the stopping event time
+     */
     double GetOdeStopTime();
 
 };

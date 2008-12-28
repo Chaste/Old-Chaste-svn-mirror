@@ -27,6 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "StochasticDivisionRuleCellCycleModel.hpp"
 
+
+StochasticDivisionRuleCellCycleModel::StochasticDivisionRuleCellCycleModel(double g1Duration,
+                                                                           unsigned generation,
+                                                                           bool dividedSymmetrically)
+    : AbstractSimpleCellCycleModel(g1Duration, generation),
+      mDividedSymmetrically(dividedSymmetrically)
+{
+}
+
+
+StochasticDivisionRuleCellCycleModel::StochasticDivisionRuleCellCycleModel(bool dividedSymmetrically)
+    : mDividedSymmetrically(dividedSymmetrically)
+{
+}
+
+       
 void StochasticDivisionRuleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
@@ -58,6 +74,7 @@ void StochasticDivisionRuleCellCycleModel::SetG1Duration()
     }
 }
 
+
 void StochasticDivisionRuleCellCycleModel::ResetForDivision()
 {
     if (mGeneration+1u > CancerParameters::Instance()->GetMaxTransitGenerations())
@@ -65,11 +82,14 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
         mpCell->SetCellType(DIFFERENTIATED);
     }
 
-    // If dealing with a stem cell, we may have symmetric division.
-    // We therefore neglect the possibility of de-differentiation.
-    // NB. This code must be implemented before the call to
-    // AbstractSimpleCellCycleModel::ResetForDivision(), because that
-    // method sets the G1 duration based on the cell type.
+    /**
+     * If dealing with a stem cell, we may have symmetric division.
+     * We therefore neglect the possibility of de-differentiation.
+     * 
+     * NB. This code must be implemented before the call to
+     * AbstractSimpleCellCycleModel::ResetForDivision(), because 
+     * that method sets the G1 duration based on the cell type.
+     */
     if (mpCell->GetCellType() == STEM)
     {
         double test_number = RandomNumberGenerator::Instance()->ranf(); // U(0,1)
@@ -105,6 +125,7 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
     }
 }
 
+
 void StochasticDivisionRuleCellCycleModel::InitialiseDaughterCell()
 {
     // If the cell was born out of symmetric division,
@@ -125,11 +146,13 @@ void StochasticDivisionRuleCellCycleModel::InitialiseDaughterCell()
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();
 }
 
+
 AbstractCellCycleModel* StochasticDivisionRuleCellCycleModel::CreateDaughterCellCycleModel()
 {
     // Use a private constructor that doesn't reset mG1Duration
     return new StochasticDivisionRuleCellCycleModel(mG1Duration, mGeneration, mDividedSymmetrically);
 }
+
 
 bool StochasticDivisionRuleCellCycleModel::DividedSymmetrically()
 {

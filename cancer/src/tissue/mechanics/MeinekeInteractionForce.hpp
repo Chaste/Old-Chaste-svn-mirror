@@ -33,7 +33,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-/// \todo This class needs documenting (see #736)
+/**
+ * A force law employed by Meineke et al (2001) in their off-lattice 
+ * model of the intestinal crypt. 
+ * 
+ * The force law is that of an linear overdamped spring. 
+ */
 template<unsigned DIM>
 class MeinekeInteractionForce : public AbstractTwoBodyInteractionForce<DIM>
 {
@@ -62,13 +67,20 @@ public :
      */  
     ~MeinekeInteractionForce();
 
-    /// \todo This method needs documenting (see #736)
+    /**
+     * Return a multiplication factor for the spring constant, which 
+     * returns a default value of 1.
+     * 
+     * This method is overridden in a subclass. 
+     */
     virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
                                                               unsigned nodeBGlobalIndex,
                                                               AbstractTissue<DIM>& rTissue, 
                                                               bool isCloserThanRestLength);
     
     /**
+     * Overridden CalculateForceBetweenNodes() method.
+     * 
      * Calculates the force between two nodes.
      *
      * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
@@ -83,7 +95,7 @@ public :
                                                      unsigned nodeBGlobalIndex,
                                                      AbstractTissue<DIM>& rTissue);  
     /**
-     * Overridden AddForceContribution method.
+     * Overridden AddForceContribution() method.
      */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);

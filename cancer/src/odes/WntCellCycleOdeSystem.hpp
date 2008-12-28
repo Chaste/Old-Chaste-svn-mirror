@@ -116,7 +116,7 @@ public:
     void SetMutationState(const CellMutationState &rMutationState);
 
     /**
-     * Called by the archive function on the wnt cell cycle model.
+     * Called by the archive function on the Wnt cell cycle model.
      *
      * @return mMutationState the mutation state of the cell defined by
      * CellMutationStates.hpp

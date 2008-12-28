@@ -28,6 +28,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleMeinekeCellCycleModel.hpp"
 
 
+AbstractSimpleMeinekeCellCycleModel::AbstractSimpleMeinekeCellCycleModel(double g1Duration,
+                                                                         unsigned generation)
+    : AbstractSimpleCellCycleModel(g1Duration, generation)
+{
+}
+
+
 void AbstractSimpleMeinekeCellCycleModel::ResetForDivision()
 {
     if (mGeneration+1u > CancerParameters::Instance()->GetMaxTransitGenerations())

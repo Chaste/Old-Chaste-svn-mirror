@@ -27,11 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "StochasticCellCycleModelCellsGenerator.hpp"
 
+
 template<unsigned DIM>
 AbstractCellCycleModel* StochasticCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
     return new StochasticCellCycleModel();
 }
+
 
 template<unsigned DIM>
 double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
@@ -40,12 +42,14 @@ double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTi
             + CancerParameters::Instance()->GetSG2MDuration();    
 }
 
+
 template<unsigned DIM>
 double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
 {
     return CancerParameters::Instance()->GetStemCellG1Duration()
             + CancerParameters::Instance()->GetSG2MDuration();
 }
+
 
 template<unsigned DIM>
 bool StochasticCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()

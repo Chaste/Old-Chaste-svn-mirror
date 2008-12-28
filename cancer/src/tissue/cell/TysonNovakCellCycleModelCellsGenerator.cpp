@@ -27,17 +27,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TysonNovakCellCycleModelCellsGenerator.hpp"
 
+
 template<unsigned DIM>
 AbstractCellCycleModel* TysonNovakCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
     return new TysonNovakCellCycleModel();
 }
 
+
 template<unsigned DIM>
 double TysonNovakCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
 {
     return 1.25;
 }
+
 
 template<unsigned DIM>
 double TysonNovakCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()

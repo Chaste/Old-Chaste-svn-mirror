@@ -59,7 +59,7 @@ private:
     {
         assert(mpOdeSystem!=NULL);
         archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-        // reference can be read or written into once mpOdeSystem has been set up
+        // Reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
         archive & static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState();
@@ -75,10 +75,11 @@ private:
      */
     void ChangeCellTypeDueToCurrentBetaCateninLevel();
 
+    /**
+     * Hypothesis number (1 or 2), concerning the nature of the 
+     * interactions modelled by the cell cycle ODE system.
+     */
     unsigned mHypothesis;
-
-protected:
-
 
 public:
 
@@ -88,7 +89,7 @@ public:
     IngeWntSwatCellCycleModel(unsigned hypothesis)
        : mHypothesis(hypothesis)
     {
-        if ( ! (mHypothesis==1u || mHypothesis==2u) )
+        if ( !(mHypothesis==1u || mHypothesis==2u) )
         {
             EXCEPTION("Model must be set up with argument(hypothesis) = 1u or 2u");
         }
@@ -98,24 +99,30 @@ public:
     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
     * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
     *
-    * @param rHypothesis  which hypothesis to use (supply one or two)
+    * @param rHypothesis  which model hypothesis to use (1 or 2)
     * @param pParentOdeSystem  to copy the state of.
     * @param rMutationState the mutation state of the cell (used by ODEs)
     * @param birthTime the simulation time when the cell divided (birth time of parent cell)
     * @param lastTime last time the cell cycle model was evaluated
     * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
-    * @param readyToDivide
-    * @param divideTime If in the future this is the time at which the cell is going to divide
+    * @param readyToDivide whether the cell is ready to divide
+    * @param divideTime if in the future this is the time at which the cell is going to divide
+    * @param generation the cell's generation
     */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                       AbstractOdeSystem* pParentOdeSystem,
                       const CellMutationState& rMutationState,
-                      double birthTime, double lastTime,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation);
+                      double birthTime,
+                      double lastTime,
+                      bool inSG2MPhase,
+                      bool readyToDivide,
+                      double divideTime,
+                      unsigned generation);
 
     /**
-     * A 'private' constructor for archiving
+     * A 'private' constructor for archiving.
      *
+     * @param rHypothesis which model hypothesis to use (1 or 2)
      * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
      * @param rMutationState the mutation state of the cell (used by ODEs)
      */
@@ -158,6 +165,9 @@ public:
      */
     double GetNuclearBetaCateninLevel();
 
+    /**
+     * @return mHypothesis.
+     */
     unsigned GetHypothesis() const; // this function promises not to change the object
 
     /**

@@ -34,11 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
+
 /**
- *  Randomly kills cells based on the user set probability
+ *  A cell killer that randomly kills cells based on the user set probability.
+ * 
  *  The probability passed into the constructor will be the probability
- *  of any cell dying whenever this TestAndLabelCellsForApoptosis is called.
- *  Note this does take into account current times or timesteps, so if
+ *  of any cell dying whenever TestAndLabelCellsForApoptosis() is called.
+ *
+ *  Note this does NOT take into account current times or timesteps, so if
  *  more timesteps are used, and TestAndLabelCellsForApoptosis() is called
  *  at each timestep, more cells will die.
  */
@@ -47,7 +50,7 @@ class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
 
-    /// \todo This member needs documenting (see #736)
+    /** Probability that a tested cell is labelled for apoptosis */
     double mProbabilityOfDeath;
 
     friend class boost::serialization::access;
@@ -55,6 +58,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);
+   
         // Make sure random number generator is archived...
         RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
         archive & *p_random_generator;
@@ -63,18 +67,26 @@ private:
 
 public:
 
-    /// \todo These methods need documenting (see #736)
+    /**
+     * Default constructor.
+     */
     RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath);
 
+    /**
+     * Get method for mProbabilityOfDeath.
+     */
     double GetDeathProbability() const;
 
+    /**
+     * Overridden method to test a given cell for apoptosis. 
+     */
     void TestAndLabelSingleCellForApoptosis(TissueCell& cell);
 
     /**
      *  Loop over cells and start apoptosis randomly, based on the user-set
      *  probability
      */
-    virtual void TestAndLabelCellsForApoptosisOrDeath();
+    void TestAndLabelCellsForApoptosisOrDeath();
 
 };
 

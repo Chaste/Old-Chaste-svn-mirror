@@ -27,17 +27,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "StochasticWntCellCycleModelCellsGenerator.hpp"
 
+
 template<unsigned DIM>
 AbstractCellCycleModel* StochasticWntCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
     return new StochasticWntCellCycleModel();
 }
 
+
 template<unsigned DIM>
 double StochasticWntCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
 {
     return 16.0;
 }
+
 
 template<unsigned DIM>
 double StochasticWntCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()

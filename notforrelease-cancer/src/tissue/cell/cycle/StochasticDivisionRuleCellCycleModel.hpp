@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 
+
 /**
  *  Simple cell cycle model for use in crypt projection
  *  simulations under the non-niche hypothesis.
@@ -75,30 +76,50 @@ private:
     void SetG1Duration();
 
     /**
-     * Private constructor for identical cells
+     * Private constructor for identical cells.
+     * 
+     * @param g1Duration
+     * @param generation
+     * @param dividedSymmetrically
      */
-    StochasticDivisionRuleCellCycleModel(double g1Duration, unsigned generation, bool dividedSymmetrically)
-        : AbstractSimpleCellCycleModel(g1Duration, generation),
-          mDividedSymmetrically(dividedSymmetrically)
-    {}
+    StochasticDivisionRuleCellCycleModel(double g1Duration,
+                                         unsigned generation,
+                                         bool dividedSymmetrically);
 
 public:
 
     /**
-     * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
-     * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
+     * Constructor - just a default, mBirthTime is now set in 
+     * the AbstractCellCycleModel class.
+     * 
+     * mG1Duration is set very high, it is set for the individual 
+     * cells when InitialiseDaughterCell is called.
+     * 
+     * @param dividedSymmetrically
      */
-    StochasticDivisionRuleCellCycleModel(bool dividedSymmetrically=false)
-        : mDividedSymmetrically(dividedSymmetrically)
-    {}
+    StochasticDivisionRuleCellCycleModel(bool dividedSymmetrically=false);
 
-    /// \todo These methods need documenting (see #736)
+    /**
+     * Overridden ResetForDivision() method.
+     * 
+     * Should only be called by the TissueCell Divide() method.
+     */
     void ResetForDivision();
 
+    /**
+     * Overridden InitialiseDaughterCell() method.
+     */
     void InitialiseDaughterCell();
 
+    /** 
+     * Overridden builder method to create new instances of 
+     * the cell cycle model.
+     */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
+    /**
+     * Get method for member variable.
+     */
     bool DividedSymmetrically();
 
 };

@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class contains all the things common to the Wnt cell cycle ODE based models,
- * the Resetting functions and Updating of cell types etc.
+ * the resetting method and updating of cell types etc.
  */
 class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
@@ -53,7 +53,7 @@ private:
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
     }
 
-    // no member variables yet - if any are added put them in archive function
+    // No member variables yet - if any are added put them in archive function
     // and add default values in the default constructor.
 
 protected:
@@ -96,7 +96,7 @@ public:
     /**
      * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
      * Cells are given a new birth time and cell cycle proteins are reset.
-     * Note that the wnt pathway proteins maintain their current values.
+     * Note that the Wnt pathway proteins maintain their current values.
      *
      * Should only be called by the TissueCell::Divide() method.
      */

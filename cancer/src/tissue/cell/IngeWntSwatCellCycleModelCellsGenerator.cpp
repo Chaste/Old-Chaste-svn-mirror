@@ -27,17 +27,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 
+
 template<unsigned DIM>
 IngeWntSwatCellCycleModelCellsGenerator<DIM>::IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis)
 {
     mHypothesis = hypothesis;
 }
 
+
 template<unsigned DIM>
 AbstractCellCycleModel* IngeWntSwatCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
     return new IngeWntSwatCellCycleModel(mHypothesis);
 }
+
 
 template<unsigned DIM>
 double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()

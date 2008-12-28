@@ -46,14 +46,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * nodes in the mesh.
  *
  */
-/// \todo Some members/methods in this class needs documenting (see #736)
 template<unsigned DIM>
 class MeshBasedTissue : public AbstractTissue<DIM>
 {
 protected:
 
+    /// \todo Document this member (see #736)
     MutableMesh<DIM, DIM>& mrMesh;
 
+    /// \todo Document this member (see #736)
     VoronoiTessellation<DIM>* mpVoronoiTessellation;
 
     /**
@@ -152,24 +153,40 @@ public:
      */
     MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh);
 
+    /**
+     * Destructor.
+     */
     ~MeshBasedTissue();
 
+    /**
+     * Get method for mrMesh.
+     */
     MutableMesh<DIM, DIM>& rGetMesh();
 
+    /**
+     * Get method for mrMesh (used in archiving).
+     */
     const MutableMesh<DIM, DIM>& rGetMesh() const;
 
+    /// \todo Document this method (see #736)
     bool GetWriteVoronoiData();
 
+    /// \todo Document this method (see #736)
     bool GetWriteTissueAreas();
 
+    /// \todo Document this method (see #736)
     bool UseAreaBasedDampingConstant();
-    
+
+    /// \todo Document this method (see #736)    
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
 
+    /// \todo Document this method (see #736)
     void SetWriteTissueAreas(bool writeTissueAreas);
-    
+
+    /// \todo Document this method (see #736)    
     void SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant);
-    
+
+    /// \todo Document this method (see #736)    
     double GetDampingConstant(TissueCell& rCell);
 
     /**
@@ -189,6 +206,7 @@ public:
      */
     unsigned RemoveDeadCells();
 
+    /// \todo Document this method (see #736)
     void CreateOutputFiles(const std::string &rDirectory,
                            bool rCleanOutputDirectory,
                            bool outputCellMutationStates,
@@ -197,6 +215,7 @@ public:
                            bool outputCellCyclePhases,
                            bool outputCellAncestors);
 
+    /// \todo Document this method (see #736)
     void CloseOutputFiles(bool outputCellMutationStates,
                           bool outputCellTypes,
                           bool outputCellVariables,
@@ -218,10 +237,13 @@ public:
      */
     TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
+    /// \todo Document this method (see #736)
     virtual void Update();
 
+    /// \todo Document this method (see #736)
     Node<DIM>* GetNode(unsigned index);
 
+    /// \todo Document this method (see #736)
     unsigned GetNumNodes();
 
     /**
@@ -236,19 +258,23 @@ public:
      */
     virtual void Validate();
 
+    /// \todo Document this method (see #736)
     void WriteResultsToFiles(bool outputCellMutationStates,
                              bool outputCellTypes,
                              bool outputCellVariables,
                              bool outputCellCyclePhases,
                              bool outputCellAncestors);
 
+    /// \todo Document this method (see #736)
     void WriteVoronoiResultsToFile();
 
+    /// \todo Document this method (see #736)
     void WriteTissueAreaResultsToFile();
 
     /** Get a reference to a Voronoi tessellation of the mesh */
     void CreateVoronoiTessellation();
 
+    /// \todo Document this method (see #736)
     VoronoiTessellation<DIM>& rGetVoronoiTessellation();
 
     /**
@@ -285,6 +311,7 @@ public:
          */
         TissueCell& rGetCellB();
 
+        /// \todo Document this operator (see #736)
         bool operator!=(const SpringIterator& other);
 
         /**
@@ -302,8 +329,10 @@ public:
         /** Keep track of what edges have been visited */
         std::set<std::set<unsigned> > mSpringsVisited;
 
+        /// \todo Document this member (see #736)
         MeshBasedTissue& mrTissue;
 
+        /// \todo Document this member (see #736)
         typename MutableMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
 

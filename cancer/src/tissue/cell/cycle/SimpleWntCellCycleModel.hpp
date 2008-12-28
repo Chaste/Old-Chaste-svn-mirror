@@ -77,10 +77,7 @@ protected:
      * @param generation  The generation of the cell cycle model
      * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
-    SimpleWntCellCycleModel(double g1Duration, unsigned generation, bool useCellTypeDependentG1Duration=false)
-        : AbstractSimpleCellCycleModel(g1Duration, generation),
-          mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
-    {}
+    SimpleWntCellCycleModel(double g1Duration, unsigned generation, bool useCellTypeDependentG1Duration=false);
 
 public:
 
@@ -90,25 +87,27 @@ public:
      *
      * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
-    SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration=false)
-        : mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
-    {}
+    SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration=false);
 
     /**
-     * Overridden UpdateCellCyclePhase() method
+     * Overridden UpdateCellCyclePhase() method.
      */
     void UpdateCellCyclePhase();
 
     /**
-     * Overridden ResetForDivision() method
+     * Overridden ResetForDivision() method.
      */
     void ResetForDivision();
 
     /**
-     * Overridden InitialiseDaughterCell() method
+     * Overridden InitialiseDaughterCell() method.
      */
     void InitialiseDaughterCell();
 
+    /** 
+     * Overridden builder method to create new instances of 
+     * the cell cycle model.
+     */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 };
 

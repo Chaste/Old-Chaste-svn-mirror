@@ -61,7 +61,7 @@ private:
 
 protected:
 
-    /** The system of ODEs for the cell cycle model */
+    /** The system of ODEs for the cell cycle model. */
     AbstractOdeSystem* mpOdeSystem;
 
     /** The last time the cell cycle ODEs were evaluated.*/
@@ -93,7 +93,7 @@ public:
     virtual ~AbstractOdeBasedCellCycleModel();
 
     /**
-     * Default UpdateCellCyclePhase function for an ODE-based cell cycle model.
+     * Default UpdateCellCyclePhase() method for an ODE-based cell cycle model.
      *
      * Can be overridden if they should do something more subtle.
      */

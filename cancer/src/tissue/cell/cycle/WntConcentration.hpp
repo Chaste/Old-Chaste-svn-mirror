@@ -41,9 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Possible types of WntConcentration, currently:
- *  NONE - For testing/to remove Wnt dependence.
- *  LINEAR - For CryptSimulation2d.hpp.
- *  RADIAL - for CryptProjection model.
+ *  NONE - for testing and to remove Wnt dependence
+ *  LINEAR - for CryptSimulation2d
+ *  RADIAL - for crypt projection model
  */
 typedef enum WntConcentrationType_
 {
@@ -54,11 +54,12 @@ typedef enum WntConcentrationType_
 
 
 /**
- *  Singleton Wnt concentration object
+ *  Singleton Wnt concentration object.
  */
 class WntConcentration
 {
 private:
+
     /** Pointer to the singleton instance of WntConcentration */
     static WntConcentration* mpInstance;
 
@@ -66,31 +67,31 @@ private:
     CancerParameters* mpCancerParams;
 
     /**
-     * The type of Wnt Gradient current options are
+     * The type of WntConcentration current options are
      *  NONE - returns zero everywhere
-     *  LINEAR - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
-     *  RADIAL - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
+     *  LINEAR - decreases from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
+     *  RADIAL - decreases from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
      */
     WntConcentrationType mWntType;
 
     /**
-     *  The Tissue which the Wnt Gradient is operating in
+     *  The Tissue in which the WntConcentration occurs.
      */
     AbstractTissue<2>* mpTissue;
 
     /**
-     *  Whether this WntConcentration object has had its type set
+     *  Whether this WntConcentration object has had its type set.
      */
     bool mTypeSet;
 
     /**
-     *  A value to return for testing purposes
+     *  A value to return for testing purposes.
      */
     double mConstantWntValueForTesting;
 
     /**
      *  Whether to return the testing value
-     *  (when false WntConcentration works with Tissue)
+     *  (when false WntConcentration works with Tissue).
      */
     bool mUseConstantWntValueForTesting;
 
@@ -111,14 +112,15 @@ private:
 protected:
 
     /**
-     *  Protected constuctor. Not to be called, use Instance() instead
+     *  Protected constuctor. Not to be called, use Instance() instead.
      */
     WntConcentration();
 
 public:
 
-    /**
-     *  Get an instance of the Wnt concentration
+    /*
+     * Return a pointer to the WntConcentration object.
+     * The first time this is called, the object is created.
      */
     static WntConcentration* Instance();
 
@@ -128,14 +130,17 @@ public:
     virtual ~WntConcentration();
 
     /**
-     *  Destroy the current Wnt. Should be called at the end of a
-     *  simulation.
+     *  Destroy the current WntConcentration instance. 
+     *  Should be called at the end of a simulation.
      */
     static void Destroy();
 
     /**
      *  Get the Wnt level at a given height in the crypt. Note the
      *  CancerParameters::CryptLength() is used for this.
+     *  
+     *  @param height The height of the cell at which we want the Wnt concentration
+     *  @return the Wnt concentration at this height in the crypt (dimensionless)
      */
     double GetWntLevel(double height);
 
@@ -143,6 +148,9 @@ public:
      *  Get the Wnt level at a given cell in the crypt. The crypt
      *  must be set for this. Note the CancerParameters::CryptLength()
      *  is used for this.
+     * 
+     *  @param pCell pointer to the cell at which we want the Wnt concentration
+     *  @return the Wnt concentration at this cell
      */
     double GetWntLevel(TissueCell* pCell);
 
@@ -165,23 +173,30 @@ public:
     void SetTissue(AbstractTissue<2>& rTissue);
 
     /**
-     *  Get the type of wnt concentration.
+     *  Get the type of Wnt concentration.
      */
     WntConcentrationType GetType();
 
     /**
-     *  Set the type of wnt concentration. Must be called before GetWntLevel().
+     *  Set the type of Wnt concentration. Must be called before GetWntLevel().
      */
     void SetType(WntConcentrationType type);
 
     /**
-     *  Force the wnt gradrient to return a given value for all cell
+     *  Force the Wnt concentration to return a given value for all cells.
      *  Only for testing.
      */
     void SetConstantWntValueForTesting(double value);
 
     /**
-     *  Whether a wnt concentration has been set up (for archiving, mainly)
+     *  Whether a Wnt concentration has been set up.
+     * 
+     *  For archiving, and to let a TissueSimulation 
+     *  find out whether whether a WntConcentration has 
+     *  been set up or not, i.e. whether stem cells should 
+     *  be motile.
+     * 
+     *  @return whether the Wnt concentration is set up
      */
     bool IsWntSetUp();
 

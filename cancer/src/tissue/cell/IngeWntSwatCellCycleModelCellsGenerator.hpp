@@ -32,24 +32,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleModel.hpp"
 
 /**
- * A helper class for generating a vector of cells for a given mesh
+ * A helper class for generating a vector of cells with
+ * IngeWntSwatCellCycleModels for a given mesh.
  */
 template<unsigned DIM>
 class IngeWntSwatCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
 private:
 
-    /// \todo This member needs documenting (see #736)
+    /**
+     * Hypothesis number (1 or 2), concerning the nature of the 
+     * interactions modelled by the cell cycle ODE system.
+     */
     unsigned mHypothesis;
     
 public:
 
+    /**
+     * Constructor.
+     */
     IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis);
-    
+
+    /**
+     * @return a pointer to a new IngeWntSwatCellCycleModel.
+     */
     AbstractCellCycleModel* CreateCellCycleModel();
-    
+
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
     double GetTypicalTransitCellCycleTime();
     
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
     double GetTypicalStemCellCycleTime();
 };
 

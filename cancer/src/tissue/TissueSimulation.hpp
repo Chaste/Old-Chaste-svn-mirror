@@ -85,7 +85,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * added to the simulation.
  *
  */
-/// \todo Some methods in this class need documenting (see #736)
 template<unsigned DIM>
 class TissueSimulation
 {
@@ -276,7 +275,7 @@ protected:
 public:
 
     /**
-     *  Constructor
+     *  Constructor.
      *
      *  @param rTissue A tissue facade class (contains a mesh and cells)
      *  @param forceCollection The mechanics to use in the simulation
@@ -322,13 +321,25 @@ public:
     void SetOutputCellCyclePhases(bool outputCellCyclePhases);
     void SetUpdateTissueRule(bool updateTissue);
 
+    /// \todo Document this method (see #736)
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
 
+    /// \todo Document this method (see #736)
     void Solve();
 
+    /**
+     * Get reference to the tissue.
+     */
     AbstractTissue<DIM>& rGetTissue();
+
+    /**
+     * Get const reference to the tissue (used in archiving).
+     */
     const AbstractTissue<DIM>& rGetTissue() const;
-        
+
+    /**
+     * Get const reference to mForceCollection (used in archiving).
+     */
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
     
     /**
@@ -376,7 +387,7 @@ inline void load_construct_data(
     ::new(t)TissueSimulation<DIM>(*p_tissue, force_collection, true);
 }
 }
-} // namespace ...
+} // namespace
 
 
 #endif /*TISSUESIMULATION_HPP_*/

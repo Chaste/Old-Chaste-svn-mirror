@@ -33,7 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-/// \todo This class needs documenting (see #736)
+/**
+ * A subclass of MeinekeInteractionForce with variable spring constants.
+ */
 template<unsigned DIM>
 class MeinekeInteractionWithVariableSpringConstantsForce : public MeinekeInteractionForce<DIM>
 {
@@ -109,7 +111,12 @@ public :
      */
     void SetApoptoticSprings(bool useApoptoticSprings);    
 
-    /// \todo This method needs documenting (see #736)
+    /**
+     * Return a multiplication factor for the spring constant, which 
+     * may depend on whether the given pair of neighbouring cells are 
+     * e.g. undergoing apoptosis, have mutations, or experience variable 
+     * levels of beta catenin.
+     */     
     double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
                                                       unsigned nodeBGlobalIndex, 
                                                       AbstractTissue<DIM>& rTissue, 

@@ -40,12 +40,16 @@ template<unsigned DIM>
 class AbstractCellsGenerator
 {
 public:
+
     /**
-     * Default constructor
+     * Default constructor.
      */
     AbstractCellsGenerator()
     {}
 
+    /**
+     * @return a pointer to a new cell cycle model (should be implemented in subclasses)
+     */
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
     
     /**
@@ -67,7 +71,10 @@ public:
      * Defaults to false unless overridden.
      */
     virtual bool CellsCanDifferentiate();
-    
+
+    /**
+     * Destructor.
+     */    
     virtual ~AbstractCellsGenerator()
     {}
 

@@ -27,11 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FixedCellCycleModelCellsGenerator.hpp"
 
+
 template<unsigned DIM>
 AbstractCellCycleModel* FixedCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
     return new FixedCellCycleModel();
 }
+
 
 template<unsigned DIM>
 double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
@@ -40,6 +42,7 @@ double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
             + CancerParameters::Instance()->GetSG2MDuration();
 }
 
+
 template<unsigned DIM>
 double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
 {
@@ -47,19 +50,21 @@ double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
             + CancerParameters::Instance()->GetSG2MDuration();
 }
 
+
 template<unsigned DIM>
 bool FixedCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
 {
     return true;
 }
 
+
 template<unsigned DIM>
-void FixedCellCycleModelCellsGenerator<DIM>::GenerateBasic(
-    std::vector<TissueCell>& rCells,
-    TetrahedralMesh<DIM,DIM>& rMesh)
+void FixedCellCycleModelCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
+                                                           TetrahedralMesh<DIM,DIM>& rMesh)
 {
     rCells.clear();
     rCells.reserve(rMesh.GetNumNodes());
+    
     for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
         AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();

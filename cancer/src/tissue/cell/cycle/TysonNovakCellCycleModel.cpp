@@ -27,11 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TysonNovakCellCycleModel.hpp"
 
+
 #ifdef CHASTE_CVODE
 CvodeAdaptor TysonNovakCellCycleModel::msSolver;
 #else
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 #endif //CHASTE_CVODE
+
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
@@ -59,6 +61,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
     mGeneration = generation;
 }
 
+
 void TysonNovakCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModel::ResetForDivision();
@@ -84,6 +87,7 @@ void TysonNovakCellCycleModel::ResetForDivision()
 #endif //CHASTE_CVODE
 }
 
+
 void TysonNovakCellCycleModel::InitialiseDaughterCell()
 {
     if (mpCell->GetCellType() == STEM)
@@ -92,10 +96,12 @@ void TysonNovakCellCycleModel::InitialiseDaughterCell()
     }
 }
 
+
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime, mGeneration);
 }
+
 
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
 {
@@ -106,39 +112,42 @@ bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
     return msSolver.StoppingEventOccurred();
 }
 
+
 double TysonNovakCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccurred());
     return msSolver.GetStoppingTime();
 }
 
-/**
- * Tyson & Novak pretends it is running ODEs in just G1,
- * but they really represent the whole cell cycle so
- * we set the other phases to zero.
- */
+
 double TysonNovakCellCycleModel::GetSDuration()
 {
+    /**
+     * Tyson & Novak pretends it is running ODEs in just G1,
+     * but they really represent the whole cell cycle, so
+     * we set the other phases to zero.
+     */
     return 0.0;
 }
 
-/**
- * Tyson & Novak pretends it is running ODEs in just G1,
- * but they really represent the whole cell cycle so
- * we set the other phases to zero.
- */
+
 double TysonNovakCellCycleModel::GetG2Duration()
 {
+    /**
+     * Tyson & Novak pretends it is running ODEs in just G1,
+     * but they really represent the whole cell cycle so
+     * we set the other phases to zero.
+     */
     return 0.0;
 }
 
-/**
- * Tyson & Novak pretends it is running ODEs in just G1,
- * but they really represent the whole cell cycle so
- * we set the other phases to zero.
- */
+
 double TysonNovakCellCycleModel::GetMDuration()
 {
+    /**
+     * Tyson & Novak pretends it is running ODEs in just G1,
+     * but they really represent the whole cell cycle so
+     * we set the other phases to zero.
+     */
     return 0.0;
 }
-

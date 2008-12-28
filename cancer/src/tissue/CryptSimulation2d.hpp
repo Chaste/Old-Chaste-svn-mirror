@@ -39,7 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-/// \todo Some members/methods in this class needs documenting (see #736)
+
+/// \todo Document this class (see #736)
 class CryptSimulation2d : public TissueSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of
@@ -47,6 +48,7 @@ class CryptSimulation2d : public TissueSimulation<2>
     friend class TestCryptSimulation2d;
 
 private :
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -63,6 +65,7 @@ private :
     /** The file that the values of beta catenin is written out to. */
     out_stream mBetaCatResultsFile;
 
+    /// \todo Document this member (see #736)
     MeshBasedTissueWithGhostNodes<2>* mpStaticCastTissue;
 
     /**
@@ -78,22 +81,28 @@ private :
      */
     c_vector<double, 2> CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell);
 
+    /// \todo Document this method (see #736)
     void WriteVisualizerSetupFile();
 
+    /// \todo Document this method (see #736)
     void SetupWriteBetaCatenin();
 
+    /// \todo Document this method (see #736)
     void WriteBetaCatenin(double time);
 
+    /// \todo Document this method (see #736)
     void SetupSolve();
 
+    /// \todo Document this method (see #736)
     void PostSolve();
 
+    /// \todo Document this method (see #736)
     void AfterSolve();
 
 public :
 
     /**
-     *  Constructor
+     *  Constructor.
      *
      *  @param rTissue A tissue facade class (contains a mesh and cells)
      *  @param forceCollection The mechanics to use in the simulation
@@ -105,8 +114,10 @@ public :
                       bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
 
+    /// \todo Document this method (see #736)
     void UseJiggledBottomCells();
 
+    /// \todo Document this method (see #736)
     void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint);
 
 };
@@ -150,7 +161,7 @@ inline void load_construct_data(
     ::new(t)CryptSimulation2d(*p_tissue, force_collection, true, false);
 }
 }
-} // namespace ...
+} // namespace
 
 #endif /*CRYPTSIMULATION2D_HPP_*/
 

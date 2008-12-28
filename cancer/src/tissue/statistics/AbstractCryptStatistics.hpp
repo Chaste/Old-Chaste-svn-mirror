@@ -30,11 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissue.hpp"
 
-/// \todo This class needs documenting (see #736)
+/**
+ * Abstract crypt statistics class.
+ */
 class AbstractCryptStatistics
 {
 protected:
 
+    /** The crypt. */
     MeshBasedTissue<2>& mrCrypt;
 
 public:
@@ -48,6 +51,9 @@ public:
         : mrCrypt(rCrypt)
     {}
 
+    /**
+     * Destructor.
+     */
     virtual ~AbstractCryptStatistics()
     {}
 

@@ -32,18 +32,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 
 /**
- * A helper class for generating a vector of cells for a given mesh
+ * A helper class for generating a vector of cells with 
+ * SimpleWntCellCycleModels for a given mesh.
  */
 template<unsigned DIM>
 class SimpleWntCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
 public :
 
+    /**
+     * @return a pointer to a new SimpleWntCellCycleModel.
+     */
     AbstractCellCycleModel* CreateCellCycleModel();
-    
+
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
     double GetTypicalTransitCellCycleTime();
     
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
     double GetTypicalStemCellCycleTime();
+
 };
 
 #endif /*SIMPLEWNTCELLCYCLEMODELCELLSGENERATOR_HPP_*/

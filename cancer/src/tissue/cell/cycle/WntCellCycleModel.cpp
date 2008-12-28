@@ -41,7 +41,7 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
     if (pParentOdeSystem != NULL)
     {
         std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
-        mpOdeSystem = new WntCellCycleOdeSystem(parent_protein_concs[8], rMutationState);// wnt pathway is reset in a couple of lines.
+        mpOdeSystem = new WntCellCycleOdeSystem(parent_protein_concs[8], rMutationState);// Wnt pathway is reset in a couple of lines.
 
         // Set the initial conditions to be the same as the parent cell
         mpOdeSystem->rGetStateVariables() = parent_protein_concs;
@@ -68,7 +68,7 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState)
 {
-    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
+    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState); // Wnt pathway is reset in a couple of lines
     
     // Set the initial conditions to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
@@ -144,4 +144,3 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     UpdateCellType();
     return msSolver.StoppingEventOccurred();
 }
-

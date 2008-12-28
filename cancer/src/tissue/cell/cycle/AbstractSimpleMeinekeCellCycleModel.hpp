@@ -38,15 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 
 /**
- * This class contains all the things common to simple meineke cell cycle models
- *
- * i.e. models where the length of cell cycle phases are determined when
- * the cell cycle model is created,
- * rather than evaluated 'on the fly' by ODEs and suchlike.
- * And also models which consider the generation of cells
+ * This class contains all the things common to simple Meineke cell cycle 
+ * models, i.e. models in which the length of cell cycle phases are determined 
+ * when the cell cycle model is created, rather than evaluated 'on the fly' 
+ * by ODEs and suchlike, and in which each cell has a 'generation'.
  *
  * N.B. Whether or not the cell should actually divide may depend on
- * Wnt / Oxygen etc. in subclasses...
+ * Wnt / Oxygen etc. in subclasses.
  */
 class AbstractSimpleMeinekeCellCycleModel : public AbstractSimpleCellCycleModel
 {
@@ -59,28 +57,31 @@ private:
     }
 
 protected:
+
     /**
      * Protected constructor for creating an identical daughter cell
-     * (with the same G_ONE duration...)
+     * (with the same G1 duration).
+     * 
+     * @param g1Duration
+     * @param generation
      * */
-    AbstractSimpleMeinekeCellCycleModel(double g1Duration, unsigned generation)
-        : AbstractSimpleCellCycleModel(g1Duration, generation)
-    {}
+    AbstractSimpleMeinekeCellCycleModel(double g1Duration, unsigned generation);
 
 public:
+
     /**
-     * Default constructor - creates an AbstractSimpleCellCycleModel
+     * Default constructor - creates an AbstractSimpleCellCycleModel.
      */
     AbstractSimpleMeinekeCellCycleModel()
     {}
 
     /**
-     * Default destructor
+     * Default destructor.
      */
     virtual ~AbstractSimpleMeinekeCellCycleModel()
     {}
 
-    /** See AbstractCellCycleModel::ResetForDivision() */
+    /** Overridden ResetForDivision() method. */
     void ResetForDivision();
 
     /**

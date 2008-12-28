@@ -69,17 +69,17 @@ private:
     double mG2Duration;
 
     /**
-     * The time spent in G1 phase so far
+     * The time spent in G1 phase so far.
      */
     double mTimeSpentInG1Phase;
 
     /**
-     * How long the current period of hypoxia has lasted
+     * How long the current period of hypoxia has lasted.
      */
     double mCurrentHypoxicDuration;
 
     /*
-     * The time when the current period of hypoxia began
+     * The time when the current period of hypoxia began.
      */
     double mCurrentHypoxiaOnsetTime;
 
@@ -92,50 +92,60 @@ private:
     void SetG2Duration();
 
     /**
-     * Private constructor for creating an identical daughter cell
+     * Private constructor for creating an identical daughter cell.
      */
     StochasticOxygenBasedCellCycleModel(double g1Duration,
                                         unsigned generation,
                                         double currentHypoxicDuration,
                                         double currentHypoxiaOnsetTime,
-                                        double g2Duration)
-        : AbstractSimpleCellCycleModel(g1Duration,generation),
-          mG2Duration(g2Duration),
-          mTimeSpentInG1Phase(0.0),
-          mCurrentHypoxicDuration(currentHypoxicDuration),
-          mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime) {};
+                                        double g2Duration);
 
 public:
 
     /**
-     * Constructor
+     * Constructor.
      */
     StochasticOxygenBasedCellCycleModel();
 
-    /// \todo These method need documenting (see #736)
+    /// \todo Document this method (see #736)
     void InitialiseDaughterCell();
 
+    /**
+     * Initialise the cell cycle model at the start of a simulation.
+     */
     void Initialise();
 
+    /// \todo Document this method (see #736)
     void ResetForDivision();
 
+    /// \todo Document this method (see #736)
     double GetG2Duration();
 
     /**
-     * Overridden UpdateCellCyclePhase() method
+     * Overridden UpdateCellCyclePhase() method.
      */
     void UpdateCellCyclePhase();
 
     /**
      * Method for updating mCurrentHypoxicDuration,
-     * called at the start of ReadyToDivide()
+     * called at the start of ReadyToDivide().
      */
     void UpdateHypoxicDuration();
 
+    /**
+     * Get method for mCurrentHypoxicDuration.
+     */
     double GetCurrentHypoxicDuration();
 
+    /**
+     * Get method for mCurrentHypoxiaOnsetTime.
+     */
     double GetCurrentHypoxiaOnsetTime();
 
+    /** 
+     * Overridden builder method to create new instances of 
+     * the cell cycle model.
+     */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
 };

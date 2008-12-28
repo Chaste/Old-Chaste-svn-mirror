@@ -49,20 +49,26 @@ private:
 
     /**
      * Private constructor for identical cells.
+     * 
+     * @param g1Duration 
+     * @param generation
      */
     FixedCellCycleModel(double g1Duration, unsigned generation):
         AbstractSimpleMeinekeCellCycleModel(g1Duration, generation){};
 
-protected:
-
 public:
 
     /**
-     * Default constructor - mBirthTime now set in AbstractCellCycleModel()
-     *                          mG1Duration now set in AbstractSimpleCellCycleModel()
+     * Default constructor. Note that mBirthTime is set in 
+     * AbstractCellCycleModel() and mG1Duration is set in 
+     * AbstractSimpleCellCycleModel().
      */
-    FixedCellCycleModel() {};
+    FixedCellCycleModel();
 
+    /** 
+     * Overridden builder method to create new instances of 
+     * the cell cycle model.
+     */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
 };

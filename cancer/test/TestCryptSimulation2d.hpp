@@ -498,7 +498,7 @@ public:
         TS_ASSERT_DELTA(node_120_location[0], 4.2035, 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
-        // Test the Wnt gradient result
+        // Test the Wnt concentration result
         TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(28));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
 
@@ -601,10 +601,10 @@ public:
         TS_ASSERT_DELTA(node_120_location[0], 4.2035, 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
-        // Test Wnt Gradient was set up correctly
+        // Test Wnt concentration was set up correctly
         TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(),true);
 
-        // Test the Wnt gradient result
+        // Test the Wnt concentration result
         TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
 

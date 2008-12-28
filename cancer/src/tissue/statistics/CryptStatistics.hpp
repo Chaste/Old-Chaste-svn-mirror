@@ -30,11 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCryptStatistics.hpp"
 
-/// \todo This class needs documenting (see #736)
+/**
+ * Concrete statistics class for the cylindrical crypt model.
+ */
 class CryptStatistics : public AbstractCryptStatistics
 {
-protected:
 
+protected:
 
     /**
      *  Method computing the perpendicular distance from the cell to the line from (xBottom,0) to (xTop,yTop),

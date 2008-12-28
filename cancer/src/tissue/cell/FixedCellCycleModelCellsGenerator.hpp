@@ -32,14 +32,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedCellCycleModel.hpp"
 
 /**
- * A helper class for generating a vector of cells for a given mesh
+ * A helper class for generating a vector of cells with 
+ * FixedCellCycleModels for a given mesh.
  */
 template<unsigned DIM>
 class FixedCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
 public:
 
-    virtual AbstractCellCycleModel* CreateCellCycleModel();
+    /**
+     * @return a pointer to a new FixedCellCycleModel.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
     
     /**
      * Fills a vector of cells with a specified cell cycle model, to match
@@ -49,14 +53,23 @@ public:
      * @param rCells  An empty vector of cells to fill up.
      * @param rMesh  The mesh the cells should be associated with.
      */
-    virtual void GenerateBasic(std::vector<TissueCell>& rCells,
+    void GenerateBasic(std::vector<TissueCell>& rCells,
                                TetrahedralMesh<DIM,DIM>& rMesh);
-    
-    virtual double GetTypicalTransitCellCycleTime();
-    
-    virtual double GetTypicalStemCellCycleTime();
 
-    virtual bool CellsCanDifferentiate();
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
+    double GetTypicalTransitCellCycleTime();
+    
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
+    double GetTypicalStemCellCycleTime();
+
+    /**
+     * @return true (cells can always differentiate).
+     */
+    bool CellsCanDifferentiate();
 };
 
 

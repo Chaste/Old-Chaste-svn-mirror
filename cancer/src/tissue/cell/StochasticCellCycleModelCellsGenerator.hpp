@@ -32,20 +32,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticCellCycleModel.hpp"
 
 /**
- * A helper class for generating a vector of cells for a given mesh
+ * A helper class for generating a vector of cells with 
+ * StochasticCellCycleModels for a given mesh.
  */
 template<unsigned DIM>
 class StochasticCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
 public :
 
+    /**
+     * @return a pointer to a new StochasticCellCycleModel.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
 
-    virtual AbstractCellCycleModel* CreateCellCycleModel();
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
+    double GetTypicalTransitCellCycleTime();
     
-    virtual double GetTypicalTransitCellCycleTime();
-    
-    virtual double GetTypicalStemCellCycleTime();
-    
+    /**
+     * @return default cell cycle time for a transit cell.
+     */
+    double GetTypicalStemCellCycleTime();
+
+    /**
+     * @return true (cells can always differentiate).
+     */   
     virtual bool CellsCanDifferentiate();
 };
 

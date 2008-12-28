@@ -27,6 +27,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AbstractCellCycleModel.hpp"
 
+
+AbstractCellCycleModel::AbstractCellCycleModel()
+    : mpCell(NULL),
+      mBirthTime(SimulationTime::Instance()->GetTime()),
+      mCurrentCellCyclePhase(M_PHASE),
+      mGeneration(0),
+      mG1Duration(DOUBLE_UNSET),
+      mReadyToDivide(false)
+{
+}
+
+
 AbstractCellCycleModel::~AbstractCellCycleModel()
 {
     // Don't delete the cell - the cell deletes the cell cycle model
@@ -34,10 +46,12 @@ AbstractCellCycleModel::~AbstractCellCycleModel()
     // delete mpCell;
 }
 
+
 void AbstractCellCycleModel::SetCell(TissueCell* pCell)
 {
     mpCell = pCell;
 }
+
 
 TissueCell* AbstractCellCycleModel::GetCell()
 {
@@ -45,25 +59,30 @@ TissueCell* AbstractCellCycleModel::GetCell()
     return mpCell;
 }
 
+
 void AbstractCellCycleModel::SetBirthTime(double birthTime)
 {
     mBirthTime = birthTime;
 }
+
 
 double AbstractCellCycleModel::GetBirthTime() const
 {
     return mBirthTime;
 }
 
+
 double AbstractCellCycleModel::GetAge()
 {
     return SimulationTime::Instance()->GetTime() - mBirthTime;
 }
 
+
 CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
 {
     return mCurrentCellCyclePhase;
 }
+
 
 #define COVERAGE_IGNORE
 std::vector<double> AbstractCellCycleModel::GetProteinConcentrations() const
@@ -75,20 +94,24 @@ std::vector<double> AbstractCellCycleModel::GetProteinConcentrations() const
 }
 #undef COVERAGE_IGNORE
 
+
 bool AbstractCellCycleModel::UsesBetaCat()
 {
     return false;
 }
+
 
 void AbstractCellCycleModel::SetGeneration(unsigned generation)
 {
     mGeneration = generation;
 }
 
+
 unsigned AbstractCellCycleModel::GetGeneration() const
 {
     return mGeneration;
 }
+
 
 void AbstractCellCycleModel::ResetForDivision()
 {
@@ -98,25 +121,30 @@ void AbstractCellCycleModel::ResetForDivision()
     mReadyToDivide = false;
 }
 
+
 double AbstractCellCycleModel::GetSDuration()
 {
     return CancerParameters::Instance()->GetSDuration();
 }
+
 
 double AbstractCellCycleModel::GetG1Duration()
 {
     return mG1Duration;
 }
 
+
 double AbstractCellCycleModel::GetG2Duration()
 {
     return CancerParameters::Instance()->GetG2Duration();
 }
 
+
 double AbstractCellCycleModel::GetMDuration()
 {
     return CancerParameters::Instance()->GetMDuration();
 }
+
 
 bool AbstractCellCycleModel::ReadyToDivide()
 {

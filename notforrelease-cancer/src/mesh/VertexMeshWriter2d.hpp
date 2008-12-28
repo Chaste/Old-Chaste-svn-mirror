@@ -39,9 +39,17 @@ private:
     std::string mBaseName;
 
 public:
+
+    /**
+     * Constructor.
+     */
     VertexMeshWriter2d(const std::string &rDirectory,
                         const std::string &rBaseName,
                         const bool clearOutputDir=true);
+
+    /**
+     * Destructor.
+     */
     virtual ~VertexMeshWriter2d();
 
     void WriteFiles(VertexMesh<2,2>& rMesh);

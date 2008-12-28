@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "RandomCellKiller.hpp"
 
+
 template <unsigned SPACE_DIM>
 RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
         : AbstractCellKiller<SPACE_DIM>(pTissue),
@@ -38,11 +39,13 @@ RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue
     }
 }
 
+
 template <unsigned SPACE_DIM>
 double RandomCellKiller<SPACE_DIM>::GetDeathProbability() const
 {
     return mProbabilityOfDeath;
 }
+
 
 template <unsigned SPACE_DIM>
 void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& cell)

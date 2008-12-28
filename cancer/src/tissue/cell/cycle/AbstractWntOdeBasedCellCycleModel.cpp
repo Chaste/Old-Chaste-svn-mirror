@@ -27,13 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 
+
 #ifdef CHASTE_CVODE
 CvodeAdaptor AbstractWntOdeBasedCellCycleModel::msSolver;
 #else
 RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
 #endif //CHASTE_CVODE
 
-// PROTECTED FUNCTIONS
 
 double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 {
@@ -42,22 +42,22 @@ double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 }
 
 
-// PUBLIC FUNCTIONS
-
 void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModel::ResetForDivision();
 
     assert(mpOdeSystem!=NULL);
+
     // This model needs the protein concentrations and phase resetting to G0/G1.
     // Keep the Wnt pathway in the same state but reset the cell cycle part
     // Cell cycle is proteins 0 to 4 (first 5 ODEs)
     std::vector<double> init_conds = mpOdeSystem->GetInitialConditions();
-    for (unsigned i = 0; i<5; i++)
+    for (unsigned i=0; i<5; i++)
     {
        mpOdeSystem->rGetStateVariables()[i] = init_conds[i];
     }
 }
+
 
 void AbstractWntOdeBasedCellCycleModel::UpdateCellType()
 {
@@ -69,8 +69,3 @@ void AbstractWntOdeBasedCellCycleModel::UpdateCellType()
     }
     ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
-
-
-
-
-

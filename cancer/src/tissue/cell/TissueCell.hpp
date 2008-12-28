@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
+
 /**
  * Tissue cell is the basic container for all the biological information about a cell.
  * It contains the cell cycle model and all other biological properties such as mutation 
@@ -49,6 +50,7 @@ class AbstractCellCycleModel; // Circular definition (cells need to know about c
 class TissueCell
 {
 private:
+
     /// Caches the result of ReadyToDivide() so Divide() can look at it
     bool mCanDivide;
 
@@ -58,7 +60,7 @@ private:
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        // These first 4 are also dealt with by {load,save}_construct_data
+        // These first four are also dealt with by {load,save}_construct_data
         archive & mCanDivide;
         archive & mCellType;
         archive & mMutationState;
@@ -169,19 +171,39 @@ public:
      */
     void SetLocationIndex(unsigned index);
     
-     /**
+    /**
      * Get the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
      */
     unsigned GetLocationIndex() const;
 
-    /// \todo These methods need documenting (see #736)
+    /** 
+     * Get the cell's age from its cell cycle model.
+     */
     double GetAge() const;
+    
+    /** 
+     * Get the cell's birth time from its cell cycle model.
+     */
     double GetBirthTime() const;
-    unsigned GetGeneration() const;
 
+    /**
+     * Get method for mCellType.
+     */
     CellType GetCellType() const;
+
+    /**
+     * Set method for mCellType.
+     */    
     void SetCellType(CellType cellType);
+    
+    /**
+     * Get method for mMutationState.
+     */  
     CellMutationState GetMutationState() const;
+
+    /**
+     * Set method for mMutationState.
+     */  
     void SetMutationState(CellMutationState mutationState);
 
     /**
@@ -219,7 +241,9 @@ public:
      */
     double TimeUntilDeath() const;
 
-    /// \todo This method needs documenting (see #736)    
+    /**
+     * Return whether the cell is dead or undergoing apoptosis.
+     */    
     bool IsDead() const;
 
     /**

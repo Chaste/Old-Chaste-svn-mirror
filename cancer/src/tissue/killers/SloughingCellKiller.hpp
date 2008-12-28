@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 /**
- *  Kills cells if they are outside the crypt.
+ *  A cell killer that kills cells if they are outside the crypt.
  *
  *  The crypt width and height is taken from the cancer parameters singleton
  *  object. The crypt is assumed to start at x=0 and y=0. By default only cells
@@ -45,6 +45,7 @@ class SloughingCellKiller : public AbstractCellKiller<2>
 {
 private:
 
+    /** Whether cells should be sloughed from the sides of the crypt. */
     bool mSloughSides;
 
     friend class boost::serialization::access;
@@ -53,6 +54,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
         //archive & mSloughSides; // done in load_construct_data
+        
         // Make sure Cancer Parameters are archived
         CancerParameters* p_params = CancerParameters::Instance();
         archive & *p_params;
@@ -61,12 +63,14 @@ private:
 
 public:
 
-    /// \todo These methods need documenting (see #736)
-    SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false)
-        : AbstractCellKiller<2>(pCrypt),
-          mSloughSides(sloughSides)
-    {}
+    /**
+     * Default constructor.
+     */
+    SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false);
 
+    /**
+     * Get method for mSloughSides.
+     */
     bool GetSloughSides() const;
 
     /**

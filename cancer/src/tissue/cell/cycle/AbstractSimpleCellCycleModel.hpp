@@ -75,17 +75,16 @@ protected:
      */
     virtual void SetG1Duration();
 
-
 public:
+
     /**
-     * Default constructor - creates an AbstractSimpleCellCycleModel
+     * Default constructor - creates an AbstractSimpleCellCycleModel.
      */
     AbstractSimpleCellCycleModel()
-    {
-    }
+    {}
 
     /**
-     * Default destructor
+     * Default destructor.
      */
     virtual ~AbstractSimpleCellCycleModel()
     {}
@@ -94,7 +93,7 @@ public:
     virtual void ResetForDivision();
 
     /**
-     * Default UpdateCellCyclePhase function for a simple cell cycle model.
+     * Default UpdateCellCyclePhase() method for a simple cell cycle model.
      *
      * Can be overridden if they should do something more subtle.
      */

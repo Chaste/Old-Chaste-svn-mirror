@@ -199,7 +199,7 @@ public:
 
         SimpleWntCellCycleModel *p_cycle_model2 = static_cast <SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());
 
-        // Now reduce the Wnt gradient
+        // Now reduce the Wnt concentration
         wnt_level = 0.7;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
 
@@ -266,13 +266,13 @@ public:
         // ...end of coverage
 
         /*
-         * Test the case of a radial Wnt gradient
+         * Test the case of a radial Wnt concentration
          */
 
         p_params->Reset();
         RandomNumberGenerator::Instance()->Reseed(0);
 
-        // Set up the Wnt gradient
+        // Set up the Wnt concentration
         wnt_level = p_params->GetWntStemThreshold() + 0.01;
         WntConcentration::Destroy();
         WntConcentration::Instance()->SetType(RADIAL);
@@ -305,7 +305,7 @@ public:
         TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
         cell2.SetMutationState(LABELLED);
 
-        // Now reduce the Wnt gradient
+        // Now reduce the Wnt concentration
         wnt_level = p_params->GetWntStemThreshold() - 0.01;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
 
@@ -472,7 +472,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "simple_wnt_cell_cycle.arch";
 
-        // Set up the Wnt gradient
+        // Set up the Wnt concentration
         double wnt_level = 1.0;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
 
@@ -569,7 +569,7 @@ public:
         }
 
         /*
-         * Test the case of a radial Wnt gradient
+         * Test the case of a radial Wnt concentration
          */
 
         p_params->Reset();
@@ -578,7 +578,7 @@ public:
         OutputFileHandler handler2("archive", false);
         archive_filename = handler2.GetOutputDirectoryFullPath() + "crypt_projection_cell_cycle.arch";
 
-        // Set up the Wnt gradient
+        // Set up the Wnt concentration
         wnt_level = p_params->GetWntStemThreshold() - 0.01;
         WntConcentration::Destroy();
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);

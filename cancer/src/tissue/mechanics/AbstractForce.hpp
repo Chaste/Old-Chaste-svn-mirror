@@ -33,6 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTissue.hpp"
 
+/**
+ * An abstract force class.
+ */
 template<unsigned DIM>
 class AbstractForce
 {
@@ -44,13 +47,21 @@ class AbstractForce
 
 public :
 
-    /// \todo This class and its methods need documenting (see #736)
+    /**
+     * Default constructor.
+     */
     AbstractForce();
 
+    /**
+     * Destructor.
+     */
     virtual ~AbstractForce();
 
+    /**
+     * Overridden AddForceContribution() method.
+     */
     virtual void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                         AbstractTissue<DIM>& rTissue)=0;
+                                      AbstractTissue<DIM>& rTissue)=0;
 
 };
 

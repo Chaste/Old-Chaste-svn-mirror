@@ -25,23 +25,27 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #include "IngeWntSwatCellCycleModel.hpp"
 #include "WntConcentration.hpp"
 
 
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
-                                     AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
-                                     const CellMutationState& rMutationState,
-                                     double birthTime, double lastTime,
-                                     bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
+                                                     AbstractOdeSystem* pParentOdeSystem,
+                                                     const CellMutationState& rMutationState,
+                                                     double birthTime,
+                                                     double lastTime,
+                                                     bool inSG2MPhase,
+                                                     bool readyToDivide,
+                                                     double divideTime,
+                                                     unsigned generation)
    : AbstractWntOdeBasedCellCycleModel(lastTime)
 {
     if (pParentOdeSystem !=NULL)
     {
         std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
-        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, parent_protein_concs[8], rMutationState);// wnt pathway is reset in a couple of lines.
-        // Set the model to be the same as the parent cell.
+        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, parent_protein_concs[8], rMutationState);// Wnt pathway is reset in a couple of lines
+        
+        // Set the model to be the same as the parent cell
         mpOdeSystem->rGetStateVariables() = parent_protein_concs;
     }
     else
@@ -65,12 +69,13 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
 
 
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
-                                     const std::vector<double>& rParentProteinConcentrations,
-                                     const CellMutationState& rMutationState)
+                                                     const std::vector<double>& rParentProteinConcentrations,
+                                                     const CellMutationState& rMutationState)
 {
     mHypothesis = rHypothesis;
-    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], rMutationState);// wnt pathway is reset in a couple of lines.
-    // Set the model to be the same as the parent cell.
+    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], rMutationState);// Wnt pathway is reset in a couple of lines.
+
+    // Set the model to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
@@ -78,13 +83,21 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
 AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    // calls a cheeky version of the constructor which makes the new cell
-    // cycle model the same as the old one - not a dividing copy at this time.
-    // unless the parent cell has just divided.
+
+    /**
+     * We call a cheeky version of the constructor which makes the new cell 
+     * cycle model the same as the old one - not a dividing copy at this time,
+     * unless the parent cell has just divided.
+     */
     return new IngeWntSwatCellCycleModel(mHypothesis,
-                                 mpOdeSystem,
-                                 mpCell->GetMutationState(), mBirthTime, mLastTime,
-                                 mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
+                                         mpOdeSystem,
+                                         mpCell->GetMutationState(),
+                                         mBirthTime,
+                                         mLastTime,
+                                         mFinishedRunningOdes,
+                                         mReadyToDivide,
+                                         mDivideTime,
+                                         mGeneration);
 }
 
 
@@ -108,26 +121,28 @@ void IngeWntSwatCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
     mpCell->SetCellType(cell_type);
 }
 
+
 void IngeWntSwatCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
+
     mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, WntConcentration::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
 
+
 bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 {
-    // WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
+    // We are in G0 or G1 phase - running cell cycle ODEs
 #ifdef CHASTE_CVODE
     const double dt = SimulationTime::Instance()->GetTimeStep();
-    //std::cout << "Inge max dt = " << dt << std::endl;
 #else
     double dt = 0.00005; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
 #endif // CHASTE_CVODE
 
-    // Feed this time step's Wnt stimulus into the solver as a constant over this timestep.
+    // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
     mpOdeSystem->rGetStateVariables()[21] = WntConcentration::Instance()->GetWntLevel(mpCell);
 
     // Use the cell's current mutation status as another input
@@ -146,6 +161,7 @@ double IngeWntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
     return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];
 }
 
+
 double IngeWntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
 {
     return mpOdeSystem->rGetStateVariables()[7] + mpOdeSystem->rGetStateVariables()[8]
@@ -153,16 +169,21 @@ double IngeWntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
         + mpOdeSystem->rGetStateVariables()[11];
 }
 
+
 double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
 {
-    return mpOdeSystem->rGetStateVariables()[16] + mpOdeSystem->rGetStateVariables()[17]
-        +  mpOdeSystem->rGetStateVariables()[18] + mpOdeSystem->rGetStateVariables()[19];
+    return mpOdeSystem->rGetStateVariables()[16] + 
+           mpOdeSystem->rGetStateVariables()[17] +  
+           mpOdeSystem->rGetStateVariables()[18] + 
+           mpOdeSystem->rGetStateVariables()[19];
 }
+
 
 unsigned IngeWntSwatCellCycleModel::GetHypothesis() const
 {
     return mHypothesis;
 }
+
 
 bool IngeWntSwatCellCycleModel::UsesBetaCat()
 {

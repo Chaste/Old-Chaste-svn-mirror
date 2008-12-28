@@ -81,7 +81,8 @@ public:
     /**
      * Default constructor.
      */
-    WntCellCycleModel() {};
+    WntCellCycleModel()
+    {}
 
     /**
      * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function

@@ -27,10 +27,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SloughingCellKiller.hpp"
 
+
+SloughingCellKiller::SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides)
+    : AbstractCellKiller<2>(pCrypt),
+      mSloughSides(sloughSides)
+{
+}
+    
+    
 bool SloughingCellKiller::GetSloughSides() const
 {
     return mSloughSides;
 }
+
 
 void SloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
 {

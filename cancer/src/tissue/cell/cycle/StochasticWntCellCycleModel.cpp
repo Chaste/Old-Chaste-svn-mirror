@@ -32,6 +32,7 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel()
     : WntCellCycleModel()
 {
 }
+
       
 StochasticWntCellCycleModel::StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                                          CellMutationState mutationState,
@@ -53,6 +54,7 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(std::vector<double> pro
 {
 }
 
+
 void StochasticWntCellCycleModel::SetG2Duration()
 {
     CancerParameters* p_params = CancerParameters::Instance();
@@ -72,10 +74,12 @@ void StochasticWntCellCycleModel::SetG2Duration()
     }
 }
 
+
 void StochasticWntCellCycleModel::InitialiseDaughterCell()
 {
     SetG2Duration();
 }
+
 
 void StochasticWntCellCycleModel::Initialise()
 {
@@ -83,20 +87,24 @@ void StochasticWntCellCycleModel::Initialise()
     SetG2Duration();
 }
 
+
 void StochasticWntCellCycleModel::ResetForDivision()
 {
     AbstractWntOdeBasedCellCycleModel::ResetForDivision();
     SetG2Duration();
 }
 
+
 double StochasticWntCellCycleModel::GetG2Duration()
 {
     return mG2Duration;
 }
 
+
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
+    
     /**
      * We call a cheeky version of the constructor which makes the new cell 
      * cycle model the same as the old one - not a dividing copy at this time,
