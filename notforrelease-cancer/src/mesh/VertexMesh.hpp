@@ -47,7 +47,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "VoronoiTessellation.hpp"
 
-/// \todo Lots of these methods and members need documentation (see #736)
+/**
+ * A vertex-based mesh class, for use in vertex-based tissue simulations.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMesh
 {
@@ -60,13 +62,27 @@ private:
     bool mAllocatedMemory;
     
 public:
+
     /**
-     *  Constructor takes in node and VertexElements
+     * Default constructor.
+     * 
+     * @param nodes vector of pointers to nodes
+     * @param vertexElements  vector of pointers to VertexElements
      */
-    VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertex_elements);
-    ~VertexMesh();
+    VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements);
     
-    VertexMesh(unsigned numAcross,unsigned numUp);
+    /**
+     * Destructor.
+     */
+    ~VertexMesh();
+
+    /**
+     * Helper constructor. Creates a rectangular vertex mesh.
+     * 
+     * @param numAcross number of cells across
+     * @param numUp number of cells up
+     */
+    VertexMesh(unsigned numAcross, unsigned numUp);
 
     unsigned GetNumNodes() const;
     unsigned GetNumElements() const;
@@ -75,24 +91,42 @@ public:
 //    unsigned GetNumAllNodes() const;
 //    unsigned GetNumAllElements();
 
-    Node<SPACE_DIM>* GetNode(unsigned index) const;    
+    /**
+     * @param index  the global index of a specified node
+     * 
+     * @return a pointer to the node
+     */
+    Node<SPACE_DIM>* GetNode(unsigned index) const;
+    
+    /**
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return a pointer to the vertex element
+     */    
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
-
 
 //    
 //    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
 //                                         bool cullInternalFaces=false)
 //    {}
     
-    std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> GetElementsOwnedByNode(Node<SPACE_DIM>* p_node);
+    /**
+     * @param pNode pointer to the node
+     * 
+     * @return a vector of pointers to those vertex elements that are associated with a given node.
+     */
+    std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> GetElementsOwnedByNode(Node<SPACE_DIM>* pNode);
     
+    /**
+     * Delete mNodes and mElements.
+     */
     void Clear();
 };
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
-                                               std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertex_elements)
+                                               std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements)
 {
     Clear();
     for (unsigned index=0; index<nodes.size(); index++)
@@ -101,9 +135,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
         mNodes.push_back(temp_node);
     }
     
-    for (unsigned index=0; index<vertex_elements.size(); index++)
+    for (unsigned index=0; index<vertexElements.size(); index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertex_elements[index];
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertexElements[index];
         mElements.push_back(temp_vertex_element);
     }
     
@@ -113,11 +147,12 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp)
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp)
 {
     assert(numAcross>1);
-    unsigned node_index=0;
-    //Calculate the nodes
+    unsigned node_index = 0;
+    
+    // Create the nodes
     for (unsigned j=0;j<=2*numUp+1;j++)
     {
         if (j%2 == 0)
@@ -152,11 +187,11 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp
         }
     }  
     
-    /* Calculate the elements
-     * Node indices contains the global node indices from bottom 
-     * left going anticlockwise.
-     */ 
-    unsigned node_indices[6], element_index;
+    // Create the elements. The arrat node_indices contains the 
+    // global node indices from bottom left, going anticlockwise.
+    
+    unsigned node_indices[6];
+    unsigned element_index;
     
     for (unsigned j=0;j<numUp;j++)
     {
@@ -165,39 +200,39 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,unsigned numUp
             {
                 element_index=j*numAcross+i;
                 
-                if (numAcross%2==0) // numAcross is Even
+                if (numAcross%2==0) // numAcross is even
                 {
                     if (j == 0)     // Bottom row
                     {
-                        if (i%2 == 0) //Even
+                        if (i%2 == 0) // even
                         {
                             node_indices[0] = i;
                         }
-                        else // Odd
+                        else // odd
                         {
                             node_indices[0] = numAcross+i;
                         }                                           
                     }                       
-                    else    // Not on the bottom row 
+                    else    // not on the bottom row 
                     {
-                         if (i%2 == 0) //Even
+                         if (i%2 == 0) // even
                         {
                             node_indices[0] = (2*numAcross+1)+2*(j-1)*(numAcross+1)+i;
                         }
-                        else // Odd
+                        else // odd
                         {
                             node_indices[0] = (2*numAcross+1)+(2*j-1)*(numAcross+1)+i;
                         }                        
                     }
                         
                 }
-                else // numAcross is Odd
+                else // numAcross is odd
                 {
                     if (i%2 == 0) //Even
                     {
                         node_indices[0] = 2*j*(numAcross+1)+i;
                     }
-                    else // Odd
+                    else // odd
                     {
                         node_indices[0] = (2*j+1)*(numAcross+1)+i;
                     }
@@ -333,7 +368,7 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 {
-    if(mAllocatedMemory)
+    if (mAllocatedMemory)
     {
         Clear();
     }

@@ -625,7 +625,7 @@ void MeshBasedTissue<DIM>::CreateVoronoiTessellation()
 template<>
 void MeshBasedTissue<1>::CreateVoronoiTessellation()
 {
-    // No 1d voronoi tessellation
+    // No 1D Voronoi tessellation
     NEVER_REACHED;
 }
 

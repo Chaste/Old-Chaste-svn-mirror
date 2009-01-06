@@ -36,28 +36,64 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A PDE which calculates the source term by adding the number of cells
  *  in the element containing that point and scaling by the element area.
  */
- /// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class AveragedSinksPde : public AbstractLinearEllipticPde<DIM>
 {
 private:
 
+    /** The tissue member. */
     MeshBasedTissue<DIM>& mrTissue;
 
+    /** Coefficient of consumption of nutrient by cells. */
     double mCoefficient;
 
+    /** Vector of averaged cell densities on elements of the coarse mesh. */
     std::vector<double> mCellDensityOnCoarseElements;
 
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param rTissue reference to the tissue
+     * @param coefficient the coefficient of consumption of nutrient by cells
+     */
     AveragedSinksPde(MeshBasedTissue<DIM>& rTissue, double coefficient);
 
+    /**
+     * Set up the source terms.
+     * 
+     * @param rCoarseMesh reference to the coarse mesh
+     */
     void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh);
 
+    /**
+     * Overridden ComputeConstantInUSourceTerm() method.
+     * 
+     * @param x The point in space
+     * 
+     * @return the constant in u part of the source term, i.e g(x) in
+     *  Div(D Grad u)  +  f(x)u + g(x) = 0.
+     */
     double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x);
-
+    
+    /**
+     * Overridden ComputeLinearInUCoeffInSourceTerm() method.
+     * 
+     * @param x The point in space
+     * 
+     * @return the coefficient of u in the linear part of the source term, i.e f(x) in
+     *  Div(D Grad u)  +  f(x)u + g(x) = 0.
+     */
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>* pElement);
 
+    /**
+     * Overridden ComputeDiffusionTerm() method.
+     * 
+     * @param x The point in space at which the diffusion term is computed
+     * 
+     * @return a matrix.
+     */
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& );
 };
 

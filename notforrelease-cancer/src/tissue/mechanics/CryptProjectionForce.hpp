@@ -33,7 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-/// \todo This class needs documenting (see #736)
+/**
+ * A force law for use in crypt projection simulations.
+ */
 class CryptProjectionForce : public MeinekeInteractionForce<2>
 {
     friend class TestForcesNotForRelease;
@@ -139,9 +141,12 @@ public :
 
     /**
      * Overridden AddForceContribution method.
+     *
+     * @param rForces reference to vector of forces on nodes
+     * @param rTissue reference to the tissue
      */
     void AddForceContribution(std::vector<c_vector<double,2> >& rForces,
-                                 AbstractTissue<2>& rTissue);
+                              AbstractTissue<2>& rTissue);
 
 };
 

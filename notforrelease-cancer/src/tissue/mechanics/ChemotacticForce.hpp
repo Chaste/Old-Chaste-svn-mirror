@@ -33,7 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractForce.hpp"
 
-/// \todo This class needs documenting (see #736)
+/**
+ * A chemotactic force class.
+ */
 template<unsigned DIM>
 class ChemotacticForce  : public AbstractForce<DIM>
 {
@@ -41,7 +43,12 @@ friend class TestForcesNotForRelease;
 
 private:
 
-    /// \todo This method needs documenting (see #736)
+    /**
+     * Get the magnitude of the chemotactic force.
+     * 
+     * @param concentration the local nutrient concentration
+     * @param concentrationGradientMagnitude the magnitude of the local nutrient concentration gradient
+     */
     double GetChemotacticForceMagnitude(const double concentration, const double concentrationGradientMagnitude);
 
     friend class boost::serialization::access;
@@ -84,15 +91,18 @@ public:
     ~ChemotacticForce();
 
     /**
-     * Calculates the forces on each node
+     * Calculates the force on each node.
      *
+     * @param rForces reference to vector of forces on nodes
+     * @param rTissue reference to the tissue
+     * 
      * @return the force components on each node. Of size NUM_NODES x DIM.
      *
      * Fc = chi(C,|gradC|) gradC/|gradC|  (if |gradC|>0, else Fc = 0)
      *
      */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                 AbstractTissue<DIM>& rTissue);
+                              AbstractTissue<DIM>& rTissue);
 
 };
 

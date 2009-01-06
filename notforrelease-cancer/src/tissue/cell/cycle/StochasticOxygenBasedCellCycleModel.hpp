@@ -107,7 +107,9 @@ public:
      */
     StochasticOxygenBasedCellCycleModel();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden InitialiseDaughterCell() method.
+     */
     void InitialiseDaughterCell();
 
     /**
@@ -115,10 +117,12 @@ public:
      */
     void Initialise();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden ResetForDivision() method.
+     */
     void ResetForDivision();
 
-    /// \todo Document this method (see #736)
+    /** Get method for mG2Duration. */
     double GetG2Duration();
 
     /**

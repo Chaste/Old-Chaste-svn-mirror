@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-
 #include "AbstractForce.hpp"
 #include "AbstractCellKiller.hpp"
 #include "AbstractTissue.hpp"
@@ -95,7 +94,7 @@ class TissueSimulation
 
 protected:
 
-    /** TimeStep */
+    /** Time step */
     double mDt;
 
     /** Time to run the Solve() method up to */
@@ -288,43 +287,172 @@ public:
                      bool initialiseCells=true);
 
     /**
-     * Destructor.
+     * Destructor. 
+     * 
+     * This frees the tissue and cell killers, if they were created by de-serialization.
      */
     virtual ~TissueSimulation();
 
     /**
-     * Get methods.
+     * Get a node's location (ONLY FOR TESTING)
+     *
+     * @param the node index
+     * @return the co-ordinates of this node.
      */
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
-    c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
-    c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
-    c_vector<unsigned, 5> GetCellCyclePhaseCount();
-
-    double GetDt();
-    unsigned GetNumBirths();
-    unsigned GetNumDeaths();
-    
-    std::string GetOutputDirectory();
     
     /**
-     * Set methods.
+     * Find out how many cells of each mutation state there are
+     *
+     * @return The number of cells of each mutation state (evaluated at each visualizer output)
+     * [0] = healthy count
+     * [1] = labelled cells
+     * [2] = APC one hit
+     * [3] = APC two hit
+     * [4] = beta catenin one hit
      */
+    c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
+    
+    /**
+     * Find out how many cells of each type there are
+     *
+     * @return The number of cells of each type (evaluated at each visualizer output)
+     * [0] = STEM
+     * [1] = TRANSIT
+     * [2] = DIFFERENTIATED
+     * [3] = APOPTOTIC
+     */
+    c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
+    
+    /**
+     * Find out how many cells in each cell cycle phase there are
+     *
+     * @return The number of cells of each phase (evaluated at each visualizer output)
+     * [0] = G_ZERO_PHASE
+     * [1] = G_ONE_PHASE
+     * [2] = S_PHASE
+     * [3] = G_TWO_PHASE
+     * [4] = M_PHASE
+     */
+    c_vector<unsigned, 5> GetCellCyclePhaseCount();
+
+    /**
+     * Get the timestep of the simulation
+     */
+    double GetDt();
+    
+    /**
+     * Get the number of births that have occurred in the entire simulation (since t=0)
+     */
+    unsigned GetNumBirths();
+    
+    /**
+     * Get the number of deaths that have occurred in the entire simulation (since t=0).
+     */
+    unsigned GetNumDeaths();
+    
+    /**
+     * Get the output directory of the simulation.
+     */
+    std::string GetOutputDirectory();
+
+    /**
+     * Set the timestep of the simulation.
+     * 
+     * @param dt the timestep to use
+     */ 
     void SetDt(double dt);
+    
+    /**
+     * Sets the end time and resets the timestep to be endtime/100.
+     * 
+     * @param endtime the end time to use
+     */
     void SetEndTime(double endTime);
+    
+    /**
+     * Set the output directory of the simulation.
+     * 
+     * @outputDirectory the output directory to use
+     */
     void SetOutputDirectory(std::string outputDirectory);
+
+    /**
+     * Sets the ratio of the number of actual timesteps to the number of timesteps
+     * at which results are written to file. Default value is set to 1 by the constructor.
+     * 
+     * @param samplingTimestepMultiple the ratio to use
+     */
     void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
-    void SetNoBirth(bool nobirth);
+    
+    /**
+     * Set the simulation to run with no birth.
+     * 
+     * @param noBirth whether to run with no birth
+     */
+    void SetNoBirth(bool noBirth);
+
+    /**
+     * Set the simulation to count and store the number of each cell mutation state.
+     * 
+     * @param outputCellMutationStates whether to output cell mutation states
+     */
     void SetOutputCellMutationStates(bool outputCellMutationStates);
+    
+    /**
+     * Set the simulation to output the cell ancestors if they are set.
+     * 
+     * @param outputCellAncestors whether to output cell ancestors
+     */
     void SetOutputCellAncestors(bool outputCellAncestors);
+    
+    /**
+     * Set the simulation to count and store the number of each cell type.
+     * 
+     * @param outputCellTypes whether to output cell types
+     */
     void SetOutputCellTypes(bool outputCellTypes);
+    
+    /**
+     * Set the simulation to output the cell-cycle variables.
+     * 
+     * @param outputCellVariables whether to output cell-cycle variables
+     */
     void SetOutputCellVariables(bool outputCellVariables);
+    
+    /**
+     * Set the simulation to output the cell cycle phases.
+     *
+     * The test for this method is in TestCryptSimulation2d::TestStandardResultForArchivingTestsBelow().
+     * 
+     * @param outputCellCyclePhases whether to output cell-cycle phases
+     */
     void SetOutputCellCyclePhases(bool outputCellCyclePhases);
+    
+    /**
+     * Set whether to update the topology of the tissue at each time step.
+     * 
+     * @param updateTissue  whether to update the tissue each time step
+     */
     void SetUpdateTissueRule(bool updateTissue);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Add a cell killer to be used in this simulation.
+     * 
+     * @param pCellKiller pointer to a cell killer
+     */
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Main solve method.
+     * 
+     * This method sets up the simulation time, creates output files, and initialises the 
+     * tissue. It then iterates through a time loop. At each time step, first any cell death 
+     * or birth is implemented, then the tissue topology is updated, then the forces are 
+     * recalculated and the tissue evolved according to whatever force laws are present in 
+     * the simulation, and finally the results for that time step are output to file. At the 
+     * end of the time loop, the method closes any output files.
+     */
     void Solve();
 
     /**
@@ -344,6 +472,9 @@ public:
     
     /**
      * Apply any tissue boundary conditions. Can be overridden in subclasses.
+     * 
+     * @param rCell reference to a tissue cell
+     * @param rPoint reference to a point
      */
     virtual void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<DIM>& rPoint)
     {}

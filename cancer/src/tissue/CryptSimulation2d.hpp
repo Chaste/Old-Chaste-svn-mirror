@@ -40,7 +40,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 
 
-/// \todo Document this class (see #736)
+/**
+ * A 2D crypt simulation object. For more details, see the paper by 
+ * van Leeuwen et al (to appear in Cell Prolif.).  
+ */
 class CryptSimulation2d : public TissueSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of
@@ -65,7 +68,7 @@ private :
     /** The file that the values of beta catenin is written out to. */
     out_stream mBetaCatResultsFile;
 
-    /// \todo Document this member (see #736)
+    /** Helper member that is a static cast of the tissue. */
     MeshBasedTissueWithGhostNodes<2>* mpStaticCastTissue;
 
     /**
@@ -81,22 +84,45 @@ private :
      */
     c_vector<double, 2> CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden WriteVisualizerSetupFile() method.
+     * 
+     * Writes out special information about the mesh to the visualizer.
+     */
     void WriteVisualizerSetupFile();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Use an output file handler to reate a beta catenin results file.
+     */
     void SetupWriteBetaCatenin();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Write beta catenin results to file.
+     * 
+     * @param time the current time
+     */
     void WriteBetaCatenin(double time);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden SetupSolve() method.
+     * 
+     * Write initial beta catenin results to file if required.
+     */
     void SetupSolve();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden PostSolve() method.
+     * 
+     * Write current beta catenin results to file if required.
+     */
     void PostSolve();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden AfterSolve() method.
+     * 
+     * Closes beta catenin results file if required, then calls 
+     * the base class method.
+     */
     void AfterSolve();
 
 public :
@@ -114,10 +140,19 @@ public :
                       bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
 
-    /// \todo Document this method (see #736)
+    /** Set method for mUseJiggledBottomCells. */
     void UseJiggledBottomCells();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden ApplyTissueBoundaryConditions() method.
+     * 
+     * If an instance of WntConcentration is not set up, then stem cells at the 
+     * bottom of the crypt are pinned. Any cell that has moved below the bottom 
+     * of the crypt is moved back up.
+     * 
+     * @param rCell reference to a tissue cell
+     * @param rPoint reference to a point
+     */
     void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint);
 
 };

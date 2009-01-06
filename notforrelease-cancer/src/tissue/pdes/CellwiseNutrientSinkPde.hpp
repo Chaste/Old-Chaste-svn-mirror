@@ -34,26 +34,61 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  A nutrient PDE which has a sink at each non-apoptotic cell.
  */
- /// \todo This class needs documenting (see #736)
 template<unsigned DIM>
 class CellwiseNutrientSinkPde : public AbstractLinearEllipticPde<DIM>
 {
 private:
 
+    /** The tissue member. */
     MeshBasedTissue<DIM>& mrTissue;
-
+    
+    /** Coefficient of consumption of nutrient by cells. */
     double mCoefficient;
 
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param rTissue reference to the tissue
+     * @param coefficient the coefficient of consumption of nutrient by cells
+     */
     CellwiseNutrientSinkPde(MeshBasedTissue<DIM>& rTissue, double coefficient);
 
+    /**
+     * Overridden ComputeConstantInUSourceTerm() method.
+     * 
+     * @param x The point in space
+     * 
+     * @return the constant in u part of the source term, i.e g(x) in
+     *  Div(D Grad u)  +  f(x)u + g(x) = 0.
+     */
     double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x);
-
+    
+    /**
+     * Overridden ComputeLinearInUCoeffInSourceTerm() method.
+     * 
+     * @param x The point in space
+     * 
+     * @return the coefficient of u in the linear part of the source term, i.e f(x) in
+     *  Div(D Grad u)  +  f(x)u + g(x) = 0.
+     */
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>*);
-
+    
+    /**
+     * Overridden ComputeLinearInUCoeffInSourceTermAtNode() method.     
+     * 
+     * @param rNode reference to the node
+     */
     double ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode);
-
+    
+    /**
+     * Overridden ComputeDiffusionTerm() method.
+     * 
+     * @param x The point in space at which the diffusion term is computed
+     * 
+     * @return a matrix.
+     */
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& );
 
 };

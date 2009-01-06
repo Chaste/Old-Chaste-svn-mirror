@@ -56,40 +56,99 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
  */
-/// \todo Some members/methods in this class needs documenting (see #736)
 class CryptSimulation1d
 {
 private:
+
+    /** Time step */
     double mDt;
+
+    /** Time to run the Solve() method up to */
     double mEndTime;
+    
+    /** Mesh member. */
     MutableMesh<1,1> &mrMesh;
 
+    /** Whether or not cell growth is simulated after cell division. */
     bool mIncludeVariableRestLength;
-
+    
+    /** The maximum number of cells that will be in this simulation. */
     unsigned mMaxCells;
 
+    /** The output directory, relative to where Chaste output is stored. */
     std::string mOutputDirectory;
 
+    /** Vector of cells. */
     std::vector<TissueCell> mCells;
 
-    bool mCreatedRng;
-
+    /**
+     * This method handles the birth of a cell in 1D by splitting an existing 
+     * element in two and placing a new node in the middle of it.
+     * 
+     * @param pElement the existing element to split in two
+     * @param time the current time
+     * 
+     * @return the index of the new node.
+     */
     unsigned AddNodeToElement(Element<1,1>* pElement, double time);
 
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param rMesh refence to a 1D mesh
+     * @param cells vector of cells (defaulted to the empty vector, in which case SetIncludeRandomBirth() 
+     *        should be called for any birth to happen)
+     */
     CryptSimulation1d(MutableMesh<1,1> &rMesh,
                       std::vector<TissueCell> cells = std::vector<TissueCell>());
-
+    /**
+     * Destructor, frees any memory allocated by the constructor.
+     */
     ~CryptSimulation1d();
 
+    /**
+     * Set method for mDt.
+     * 
+     * @param dt the time step to use
+     */
     void SetDt(double dt);
+    
+    /**
+     * Set method for mEndTime.
+     * 
+     * @param endTime the end time to use
+     */
     void SetEndTime(double endTime);
+    
+    /**
+     * Set method for mOutputDirectory.
+     * 
+     * @param outputDirectory the output directory to use, relative to where Chaste output is stored
+     */
     void SetOutputDirectory(std::string outputDirectory);
+    
+    /**
+     * Set method for mIncludeVariableRestLength.
+     * 
+     * Call this before Solve() to simulate cell growth after cell division.
+     */
     void SetIncludeVariableRestLength();
+
+    /**
+     * Set method for mMaxCells.
+     */    
     void SetMaxCells(unsigned maxCells);
+    
+    /**
+     * Get method for mCells.
+     */
     std::vector<TissueCell> GetCells();
 
+    /**
+     * Main Solve() method for simulating the 1D crypt.
+     */
     void Solve();
 };
 

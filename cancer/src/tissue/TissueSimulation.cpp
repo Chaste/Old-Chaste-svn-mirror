@@ -25,9 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-
-
 #include <cmath>
 #include <ctime>
 #include <iostream>
@@ -55,7 +52,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
     #undef COVERAGE_IGNORE
-    
+
     mDeleteTissue = deleteTissueAndForceCollection;
     
     mInitialiseCells = initialiseCells;
@@ -100,10 +97,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     }
 }
 
-/**
- * Free any memory allocated by the constructor.
- * This frees the tissue and cell killers, if they were created by de-serialization.
- */
+
 template<unsigned DIM>
 TissueSimulation<DIM>::~TissueSimulation()
 {   
@@ -128,6 +122,7 @@ TissueSimulation<DIM>::~TissueSimulation()
         delete &mrTissue; 
     }
 }
+
 
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellBirth()
@@ -171,6 +166,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
     return num_births_this_step;
 }
 
+
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
@@ -190,11 +186,13 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
     return num_deaths_this_step;
 }
 
+
 template<unsigned DIM>
 const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollection() const
 {
     return mForceCollection;
 }
+
 
 template<unsigned DIM>
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename AbstractTissue<DIM>::Iterator parentCell)
@@ -242,6 +240,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     return daughter_coords;
 }
 
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& nodeForces)
 {
@@ -269,9 +268,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     }
 }
 
-/**
- * Set the timestep of the simulation
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetDt(double dt)
 {
@@ -279,36 +276,28 @@ void TissueSimulation<DIM>::SetDt(double dt)
     mDt = dt;
 }
 
-/**
- * Get the timestep of the simulation
- */
+
 template<unsigned DIM>
 double TissueSimulation<DIM>::GetDt()
 {
     return mDt;
 }
 
-/**
- * Get the number of births that have occurred in the entire simulation (since t=0)
- */
+
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::GetNumBirths()
 {
     return mNumBirths;
 }
 
-/**
- * Get the number of deaths that have occurred in the entire simulation (since t=0).
- */
+
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::GetNumDeaths()
 {
     return mNumDeaths;
 }
 
-/**
- * Sets the end time and resets the timestep to be endtime/100
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetEndTime(double endTime)
 {
@@ -316,9 +305,7 @@ void TissueSimulation<DIM>::SetEndTime(double endTime)
     mEndTime = endTime;
 }
 
-/**
- * Set the output directory of the simulation.
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
@@ -326,19 +313,14 @@ void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
     mSimulationOutputDirectory = mOutputDirectory;
 }
 
-/**
- * Get the output directory of the simulation.
- */
+
 template<unsigned DIM>
 std::string TissueSimulation<DIM>::GetOutputDirectory()
 {
     return mOutputDirectory;
 }
 
-/**
- * Sets the ratio of the number of actual timesteps to the number of timesteps
- * at which results are written to file. Default value is set to 1 by the constructor.
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple)
 {
@@ -346,11 +328,13 @@ void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimeste
     mSamplingTimestepMultiple = samplingTimestepMultiple;
 }
 
+
 template<unsigned DIM>
 AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue()
 {
     return mrTissue;
 }
+
 
 template<unsigned DIM>
 const AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
@@ -358,86 +342,63 @@ const AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
     return mrTissue;
 }
 
-/**
- * Set whether to update the topology of the tissue at each time step.
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetUpdateTissueRule(bool updateTissue)
 {
     mUpdateTissue = updateTissue;
 }
 
-/**
- * Set the simulation to run with no birth.
- */
+
 template<unsigned DIM>
-void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
+void TissueSimulation<DIM>::SetNoBirth(bool noBirth)
 {
-    mNoBirth = nobirth;
+    mNoBirth = noBirth;
 }
 
-/**
- * Set the simulation to count and store the number of each cell mutation state.
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetOutputCellMutationStates(bool outputCellMutationStates)
 {
     mOutputCellMutationStates = outputCellMutationStates;
 }
 
-/**
- * Set the simulation to count and store the number of each cell type.
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
 {
     mOutputCellTypes = outputCellTypes;
 }
 
-/**
- * Set the simulation to output the cell ancestors if they are set.
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetOutputCellAncestors(bool outputCellAncestors)
 {
     mOutputCellAncestors = outputCellAncestors;
 }
 
-/**
- * Set the simulation to output the cell variables.
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetOutputCellVariables(bool outputCellVariables)
 {
     mOutputCellVariables = outputCellVariables;
 }
 
-/**
- * Set the simulation to output the cell cycle phases.
- *
- * test for this is in TestCryptSimulation2d::TestStandardResultForArchivingTestsBelow().
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetOutputCellCyclePhases(bool outputCellCyclePhases)
 {
     mOutputCellCyclePhases = outputCellCyclePhases;
 }
 
-/**
- * Add a cell killer to be used in this simulation
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 {
     mCellKillers.push_back(pCellKiller);
 }
 
-/**
- * Get a node's location (ONLY FOR TESTING)
- *
- * @param the node index
- * @return the co-ordinates of this node.
- */
+
 template<unsigned DIM>
 std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
 {
@@ -449,9 +410,7 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
     return location;
 }
 
-/**
- * Main Solve method
- */
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::Solve()
 {
@@ -691,6 +650,7 @@ void TissueSimulation<DIM>::Solve()
     CancerEventHandler::EndEvent(CANCER_EVERYTHING);
 }
 
+
 template<unsigned DIM>
 void TissueSimulation<DIM>::AfterSolve()
 {
@@ -740,16 +700,6 @@ bool TissueSimulation<DIM>::StoppingEventHasOccurred()
 }
 
 
-/**
- * Find out how many cells of each mutation state there are
- *
- * @return The number of cells of each mutation state (evaluated at each visualizer output)
- * [0] = healthy count
- * [1] = labelled cells
- * [2] = APC one hit
- * [3] = APC two hit
- * [4] = beta catenin one hit
- */
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutationStateCount()
 {
@@ -760,15 +710,7 @@ c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutat
     return mrTissue.GetCellMutationStateCount();
 }
 
-/**
- * Find out how many cells of each type there are
- *
- * @return The number of cells of each type (evaluated at each visualizer output)
- * [0] = STEM
- * [1] = TRANSIT
- * [2] = DIFFERENTIATED
- * [3] = APOPTOTIC
- */
+
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
 {
@@ -779,16 +721,7 @@ c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
     return mrTissue.GetCellTypeCount();
 }
 
-/**
- * Find out how many cells in each cell cycle phase there are
- *
- * @return The number of cells of each phase (evaluated at each visualizer output)
- * [0] = G_ZERO_PHASE
- * [1] = G_ONE_PHASE
- * [2] = S_PHASE
- * [3] = G_TWO_PHASE
- * [4] = M_PHASE
- */
+
 template<unsigned DIM>
 c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
 {

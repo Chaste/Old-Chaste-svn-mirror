@@ -53,10 +53,13 @@ class MeshBasedTissue : public AbstractTissue<DIM>
     
 protected:
 
-    /// \todo Document this member (see #736)
+    /** Reference to the mesh. */
     MutableMesh<DIM, DIM>& mrMesh;
 
-    /// \todo Document this member (see #736)
+    /** 
+     * Pointer to a Voronoi tessellation object. 
+     * Used to calculate cell area and perimeter information if required.
+     */
     VoronoiTessellation<DIM>* mpVoronoiTessellation;
 
     /**
@@ -72,28 +75,28 @@ protected:
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
 
-    /** Whether to print out cell area and perimeter info */
+    /** Whether to print out cell area and perimeter information. */
     bool mWriteVoronoiData;
 
-    /** Whether to follow only the logged cell if writing voronoi data */
+    /** Whether to follow only the logged cell if writing Voronoi data. */
     bool mFollowLoggedCell;
 
-    /** Whether to print out tissue areas */
+    /** Whether to print out tissue areas. */
     bool mWriteTissueAreas;
 
-    /** Results file for elements */
+    /** Results file for elements. */
     out_stream mpElementFile;
 
-    /** Results file for Voronoi data */
+    /** Results file for Voronoi data. */
     out_stream mpVoronoiFile;
 
-    /** Results file for tissue area data */
+    /** Results file for tissue area data. */
     out_stream mpTissueAreasFile;
 
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
     
-    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
+    /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
 
     friend class boost::serialization::access;
@@ -130,7 +133,7 @@ protected:
 
 public:
 
-    /** Hack until meshes are fully archived using boost::serialization */
+    /** Hack until meshes are fully archived using boost::serialization. */
     static std::string meshPathname;
 
     /**
@@ -170,26 +173,42 @@ public:
      */
     const MutableMesh<DIM, DIM>& rGetMesh() const;
 
-    /// \todo Document this method (see #736)
+    /** Get method for mWriteVoronoiData. */
     bool GetWriteVoronoiData();
 
-    /// \todo Document this method (see #736)
+    /** Get method for mWriteTissueAreas. */
     bool GetWriteTissueAreas();
 
-    /// \todo Document this method (see #736)
+    /** Get method for mUseAreaBasedDampingConstant. */
     bool UseAreaBasedDampingConstant();
 
-    /// \todo Document this method (see #736)    
+    /** Get method for mWriteVoronoiData and mFollowLoggedCell.
+     * 
+     * @param writeVoronoiData  whether to output cell area and perimeter information
+     * @param followLoggedCell  whether to follow only the logged cell if writing Voronoi data
+     */   
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
+    
+    /**
+     * Overridden GetDampingConstant() method that includes the 
+     * case of a cell-area-based damping constant.
+     */ 
+    double GetDampingConstant(TissueCell& rCell);
 
-    /// \todo Document this method (see #736)
+    /** 
+     * Set method for mWriteTissueAreas. 
+     * 
+     * @param   whether to output tissue area data
+     */
     void SetWriteTissueAreas(bool writeTissueAreas);
 
-    /// \todo Document this method (see #736)    
+    /** 
+     * Set method for mUseAreaBasedDampingConstant. 
+     * 
+     * @param   whether to use a viscosity that is linear in the cell area, rather than constant
+     */
     void SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant);
 
-    /// \todo Document this method (see #736)    
-    double GetDampingConstant(TissueCell& rCell);
 
     /**
      * Remove all cells that are labelled as dead.
@@ -208,7 +227,17 @@ public:
      */
     unsigned RemoveDeadCells();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden CreateOutputFiles() method.
+     * 
+     * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
+     * @param rCleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
+     * @param outputCellMutationStates  whether to create a cell mutation state results file
+     * @param outputCellTypes  whether to create a cell type results file
+     * @param outputCellVariables  whether to create a cell-cycle variable results file
+     * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
+     * @param outputCellAncestors  whether to create a cell ancestor results file
+     */
     void CreateOutputFiles(const std::string &rDirectory,
                            bool rCleanOutputDirectory,
                            bool outputCellMutationStates,
@@ -216,14 +245,36 @@ public:
                            bool outputCellVariables,
                            bool outputCellCyclePhases,
                            bool outputCellAncestors);
-
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden CloseOutputFiles() method.
+     * 
+     * @param outputCellMutationStates  whether a cell mutation state results file is open
+     * @param outputCellTypes  whether a cell type results file is open
+     * @param outputCellVariables  whether a cell-cycle variable results file is open
+     * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
+     * @param outputCellAncestors  whether a cell ancestor results file is open
+     */
     void CloseOutputFiles(bool outputCellMutationStates,
                           bool outputCellTypes,
                           bool outputCellVariables,
                           bool outputCellCyclePhases,
                           bool outputCellAncestors);
-
+                          
+    /**
+     * Overridden WriteResultsToFiles() method.
+     * 
+     * @param outputCellMutationStates  whether to output cell mutation state results
+     * @param outputCellTypes  whether to output cell type results
+     * @param outputCellVariables  whether to output cell-cycle variable results
+     * @param outputCellCyclePhases  whether to output cell-cycle phase results
+     * @param outputCellAncestors  whether to output cell ancestor results
+     */
+    void WriteResultsToFiles(bool outputCellMutationStates,
+                             bool outputCellTypes,
+                             bool outputCellVariables,
+                             bool outputCellCyclePhases,
+                             bool outputCellAncestors);
+                             
     /**
      * Move a cell to a new location.
      * @param iter  pointer to the cell to move
@@ -239,13 +290,22 @@ public:
      */
     TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden Update() method. 
+     * Fixes up the mappings between cells and nodes.
+     */
     virtual void Update();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Overridden GetNode() method.
+     * 
+     * @param index  global index of the specified node
+     */
     Node<DIM>* GetNode(unsigned index);
-
-    /// \todo Document this method (see #736)
+    
+    /**
+     * Overridden GetNumNodes() method.
+     */
     unsigned GetNumNodes();
 
     /**
@@ -260,23 +320,23 @@ public:
      */
     virtual void Validate();
 
-    /// \todo Document this method (see #736)
-    void WriteResultsToFiles(bool outputCellMutationStates,
-                             bool outputCellTypes,
-                             bool outputCellVariables,
-                             bool outputCellCyclePhases,
-                             bool outputCellAncestors);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Write current results to mpVoronoiFile.
+     */
     void WriteVoronoiResultsToFile();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Write current results to mpTissueAreasFile.
+     */
     void WriteTissueAreaResultsToFile();
 
-    /** Get a reference to a Voronoi tessellation of the mesh */
+    /** Get a reference to a Voronoi tessellation of the mesh. */
     void CreateVoronoiTessellation();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Get method for mpVoronoiTessellation.
+     */
     VoronoiTessellation<DIM>& rGetVoronoiTessellation();
 
     /**
@@ -313,7 +373,9 @@ public:
          */
         TissueCell& rGetCellB();
 
-        /// \todo Document this operator (see #736)
+        /**
+         * Comparison not-equal-to.
+         */
         bool operator!=(const SpringIterator& other);
 
         /**
@@ -328,13 +390,13 @@ public:
 
     private:
 
-        /** Keep track of what edges have been visited */
+        /** Keep track of what edges have been visited. */
         std::set<std::set<unsigned> > mSpringsVisited;
 
-        /// \todo Document this member (see #736)
+        /** The tissue member. */
         MeshBasedTissue& mrTissue;
 
-        /// \todo Document this member (see #736)
+        /** The edge iterator member. */
         typename MutableMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
 

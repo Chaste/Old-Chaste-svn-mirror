@@ -89,13 +89,26 @@ public:
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Get method for mIsGhostNode.
+     */
     std::vector<bool>& rGetGhostNodes();
 
-    /// \todo Document this method (see #736)
+    /** 
+     * Overridden IsGhostNode() method.
+     * 
+     * Find if a given node is a ghost node. The abstract method always returns false 
+     * but is overridden in subclasses.
+     * 
+     * @param index the global index of a specified node
+     * 
+     * @return whether the node is a ghost node
+     */
     bool IsGhostNode(unsigned index);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Get the indices of those nodes that are ghost nodes.
+     */
     std::set<unsigned> GetGhostNodeIndices();
 
     /**

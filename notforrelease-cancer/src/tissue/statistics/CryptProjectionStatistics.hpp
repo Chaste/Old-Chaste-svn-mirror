@@ -30,7 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCryptStatistics.hpp"
 
-/// \todo This class needs documenting (see #736)
+/**
+ * Concrete statistics class for the crypt projection model.
+ */
 class CryptProjectionStatistics : public AbstractCryptStatistics
 {
 protected:

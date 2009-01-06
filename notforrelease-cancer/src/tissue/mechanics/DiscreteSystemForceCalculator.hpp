@@ -32,7 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "OutputFileHandler.hpp"
 
-/// \todo This class needs documenting (see #736)
+/**
+ * A class for calculating the force and stress on each node in a mesh-based tissue.
+ */
 class DiscreteSystemForceCalculator
 {
     friend class TestDiscreteSystemForceCalculator;
@@ -89,11 +91,24 @@ private:
 
 public:
 
-    /// \todo These methods need documenting (see #736)
+    /** 
+     * Constructor.
+     * 
+     * @param rTissue reference to the tissue
+     * @param forceCollection vector of force laws present
+     */
     DiscreteSystemForceCalculator(MeshBasedTissue<2>& rTissue, std::vector<AbstractTwoBodyInteractionForce<2>*> forceCollection);
 
+    /**
+     * @return the extremal normal forces on each node in the tissue.
+     */
     std::vector< std::vector<double> > CalculateExtremalNormalForces();
 
+    /**
+     * Write results to file.
+     * 
+     * @param simulationOutputDirectory the output directory, relative to where Chaste output is stored
+     */
     void WriteResultsToFile(std::string simulationOutputDirectory);
 
 };

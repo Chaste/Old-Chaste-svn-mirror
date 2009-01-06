@@ -155,6 +155,8 @@ public:
 
     /**
      * Get a pointer to the node with a given index.
+     * 
+     * @param index  global index of the specified node
      */
     virtual Node<DIM>* GetNode(unsigned index)=0;
 
@@ -201,7 +203,10 @@ public:
      */
     virtual unsigned RemoveDeadCells()=0;
 
-    /// \todo Document this method (see #736)
+    /**
+     * Remove the Node (for cell-centre) or VertexElement (for cell-vertex) which 
+     * have been marked as deleted and update the correspondence with TissueCells.
+     */
     virtual void Update()=0;
 
     /**
@@ -244,7 +249,14 @@ public:
      */
     c_vector<unsigned, 5> GetCellCyclePhaseCount();
 
-    /// \todo Document this method (see #736)
+    /**
+     * Find if a given node is a ghost node. The abstract method always returns false 
+     * but is overridden in subclasses.
+     * 
+     * @param index the global index of a specified node
+     * 
+     * @return whether the node is a ghost node
+     */
     virtual bool IsGhostNode(unsigned index);
 
     /**
@@ -252,7 +264,8 @@ public:
      */
     unsigned GetNumRealCells();
 
-    /* Sets the Ancestor index of all the cells at this time to be the
+    /**
+     * Sets the Ancestor index of all the cells at this time to be the
      * same as their node index, can be used to trace clonal populations.
      */
     void SetCellAncestorsToNodeIndices();
@@ -273,7 +286,17 @@ public:
      */
     TissueCell& rGetCellUsingLocationIndex(unsigned index);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Use an output file handler to create output files for visualizer and post-processing.
+     * 
+     * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
+     * @param rCleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
+     * @param outputCellMutationStates  whether to create a cell mutation state results file
+     * @param outputCellTypes  whether to create a cell type results file
+     * @param outputCellVariables  whether to create a cell-cycle variable results file
+     * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
+     * @param outputCellAncestors  whether to create a cell ancestor results file
+     */
     virtual void CreateOutputFiles(const std::string &rDirectory,
                                    bool rCleanOutputDirectory,
                                    bool outputCellMutationStates,
@@ -282,14 +305,30 @@ public:
                                    bool outputCellCyclePhases,
                                    bool outputCellAncestors);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Write results from the current tissue state to output files.
+     * 
+     * @param outputCellMutationStates  whether to output cell mutation state results
+     * @param outputCellTypes  whether to output cell type results
+     * @param outputCellVariables  whether to output cell-cycle variable results
+     * @param outputCellCyclePhases  whether to output cell-cycle phase results
+     * @param outputCellAncestors  whether to output cell ancestor results
+     */
     virtual void WriteResultsToFiles(bool outputCellMutationStates,
                                      bool outputCellTypes,
                                      bool outputCellVariables,
                                      bool outputCellCyclePhases,
                                      bool outputCellAncestors);
 
-    /// \todo Document this method (see #736)
+    /**
+     * Close any output files.
+     * 
+     * @param outputCellMutationStates  whether a cell mutation state results file is open
+     * @param outputCellTypes  whether a cell type results file is open
+     * @param outputCellVariables  whether a cell-cycle variable results file is open
+     * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
+     * @param outputCellAncestors  whether a cell ancestor results file is open
+     */
     virtual void CloseOutputFiles(bool outputCellMutationStates,
                                   bool outputCellTypes,
                                   bool outputCellVariables,
@@ -312,7 +351,9 @@ public:
          */
         inline TissueCell& operator*();
 
-        /// \todo Document this operator (see #736)
+        /**
+         * Member access from a pointer.
+         */
         inline TissueCell* operator->();
 
         /**
@@ -325,7 +366,9 @@ public:
          */
         inline const c_vector<double, DIM>& rGetLocation();
 
-        /// \todo Document this operator (see #736)
+        /**
+         * Comparison not-equal-to.
+         */
         inline bool operator!=(const Iterator& other);
 
         /**
@@ -339,7 +382,7 @@ public:
         Iterator(AbstractTissue& rTissue, std::list<TissueCell>::iterator cellIter);
 
         /**
-         * Must have a virtual destructor.
+         * The iterator must have a virtual destructor.
          */
         virtual ~Iterator()
         {}

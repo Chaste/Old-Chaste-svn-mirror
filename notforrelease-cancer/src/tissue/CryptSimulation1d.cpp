@@ -28,20 +28,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptSimulation1d.hpp"
 
-/** Constructor
- *  @param rMesh
- *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
- *  should be called for any birth to happen.
- *  @param pGen is a RandomNumberGenerator class.  If it's not given then a new one is
- *  constructed and random numbers are reseeded with srandom(0).
- */
+
 CryptSimulation1d::CryptSimulation1d(MutableMesh<1,1> &rMesh,
                                      std::vector<TissueCell> cells)
         : mrMesh(rMesh),
         mCells(cells)
 {
     CancerParameters::Instance()->SetSpringStiffness(30.0);
-    mDt = 1.0/(120.0); // Timestep of 30 seconds (as per Meineke)
+    mDt = 1.0/(120.0); // time step of 30 seconds (as per the Meineke 2001 model)
     mEndTime = 120.0; // hours
 
     mIncludeVariableRestLength = false;
@@ -53,71 +47,52 @@ CryptSimulation1d::CryptSimulation1d(MutableMesh<1,1> &rMesh,
     }
 }
 
-/**
- * Free any memory allocated by the constructor
- */
+
 CryptSimulation1d::~CryptSimulation1d()
 {
     SimulationTime::Destroy();
 }
 
-/**
- * Change the time step used for mechanics
- */
+
 void CryptSimulation1d::SetDt(double dt)
 {
     assert(dt>0);
     mDt=dt;
 }
 
-/**
- * Set the end time of the next simualtion.Solve() call.
- */
+
 void CryptSimulation1d::SetEndTime(double endTime)
 {
     assert(endTime>0);
     mEndTime=endTime;
 }
 
-/**
- * The subdirectory of CHASTETESTOUTPUT where the results will be stored.
- */
+
 void CryptSimulation1d::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
 }
 
-/**
- *  Call this before Solve() to simulate cell growth after cell division.
- *  (will eventually become SetIncludeCellBirth() and then become the default)
- */
+
 void CryptSimulation1d::SetIncludeVariableRestLength()
 {
     mIncludeVariableRestLength = true;
 }
 
-/**
- * The maximum number of cells that will be in this simulation.
- */
+
 void CryptSimulation1d::SetMaxCells(unsigned maxCells)
 {
     mMaxCells = maxCells;
 }
 
-/**
- *  Get the cells vector
- */
+
 std::vector<TissueCell> CryptSimulation1d::GetCells()
 {
     assert(mCells.size()>0);
     return mCells;
 }
 
-/**
- * Main Solve method.
- *
- * Once CryptSimulation1d object has been set up, call this to run simulation
- */
+
 void CryptSimulation1d::Solve()
 {
     if (mOutputDirectory=="")
@@ -125,7 +100,7 @@ void CryptSimulation1d::Solve()
         EXCEPTION("OutputDirectory not set");
     }
 
-    // Creating Column Data Writer Handler
+    // Create column data writer handler
     ColumnDataWriter tabulated_writer(mOutputDirectory, "tabulated_results");
     unsigned time_var_id = tabulated_writer.DefineUnlimitedDimension("Time","hours");
 
@@ -157,7 +132,7 @@ void CryptSimulation1d::Solve()
 
     std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
 
-    // Creating Simple File Handler
+    // Create Simple File Handler
     OutputFileHandler output_file_handler(mOutputDirectory, false);
     out_stream p_results_file = output_file_handler.OpenOutputFile("results");
     while ( SimulationTime::Instance()->GetTimeStepsElapsed() < num_time_steps)
@@ -261,7 +236,7 @@ void CryptSimulation1d::Solve()
             }
         }
 
-        //Update node positions
+        // Update node positions
         for (unsigned index = 1; index<mrMesh.GetNumAllNodes(); index++)
         {
             // assume stem cells are fixed, or if there are no cells, fix node 0
@@ -350,15 +325,11 @@ void CryptSimulation1d::Solve()
     }
 }
 
-/**
- * This handles the birth of a cell in 1D by splitting an existing element in two and placing
- * a new point in the middle of it.
- */
+
 unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time)
 {
-
     double displacement;
-    double left_position= pElement->GetNodeLocation(0,0);
+    double left_position = pElement->GetNodeLocation(0,0);
     double element_length = pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0);
 
     assert(element_length>0);
@@ -390,6 +361,7 @@ unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time
     }
     ChastePoint<1> new_point(left_position + displacement);
     assert(displacement <= element_length);
+    
     return mrMesh.RefineElement(pElement, new_point);
 }
 

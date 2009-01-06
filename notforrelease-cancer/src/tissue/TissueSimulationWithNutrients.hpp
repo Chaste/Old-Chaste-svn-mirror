@@ -41,7 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "TissueCell.hpp"
 
-/// \todo This class needs documenting (see #736)
+/**
+ * A nutrient-dependent tissue simulation class.
+ */
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
@@ -168,7 +170,7 @@ private :
     /**
      *  Create a coarse mesh on which to solve the nutrient PDE.
      * 
-     * \todo currently only works in 2d
+     * \todo currently only works in 2d (see #737)
      */
     void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
 

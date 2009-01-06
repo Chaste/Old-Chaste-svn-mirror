@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  from node onto gauss points, as for a nutrients simulation the source will only
  *  be known at the cells (nodes), not the gauss points.
  */
-/// \todo Some method in this class need documenting (see #736)
 template<unsigned DIM>
 class TissueSimulationWithNutrientsAssembler
     : public SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> >
@@ -51,12 +50,14 @@ class TissueSimulationWithNutrientsAssembler
 
 private:
 
-    /** The constant in u part of the source term, interpolated onto
+    /** 
+     * The constant in u part of the source term, interpolated onto
      *  the current point
      */
     double mConstantInUSourceTerm;
 
-    /** The linear in u part of the source term, interpolated onto
+    /** 
+     * The linear in u part of the source term, interpolated onto
      *  the current point
      */
     double mLinearInUCoeffInSourceTerm;
