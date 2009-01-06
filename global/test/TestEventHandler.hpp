@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTHEARTEVENTHANDLER_HPP_
 
 #include "EventHandler.hpp"
+#include "PetscSetupAndFinalize.hpp"
+#include "PetscTools.hpp"
 
 class TestEventHandler : public CxxTest::TestSuite
 {
@@ -65,7 +67,32 @@ public:
 
     }
 
-    void TestEventExceptions() throw(Exception)
+    void TestParallelPrinting() throw (Exception)
+    {      
+        std::cout.flush();
+        std::cerr.flush();
+        MPI_Barrier(PETSC_COMM_WORLD);
+        std::cout.flush();
+        std::cerr.flush();
+        
+        EventHandler::BeginEvent(EVERYTHING);
+        EventHandler::BeginEvent(READ_MESH);
+        if (PetscTools::GetMyRank() != PetscTools::NumProcs()-1)
+        {
+            for (unsigned i=0; i<20000000; i++);
+        }
+        EventHandler::EndEvent(READ_MESH);
+
+
+        EventHandler::EndEvent(EVERYTHING);
+
+        EventHandler::Headings();
+
+        EventHandler::Report();
+       
+    }
+ 
+    void xTestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
         TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EVERYTHING));
@@ -75,7 +102,8 @@ public:
         // should not be able to begin that has already begun
         TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EVERYTHING));
     }
-};
+    
+ };
 
 
 #endif /*TESTEVENTHANDLER_HPP_*/

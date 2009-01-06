@@ -31,11 +31,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define GENERICEVENTHANDLER_HPP_
 
 #include <cassert>
-//#include <petsc.h>
 #include <ctime>
 #include <iostream>
 
 #include "Exception.hpp"
+#include "PetscTools.hpp"
 
 
 const unsigned MAX_EVENTS=11;
@@ -74,7 +74,7 @@ public:
         }
         mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0);
         mHasBegun[event] = true;
-        //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
+        //std::cout << PetscTools::GetMyRank()<<": Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
     static void EndEvent(unsigned event)
@@ -93,7 +93,7 @@ public:
         }
         mCpuTime[event]+= clock()/(CLOCKS_PER_SEC/1000.0);
         mHasBegun[event] = false;
-        //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
+        //std::cout << PetscTools::GetMyRank()<<": Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
 
@@ -102,22 +102,82 @@ public:
         // times are in milliseconds
         unsigned top_event=NUM_EVENTS-1;
         double total=mCpuTime[top_event];
+        for (unsigned turn=0; turn<PetscTools::NumProcs(); turn++)
+        {
+            std::cout.flush();
+            PetscTools::Barrier();
+            if (turn == PetscTools::GetMyRank())
+            {
+                printf("%2i ", turn);
+                for (unsigned event=0; event<NUM_EVENTS; event++)
+                {
+                    printf("%7.2e ", mCpuTime[event]/1000);
+                    printf("(%3.0f%%)  ", mCpuTime[event]*100.0/total);
+                }
+                std::cout << "(seconds) \n";
+            }
+        }
+        
+        //If there is a collection of processes then report an average
+        if (!PetscTools::IsSequential())
+        {
+            double TotalCpuTime[MAX_EVENTS];
+            MPI_Reduce(mCpuTime, TotalCpuTime, MAX_EVENTS, MPI_DOUBLE, 
+                MPI_SUM, 0, PETSC_COMM_WORLD);
+                if (PetscTools::AmMaster())
+                {
+                    total=TotalCpuTime[NUM_EVENTS-1];
+                    printf("av ");
+                    for (unsigned event=0; event<NUM_EVENTS; event++)
+                    {
+                        printf("%7.2e ", TotalCpuTime[event]/(1000*PetscTools::NumProcs()));
+                        printf("(%3.0f%%)  ", TotalCpuTime[event]*100.0/total);
+                    }
+                    std::cout << "(seconds) \n";
+                }
+                
+            double MaxCpuTime[MAX_EVENTS];
+            MPI_Reduce(mCpuTime, MaxCpuTime, MAX_EVENTS, MPI_DOUBLE, 
+                MPI_MAX, 0, PETSC_COMM_WORLD);
+                if (PetscTools::AmMaster())
+                {
+                    total=MaxCpuTime[NUM_EVENTS-1];
+                    printf("mx ");
+                    for (unsigned event=0; event<NUM_EVENTS; event++)
+                    {
+                        printf("%7.2e ", MaxCpuTime[event]/(1000));//*PetscTools::NumProcs()));
+                        printf("(%3.0f%%)  ", MaxCpuTime[event]*100.0/total);
+                    }
+                    std::cout << "(seconds) \n";
+                }
+            
+        }
+        std::cout.flush();
+        PetscTools::Barrier();
+        std::cout.flush();
+        //Reset
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
-            printf("%7.2e ", mCpuTime[event]/1000);
-            printf("(%3.0f%%)  ", mCpuTime[event]*100.0/total);
             mCpuTime[event]=0.0;
         }
-        std::cout << "(seconds) \n";
     }
 
     static void Headings()
     {
-        for (unsigned event=0; event<NUM_EVENTS; event++)
+        //Make sure that all output (on all processes) is flushed
+        std::cout.flush();
+        PetscTools::Barrier();
+        std::cout.flush();
+        if (PetscTools::AmMaster())
         {
-            printf("%14s%2s", EVENT_NAME[event], "");
+            printf("p: ");
+            for (unsigned event=0; event<NUM_EVENTS; event++)
+            {
+                printf("%15s%2s", EVENT_NAME[event], "");
+            }
+           std::cout << "\n";
+           std::cout.flush();
         }
-        std::cout << "\n";
     }
 
     static void Enable()

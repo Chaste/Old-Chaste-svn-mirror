@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PETSCTOOLS_HPP_
 #define PETSCTOOLS_HPP_
 
+///\todo - possibly collect all the special serial parts here
+//#ifdef SPECIAL_SERIAL
+//#endif
+
 
 #include <vector>
 #include <petsc.h>
@@ -76,11 +80,11 @@ public :
      *  Return our rank.
      *  Assumes PETSc has been initialized
      */
-    static int GetMyRank()
+    static unsigned GetMyRank()
     {
         PetscInt my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        return my_rank;
+        return (unsigned) my_rank;
     }
     /**
      *  Just returns whether it is the master process or not

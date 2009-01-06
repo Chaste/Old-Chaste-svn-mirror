@@ -43,7 +43,7 @@ public:
     {
         PetscInt my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        TS_ASSERT_EQUALS(PetscTools::GetMyRank(), my_rank);
+        TS_ASSERT_EQUALS(PetscTools::GetMyRank(), (unsigned)my_rank);
         bool am_master = (my_rank == 0);
         TS_ASSERT_EQUALS( PetscTools::AmMaster(), am_master);
 
