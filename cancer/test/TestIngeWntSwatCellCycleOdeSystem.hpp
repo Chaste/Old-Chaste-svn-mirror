@@ -166,7 +166,7 @@ public:
     {
         double time = 0.0;
         double wnt_level = 0.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level,LABELLED);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level, LABELLED);
         std::vector<double> initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         std::vector<double> derivs(initial_conditions.size());
 

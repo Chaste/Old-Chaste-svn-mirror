@@ -139,6 +139,40 @@ public:
         // Fails as no cell or ghost correponding to node 0
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
     }
+
+    void TestCreateCellPair()
+    {
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<TissueCell> cells;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
+        
+        // Give cells 0 and 1 specific mutations to enable later testing
+        cells[0].SetMutationState(LABELLED);
+        cells[1].SetMutationState(APC_ONE_HIT);
+        
+        // Create tissue
+        MeshBasedTissue<2> tissue(mesh, cells);
+        
+        // Create cell pair
+        std::set<TissueCell*> cell_pair = tissue.CreateCellPair(cells[0], cells[1]);
+
+        // Check the cell pair was created correctly        
+        std::set<TissueCell*>::iterator cell_pair_iter = cell_pair.begin();
+        
+        TissueCell* p_cell0 = *cell_pair_iter;
+        TS_ASSERT_EQUALS(p_cell0->GetMutationState(), LABELLED);
+        
+        ++cell_pair_iter;        
+        TissueCell* p_cell1 = *cell_pair_iter;
+        TS_ASSERT_EQUALS(p_cell1->GetMutationState(), APC_ONE_HIT);
+    }
     
     void TestAreaBasedDampingConstant()
     {
@@ -951,6 +985,11 @@ public:
 
         // Mark some springs
         tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
+        
+        // Unmark and re-mark spring (for coverage)
+        tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));        
+        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
+        
         tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(3), tissue.rGetCellUsingLocationIndex(4));
 
         // Check if springs are marked

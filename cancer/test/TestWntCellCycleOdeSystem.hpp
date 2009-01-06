@@ -74,10 +74,10 @@ public:
          * And the same for a high Wnt level
          */
         wnt_level = 1.0;
-        WntCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level,LABELLED);
+        WntCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level, LABELLED);
         initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
 
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.6002,1e-4);
+        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7], 0.6002, 1e-4);
 
         wnt_cell_cycle_system2.EvaluateYDerivatives(time, initial_conditions, derivs);
 
@@ -108,15 +108,15 @@ public:
 
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from Matlab code)
-        TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],7.3260e+00, 1e-4);
-        TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[0], -1.586627673253325e-02, 1e-5);
+        TS_ASSERT_DELTA(derivs[1], -5.532201118824132e-05, 1e-5);
+        TS_ASSERT_DELTA(derivs[2], 7.3260e+00, 1e-4);
+        TS_ASSERT_DELTA(derivs[3], -7.449833887043188e-03, 1e-5);
+        TS_ASSERT_DELTA(derivs[4], 1.549680000000000e-02, 1e-5);
+        TS_ASSERT_DELTA(derivs[5], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[6], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[7], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[8], 0.0, 1e-5);
 
         /**
         * A test for the case mutation = 2

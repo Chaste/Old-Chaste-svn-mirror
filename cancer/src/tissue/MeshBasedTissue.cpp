@@ -728,21 +728,21 @@ std::set<TissueCell*> MeshBasedTissue<DIM>::CreateCellPair(TissueCell& rCell1, T
 template<unsigned DIM>
 bool MeshBasedTissue<DIM>::IsMarkedSpring(TissueCell& rCell1, TissueCell& rCell2)
 {
-    std::set<TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
+    std::set<TissueCell*> cell_pair = CreateCellPair(rCell1, rCell2);
     return mMarkedSprings.find(cell_pair) != mMarkedSprings.end();
 }
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::MarkSpring(TissueCell& rCell1, TissueCell& rCell2)
 {
-    std::set<TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
+    std::set<TissueCell*> cell_pair = CreateCellPair(rCell1, rCell2);
     mMarkedSprings.insert(cell_pair);
 }
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::UnmarkSpring(TissueCell& rCell1, TissueCell& rCell2)
 {
-    std::set<TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
+    std::set<TissueCell*> cell_pair = CreateCellPair(rCell1, rCell2);
     mMarkedSprings.erase(cell_pair);
 }
 

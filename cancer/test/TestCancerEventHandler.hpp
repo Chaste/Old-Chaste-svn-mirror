@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTCANCEREVENTHANDLER_HPP_
 #define TESTCANCEREVENTHANDLER_HPP_
 
+#include "PetscSetupAndFinalize.hpp"
 #include "CancerEventHandler.hpp"
 
 /**

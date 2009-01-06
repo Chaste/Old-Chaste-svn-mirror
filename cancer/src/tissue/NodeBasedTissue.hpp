@@ -87,7 +87,7 @@ public:
      * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
      * changed and no references to any of its data are created.
      * 
-     * This constructor is a helper constructor: it is generally easier for the user 
+     * This constructor is a helper constructor: it is generally easier for the user to
      * create a mesh than a set of nodes.
      */
     NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,

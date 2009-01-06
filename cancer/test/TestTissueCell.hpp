@@ -1220,10 +1220,10 @@ public:
         wnt_cell4.InitialiseCellCycleModel();
         wnt_cell4.GetCellCycleModel()->SetGeneration(1);
 
-        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(),false);
-        TS_ASSERT_EQUALS(wnt_cell2.ReadyToDivide(),false);
-        TS_ASSERT_EQUALS(wnt_cell3.ReadyToDivide(),false);
-        TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(wnt_cell2.ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(wnt_cell3.ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(), false);
 
         WntConcentration::Destroy();
     }

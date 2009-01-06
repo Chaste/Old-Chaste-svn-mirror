@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNodeBasedTissue : public AbstractCancerTestSuite
 {
 private:
+
     template<unsigned DIM>
     std::vector<TissueCell> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
@@ -115,6 +116,34 @@ public:
         TestSimpleNodeBasedTissue<1>("mesh/test/data/1D_0_to_1_10_elements");
         TestSimpleNodeBasedTissue<2>("mesh/test/data/square_4_elements");
         TestSimpleNodeBasedTissue<3>("mesh/test/data/cube_136_elements");
+    }
+
+
+    void TestOtherNodeBasedTissueConstructor()
+    {
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<TissueCell> cells = SetUpCells(&mesh);
+
+        // Get a std::vector of nodes from the mesh
+        std::vector<Node<2> > nodes;
+        
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            nodes.push_back(*(mesh.GetNode(i)));
+        }        
+        
+        // Create the tissue
+        NodeBasedTissue<2> node_based_tissue(nodes, cells);
+
+        TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), nodes.size());
+        TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), cells.size());
     }
 
     void TestValidate()

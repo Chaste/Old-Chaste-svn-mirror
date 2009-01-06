@@ -49,6 +49,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class MeshBasedTissue : public AbstractTissue<DIM>
 {
+    friend class TestMeshBasedTissue;
+    
 protected:
 
     /// \todo Document this member (see #736)
