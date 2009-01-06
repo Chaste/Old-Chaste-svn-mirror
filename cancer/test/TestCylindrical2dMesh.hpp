@@ -874,14 +874,33 @@ public:
         mesh.GetElement(1)->UpdateNode(1, mesh.GetNode(10));
         mesh.CorrectNonPeriodicMesh();
 
+        // Check that these elements have been swapped around.
         // Note that the element indices are changed by each call and you
         // have to reexamine the mesh if changing this test
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNode(1)->GetIndex(), 10u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNode(2)->GetIndex(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetElement(11)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(11)->GetNode(1)->GetIndex(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetElement(11)->GetNode(2)->GetIndex(), 0u);
 
         // A pair of elements on the right are flipped around.
         mesh.GetElement(4)->UpdateNode(0, mesh.GetNode(6));
         mesh.GetElement(6)->UpdateNode(1, mesh.GetNode(3));
         mesh.CorrectNonPeriodicMesh();
 
+        // Check that these elements have been swapped around.
+        // Note that the element indices are changed by each call and you
+        // have to reexamine the mesh if changing this test
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNode(1)->GetIndex(), 10u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNode(2)->GetIndex(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetElement(11)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(11)->GetNode(1)->GetIndex(), 10u);
+        TS_ASSERT_EQUALS(mesh.GetElement(11)->GetNode(2)->GetIndex(), 0u);
+
+        // We can now reconstruct the cylindrical mesh without any problems
+        TS_ASSERT_THROWS_NOTHING(mesh.ReconstructCylindricalMesh());
     }
 
 };
