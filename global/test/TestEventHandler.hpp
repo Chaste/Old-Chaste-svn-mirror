@@ -92,7 +92,7 @@ public:
        
     }
  
-    void xTestEventExceptions() throw(Exception)
+    void TestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
         TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EVERYTHING));
