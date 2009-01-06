@@ -42,7 +42,7 @@ class TestCylindrical2dMesh : public CxxTest::TestSuite
 {
 public:
 
-    void TestBasicFunctions()
+    void TestBasicFunctions() throw (Exception)
     {
         // Test IsThisIndexInList
         Cylindrical2dMesh mesh(1.0);
@@ -69,7 +69,7 @@ public:
     {
         // Note that elements are not created (and boundary elements are not changed),
         // this just creates a set of new nodes
-        
+
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
@@ -114,8 +114,8 @@ public:
         // Cheat to put something into mTopHaloNodes to make exception throw
         p_mesh->mTopHaloNodes.push_back(234u);
         unsigned corresponding_node_index = p_mesh->GetCorrespondingNodeIndex(0u);
-        
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->rGetLocation()[0]+crypt_width, p_mesh->GetNode(corresponding_node_index)->rGetLocation()[0], 1e-9);                        
+
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->rGetLocation()[0]+crypt_width, p_mesh->GetNode(corresponding_node_index)->rGetLocation()[0], 1e-9);
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->rGetLocation()[1], p_mesh->GetNode(corresponding_node_index)->rGetLocation()[1], 1e-9);
     }
 
@@ -123,7 +123,7 @@ public:
     {
         // This test takes in a new mesh created using the mirror function above
         // and a ReMesh call, then removes nodes, elements and boundary elements
-        
+
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 0;
@@ -333,13 +333,13 @@ public:
         TS_ASSERT_DELTA(vector[1], sqrt(3.0)/2.0, 1e-4);
         TS_ASSERT_DELTA(norm_2(vector), 1.0, 1e-4);
         TS_ASSERT_DELTA(p_mesh->GetDistanceBetweenNodes(1, 4), 1.0, 1e-7);
-        
+
         // ...and the opposite vector
         vector = p_mesh->GetVectorFromAtoB(location2, location1);
         TS_ASSERT_DELTA(vector[0], -0.5, 1e-7);
         TS_ASSERT_DELTA(vector[1], -sqrt(3.0)/2.0, 1e-4);
-        
-        
+
+
         // Test a periodic calculation
         location1[0] = 0.5;
         location1[1] = 3.0;
@@ -423,7 +423,7 @@ public:
         p_mesh->GetNode(5)->SetPoint(new_point);
 
         new_point.SetCoordinate(0u, -0.0001);
-        
+
         // This node was on left and is now near the right
         p_mesh->SetNode(0u, new_point, false);
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 2.9999, 1e-4);
@@ -436,7 +436,7 @@ public:
 
         new_point.SetCoordinate(0u, 3.0001);
         p_mesh->SetNode(0u, new_point,false);
-        
+
         // This node was on right and is now on the left
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 0.0001, 1e-4);
     }
@@ -477,7 +477,7 @@ public:
         // Check that we have moved the new node across
         TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[0], 3.0+point[0], 1e-7);
         TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[1], point[1], 1e-7);
-        
+
         // Test GetWidth
         TS_ASSERT_DELTA(p_mesh->GetWidth(0u), 3.0, 1e-9);
         TS_ASSERT_DELTA(p_mesh->GetWidth(1u), sqrt(3), 1e-6);
@@ -554,7 +554,7 @@ public:
 
         unsigned total_elements = p_mesh->GetNumElements();
         unsigned total_nodes = p_mesh->GetNumNodes();
-        
+
         // Check that the ReIndex is working still
         TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh->GetNumElements());
 
@@ -564,7 +564,7 @@ public:
         // Check that we haven't added any nodes or elements by doing this Halo Node ReMesh.
         TS_ASSERT_EQUALS(total_elements, p_mesh->GetNumElements());
         TS_ASSERT_EQUALS(total_nodes, p_mesh->GetNumNodes());
-        
+
         // Check the ReIndex is working
         TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh->GetNumElements());
         TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), p_mesh->GetNumNodes());
@@ -587,7 +587,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         MutableMesh<2,2> * const p_mesh = generator.GetCylindricalMesh();
-        
+
         // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
         // This is because the serialization library only allows you to save tracked
         // objects while the compiler considers them const, to prevent the objects changing
@@ -600,15 +600,15 @@ public:
             // Serialize the mesh
             double width = p_mesh->GetWidth(0);
             TS_ASSERT_DELTA(width,crypt_width,1e-7);
-            
+
             // Save the mesh data using mesh writers
             TrianglesMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
             mesh_writer.WriteFilesUsingMesh(*p_mesh);
-            
+
             // Archive the mesh
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // We have to serialize via a pointer here, or the derived class information is lost.
             output_arch << p_mesh;
         }
@@ -623,7 +623,7 @@ public:
 
             // Restore from the archive
             input_arch >> p_mesh2;
-            
+
             // Re-initialise the mesh
             p_mesh2->Clear();
             TrianglesMeshReader<2,2> mesh_reader(mesh_pathname);
@@ -664,7 +664,7 @@ public:
             TS_ASSERT_EQUALS(p_mesh->GetNumAllBoundaryElements(), p_mesh2->GetNumAllBoundaryElements());
             MutableMesh<2,2>::ElementIterator it = p_mesh->GetElementIteratorBegin();
             MutableMesh<2,2>::ElementIterator it2 = p_mesh2->GetElementIteratorBegin();
-            
+
             for (;
                  it != p_mesh->GetElementIteratorEnd();
                  ++it, ++it2)
@@ -683,7 +683,7 @@ public:
         }
     }
 
-    void TestConstructFromNodeList()
+    void TestConstructFromNodeList() throw (Exception)
     {
         std::vector<Node<2> *> nodes;
 
@@ -740,7 +740,7 @@ public:
          */
     }
 
-    void TestGenerateVectorsOfElementsStraddlingPeriodicBoundaries()
+    void TestGenerateVectorsOfElementsStraddlingPeriodicBoundaries() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/bad_cylindrical_9_1");
         Cylindrical2dMesh mesh(9.1);
@@ -757,8 +757,8 @@ public:
 
         mesh.GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
 
-        TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 43u);        
-        
+        TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 43u);
+
         // The commented test below fails as there are no nodes waiting to be deleted
         // and the current mesh is Voronoi, hence no call is made to triangle...
 //        TS_ASSERT_EQUALS(mesh.mRightPeriodicBoundaryElementIndices.size(), 42u);
@@ -778,7 +778,7 @@ public:
         mesh.DeleteHaloNodes();
     }
 
-    void TestCorrectNonPeriodicMeshMapLeftToRight()
+    void TestCorrectNonPeriodicMeshMapLeftToRight() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/bad_cylindrical_9_1");
         Cylindrical2dMesh mesh(9.1);
@@ -818,7 +818,7 @@ public:
                     }
                 }
             }
-            
+
             // Each node in the forward star should appear exactly twice.  Sort and test.
             sort(indices.begin(), indices.end());
             for (unsigned i=0; i<indices.size();i++)
@@ -829,6 +829,59 @@ public:
                 }
             }
         }
+    }
+
+    void TestCorrectNonPeriodicMeshes() throw (Exception)
+    {
+        std::vector<Node<2> *> nodes;
+        // Generates a mesh which could be meshed in different ways.
+        nodes.push_back(new Node<2>(0, true, 1.1, 0.0));
+        nodes.push_back(new Node<2>(1, true, 3.0, 0.0));
+        nodes.push_back(new Node<2>(2, true, 1.1, 2.0));    // Stabilise mesh and prevent extra edge elements
+        nodes.push_back(new Node<2>(3, true, 2.9, 2.0));
+        nodes.push_back(new Node<2>(4, true, 1.0, 4.0));
+        nodes.push_back(new Node<2>(5, true, 3.0, 4.0));
+
+        const double width = 4.0;
+        Cylindrical2dMesh mesh(width, nodes);
+        // Create the mirrored nodes - double the size of the mesh
+        mesh.CreateMirrorNodes();
+
+        // Create elements for the new larger mesh
+        NodeMap big_map(mesh.GetNumAllNodes());
+        mesh.MutableMesh<2,2>::ReMesh(big_map);
+
+        // We need the mesh in a certain configuration for this test
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 12u);
+
+        mesh.GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
+        std::set<unsigned> left_elements = mesh.mLeftPeriodicBoundaryElementIndices;
+        std::set<unsigned> right_elements = mesh.mRightPeriodicBoundaryElementIndices;
+        // There should be four elements on each side which cross the periodic boundary
+        TS_ASSERT_EQUALS(left_elements.size(), 4u);
+        TS_ASSERT_EQUALS(right_elements.size(), 4u);
+
+        /*
+         * Swap one of the pairs of elements on the left around so that
+         * CorrectNonPeriodicMesh() has some work to do.
+         * Note this test could possibly make the mesh break the voronoi condition,
+         * but this is OK as the CorrectNonPeriodicMesh()
+         * deals with cases where the Voronoi definition is ambiguous.
+         */
+
+        // A pair of elements on the left are flipped around.
+        mesh.GetElement(0)->UpdateNode(0, mesh.GetNode(0));
+        mesh.GetElement(1)->UpdateNode(1, mesh.GetNode(10));
+        mesh.CorrectNonPeriodicMesh();
+
+        // Note that the element indices are changed by each call and you
+        // have to reexamine the mesh if changing this test
+
+        // A pair of elements on the right are flipped around.
+        mesh.GetElement(4)->UpdateNode(0, mesh.GetNode(6));
+        mesh.GetElement(6)->UpdateNode(1, mesh.GetNode(3));
+        mesh.CorrectNonPeriodicMesh();
+
     }
 
 };

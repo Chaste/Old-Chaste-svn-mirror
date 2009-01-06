@@ -217,15 +217,13 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
         mBottomHaloNodes[i] = big_map.GetNewIndex(mBottomHaloNodes[i]);
     }
 
+    // This method checks elements crossing the periodic boundary have been meshed in the same way at each side.
+    CorrectNonPeriodicMesh();
+
     // This method takes in the double sized mesh,
     // with its new boundary elements,
     // and removes the relevant nodes, elements and boundary elements
     // to leave a proper periodic mesh.
-
-    GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
-
-    CorrectNonPeriodicMesh();
-
     ReconstructCylindricalMesh();
 
     DeleteHaloNodes();
@@ -524,11 +522,13 @@ unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
 
 void Cylindrical2dMesh::CorrectNonPeriodicMesh()
 {
+    GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
     // Copy the member variables into new vectors, which we modify
     // by knocking out elements which pair up on each side
     std::set<unsigned> temp_left_hand_side_elements = mLeftPeriodicBoundaryElementIndices;
     std::set<unsigned> temp_right_hand_side_elements = mRightPeriodicBoundaryElementIndices;
 
+    // Go through all of the elements on the left periodic boundary
     for (std::set<unsigned>::iterator left_iter = mLeftPeriodicBoundaryElementIndices.begin();
          left_iter != mLeftPeriodicBoundaryElementIndices.end();
          ++left_iter)
@@ -536,6 +536,8 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
         unsigned elem_index = *left_iter;
         Element<2,2>* p_element = GetElement(elem_index);
 
+        // Make lists of the nodes which the elements on the left contain
+        // and the nodes which should be in a corresponding element on the right.
         c_vector<unsigned,3> original_element_node_indices;
         c_vector<unsigned,3> corresponding_element_node_indices;
         for (unsigned i=0; i<3; i++)
@@ -544,7 +546,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
             corresponding_element_node_indices[i] = GetCorrespondingNodeIndex(original_element_node_indices[i]);
         }
 
-        // Search the right hand sides for the coresponding element
+        // Search the right hand side elements for the corresponding element
         for (std::set<unsigned>::iterator right_iter = mRightPeriodicBoundaryElementIndices.begin();
              right_iter != mRightPeriodicBoundaryElementIndices.end();
              ++right_iter)
@@ -566,7 +568,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
 
             if (is_coresponding_node)
             {
-                // Remove original and coresponding element from sets
+                // Remove original and corresponding element from sets
                 temp_left_hand_side_elements.erase(elem_index);
                 temp_right_hand_side_elements.erase(corresponding_elem_index);
             }
@@ -593,21 +595,17 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     }
     else
     {
+        assert(temp_right_hand_side_elements.size()==2u && temp_left_hand_side_elements.size()==2u);
         if (temp_right_hand_side_elements.size()==2u)
         {
             // Use the right hand side meshing and map to left
-            #define COVERAGE_IGNORE
             UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
-            #undef COVERAGE_IGNORE
-        }
-        else if (temp_left_hand_side_elements.size()==2u)
-        {
-            // Use the left hand side meshing and map to right
-            UseTheseElementsToDecideMeshing(temp_left_hand_side_elements);
         }
         else
         {
             // If you get here there are more than two mixed up elements on the periodic edge.
+            // We need to knock the pair out and then rerun this function,
+            // shouldn't be too hard to do but as yet unnecessary.
             NEVER_REACHED;
         }
     }

@@ -112,7 +112,7 @@ private:
      * Creates a set of mirrored nodes for a cylindrical re-mesh. Updates
      * mRightImages and mLeftImages. All mesh points should be 0<x<mWidth.
      *
-     * This method should only ever be called by the public ReMesh method.
+     * This method should only ever be called by the public ReMesh() method.
      */
     void CreateMirrorNodes();
 
@@ -126,7 +126,7 @@ private:
      * strangely shaped elements which cross the whole mesh but specify the correct
      * connections between nodes.
      *
-     * This method should only ever be called by the public ReMesh method.
+     * This method should only ever be called by the public ReMesh() method.
      */
     void ReconstructCylindricalMesh();
 
@@ -139,13 +139,14 @@ private:
     void DeleteHaloNodes();
 
     /**
-     * This method should only ever be called by the public ReMesh method.
+     * This method should only ever be called by the public ReMesh() method.
      *
      * Uses mLeftPeriodicBoundaryElementIndices and mRightPeriodicBoundaryElementIndices
      * and compares the nodes in each to ensure that both boundaries have been meshed
      * identically. If they have not it calls UseTheseElementsToDecideMeshing() to
      * sort out the troublesome elements which have been meshed differently on each
-     * side.
+     * side and uses the meshing of the elements on the right hand boundary to decide
+     * on how to mesh the left hand side.
      */
     void CorrectNonPeriodicMesh();
 
@@ -162,7 +163,7 @@ private:
     void GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
 
     /**
-     * This method should only ever be called by the public ReMesh method.
+     * This method should only ever be called by the public ReMesh() method.
      *
      * @param nodeIndex  The index of an original/mirrored node
      * @return the index of the corresponding mirror image of that node (can be either an original or mirror node)
