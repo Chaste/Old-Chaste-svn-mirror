@@ -54,12 +54,18 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMesh
 {
 private:
-    std::vector<Node<SPACE_DIM> *> mNodes;
-    std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> mElements;
+
+    /** Vector of pointers to Nodes. */
+    std::vector<Node<SPACE_DIM>*> mNodes;
+
+    /** Vector of pointers to VertexElements. */    
+    std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> mElements;
     
-    void SetupVertexElementsOwnedByNodes();
-    
+    /* Whether or not memory has been allocated for the mesh (used by destructor). */
     bool mAllocatedMemory;
+    
+    /** Create correspondences between VertexElements and Nodes in the mesh. */
+    void SetupVertexElementsOwnedByNodes();
     
 public:
 
@@ -69,7 +75,7 @@ public:
      * @param nodes vector of pointers to nodes
      * @param vertexElements  vector of pointers to VertexElements
      */
-    VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements);
+    VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements);
     
     /**
      * Destructor.
@@ -77,22 +83,25 @@ public:
     ~VertexMesh();
 
     /**
-     * Helper constructor. Creates a rectangular vertex mesh.
+     * Helper constructor, creates a rectangular vertex-based mesh.
      * 
-     * @param numAcross number of cells across
-     * @param numUp number of cells up
+     * @param numAcross number of VertexElements across
+     * @param numUp number of VertexElements up
      */
     VertexMesh(unsigned numAcross, unsigned numUp);
 
+    /**
+     * @return the number of Nodes in the mesh.
+     */
     unsigned GetNumNodes() const;
-    unsigned GetNumElements() const;
-
-//// when will these be needed?
-//    unsigned GetNumAllNodes() const;
-//    unsigned GetNumAllElements();
 
     /**
-     * @param index  the global index of a specified node
+     * @return the number of VertexElements in the mesh.
+     */
+    unsigned GetNumElements() const;
+
+    /**
+     * @param index the global index of a specified node
      * 
      * @return a pointer to the node
      */
@@ -104,11 +113,6 @@ public:
      * @return a pointer to the vertex element
      */    
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
-
-//    
-//    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
-//                                         bool cullInternalFaces=false)
-//    {}
     
     /**
      * @param pNode pointer to the node
@@ -121,6 +125,31 @@ public:
      * Delete mNodes and mElements.
      */
     void Clear();
+    
+    /**
+     * Re-mesh the mesh.
+     * 
+     * @param map a NodeMap which associates the indices of VertexElements in the old mesh
+     *            with indices of VertexElements in the new mesh.  This should be created 
+     *            with the correct size, GetNumElements()
+     */
+    void ReMesh(NodeMap& elementMap);
+
+//    /**
+//     * Alternative version of the ReMesh() method, which does not require a NodeMap. 
+//     * 
+//     * Note: inherited classes should overload ReMesh(NodeMap&).
+//     */
+//    void ReMesh();
+    
+    // when will these be needed?
+//    unsigned GetNumAllNodes() const;
+//    unsigned GetNumAllElements();
+
+//    
+//    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+//                                         bool cullInternalFaces=false)
+//    {}
 };
 
 
@@ -145,6 +174,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     
     mAllocatedMemory = false;
 };
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp)
@@ -187,7 +217,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
         }
     }  
     
-    // Create the elements. The arrat node_indices contains the 
+    // Create the elements. The array node_indices contains the 
     // global node indices from bottom left, going anticlockwise.
     
     unsigned node_indices[6];
@@ -283,10 +313,20 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
 //        mNodes.push_back(p_node);
 //    }    
 
-    // todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
-    // the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
+    /// \todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
+    //         the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
 
     mAllocatedMemory = true;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
+{
+    if (mAllocatedMemory)
+    {
+        Clear();
+    }
 }
 
 
@@ -303,6 +343,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
         }
     }
 };
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
@@ -334,12 +375,14 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
     return mElements.size();
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
 {
     assert(index < mNodes.size());
     return mNodes[index];
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
@@ -348,6 +391,56 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
     return mElements[index];
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
+{
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert( SPACE_DIM==2 || SPACE_DIM==3 );
+    assert( ELEMENT_DIM == SPACE_DIM );
+    #undef COVERAGE_IGNORE
+
+    // Make sure the map is big enough
+    elementMap.Resize(GetNumElements());
+    
+    if (SPACE_DIM==2)
+    {
+        /// \todo put code for remeshing in 2D here (see #827)
+    
+        unsigned new_index = 0;
+        for (unsigned i=0; i<GetNumElements(); i++)
+        {
+            if (mElements[i]->IsDeleted())
+            {
+                elementMap.SetDeleted(i);
+            }
+            else
+            {
+                elementMap.SetNewIndex(i, new_index);
+                new_index++;
+            }
+        }
+        
+        /*
+         * We do not need to call Clear() and remove all current data, since
+         * cell birth, rearrangement and death result only in local remeshing
+         * of a vertex-based mesh.
+         * 
+         * Instead, we should now remove any deleted nodes and elements.
+         * 
+         * We should then construct any new nodes, including boundary nodes; 
+         * then new elements; then new edges.
+         * 
+         * Finally (or should this be at the start?), we should perform any 
+         * cell rearrangements.
+         */
+    }
+    else // 3D
+    {
+        /// \todo put code for remeshing in 3D here (see #827)
+    }    
+}
 
 //
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -363,16 +456,6 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
 //    return mElements.size();
 //}
 //
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
-{
-    if (mAllocatedMemory)
-    {
-        Clear();
-    }
-}
-    
+   
 
 #endif /*VERTEXMESH_HPP_*/

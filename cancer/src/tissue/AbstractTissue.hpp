@@ -150,11 +150,17 @@ public:
 
     /**
      * Get the number of nodes in the tissue.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
      */
     virtual unsigned GetNumNodes()=0;
 
     /**
      * Get a pointer to the node with a given index.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
      * 
      * @param index  global index of the specified node
      */
@@ -179,6 +185,9 @@ public:
 
     /**
      * Add a new cell to the tissue.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
      *
      * @param cell  the cell to add
      * @param newLocation  the position in space at which to put it
@@ -190,6 +199,9 @@ public:
 
     /**
      * Move a cell to a new location.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
      *
      * @param iter  pointer to the cell to move
      * @param rNewLocation  where to move it to
@@ -198,13 +210,16 @@ public:
 
     /**
      * Remove all cells labelled as dead.
-     *
-     *  @return number of cells removed
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
+     * 
+     * @return number of cells removed
      */
     virtual unsigned RemoveDeadCells()=0;
 
     /**
-     * Remove the Node (for cell-centre) or VertexElement (for cell-vertex) which 
+     * Remove the Nodes (for cell-centre) or VertexElements (for cell-vertex) which 
      * have been marked as deleted and update the correspondence with TissueCells.
      */
     virtual void Update()=0;
@@ -279,7 +294,7 @@ public:
     std::set<unsigned> GetCellAncestors();
 
     /**
-     *  Get the cell corresponding to a given node
+     *  Get the cell corresponding to a given node.
      *
      *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors.
      *  An assertion fails if not.
@@ -404,12 +419,12 @@ public:
 
         /** The tissue member. */
         AbstractTissue& mrTissue;
-        
+
         /** Cell iterator member. */
         std::list<TissueCell>::iterator mCellIter;
-        
-        /** Node index member. */
-        unsigned mNodeIndex;
+
+        /** Location index member. */
+        unsigned mLocationIndex;
     };
 
     /**
@@ -445,7 +460,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     // There must be at least one cell
     assert(mCells.size() > 0);
 
-    // Set up the node map
+    // Set up the map between location indices and cells
     for (std::list<TissueCell>::iterator it = mCells.begin();
          it != mCells.end();
          ++it)
@@ -618,7 +633,7 @@ template<unsigned DIM>
 Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
 {
     assert(!IsAtEnd());
-    return mrTissue.GetNode(mNodeIndex);
+    return mrTissue.GetNode(mLocationIndex);
 }
 
 template<unsigned DIM>
@@ -641,7 +656,7 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
         ++mCellIter;
         if (!IsAtEnd())
         {
-            mNodeIndex = mCellIter->GetLocationIndex();
+            mLocationIndex = mCellIter->GetLocationIndex();
         }
     }
     while (!IsAtEnd() && !IsRealCell());
@@ -652,7 +667,7 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
-    return !(mrTissue.IsGhostNode(mNodeIndex) || GetNode()->IsDeleted() || (*this)->IsDead());
+    return !(mrTissue.IsGhostNode(mLocationIndex) || GetNode()->IsDeleted() || (*this)->IsDead());
 }
 
 template<unsigned DIM>
@@ -670,7 +685,7 @@ AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<Tissu
     assert(mrTissue.rGetCells().size() > 0);
     if (!IsAtEnd())
     {
-        mNodeIndex = cellIter->GetLocationIndex();
+        mLocationIndex = cellIter->GetLocationIndex();
     }
     // Make sure we start at a real cell
     if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())

@@ -31,8 +31,8 @@ template<unsigned DIM>
 VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                                           const std::vector<TissueCell>& rCells,
                                           bool validate)
-             : mCells(rCells.begin(), rCells.end()),
-             mrMesh(rMesh)
+    : mCells(rCells.begin(), rCells.end()),
+      mrMesh(rMesh)
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
@@ -79,11 +79,25 @@ template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumRealCells()
 {
     unsigned counter = 0;
-    for (typename VertexBasedTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    for (typename VertexBasedTissue<DIM>::Iterator cell_iter=this->Begin();
+         cell_iter!=this->End();
+         ++cell_iter)
     {
         counter++;
     }
     return counter;
+}
+
+template<unsigned DIM>
+unsigned VertexBasedTissue<DIM>::GetNumNodes()
+{
+    return mrMesh.GetNumNodes();
+}
+
+template<unsigned DIM>
+Node<DIM>* VertexBasedTissue<DIM>::GetNode(unsigned index)
+{
+    return mrMesh.GetNode(index);
 }
 
 template<unsigned DIM>
@@ -99,18 +113,56 @@ VertexMesh<DIM, DIM>& VertexBasedTissue<DIM>::rGetMesh()
 }
 
 template<unsigned DIM>
+void VertexBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
+{
+    /// \todo put code for moving a cell here
+}
+
+template<unsigned DIM>
+TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+{
+    return NULL; /// \todo put code for adding a cell here (see #852)
+}
+
+template<unsigned DIM>
+unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
+{
+    unsigned num_removed = 0;
+
+    /// \todo put code for removing dead cells here (see #853)
+    
+    return num_removed;
+}
+
+template<unsigned DIM>
 void VertexBasedTissue<DIM>::Update()
 {
-    ///\todo Write code for this method (see #827)
+    /// \todo Thought about creating an ElementMap class, but it looks like 
+    //        we can just hijack NodeMap for our purposes... in fact, what *is*
+    //        specific to Nodes in NodeMap??
+    NodeMap element_map(mrMesh.GetNumElements());
+    mrMesh.ReMesh(element_map);
     
-    // Create a vertex element map (?)
-    
-    // Call overriddent method on VertexMesh (?) using vertex element map
-    
-    // If the vertex element map is not the identity map, then 
-    // fix up the mappings between TissueCells and VertexElements
-    
-    // Call Validate()
+    if (!element_map.IsIdentityMap())
+    {
+        // Fix up the mappings between TissueCells and VertexElements
+        this->mLocationCellMap.clear();
+        
+        for (std::list<TissueCell>::iterator iter = this->mCells.begin();
+             iter != this->mCells.end();
+             ++iter)
+        {
+            unsigned old_elem_index = iter->GetLocationIndex();
+            assert(!element_map.IsDeleted(old_elem_index));
+            
+            unsigned new_elem_index = element_map.GetNewIndex(old_elem_index);
+            iter->SetLocationIndex(new_elem_index);
+            this->mLocationCellMap[new_elem_index] = &(*iter);
+        }
+    }
+
+    // Check that each VertexElement has a TissueCell associated with it in the updated tissue
+    Validate();
 }
 
 template<unsigned DIM>
@@ -118,7 +170,9 @@ void VertexBasedTissue<DIM>::Validate()
 {
     std::vector<bool> validated_element = std::vector<bool>(this->GetNumElements(), false);
 
-    for (typename VertexBasedTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    for (typename VertexBasedTissue<DIM>::Iterator cell_iter=this->Begin();
+         cell_iter!=this->End();
+         ++cell_iter)
     {
         unsigned elem_index = cell_iter->GetLocationIndex();
         validated_element[elem_index] = true;

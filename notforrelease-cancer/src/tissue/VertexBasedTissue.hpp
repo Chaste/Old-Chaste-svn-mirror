@@ -28,12 +28,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERTEXBASEDTISSUE_HPP_
 #define VERTEXBASEDTISSUE_HPP_
 
-#include "TissueCell.hpp"
+#include "AbstractTissue.hpp"
 #include "VertexMesh.hpp"
 
 #include <list>
 
 #include <climits> // work around boost bug
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/set.hpp>
+#include <boost/serialization/vector.hpp>
 
 
 /**
@@ -44,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 template<unsigned DIM>
-class VertexBasedTissue
+class VertexBasedTissue : public AbstractTissue<DIM>
 {
 protected:
 
@@ -65,36 +70,109 @@ public:
      * There must be precisely one TissueCell for each VertexElement in 
      * the mesh.
      *
-     * @param rMesh a VertexMesh
-     * @param cells a vector TissueCells
-     * @param validate whether to validate the tissue
+     * @param rMesh reference to a VertexMesh
+     * @param cells reference to a vector of TissueCells
+     * @param validate whether to validate the tissue when it is created (defaults to true)
      */
     VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                       const std::vector<TissueCell>& rCells,
                       bool validate=true);
 
     /**
-     * Destructor.
+     * Destructor, which frees any memory allocated by the constructor.
      */
     virtual ~VertexBasedTissue();
 
+    /**
+     * Get a particular VertexElement.
+     * 
+     * @param elementIndex the global index of the VertexElement
+     * 
+     * @return a pointer to the VertexElement.
+     */
     VertexElement<DIM, DIM>* GetElement(unsigned elementIndex);
     
+    /**
+     * @return the number of VertexElements in the tissue.
+     */
     unsigned GetNumElements();
     
+    /**
+     * Get method for mCells.
+     * 
+     * @return a reference to a std::list of TissueCells.
+     */
     std::list<TissueCell>& rGetCells();
     
+    /**
+     * @return the number of real cells in the tissue.
+     */
     unsigned GetNumRealCells();
+    
+    /**
+     * Overridden GetNumNodes() method.
+     * 
+     * @return the number of nodes in the tissue.
+     */    
+    unsigned GetNumNodes();
+    
+    /**
+     * Overridden GetNode() method.
+     * 
+     * @param index  global index of the specified node
+     * 
+     * @return a pointer to the node.
+     */
+    Node<DIM>* GetNode(unsigned index);
         
     /**
-     * Get mesh associated with tissue.
+     * Get method associated with tissue.
+     * 
+     * @return reference to the mesh.
      */
     VertexMesh<DIM, DIM>& rGetMesh();
+    
+    /**
+     * Overridden MoveCell() method.
+     * 
+     * Move a cell to a new location.
+     * 
+     * @param iter  pointer to the cell to move
+     * @param rNewLocation  where to move it to
+     */
+    void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
+    
+    /**
+     * Overridden AddCell() method.
+     * Add a new cell to the tissue.
+     * 
+     * @param cell  the cell to add
+     * @param newLocation  the position in space at which to put it
+     * 
+     * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
+     */
+    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
+    /**
+     * Remove all cells labelled as dead.
+     *
+     * Note that after calling this method the tissue will be in an inconsistent state until
+     * the equivalent of a 'remesh' is performed! So don't try iterating over cells or anything
+     * like that.
+     *
+     * @return number of cells removed
+     */
+    unsigned RemoveDeadCells();
+    
+    /**
+     * Remove the VertexElements which have been marked as deleted, perform 
+     * any cell rearrangements if required, and update the correspondence 
+     * with TissueCells.
+     */
     void Update();
 
     /**
-     * Check consistency of our internal data structures. 
+     * Check the consistency of internal data structures. 
      * Each VertexElement must have a TissueCell associated with it.
      */
     virtual void Validate();
@@ -115,6 +193,9 @@ public:
          */
         inline TissueCell& operator*();
 
+        /**
+         * Member access from a pointer.
+         */
         inline TissueCell* operator->();
 
         /**
@@ -127,6 +208,9 @@ public:
          */
         inline const c_vector<double, DIM>& rGetLocation();
 
+        /**
+         * Comparison not-equal-to.
+         */
         inline bool operator!=(const Iterator& other);
 
         /**
@@ -140,7 +224,7 @@ public:
         Iterator(VertexBasedTissue<DIM>& rTissue, std::list<TissueCell>::iterator cellIter);
 
         /**
-         * Must have a virtual destructor.
+         * The iterator must have a virtual destructor.
          */
         virtual ~Iterator()
         {}
@@ -148,21 +232,18 @@ public:
     private:
 
         /**
-         * Private helper function which tells us if we're pointing at a real cell.
-         * Assumes we are within range (i.e. not at End).
-         *
-         * Real cells are not deleted.
-         */
-        virtual inline bool IsRealCell();
-
-        /**
          * Private helper function saying whether we're at the end of the cells.
          */
         inline bool IsAtEnd();
 
+        /** The tissue member. */
         VertexBasedTissue& mrTissue;
+
+        /** Cell iterator member. */
         std::list<TissueCell>::iterator mCellIter;
-        unsigned mElementIndex;
+
+        /** Location index member. */
+        unsigned mLocationIndex;
     };
 
     /**
@@ -200,7 +281,7 @@ template<unsigned DIM>
 VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::Iterator::GetElement()
 {
     assert(!IsAtEnd());
-    return mrTissue.GetElement(mElementIndex);
+    return mrTissue.GetElement(mLocationIndex);
 }
 
 template<unsigned DIM>
@@ -212,23 +293,13 @@ bool VertexBasedTissue<DIM>::Iterator::operator!=(const VertexBasedTissue<DIM>::
 template<unsigned DIM>
 typename VertexBasedTissue<DIM>::Iterator& VertexBasedTissue<DIM>::Iterator::operator++()
 {
-    do
+    ++mCellIter;
+    if (!IsAtEnd())
     {
-        ++mCellIter;
-        if (!IsAtEnd())
-        {
-            mElementIndex = mCellIter->GetLocationIndex();
-        }
+        mLocationIndex = mCellIter->GetLocationIndex();
     }
-    while (!IsAtEnd() && !IsRealCell());
 
     return (*this);
-}
-
-template<unsigned DIM>
-bool VertexBasedTissue<DIM>::Iterator::IsRealCell()
-{
-    return true;
 }
 
 template<unsigned DIM>
@@ -246,12 +317,7 @@ VertexBasedTissue<DIM>::Iterator::Iterator(VertexBasedTissue& rTissue, std::list
     assert(mrTissue.rGetCells().size() > 0);
     if (!IsAtEnd())
     {
-        mElementIndex = cellIter->GetLocationIndex();
-    }
-    // Make sure we start at a real cell
-    if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())
-    {
-        ++(*this);
+        mLocationIndex = cellIter->GetLocationIndex();
     }
 }
 
@@ -267,6 +333,8 @@ typename VertexBasedTissue<DIM>::Iterator VertexBasedTissue<DIM>::End()
     return Iterator(*this, this->mCells.end());
 }
 
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(VertexBasedTissue)
 
 #endif /*VERTEXBASEDTISSUE_HPP_*/
 

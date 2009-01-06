@@ -108,17 +108,14 @@ void CellwiseDataGradient<DIM>::SetupGradients()
     {
         unsigned node_global_index = cell_iter->GetLocationIndex();
 
-
-
         if  (!num_real_elems_for_node[node_global_index]>0)
         {
-
             // The node is a real node which is not in any real element
-            // but shoud be connect to some cells (if more than one cell in mesh)
+            // but shoud be connected to some cells (if more than one cell in mesh)
             Node<DIM> & this_node = *(cell_iter.GetNode());
 
-            mGradients[node_global_index]=zero_vector<double>(DIM);
-            unsigned num_real_adjacent_nodes=0;
+            mGradients[node_global_index] = zero_vector<double>(DIM);
+            unsigned num_real_adjacent_nodes = 0;
 
             // Get all the adjacent nodes which correspond to real cells
             std::set < Node<DIM>* > real_adjacent_nodes;

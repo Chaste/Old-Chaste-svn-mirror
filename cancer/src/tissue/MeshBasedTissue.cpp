@@ -312,13 +312,13 @@ void MeshBasedTissue<DIM>::Update()
 template<unsigned DIM>
 Node<DIM>* MeshBasedTissue<DIM>::GetNode(unsigned index)
 {
-    return rGetMesh().GetNode(index);
+    return mrMesh.GetNode(index);
 }
 
 template<unsigned DIM>
 unsigned MeshBasedTissue<DIM>::GetNumNodes()
 {
-    return rGetMesh().GetNumAllNodes();
+    return mrMesh.GetNumAllNodes();
 }
 
 template<unsigned DIM>
@@ -508,7 +508,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 
     // Don't use the Voronoi tessellation to calculate the total area
     // because it gives huge areas for boundary cells
-    double total_area = rGetMesh().CalculateVolume();
+    double total_area = mrMesh.CalculateVolume();
 
     double apoptotic_area = 0.0;
 
