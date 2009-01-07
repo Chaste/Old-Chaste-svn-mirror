@@ -36,12 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <vector>
+#include <iostream>
+#include <cassert>
+#include <cstring> //For strcmp etc. Needed in gcc-4.3
+
 #include <petsc.h>
 #include <petscvec.h>
 #include <petscmat.h>
-#include <iostream>
-#include <assert.h>
-#include <cstring> //For strcmp etc. Needed in gcc-4.3
+
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
 
@@ -49,155 +51,87 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define EXIT_IF_SEQUENTIAL if(PetscTools::IsSequential()){TS_TRACE("This test is not meant to be executed in sequential.");return;}
 
 /**
- *  A helper class of static methods.
+ * A helper class of static methods.
  */
 class PetscTools
 {
-public :
+private:
+    /** Whether PETSc has been initialised. */
+    static bool mPetscIsInitialised;
+    
+    /** The total number of processors. */
+    static unsigned mNumProcessors;
+    
+    /** Which processors we are. */
+    static unsigned mRank;
+    
+public:
+    
     /**
-     *  Just returns whether there is one process or not
+     * Reset our cached values: whether PETSc is initialised,
+     * how many processors there are, and which one we are.
      */
-    static bool IsSequential()
-    {
-        return (NumProcs()==1);
-    }
+    static void ResetCache();
+    
+    /**
+     * Just returns whether there is one process or not.
+     */
+    static bool IsSequential();
+    
     /**
      *  Returns total number of processors
      */
-    static unsigned NumProcs()
-    {
-        PetscTruth is_there;
-        PetscInitialized(&is_there);
-        if (!is_there)
-        {
-            return 1;
-        }
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-        return num_procs;
-    }
+    static unsigned NumProcs();
+    
     /**
-     *  Return our rank.
-     *  Assumes PETSc has been initialized
+     * Return our rank.
+     * 
+     * If PETSc has not been initialized, returns 0.
      */
-    static unsigned GetMyRank()
-    {
-        PetscInt my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        return (unsigned) my_rank;
-    }
+    static unsigned GetMyRank();
+    
     /**
-     *  Just returns whether it is the master process or not
+     * Just returns whether it is the master process or not.
+     * 
+     * If not running in parallel, always returns true.
      */
-    static bool AmMaster()
-    {
-        PetscInt my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        return (my_rank == 0);
-    }
+    static bool AmMaster();
+    
     /**
      * If MPI is set up, perform a barrier synchronisation.
      * If not, it's a noop.
      */
-    static void Barrier()
-    {
-        PetscTruth is_there;
-        PetscInitialized(&is_there);
-        if (is_there)
-        {
-            PetscBarrier(PETSC_NULL);
-        }
-    }
+    static void Barrier();
 
     /**
      *  Create a vector of the specified size. SetFromOptions is called.
      */
-    static Vec CreateVec(int size)
-    {
-        assert(size>0);
-        Vec ret;
-        VecCreate(PETSC_COMM_WORLD, &ret);
-        VecSetSizes(ret, PETSC_DECIDE, size);
-        VecSetFromOptions(ret);
-        return ret;
-    }
+    static Vec CreateVec(int size);
 
     /**
      *  Create a vector of the specified size with all values set to be the given
      *  constant. SetFromOptions is called.
      */
-    static Vec CreateVec(int size, double value)
-    {
-        assert(size>0);
-        Vec ret = CreateVec(size);
-
-        #if (PETSC_VERSION_MINOR == 2) //Old API
-        VecSet(&value, ret);
-        #else
-        VecSet(ret, value);
-        #endif
-
-        VecAssemblyBegin(ret);
-        VecAssemblyEnd(ret);
-        return ret;
-    }
+    static Vec CreateVec(int size, double value);
 
     /**
      *  Create a Vec from the given data.
      */
-    static Vec CreateVec(std::vector<double> data)
-    {
-        assert(data.size()>0);
-        Vec ret = CreateVec(data.size());
-
-        double* p_ret;
-        VecGetArray(ret, &p_ret);
-        int lo, hi;
-        VecGetOwnershipRange(ret, &lo, &hi);
-
-        for (int global_index=lo; global_index < hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            p_ret[local_index] = data[global_index];
-        }
-        VecRestoreArray(ret, &p_ret);
-        VecAssemblyBegin(ret);
-        VecAssemblyEnd(ret);
-
-        return ret;
-    }
+    static Vec CreateVec(std::vector<double> data);
 
     /**
-     *  Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The
-     *  number of local rows and columns is by default PETSC_DECIDE. SetFromOptions is called.
+     * Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The
+     * number of local rows and columns is by default PETSC_DECIDE. SetFromOptions is called.
      *
-     *  @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependend. An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem) should be big enough for any of the problems being solved.
+     * @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependent.
+     *     An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem)
+     *     should be big enough for any of the problems being solved.
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
                          MatType matType=(MatType) MATMPIAIJ,
                          int numLocalRows=PETSC_DECIDE,
                          int numLocalColumns=PETSC_DECIDE,
-                         int maxColsPerRow=54)
-    {
-        assert(numRows>0);
-        assert(numColumns>0);
-
-        #if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD,numLocalRows,numLocalColumns,numRows,numColumns,&rMat);
-        #else //New API
-        MatCreate(PETSC_COMM_WORLD,&rMat);
-        MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
-        #endif
-
-        MatSetType(rMat, matType);
-
-        if (strcmp(matType,MATMPIAIJ)==0)
-        {
-            MatMPIAIJSetPreallocation(rMat, maxColsPerRow, PETSC_NULL, (PetscInt) (maxColsPerRow*0.5), PETSC_NULL);
-        }
-
-        MatSetFromOptions(rMat);
-    }
+                         int maxColsPerRow=54);
 
     /**
      * Ensure exceptions are handled cleanly in parallel code, by causing all processes to
@@ -205,21 +139,7 @@ public :
      *
      * @param flag is set to true if this process has thrown.
      */
-    static void ReplicateException(bool flag)
-    {
-        unsigned my_error = (unsigned) flag;
-        unsigned anyones_error;
-        MPI_Allreduce(&my_error, &anyones_error, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-        if (flag)
-        {
-            // Return control to exception thrower
-            return;
-        }
-        if (anyones_error)
-        {
-            EXCEPTION("Another process threw an exception; bailing out.");
-        }
-    }
+    static void ReplicateException(bool flag);
 
     /**
      *  Another helper method to get a single value from a vector
@@ -232,7 +152,6 @@ public :
      * 
      * 
      */
-
 //    static double GetVecValue(Vec vec, unsigned index)
 //    {
 //        assert(vec);
@@ -248,5 +167,7 @@ public :
 //        return ret;
 //    }
 };
+
+
 
 #endif /*PETSCTOOLS_HPP_*/

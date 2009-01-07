@@ -43,17 +43,24 @@ const unsigned MAX_EVENTS=11;
 template<unsigned NUM_EVENTS, const char** EVENT_NAME>
 class GenericEventHandler
 {
-public:
+private:
     static double mCpuTime[MAX_EVENTS];
     static bool mHasBegun[MAX_EVENTS];
     static bool mEnabled;
 
+    /** Helper function - get the current CPU time in milliseconds */ 
+    inline static double GetCpuTime() 
+    { 
+        return clock()/(CLOCKS_PER_SEC/1000.0); 
+    } 
+
+public:
     static void Reset()
     {
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
-            mCpuTime[event]=0.0;
-            mHasBegun[event]=false;
+            mCpuTime[event] = 0.0;
+            mHasBegun[event] = false;
         }
     }
 
@@ -72,7 +79,7 @@ public:
             msg += "' had already begun when BeginEvent was called.";
             EXCEPTION(msg);
         }
-        mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0);
+        mCpuTime[event] -= GetCpuTime();
         mHasBegun[event] = true;
         //std::cout << PetscTools::GetMyRank()<<": Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
@@ -91,17 +98,34 @@ public:
             msg += "' had not begun when EndEvent was called.";
             EXCEPTION(msg);
         }
-        mCpuTime[event]+= clock()/(CLOCKS_PER_SEC/1000.0);
+        mCpuTime[event] += GetCpuTime();
         mHasBegun[event] = false;
         //std::cout << PetscTools::GetMyRank()<<": Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
+    /** 
+     * Get the time accounted so far to the given event. 
+     * 
+     * Will automatically determine if the event is currently ongoing or not. 
+     */ 
+    static double GetElapsedTime(unsigned event) 
+    { 
+        assert(event<NUM_EVENTS); 
+        if (mHasBegun[event]) 
+        { 
+            return mCpuTime[event] + GetCpuTime(); 
+        } 
+        else 
+        { 
+            return mCpuTime[event]; 
+        } 
+    } 
 
     static void Report()
     {
         // times are in milliseconds
-        unsigned top_event=NUM_EVENTS-1;
-        double total=mCpuTime[top_event];
+        unsigned top_event = NUM_EVENTS-1;
+        double total = mCpuTime[top_event];
         for (unsigned turn=0; turn<PetscTools::NumProcs(); turn++)
         {
             std::cout.flush();
@@ -124,32 +148,32 @@ public:
             double TotalCpuTime[MAX_EVENTS];
             MPI_Reduce(mCpuTime, TotalCpuTime, MAX_EVENTS, MPI_DOUBLE, 
                 MPI_SUM, 0, PETSC_COMM_WORLD);
-                if (PetscTools::AmMaster())
+            if (PetscTools::AmMaster())
+            {
+                total=TotalCpuTime[NUM_EVENTS-1];
+                printf("av ");
+                for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
-                    total=TotalCpuTime[NUM_EVENTS-1];
-                    printf("av ");
-                    for (unsigned event=0; event<NUM_EVENTS; event++)
-                    {
-                        printf("%7.2e ", TotalCpuTime[event]/(1000*PetscTools::NumProcs()));
-                        printf("(%3.0f%%)  ", TotalCpuTime[event]*100.0/total);
-                    }
-                    std::cout << "(seconds) \n";
+                    printf("%7.2e ", TotalCpuTime[event]/(1000*PetscTools::NumProcs()));
+                    printf("(%3.0f%%)  ", TotalCpuTime[event]*100.0/total);
                 }
+                std::cout << "(seconds) \n";
+            }
                 
             double MaxCpuTime[MAX_EVENTS];
             MPI_Reduce(mCpuTime, MaxCpuTime, MAX_EVENTS, MPI_DOUBLE, 
                 MPI_MAX, 0, PETSC_COMM_WORLD);
-                if (PetscTools::AmMaster())
+            if (PetscTools::AmMaster())
+            {
+                total=MaxCpuTime[NUM_EVENTS-1];
+                printf("mx ");
+                for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
-                    total=MaxCpuTime[NUM_EVENTS-1];
-                    printf("mx ");
-                    for (unsigned event=0; event<NUM_EVENTS; event++)
-                    {
-                        printf("%7.2e ", MaxCpuTime[event]/(1000));//*PetscTools::NumProcs()));
-                        printf("(%3.0f%%)  ", MaxCpuTime[event]*100.0/total);
-                    }
-                    std::cout << "(seconds) \n";
+                    printf("%7.2e ", MaxCpuTime[event]/(1000));//*PetscTools::NumProcs()));
+                    printf("(%3.0f%%)  ", MaxCpuTime[event]*100.0/total);
                 }
+                std::cout << "(seconds) \n";
+            }
             
         }
         std::cout.flush();
@@ -182,12 +206,12 @@ public:
 
     static void Enable()
     {
-        mEnabled=true;
+        mEnabled = true;
     }
 
     static void Disable()
     {
-        mEnabled=false;
+        mEnabled = false;
     }
 };
 

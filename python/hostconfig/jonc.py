@@ -48,4 +48,4 @@ use_cvode = True
 if use_cvode:
     other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
 
-tools = {}
+tools = {'texttest': '/home/scratch/jonc/texttest-3.10/source/bin/texttest.py'}

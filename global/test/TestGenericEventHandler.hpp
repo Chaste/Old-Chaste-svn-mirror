@@ -102,6 +102,19 @@ public:
         AnEventHandler::Enable();
     }
 
+    void TestElapsedTime()
+    {
+        AnEventHandler::Reset();
+        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(TEST1), 0.0);
+        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(TEST2), 0.0);
+        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(TEST3), 0.0);
+        
+        AnEventHandler::BeginEvent(TEST1);
+        for (unsigned i=0; i<100000000; i++); // hopefully that's enough even on fast machines!
+        TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));
+        AnEventHandler::EndEvent(TEST1);
+        TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));
+    }
 };
 
 

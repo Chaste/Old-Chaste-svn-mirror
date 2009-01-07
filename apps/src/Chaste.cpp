@@ -264,7 +264,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \n\
 Lesser GNU General Public License for more details. \n\n\
 \
 You should have received a copy of the Lesser GNU General Public License \n\
-along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
+along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
     try
     {

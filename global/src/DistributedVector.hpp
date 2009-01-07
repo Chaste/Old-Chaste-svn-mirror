@@ -43,14 +43,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class DistributedVector
 {
 private:
+    // Data global to all vectors.
+    /** The first entry owned by the current processor. */
     static unsigned mLo;
+    /** One above the last entry owned by the current processor. */
     static unsigned mHi;
+    /** The problem size, i.e. the length of the vector of unknowns. */
     static unsigned mGlobalHi;
+    /** Whether we've checked that PETSc is initialised. */
     static bool mPetscStatusKnown;
+    
+    // Data local to a single vector.
+    /** How many processors own parts of this vector. */
     unsigned mNumChunks;
+    /** The underlying PETSc vector. */
     Vec mVec;
+    /** The local part of the underlying PETSc vector. */
     double *mpVec;
-private:
+
     /**
      * Double check (in debug code) that PETSc has been initialised properly
      */

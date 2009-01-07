@@ -27,21 +27,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTPETSCTOOLS_HPP_
-#define TESTPETSCTOOLS_HPP_
+#ifndef TESTPETSCTOOLS2_HPP_
+#define TESTPETSCTOOLS2_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 #include "PetscTools.hpp"
 
-class TestPetscTools : public CxxTest::TestSuite
+/**
+ * Testing some methods is kind of tricky, since we really want
+ * to also check if they work when PETSc isn't set up.  Hence this file.
+ */
+class TestPetscTools2 : public CxxTest::TestSuite
 {
 public:
-    void TestBarrier()
+    void TestSequentialBehaviour()
     {
-        // Testing the barrier method is kind of tricky, since we really want
-        // to also check if it works when PETSc isn't set up.  Hence this file.
+        TS_ASSERT(PetscTools::IsSequential());
+        TS_ASSERT_EQUALS(PetscTools::GetMyRank(), 0u);
+        TS_ASSERT_EQUALS(PetscTools::NumProcs(), 1u);
+        TS_ASSERT(PetscTools::AmMaster());
+        
+        // This should be a no-op.  We can't check that, but just make sure it runs.
         PetscTools::Barrier();
     }
 };
-#endif /*TESTPETSCTOOLS_HPP_*/
+#endif /*TESTPETSCTOOLS2_HPP_*/
