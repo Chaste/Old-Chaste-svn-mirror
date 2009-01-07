@@ -433,6 +433,18 @@ public:
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
+        
+        Vec sol = bidomain_problem.GetVoltage();
+        ReplicatableVector sol_repl(sol);
+        // test V = 0 for all bath nodes
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        {
+            if(mesh.GetNode(i)->GetRegion()==1) // bath
+            {
+                TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+            }
+        }
+        /// \TODO: More tests 
     }
 };
     
