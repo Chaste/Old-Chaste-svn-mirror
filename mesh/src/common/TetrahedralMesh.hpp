@@ -82,6 +82,18 @@ private:
 
 //    std::vector<unsigned> mNodesPerProcessor;
 
+    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementJacobians;
+    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
+    std::vector<double> mElementJacobianDeterminants;
+
+    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mBoundaryElementInverseJacobians;
+    std::vector<double> mBoundaryElementJacobianDeterminants;
+
+    
+    /*< Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM */
+    std::vector< c_vector<double, SPACE_DIM> > mCachedWeightedDirection; 
+
+
     unsigned SolveNodeMapping(unsigned index) const;
     unsigned SolveElementMapping(unsigned index) const;
     unsigned SolveBoundaryElementMapping(unsigned index) const;    
@@ -271,6 +283,15 @@ public:
      *  Flag all elements not containing ANY of the given nodes
      */
     void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
+
+    void RefreshJacobianCachedData();
+
+    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rJacobian) const;    
+    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;    
+    double GetJacobianDeterminantForElement(unsigned elementIndex) const;    
+
+    void GetInverseJacobianForBoundaryElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rInverseJacobian) const;        
+    double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const;
 
     /**
      * Iterator over edges in the mesh, which correspond to springs between cells.

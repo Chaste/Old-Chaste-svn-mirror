@@ -122,25 +122,25 @@ public:
      */
     BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const;
 
-
-    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobianForElement(unsigned elementIndex) const
+    /// \todo: move implementation
+    virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rJacobian) const
     {
-        return mElements[SolveElementMapping(elementIndex)]->CalculateJacobian();
+        mElements[SolveElementMapping(elementIndex)]->CalculateJacobian(rJacobian);
     }
-    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>& rInverseJacobian) const
+    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
     {
         mElements[SolveElementMapping(elementIndex)]->CalculateInverseJacobian(rInverseJacobian);
     }
-    double GetJacobianDeterminantForElement(unsigned elementIndex) const
+    virtual double GetJacobianDeterminantForElement(unsigned elementIndex) const
     {
         return mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant();
     }
     
-    const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobianForBoundaryElement(unsigned elementIndex) const
+    virtual void GetInverseJacobianForBoundaryElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rInverseJacobian) const
     {
-        return mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateInverseJacobian();
+        mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateInverseJacobian(rInverseJacobian);
     }    
-    double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const
+    virtual double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const
     {
         return mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateJacobianDeterminant();
     }
