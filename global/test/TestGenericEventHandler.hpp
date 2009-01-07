@@ -56,7 +56,7 @@ public:
         AnEventHandler::EndEvent(TEST2);
 
         AnEventHandler::BeginEvent(TEST3);
-        for (unsigned i=0; i<10000000; i++);
+        for (unsigned i=0; i<1000000; i++);
         AnEventHandler::EndEvent(TEST3);
 
         AnEventHandler::EndEvent(TEST1);
@@ -110,7 +110,12 @@ public:
         TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(TEST3), 0.0);
         
         AnEventHandler::BeginEvent(TEST1);
-        for (unsigned i=0; i<100000000; i++); // hopefully that's enough even on fast machines!
+        long dummy = 1;
+        for (unsigned i=0; i<100000000; i++)
+        {
+            dummy += 2;
+        }
+        TS_ASSERT_LESS_THAN(0u, dummy); // try to avoid the loop being optimised away
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));
         AnEventHandler::EndEvent(TEST1);
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));
