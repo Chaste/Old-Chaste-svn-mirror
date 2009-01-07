@@ -249,6 +249,8 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     assert(mpPde);
 
     // Note: If not using a coarse nutrient mesh, we MUST be using a MeshBasedTissue
+    // Make sure the mesh is in a nice state
+    this->mrTissue.Update();
 
     TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();

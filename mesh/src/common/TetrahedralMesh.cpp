@@ -99,19 +99,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     // Add elements
     //new_node_index = mNumCornerNodes;
     this->mElements.reserve(rMeshReader.GetNumElements());
-    
-    if (ELEMENT_DIM == SPACE_DIM)
-    {
-        this->mElementJacobians.reserve(rMeshReader.GetNumElements());
-        this->mElementInverseJacobians.reserve(rMeshReader.GetNumElements());
-        this->mBoundaryElementInverseJacobians.reserve(rMeshReader.GetNumElements());
-    }
-    else
-    {
-        this->mCachedWeightedDirection.reserve(rMeshReader.GetNumElements());
-    }
-    this->mElementJacobianDeterminants.reserve(rMeshReader.GetNumElements());
-    this->mBoundaryElementJacobianDeterminants.reserve(rMeshReader.GetNumElements());
 
     for (unsigned element_index=0; element_index < (unsigned) rMeshReader.GetNumElements(); element_index++)
     {
@@ -1499,7 +1486,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<E
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
-{
+{    
     for (unsigned i=0; i<this->mElements.size();i++)
     {
         if (!this->mElements[i]->IsDeleted())
@@ -1524,6 +1511,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
         }
     }
 
+    RefreshJacobianCachedData();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1550,22 +1538,32 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(un
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
 {
+    // Make sure we have enough space
     if (ELEMENT_DIM == SPACE_DIM)
     {
-        typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();    
-        while (it != this->GetElementIteratorEnd())
-        {
-            /// \todo: there are two memory copies happening here. Improve it.
-            c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;            
-            (*it)->CalculateJacobian(jacobian);
-            this->mElementJacobians.push_back(jacobian);
+        this->mElementJacobians.resize(this->GetNumAllElements());
+        this->mElementInverseJacobians.resize(this->GetNumAllElements());
+        this->mBoundaryElementInverseJacobians.resize(this->GetNumAllBoundaryElements());
+    }
+    else
+    {
+        this->mCachedWeightedDirection.resize(this->GetNumAllElements());
+    }
+    this->mElementJacobianDeterminants.resize(this->GetNumAllElements());
+    this->mBoundaryElementJacobianDeterminants.resize(this->GetNumAllBoundaryElements());
+    
+    // Update caches
+    if (ELEMENT_DIM == SPACE_DIM)
+    {
+        for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();    
+              it != this->GetElementIteratorEnd();
+              it++)
+        {       
+            (*it)->CalculateJacobian(this->mElementJacobians[(*it)->GetIndex()]);
 
-            (*it)->CalculateInverseJacobian(jacobian);
-            this->mElementInverseJacobians.push_back(jacobian);
+            (*it)->CalculateInverseJacobian(this->mElementInverseJacobians[(*it)->GetIndex()]);
             
-            this->mElementJacobianDeterminants.push_back( (*it)->CalculateJacobianDeterminant() );
-
-            it++;
+            this->mElementJacobianDeterminants[(*it)->GetIndex()] = (*it)->CalculateJacobianDeterminant();
         }
         
         //while for boundary elements
@@ -1576,18 +1574,18 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
     }
     
     // determinants
-    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();    
-    while (it != this->GetElementIteratorEnd())
+    for( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();
+         it != this->GetElementIteratorEnd();
+         it++)
     {
-        this->mElementJacobianDeterminants.push_back( (*it)->CalculateJacobianDeterminant() );    
-        it++;
+        this->mElementJacobianDeterminants[(*it)->GetIndex()] =  (*it)->CalculateJacobianDeterminant();    
     }    
 
-    typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator itb = this->GetBoundaryElementIteratorBegin();    
-    while (itb != this->GetBoundaryElementIteratorEnd())
+    for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator itb = this->GetBoundaryElementIteratorBegin();    
+          itb != this->GetBoundaryElementIteratorEnd();
+          itb++)
     {
-        this->mBoundaryElementJacobianDeterminants.push_back( (*itb)->CalculateJacobianDeterminant() );
-        itb++;
+        this->mBoundaryElementJacobianDeterminants[(*itb)->GetIndex()] =  (*itb)->CalculateJacobianDeterminant();
     }    
 
     
@@ -1612,9 +1610,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(unsig
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForElement(unsigned elementIndex) const
 {
-    return this->mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant();
-    //assert(elementIndex < this->mElementJacobianDeterminants.size());
-    //return this->mElementJacobianDeterminants[elementIndex];
+    assert(elementIndex < this->mElementJacobianDeterminants.size());
+    assert( this->mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant() == this->mElementJacobianDeterminants[elementIndex]);
+    return this->mElementJacobianDeterminants[elementIndex];
 
 }
 

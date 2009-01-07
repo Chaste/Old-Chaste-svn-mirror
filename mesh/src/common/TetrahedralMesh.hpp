@@ -82,14 +82,6 @@ private:
 
 //    std::vector<unsigned> mNodesPerProcessor;
 
-    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementJacobians;
-    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
-    std::vector<double> mElementJacobianDeterminants;
-
-    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mBoundaryElementInverseJacobians;
-    std::vector<double> mBoundaryElementJacobianDeterminants;
-
-    
     /*< Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM */
     std::vector< c_vector<double, SPACE_DIM> > mCachedWeightedDirection; 
 
@@ -97,6 +89,14 @@ private:
     unsigned SolveNodeMapping(unsigned index) const;
     unsigned SolveElementMapping(unsigned index) const;
     unsigned SolveBoundaryElementMapping(unsigned index) const;    
+
+protected:
+    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementJacobians;
+    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
+    std::vector<double> mElementJacobianDeterminants;
+
+    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mBoundaryElementInverseJacobians;
+    std::vector<double> mBoundaryElementJacobianDeterminants;
             
 public:
 
