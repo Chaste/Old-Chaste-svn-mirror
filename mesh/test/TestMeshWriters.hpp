@@ -41,8 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "MutableMesh.hpp"
+#include "CmguiWriter.hpp"
 #include <cmath>
-//#include <iostream>
 
 typedef TrianglesMeshReader<3,3> TRI_READ_3;
 typedef TrianglesMeshReader<2,2> TRI_READ_2;
@@ -295,6 +295,20 @@ public:
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U);
     }
 
+    void TestCmguiWriter() throw(Exception)
+    {
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        CmguiWriter writer("TestCmguiWriter", "cube_2mm_12_elements");
+        
+        TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriter/";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exnode mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exelem").c_str()), 0);
+    }
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_
