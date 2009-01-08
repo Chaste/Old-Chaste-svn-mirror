@@ -135,6 +135,13 @@ public:
      */
     void ReMesh(NodeMap& elementMap);
 
+    /**
+     * Helper method for ReMesh to perform the T-1 Swap
+     * @param NodeA one of the nodes to perform the swap with 
+     *        NodeB the other node to perform the swap
+     */  
+    void T1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    
 //    /**
 //     * Alternative version of the ReMesh() method, which does not require a NodeMap. 
 //     * 
@@ -440,6 +447,22 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
     {
         /// \todo put code for remeshing in 3D here (see #827)
     }    
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::T1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+{
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert( SPACE_DIM==2 ); // only works in 2D at present
+    assert( ELEMENT_DIM == SPACE_DIM );
+    #undef COVERAGE_IGNORE
+
+    // Find elements containing nodes A and B
+    
+    // Move Nodes A to C and node B to D.
+    
+    // Restructure elements -- Remember to update nodes and elements
 }
 
 //
