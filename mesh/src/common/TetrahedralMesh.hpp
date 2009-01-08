@@ -91,7 +91,6 @@ protected:
     std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
     std::vector<double> mElementJacobianDeterminants;
 
-    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mBoundaryElementInverseJacobians;
     std::vector<double> mBoundaryElementJacobianDeterminants;
             
 public:
@@ -285,8 +284,7 @@ public:
     void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;    
     void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;    
     double GetJacobianDeterminantForElement(unsigned elementIndex) const;    
-
-    void GetInverseJacobianForBoundaryElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;        
+        
     double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const;
 
     /**

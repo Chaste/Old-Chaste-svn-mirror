@@ -1541,7 +1541,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
     {
         this->mElementJacobians.resize(this->GetNumAllElements());
         this->mElementInverseJacobians.resize(this->GetNumAllElements());
-        this->mBoundaryElementInverseJacobians.resize(this->GetNumAllBoundaryElements());
     }
     else
     {
@@ -1611,13 +1610,6 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForElement
     assert( this->mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant() == this->mElementJacobianDeterminants[elementIndex]);
     return this->mElementJacobianDeterminants[elementIndex];
 }
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForBoundaryElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
-{
-    assert(elementIndex < this->mBoundaryElementInverseJacobians.size());    
-    rInverseJacobian = this->mBoundaryElementInverseJacobians[elementIndex];
-}    
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const
