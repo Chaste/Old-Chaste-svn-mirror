@@ -186,13 +186,7 @@ public:
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    virtual TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
-    
-    virtual bool GetWriteVoronoiData();
-    
-    virtual bool UseAreaBasedDampingConstant();
-    
-    virtual bool GetWriteTissueAreas();    
+    virtual TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0; 
 
     class Iterator; // Forward declaration; see below
 
@@ -591,24 +585,6 @@ template<unsigned DIM>
 bool AbstractTissue<DIM>::HasGhostNodes()
 {
     return mTissueContainsGhostNodes;
-}
-
-template<unsigned DIM>
-bool AbstractTissue<DIM>::GetWriteVoronoiData()
-{
-    return false;
-}
-
-template<unsigned DIM>
-bool AbstractTissue<DIM>::UseAreaBasedDampingConstant()
-{
-    return false;
-}
-
-template<unsigned DIM>
-bool AbstractTissue<DIM>::GetWriteTissueAreas()
-{
-    return false;
 }
 
 template<unsigned DIM>
