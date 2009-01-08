@@ -40,8 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class contains all the things common to standard cell cycle
- * ODE models for intracellular protein concentrations (long the lines
- * of Tyson & Novak). Such as solving the ODEs until a stopping condition is met etc.
+ * ODE models for intracellular protein concentrations (along the lines
+ * of Tyson & Novak).
+ * Such as solving the ODEs until a stopping condition is met etc.
  */
 class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel
 {
@@ -94,6 +95,7 @@ public:
 
     /**
      * Default UpdateCellCyclePhase() method for an ODE-based cell cycle model.
+     * This method calls SolveOdeToTime() for G1 phase and adds time for the other phases.
      *
      * Can be overridden if they should do something more subtle.
      */

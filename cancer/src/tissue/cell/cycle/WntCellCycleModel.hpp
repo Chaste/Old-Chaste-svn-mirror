@@ -43,9 +43,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 
 /**
- * Wnt-dependent cell cycle model.
+ * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
+ * singleton object.
  *
- * Note that this class uses C++'s default copying semantics, and so 
+ * This model has a constant length M phase, runs ODEs to decide when
+ * to finish G1 phase then adds time for S and G2 phases. The CellType is
+ * updated dependent on the concentration of beta-catenin (given by one
+ * of the ODEs).
+ *
+ * Note that this class uses C++'s default copying semantics, and so
  * doesn't implement a copy constructor or operator=.
  */
 class WntCellCycleModel : public AbstractWntOdeBasedCellCycleModel
@@ -60,18 +66,18 @@ private:
         archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
         /**
          * Reference can be read or written into once mpOdeSystem has been set up
-         * mpOdeSystem isn't set up by the first constructor, but is by the second 
+         * mpOdeSystem isn't set up by the first constructor, but is by the second
          * which is now utilised by the load_construct at the bottom of this file.
          */
         archive & static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState();
     }
 
     /**
-     * Update the cell type according to the current beta catenin 
+     * Update the cell type according to the current beta catenin
      * level as given by the WntCellCycleOdeSystem.
-     * 
-     * This method carries out the work for UpdateCellType(), but 
-     * does not check the current time, so can also be called by 
+     *
+     * This method carries out the work for UpdateCellType(), but
+     * does not check the current time, so can also be called by
      * Initialise().
      */
     void ChangeCellTypeDueToCurrentBetaCateninLevel();
@@ -116,28 +122,28 @@ public:
                       const CellMutationState& rMutationState);
 
     /**
-     * Returns a new WntCellCycleModel, created with the correct 
+     * Returns a new WntCellCycleModel, created with the correct
      * initial conditions.
      *
-     * This method should be called just after the parent cell cycle model 
+     * This method should be called just after the parent cell cycle model
      * has been reset.
-     * 
+     *
      * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Initialise the cell cycle model at the start of a simulation.
-     * 
-     * This overridden method sets up a new WntCellCycleOdeSystem 
-     * and sets the cell type according to the current beta catenin 
+     *
+     * This overridden method sets up a new WntCellCycleOdeSystem
+     * and sets the cell type according to the current beta catenin
      * level.
      */
     void Initialise();
-    
+
     /**
      * Solve the ODEs up to the current time and return whether a stopping event occurred.
-     * 
+     *
      * @param currentTime the current time
      * @return whether a stopping event occured
      */
@@ -171,9 +177,9 @@ inline void load_construct_data(
     Archive & ar, WntCellCycleModel * t, const unsigned int file_version)
 {
     /**
-     * Invoke inplace constructor to initialise an instance of WntCellCycleModel. 
-     * It doesn't actually matter what values we pass to our standard constructor, 
-     * provided they are valid parameter values, since the state loaded later 
+     * Invoke inplace constructor to initialise an instance of WntCellCycleModel.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
      */
 
