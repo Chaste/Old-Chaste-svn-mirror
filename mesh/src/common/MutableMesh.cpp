@@ -154,7 +154,10 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
             {
                 GetElement(*it)->RefreshJacobianDeterminant(); // to be removed
                 this->mElementJacobianDeterminants[ (*it) ] = GetElement(*it)->CalculateJacobianDeterminant();
-                //GetElement(*it)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*it) ]);
+                if (ELEMENT_DIM == SPACE_DIM)
+                {
+                    GetElement(*it)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*it) ]);
+                }
             }
             catch (Exception e)
             {
