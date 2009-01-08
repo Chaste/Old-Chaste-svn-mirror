@@ -146,7 +146,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
     
     if (concreteMove)
     {
-    //assert(0);
         for (typename Node<SPACE_DIM>::ContainingElementIterator it = this->mNodes[index]->ContainingElementsBegin();
              it != this->mNodes[index]->ContainingElementsEnd();
              ++it)
@@ -154,8 +153,8 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
             try
             {
                 GetElement(*it)->RefreshJacobianDeterminant(); // to be removed
-                this->mElementJacobianDeterminants[ (*it) ] = GetElement(*it)->CalculateJacobianDeterminant();    
-                //std::cout << GetElement(*it)->CalculateJacobianDeterminant() << std::endl;
+                this->mElementJacobianDeterminants[ (*it) ] = GetElement(*it)->CalculateJacobianDeterminant();
+                //GetElement(*it)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*it) ]);
             }
             catch (Exception e)
             {
@@ -175,8 +174,8 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         {
             try
             {
-                GetBoundaryElement(*it)->RefreshJacobianDeterminant();
-                //this->mBoundaryElementJacobianDeterminants[ (*it) ] = GetBoundaryElement(*it)->CalculateJacobianDeterminant();                    
+                GetBoundaryElement(*it)->RefreshJacobianDeterminant(); // to be removed
+                this->mBoundaryElementJacobianDeterminants[ (*it) ] = GetBoundaryElement(*it)->CalculateJacobianDeterminant();                    
             }
             catch (Exception e)
             {
@@ -262,8 +261,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         unsigned targetIndex,
         bool concreteMove)
 {
-    //assert(0);
-
     if (this->mNodes[index]->IsDeleted())
     {
         EXCEPTION("Trying to move a deleted node");
@@ -322,6 +319,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
 
             this->GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed
             this->mElementJacobianDeterminants[ (*element_iter) ] = this->GetElement(*element_iter)->CalculateJacobianDeterminant();
+            this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*element_iter) ]);
             if (concreteMove)
             {
                 this->GetElement(*element_iter)->ReplaceNode(this->mNodes[index], this->mNodes[targetIndex]);
@@ -340,7 +338,8 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
              boundary_element_iter++)
     {
 
-        this->GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove);
+        this->GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed
+        this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = this->GetBoundaryElement(*boundary_element_iter)->CalculateJacobianDeterminant();
         if (concreteMove)
         {
             this->GetBoundaryElement(*boundary_element_iter)->ReplaceNode(this->mNodes[index], this->mNodes[targetIndex]);
@@ -367,8 +366,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         else
         {
             this->GetElement(*element_iter)->ZeroJacobianDeterminant();  // to be removed
-            assert(this->GetElement(*element_iter)->CalculateJacobianDeterminant() == 0.0);
-            this->mElementJacobianDeterminants[ (*element_iter) ] = this->GetElement(*element_iter)->CalculateJacobianDeterminant();
+            this->mElementJacobianDeterminants[ (*element_iter) ] = 0.0;
         }
     }
 
@@ -387,11 +385,13 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         if (concreteMove)
         {
             this->GetBoundaryElement(*boundary_element_iter)->MarkAsDeleted();
+            this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = 0.0; //This used to be done in MarkAsDeleted
             mDeletedBoundaryElementIndices.push_back(*boundary_element_iter);
         }
         else
         {
-            this->GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();
+            this->GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();  // to be removed
+            this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = 0.0;
             this->GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
         }
     }
@@ -399,7 +399,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
     if (concreteMove)
     {
         this->mNodes[index]->MarkAsDeleted();
-        mDeletedNodeIndices.push_back(index);
+        mDeletedNodeIndices.push_back(index);        
     }
 }
 

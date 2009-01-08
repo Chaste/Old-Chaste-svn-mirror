@@ -248,6 +248,13 @@ public:
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
         TS_ASSERT_DELTA(p_element->CalculateJacobianDeterminant(), 0.1, 1e-6);
+        
+        TS_ASSERT_EQUALS(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()),
+                         p_element->CalculateJacobianDeterminant());
+        c_matrix<double, 1, 1> cached_jacobian, jacobian;
+        p_element->CalculateJacobian(jacobian);
+        mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian);
+        TS_ASSERT_EQUALS(jacobian(0,0), cached_jacobian(0,0));
 
         Node<1>* p_node2 = mesh.GetNode(1);
         TS_ASSERT_EQUALS(p_node2->GetNumContainingElements(), 2u);
@@ -262,6 +269,12 @@ public:
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2U);
         TS_ASSERT_DELTA(p_element->CalculateJacobianDeterminant(), 0.1, 1e-6);
+        
+        TS_ASSERT_EQUALS(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()),
+                         p_element->CalculateJacobianDeterminant());
+        p_element->CalculateJacobian(jacobian);
+        mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian);
+        TS_ASSERT_EQUALS(jacobian(0,0), cached_jacobian(0,0));
 
         // There should be no more containing elements
         TS_ASSERT_EQUALS(++elt_iter, p_node2->ContainingElementsEnd());

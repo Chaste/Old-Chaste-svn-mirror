@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cfloat>
 #include <iostream>
 #include <iomanip>
-#include <assert.h>
+#include <cassert>
 
 const double smidge=1e-10;
 

@@ -282,11 +282,11 @@ public:
 
     void RefreshJacobianCachedData();
 
-    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rJacobian) const;    
+    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;    
     void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;    
     double GetJacobianDeterminantForElement(unsigned elementIndex) const;    
 
-    void GetInverseJacobianForBoundaryElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rInverseJacobian) const;        
+    void GetInverseJacobianForBoundaryElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;        
     double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const;
 
     /**
