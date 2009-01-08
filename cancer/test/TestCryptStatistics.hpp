@@ -95,9 +95,7 @@ public:
 
         for (unsigned i=0; i<test_section.size(); i++)
         {
-            TissueCell* cell = test_section[i];
-            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(),
-                              expected_indices[i]);
+            TS_ASSERT_EQUALS(test_section[i]->GetLocationIndex(), expected_indices[i]);
         }
 
 
@@ -111,9 +109,7 @@ public:
 
         for (unsigned i=0; i<test_section_vertical.size(); i++)
         {
-            TissueCell* cell = test_section_vertical[i];
-            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(),
-                              expected_indices_vertical[i]);
+            TS_ASSERT_EQUALS(test_section_vertical[i]->GetLocationIndex(), expected_indices_vertical[i]);
         }
 
         std::vector< TissueCell* > test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
@@ -125,9 +121,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic.size(); i++)
         {
-            TissueCell* cell = test_section_periodic[i];
-            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(),
-                              expected_indices_periodic[i]);
+            TS_ASSERT_EQUALS(test_section_periodic[i]->GetLocationIndex(), expected_indices_periodic[i]);
         }
 
         std::vector< TissueCell* > test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
@@ -139,9 +133,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_2.size(); i++)
         {
-            TissueCell* cell = test_section_periodic_2[i];
-            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(),
-                              expected_indices_periodic_2[i]);
+            TS_ASSERT_EQUALS(test_section_periodic_2[i]->GetLocationIndex(), expected_indices_periodic_2[i]);
         }
 
         // Test an overwritten method
@@ -153,9 +145,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_3.size(); i++)
         {
-            TissueCell* cell = test_section_periodic_3[i];
-            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(),
-                              expected_indices_periodic_3[i]);
+            TS_ASSERT_EQUALS(test_section_periodic_3[i]->GetLocationIndex(), expected_indices_periodic_3[i]);
         }
     }
 

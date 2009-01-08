@@ -29,9 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define VERTEXMESH_HPP_
 
 #include <iostream>
-#include <vector>
 #include <map>
-#include <set>
 #include <algorithm>
 
 #include <boost/serialization/access.hpp>
@@ -41,11 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexElement.hpp"
 #include "BoundaryElement.hpp"
 #include "NodeMap.hpp"
-#include "Node.hpp"
-#include "Exception.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "MutableMesh.hpp"
-#include "VoronoiTessellation.hpp"
 
 /**
  * A vertex-based mesh class, for use in vertex-based tissue simulations.
@@ -67,15 +60,21 @@ private:
     /** Create correspondences between VertexElements and Nodes in the mesh. */
     void SetupVertexElementsOwnedByNodes();
     
+    /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangment. */
+    double mThresholdDistance;
+    
 public:
 
     /**
      * Default constructor.
      * 
      * @param nodes vector of pointers to nodes
-     * @param vertexElements  vector of pointers to VertexElements
+     * @param vertexElements vector of pointers to VertexElements
+     * @param thresholdDistance the minimum threshold distance for element rearrangment (defaults to 0.01)
      */
-    VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements);
+    VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
+               std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements,
+               double thresholdDistance=0.01);
     
     /**
      * Destructor.
@@ -162,24 +161,25 @@ public:
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
-                                               std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements)
+                                               std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
+                                               double thresholdDistance)
+    : mAllocatedMemory(false),
+      mThresholdDistance(thresholdDistance)
 {
     Clear();
-    for (unsigned index=0; index<nodes.size(); index++)
+    for (unsigned node_index=0; node_index<nodes.size(); node_index++)
     {
-        Node<SPACE_DIM>* temp_node = nodes[index];
+        Node<SPACE_DIM>* temp_node = nodes[node_index];
         mNodes.push_back(temp_node);
     }
     
-    for (unsigned index=0; index<vertexElements.size(); index++)
+    for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertexElements[index];
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertexElements[elem_index];
         mElements.push_back(temp_vertex_element);
     }
     
     SetupVertexElementsOwnedByNodes();
-    
-    mAllocatedMemory = false;
 };
 
 
@@ -190,11 +190,11 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
     unsigned node_index = 0;
     
     // Create the nodes
-    for (unsigned j=0;j<=2*numUp+1;j++)
+    for (unsigned j=0; j<=2*numUp+1; j++)
     {
         if (j%2 == 0)
         {
-            for (unsigned i=1;i<=3*numAcross+1;i+=2)
+            for (unsigned i=1; i<=3*numAcross+1; i+=2)
             {
                 if (j!=0 || i!= 3*numAcross+1)
                 {
@@ -209,13 +209,13 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
         }
         else 
         {
-            for (unsigned i=0;i<=3*numAcross+1;i+=2)
+            for (unsigned i=0; i<=3*numAcross+1; i+=2)
             {
                 if ((j!=2*numUp+1 || i != 0) && (j!=2*numUp+1 || i!= 3*numAcross+1))
                 {
                     if (i%3 != 2)
                     {
-                        Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)),j/2.0);
+                        Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
                         mNodes.push_back(p_node);
                         node_index++;
                     }
@@ -230,16 +230,16 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
     unsigned node_indices[6];
     unsigned element_index;
     
-    for (unsigned j=0;j<numUp;j++)
+    for (unsigned j=0; j<numUp; j++)
     {
         {
-            for (unsigned i=0; i<numAcross;i++)
+            for (unsigned i=0; i<numAcross; i++)
             {
                 element_index=j*numAcross+i;
                 
                 if (numAcross%2==0) // numAcross is even
                 {
-                    if (j == 0)     // Bottom row
+                    if (j == 0)     // bottom row
                     {
                         if (i%2 == 0) // even
                         {
@@ -265,7 +265,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
                 }
                 else // numAcross is odd
                 {
-                    if (i%2 == 0) //Even
+                    if (i%2 == 0) // even
                     {
                         node_indices[0] = 2*j*(numAcross+1)+i;
                     }
@@ -428,7 +428,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                 new_index++;
             }
         }
-        
+
         /*
          * We do not need to call Clear() and remove all current data, since
          * cell birth, rearrangement and death result only in local remeshing
@@ -442,12 +442,74 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
          * Finally (or should this be at the start?), we should perform any 
          * cell rearrangements.
          */
+
+        // Start of cell rearrangement code...
+        
+        // Loop over elements
+        for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
+        {
+            c_vector<double, SPACE_DIM> current_node;
+            c_vector<double, SPACE_DIM> anticlockwise_node;
+            
+            unsigned num_nodes = mElements[elem_index]->GetNumNodes();
+
+            // Loop over element vertices
+            for (unsigned local_index=0; local_index<num_nodes; local_index++)
+            {
+                // Find locations of current node and anticlockwise node
+                current_node = mElements[elem_index]->GetNodeLocation(local_index);
+                anticlockwise_node = mElements[elem_index]->GetNodeLocation((local_index+1)%num_nodes);
+                
+                // Find distance between nodes
+                double distance_between_nodes = norm_2(current_node - anticlockwise_node);
+
+                if (distance_between_nodes < mThresholdDistance)
+                {
+                    /*
+                     * Compute the locations of two new nodes, placed on either side of the 
+                     * edge E_old formed by nodes current_node and anticlockwise_node, such 
+                     * that the edge E_new formed by the new nodes is the perpendicular bisector 
+                     * of E_old, with |E_new| 'just larger' than mThresholdDistance.
+                     * 
+                     * Note that neither of the new nodes will be boundary nodes.
+                     */
+                     
+                     
+                     /*
+                      * Now determine the pair of elements that are common to both nodes 
+                      * current_node and anticlockwise_node, and the remaining two cells that 
+                      * are individually junctioned at one or the other node.
+                      */
+//                    std::set<unsigned> current_node_elem_indices = mElements[elem_index]->GetNode(local_index)->rGetContainingElementIndices();
+//                    std::set<unsigned> anticlockwise_node_elem_indices = mElements[elem_index]->GetNode((local_index+1)%num_nodes)->rGetContainingElementIndices();
+//                    
+//                    std::set<unsigned> element_indices;
+//                    set_union(current_node_elem_indices.begin(), current_node_elem_indices.end(),
+//                              anticlockwise_node_elem_indices.begin(), anticlockwise_node_elem_indices.end(),
+//                              element_indices.begin());
+
+                    /*
+                     * Next remove nodes current_node and anticlockwise_node and add the two 
+                     * new nodes. It probably makes more sense to just move these nodes to the 
+                     * new node locations, using the UpdateNode() method on VertexElement.
+                     */
+
+                    /*
+                     * Establish connectivity at the new nodes, and update the elements 
+                     * with indices element_indices.
+                     */
+                }            
+            }
+        }        
+        // ... end of cell rearrangement code
     }
     else // 3D
     {
-        /// \todo put code for remeshing in 3D here (see #827)
+        /// \todo put code for remeshing in 3D here
+        //        (see #827, and the 2003 paper by Nagai et al, doi:10.1016/j.jtbi.2003.10.001)
     }    
 }
+  
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::T1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)

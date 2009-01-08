@@ -77,11 +77,21 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
 private:
+
+     /** Area of the element. */
      double mVertexElementArea;
+     
+     /** Perimeter of the element. */
      double mVertexElementPerimeter;
 
 public:
     
+    /**
+     * Constructor.
+     * 
+     * @param index global index of the element
+     * @param nodes vector of Nodes associated with the element
+     */
     VertexElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
         : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
     {
@@ -90,9 +100,17 @@ public:
         mVertexElementPerimeter = DOUBLE_UNSET;
     }
 
+    /**
+     * Destructor.
+     */
     ~VertexElement()
     {}
     
+    /**
+     * Overridden RegisterWithNodes() method.
+     * 
+     * Informs all nodes forming this element that they are in this element.
+     */
     void RegisterWithNodes()
     {
         for (unsigned i=0; i<this->mNodes.size(); i++)
@@ -101,19 +119,29 @@ public:
         }
     }
 
+    /**
+     * Overridden MarkAsDeleted() method.
+     * 
+     * Mark an element as having been removed from the mesh.
+     * Also notify nodes in the element that it has been removed.
+     */
     void MarkAsDeleted()
     {
+        // Mark element as deleted
         this->mIsDeleted = true;
-        // Update nodes in this element so they know they are not contained by us
+        
+        // Update nodes in the element so they know they are not contained by it
         for (unsigned i=0; i<this->GetNumNodes(); i++)
         {
             this->mNodes[i]->RemoveElement(this->mIndex);
         }
     }
 
-    /** Update node at the given index
-     *  @param rIndex is an local index to which node to change
-     *  @param pNode is a pointer to the replacement node
+    /** 
+     * Update node at the given index.
+     * 
+     * @param rIndex is an local index to which node to change
+     * @param pNode is a pointer to the replacement node
      */
     void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
     {
@@ -129,8 +157,10 @@ public:
         this->mNodes[rIndex]->AddElement(this->mIndex);
     }
     
-    /** Deletes node from the given index
-     *  @param rIndex is an local index to which node to remove
+    /** 
+     * Delete a node with given local index.
+     * 
+     * @param rIndex is the local index of the node to remove
      */
     void DeleteNode(const unsigned& rIndex)
     {
@@ -146,8 +176,11 @@ public:
         CalculateVertexElementAreaAndPerimeter();
   }
     
-    /** Adds a node on the edge between nodes at rIndex and rIndex + 1
-     *  @param rIndex is an local index after which node is added
+    /** 
+     * Add a node on the edge between nodes at rIndex and rIndex+1.
+     * 
+     * @param rIndex the local index of the node after which the new node is added
+     * @param pNode a pointer to the new node
      */
     void DivideEdge(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
     {
@@ -163,27 +196,32 @@ public:
         
         pNode->SetPoint(point);
         
-        // adds pNode to rIndex+1 element of mNodes pushing the others up.
+        // Add pNode to rIndex+1 element of mNodes pushing the others up.
         this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
 
         // Add element to this node
         this->mNodes[rIndex+1]->AddElement(this->mIndex);
     }
     
-     /**
-     *  Calculate the area and perimeter of the polygon
-     *  Assumes SPACE_DIM = 2
+    /**
+     * Calculate the area and perimeter of the (polygonal) element, 
+     * and store as the member variables mVertexElementArea and 
+     * mVertexElementPerimeter.
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
      */
     void CalculateVertexElementAreaAndPerimeter()
     {
         assert(SPACE_DIM == 2);
-        c_vector<double,SPACE_DIM> current_node,anticlockwise_node; 
+        
+        c_vector<double, SPACE_DIM> current_node;
+        c_vector<double, SPACE_DIM> anticlockwise_node; 
         
         double temp_vertex_element_area = 0;
         double temp_vertex_element_perimeter = 0;
         unsigned number_of_nodes = this->GetNumNodes();
                
-        for (unsigned i=0; i<(number_of_nodes); i++)
+        for (unsigned i=0; i<number_of_nodes; i++)
         {
             // Find locations of current node and anticlockwise node
             current_node = this->GetNodeLocation(i);
@@ -191,8 +229,8 @@ public:
             
             /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
             
-            temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1]
-                -anticlockwise_node[0]*current_node[1]);
+            temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1] 
+                                              - anticlockwise_node[0]*current_node[1]);
                 
             temp_vertex_element_perimeter += norm_2(current_node-anticlockwise_node);
         }
@@ -201,6 +239,9 @@ public:
         mVertexElementPerimeter = temp_vertex_element_perimeter;
     }
     
+    /**
+     * @return mVertexElementArea.
+     */
     double GetVertexElementArea()
     {
         if (mVertexElementArea == DOUBLE_UNSET)
@@ -210,7 +251,10 @@ public:
         
         return mVertexElementArea;
     }
-        
+    
+    /**
+     * @return mVertexElementPerimeter.
+     */        
     double GetVertexElementPerimeter()
     {
         if (mVertexElementPerimeter == DOUBLE_UNSET)
@@ -222,21 +266,26 @@ public:
     }
     
     /**
-     *  Calculate the seconds moments of area of the polygon
-     *  Assumes SPACE_DIM = 2
-     *  @return (Ixx,Iyy,Ixy).
+     * Compute the second moments of area of the (polygonal) element.
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
+     * 
+     * @return (Ixx,Iyy,Ixy).
      */
     c_vector<double, 3> CalculateMoments()
     {
         assert(SPACE_DIM == 2);
+        
         c_vector<double, 3> moments = zero_vector<double>(3);
-        unsigned node_1, node_2;
-        unsigned N = this->GetNumNodes();
+        
+        unsigned node_1;
+        unsigned node_2;
+        unsigned num_nodes = this->GetNumNodes();
 
-        for (unsigned i=0; i<N; i++)
+        for (unsigned i=0; i<num_nodes; i++)
         {
             node_1 = i;
-            node_2 = (i+1)%N;
+            node_2 = (i+1)%num_nodes;
 
             c_vector<double, 2> pos_1 = this->mNodes[node_1]->rGetLocation();
             c_vector<double, 2> pos_2 = this->mNodes[node_2]->rGetLocation();
@@ -265,58 +314,62 @@ public:
 
         return moments;
     }
-    
+
     /**
-     *  Calculate the centroid of the polygon
-     *  Assumes SPACE_DIM = 2
-     *  @return (centroid_x,centroid_y).
+     * Compute the centroid of the (polygonal) element.
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
+     * 
+     * @return (centroid_x,centroid_y).
      */
     c_vector<double, SPACE_DIM> CalculateCentroid()
     {
         assert(SPACE_DIM == 2);
-        c_vector<double, SPACE_DIM> centroid=zero_vector<double>(SPACE_DIM);
-        c_vector<double, SPACE_DIM> current_node,anticlockwise_node; 
+        
+        c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
+        c_vector<double, SPACE_DIM> current_node;
+        c_vector<double, SPACE_DIM> anticlockwise_node; 
         
         double temp_centroid_x = 0;
         double temp_centroid_y = 0;
          
-        unsigned number_of_nodes = this->GetNumNodes();
+        unsigned num_nodes = this->GetNumNodes();
                
-        for (unsigned i=0; i<(number_of_nodes); i++)
+        for (unsigned i=0; i<num_nodes; i++)
         {
             // Find locations of current node and anticlockwise node
             current_node = this->GetNodeLocation(i);
-            anticlockwise_node = this->GetNodeLocation((i+1)%number_of_nodes);
+            anticlockwise_node = this->GetNodeLocation((i+1)%num_nodes);
             
             /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
             
             temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
             temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               
-            
         }
-        
-        //double vertex_area = mVertexElementArea;
+
         double vertex_area = this->VertexElement<2u,2u>::GetVertexElementArea();
         double centroid_coefficient = 1.0/6.0/vertex_area;
         
         centroid(0) = centroid_coefficient*temp_centroid_x;
         centroid(1) = centroid_coefficient*temp_centroid_y;
         
-        return centroid;
-        
+        return centroid;        
     }
     
     /**
-     *  Calculate the vector of the shortest axis - this is the eigenvector 
-     *  associated with the largest eigenvalue of the inertial tensor.
-     *  If the polygon is regular then the eigenvalues are the same so we
-     *  return a random unit vector. 
-     *  Assumes SPACE_DIM = 2
+     * Calculate the vector of the shortest axis of the element. 
+     * This is the eigenvector associated with the largest eigenvalue 
+     * of the inertial tensor. If the polygon is regular then the 
+     * eigenvalues are the same, so we return a random unit vector.
+     *  
+     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
+     *
      *  @return (short_axis_x, short_axis_y).
      */
     c_vector<double, SPACE_DIM> CalculateShortAxis()
     {
         assert(SPACE_DIM == 2);
+        
         c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
         
         c_vector<double, 3> moments = this->VertexElement<2u,2u>::CalculateMoments();
@@ -328,8 +381,8 @@ public:
         // This is always the largest eigenvalue as both eigenvalues are real as it is a 
         // symmetric matrix
         largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;       
-                       
-        if (fabs(discriminant)< 1e-10)
+
+        if (fabs(discriminant) < 1e-10)
         {
             // Returning a random unit vector.
             short_axis(0) = RandomNumberGenerator::Instance()->ranf();
@@ -355,8 +408,7 @@ public:
             }     
         }                                           
             
-        return short_axis;
-        
+        return short_axis;        
     }
     
     

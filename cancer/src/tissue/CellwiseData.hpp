@@ -104,35 +104,49 @@ public:
     static void Destroy();
 
     /**
-     *  Get the value for particular cell and given variable number (defaults
-     *  to zero)
+     * Get the value of CellwiseData for a given cell and variable number.
+     * 
+     * @param pCell pointer to a TissueCell
+     * @param variableNumber the index of CellwiseData whose value is required (defaults to zero)
+     * 
+     * @return the value of CellwiseData.
      */
     double GetValue(TissueCell* pCell, unsigned variableNumber=0);
 
     /**
-     *  Set the value for particular node and given variable number (defaults
-     *  to zero)
+     *  Set the value for a given node and variable number.
+     * 
+     * @param value the value to set
+     * @param pNode pointer to the Node
+     * @param variableNumber the index of CellwiseData whose value is set (defaults to zero)
      */
     void SetValue(double value, Node<DIM>* pNode, unsigned variableNumber=0);
 
     /**
      *  Set the Tissue. Must be called before GetValue().
+     * 
+     * @param rTissue reference to the Tissue
      */
     void SetTissue(MeshBasedTissue<DIM>& rTissue);
 
     /**
-     *  Gets the tissue used in data.
+     *  @return reference to the Tissue.
      */
     MeshBasedTissue<DIM>& rGetTissue();
 
     /**
      *  Set the number of variables to be stored per cell. The constructor
-     *  assumes 1 variable so only really needs to be called if num_vars > 1
+     *  assumes 1 variable so only really needs to be called if numVars > 1.
+     * 
+     * @param numNodes number of nodes in the tissue
+     * @param numVars number of variables     * 
      */
     void SetNumNodesAndVars(unsigned numNodes, unsigned numVars);
 
     /**
-     *  Force the data to return given values for all cells (only for testing)
+     *  Force the data to return given values for all cells (only for testing).
+     * 
+     * @param values vector of CellwiseData values
      */
     void SetConstantDataForTesting(std::vector<double> values);
 

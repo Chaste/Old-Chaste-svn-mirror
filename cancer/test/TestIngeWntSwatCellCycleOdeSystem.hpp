@@ -648,7 +648,7 @@ public:
         simulator.AddCellKiller(&cell_killer);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+//        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();

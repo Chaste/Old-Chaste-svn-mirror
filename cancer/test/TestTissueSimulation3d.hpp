@@ -312,7 +312,7 @@ public:
 
             TS_ASSERT_EQUALS(num_cells, 8u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
-            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u))[2], 0.791668, 1e-6);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], 0.791668, 1e-6);
 
             delete p_simulator;
         }
@@ -328,7 +328,7 @@ public:
             TS_ASSERT_EQUALS(num_cells, 65u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
             TissueCell cell = p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u);
-            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(cell)[2], 0.930292, 1e-6);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], 0.930292, 1e-6);
 
             delete p_simulator;
         }

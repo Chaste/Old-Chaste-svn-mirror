@@ -32,7 +32,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
                   const std::vector<TissueCell>& rCells,
                   bool deleteMesh,
                   bool validate)
-             : AbstractTissue<DIM>(rCells),
+             : AbstractCellCentreBasedTissue<DIM>(rCells),
                mrMesh(rMesh),
                mpVoronoiTessellation(NULL),
                mDeleteMesh(deleteMesh),
@@ -431,11 +431,11 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                                bool outputCellCyclePhases,
                                                bool outputCellAncestors)
 {
-    AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates,
-                                             outputCellTypes,
-                                             outputCellVariables,
-                                             outputCellCyclePhases,
-                                             outputCellAncestors);
+    AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(outputCellMutationStates,
+                                                            outputCellTypes,
+                                                            outputCellVariables,
+                                                            outputCellCyclePhases,
+                                                            outputCellAncestors);
 
     // Write element data to file
 

@@ -561,9 +561,9 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::BeginEvent(TESSELLATION);
         if (mrTissue.HasMesh())
         {
-            if ( (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteVoronoiData()
-                 || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UseAreaBasedDampingConstant()
-                 || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteTissueAreas() )
+            if (    mrTissue.GetWriteVoronoiData()
+                 || mrTissue.UseAreaBasedDampingConstant()
+                 || mrTissue.GetWriteTissueAreas() )
             {
                 (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->CreateVoronoiTessellation();
             }

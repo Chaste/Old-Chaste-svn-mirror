@@ -11,6 +11,7 @@ TestNutrientPdes.hpp
 TestTissueSimulationNotForRelease.hpp
 TestTissueSimulationWithNutrients.hpp
 TestTissueSimulationWithNutrientsAssembler.hpp
+TestTissueSimulationWithVertexBasedTissue.hpp
 TestVertexBasedTissue.hpp
 TestVertexMesh.hpp
 TestVertexMeshWriter2d.hpp

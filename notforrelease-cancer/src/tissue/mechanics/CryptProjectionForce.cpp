@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptProjectionForce.hpp"
 #include "MeshBasedTissue.hpp"
 #include "WntConcentration.hpp"
-#include "CancerParameters.hpp"
 
 CryptProjectionForce::CryptProjectionForce()
    : MeinekeInteractionForce<2>()
@@ -59,7 +58,7 @@ void CryptProjectionForce::UpdateNode3dLocationMap(AbstractTissue<2>& rTissue)
         unsigned node_index = cell_iter->GetLocationIndex();
 
         // Get 3D location
-        node_location_2d = rTissue.GetLocationOfCell(*cell_iter);
+        node_location_2d = rTissue.GetNode(cell_iter->GetLocationIndex())->rGetLocation();
 
         node_location_3d[0] = node_location_2d[0];
         node_location_3d[1] = node_location_2d[1];
@@ -146,9 +145,9 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     // connecting them grows linearly with time, until 1 hour after division
     if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
-        // The static_cast of rTissue to a MeshBasedTissue below should always be okay, 
+        // The static_cast of rTissue to a MeshBasedTissue below should always be okay,
         // since we have previously asserted that the tissue has a mesh
-        
+
         // The spring rest length increases from a predefined small parameter to a normal rest length of 1.0,
         // over a period of one hour
         if ( (static_cast<MeshBasedTissue<2>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
@@ -163,7 +162,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
             (static_cast<MeshBasedTissue<2>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
         }
     }
-    
+
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
@@ -257,7 +256,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
             if (cell_iter->GetCellType()==STEM)
             {
                 c_vector<double, 2>  wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
-                unsigned index = rTissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+                unsigned index = cell_iter->GetLocationIndex();
 
                 rForces[index] += wnt_chemotactic_force;
             }

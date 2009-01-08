@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NODEBASEDTISSUE_HPP_
 #define NODEBASEDTISSUE_HPP_
 
-#include "AbstractTissue.hpp"
+#include "AbstractCellCentreBasedTissue.hpp"
 #include "AbstractMesh.hpp" // for constructor which takes in a mesh
 
 #include <boost/serialization/access.hpp>
@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-class NodeBasedTissue : public AbstractTissue<DIM>
+class NodeBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
     friend class TestNodeBasedTissue;
 private:
@@ -56,7 +56,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractCellCentreBasedTissue<DIM> >(*this);
 
         Validate(); // paranoia
     }
@@ -68,18 +68,29 @@ private:
 
     /**
      * Move the node with a given index to a new point in space.
+     * 
+     * @param index the index of the node to be moved
+     * @param point the new target location of the node
      */
     void SetNode(unsigned index, ChastePoint<DIM> point);
 
 
 public:
 
+    /**
+     * Deafult constructor.
+     * 
+     * @param rNodes a vector of Nodes
+     * @param rCells a vector of TissueCells
+     */
     NodeBasedTissue(const std::vector<Node<DIM> >& rNodes, 
-                 const std::vector<TissueCell>& rCells);
+                    const std::vector<TissueCell>& rCells);
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
      * dealt with by the serialize method of our base class.
+     * 
+     * @param rNodes a vector of Nodes
      */
     NodeBasedTissue(const std::vector<Node<DIM> >& rNodes);
 
@@ -89,9 +100,13 @@ public:
      * 
      * This constructor is a helper constructor: it is generally easier for the user to
      * create a mesh than a set of nodes.
+     * 
+     * @param rMesh a mesh
+     * @param rCells a vector of TissueCells
+     * 
      */
     NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
-                 const std::vector<TissueCell>& rCells);
+                    const std::vector<TissueCell>& rCells);
 
     /**
      * Destructor.
@@ -100,12 +115,16 @@ public:
     {}
 
     /**
-     * Get the number of nodes in the tissue.
+     * @return the number of nodes in the tissue.
      */
     unsigned GetNumNodes();
 
     /**
-     * Get a pointer to the node with a given index.
+     * Overridden GetNode() method.
+     * 
+     * @param index  global index of the specified node
+     *
+     * @return a pointer to the node with a given index.
      */
     Node<DIM>* GetNode(unsigned index);
 
@@ -125,7 +144,7 @@ public:
      * the equivalent of a 'remesh' is performed! So don't try iterating over cells or anything
      * like that.
      *
-     *  @return number of cells removed
+     * @return number of cells removed
      */
     unsigned RemoveDeadCells();
 
@@ -141,11 +160,15 @@ public:
 
     /**
      * Method for getting all nodes in the tissue.
+     * 
+     * @return vector of Nodes
      */ 
     std::vector<Node<DIM> >& rGetNodes();
     
     /**
      * Method for getting all nodes in the tissue (for archiving).
+     * 
+     * @return vector of Nodes
      */
     const std::vector<Node<DIM> >& rGetNodes() const;
 

@@ -337,17 +337,17 @@ public:
     c_vector<unsigned, 5> GetCellCyclePhaseCount();
 
     /**
-     * Get the timestep of the simulation
+     * @return the timestep of the simulation
      */
     double GetDt();
     
     /**
-     * Get the number of births that have occurred in the entire simulation (since t=0)
+     * @return the number of births that have occurred in the entire simulation (since t=0)
      */
     unsigned GetNumBirths();
     
     /**
-     * Get the number of deaths that have occurred in the entire simulation (since t=0).
+     * @return the number of deaths that have occurred in the entire simulation (since t=0).
      */
     unsigned GetNumDeaths();
     
@@ -364,7 +364,7 @@ public:
     void SetDt(double dt);
     
     /**
-     * Sets the end time and resets the timestep to be endtime/100.
+     * Set the end time and resets the timestep to be endtime/100.
      * 
      * @param endtime the end time to use
      */
@@ -373,12 +373,12 @@ public:
     /**
      * Set the output directory of the simulation.
      * 
-     * @outputDirectory the output directory to use
+     * @param outputDirectory the output directory to use
      */
     void SetOutputDirectory(std::string outputDirectory);
 
     /**
-     * Sets the ratio of the number of actual timesteps to the number of timesteps
+     * Set the ratio of the number of actual timesteps to the number of timesteps
      * at which results are written to file. Default value is set to 1 by the constructor.
      * 
      * @param samplingTimestepMultiple the ratio to use
@@ -456,17 +456,17 @@ public:
     void Solve();
 
     /**
-     * Get reference to the tissue.
+     * @return reference to the tissue.
      */
     AbstractTissue<DIM>& rGetTissue();
 
     /**
-     * Get const reference to the tissue (used in archiving).
+     * @return const reference to the tissue (used in archiving).
      */
     const AbstractTissue<DIM>& rGetTissue() const;
 
     /**
-     * Get const reference to mForceCollection (used in archiving).
+     * @return const reference to mForceCollection (used in archiving).
      */
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
     

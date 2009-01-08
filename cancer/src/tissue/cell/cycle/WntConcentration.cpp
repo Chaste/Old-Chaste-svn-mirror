@@ -81,16 +81,20 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     assert(pCell!=NULL);
 
     double height;
-
+    unsigned node_index = pCell->GetLocationIndex();
+    
     if (mWntType==RADIAL)
     {
         double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
         double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
-        height = a*pow(norm_2(mpTissue->GetLocationOfCell(*pCell)),b);
+        
+        // Note that this only works correctly for a cell-centre-based tissue (see #827)       
+        height = a*pow(norm_2(mpTissue->GetNode(node_index)->rGetLocation()), b);
     }
     else
     {
-        height = (mpTissue->GetLocationOfCell(*pCell))(1);// y-coord.
+        // Note that this only works correctly for a cell-centre-based tissue (see #827)
+        height = (mpTissue->GetNode(node_index)->rGetLocation())(1);// y-coord.
     }
     return GetWntLevel(height);
 }
@@ -106,7 +110,9 @@ c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
     assert(mTypeSet);
     assert(pCell!=NULL);
 
-    c_vector<double,2> location_of_cell = mpTissue->GetLocationOfCell(*pCell);
+    // Note that this only works correctly for a cell-centre-based tissue (see #827)
+    unsigned node_index = pCell->GetLocationIndex();    
+    c_vector<double,2> location_of_cell = mpTissue->GetNode(node_index)->rGetLocation();
 
     return GetWntGradient(location_of_cell);
 }

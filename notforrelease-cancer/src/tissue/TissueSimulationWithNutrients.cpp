@@ -486,7 +486,7 @@ unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCel
     }
 
     // Find new element, using the previous one as a guess
-    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCell(rCell);
+    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetNode(rCell.GetLocationIndex())->rGetLocation();
     unsigned new_element_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_cell_position, false, test_elements);
 
     // Update mCellNutrientElementMap

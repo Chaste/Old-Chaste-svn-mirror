@@ -46,11 +46,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The concrete models all need to operate with a WntConcentration
  * singleton object.
  *
- * This models have a constant length M phase, run ODEs to decide when
- * to finish G1 phase then adds time for S and G2 phases
- * (sometimes random amounts of time). The CellType is
- * updated dependent on the concentration of beta-catenin (given by one
- * of the ODEs).
+ * These models have a constant length M phase, run ODEs to decide when
+ * to finish G1 phase, then add time for S and G2 phases (in some classes,
+ * random periods of time). The CellType is updated dependent on the 
+ * concentration of beta-catenin (given by one of the ODEs).
  */
 class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {

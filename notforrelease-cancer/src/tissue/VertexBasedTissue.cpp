@@ -31,26 +31,13 @@ template<unsigned DIM>
 VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                                           const std::vector<TissueCell>& rCells,
                                           bool validate)
-    : mCells(rCells.begin(), rCells.end()),
+    : AbstractTissue<DIM>(rCells),
       mrMesh(rMesh)
-{
-    // There must be at least one cell
-    assert(mCells.size() > 0);
-
-    // Set up the node map
-    for (std::list<TissueCell>::iterator it = mCells.begin();
-         it != mCells.end();
-         ++it)
-    {
-        /// \todo Check it points to a real cell (see #430),
-        /// if not do:
-        /// it = this->mCells.erase(it); --it; continue; 
-        unsigned index = it->GetLocationIndex();
-        mLocationCellMap[index] = &(*it);
-    }
-    
+{    
     // This must always be true
     assert( this->mCells.size() <= mrMesh.GetNumElements() );
+
+    this->mTissueContainsMesh = true;
 
     if (validate)
     {
@@ -70,25 +57,6 @@ VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElement(unsigned elementInde
 }
 
 template<unsigned DIM>
-std::list<TissueCell>& VertexBasedTissue<DIM>::rGetCells()
-{
-    return mCells;
-}
-
-template<unsigned DIM>
-unsigned VertexBasedTissue<DIM>::GetNumRealCells()
-{
-    unsigned counter = 0;
-    for (typename VertexBasedTissue<DIM>::Iterator cell_iter=this->Begin();
-         cell_iter!=this->End();
-         ++cell_iter)
-    {
-        counter++;
-    }
-    return counter;
-}
-
-template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumNodes()
 {
     return mrMesh.GetNumNodes();
@@ -104,12 +72,6 @@ template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumElements()
 {
     return mrMesh.GetNumElements();
-}
-
-template<unsigned DIM>
-VertexMesh<DIM, DIM>& VertexBasedTissue<DIM>::rGetMesh()
-{
-    return mrMesh;
 }
 
 template<unsigned DIM>
@@ -139,10 +101,10 @@ void VertexBasedTissue<DIM>::Update()
 {
     /// \todo Thought about creating an ElementMap class, but it looks like 
     //        we can just hijack NodeMap for our purposes... in fact, what *is*
-    //        specific to Nodes in NodeMap??
+    //        specific to Nodes in NodeMap?? (see #827)
     NodeMap element_map(mrMesh.GetNumElements());
     mrMesh.ReMesh(element_map);
-    
+
     if (!element_map.IsIdentityMap())
     {
         // Fix up the mappings between TissueCells and VertexElements
@@ -170,7 +132,7 @@ void VertexBasedTissue<DIM>::Validate()
 {
     std::vector<bool> validated_element = std::vector<bool>(this->GetNumElements(), false);
 
-    for (typename VertexBasedTissue<DIM>::Iterator cell_iter=this->Begin();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin();
          cell_iter!=this->End();
          ++cell_iter)
     {
@@ -189,6 +151,104 @@ void VertexBasedTissue<DIM>::Validate()
     }
 }
 
+template<unsigned DIM>
+void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
+                                                 bool outputCellTypes,
+                                                 bool outputCellVariables,
+                                                 bool outputCellCyclePhases,
+                                                 bool outputCellAncestors)
+{
+    std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
+    
+    this->WriteTimeAndNodeResultsToFiles(outputCellMutationStates,
+                                         outputCellTypes,
+                                         outputCellVariables,
+                                         outputCellCyclePhases,
+                                         outputCellAncestors,
+                                         cell_type_counter,
+                                         cell_mutation_state_counter,
+                                         cell_cycle_phase_counter);
+       
+    // Write element data to file
+    *mpElementFile << SimulationTime::Instance()->GetTime() << "\t";
+    for (unsigned elem_index=0; elem_index<GetNumElements(); elem_index++)
+    {
+        if ( !(mrMesh.GetElement(elem_index)->IsDeleted()) )
+        {
+            // First write the number of Nodes belonging to this VertexElement
+            *mpElementFile << mrMesh.GetElement(elem_index)->GetNumNodes() << " ";
+
+            // Then write the global index of each Node in this element
+            unsigned num_nodes_in_this_element = mrMesh.GetElement(elem_index)->GetNumNodes();
+            for (unsigned i=0; i<num_nodes_in_this_element; i++)
+            {
+                *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i) << " ";
+            }
+        }
+    }
+    *mpElementFile << "\n";
+
+    for (unsigned elem_index=0; elem_index<GetNumElements(); elem_index++)
+    {       
+        if (!(mrMesh.GetElement(elem_index)->IsDeleted()))
+        {
+            this->GenerateCellResults(elem_index,
+                                      outputCellMutationStates,
+                                      outputCellTypes,
+                                      outputCellVariables,
+                                      outputCellCyclePhases,
+                                      outputCellAncestors,
+                                      cell_type_counter,
+                                      cell_mutation_state_counter,
+                                      cell_cycle_phase_counter);
+        }
+    }
+    
+    this->WriteCellResultsToFiles(outputCellMutationStates,
+                                  outputCellTypes,
+                                  outputCellVariables,
+                                  outputCellCyclePhases,
+                                  outputCellAncestors,
+                                  cell_type_counter,
+                                  cell_mutation_state_counter,
+                                  cell_cycle_phase_counter);
+}
+
+template<unsigned DIM>
+void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
+                                               bool rCleanOutputDirectory,
+                                               bool outputCellMutationStates,
+                                               bool outputCellTypes,
+                                               bool outputCellVariables,
+                                               bool outputCellCyclePhases,
+                                               bool outputCellAncestors)
+{
+    AbstractTissue<DIM>::CreateOutputFiles(rDirectory,
+                                           rCleanOutputDirectory,
+                                           outputCellMutationStates,
+                                           outputCellTypes,
+                                           outputCellVariables,
+                                           outputCellCyclePhases,
+                                           outputCellAncestors);
+
+    OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
+    mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
+}
+
+template<unsigned DIM>
+void VertexBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
+                                              bool outputCellTypes,
+                                              bool outputCellVariables,
+                                              bool outputCellCyclePhases,
+                                              bool outputCellAncestors)
+{
+    AbstractTissue<DIM>::CloseOutputFiles(outputCellMutationStates,
+                                          outputCellTypes,
+                                          outputCellVariables,
+                                          outputCellCyclePhases,
+                                          outputCellAncestors);
+    mpElementFile->close();
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

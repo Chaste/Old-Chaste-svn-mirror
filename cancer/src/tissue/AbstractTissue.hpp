@@ -129,12 +129,12 @@ public:
     void InitialiseCells();
 
     /**
-     * Get method for mCells.
+     * @return reference to mCells.
      */
     std::list<TissueCell>& rGetCells();
     
     /**
-     * Get method for mCells (used in archiving).
+     * @return const reference to mCells (used in archiving).
      */
     const std::list<TissueCell>& rGetCells() const;
 
@@ -149,7 +149,7 @@ public:
     bool HasGhostNodes();
 
     /**
-     * Get the number of nodes in the tissue.
+     * @return the number of nodes in the tissue.
      * 
      * As this method is pure virtual, it must be overridden 
      * in subclasses.
@@ -157,7 +157,7 @@ public:
     virtual unsigned GetNumNodes()=0;
 
     /**
-     * Get a pointer to the node with a given index.
+     * @return a pointer to the node with a given index.
      * 
      * As this method is pure virtual, it must be overridden 
      * in subclasses.
@@ -165,21 +165,14 @@ public:
      * @param index  global index of the specified node
      */
     virtual Node<DIM>* GetNode(unsigned index)=0;
-
+   
     /**
-     * Get a pointer to the node corresponding to a given TissueCell.
-     */
-    Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
-
-    /**
-     * Find where the given cell is in space.
-     */
-    c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
-    
-    /**
-     *  Get the damping constant for this cell - ie d in drdt = F/d
+     *  Get the damping constant for this cell - ie d in drdt = F/d.
      *  This depends on whether using area-based viscosity has been switched on, and
      *  on whether the cell is a mutant or not
+     * 
+     * @param rCell a TissueCell
+     * @return the damping constant at the TissueCell
      */
     virtual double GetDampingConstant(TissueCell& rCell);
 
@@ -194,6 +187,12 @@ public:
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
     virtual TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
+    
+    virtual bool GetWriteVoronoiData();
+    
+    virtual bool UseAreaBasedDampingConstant();
+    
+    virtual bool GetWriteTissueAreas();    
 
     class Iterator; // Forward declaration; see below
 
@@ -320,20 +319,77 @@ public:
                                    bool outputCellCyclePhases,
                                    bool outputCellAncestors);
 
+    virtual void WriteResultsToFiles(bool outputCellMutationStates,
+                                     bool outputCellTypes,
+                                     bool outputCellVariables,
+                                     bool outputCellCyclePhases,
+                                     bool outputCellAncestors)
+    {}
+
     /**
-     * Write results from the current tissue state to output files.
+     * Write the current time and node results to output files.
      * 
      * @param outputCellMutationStates  whether to output cell mutation state results
      * @param outputCellTypes  whether to output cell type results
      * @param outputCellVariables  whether to output cell-cycle variable results
      * @param outputCellCyclePhases  whether to output cell-cycle phase results
      * @param outputCellAncestors  whether to output cell ancestor results
+     * @param rCellTypeCounter cell type counter
+     * @param rCellMutationStateCounter cell mutation state counter
+     * @param rCellCyclePhaseCounter cell cycle phase counter
      */
-    virtual void WriteResultsToFiles(bool outputCellMutationStates,
-                                     bool outputCellTypes,
-                                     bool outputCellVariables,
-                                     bool outputCellCyclePhases,
-                                     bool outputCellAncestors);
+    void WriteTimeAndNodeResultsToFiles(bool outputCellMutationStates,
+                                        bool outputCellTypes,
+                                        bool outputCellVariables,
+                                        bool outputCellCyclePhases,
+                                        bool outputCellAncestors,
+                                        std::vector<unsigned>& rCellTypeCounter,
+                                        std::vector<unsigned>& rCellMutationStateCounter,
+                                        std::vector<unsigned>& rCellCyclePhaseCounter);
+
+    /**
+     * Generate results for a given cell in the current tissue state to output files.
+     * 
+     * @param locationIndex location index of the cell
+     * @param outputCellMutationStates  whether to output cell mutation state results
+     * @param outputCellTypes  whether to output cell type results
+     * @param outputCellVariables  whether to output cell-cycle variable results
+     * @param outputCellCyclePhases  whether to output cell-cycle phase results
+     * @param outputCellAncestors  whether to output cell ancestor results
+     * @param rCellTypeCounter cell type counter
+     * @param rCellMutationStateCounter cell mutation state counter
+     * @param rCellCyclePhaseCounter cell cycle phase counter
+     */
+    void GenerateCellResults(unsigned locationIndex,
+                             bool outputCellMutationStates,
+                             bool outputCellTypes,
+                             bool outputCellVariables,
+                             bool outputCellCyclePhases,
+                             bool outputCellAncestors,
+                             std::vector<unsigned>& rCellTypeCounter,
+                             std::vector<unsigned>& rCellMutationStateCounter,
+                             std::vector<unsigned>& rCellCyclePhaseCounter);
+
+    /**
+     * Write the current state of each cell to output files.
+     * 
+     * @param outputCellMutationStates  whether to output cell mutation state results
+     * @param outputCellTypes  whether to output cell type results
+     * @param outputCellVariables  whether to output cell-cycle variable results
+     * @param outputCellCyclePhases  whether to output cell-cycle phase results
+     * @param outputCellAncestors  whether to output cell ancestor results
+     * @param rCellTypeCounter cell type counter
+     * @param rCellMutationStateCounter cell mutation state counter
+     * @param rCellCyclePhaseCounter cell cycle phase counter
+     */
+    void WriteCellResultsToFiles(bool outputCellMutationStates,
+                                 bool outputCellTypes,
+                                 bool outputCellVariables,
+                                 bool outputCellCyclePhases,
+                                 bool outputCellAncestors,
+                                 std::vector<unsigned>& rCellTypeCounter,
+                                 std::vector<unsigned>& rCellMutationStateCounter,
+                                 std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**
      * Close any output files.
@@ -538,6 +594,24 @@ bool AbstractTissue<DIM>::HasGhostNodes()
 }
 
 template<unsigned DIM>
+bool AbstractTissue<DIM>::GetWriteVoronoiData()
+{
+    return false;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::UseAreaBasedDampingConstant()
+{
+    return false;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetWriteTissueAreas()
+{
+    return false;
+}
+
+template<unsigned DIM>
 unsigned AbstractTissue<DIM>::GetNumRealCells()
 {
     unsigned counter = 0;
@@ -546,19 +620,6 @@ unsigned AbstractTissue<DIM>::GetNumRealCells()
         counter++;
     }
     return counter;
-}
-
-template<unsigned DIM>
-Node<DIM>* AbstractTissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
-{
-    unsigned node_index = rCell.GetLocationIndex();
-    return GetNode(node_index);
-}
-
-template<unsigned DIM>
-c_vector<double, DIM> AbstractTissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
-{
-    return GetNodeCorrespondingToCell(rCell)->rGetLocation();
 }
 
 template<unsigned DIM>
@@ -779,37 +840,240 @@ void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
+void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
+                                              bool outputCellMutationStates,
                                               bool outputCellTypes,
                                               bool outputCellVariables,
                                               bool outputCellCyclePhases,
-                                              bool outputCellAncestors)
+                                              bool outputCellAncestors,
+                                              std::vector<unsigned>& rCellTypeCounter,
+                                              std::vector<unsigned>& rCellMutationStateCounter,
+                                              std::vector<unsigned>& rCellCyclePhaseCounter)
+{
+    unsigned colour = STEM_COLOUR;
+    if (IsGhostNode(locationIndex) == true)
+    {
+        colour = INVISIBLE_COLOUR;
+    }
+    else
+    {            
+        TissueCell* p_cell = mLocationCellMap[locationIndex];
+        
+        // Cell cycle phase
+        if (outputCellCyclePhases)
+        {
+            switch (p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase())
+            {
+                case G_ZERO_PHASE:
+                    rCellCyclePhaseCounter[0]++;
+                    break;
+                case G_ONE_PHASE:
+                    rCellCyclePhaseCounter[1]++;
+                    break;
+                case S_PHASE:
+                    rCellCyclePhaseCounter[2]++;
+                    break;
+                case G_TWO_PHASE:
+                    rCellCyclePhaseCounter[3]++;
+                    break;
+                 case M_PHASE:
+                    rCellCyclePhaseCounter[4]++;
+                    break;
+                default:
+                    NEVER_REACHED;
+            }
+        }
+        
+        // Cell ancestors
+        if (outputCellAncestors)
+        {
+            colour = p_cell->GetAncestor();
+            if (colour == UNSIGNED_UNSET)
+            {
+                // Set the file to -1 to mark this case.
+                colour = 1;
+                *mpCellAncestorsFile << "-";
+            }
+            *mpCellAncestorsFile << colour << " ";
+        }
+    
+        // Set colour dependent on cell type
+        switch (p_cell->GetCellType())
+        {
+            case STEM:
+                colour = STEM_COLOUR;
+                if (outputCellTypes)
+                {
+                    rCellTypeCounter[0]++;
+                }
+                break;
+            case TRANSIT:
+                colour = TRANSIT_COLOUR;
+                if (outputCellTypes)
+                {
+                    rCellTypeCounter[1]++;
+                }
+                break;
+            case DIFFERENTIATED:
+                colour = DIFFERENTIATED_COLOUR;
+                if (outputCellTypes)
+                {
+                    rCellTypeCounter[2]++;
+                }
+                break;
+            case APOPTOTIC:
+                colour = APOPTOSIS_COLOUR;
+                if (outputCellTypes)
+                {
+                    rCellTypeCounter[3]++;
+                }
+                break;
+            default:
+                NEVER_REACHED;
+        }
+    
+        // Override colours for mutant or labelled cells        
+        CellMutationState mutation = p_cell->GetMutationState();
+        switch (mutation)
+        {
+            case HEALTHY:
+                if (outputCellMutationStates)
+                {
+                    rCellMutationStateCounter[0]++;
+                }
+                break;
+            case APC_ONE_HIT:
+                colour = EARLY_CANCER_COLOUR;
+                if (outputCellMutationStates)
+                {
+                    rCellMutationStateCounter[2]++;
+                }
+                break;
+            case APC_TWO_HIT:
+                colour = LATE_CANCER_COLOUR;
+                if (outputCellMutationStates)
+                {
+                    rCellMutationStateCounter[3]++;
+                }
+                break;
+            case BETA_CATENIN_ONE_HIT:
+                colour = LATE_CANCER_COLOUR;
+                if (outputCellMutationStates)
+                {
+                    rCellMutationStateCounter[4]++;
+                }
+                break;
+            case LABELLED:
+                colour = LABELLED_COLOUR;
+                if (outputCellMutationStates)
+                {
+                    rCellMutationStateCounter[1]++;
+                }
+                break;
+            default:
+                NEVER_REACHED;
+        }
+    
+        if (p_cell->HasApoptosisBegun())
+        {
+            // For any type of cell set the colour to this if it is undergoing apoptosis.
+            colour = APOPTOSIS_COLOUR;
+        }
+    
+        // Write cell variable data to file if required
+        if (outputCellVariables)
+        {
+            std::vector<double> proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
+
+            // Loop over cell positions
+            /// \todo Note that the output format of mpCellVariablesFile has changed, it now
+            //        outputs the location index (either node index or vertex element index) 
+            //        associated with the cell. This is so that this code works for vertex- 
+            //        as well as cell-centre-based tissues (see #827).
+            for (unsigned i=0; i<DIM; i++)
+            {
+                *mpCellVariablesFile << locationIndex << " ";
+            }
+            // Loop over cell variables
+            for (unsigned i=0; i<proteins.size(); i++)
+            {
+                *mpCellVariablesFile << proteins[i] << " ";
+            }
+        }
+    }
+    *mpVizCellTypesFile << colour << " ";
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::WriteCellResultsToFiles(bool outputCellMutationStates,
+                                                  bool outputCellTypes,
+                                                  bool outputCellVariables,
+                                                  bool outputCellCyclePhases,
+                                                  bool outputCellAncestors,
+                                                  std::vector<unsigned>& rCellTypeCounter,
+                                                  std::vector<unsigned>& rCellMutationStateCounter,
+                                                  std::vector<unsigned>& rCellCyclePhaseCounter)
+{
+    *mpVizCellTypesFile << "\n";
+    
+    if (outputCellAncestors)
+    {
+        *mpCellAncestorsFile << "\n";
+    }
+
+    // Write cell mutation state data to file if required
+    if (outputCellMutationStates)
+    {
+        for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+        {
+            mCellMutationStateCount[i] = rCellMutationStateCounter[i];
+            *mpCellMutationStatesFile << rCellMutationStateCounter[i] << "\t";
+        }
+        *mpCellMutationStatesFile << "\n";
+    }
+
+    // Write cell type data to file if required
+    if (outputCellTypes)
+    {
+        for (unsigned i=0; i<NUM_CELL_TYPES; i++)
+        {
+            mCellTypeCount[i] = rCellTypeCounter[i];
+            *mpCellTypesFile << rCellTypeCounter[i] << "\t";
+        }
+        *mpCellTypesFile << "\n";
+    }
+
+    if (outputCellVariables)
+    {
+        *mpCellVariablesFile << "\n";
+    }
+
+    // Write cell cycle phase data to file if required
+    if (outputCellCyclePhases)
+    {
+        for (unsigned i=0; i<5; i++)
+        {
+            mCellCyclePhaseCount[i] = rCellCyclePhaseCounter[i];
+            *mpCellCyclePhasesFile << rCellCyclePhaseCounter[i] << "\t";
+        }
+        *mpCellCyclePhasesFile << "\n";
+    }
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutationStates,
+                                                         bool outputCellTypes,
+                                                         bool outputCellVariables,
+                                                         bool outputCellCyclePhases,
+                                                         bool outputCellAncestors,
+                                                         std::vector<unsigned>& rCellTypeCounter,
+                                                         std::vector<unsigned>& rCellMutationStateCounter,
+                                                         std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetTime();
-
-    // Set up cell type counter
-    unsigned cell_type_counter[mCellTypeCount.size()];
-    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
-    {
-        cell_type_counter[i] = 0;
-    }
-
-    // Set up cell mutation state counter
-    unsigned cell_mutation_state_counter[mCellMutationStateCount.size()];
-    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
-    {
-        cell_mutation_state_counter[i] = 0;
-    }
-
-    // Set up cell cycle phase counter
-    unsigned cell_cycle_phase_counter[5];
-    for (unsigned i=0; i<5; i++)
-    {
-        cell_cycle_phase_counter[i] = 0;
-    }
-
+    
     *mpVizNodesFile << time << "\t";
     *mpVizCellTypesFile << time << "\t";
     
@@ -833,232 +1097,44 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     {
         *mpCellCyclePhasesFile << time << "\t";
     }
-
-    // Write node data to file
-    for (unsigned index=0; index<GetNumNodes(); index++)
+    
+    // Set up cell type counter
+    rCellTypeCounter.reserve(mCellTypeCount.size());
+    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
     {
-        unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
+        rCellTypeCounter[i] = 0;
+    }
 
-        std::vector<double> proteins; // only used if outputCellVariables = true
+    // Set up cell mutation state counter
+    rCellMutationStateCounter.reserve(mCellMutationStateCount.size());
+    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+    {
+        rCellMutationStateCounter[i] = 0;
+    }
 
-        if (IsGhostNode(index) == true)
+    // Set up cell cycle phase counter
+    rCellCyclePhaseCounter.reserve(5);
+    for (unsigned i=0; i<5; i++)
+    {
+        rCellCyclePhaseCounter[i] = 0;
+    }
+   
+    // Write node data to file
+    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
+    {
+        // Write node data to file
+        if ( !(GetNode(node_index)->IsDeleted()) )
         {
-            colour = INVISIBLE_COLOUR;
-        }
-        else if (GetNode(index)->IsDeleted())
-        {
-            // Do nothing
-        }
-        else
-        {
-            TissueCell* p_cell = mLocationCellMap[index];
-
-            if (outputCellCyclePhases)
-            {
-                switch (p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase())
-                {
-                    case G_ZERO_PHASE:
-                        cell_cycle_phase_counter[0]++;
-                        break;
-                    case G_ONE_PHASE:
-                        cell_cycle_phase_counter[1]++;
-                        break;
-                    case S_PHASE:
-                        cell_cycle_phase_counter[2]++;
-                        break;
-                    case G_TWO_PHASE:
-                        cell_cycle_phase_counter[3]++;
-                        break;
-                     case M_PHASE:
-                        cell_cycle_phase_counter[4]++;
-                        break;
-                    default:
-                        NEVER_REACHED;
-                }
-            }
-
-            if (mCells.size() > 0)
-            {
-                if (outputCellAncestors)
-                {
-                    colour = p_cell->GetAncestor();
-                    if (colour == UNSIGNED_UNSET)
-                    {
-                        // Set the file to -1 to mark this case.
-                        colour = 1;
-                        *mpCellAncestorsFile << "-";
-                    }
-                    *mpCellAncestorsFile << colour << " ";
-                }
-
-                CellMutationState mutation = p_cell->GetMutationState();
-
-                // Set colours dependent on cell type
-                switch (p_cell->GetCellType())
-                {
-                    case STEM:
-                        colour = STEM_COLOUR;
-                        if (outputCellTypes)
-                        {
-                            cell_type_counter[0]++;
-                        }
-                        break;
-                    case TRANSIT:
-                        colour = TRANSIT_COLOUR;
-                        if (outputCellTypes)
-                        {
-                            cell_type_counter[1]++;
-                        }
-                        break;
-                    case DIFFERENTIATED:
-                        colour = DIFFERENTIATED_COLOUR;
-                        if (outputCellTypes)
-                        {
-                            cell_type_counter[2]++;
-                        }
-                        break;
-                    case APOPTOTIC:
-                        colour = APOPTOSIS_COLOUR; // paint apoptotic cells the same colour
-                        if (outputCellTypes)
-                        {
-                            cell_type_counter[3]++;
-                        }
-                        break;
-                    default:
-                        NEVER_REACHED;
-                }
-
-                // Override colours for mutant or labelled cells
-                switch (mutation)
-                {
-                    case HEALTHY:
-                        if (outputCellMutationStates)
-                        {
-                            cell_mutation_state_counter[0]++;
-                        }
-                        break;
-                    case APC_ONE_HIT:
-                        colour = EARLY_CANCER_COLOUR;
-                        if (outputCellMutationStates)
-                        {
-                            cell_mutation_state_counter[2]++;
-                        }
-                        break;
-                    case APC_TWO_HIT:
-                        colour = LATE_CANCER_COLOUR;
-                        if (outputCellMutationStates)
-                        {
-                            cell_mutation_state_counter[3]++;
-                        }
-                        break;
-                    case BETA_CATENIN_ONE_HIT:
-                        colour = LATE_CANCER_COLOUR;
-                        if (outputCellMutationStates)
-                        {
-                            cell_mutation_state_counter[4]++;
-                        }
-                        break;
-                    case LABELLED:
-                        colour = LABELLED_COLOUR;
-                        if (outputCellMutationStates)
-                        {
-                            cell_mutation_state_counter[1]++;
-                        }
-                        break;
-                    default:
-                        NEVER_REACHED;
-                }
-
-                if (p_cell->HasApoptosisBegun())
-                {
-                    // For any type of cell set the colour to this if it is undergoing apoptosis.
-                    colour = APOPTOSIS_COLOUR;
-                }
-
-                if (outputCellVariables)
-                {
-                    proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
-                }
-            }
-        }
-
-        if ( !(GetNode(index)->IsDeleted()) )
-        {
-            const c_vector<double,DIM>& position = GetNode(index)->rGetLocation();
+            const c_vector<double,DIM>& position = GetNode(node_index)->rGetLocation();
 
             for (unsigned i=0; i<DIM; i++)
             {
                 *mpVizNodesFile << position[i] << " ";
             }
-            
-            *mpVizCellTypesFile << colour << " ";
-
-            // Write cell variable data to file if required
-            if (outputCellVariables)
-            {
-                // Loop over cell positions
-                /// \todo This assumes a one-one correspondence between cells 
-                ///      and nodes, which is not the case for a vertex-based 
-                ///      tissue (see #827)
-                for (unsigned i=0; i<DIM; i++)
-                {
-                    *mpCellVariablesFile << position[i] << " ";
-                }
-                // Loop over cell variables
-                for (unsigned i=0; i<proteins.size(); i++)
-                {
-                    *mpCellVariablesFile << proteins[i] << " ";
-                }
-            }
         }
     }
-    if (outputCellAncestors)
-    {
-        *mpCellAncestorsFile << "\n";
-    }
-    
     *mpVizNodesFile << "\n";
-    *mpVizCellTypesFile << "\n";
-
-    // Write cell mutation state data to file if required
-    if (outputCellMutationStates)
-    {
-        for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
-        {
-            mCellMutationStateCount[i] = cell_mutation_state_counter[i];
-            *mpCellMutationStatesFile << cell_mutation_state_counter[i] << "\t";
-        }
-        *mpCellMutationStatesFile << "\n";
-    }
-
-    // Write cell type data to file if required
-    if (outputCellTypes)
-    {
-        for (unsigned i=0; i<NUM_CELL_TYPES; i++)
-        {
-            mCellTypeCount[i] = cell_type_counter[i];
-            *mpCellTypesFile << cell_type_counter[i] << "\t";
-        }
-        *mpCellTypesFile << "\n";
-    }
-
-    if (outputCellVariables)
-    {
-        *mpCellVariablesFile << "\n";
-    }
-
-    // Write cell cycle phase data to file if required
-    if (outputCellCyclePhases)
-    {
-        for (unsigned i=0; i<5; i++)
-        {
-            mCellCyclePhaseCount[i] = cell_cycle_phase_counter[i];
-            *mpCellCyclePhasesFile << cell_cycle_phase_counter[i] << "\t";
-        }
-        *mpCellCyclePhasesFile << "\n";
-    }
 }
-
 
 namespace boost {
 namespace serialization {

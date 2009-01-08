@@ -51,16 +51,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class VertexBasedTissue : public AbstractTissue<DIM>
 {
-protected:
-
-    /** List of cells */
-    std::list<TissueCell> mCells;
-
-    /** Map location (node or VertexElement) indices back to cells */
-    std::map<unsigned, TissueCell*> mLocationCellMap;
+private:
 
     /** Vertex-based mesh associated with the tissue. */
-    VertexMesh<DIM, DIM>& mrMesh;    
+    VertexMesh<DIM, DIM>& mrMesh;
+    
+    /** Results file for elements. */
+    out_stream mpElementFile;
 
 public:
 
@@ -96,19 +93,7 @@ public:
      * @return the number of VertexElements in the tissue.
      */
     unsigned GetNumElements();
-    
-    /**
-     * Get method for mCells.
-     * 
-     * @return a reference to a std::list of TissueCells.
-     */
-    std::list<TissueCell>& rGetCells();
-    
-    /**
-     * @return the number of real cells in the tissue.
-     */
-    unsigned GetNumRealCells();
-    
+        
     /**
      * Overridden GetNumNodes() method.
      * 
@@ -119,18 +104,11 @@ public:
     /**
      * Overridden GetNode() method.
      * 
-     * @param index  global index of the specified node
+     * @param index global index of the specified node
      * 
      * @return a pointer to the node.
      */
     Node<DIM>* GetNode(unsigned index);
-        
-    /**
-     * Get method associated with tissue.
-     * 
-     * @return reference to the mesh.
-     */
-    VertexMesh<DIM, DIM>& rGetMesh();
     
     /**
      * Overridden MoveCell() method.
@@ -176,6 +154,54 @@ public:
      * Each VertexElement must have a TissueCell associated with it.
      */
     virtual void Validate();
+
+    /**
+     * Overridden CreateOutputFiles() method.
+     * 
+     * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
+     * @param rCleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
+     * @param outputCellMutationStates  whether to create a cell mutation state results file
+     * @param outputCellTypes  whether to create a cell type results file
+     * @param outputCellVariables  whether to create a cell-cycle variable results file
+     * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
+     * @param outputCellAncestors  whether to create a cell ancestor results file
+     */
+    void CreateOutputFiles(const std::string &rDirectory,
+                           bool rCleanOutputDirectory,
+                           bool outputCellMutationStates,
+                           bool outputCellTypes,
+                           bool outputCellVariables,
+                           bool outputCellCyclePhases,
+                           bool outputCellAncestors);
+    /**
+     * Overridden CloseOutputFiles() method.
+     * 
+     * @param outputCellMutationStates  whether a cell mutation state results file is open
+     * @param outputCellTypes  whether a cell type results file is open
+     * @param outputCellVariables  whether a cell-cycle variable results file is open
+     * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
+     * @param outputCellAncestors  whether a cell ancestor results file is open
+     */
+    void CloseOutputFiles(bool outputCellMutationStates,
+                          bool outputCellTypes,
+                          bool outputCellVariables,
+                          bool outputCellCyclePhases,
+                          bool outputCellAncestors);
+                          
+    /**
+     * Overridden WriteResultsToFiles() method.
+     * 
+     * @param outputCellMutationStates  whether to output cell mutation state results
+     * @param outputCellTypes  whether to output cell type results
+     * @param outputCellVariables  whether to output cell-cycle variable results
+     * @param outputCellCyclePhases  whether to output cell-cycle phase results
+     * @param outputCellAncestors  whether to output cell ancestor results
+     */
+    void WriteResultsToFiles(bool outputCellMutationStates,
+                             bool outputCellTypes,
+                             bool outputCellVariables,
+                             bool outputCellCyclePhases,
+                             bool outputCellAncestors);
     
     /**
      * Iterator class allows one to iterate over cells in the tissue.
@@ -183,78 +209,78 @@ public:
      * There are also methods to get the VertexElement representing  
      * this cell, and the location of that element.
      */
-    class Iterator
-    {
-    public:
-
-        /**
-         * Dereference the iterator giving you a *reference* to the current cell.
-         * Make sure to use a reference for the result to avoid copying cells unnecessarily.
-         */
-        inline TissueCell& operator*();
-
-        /**
-         * Member access from a pointer.
-         */
-        inline TissueCell* operator->();
-
-        /**
-         * Get a pointer to the element in the mesh which represents this cell.
-         */
-        inline VertexElement<DIM, DIM>* GetElement();
-
-        /**
-         * Get the location in space of this cell.
-         */
-        inline const c_vector<double, DIM>& rGetLocation();
-
-        /**
-         * Comparison not-equal-to.
-         */
-        inline bool operator!=(const Iterator& other);
-
-        /**
-         * Prefix increment operator.
-         */
-        inline Iterator& operator++();
-
-        /**
-         * Constructor for a new iterator.
-         */
-        Iterator(VertexBasedTissue<DIM>& rTissue, std::list<TissueCell>::iterator cellIter);
-
-        /**
-         * The iterator must have a virtual destructor.
-         */
-        virtual ~Iterator()
-        {}
-
-    private:
-
-        /**
-         * Private helper function saying whether we're at the end of the cells.
-         */
-        inline bool IsAtEnd();
-
-        /** The tissue member. */
-        VertexBasedTissue& mrTissue;
-
-        /** Cell iterator member. */
-        std::list<TissueCell>::iterator mCellIter;
-
-        /** Location index member. */
-        unsigned mLocationIndex;
-    };
-
-    /**
-     * @return iterator pointing to the first cell in the tissue
-     */
-    Iterator Begin();
-
-    /**
-     * @return iterator pointing to one past the last cell in the tissue
-     */
-    Iterator End();
+//    class Iterator
+//    {
+//    public:
+//
+//        /**
+//         * Dereference the iterator giving you a *reference* to the current cell.
+//         * Make sure to use a reference for the result to avoid copying cells unnecessarily.
+//         */
+//        inline TissueCell& operator*();
+//
+//        /**
+//         * Member access from a pointer.
+//         */
+//        inline TissueCell* operator->();
+//
+//        /**
+//         * Get a pointer to the element in the mesh which represents this cell.
+//         */
+//        inline VertexElement<DIM, DIM>* GetElement();
+//
+//        /**
+//         * Get the location in space of this cell.
+//         */
+//        inline const c_vector<double, DIM>& rGetLocation();
+//
+//        /**
+//         * Comparison not-equal-to.
+//         */
+//        inline bool operator!=(const Iterator& other);
+//
+//        /**
+//         * Prefix increment operator.
+//         */
+//        inline Iterator& operator++();
+//
+//        /**
+//         * Constructor for a new iterator.
+//         */
+//        Iterator(VertexBasedTissue<DIM>& rTissue, std::list<TissueCell>::iterator cellIter);
+//
+//        /**
+//         * The iterator must have a virtual destructor.
+//         */
+//        virtual ~Iterator()
+//        {}
+//
+//    private:
+//
+//        /**
+//         * Private helper function saying whether we're at the end of the cells.
+//         */
+//        inline bool IsAtEnd();
+//
+//        /** The tissue member. */
+//        VertexBasedTissue& mrTissue;
+//
+//        /** Cell iterator member. */
+//        std::list<TissueCell>::iterator mCellIter;
+//
+//        /** Location index member. */
+//        unsigned mLocationIndex;
+//    };
+//
+//    /**
+//     * @return iterator pointing to the first cell in the tissue
+//     */
+//    Iterator Begin();
+//
+//    /**
+//     * @return iterator pointing to one past the last cell in the tissue
+//     */
+//    Iterator End();
 
 };
 
@@ -262,76 +288,76 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 //                             Iterator class                               //
 //////////////////////////////////////////////////////////////////////////////
-
-template<unsigned DIM>
-TissueCell& VertexBasedTissue<DIM>::Iterator::operator*()
-{
-    assert(!IsAtEnd());
-    return *mCellIter;
-}
-
-template<unsigned DIM>
-TissueCell* VertexBasedTissue<DIM>::Iterator::operator->()
-{
-    assert(!IsAtEnd());
-    return &(*mCellIter);
-}
-
-template<unsigned DIM>
-VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::Iterator::GetElement()
-{
-    assert(!IsAtEnd());
-    return mrTissue.GetElement(mLocationIndex);
-}
-
-template<unsigned DIM>
-bool VertexBasedTissue<DIM>::Iterator::operator!=(const VertexBasedTissue<DIM>::Iterator& other)
-{
-    return mCellIter != other.mCellIter;
-}
-
-template<unsigned DIM>
-typename VertexBasedTissue<DIM>::Iterator& VertexBasedTissue<DIM>::Iterator::operator++()
-{
-    ++mCellIter;
-    if (!IsAtEnd())
-    {
-        mLocationIndex = mCellIter->GetLocationIndex();
-    }
-
-    return (*this);
-}
-
-template<unsigned DIM>
-bool VertexBasedTissue<DIM>::Iterator::IsAtEnd()
-{
-    return mCellIter == mrTissue.rGetCells().end();
-}
-
-template<unsigned DIM>
-VertexBasedTissue<DIM>::Iterator::Iterator(VertexBasedTissue& rTissue, std::list<TissueCell>::iterator cellIter)
-    : mrTissue(rTissue),
-      mCellIter(cellIter)
-{
-    // Make sure the tissue isn't empty
-    assert(mrTissue.rGetCells().size() > 0);
-    if (!IsAtEnd())
-    {
-        mLocationIndex = cellIter->GetLocationIndex();
-    }
-}
-
-template<unsigned DIM>
-typename VertexBasedTissue<DIM>::Iterator VertexBasedTissue<DIM>::Begin()
-{
-    return Iterator(*this, this->mCells.begin());
-}
-
-template<unsigned DIM>
-typename VertexBasedTissue<DIM>::Iterator VertexBasedTissue<DIM>::End()
-{
-    return Iterator(*this, this->mCells.end());
-}
+//
+//template<unsigned DIM>
+//TissueCell& VertexBasedTissue<DIM>::Iterator::operator*()
+//{
+//    assert(!IsAtEnd());
+//    return *mCellIter;
+//}
+//
+//template<unsigned DIM>
+//TissueCell* VertexBasedTissue<DIM>::Iterator::operator->()
+//{
+//    assert(!IsAtEnd());
+//    return &(*mCellIter);
+//}
+//
+//template<unsigned DIM>
+//VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::Iterator::GetElement()
+//{
+//    assert(!IsAtEnd());
+//    return mrTissue.GetElement(mLocationIndex);
+//}
+//
+//template<unsigned DIM>
+//bool VertexBasedTissue<DIM>::Iterator::operator!=(const VertexBasedTissue<DIM>::Iterator& other)
+//{
+//    return mCellIter != other.mCellIter;
+//}
+//
+//template<unsigned DIM>
+//typename VertexBasedTissue<DIM>::Iterator& VertexBasedTissue<DIM>::Iterator::operator++()
+//{
+//    ++mCellIter;
+//    if (!IsAtEnd())
+//    {
+//        mLocationIndex = mCellIter->GetLocationIndex();
+//    }
+//
+//    return (*this);
+//}
+//
+//template<unsigned DIM>
+//bool VertexBasedTissue<DIM>::Iterator::IsAtEnd()
+//{
+//    return mCellIter == mrTissue.rGetCells().end();
+//}
+//
+//template<unsigned DIM>
+//VertexBasedTissue<DIM>::Iterator::Iterator(VertexBasedTissue& rTissue, std::list<TissueCell>::iterator cellIter)
+//    : mrTissue(rTissue),
+//      mCellIter(cellIter)
+//{
+//    // Make sure the tissue isn't empty
+//    assert(mrTissue.rGetCells().size() > 0);
+//    if (!IsAtEnd())
+//    {
+//        mLocationIndex = cellIter->GetLocationIndex();
+//    }
+//}
+//
+//template<unsigned DIM>
+//typename VertexBasedTissue<DIM>::Iterator VertexBasedTissue<DIM>::Begin()
+//{
+//    return Iterator(*this, this->mCells.begin());
+//}
+//
+//template<unsigned DIM>
+//typename VertexBasedTissue<DIM>::Iterator VertexBasedTissue<DIM>::End()
+//{
+//    return Iterator(*this, this->mCells.end());
+//}
 
 #include "TemplatedExport.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(VertexBasedTissue)

@@ -477,7 +477,7 @@ public:
              ++cell_iter)
         {
             // Record node index corresponding to cell
-            unsigned node_index = tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+            unsigned node_index = cell_iter->GetLocationIndex();
             node_indices.insert(node_index);
         }
 
@@ -569,7 +569,7 @@ public:
              ++cell_iter)
         {
             // Record node index corresponding to cell
-            unsigned node_index_with_ghost_nodes = tissue_with_ghost_nodes.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+            unsigned node_index_with_ghost_nodes = cell_iter->GetLocationIndex();
             node_indices_with_ghost_nodes.insert(node_index_with_ghost_nodes);
         }
 

@@ -73,8 +73,9 @@ public:
      * At present there must be precisely 1 cell for each node of the mesh.
      * (This will change in future so that you don't need cells for ghost nodes.)
      *
-     * @param rMesh a mutable tetrahedral mesh.
-     * @param cells TissueCells corresponding to the nodes of the mesh.
+     * @param rMesh a mutable tetrahedral mesh
+     * @param cells TissueCells corresponding to the nodes of the mesh
+     * @param ghostNodeIndices set of indices of ghost nodes
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
@@ -90,7 +91,7 @@ public:
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh);
 
     /**
-     * Get method for mIsGhostNode.
+     * @return mIsGhostNode.
      */
     std::vector<bool>& rGetGhostNodes();
 
@@ -107,7 +108,7 @@ public:
     bool IsGhostNode(unsigned index);
 
     /**
-     * Get the indices of those nodes that are ghost nodes.
+     * @return the indices of those nodes that are ghost nodes.
      */
     std::set<unsigned> GetGhostNodeIndices();
 
@@ -156,7 +157,7 @@ public:
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
+    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
     /**
      * Check consistency of our internal data structures. Each node must

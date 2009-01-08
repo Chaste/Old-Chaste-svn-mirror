@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MESHBASEDTISSUE_HPP_
 #define MESHBASEDTISSUE_HPP_
 
-#include "AbstractTissue.hpp"
+#include "AbstractCellCentreBasedTissue.hpp"
 #include "MutableMesh.hpp"
 #include "VoronoiTessellation.hpp"
 #include "Exception.hpp"
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template<unsigned DIM>
-class MeshBasedTissue : public AbstractTissue<DIM>
+class MeshBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
     friend class TestMeshBasedTissue;
     
@@ -111,7 +111,7 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractCellCentreBasedTissue<DIM> >(*this);
 
         // The Voronoi stuff can't be archived yet
         //archive & mpVoronoiTessellation
@@ -164,22 +164,22 @@ public:
     ~MeshBasedTissue();
 
     /**
-     * Get method for mrMesh.
+     * @return reference to  mrMesh.
      */
     MutableMesh<DIM, DIM>& rGetMesh();
 
     /**
-     * Get method for mrMesh (used in archiving).
+     * @return const reference to mrMesh (used in archiving).
      */
     const MutableMesh<DIM, DIM>& rGetMesh() const;
 
-    /** Get method for mWriteVoronoiData. */
+    /** @return mWriteVoronoiData. */
     bool GetWriteVoronoiData();
 
-    /** Get method for mWriteTissueAreas. */
+    /** @return mWriteTissueAreas. */
     bool GetWriteTissueAreas();
 
-    /** Get method for mUseAreaBasedDampingConstant. */
+    /** @return mUseAreaBasedDampingConstant. */
     bool UseAreaBasedDampingConstant();
 
     /** Get method for mWriteVoronoiData and mFollowLoggedCell.
@@ -192,6 +192,8 @@ public:
     /**
      * Overridden GetDampingConstant() method that includes the 
      * case of a cell-area-based damping constant.
+     * 
+     * @return the damping constant for the given TissueCell.
      */ 
     double GetDampingConstant(TissueCell& rCell);
 
@@ -223,7 +225,7 @@ public:
      * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
      * between nodes and cells (see #430) - most of the work will actually be in AbstractTissue.
      *
-     * @return number of cells removed
+     * @return number of cells removed.
      */
     unsigned RemoveDeadCells();
 
@@ -300,12 +302,16 @@ public:
     /**
      * Overridden GetNode() method.
      * 
-     * @param index  global index of the specified node
+     * @param index  global index of the specified Node
+     * 
+     * @return pointer to the Node with given index.
      */
     Node<DIM>* GetNode(unsigned index);
     
     /**
      * Overridden GetNumNodes() method.
+     * 
+     * @return the number of nodes in the tissue.
      */
     unsigned GetNumNodes();
 
@@ -321,7 +327,6 @@ public:
      */
     virtual void Validate();
 
-
     /**
      * Write current results to mpVoronoiFile.
      */
@@ -336,7 +341,7 @@ public:
     void CreateVoronoiTessellation();
 
     /**
-     * Get method for mpVoronoiTessellation.
+     * @return mpVoronoiTessellation.
      */
     VoronoiTessellation<DIM>& rGetVoronoiTessellation();
 
@@ -415,7 +420,7 @@ public:
     void CheckTissueCellPointers();
 
     /**
-     * Test whether the spring between 2 cells is marked.
+     * @return whether the spring between two given cells is marked.
      */
     bool IsMarkedSpring(TissueCell&, TissueCell&);
 
