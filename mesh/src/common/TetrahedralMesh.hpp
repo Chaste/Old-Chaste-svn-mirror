@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/export.hpp>
 
 //Jonathan Shewchuk's triangle
 #define REAL double
@@ -55,10 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 #include "RandomNumberGenerator.hpp"
-
-#ifndef SPECIAL_SERIAL
 #include "PetscTools.hpp"
-#endif //SPECIAL_SERIAL
 
 #include <boost/serialization/export.hpp>
 

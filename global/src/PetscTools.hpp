@@ -30,22 +30,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PETSCTOOLS_HPP_
 #define PETSCTOOLS_HPP_
 
-///\todo - possibly collect all the special serial parts here
-//#ifdef SPECIAL_SERIAL
-//#endif
-
 
 #include <vector>
 #include <iostream>
 #include <cassert>
 #include <cstring> //For strcmp etc. Needed in gcc-4.3
 
+#ifndef SPECIAL_SERIAL
 #include <petsc.h>
 #include <petscvec.h>
 #include <petscmat.h>
 
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
+#endif //SPECIAL_SERIAL
 
 #define EXIT_IF_PARALLEL if(!PetscTools::IsSequential()){TS_TRACE("This test does not pass in parallel yet.");return;}
 #define EXIT_IF_SEQUENTIAL if(PetscTools::IsSequential()){TS_TRACE("This test is not meant to be executed in sequential.");return;}
@@ -103,6 +101,7 @@ public:
      */
     static void Barrier();
 
+#ifndef SPECIAL_SERIAL
     /**
      *  Create a vector of the specified size. SetFromOptions is called.
      */
@@ -166,6 +165,9 @@ public:
 //
 //        return ret;
 //    }
+
+#endif //SPECIAL_SERIAL
+
 };
 
 

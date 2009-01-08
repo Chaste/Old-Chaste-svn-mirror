@@ -36,9 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 
-#ifndef SPECIAL_SERIAL
 #include "PetscTools.hpp"
-#endif //SPECIAL_SERIAL
 
 
 /**

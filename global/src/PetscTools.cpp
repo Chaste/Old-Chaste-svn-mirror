@@ -34,6 +34,11 @@ unsigned PetscTools::mRank = 0;
 
 void PetscTools::ResetCache()
 {
+#ifdef SPECIAL_SERIAL
+    mPetscIsInitialised = false;
+    mNumProcessors = 1;
+    mRank = 0;
+#else
     PetscTruth is_there;
     PetscInitialized(&is_there);
     if (is_there)
@@ -55,6 +60,7 @@ void PetscTools::ResetCache()
         mNumProcessors = 1;
         mRank = 0;
     }
+#endif
 }
 
 //
@@ -112,6 +118,8 @@ void PetscTools::Barrier()
         PetscBarrier(PETSC_NULL);
     }
 }
+
+#ifndef SPECIAL_SERIAL
 
 void PetscTools::ReplicateException(bool flag)
     {
@@ -207,3 +215,4 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     MatSetFromOptions(rMat);
 }
 
+#endif //SPECIAL_SERIAL

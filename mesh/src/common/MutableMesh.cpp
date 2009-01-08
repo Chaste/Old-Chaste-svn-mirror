@@ -784,7 +784,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     #ifndef SPECIAL_SERIAL
         if (!PetscTools::IsSequential())
         {
-            char full_name_comm[200];
+            char full_name_comm[200]; ///\todo communicate the length first
             strcpy(full_name_comm, full_name.c_str());
             MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
             full_name = full_name_comm;
@@ -799,12 +799,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         ConstructFromMeshReader(mesh_reader);
     
         // Make sure the file is not deleted before all the processors have read it
-    #ifndef SPECIAL_SERIAL
-        if (!PetscTools::IsSequential())
-        {
-            MPI_Barrier(PETSC_COMM_WORLD);
-        }
-    #endif //SPECIAL_SERIAL
+        PetscTools::Barrier();
     
         if (handler.IsMaster())
         {

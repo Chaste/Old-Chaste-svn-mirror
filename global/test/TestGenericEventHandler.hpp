@@ -115,7 +115,7 @@ public:
         {
             dummy += 2;
         }
-        TS_ASSERT_LESS_THAN(0u, dummy); // try to avoid the loop being optimised away
+        TS_ASSERT_LESS_THAN(0l, dummy); // try to avoid the loop being optimised away
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));
         AnEventHandler::EndEvent(TEST1);
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));

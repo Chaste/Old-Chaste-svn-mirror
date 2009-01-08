@@ -32,9 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <sys/stat.h>
 
-#ifndef SPECIAL_SERIAL
-#include <petsc.h>
-#endif //SPECIAL_SERIAL
+#include "PetscTools.hpp"
 #include "Exception.hpp"
 
 
@@ -42,28 +40,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool rCleanOutputDirectory)
 {
     // Are we the master process?  Only the master should do any writing to disk
-#ifndef SPECIAL_SERIAL
-    PetscTruth is_there;
-    PetscInitialized(&is_there);
-    if (is_there == PETSC_TRUE)
-    {
-        PetscInt my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0)
-        {
-            mAmMaster=true;
-        }
-        else
-        {
-            mAmMaster=false;
-        }
-    }
-    else
-#endif //SPECIAL_SERIAL
-    {
-        // Not using PETSc, so we're definitely the only process
-        mAmMaster = true;
-    }
+    mAmMaster = PetscTools::AmMaster();
     mDirectory = GetOutputDirectoryFullPath(rDirectory);
 
     // Clean the output dir?
