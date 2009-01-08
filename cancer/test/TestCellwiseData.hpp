@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCellwiseData : public AbstractCancerTestSuite
 {
 public:
+	
 
     void TestCellwiseDataSimple() throw(Exception)
     {

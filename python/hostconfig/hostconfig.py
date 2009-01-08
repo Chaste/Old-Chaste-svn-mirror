@@ -86,6 +86,8 @@ elif machine_fqdn == "pc-gary.physiol.ox.ac.uk":
     import garym as conf
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
     import zuse as conf
+elif machine_fqdn == ('clpc402.comlab.ox.ac.uk'):
+    import sard as conf
 elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
     import comlab as conf
 elif machine_fqdn.endswith(".dtc.ox.ac.uk"):
