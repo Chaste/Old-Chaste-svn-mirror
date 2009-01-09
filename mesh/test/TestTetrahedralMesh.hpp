@@ -524,7 +524,7 @@ public:
         {
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal;
-            b_element->GetWeightedDirection(normal);
+            b_element->CalculateWeightedDirection(normal);
             c_vector<double, 3> centroid=b_element->CalculateCentroid();
             ChastePoint<3> out(centroid+normal);
             ChastePoint<3> in(centroid-normal);
@@ -561,7 +561,7 @@ public:
         {
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal;
-            b_element->GetWeightedDirection(normal);
+            b_element->CalculateWeightedDirection(normal);
             c_vector<double, 3> centroid=b_element->CalculateCentroid();
             ChastePoint<3> out(centroid+normal);
             ChastePoint<3> in(centroid-normal);

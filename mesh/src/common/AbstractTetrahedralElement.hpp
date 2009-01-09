@@ -95,7 +95,7 @@ public:
         return mJacobianDeterminant;
     }
 
-    void GetWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection)
+    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection)
     {
         if (ELEMENT_DIM >= SPACE_DIM)
         {

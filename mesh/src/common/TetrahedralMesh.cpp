@@ -1544,8 +1544,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
     }
     else
     {
-        this->mCachedWeightedDirection.resize(this->GetNumAllElements());
+        this->mElementWeightedDirections.resize(this->GetNumAllElements());
     }
+    
+    this->mBoundaryElementWeightedDirections.resize(this->GetNumAllBoundaryElements());
+    
     this->mElementJacobianDeterminants.resize(this->GetNumAllElements());
     this->mBoundaryElementJacobianDeterminants.resize(this->GetNumAllBoundaryElements());
     
@@ -1562,13 +1565,12 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
     }
     else
     {
-        //weighted directions
-//        for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();    
-//              it != this->GetElementIteratorEnd();
-//              it++)
-//        {
-//        }       
-        
+        for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();    
+              it != this->GetElementIteratorEnd();
+              it++)
+        {
+            (*it)->CalculateWeightedDirection(this->mElementWeightedDirections[(*it)->GetIndex()]);
+        }
     }
     
     // determinants
@@ -1584,6 +1586,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
           itb++)
     {
         this->mBoundaryElementJacobianDeterminants[(*itb)->GetIndex()] =  (*itb)->CalculateJacobianDeterminant();
+        (*itb)->CalculateWeightedDirection(this->mBoundaryElementWeightedDirections[(*itb)->GetIndex()]);        
     }    
 
     
@@ -1592,6 +1595,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const
 {
+    assert(ELEMENT_DIM == SPACE_DIM);
     assert(elementIndex < this->mElementJacobians.size());
     rJacobian = this->mElementJacobians[elementIndex];
 }
@@ -1599,9 +1603,18 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianForElement(unsigned ele
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
 {
+    assert(ELEMENT_DIM == SPACE_DIM);    
     assert(elementIndex < this->mElementInverseJacobians.size());    
     rInverseJacobian = this->mElementInverseJacobians[elementIndex];
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const
+{
+    assert(ELEMENT_DIM < SPACE_DIM);    
+    assert(elementIndex < this->mBoundaryElementWeightedDirections.size());    
+    rWeightedDirection = this->mBoundaryElementWeightedDirections[elementIndex];
+}    
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForElement(unsigned elementIndex) const
@@ -1610,6 +1623,13 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForElement
     assert( this->mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant() == this->mElementJacobianDeterminants[elementIndex]);
     return this->mElementJacobianDeterminants[elementIndex];
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const
+{
+    assert(elementIndex < this->mBoundaryElementWeightedDirections.size());    
+    rWeightedDirection = this->mBoundaryElementWeightedDirections[elementIndex];
+}    
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const

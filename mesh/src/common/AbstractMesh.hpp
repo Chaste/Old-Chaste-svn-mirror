@@ -123,7 +123,7 @@ public:
     BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const;
 
     /// \todo: move implementation
-    virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rJacobian) const
+    virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const
     {
         mElements[SolveElementMapping(elementIndex)]->CalculateJacobian(rJacobian);
     }
@@ -136,9 +136,9 @@ public:
         return mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant();
     }
     
-    virtual void GetInverseJacobianForBoundaryElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM> rInverseJacobian) const
+    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const
     {
-        mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateInverseJacobian(rInverseJacobian);
+        mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection);
     }    
     virtual double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const
     {
