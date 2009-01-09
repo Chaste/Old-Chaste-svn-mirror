@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTVERTEXMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include "VertexElement.hpp"
 #include "VertexMesh.hpp"
 #include "VertexMeshWriter2d.hpp"
@@ -37,8 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestVertexMesh : public CxxTest::TestSuite
 {
 public:
+
     void TestBasicVertexMesh() throw(Exception)
-    {   // Make four nodes to assign to two elements
+    {   
+        // Make four nodes to assign to two elements
         std::vector<Node<2>*> basic_nodes;
         basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
@@ -201,8 +207,102 @@ public:
         
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(),2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(),4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(),1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(),1u);        
+    }
+    
+    /*
+     * This tests that a 'dummy' archive function does not throw any errors.
+     */
+    void DONTTestArchiveVertexMesh()
+    {        
+        std::string dirname = "archive";
+        OutputFileHandler handler(dirname, false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "vertex_mesh_base.arch";
         
+        std::string mesh_filename = "vertex_mesh";
+        std::string mesh_pathname = handler.GetOutputDirectoryFullPath() + mesh_filename;
+        
+        VertexMesh<2,2>* const p_mesh = new VertexMesh<2,2>(5,3);
+        /*
+         * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
+         * This is because the serialization library only allows you to save tracked
+         * objects while the compiler considers them const, to prevent the objects 
+         * changing during the save, and so object tracking leading to wrong results.
+         * 
+         * E.g. A is saved once via pointer, then changed, then saved again. The second
+         * save notes that A was saved before, so doesn't write its data again, and the
+         * change is lost.
+         */
+
+        // Create an ouput archive
+        {
+            TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 46u);
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 15u);
+
+            // Save the mesh data using mesh writers
+            VertexMeshWriter2d mesh_writer(dirname, mesh_pathname);
+            mesh_writer.WriteFiles(*p_mesh);
+            
+            // Archive the mesh
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // We have to serialize via a pointer here, or the derived class information is lost
+            output_arch << p_mesh;
+        }
+
+        {
+            // De-serialize and compare
+            VertexMesh<2,2>* p_mesh2;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_mesh2;
+            
+            /// \todo: Re-initialise the mesh - may need to code up a VertexMeshReader2d? (see #821 and #862)
+            p_mesh2->Clear();
+//            VertexMeshReader2d mesh_reader(mesh_pathname);
+//            p_mesh2->ConstructFromMeshReader(mesh_reader);
+
+            // Compare the loaded mesh against the original
+
+            TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), p_mesh2->GetNumNodes());
+
+            for (unsigned node_index=0; node_index<p_mesh->GetNumNodes(); node_index++)
+            {
+                Node<2> *p_node = p_mesh->GetNode(node_index);
+                Node<2> *p_node2 = p_mesh2->GetNode(node_index);
+
+                TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
+                TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
+                TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
+
+                for (unsigned dimension=0; dimension<2; dimension++)
+                {
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[dimension], p_node2->rGetLocation()[dimension], 1e-16);
+                }
+            }
+
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), p_mesh2->GetNumElements());
+
+            for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
+            {
+                TS_ASSERT_EQUALS(p_mesh->GetElement(elem_index)->GetNumNodes(),
+                                 p_mesh2->GetElement(elem_index)->GetNumNodes());
+
+                for (unsigned local_index=0; local_index<p_mesh->GetElement(elem_index)->GetNumNodes(); local_index++)
+                {
+                    TS_ASSERT_EQUALS(p_mesh->GetElement(elem_index)->GetNodeGlobalIndex(local_index),
+                                     p_mesh2->GetElement(elem_index)->GetNodeGlobalIndex(local_index));
+                }
+            }
+
+            // Tidy up
+            delete p_mesh2;
+        }
     }
     
 };    

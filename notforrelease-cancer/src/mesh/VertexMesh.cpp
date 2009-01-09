@@ -53,6 +53,13 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double thresholdDistance)
+    : mThresholdDistance(thresholdDistance)
+{
+    assert(thresholdDistance > 0.0);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp)
 {
     if (SPACE_DIM==2)
@@ -206,6 +213,13 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
     {
         Clear();
     }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetThresholdDistance() const
+{
+    return mThresholdDistance;
 }
 
 

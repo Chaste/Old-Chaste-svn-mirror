@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestVertexMeshWriter2d : public CxxTest::TestSuite
 {
 public:
+
     void TestMeshWriter() throw(Exception)
     {
         std::vector<Node<2>*> basic_nodes;
@@ -82,7 +83,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
 
-
+        // Tidy up
         for (unsigned i=0; i<basic_nodes.size(); i++)
         {
             delete basic_nodes[i];

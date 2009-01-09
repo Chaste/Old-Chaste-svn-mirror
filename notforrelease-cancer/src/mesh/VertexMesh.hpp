@@ -56,12 +56,20 @@ private:
     
     /* Whether or not memory has been allocated for the mesh (used by destructor). */
     bool mAllocatedMemory;
-    
+   
+    /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangment. */
+    double mThresholdDistance;
+
     /** Create correspondences between VertexElements and Nodes in the mesh. */
     void SetupVertexElementsOwnedByNodes();
     
-    /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangment. */
-    double mThresholdDistance;
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mAllocatedMemory;
+        archive & mThresholdDistance;       
+    }
     
 public:
 
@@ -75,12 +83,21 @@ public:
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
                std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements,
                double thresholdDistance=0.01);
+
+    /**
+     * Constructor for use by serializer.
+     */
+    VertexMesh(double thresholdDistance);
     
     /**
      * Destructor.
      */
     ~VertexMesh();
-
+    
+    /**
+     * @return mThresholdDistance
+     */
+    double GetThresholdDistance() const;
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.
      * 
@@ -135,6 +152,38 @@ public:
     void T1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
 
 };
-  
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a Cylindrical2dMesh
+ */
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const VertexMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const double threshold_distance = t->GetThresholdDistance();
+    ar << threshold_distance;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Cylindrical2dMesh.
+ */
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, VertexMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    double threshold_distance;
+    ar >> threshold_distance;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)VertexMesh<ELEMENT_DIM, SPACE_DIM>(threshold_distance);
+}
+}
+} // namespace ...
 
 #endif /*VERTEXMESH_HPP_*/

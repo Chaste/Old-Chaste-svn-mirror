@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include "VertexBasedTissue.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -251,7 +254,122 @@ public:
         TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles(true, false, false, true, false));
     }
 
+    // At the moment the tissue cannot be properly archived since the mesh cannot be. This test
+    // just checks that the cells are correctly archived.
+    /// \todo This test should run once archiving of VertexMesh is sorted (see #821 and #862)
+    void DONTTestArchivingVertexBasedTissue() throw (Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
+
+        // Archive tissue
+        {
+            // Need to set up time
+            unsigned num_steps=10;
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
+
+            // Create a basic vertex-based mesh 'by hand'...
+            
+            // ... first create seven nodes...
+            std::vector<Node<2>*> basic_nodes;
+            basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+            basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+            basic_nodes.push_back(new Node<2>(2, false, 1.5, 1.0));
+            basic_nodes.push_back(new Node<2>(3, false, 1.0, 2.0));
+            basic_nodes.push_back(new Node<2>(4, false, 0.0, 1.0));
+            basic_nodes.push_back(new Node<2>(5, false, 2.0, 0.0));
+            basic_nodes.push_back(new Node<2>(6, false, 2.0, 3.0));
+            
+            std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
+            
+            nodes_elem_0.push_back(basic_nodes[0]);
+            nodes_elem_0.push_back(basic_nodes[1]);
+            nodes_elem_0.push_back(basic_nodes[2]);
+            nodes_elem_0.push_back(basic_nodes[3]);
+            nodes_elem_0.push_back(basic_nodes[4]);
+            
+            nodes_elem_1.push_back(basic_nodes[2]);
+            nodes_elem_1.push_back(basic_nodes[5]);
+            nodes_elem_1.push_back(basic_nodes[6]);
+            
+            // ... now create two elements associated with these nodes...
+            std::vector<VertexElement<2,2>*> basic_vertex_elements;
+            basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+            basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+            
+            // ... finally, create mesh
+            VertexMesh<2,2> mesh(basic_nodes, basic_vertex_elements);
     
+            // Set up cells
+            std::vector<TissueCell> cells = SetUpCells(mesh);
+    
+            // Create thetissue
+            VertexBasedTissue<2>* const p_tissue = new VertexBasedTissue<2>(mesh, cells);
+
+            // Cells have been given birth times of 0 and -1.
+            // Loop over them to run to time 0.0;
+            for (AbstractTissue<2>::Iterator cell_iter=p_tissue->Begin();
+                 cell_iter!=p_tissue->End();
+                 ++cell_iter)
+            {
+                cell_iter->ReadyToDivide();
+            }
+            
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Write the tissue to the archive
+            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
+            output_arch << p_tissue;
+            SimulationTime::Destroy();
+            delete p_tissue;
+        }
+
+        // Restore tissue
+        {
+            // Need to set up time
+            unsigned num_steps=10;
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
+            p_simulation_time->IncrementTimeOneStep();
+
+            VertexBasedTissue<2>* p_tissue;
+
+            // Restore the tissue
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            input_arch >> *p_simulation_time;
+
+            // The following line is required because the loading of a tissue 
+            // is usually called by the method TissueSimulation::Load()
+            VertexBasedTissue<2>::meshPathname = "notforrelease-cancer/test/data/TestVertexMesh";
+
+            input_arch >> p_tissue;
+
+            // Cells have been given birth times of 0, -1, -2, -3, -4.
+            // this checks that individual cells and their models are archived.
+            unsigned counter = 0u;
+            for (AbstractTissue<2>::Iterator cell_iter=p_tissue->Begin();
+                 cell_iter!=p_tissue->End();
+                 ++cell_iter)
+            {
+                TS_ASSERT_DELTA(cell_iter->GetAge(), (double)(counter), 1e-7);
+                counter++;
+            }
+
+            // Check the simulation time has been restored (through the cell)
+            TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 0.0);
+
+            // Check the tissue has been restored
+            TS_ASSERT_EQUALS(p_tissue->rGetCells().size(), 2u);
+
+            delete p_tissue;
+        }
+    }
 };
 
 

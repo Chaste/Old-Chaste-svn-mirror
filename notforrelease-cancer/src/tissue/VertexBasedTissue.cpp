@@ -27,12 +27,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "VertexBasedTissue.hpp"
 
+
 template<unsigned DIM>
 VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                                           const std::vector<TissueCell>& rCells,
+                                          bool deleteMesh,
                                           bool validate)
     : AbstractTissue<DIM>(rCells),
-      mrMesh(rMesh)
+      mrMesh(rMesh),
+      mDeleteMesh(deleteMesh)
 {    
     // This must always be true
     assert( this->mCells.size() <= mrMesh.GetNumElements() );
@@ -45,10 +48,39 @@ VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
     }
 }
 
+
+template<unsigned DIM>
+VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh)
+             : mrMesh(rMesh)
+{
+    this->mTissueContainsMesh = true;
+    mDeleteMesh = true;
+}
+
+
 template<unsigned DIM>
 VertexBasedTissue<DIM>::~VertexBasedTissue()
 {
+    if (mDeleteMesh)
+    {
+        delete &mrMesh;
+    }
 }
+
+
+template<unsigned DIM>
+VertexMesh<DIM, DIM>& VertexBasedTissue<DIM>::rGetMesh()
+{
+    return mrMesh;
+}
+
+
+template<unsigned DIM>
+const VertexMesh<DIM, DIM>& VertexBasedTissue<DIM>::rGetMesh() const
+{
+    return mrMesh;
+}
+
 
 template<unsigned DIM>
 VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElement(unsigned elementIndex)
@@ -56,11 +88,13 @@ VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElement(unsigned elementInde
     return mrMesh.GetElement(elementIndex);    
 }
 
+
 template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumNodes()
 {
     return mrMesh.GetNumNodes();
 }
+
 
 template<unsigned DIM>
 Node<DIM>* VertexBasedTissue<DIM>::GetNode(unsigned index)
@@ -68,11 +102,13 @@ Node<DIM>* VertexBasedTissue<DIM>::GetNode(unsigned index)
     return mrMesh.GetNode(index);
 }
 
+
 template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumElements()
 {
     return mrMesh.GetNumElements();
 }
+
 
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
@@ -80,11 +116,13 @@ void VertexBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator ite
     /// \todo put code for moving a cell here
 }
 
+
 template<unsigned DIM>
 TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
     return NULL; /// \todo put code for adding a cell here (see #852)
 }
+
 
 template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
@@ -95,6 +133,7 @@ unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
     
     return num_removed;
 }
+
 
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::Update()
@@ -127,6 +166,7 @@ void VertexBasedTissue<DIM>::Update()
     Validate();
 }
 
+
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::Validate()
 {
@@ -150,6 +190,7 @@ void VertexBasedTissue<DIM>::Validate()
         }
     }
 }
+
 
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
@@ -214,6 +255,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                   cell_cycle_phase_counter);
 }
 
+
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                                bool rCleanOutputDirectory,
@@ -235,6 +277,7 @@ void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
 }
 
+
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                               bool outputCellTypes,
@@ -249,6 +292,11 @@ void VertexBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                           outputCellAncestors);
     mpElementFile->close();
 }
+
+
+template<unsigned DIM>
+std::string VertexBasedTissue<DIM>::meshPathname = "";
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

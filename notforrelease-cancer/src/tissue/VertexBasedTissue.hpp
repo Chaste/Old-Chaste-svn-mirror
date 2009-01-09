@@ -55,12 +55,36 @@ private:
 
     /** Vertex-based mesh associated with the tissue. */
     VertexMesh<DIM, DIM>& mrMesh;
+
+    /**
+     * Whether to delete the mesh when we are destroyed.
+     * Needed if this tissue has been de-serialized.
+     */
+    bool mDeleteMesh;
     
     /** Results file for elements. */
     out_stream mpElementFile;
-
+    
+    friend class boost::serialization::access;
+    /**
+     * Serialize the facade.
+     *
+     * Note that serialization of the mesh and cells is handled by load/save_construct_data.
+     *
+     * Note also that member data related to writers is not saved - output must
+     * be set up again by the caller after a restart.
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
+    }
+    
 public:
 
+    /** Hack until meshes are fully archived using boost::serialization. */
+    static std::string meshPathname;
+    
     /**
      * Create a new tissue facade from a mesh and collection of cells.
      *
@@ -69,16 +93,35 @@ public:
      *
      * @param rMesh reference to a VertexMesh
      * @param cells reference to a vector of TissueCells
+     * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      * @param validate whether to validate the tissue when it is created (defaults to true)
      */
     VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                       const std::vector<TissueCell>& rCells,
+                      bool deleteMesh=false,
                       bool validate=true);
+
+    /**
+     * Constructor for use by the de-serializer.
+     *
+     * @param rMesh a vertex mesh.
+     */
+    VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh);
 
     /**
      * Destructor, which frees any memory allocated by the constructor.
      */
     virtual ~VertexBasedTissue();
+
+    /**
+     * @return reference to  mrMesh.
+     */
+    VertexMesh<DIM, DIM>& rGetMesh();
+
+    /**
+     * @return const reference to mrMesh (used in archiving).
+     */
+    const VertexMesh<DIM, DIM>& rGetMesh() const;
 
     /**
      * Get a particular VertexElement.
@@ -361,6 +404,53 @@ public:
 
 #include "TemplatedExport.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(VertexBasedTissue)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a Tissue facade.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const VertexBasedTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const VertexMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
+    ar & p_mesh;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Tissue.
+ * Loads the mesh from separate files.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, VertexBasedTissue<DIM> * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    assert(VertexBasedTissue<DIM>::meshPathname.length() > 0);
+    VertexMesh<DIM,DIM>* p_mesh;
+    ar >> p_mesh;
+
+    // Re-initialise the mesh
+
+    /// \todo: implement proper archiving by re-initialising a VertexMesh using 
+    ///        a new method similar to ConstructFromMeshReader()
+//    p_mesh->Clear();
+//    TrianglesMeshReader<DIM,DIM> mesh_reader(MeshBasedTissue<DIM>::meshPathname);
+//    p_mesh->ConstructFromMeshReader(mesh_reader);
+
+//    // Needed for cylindrical meshes at present; should be safe in any case.
+//    NodeMap map(p_mesh->GetNumElements());
+//    p_mesh->ReMesh(map);
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)VertexBasedTissue<DIM>(*p_mesh);
+}
+}
+} // namespace ...
 
 #endif /*VERTEXBASEDTISSUE_HPP_*/
 
