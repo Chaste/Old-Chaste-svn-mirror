@@ -57,8 +57,13 @@ public :
      */
     virtual ~AbstractForce();
 
-    /**
-     * Overridden AddForceContribution() method.
+    /** 
+     * Calculates the force on each node. 
+     * 
+     * This method must be overridden in concrete classes.
+     *
+     * @param rForces reference to vector of forces on nodes
+     * @param rTissue reference to the tissue
      */
     virtual void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                       AbstractTissue<DIM>& rTissue)=0;
