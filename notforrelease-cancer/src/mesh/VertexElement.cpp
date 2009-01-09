@@ -1,0 +1,324 @@
+/*
+
+Copyright (C) University of Oxford, 2008
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+#include "VertexElement.hpp"
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
+    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+{
+    RegisterWithNodes();
+    mVertexElementArea = DOUBLE_UNSET;
+    mVertexElementPerimeter = DOUBLE_UNSET;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM, SPACE_DIM>::~VertexElement()
+{
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::RegisterWithNodes()
+{
+    for (unsigned i=0; i<this->mNodes.size(); i++)
+    {
+        this->mNodes[i]->AddElement(this->mIndex);
+    }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<Node<SPACE_DIM>*> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodes()
+{
+    return mNodes;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
+{
+    // Mark element as deleted
+    this->mIsDeleted = true;
+    
+    // Update nodes in the element so they know they are not contained by it
+    for (unsigned i=0; i<this->GetNumNodes(); i++)
+    {
+        this->mNodes[i]->RemoveElement(this->mIndex);
+    }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+{
+    assert(rIndex < this->mNodes.size());
+
+    // Remove it from the node at this location
+    this->mNodes[rIndex]->RemoveElement(this->mIndex);
+
+    // Update the node at this location
+    this->mNodes[rIndex] = pNode;
+
+    // Add element to this node
+    this->mNodes[rIndex]->AddElement(this->mIndex);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>   
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
+{
+    assert(rIndex < this->mNodes.size());
+    
+    // Remove element from the node at this location
+    this->mNodes[rIndex]->RemoveElement(this->mIndex);
+    
+    // Remove the node at rIndex (removes node from element)
+    this->mNodes.erase( this->mNodes.begin( ) + rIndex );
+
+    // Update perimeter and area
+        CalculateVertexElementAreaAndPerimeter();
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::DivideEdge(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+{
+    assert(rIndex < this->mNodes.size());
+
+    // Update the pNode location
+    c_vector<double, SPACE_DIM> position;
+    for (unsigned i=0; i<SPACE_DIM; i++)
+    {
+        position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i]+this->mNodes[rIndex+1]->GetPoint()[i]);
+    }
+    ChastePoint<SPACE_DIM> point(position);
+    
+    pNode->SetPoint(point);
+    
+    // Add pNode to rIndex+1 element of mNodes pushing the others up.
+    this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
+
+    // Add element to this node
+    this->mNodes[rIndex+1]->AddElement(this->mIndex);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateVertexElementAreaAndPerimeter()
+{
+    assert(SPACE_DIM == 2);
+    
+    c_vector<double, SPACE_DIM> current_node;
+    c_vector<double, SPACE_DIM> anticlockwise_node; 
+    
+    double temp_vertex_element_area = 0;
+    double temp_vertex_element_perimeter = 0;
+    unsigned number_of_nodes = this->GetNumNodes();
+           
+    for (unsigned i=0; i<number_of_nodes; i++)
+    {
+        // Find locations of current node and anticlockwise node
+        current_node = this->GetNodeLocation(i);
+        anticlockwise_node = this->GetNodeLocation((i+1)%number_of_nodes);
+        
+        /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
+        
+        temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1] 
+                                          - anticlockwise_node[0]*current_node[1]);
+            
+        temp_vertex_element_perimeter += norm_2(current_node-anticlockwise_node);
+    }
+    
+    mVertexElementArea = temp_vertex_element_area;
+    mVertexElementPerimeter = temp_vertex_element_perimeter;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
+double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetArea()
+{
+    if (mVertexElementArea == DOUBLE_UNSET)
+    {
+        this->CalculateVertexElementAreaAndPerimeter();
+    }
+    
+    return mVertexElementArea;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeter()
+{
+    if (mVertexElementPerimeter == DOUBLE_UNSET)
+    {
+        this->CalculateVertexElementAreaAndPerimeter();
+    }
+    
+    return mVertexElementPerimeter;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>  
+c_vector<double, 3> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateMoments()
+{
+    assert(SPACE_DIM == 2);
+    
+    c_vector<double, 3> moments = zero_vector<double>(3);
+    
+    unsigned node_1;
+    unsigned node_2;
+    unsigned num_nodes = this->GetNumNodes();
+
+    for (unsigned i=0; i<num_nodes; i++)
+    {
+        node_1 = i;
+        node_2 = (i+1)%num_nodes;
+
+        c_vector<double, 2> pos_1 = this->mNodes[node_1]->rGetLocation();
+        c_vector<double, 2> pos_2 = this->mNodes[node_2]->rGetLocation();
+
+        // Ixx
+        moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
+                                           + pos_1(1)*pos_1(1)*pos_2(1)
+                                           + pos_1(1)*pos_2(1)*pos_2(1)
+                                           + pos_2(1)*pos_2(1)*pos_2(1));
+
+        // Iyy
+        moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
+                                           + pos_1(0)*pos_1(0)*pos_2(0)
+                                           + pos_1(0)*pos_2(0)*pos_2(0)
+                                           + pos_2(0)*pos_2(0)*pos_2(0));
+
+        // Ixy
+        moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
+                      - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
+                      + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
+    }
+
+    moments(0) /= -12;
+    moments(1) /= 12;
+    moments(2) /= 24;
+
+    return moments;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCentroid()
+{
+    assert(SPACE_DIM == 2);
+    
+    c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
+    c_vector<double, SPACE_DIM> current_node;
+    c_vector<double, SPACE_DIM> anticlockwise_node; 
+    
+    double temp_centroid_x = 0;
+    double temp_centroid_y = 0;
+     
+    unsigned num_nodes = this->GetNumNodes();
+           
+    for (unsigned i=0; i<num_nodes; i++)
+    {
+        // Find locations of current node and anticlockwise node
+        current_node = this->GetNodeLocation(i);
+        anticlockwise_node = this->GetNodeLocation((i+1)%num_nodes);
+        
+        /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
+        
+        temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
+        temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               
+    }
+
+    double vertex_area = this->VertexElement<2u,2u>::GetArea();
+    double centroid_coefficient = 1.0/6.0/vertex_area;
+    
+    centroid(0) = centroid_coefficient*temp_centroid_x;
+    centroid(1) = centroid_coefficient*temp_centroid_y;
+    
+    return centroid;        
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShortAxis()
+{
+    assert(SPACE_DIM == 2);
+    
+    c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
+    
+    c_vector<double, 3> moments = this->VertexElement<2u,2u>::CalculateMoments();
+    
+    double largest_eigenvalue, discriminant;            
+    
+    discriminant = sqrt((moments(0) - moments(1))*(moments(0) - moments(1)) + 4.0*moments(2)*moments(2));
+    
+    // This is always the largest eigenvalue as both eigenvalues are real as it is a 
+    // symmetric matrix
+    largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;       
+
+    if (fabs(discriminant) < 1e-10)
+    {
+        // Return a random unit vector
+        short_axis(0) = RandomNumberGenerator::Instance()->ranf();
+        short_axis(1) = sqrt(1.0-short_axis(0)*short_axis(0));
+    }
+    
+    else
+    {                      
+        if (moments(2) == 0.0)
+        {
+             short_axis(0) = 0.0;
+             short_axis(1) = 1.0;                       
+        }
+                     
+        else
+        {
+            short_axis(0) = 1.0;
+            short_axis(1) = (moments(0) - largest_eigenvalue)/moments(2);
+            
+            double length_short_axis = norm_2(short_axis);
+            
+            short_axis /= length_short_axis;
+        }     
+    }                                           
+        
+    return short_axis;        
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////////////
+
+template class Element<1,1>;
+template class Element<1,2>;
+template class Element<2,2>;
+template class Element<2,3>;
+template class Element<3,3>;
