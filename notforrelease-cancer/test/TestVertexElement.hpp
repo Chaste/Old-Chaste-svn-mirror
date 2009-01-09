@@ -48,8 +48,8 @@ public:
 //        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
 //        
 //        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
-//        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),1.0,1e-6);
-//        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),4.0,1e-6);
+//        TS_ASSERT_DELTA(vertex_element.GetArea(),1.0,1e-6);
+//        TS_ASSERT_DELTA(vertex_element.GetPerimeter(),4.0,1e-6);
 //       
         std::vector<Node<2>*> nodes;
         unsigned N = 6;   //vertices
@@ -60,8 +60,8 @@ public:
         }
         VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
         
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),3*sqrt(3)/2.0,1e-4);
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),6.0,1e-4);
+        TS_ASSERT_DELTA(vertex_element.GetArea(),3*sqrt(3)/2.0,1e-4);
+        TS_ASSERT_DELTA(vertex_element.GetPerimeter(),6.0,1e-4);
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
              
         vertex_element.DeleteNode(3); // Removes (-1,0) node
@@ -84,8 +84,8 @@ public:
         TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
 
         // Tests Areas updated
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),sqrt(3.0),1e-6);
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),2.0+2.0*sqrt(3.0),1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetArea(),sqrt(3.0),1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetPerimeter(),2.0+2.0*sqrt(3.0),1e-6);
                  
         for (unsigned i=0; i<nodes.size(); ++i)
         {
@@ -112,8 +112,8 @@ void TestVertexElementDivideEdge()
         // Test edge is divided
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 5u);
         
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),1.0,1e-6);
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),4.0,1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetArea(),1.0,1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetPerimeter(),4.0,1e-6);
                  
         // Test other nodes are updated
         TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.0, 1e-9);
@@ -149,8 +149,8 @@ void TestVertexElementDivideEdge()
             TS_ASSERT_EQUALS(vertex_element.GetNodeGlobalIndex(i), i);
         }
         
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),1.0,1e-6);
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),4.0,1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetArea(),1.0,1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetPerimeter(),4.0,1e-6);
         
         for (unsigned i=0; i<corner_nodes.size(); ++i)
         {
@@ -176,8 +176,8 @@ void TestVertexElementDivideEdge()
             TS_ASSERT_EQUALS(vertex_element.GetNodeGlobalIndex(i), i);
         }
         
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementArea(),M_PI,1e-4);
-        TS_ASSERT_DELTA(vertex_element.GetVertexElementPerimeter(),2.0*M_PI,1e-4);
+        TS_ASSERT_DELTA(vertex_element.GetArea(),M_PI,1e-4);
+        TS_ASSERT_DELTA(vertex_element.GetPerimeter(),2.0*M_PI,1e-4);
         
         for (unsigned i=0; i<nodes.size(); ++i)
         {
@@ -226,8 +226,8 @@ void TestVertexElementDivideEdge()
         }
         VertexElement<2,2> hexagon(INDEX_IS_NOT_USED, nodes);
         
-        TS_ASSERT_DELTA(hexagon.GetVertexElementArea(),3*sqrt(3)/2.0,1e-4);
-        TS_ASSERT_DELTA(hexagon.GetVertexElementPerimeter(),6.0,1e-4);
+        TS_ASSERT_DELTA(hexagon.GetArea(),3*sqrt(3)/2.0,1e-4);
+        TS_ASSERT_DELTA(hexagon.GetPerimeter(),6.0,1e-4);
         
         c_vector<double, 3> moments = hexagon.CalculateMoments();
         TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16, 1e-6);    // Ixx
@@ -273,8 +273,8 @@ void TestVertexElementDivideEdge()
         
         VertexElement<2,2> rectangle1(INDEX_IS_NOT_USED, nodes1);
        
-        TS_ASSERT_DELTA(rectangle1.GetVertexElementArea(),8.0,1e-4);
-        TS_ASSERT_DELTA(rectangle1.GetVertexElementPerimeter(),12.0,1e-4);
+        TS_ASSERT_DELTA(rectangle1.GetArea(),8.0,1e-4);
+        TS_ASSERT_DELTA(rectangle1.GetPerimeter(),12.0,1e-4);
         
         c_vector<double, 2> centroid = rectangle1.CalculateCentroid();
         TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
@@ -299,8 +299,8 @@ void TestVertexElementDivideEdge()
         
         VertexElement<2,2> rectangle2(INDEX_IS_NOT_USED, nodes2);
        
-        TS_ASSERT_DELTA(rectangle2.GetVertexElementArea(),sqrt(3.0),1e-4);
-        TS_ASSERT_DELTA(rectangle2.GetVertexElementPerimeter(),2.0*sqrt(3.0)+2.0,1e-4);
+        TS_ASSERT_DELTA(rectangle2.GetArea(),sqrt(3.0),1e-4);
+        TS_ASSERT_DELTA(rectangle2.GetPerimeter(),2.0*sqrt(3.0)+2.0,1e-4);
         
         centroid = rectangle2.CalculateCentroid();
         TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);

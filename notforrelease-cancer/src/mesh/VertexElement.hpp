@@ -105,13 +105,6 @@ public:
      * Informs all nodes forming this element that they are in this element.
      */
     void RegisterWithNodes();
-    
-    /** 
-     * \todo should this return a reference? (see #861)
-     * 
-     * @return mNodes 
-     */
-    std::vector<Node<SPACE_DIM>*> GetNodes();
 
     /**
      * Overridden MarkAsDeleted() method.

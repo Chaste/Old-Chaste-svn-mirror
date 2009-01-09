@@ -53,14 +53,6 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::RegisterWithNodes()
     }
 }
 
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<Node<SPACE_DIM>*> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodes()
-{
-    return mNodes;
-}
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
 {
@@ -256,7 +248,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCent
         temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               
     }
 
-    double vertex_area = this->VertexElement<2u,2u>::GetArea();
+    double vertex_area = GetArea();
     double centroid_coefficient = 1.0/6.0/vertex_area;
     
     centroid(0) = centroid_coefficient*temp_centroid_x;
@@ -273,7 +265,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
     
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
     
-    c_vector<double, 3> moments = this->VertexElement<2u,2u>::CalculateMoments();
+    c_vector<double, 3> moments = CalculateMoments();
     
     double largest_eigenvalue, discriminant;            
     
@@ -317,8 +309,8 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
-template class Element<1,1>;
-template class Element<1,2>;
-template class Element<2,2>;
-template class Element<2,3>;
-template class Element<3,3>;
+template class VertexElement<1,1>;
+template class VertexElement<1,2>;
+template class VertexElement<2,2>;
+template class VertexElement<2,3>;
+template class VertexElement<3,3>;

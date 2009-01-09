@@ -55,144 +55,147 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp)
 {
-    assert(numAcross>1);
-    unsigned node_index = 0;
-    
-    // Create the nodes
-    for (unsigned j=0; j<=2*numUp+1; j++)
-    {
-        if (j%2 == 0)
+    if (SPACE_DIM==2)
+    {    
+        assert(numAcross > 1);
+        unsigned node_index = 0;
+        
+        // Create the nodes
+        for (unsigned j=0; j<=2*numUp+1; j++)
         {
-            for (unsigned i=1; i<=3*numAcross+1; i+=2)
+            if (j%2 == 0)
             {
-                if (j!=0 || i!= 3*numAcross+1)
+                for (unsigned i=1; i<=3*numAcross+1; i+=2)
                 {
-                    if (i%3 != 2)
+                    if (j!=0 || i!= 3*numAcross+1)
                     {
-                        Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)),j/2.0);
-                        mNodes.push_back(p_node);
-                        node_index++;
+                        if (i%3 != 2)
+                        {
+                            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)),j/2.0);
+                            mNodes.push_back(p_node);
+                            node_index++;
+                        }
                     }
                 }
             }
-        }
-        else 
-        {
-            for (unsigned i=0; i<=3*numAcross+1; i+=2)
+            else 
             {
-                if ((j!=2*numUp+1 || i != 0) && (j!=2*numUp+1 || i!= 3*numAcross+1))
+                for (unsigned i=0; i<=3*numAcross+1; i+=2)
                 {
-                    if (i%3 != 2)
+                    if ((j!=2*numUp+1 || i != 0) && (j!=2*numUp+1 || i!= 3*numAcross+1))
                     {
-                        Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
-                        mNodes.push_back(p_node);
-                        node_index++;
+                        if (i%3 != 2)
+                        {
+                            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                            mNodes.push_back(p_node);
+                            node_index++;
+                        }
                     }
                 }
             }
-        }
-    }  
-    
-    // Create the elements. The array node_indices contains the 
-    // global node indices from bottom left, going anticlockwise.
-    
-    unsigned node_indices[6];
-    unsigned element_index;
-    
-    for (unsigned j=0; j<numUp; j++)
-    {
+        }  
+        
+        // Create the elements. The array node_indices contains the 
+        // global node indices from bottom left, going anticlockwise.
+        
+        unsigned node_indices[6];
+        unsigned element_index;
+        
+        for (unsigned j=0; j<numUp; j++)
         {
-            for (unsigned i=0; i<numAcross; i++)
             {
-                element_index=j*numAcross+i;
-                
-                if (numAcross%2==0) // numAcross is even
+                for (unsigned i=0; i<numAcross; i++)
                 {
-                    if (j == 0)     // bottom row
+                    element_index=j*numAcross+i;
+                    
+                    if (numAcross%2==0) // numAcross is even
+                    {
+                        if (j == 0)     // bottom row
+                        {
+                            if (i%2 == 0) // even
+                            {
+                                node_indices[0] = i;
+                            }
+                            else // odd
+                            {
+                                node_indices[0] = numAcross+i;
+                            }                                           
+                        }                       
+                        else    // not on the bottom row 
+                        {
+                             if (i%2 == 0) // even
+                            {
+                                node_indices[0] = (2*numAcross+1)+2*(j-1)*(numAcross+1)+i;
+                            }
+                            else // odd
+                            {
+                                node_indices[0] = (2*numAcross+1)+(2*j-1)*(numAcross+1)+i;
+                            }                        
+                        }
+                            
+                    }
+                    else // numAcross is odd
                     {
                         if (i%2 == 0) // even
                         {
-                            node_indices[0] = i;
+                            node_indices[0] = 2*j*(numAcross+1)+i;
                         }
                         else // odd
                         {
-                            node_indices[0] = numAcross+i;
-                        }                                           
-                    }                       
-                    else    // not on the bottom row 
-                    {
-                         if (i%2 == 0) // even
-                        {
-                            node_indices[0] = (2*numAcross+1)+2*(j-1)*(numAcross+1)+i;
+                            node_indices[0] = (2*j+1)*(numAcross+1)+i;
                         }
-                        else // odd
-                        {
-                            node_indices[0] = (2*numAcross+1)+(2*j-1)*(numAcross+1)+i;
-                        }                        
                     }
-                        
-                }
-                else // numAcross is odd
-                {
-                    if (i%2 == 0) // even
+                    node_indices[1] = node_indices[0]+1;
+                    node_indices[2] = node_indices[0]+numAcross+2;
+                    node_indices[3] = node_indices[0]+2*numAcross+3;
+                    node_indices[4] = node_indices[0]+2*numAcross+2;
+                    node_indices[5] = node_indices[0]+numAcross+1;
+                     
+                    if ((j==numUp-1)&&(i%2 == 1))
                     {
-                        node_indices[0] = 2*j*(numAcross+1)+i;
+                        // On top row and its an odd column nodes 
+                        node_indices[3]-=1;
+                        node_indices[4]-=1;
                     }
-                    else // odd
+                      
+                    if ((j==0)&&(i%2 == 0)&&(numAcross%2==0))
                     {
-                        node_indices[0] = (2*j+1)*(numAcross+1)+i;
+                        // On bottom row and its an even column and there is
+                        // an even number of columns in total, (i.e. the very bottom) 
+                        node_indices[2]-=1;
+                        node_indices[3]-=1;
+                        node_indices[4]-=1;
+                        node_indices[5]-=1;
                     }
+    
+                    std::vector<Node<SPACE_DIM>*> element_nodes;
+                    
+                    for (int i=0; i<6; i++)
+                    {
+                       element_nodes.push_back(mNodes[node_indices[i]]);
+                    }
+                    VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(element_index, element_nodes);
+                    mElements.push_back(p_element);
                 }
-                node_indices[1] = node_indices[0]+1;
-                node_indices[2] = node_indices[0]+numAcross+2;
-                node_indices[3] = node_indices[0]+2*numAcross+3;
-                node_indices[4] = node_indices[0]+2*numAcross+2;
-                node_indices[5] = node_indices[0]+numAcross+1;
-                 
-                if ((j==numUp-1)&&(i%2 == 1))
-                {
-                    // On top row and its an odd column nodes 
-                    node_indices[3]-=1;
-                    node_indices[4]-=1;
-                }
-                  
-                if ((j==0)&&(i%2 == 0)&&(numAcross%2==0))
-                {
-                    // On bottom row and its an even column and there is
-                    // an even number of columns in total, (i.e. the very bottom) 
-                    node_indices[2]-=1;
-                    node_indices[3]-=1;
-                    node_indices[4]-=1;
-                    node_indices[5]-=1;
-                }
-
-                std::vector<Node<2>*> element_nodes;
-                
-                for (int i=0; i<6; i++)
-                {
-                   element_nodes.push_back(mNodes[node_indices[i]]);
-                }
-                VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index, element_nodes);
-                mElements.push_back(p_element);
             }
-        }
-    }  
-
-//    HoneycombMeshGenerator generator(numAcross+1,numUp+1,0,false);
-//    MutableMesh<2,2>* p_mesh = generator.GetMesh();
-//    VoronoiTessellation<2> tessellation(*p_mesh);
-//    
-//    for (unsigned i = 0;i<tessellation.GetNumVertices();i++)
-//    {
-//        c_vector<double,2>* position = tessellation.GetVertex(i);
-//        Node<2>* p_node = new Node<2>(0, false, (*position)(0), (*position)(1));
-//        mNodes.push_back(p_node);
-//    }    
-
-    /// \todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
-    //         the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
-
-    mAllocatedMemory = true;
+        }  
+    
+    //    HoneycombMeshGenerator generator(numAcross+1,numUp+1,0,false);
+    //    MutableMesh<2,2>* p_mesh = generator.GetMesh();
+    //    VoronoiTessellation<2> tessellation(*p_mesh);
+    //    
+    //    for (unsigned i = 0;i<tessellation.GetNumVertices();i++)
+    //    {
+    //        c_vector<double,2>* position = tessellation.GetVertex(i);
+    //        Node<2>* p_node = new Node<2>(0, false, (*position)(0), (*position)(1));
+    //        mNodes.push_back(p_node);
+    //    }    
+    
+        /// \todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
+        //         the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
+    
+        mAllocatedMemory = true;
+    }
 }
 
 

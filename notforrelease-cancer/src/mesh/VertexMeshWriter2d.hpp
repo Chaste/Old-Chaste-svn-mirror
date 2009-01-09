@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERTEXMESHWRITER2D_HPP_
 #define VERTEXMESHWRITER2D_HPP_
 
+#include "VertexMesh.hpp"
 #include "OutputFileHandler.hpp"
 #include <iomanip>
 
