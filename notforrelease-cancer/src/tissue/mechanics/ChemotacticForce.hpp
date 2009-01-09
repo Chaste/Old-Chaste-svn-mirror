@@ -91,12 +91,10 @@ public:
     ~ChemotacticForce();
 
     /**
-     * Calculates the force on each node.
+     * Overridden AddForceContribution() method.
      *
      * @param rForces reference to vector of forces on nodes
      * @param rTissue reference to the tissue
-     * 
-     * @return the force components on each node. Of size NUM_NODES x DIM.
      *
      * Fc = chi(C,|gradC|) gradC/|gradC|  (if |gradC|>0, else Fc = 0)
      *
