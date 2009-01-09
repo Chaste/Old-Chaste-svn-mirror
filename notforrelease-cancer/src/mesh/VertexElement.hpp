@@ -150,7 +150,14 @@ public:
      * @return mVertexElementArea.
      */
     double GetArea();
-
+    
+    /**
+     * @param localIndex local index of a node owned by the element
+     * 
+     * @return the gradient of the area, evaluated at the node with a given local index
+     */
+    c_vector<double, SPACE_DIM> GetGradientOfAreaAtNode(unsigned localIndex);
+    
     /**
      * @return mVertexElementPerimeter.
      */        

@@ -166,6 +166,28 @@ double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetArea()
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetGradientOfAreaAtNode(unsigned localIndex)
+{
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+    #undef COVERAGE_IGNORE
+
+    c_vector<double, SPACE_DIM> area_gradient;
+    
+    unsigned next_index = (localIndex+1)%(this->GetNumNodes());
+    unsigned previous_index = (localIndex-1)%(this->GetNumNodes());
+      
+    c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
+    c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
+
+    area_gradient[0] = 0.5*(next_node_location[1] - previous_node_location[1]);
+    area_gradient[1] = 0.5*(next_node_location[0] - previous_node_location[0]);
+
+    return area_gradient;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeter()
 {
     if (mVertexElementPerimeter == DOUBLE_UNSET)

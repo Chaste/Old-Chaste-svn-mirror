@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChemotacticForce.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "CryptProjectionForce.hpp"
+#include "VertexBasedTissueForce.hpp"
+#include "VertexBasedTissue.hpp"
 #include "WntConcentration.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -601,6 +603,42 @@ public:
 
         TS_ASSERT_DELTA(new_node_forces[58][0], 2*0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
+    }
+    
+    void TestVertexBasedTissueForceMethods() throw (Exception)
+    {
+        // Create a vertex mesh
+        VertexMesh<2,2> mesh(5,5); // columns then rows
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+            double birth_time = 0.0-i;
+            cell.SetLocationIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+
+        // Create force law
+        VertexBasedTissueForce<2> force;        
+
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
+
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+             node_forces.push_back(zero_vector<double>(2));
+        }
+        
+        force.AddForceContribution(node_forces, tissue);
+        
+        /// \todo add tests! (see #861)
     }
 
 };
