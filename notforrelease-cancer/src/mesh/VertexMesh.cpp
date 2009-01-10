@@ -325,76 +325,43 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
          * cell rearrangements.
          */
 
-        // Start of cell rearrangement code...
+        // Start of element rearrangement code...
         
         // Loop over elements
         for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
         {
-            c_vector<double, SPACE_DIM> current_node;
-            c_vector<double, SPACE_DIM> anticlockwise_node;
-            
             unsigned num_nodes = mElements[elem_index]->GetNumNodes();
 
             // Loop over element vertices
             for (unsigned local_index=0; local_index<num_nodes; local_index++)
             {
                 // Find locations of current node and anticlockwise node
-                current_node = mElements[elem_index]->GetNodeLocation(local_index);
-                anticlockwise_node = mElements[elem_index]->GetNodeLocation((local_index+1)%num_nodes);
+                Node<SPACE_DIM>* p_current_node = mElements[elem_index]->GetNode(local_index);
+                Node<SPACE_DIM>* p_anticlockwise_node = mElements[elem_index]->GetNode(local_index);
                 
                 // Find distance between nodes
-                double distance_between_nodes = norm_2(current_node - anticlockwise_node);
+                double distance_between_nodes = norm_2(p_current_node->rGetLocation() - p_anticlockwise_node->rGetLocation());
 
                 if (distance_between_nodes < mThresholdDistance)
                 {
-                    /*
-                     * Compute the locations of two new nodes, placed on either side of the 
-                     * edge E_old formed by nodes current_node and anticlockwise_node, such 
-                     * that the edge E_new formed by the new nodes is the perpendicular bisector 
-                     * of E_old, with |E_new| 'just larger' than mThresholdDistance.
-                     * 
-                     * Note that neither of the new nodes will be boundary nodes.
-                     */
-                     
-                     
-                     /*
-                      * Now determine the pair of elements that are common to both nodes 
-                      * current_node and anticlockwise_node, and the remaining two cells that 
-                      * are individually junctioned at one or the other node.
-                      */
-//                    std::set<unsigned> current_node_elem_indices = mElements[elem_index]->GetNode(local_index)->rGetContainingElementIndices();
-//                    std::set<unsigned> anticlockwise_node_elem_indices = mElements[elem_index]->GetNode((local_index+1)%num_nodes)->rGetContainingElementIndices();
-//                    
-//                    std::set<unsigned> element_indices;
-//                    set_union(current_node_elem_indices.begin(), current_node_elem_indices.end(),
-//                              anticlockwise_node_elem_indices.begin(), anticlockwise_node_elem_indices.end(),
-//                              element_indices.begin());
-
-                    /*
-                     * Next remove nodes current_node and anticlockwise_node and add the two 
-                     * new nodes. It probably makes more sense to just move these nodes to the 
-                     * new node locations, using the UpdateNode() method on VertexElement.
-                     */
-
-                    /*
-                     * Establish connectivity at the new nodes, and update the elements 
-                     * with indices element_indices.
-                     */
-                }            
+                    PerformT1Swap(p_current_node, p_anticlockwise_node);
+                } 
             }
         }        
-        // ... end of cell rearrangement code
+        // ... end of element rearrangement code
     }
     else // 3D
     {
-        /// \todo put code for remeshing in 3D here
-        //        (see #827, and the 2003 paper by Nagai et al, doi:10.1016/j.jtbi.2003.10.001)
+        #define COVERAGE_IGNORE
+        EXCEPTION("Remeshing has not tes been implemented in 3D (see #827 and #860)\n");
+        #undef COVERAGE_IGNORE
+        /// \todo put code for remeshing in 3D here (see also the paper doi:10.1016/j.jtbi.2003.10.001)
     }    
 }
   
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::T1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -402,11 +369,78 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::T1Swap(Node<SPACE_DIM>* pNodeA, Node<SP
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
 
-    // Find elements containing nodes A and B
+    /*
+     * Find elements containing nodes A and B
+     * 
+     * \todo try using set_union instead
+     */
+    std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
+    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();    
+    std::set<unsigned> neighbouring_element_indices;
     
-    // Move Nodes A to C and node B to D.
+    for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
+         it != nodeA_elem_indices.end(); ++it)
+    {
+        neighbouring_element_indices.insert(*it);
+    }
+    for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
+         it != nodeB_elem_indices.end(); ++it)
+    {
+        neighbouring_element_indices.insert(*it);
+    }
+
+    /*
+     * Compute the locations of two new nodes C, D, placed on either side of the 
+     * edge E_old formed by nodes current_node and anticlockwise_node, such 
+     * that the edge E_new formed by the new nodes is the perpendicular bisector 
+     * of E_old, with |E_new| 'just larger' than mThresholdDistance.
+     */
+    c_vector<double, SPACE_DIM> nodeA_location = pNodeA->rGetLocation();
+    c_vector<double, SPACE_DIM> nodeB_location = pNodeB->rGetLocation(); 
     
-    // Restructure elements -- Remember to update nodes and elements
+    double distance_between_nodes_AB = norm_2(nodeB_location - nodeA_location);
+    double distance_between_nodes_CD = 2*mThresholdDistance; /// \todo Decide what this should really be (see #860)
+    
+    double hypotenuse = 0.5*sqrt(pow(distance_between_nodes_CD, 2.0) + pow(distance_between_nodes_AB, 2.0));
+    
+    double angle_ABC = atan(distance_between_nodes_CD/distance_between_nodes_AB);
+    double angle_between_AB_and_horizontal = atan2(nodeB_location[1]-nodeA_location[1], 
+                                                   nodeB_location[0]-nodeA_location[0]);
+    
+    double x_offset_from_nodeB = hypotenuse*sin(angle_ABC + angle_between_AB_and_horizontal);
+    double y_offset_from_nodeB = hypotenuse*cos(angle_ABC + angle_between_AB_and_horizontal);
+    
+    c_vector<double, SPACE_DIM> nodeC_location;
+    nodeC_location[0] = nodeB_location[0] - x_offset_from_nodeB;
+    nodeC_location[1] = nodeB_location[1] - y_offset_from_nodeB;
+    
+    c_vector<double, SPACE_DIM> nodeD_location = nodeA_location + nodeB_location - nodeC_location;
+     
+    /*
+     * Move Nodes A to C and node B to D
+     */
+    c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
+    r_nodeA_location = nodeC_location;
+    
+    c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeA->rGetModifiableLocation();
+    r_nodeB_location = nodeD_location;
+    
+    /*
+     * Restructure elements - remember to update nodes and elements.
+     * 
+     * We need to implement the following changes:
+     * 
+     * The element whose index was in nodeA_elem_indices but not nodeB_elem_indices,
+     * and the element whose index was in nodeB_elem_indices but not nodeA_elem_indices,
+     * should now both contain nodes A and B. 
+     * 
+     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
+     * node C lies inside, should now only contain node A. 
+     * 
+     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
+     * node D lies inside, should now only contain node B.
+     * 
+     */
 }
 
 

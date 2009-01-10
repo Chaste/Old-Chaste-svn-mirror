@@ -47,6 +47,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMesh
 {
+    friend class TestVertexMesh;
+    
 private:
 
     /** Vector of pointers to Nodes. */
@@ -60,6 +62,14 @@ private:
 
     /** Create correspondences between VertexElements and Nodes in the mesh. */
     void SetupVertexElementsOwnedByNodes();
+    
+    /**
+     * Helper method for ReMesh to perform the T1 Swap
+     * 
+     * @param rNodeA one of the nodes to perform the swap with 
+     * @param rNodeB the other node to perform the swap
+     */  
+    void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -143,14 +153,12 @@ public:
      *            with the correct size, GetNumElements()
      */
     void ReMesh(NodeMap& elementMap);
-
-    /**
-     * Helper method for ReMesh to perform the T-1 Swap
-     * @param NodeA one of the nodes to perform the swap with 
-     *        NodeB the other node to perform the swap
-     */  
-    void T1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
     
+    /** 
+     * Construct the mesh using a mesh reader.
+     * 
+     * @param rMeshReader the mesh reader
+     */
     void ConstructFromMeshReader(VertexMeshReader2d& rMeshReader);
 
 };

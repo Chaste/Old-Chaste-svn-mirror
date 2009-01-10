@@ -181,7 +181,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u); 
         
         // Perform a T1 swap on nodes 4 and 5
-        vertex_mesh.T1Swap(vertex_mesh.GetNode(4),vertex_mesh.GetNode(4));
+        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(4));
         
         // Test some random nodes are in the correct place
         TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0],0.4,1e-8);
