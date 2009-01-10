@@ -14,5 +14,6 @@ TestTissueSimulationWithNutrientsAssembler.hpp
 TestTissueSimulationWithVertexBasedTissue.hpp
 TestVertexBasedTissue.hpp
 TestVertexMesh.hpp
-TestVertexMeshWriter2d.hpp
+TestVertexMeshReader2d.hpp
+TestVertexMeshWriter.hpp
 TestVertexElement.hpp

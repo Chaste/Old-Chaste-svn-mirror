@@ -37,7 +37,7 @@ class TestVertexElement : public CxxTest::TestSuite
 {
 public:
 
- void TestVertexElementDeleteNode()
+    void TestVertexElementDeleteNode()
     {
 //        std::vector<Node<2>*> corner_nodes;
 //        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
@@ -94,7 +94,7 @@ public:
      }
 
 
-void TestVertexElementDivideEdge()
+    void TestVertexElementDivideEdge()
     {
         std::vector<Node<2>*> corner_nodes;
         corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
@@ -131,7 +131,8 @@ void TestVertexElementDivideEdge()
         }
         delete new_node;
      }
-     
+
+
     void TestVertexElementAreaAndPerimeter()
     {
         std::vector<Node<2>*> corner_nodes;
@@ -158,7 +159,8 @@ void TestVertexElementDivideEdge()
         }
      }
 
-    void TestGetGradientOfAreaAtNode()
+
+    void TestGetAreaGradientAtNode()
     {
         std::vector<Node<2>*> corner_nodes;
         corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
@@ -168,19 +170,19 @@ void TestVertexElementDivideEdge()
     
         VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
         
-        c_vector<double, 2> element_area_gradient = vertex_element.GetGradientOfAreaAtNode(0);        
+        c_vector<double, 2> element_area_gradient = vertex_element.GetAreaGradientAtNode(0);        
         TS_ASSERT_DELTA(element_area_gradient[0], -0.5, 1e-6);
         TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
         
-        element_area_gradient = vertex_element.GetGradientOfAreaAtNode(1);        
+        element_area_gradient = vertex_element.GetAreaGradientAtNode(1);        
         TS_ASSERT_DELTA(element_area_gradient[0], 0.5, 1e-6);
         TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
         
-        element_area_gradient = vertex_element.GetGradientOfAreaAtNode(2);        
+        element_area_gradient = vertex_element.GetAreaGradientAtNode(2);        
         TS_ASSERT_DELTA(element_area_gradient[0], 0.5, 1e-6);
         TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
         
-        element_area_gradient = vertex_element.GetGradientOfAreaAtNode(3);        
+        element_area_gradient = vertex_element.GetAreaGradientAtNode(3);        
         TS_ASSERT_DELTA(element_area_gradient[0], -0.5, 1e-6);
         TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
         

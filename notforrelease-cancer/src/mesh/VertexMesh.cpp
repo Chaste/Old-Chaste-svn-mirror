@@ -32,8 +32,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
                                                double thresholdDistance)
-    : mAllocatedMemory(false),
-      mThresholdDistance(thresholdDistance)
+    : mThresholdDistance(thresholdDistance)
 {
     Clear();
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
@@ -57,10 +56,12 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double thresholdDistance)
     : mThresholdDistance(thresholdDistance)
 {
     assert(thresholdDistance > 0.0);
+    Clear();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp)
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp, double thresholdDistance)
+    : mThresholdDistance(thresholdDistance)
 {
     if (SPACE_DIM==2)
     {    
@@ -200,8 +201,6 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
     
         /// \todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
         //         the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
-    
-        mAllocatedMemory = true;
     }
 }
 
@@ -209,10 +208,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 {
-    if (mAllocatedMemory)
-    {
-        Clear();
-    }
+    Clear();
 }
 
 
@@ -412,6 +408,58 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::T1Swap(Node<SPACE_DIM>* pNodeA, Node<SP
     
     // Restructure elements -- Remember to update nodes and elements
 }
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReader2d& rMeshReader)
+{
+    // Store numbers of nodes and elements
+    unsigned num_nodes = rMeshReader.GetNumNodes();
+    unsigned num_elements = rMeshReader.GetNumElements();
+    
+    // Reserve memory for nodes
+    mNodes.reserve(num_nodes);
+
+    rMeshReader.Reset();
+
+    // Add nodes
+    std::vector<double> coords;
+    for (unsigned i=0; i < num_nodes; i++)
+    {
+        coords = rMeshReader.GetNextNode();
+        mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
+    }
+
+    rMeshReader.Reset();
+
+    // Reserve memory for nodes
+    mElements.reserve(rMeshReader.GetNumElements());
+
+    // Add elements
+    for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
+    {
+        VertexElementData element_data = rMeshReader.GetNextElementData();
+        std::vector<Node<SPACE_DIM>*> nodes;
+
+        unsigned num_nodes_in_element = element_data.NodeIndices.size();
+        for (unsigned j=0; j<num_nodes_in_element; j++)
+        {
+            assert(element_data.NodeIndices[j] <  mNodes.size());
+            nodes.push_back(mNodes[element_data.NodeIndices[j]]);
+        }
+
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
+        mElements.push_back(p_element);
+    
+        if (rMeshReader.GetNumElementAttributes() > 0)
+        {
+            assert(rMeshReader.GetNumElementAttributes() == 1);
+            unsigned attribute_value = element_data.AttributeValue;
+            p_element->SetRegion(attribute_value);
+        }        
+    }
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -156,8 +156,8 @@ public:
      * 
      * @return the gradient of the area, evaluated at the node with a given local index
      */
-    c_vector<double, SPACE_DIM> GetGradientOfAreaAtNode(unsigned localIndex);
-    
+    c_vector<double, SPACE_DIM> GetAreaGradientAtNode(unsigned localIndex);
+
     /**
      * @return mVertexElementPerimeter.
      */        

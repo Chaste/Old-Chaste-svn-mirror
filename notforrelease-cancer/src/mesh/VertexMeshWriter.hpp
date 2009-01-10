@@ -25,17 +25,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef VERTEXMESHWRITER2D_HPP_
-#define VERTEXMESHWRITER2D_HPP_
+#ifndef VERTEXMESHWRITER_HPP_
+#define VERTEXMESHWRITER_HPP_
 
 #include "VertexMesh.hpp"
 #include "OutputFileHandler.hpp"
 #include <iomanip>
 
 /**
- * A mesh writer class for 2D vertex-based meshes.
+ * A mesh writer class for vertex-based meshes.
  */
-class VertexMeshWriter2d 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class VertexMeshWriter
 {
 private:
 
@@ -54,21 +55,21 @@ public:
      * @param rBaseName reference to the base name for results files
      * @param clearOutputDir whether to clear the output directory prior to writing files
      */
-    VertexMeshWriter2d(const std::string &rDirectory,
-                       const std::string &rBaseName,
-                       const bool clearOutputDir=true);
+    VertexMeshWriter(const std::string& rDirectory,
+                     const std::string& rBaseName,
+                     const bool clearOutputDir=true);
 
     /**
      * Destructor.
      */
-    virtual ~VertexMeshWriter2d();
+    ~VertexMeshWriter();
 
     /**
-     * Write files.
+     * Write files using a mesh.
      * 
      * @param rMesh reference to the vertex-based mesh
      */
-    void WriteFiles(VertexMesh<2,2>& rMesh);
+    void WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 };
 
-#endif /*VERTEXMESHWRITER2D_HPP_*/
+#endif /*VERTEXMESHWRITER_HPP_*/

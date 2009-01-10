@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "VertexBasedTissueForce.hpp"
-#include "VertexBasedTissue.hpp"
+
 
 template<unsigned DIM>
 VertexBasedTissueForce<DIM>::VertexBasedTissueForce(double tissueCellTargetArea)
@@ -38,11 +38,13 @@ VertexBasedTissueForce<DIM>::VertexBasedTissueForce(double tissueCellTargetArea)
 {
 }
 
+
 template<unsigned DIM>
 void VertexBasedTissueForce<DIM>::SetDeformationEnergyParameter(double deformationEnergyParameter)
 {
     mDeformationEnergyParameter = deformationEnergyParameter;
 }
+
 
 template<unsigned DIM>
 void VertexBasedTissueForce<DIM>::SetMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter)
@@ -50,20 +52,64 @@ void VertexBasedTissueForce<DIM>::SetMembraneSurfaceEnergyParameter(double membr
     mMembraneSurfaceEnergyParameter = membraneSurfaceEnergyParameter;
 }
 
+
 template<unsigned DIM>
 void VertexBasedTissueForce<DIM>::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
 {
     mCellCellAdhesionEnergyParameter = cellCellAdhesionEnergyParameter;
 }
 
+
 template<unsigned DIM>
 VertexBasedTissueForce<DIM>::~VertexBasedTissueForce()
 {
 }
 
+
+template<unsigned DIM>
+c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetDeformationForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
+{
+    // Compute the area of the element and its gradient at this node
+    double element_area = pElement->GetArea();
+    c_vector<double, DIM> area_gradient = pElement->GetAreaGradientAtNode(localIndex);
+    
+    return 2*mDeformationEnergyParameter*(element_area - mTissueCellTargetArea)*area_gradient;
+    
+    /// \todo Note that in the line above, we'll probably need to add extra code 
+    ///       for a variable mTissueCellTargetArea when cell birth is implemented 
+    ///       (see #852)
+}
+
+
+template<unsigned DIM>
+c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetMembraneForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
+{
+    /// \todo code up this method (see #861)
+    return zero_vector<double>(DIM);
+
+//        // Compute contribution from membrane surface tension energy
+//        // Compute the perimeter of the element and its gradient at this node
+//        double element_perimeter = p_tissue->GetElement(*iter)->GetPerimeter();
+//        double target_perimeter = 2*sqrt(M_PI*mTissueCellTargetArea);
+//            
+//            c_vector<double, DIM> perimeter_gradient = p_tissue->GetElement(*iter)->GetPerimeterGradientAtNode(local_index);
+//            
+//            membrane_surface_tension_contribution += 2*mMembraneSurfaceEnergyParameter*
+//                                                     (element_perimeter - target_perimeter)*perimeter_gradient;      
+}
+
+
+template<unsigned DIM>
+c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetAdhesionForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
+{
+    /// \todo code up this method (see #861)
+    return zero_vector<double>(DIM);    
+}
+
+
 template<unsigned DIM>
 void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                                  AbstractTissue<DIM>& rTissue)
+                                                       AbstractTissue<DIM>& rTissue)
 {
     // Helper variable that is a static cast of the tissue
     VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
@@ -78,7 +124,7 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
          * energy of the Tissue, evaluated at the position of the vertex. This
          * free energy is the sum of the free energies of all TissueCells in 
          * the tissue. The free energy of each TissueCell is comprised of three
-         * parts - a cell deformation energy, a membrant surface-tension energy
+         * parts - a cell deformation energy, a membrane surface tension energy
          * and a cell-cell adhesion energy.
          * 
          * Note that since the movement of this Node only affects the free energy 
@@ -88,6 +134,8 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
          */
 
         c_vector<double, DIM> deformation_contribution = zero_vector<double>(DIM);
+        c_vector<double, DIM> membrane_surface_tension_contribution = zero_vector<double>(DIM);
+        c_vector<double, DIM> cell_cell_adhesion_contribution = zero_vector<double>(DIM);
              
         // Find the indices of the elements owned by this node
         std::set<unsigned> containing_elem_indices = p_tissue->GetNode(node_index)->rGetContainingElementIndices();
@@ -104,22 +152,16 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
                 local_index++;
             }
             
-            // Compute the area of the element and its gradient at this node
-            double element_area = p_tissue->GetElement(*iter)->GetArea();
-            c_vector<double, DIM> area_gradient = p_tissue->GetElement(*iter)->GetGradientOfAreaAtNode(local_index);
-            
-            deformation_contribution += 2*mDeformationEnergyParameter*
-                                        (element_area - mTissueCellTargetArea)*area_gradient;
-            
-            /// \todo Note that in the line above, we'll probably need to add extra code 
-            ///       for a variable mTissueCellTargetArea when cell birth is implemented 
-            ///       (see #852)
-
-            /// \todo Add contributions from gradients of membrane surface tension energy and 
-            ///       cell-cell adhesion energy (see #861)            
+            // Compute force contributions from cell deformation energy, 
+            // membrane surface tension energy and a cell-cell adhesion energy
+            deformation_contribution += GetDeformationForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
+            membrane_surface_tension_contribution += GetMembraneForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
+            cell_cell_adhesion_contribution += GetAdhesionForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
         }
          
-        c_vector<double, DIM> force_on_node = zero_vector<double>(DIM); /// \todo code up actual forces (see #861)
+        c_vector<double, DIM> force_on_node = deformation_contribution + 
+                                              membrane_surface_tension_contribution +
+                                              cell_cell_adhesion_contribution;
 
         rForces[node_index] += force_on_node;
     }

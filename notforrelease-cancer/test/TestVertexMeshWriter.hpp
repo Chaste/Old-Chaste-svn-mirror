@@ -25,19 +25,20 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #ifndef TESTVERTEXMESHWRITER2D_HPP_
 #define TESTVERTEXMESHWRITER2D_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "VertexMesh.hpp"
-#include "VertexMeshWriter2d.hpp"
-#include "OutputFileHandler.hpp"
+
 #include <string>
 #include <fstream>
 
+#include "VertexMesh.hpp"
+#include "VertexMeshWriter.hpp"
+#include "OutputFileHandler.hpp"
 
-class TestVertexMeshWriter2d : public CxxTest::TestSuite
+
+class TestVertexMeshWriter : public CxxTest::TestSuite
 {
 public:
 
@@ -73,8 +74,8 @@ public:
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
         
         // Create a vertex mesh writer
-        VertexMeshWriter2d vertex_mesh_writer("TestVertexMeshWriter","vertex_mesh");
-        vertex_mesh_writer.WriteFiles(basic_vertex_mesh);
+        VertexMeshWriter<2,2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
+        vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
         
         OutputFileHandler handler("TestVertexMeshWriter",false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
@@ -82,18 +83,7 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
-
-        // Tidy up
-        for (unsigned i=0; i<basic_nodes.size(); i++)
-        {
-            delete basic_nodes[i];
-        }
-
-        for (unsigned i=0; i<basic_vertex_elements.size(); i++)
-        {
-            delete basic_vertex_elements[i];
-        }
-    }        
+    }
 };
     
 

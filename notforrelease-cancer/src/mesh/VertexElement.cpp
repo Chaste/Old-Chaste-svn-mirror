@@ -166,7 +166,7 @@ double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetArea()
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetGradientOfAreaAtNode(unsigned localIndex)
+c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientAtNode(unsigned localIndex)
 {
     #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);

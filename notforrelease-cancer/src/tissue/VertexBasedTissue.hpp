@@ -84,7 +84,7 @@ public:
 
     /** Hack until meshes are fully archived using boost::serialization. */
     static std::string meshPathname;
-    
+   
     /**
      * Create a new tissue facade from a mesh and collection of cells.
      *
@@ -435,17 +435,14 @@ inline void load_construct_data(
     ar >> p_mesh;
 
     // Re-initialise the mesh
+    p_mesh->Clear();
+    VertexMeshReader2d mesh_reader(VertexBasedTissue<DIM>::meshPathname);
+    p_mesh->ConstructFromMeshReader(mesh_reader);
 
-    /// \todo: implement proper archiving by re-initialising a VertexMesh using 
-    ///        a new method similar to ConstructFromMeshReader()
-//    p_mesh->Clear();
-//    TrianglesMeshReader<DIM,DIM> mesh_reader(MeshBasedTissue<DIM>::meshPathname);
-//    p_mesh->ConstructFromMeshReader(mesh_reader);
-
-//    // Needed for cylindrical meshes at present; should be safe in any case.
-//    NodeMap map(p_mesh->GetNumElements());
-//    p_mesh->ReMesh(map);
-
+    // Remesh
+    NodeMap map(p_mesh->GetNumElements());
+    p_mesh->ReMesh(map);
+ 
     // Invoke inplace constructor to initialise instance
     ::new(t)VertexBasedTissue<DIM>(*p_mesh);
 }

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexElement.hpp"
 #include "VertexMesh.hpp"
-#include "VertexMeshWriter2d.hpp"
+#include "VertexMeshWriter.hpp"
 
 class TestVertexMesh : public CxxTest::TestSuite
 {
@@ -70,9 +70,10 @@ public:
         std::vector<VertexElement<2,2>*> basic_vertex_elements;
         basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
         basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        
         // Make a vertex mesh
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
-               
+
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 7u);
         
@@ -95,24 +96,14 @@ public:
         std::set<unsigned> temp_list2;
         temp_list2.insert(1u);
         TS_ASSERT_EQUALS(basic_nodes[5]->rGetContainingElementIndices(), temp_list2);
-        
-        for (unsigned i=0; i<basic_nodes.size(); i++)
-        {
-            delete basic_nodes[i];
-        }
-
-        for (unsigned i=0; i<basic_vertex_elements.size(); i++)
-        {
-            delete basic_vertex_elements[i];
-        }
     }
       
     void TestVertexMeshGenerator() throw(Exception)
     {
         VertexMesh<2,2> mesh(5,3); // Columns then rows
     
-        //VertexMeshWriter2d vertex_mesh_writer("TestVertexMeshGeneration","mesh");
-        //vertex_mesh_writer.WriteFiles(mesh);
+        //VertexMeshWriter<2,2> vertex_mesh_writer("TestVertexMeshGeneration","mesh");
+        //vertex_mesh_writer.WriteFilesUsingMesh(mesh);
             
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 15u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46u);
@@ -213,7 +204,7 @@ public:
     /*
      * This tests that a 'dummy' archive function does not throw any errors.
      */
-    void DONTTestArchiveVertexMesh()
+    void TestArchiveVertexMesh()
     {        
         std::string dirname = "archive";
         OutputFileHandler handler(dirname, false);
@@ -221,7 +212,7 @@ public:
         
         std::string mesh_filename = "vertex_mesh";
         std::string mesh_pathname = handler.GetOutputDirectoryFullPath() + mesh_filename;
-        
+      
         VertexMesh<2,2>* const p_mesh = new VertexMesh<2,2>(5,3);
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
@@ -238,11 +229,11 @@ public:
         {
             TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 46u);
             TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 15u);
-
+ 
             // Save the mesh data using mesh writers
-            VertexMeshWriter2d mesh_writer(dirname, mesh_pathname);
-            mesh_writer.WriteFiles(*p_mesh);
-            
+            VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
+            mesh_writer.WriteFilesUsingMesh(*p_mesh);
+
             // Archive the mesh
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -262,10 +253,10 @@ public:
             // Restore from the archive
             input_arch >> p_mesh2;
             
-            /// \todo: Re-initialise the mesh - may need to code up a VertexMeshReader2d? (see #821 and #862)
+            // Re-initialise the mesh
             p_mesh2->Clear();
-//            VertexMeshReader2d mesh_reader(mesh_pathname);
-//            p_mesh2->ConstructFromMeshReader(mesh_reader);
+            VertexMeshReader2d mesh_reader(mesh_pathname);
+            p_mesh2->ConstructFromMeshReader(mesh_reader);
 
             // Compare the loaded mesh against the original
 
@@ -282,7 +273,7 @@ public:
 
                 for (unsigned dimension=0; dimension<2; dimension++)
                 {
-                    TS_ASSERT_DELTA(p_node->rGetLocation()[dimension], p_node2->rGetLocation()[dimension], 1e-16);
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[dimension], p_node2->rGetLocation()[dimension], 1e-4);
                 }
             }
 
@@ -303,6 +294,52 @@ public:
             // Tidy up
             delete p_mesh2;
         }
+    }
+    
+    void TestMeshConstructionFromMeshReader(void)
+    {
+        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+
+        // Check some node co-ordinates
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[0], 1.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[1], 1.0, 1e-6);
+
+        // Check first element has the right nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(0), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(1), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(2), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(5));
+    }
+
+    void TestMeshConstructionFromMeshReaderIndexedFromOne(void)
+    {
+        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+
+        // Check some node co-ordinates
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[0], 1.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[1], 1.0, 1e-6);
+
+        // Check first element has the right nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(0), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(1), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(2), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(5));
     }
     
 };    

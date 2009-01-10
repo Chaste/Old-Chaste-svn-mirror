@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 
 #include "AbstractMesh.hpp"
+#include "VertexMeshReader2d.hpp"
 #include "VertexElement.hpp"
 #include "BoundaryElement.hpp"
 #include "NodeMap.hpp"
@@ -53,9 +54,6 @@ private:
 
     /** Vector of pointers to VertexElements. */    
     std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> mElements;
-    
-    /* Whether or not memory has been allocated for the mesh (used by destructor). */
-    bool mAllocatedMemory;
    
     /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangment. */
     double mThresholdDistance;
@@ -67,8 +65,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mAllocatedMemory;
-        archive & mThresholdDistance;       
+        archive & mThresholdDistance;      
     }
     
 public:
@@ -86,8 +83,10 @@ public:
 
     /**
      * Constructor for use by serializer.
+     *
+     * @param thresholdDistance the minimum threshold distance for element rearrangment (defaults to 0.01)
      */
-    VertexMesh(double thresholdDistance);
+    VertexMesh(double thresholdDistance=0.01);
     
     /**
      * Destructor.
@@ -103,8 +102,9 @@ public:
      * 
      * @param numAcross number of VertexElements across
      * @param numUp number of VertexElements up
+     * @param thresholdDistance the minimum threshold distance for element rearrangment (defaults to 0.01)
      */
-    VertexMesh(unsigned numAcross, unsigned numUp);
+    VertexMesh(unsigned numAcross, unsigned numUp, double thresholdDistance=0.01);
 
     /**
      * @return the number of Nodes in the mesh.
@@ -150,6 +150,8 @@ public:
      *        NodeB the other node to perform the swap
      */  
     void T1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    
+    void ConstructFromMeshReader(VertexMeshReader2d& rMeshReader);
 
 };
 
