@@ -87,7 +87,7 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Abst
 
 void CryptSimulation2d::WriteVisualizerSetupFile()
 {
-    *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
+    *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u) << "\n";// get furthest distance between nodes in the x-direction
 }
 
 

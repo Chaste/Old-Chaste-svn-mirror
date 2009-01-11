@@ -643,7 +643,7 @@ void TissueSimulation<DIM>::Solve()
                               mOutputCellCyclePhases,
                               mOutputCellAncestors);
 
-    *mpSetupFile << "\nComplete\n";
+    *mpSetupFile << "Complete\n";
     mpSetupFile->close();
 
     CancerEventHandler::EndEvent(OUTPUT);
