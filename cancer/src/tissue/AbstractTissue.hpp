@@ -165,7 +165,29 @@ public:
      * @param index  global index of the specified node
      */
     virtual Node<DIM>* GetNode(unsigned index)=0;
-   
+    
+    /**
+     * Add a new node to the tissue.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
+     * 
+     * @param pNewNode pointer to the new node 
+     * @return global index of new node in tissue
+     */
+    virtual unsigned AddNode(Node<DIM> *pNewNode)=0;
+
+    /**
+     * Move the node with a given index to a new point in space.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
+     * 
+     * @param index the index of the node to be moved
+     * @param rNewLocation the new target location of the node
+     */
+    virtual void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)=0;
+
     /**
      *  Get the damping constant for this cell - ie d in drdt = F/d.
      *  This depends on whether using area-based viscosity has been switched on, and
@@ -193,13 +215,10 @@ public:
     /**
      * Move a cell to a new location.
      * 
-     * As this method is pure virtual, it must be overridden 
-     * in subclasses.
-     *
      * @param iter  pointer to the cell to move
      * @param rNewLocation  where to move it to
      */
-    virtual void MoveCell(AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)=0;
+    void MoveCell(AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
 
     /**
      * Remove all cells labelled as dead.
@@ -573,6 +592,13 @@ template<unsigned DIM>
 const std::list<TissueCell>& AbstractTissue<DIM>::rGetCells() const
 {
     return this->mCells;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
+{
+    unsigned index = iter.GetNode()->GetIndex();
+    SetNode(index, rNewLocation);
 }
 
 template<unsigned DIM>

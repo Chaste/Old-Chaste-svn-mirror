@@ -103,36 +103,9 @@ Node<DIM>* NodeBasedTissue<DIM>::GetNode(unsigned index)
 
 
 template<unsigned DIM>
-void NodeBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM> point)
+void NodeBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)
 {
-    mNodes[index].SetPoint(point);
-}
-
-
-template<unsigned DIM>
-void NodeBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
-{
-    unsigned index = iter.GetNode()->GetIndex();
-    SetNode(index, rNewLocation);
-}
-
-
-template<unsigned DIM>
-TissueCell* NodeBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
-{
-    // Create a new node
-    Node<DIM> new_node(GetNumNodes(), newLocation, false); // never on boundary
-
-    unsigned new_node_index = AddNode(&new_node); //Uses copy constructor (so it doesn't matter that new_node goes out of scope)
-
-    // Associate the new cell with the node
-    newCell.SetLocationIndex(new_node_index);
-    this->mCells.push_back(newCell);
-
-    TissueCell *p_created_cell = &(this->mCells.back());
-    this->mLocationCellMap[new_node_index] = p_created_cell;
-
-    return p_created_cell;
+    mNodes[index].SetPoint(rNewLocation);
 }
 
 

@@ -100,10 +100,7 @@ public:
       
     void TestVertexMeshGenerator() throw(Exception)
     {
-        VertexMesh<2,2> mesh(5,3); // Columns then rows
-    
-        //VertexMeshWriter<2,2> vertex_mesh_writer("TestVertexMeshGeneration","mesh");
-        //vertex_mesh_writer.WriteFilesUsingMesh(mesh);
+        VertexMesh<2,2> mesh(5,3); // columns then rows
             
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 15u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46u);
@@ -166,7 +163,6 @@ public:
         nodes_elem_1.push_back(nodes[4]);
         nodes_elem_1.push_back(nodes[5]);
         nodes_elem_1.push_back(nodes[3]);
-        
         
         std::vector<VertexElement<2,2>*> vertex_elements;
         vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
@@ -341,6 +337,79 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(2), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(5));
     }
+
+
+    void TestSetNode()
+    {
+        // Create mesh
+        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        ChastePoint<2> point = mesh.GetNode(3)->GetPoint();
+        TS_ASSERT_DELTA(point[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(point[1], 2.0, 1e-6);
+
+        // Nudge node
+        point.SetCoordinate(0, 1.1);
+        mesh.SetNode(3, point);
+        
+        ChastePoint<2> point2 = mesh.GetNode(3)->GetPoint();
+        TS_ASSERT_DELTA(point2[0], 1.1, 1e-6);
+        TS_ASSERT_DELTA(point2[1], 2.0, 1e-6);
+        
+        // Nudge node again
+        point.SetCoordinate(1, 1.9);
+        mesh.SetNode(3, point);
+        
+        ChastePoint<2> point3 = mesh.GetNode(3)->GetPoint();
+        TS_ASSERT_DELTA(point3[0], 1.1, 1e-6);
+        TS_ASSERT_DELTA(point3[1], 1.9, 1e-6);
+    }
+    
+    
+    void TestAddNodeAndReMeshMethods(void)
+    {
+        // Create mesh
+        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+        
+        // Test the AddNode() method
+        c_vector<double, 2> point;
+        point[0] = 1.5;
+        point[1] = 0.0;        
+        Node<2>* p_node = new Node<2>(7u, point);
+        unsigned new_index = mesh.AddNode(p_node);
+
+        TS_ASSERT_EQUALS(new_index, 7u);
+        TS_ASSERT_DELTA(mesh.GetNode(7u)->rGetLocation()[0], 1.5, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(7u)->rGetLocation()[1], 0.0, 1e-7);
+
+        // Test the AddNode() and Remesh() methods
+        point[0] = 2.5;
+        point[1] = 1.5;
+        Node<2>* p_node2 = new Node<2>(8u, point);
+
+        NodeMap map(mesh.GetNumElements());
+        new_index = mesh.AddNode(p_node2);
+        mesh.ReMesh(); // call the version of ReMesh() that doesn't use a map
+
+        TS_ASSERT_EQUALS(new_index, 8u);
+        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[0], 2.5 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[1], 1.5 ,1e-7);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+        
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
+    }
+
     
 };    
 

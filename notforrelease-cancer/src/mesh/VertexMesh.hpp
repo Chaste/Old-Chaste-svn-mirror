@@ -51,7 +51,7 @@ class VertexMesh
     
 private:
 
-    /** Vector of pointers to Nodes. */
+    /** Vector of pointers to nodes. */
     std::vector<Node<SPACE_DIM>*> mNodes;
 
     /** Vector of pointers to VertexElements. */    
@@ -59,6 +59,12 @@ private:
    
     /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangment. */
     double mThresholdDistance;
+    
+    /** Indices of nodes that have been deleted. These indices can be reused when adding new elements/nodes. */
+    std::vector<unsigned> mDeletedNodeIndices;
+    
+    /** Whether nodes have been added to the mesh. */
+    bool mAddedNodes;
 
     /** Create correspondences between VertexElements and Nodes in the mesh. */
     void SetupVertexElementsOwnedByNodes();
@@ -139,7 +145,23 @@ public:
      * @return a pointer to the vertex element
      */    
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
-    
+
+    /**
+     * Add a node to the mesh.
+     *
+     * NB. After calling this one or more times, you must then call ReMesh
+     *
+     */
+    unsigned AddNode(Node<SPACE_DIM> *pNewNode);
+
+    /**
+     *  Move the node with a particular index to a new point in space.
+     * 
+      * @param index the index of the node to be moved
+      * @param point the new target location of the node
+      */
+    void SetNode(unsigned index, ChastePoint<SPACE_DIM> point);
+
     /**
      * Delete mNodes and mElements.
      */
@@ -153,6 +175,12 @@ public:
      *            with the correct size, GetNumElements()
      */
     void ReMesh(NodeMap& elementMap);
+
+    /**
+     * Alternative version of remesh which takes no parameters does not require a NodeMap. 
+     * Note: inherited classes should overload ReMesh(NodeMap&).
+     */
+    void ReMesh();
     
     /** 
      * Construct the mesh using a mesh reader.

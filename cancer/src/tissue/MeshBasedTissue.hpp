@@ -190,6 +190,26 @@ public:
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     
     /**
+     * Overridden AddNode() method.
+     * 
+     * Add a new node to the tissue.
+     * 
+     * @param pNewNode pointer to the new node 
+     * @return global index of new node in tissue
+     */
+    unsigned AddNode(Node<DIM> *pNewNode);
+
+    /**
+     * Overridden SetNode() method.
+     * 
+     * Move the node with a given index to a new point in space.
+     * 
+     * @param index the index of the node to be moved
+     * @param rNewLocation the new target location of the node
+     */
+    void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation);
+
+    /**
      * Overridden GetDampingConstant() method that includes the 
      * case of a cell-area-based damping constant.
      * 
@@ -276,22 +296,6 @@ public:
                              bool outputCellVariables,
                              bool outputCellCyclePhases,
                              bool outputCellAncestors);
-                             
-    /**
-     * Move a cell to a new location.
-     * @param iter  pointer to the cell to move
-     * @param rNewLocation  where to move it to
-     */
-    void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
-
-    /**
-     * Add a new cell to the tissue.
-     * 
-     * @param cell  the cell to add
-     * @param newLocation  the position in space at which to put it
-     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
-     */
-    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
     /**
      * Overridden Update() method. 

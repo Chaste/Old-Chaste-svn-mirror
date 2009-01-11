@@ -38,7 +38,7 @@ VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
       mDeleteMesh(deleteMesh)
 {    
     // This must always be true
-    assert( this->mCells.size() <= mrMesh.GetNumElements() );
+    assert( this->mCells.size() == mrMesh.GetNumElements() );
 
     this->mTissueContainsMesh = true;
 
@@ -104,6 +104,20 @@ Node<DIM>* VertexBasedTissue<DIM>::GetNode(unsigned index)
 
 
 template<unsigned DIM>
+unsigned VertexBasedTissue<DIM>::AddNode(Node<DIM> *pNewNode)
+{
+    return mrMesh.AddNode(pNewNode);
+}
+
+
+template<unsigned DIM>
+void VertexBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)
+{
+    return mrMesh.SetNode(index, rNewLocation);
+}
+
+
+template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumElements()
 {
     return mrMesh.GetNumElements();
@@ -118,7 +132,7 @@ void VertexBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator ite
 
 
 template<unsigned DIM>
-TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell cell, c_vector<double,DIM> newLocation)
 {
     return NULL; /// \todo put code for adding a cell here (see #852)
 }

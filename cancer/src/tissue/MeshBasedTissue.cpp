@@ -85,6 +85,18 @@ void MeshBasedTissue<DIM>::SetAreaBasedDampingConstant(bool useAreaBasedDampingC
 }
 
 template<unsigned DIM>
+unsigned MeshBasedTissue<DIM>::AddNode(Node<DIM> *pNewNode)
+{
+    return mrMesh.AddNode(pNewNode);
+}
+
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)
+{
+    return mrMesh.SetNode(index, rNewLocation, false);
+}
+
+template<unsigned DIM>
 double MeshBasedTissue<DIM>::GetDampingConstant(TissueCell& rCell)
 {
     double damping_multiplier = AbstractTissue<DIM>::GetDampingConstant(rCell);
@@ -213,28 +225,6 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
     return num_removed;
 }
 
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
-{
-    unsigned index = iter.GetNode()->GetIndex();
-    mrMesh.SetNode(index, rNewLocation, false);
-}
-
-template<unsigned DIM>
-TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
-{
-    Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
-
-    unsigned new_node_index = mrMesh.AddNode(p_new_node);
-
-    newCell.SetLocationIndex(new_node_index);
-    this->mCells.push_back(newCell);
-
-    TissueCell *p_created_cell = &(this->mCells.back());
-    this->mLocationCellMap[new_node_index] = p_created_cell;
-
-    return p_created_cell;
-}
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::Update()

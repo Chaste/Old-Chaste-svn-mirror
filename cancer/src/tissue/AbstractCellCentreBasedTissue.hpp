@@ -67,6 +67,15 @@ public:
      * Get a pointer to the node corresponding to a given TissueCell.
      */
     Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
+    
+    /**
+     * Add a new cell to the tissue.
+     * 
+     * @param cell  the cell to add
+     * @param newLocation  the position in space at which to put it
+     * @returns address of cell as it appears in the cell list
+     */
+    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
     /**
      * Write results from the current tissue state to output files.
@@ -108,6 +117,23 @@ Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(const 
 {
     unsigned node_index = rCell.GetLocationIndex();
     return this->GetNode(node_index);
+}
+
+template<unsigned DIM>
+TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+{
+    // Create a new node
+    Node<DIM>* p_new_node = new Node<DIM>(this->GetNumNodes(), newLocation, false);   // never on boundary
+    unsigned new_node_index = AddNode(p_new_node); // use copy constructor so it doesn't matter that new_node goes out of scope
+
+    // Associate the new cell with the node
+    newCell.SetLocationIndex(new_node_index);
+    this->mCells.push_back(newCell);
+
+    TissueCell *p_created_cell = &(this->mCells.back());
+    this->mLocationCellMap[new_node_index] = p_created_cell;
+
+    return p_created_cell;
 }
 
 template<unsigned DIM>

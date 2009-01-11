@@ -32,7 +32,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
                                                double thresholdDistance)
-    : mThresholdDistance(thresholdDistance)
+    : mThresholdDistance(thresholdDistance),
+      mAddedNodes(true)
 {
     Clear();
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
@@ -53,7 +54,8 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double thresholdDistance)
-    : mThresholdDistance(thresholdDistance)
+    : mThresholdDistance(thresholdDistance),
+      mAddedNodes(false)
 {
     assert(thresholdDistance > 0.0);
     Clear();
@@ -61,7 +63,8 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double thresholdDistance)
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp, double thresholdDistance)
-    : mThresholdDistance(thresholdDistance)
+    : mThresholdDistance(thresholdDistance),
+      mAddedNodes(true)
 {
     if (SPACE_DIM==2)
     {    
@@ -114,7 +117,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
             {
                 for (unsigned i=0; i<numAcross; i++)
                 {
-                    element_index=j*numAcross+i;
+                    element_index = j*numAcross + i;
                     
                     if (numAcross%2==0) // numAcross is even
                     {
@@ -153,27 +156,27 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
                             node_indices[0] = (2*j+1)*(numAcross+1)+i;
                         }
                     }
-                    node_indices[1] = node_indices[0]+1;
-                    node_indices[2] = node_indices[0]+numAcross+2;
-                    node_indices[3] = node_indices[0]+2*numAcross+3;
-                    node_indices[4] = node_indices[0]+2*numAcross+2;
-                    node_indices[5] = node_indices[0]+numAcross+1;
+                    node_indices[1] = node_indices[0] + 1;
+                    node_indices[2] = node_indices[0] + numAcross + 2;
+                    node_indices[3] = node_indices[0] + 2*numAcross + 3;
+                    node_indices[4] = node_indices[0] + 2*numAcross + 2;
+                    node_indices[5] = node_indices[0] + numAcross + 1;
                      
                     if ((j==numUp-1)&&(i%2 == 1))
                     {
                         // On top row and its an odd column nodes 
-                        node_indices[3]-=1;
-                        node_indices[4]-=1;
+                        node_indices[3] -= 1;
+                        node_indices[4] -= 1;
                     }
                       
                     if ((j==0)&&(i%2 == 0)&&(numAcross%2==0))
                     {
                         // On bottom row and its an even column and there is
                         // an even number of columns in total, (i.e. the very bottom) 
-                        node_indices[2]-=1;
-                        node_indices[3]-=1;
-                        node_indices[4]-=1;
-                        node_indices[5]-=1;
+                        node_indices[2] -= 1;
+                        node_indices[3] -= 1;
+                        node_indices[4] -= 1;
+                        node_indices[5] -= 1;
                     }
     
                     std::vector<Node<SPACE_DIM>*> element_nodes;
@@ -237,6 +240,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
+    mDeletedNodeIndices.clear();
+    mAddedNodes = false;
+    
     for (unsigned i=0; i<mElements.size(); i++)
     {
         delete mElements[i];
@@ -278,6 +284,36 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
 {
     assert(index < mElements.size());
     return mElements[index];
+}
+
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
+{
+    if (mDeletedNodeIndices.empty())
+    {
+        pNewNode->SetIndex(mNodes.size());
+        mNodes.push_back(pNewNode);
+    }
+    else
+    {
+        unsigned index = mDeletedNodeIndices.back();
+        pNewNode->SetIndex(index);
+        mDeletedNodeIndices.pop_back();
+        delete mNodes[index];
+        mNodes[index] = pNewNode;
+    }
+    mAddedNodes = true;
+    return pNewNode->GetIndex();
+}
+
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, ChastePoint<SPACE_DIM> point)
+{
+    mNodes[index]->SetPoint(point);
 }
 
 
@@ -358,7 +394,15 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
         /// \todo put code for remeshing in 3D here (see also the paper doi:10.1016/j.jtbi.2003.10.001)
     }    
 }
-  
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
+{
+    NodeMap map(GetNumElements());
+    ReMesh(map);
+}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
@@ -368,26 +412,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
     assert( SPACE_DIM==2 ); // only works in 2D at present
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
-
-    /*
-     * Find elements containing nodes A and B
-     * 
-     * \todo try using set_union instead
-     */
-    std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
-    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();    
-    std::set<unsigned> neighbouring_element_indices;
-    
-    for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
-         it != nodeA_elem_indices.end(); ++it)
-    {
-        neighbouring_element_indices.insert(*it);
-    }
-    for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
-         it != nodeB_elem_indices.end(); ++it)
-    {
-        neighbouring_element_indices.insert(*it);
-    }
 
     /*
      * Compute the locations of two new nodes C, D, placed on either side of the 
@@ -417,14 +441,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
     c_vector<double, SPACE_DIM> nodeD_location = nodeA_location + nodeB_location - nodeC_location;
      
     /*
-     * Move Nodes A to C and node B to D
+     * Move node A to C and node B to D
      */
     c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
     r_nodeA_location = nodeC_location;
     
     c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeA->rGetModifiableLocation();
     r_nodeB_location = nodeD_location;
-    
+
     /*
      * Restructure elements - remember to update nodes and elements.
      * 
@@ -440,6 +464,53 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
      * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
      * node D lies inside, should now only contain node B.
      * 
+     */
+
+    /*
+     * Find elements containing nodes A and B
+     * 
+     * \todo try using set_union instead
+     */
+    std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
+    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();    
+    std::set<unsigned> neighbouring_element_indices;    
+    std::pair<std::set<unsigned>::iterator, bool> pr;
+    
+    for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
+         it != nodeA_elem_indices.end();
+         ++it)
+    {
+        neighbouring_element_indices.insert(*it);
+    }
+    for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
+         it != nodeB_elem_indices.end();
+         ++it)
+    {
+        pr = neighbouring_element_indices.insert(*it);
+        if (pr.second)
+        {
+            /*
+             * In this case the element index was not already in 
+             * the set neighbouring_element_indices, so this element 
+             * does not contain node A. Therefore we must add node A
+             * (which has been moved to node C) to this element.
+             */ 
+        }
+        else
+        {
+            /*
+             * In this case the element index was already in the 
+             * set neighbouring_element_indices, so this element 
+             * also contains node A. Therefore we must either node A
+             * (which has been moved to node C) or node B (which has
+             * been moved to node D) from this element.
+             */
+        }
+    }
+    /*
+     * The final element to deal with is the one which contains node A
+     * but not node B. We must add node B (which has been moved to node D)
+     * to this element.
      */
 }
 

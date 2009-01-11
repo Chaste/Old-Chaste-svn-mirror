@@ -62,7 +62,12 @@ private:
     }
 
     /**
+     * Overridden AddNode() method.
+     * 
      * Add a new node to the tissue.
+     * 
+     * @param pNewNode pointer to the new node 
+     * @return global index of new node in tissue
      */
     unsigned AddNode(Node<DIM> *pNewNode);
 
@@ -70,9 +75,9 @@ private:
      * Move the node with a given index to a new point in space.
      * 
      * @param index the index of the node to be moved
-     * @param point the new target location of the node
+     * @param rNewLocation the new target location of the node
      */
-    void SetNode(unsigned index, ChastePoint<DIM> point);
+    void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation);
 
 
 public:
@@ -129,15 +134,6 @@ public:
     Node<DIM>* GetNode(unsigned index);
 
     /**
-     * Add a new cell to the tissue.
-     * 
-     * @param cell  the cell to add
-     * @param newLocation  the position in space at which to put it
-     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
-     */
-    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
-
-    /**
      * Remove all cells labelled as dead.
      *
      * Note that after calling this method the tissue will be in an inconsistent state until
@@ -171,14 +167,6 @@ public:
      * @return vector of Nodes
      */
     const std::vector<Node<DIM> >& rGetNodes() const;
-
-    /**
-     * Move a cell to a new location.
-     * 
-     * @param iter  pointer to the cell to move
-     * @param rNewLocation  where to move it to
-     */
-    void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
 
 };
 
