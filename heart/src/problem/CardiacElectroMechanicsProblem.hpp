@@ -226,8 +226,6 @@ public :
      */
     void Solve();
 
-
-
     // short helper function - the max of a std::vec. this is in the wrong place
     double Max(std::vector<double>& vec);
 

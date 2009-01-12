@@ -495,7 +495,7 @@ public:
 
         c_vector<double,2> body_force = zero_vector<double>(2);
 
-        unsigned num_elem = 20;
+        unsigned num_elem = 5;
         QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
 
         MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
