@@ -134,7 +134,7 @@ public:
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
         
-        /// \todo Coverage (can be removed once test below is completed - see #827) 
+        /// \todo Coverage (can be removed once test below is completed - see #853) 
         unsigned num_cells_removed = tissue.RemoveDeadCells();
         TS_ASSERT_EQUALS(num_cells_removed, 0u);
         
@@ -320,7 +320,7 @@ public:
 
             // The following line is required because the loading of a tissue 
             // is usually called by the method TissueSimulation::Load()
-            VertexBasedTissue<2>::meshPathname = "notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh";
+            MeshArchiveInfo::meshPathname = "notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh";
 
             input_arch >> p_tissue;
 

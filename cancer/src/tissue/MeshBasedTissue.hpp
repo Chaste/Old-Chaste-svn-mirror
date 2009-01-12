@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "VoronoiTessellation.hpp"
 #include "Exception.hpp"
+#include "MeshArchiveInfo.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -132,9 +133,6 @@ protected:
     }
 
 public:
-
-    /** Hack until meshes are fully archived using boost::serialization. */
-    static std::string meshPathname;
 
     /**
      * Create a new tissue facade from a mesh and collection of cells.
@@ -470,13 +468,13 @@ inline void load_construct_data(
     Archive & ar, MeshBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    assert(MeshBasedTissue<DIM>::meshPathname.length() > 0);
+    assert(MeshArchiveInfo::meshPathname.length() > 0);
     MutableMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
 
     // Re-initialise the mesh
     p_mesh->Clear();
-    TrianglesMeshReader<DIM,DIM> mesh_reader(MeshBasedTissue<DIM>::meshPathname);
+    TrianglesMeshReader<DIM,DIM> mesh_reader(MeshArchiveInfo::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
 
     // Needed for cylindrical meshes at present; should be safe in any case.

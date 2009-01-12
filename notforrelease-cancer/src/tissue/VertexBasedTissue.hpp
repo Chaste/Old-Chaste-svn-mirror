@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTissue.hpp"
 #include "VertexMesh.hpp"
+#include "MeshArchiveInfo.hpp"
 
 #include <list>
 
@@ -81,9 +82,6 @@ private:
     }
     
 public:
-
-    /** Hack until meshes are fully archived using boost::serialization. */
-    static std::string meshPathname;
    
     /**
      * Create a new tissue facade from a mesh and collection of cells.
@@ -447,13 +445,13 @@ inline void load_construct_data(
     Archive & ar, VertexBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    assert(VertexBasedTissue<DIM>::meshPathname.length() > 0);
+    assert(MeshArchiveInfo::meshPathname.length() > 0);
     VertexMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
 
     // Re-initialise the mesh
     p_mesh->Clear();
-    VertexMeshReader2d mesh_reader(VertexBasedTissue<DIM>::meshPathname);
+    VertexMeshReader2d mesh_reader(MeshArchiveInfo::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
 
     // Remesh

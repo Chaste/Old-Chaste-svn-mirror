@@ -80,7 +80,7 @@ private:
      * the 'archive' folder in rArchiveDirectory, with the archive itself called
      * 'tissue_sim_at_time_`rTimeStamp`.arch'.  The path to this file is returned.
      *
-     * The path to the mesh is stored as Tissue<DIM>::meshPathname for use by the
+     * The path to the mesh is stored as MeshArchiveInfo::meshPathname for use by the
      * Tissue de-serialization routines.
      */
     static std::string GetArchivePathname(const std::string& rArchiveDirectory, const double& rTimeStamp);
@@ -99,7 +99,7 @@ std::string VertexBasedTissueSimulationArchiver<DIM, SIM>::GetArchivePathname(co
     std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_" + time_stamp.str() + ".arch";
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
 
-    VertexBasedTissue<DIM>::meshPathname = mesh_filename;
+    MeshArchiveInfo::meshPathname = mesh_filename;
     return archive_filename;
 }
 
@@ -139,21 +139,6 @@ SIM* VertexBasedTissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArc
     SIM* p_sim;
     input_arch >> p_sim;
 
-    if (dynamic_cast<VertexBasedTissue<DIM>*>(&(p_sim->rGetTissue())))
-    {
-        unsigned num_elements = (static_cast<VertexBasedTissue<DIM>*>(&(p_sim->rGetTissue())))->GetNumElements();
-        unsigned num_cells = p_sim->rGetTissue().rGetCells().size();
-        if (num_elements != num_cells)
-        {
-            #define COVERAGE_IGNORE
-            std::stringstream string_stream;
-            string_stream << "Error in Load(), number of nodes (" << num_elements
-                          << ") is not equal to the number of cells (" << num_cells
-                          << ")";
-            EXCEPTION(string_stream.str());
-            #undef COVERAGE_IGNORE
-        }
-    }
     return p_sim;
 }
 

@@ -71,7 +71,7 @@ VertexBasedTissue<DIM>::~VertexBasedTissue()
 template<unsigned DIM>
 double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
-    /// \todo Implement variable damping constants for a vertex-based tissue (see #827)
+    /// \todo Implement variable damping constants for a vertex-based tissue (see #865)
     return CancerParameters::Instance()->GetDampingConstantNormal();
 }
 
@@ -307,10 +307,6 @@ void VertexBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                           outputCellAncestors);
     mpElementFile->close();
 }
-
-
-template<unsigned DIM>
-std::string VertexBasedTissue<DIM>::meshPathname = "";
 
 
 /////////////////////////////////////////////////////////////////////////////

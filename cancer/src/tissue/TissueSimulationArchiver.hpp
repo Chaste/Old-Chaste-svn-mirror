@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissue.hpp"
 #include "TrianglesMeshWriter.hpp"
-
+#include "MeshArchiveInfo.hpp"
 
 template<unsigned DIM, class SIM>
 class TissueSimulationArchiver
@@ -79,7 +79,7 @@ private:
      * the 'archive' folder in rArchiveDirectory, with the archive itself called
      * 'tissue_sim_at_time_`rTimeStamp`.arch'.  The path to this file is returned.
      *
-     * The path to the mesh is stored as Tissue<DIM>::meshPathname for use by the
+     * The path to the mesh is stored as MeshArchiveInfo::meshPathname for use by the
      * Tissue de-serialization routines.
      */
     static std::string GetArchivePathname(const std::string& rArchiveDirectory, const double& rTimeStamp);
@@ -97,7 +97,7 @@ std::string TissueSimulationArchiver<DIM, SIM>::GetArchivePathname(const std::st
 
     std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_"+time_stamp.str() +".arch";
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
-    MeshBasedTissue<DIM>::meshPathname = mesh_filename;
+    MeshArchiveInfo::meshPathname = mesh_filename;
     //MeshArchiver::SetMeshPath(mesh_filename);
     return archive_filename;
 }
@@ -137,18 +137,6 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     SIM* p_sim;
     input_arch >> p_sim;
 
-    /// \todo do we need this check any more?
-    if (p_sim->rGetTissue().GetNumNodes() != p_sim->rGetTissue().rGetCells().size())
-    {
-        #define COVERAGE_IGNORE
-        std::stringstream string_stream;
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes()
-                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()
-                      << ")";
-        EXCEPTION(string_stream.str());
-        #undef COVERAGE_IGNORE
-    }
-
     return p_sim;
 }
 
@@ -166,7 +154,7 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     // the directory.
     std::string archive_directory = pSim->GetOutputDirectory() + "/archive/";
     OutputFileHandler handler(archive_directory, false);
-    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
+    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_" + time_stamp.str() + ".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
     // Write the mesh to file. Call Update() first to 
