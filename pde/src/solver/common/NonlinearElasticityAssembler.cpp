@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+
+
 /* 
  * NOTE ON COMPILATION ERRORS:
  * 
@@ -57,6 +59,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
     if (assembleJacobian)
     {
         this->mpLinearSystem->ZeroLhsMatrix();
+        this->mpPreconditionMatrixLinearSystem->ZeroLhsMatrix(); 
     }
 
     // Get an iterator over the elements of the mesh
@@ -64,6 +67,9 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
         iter = mpQuadMesh->GetElementIteratorBegin();
 
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
+    // the (element) preconditioner matrix: this is the same as the jacobian, but
+    // with the mass matrix (ie \intgl phi_i phi_j) in the pressure-pressure block.
+    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem_precond; 
     c_vector<double, STENCIL_SIZE> b_elem;
 
     ////////////////////////////////////////////////////////
@@ -75,7 +81,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
 
         if (element.GetOwnership() == true)
         {
-            AssembleOnElement(element, a_elem, b_elem, assembleResidual, assembleJacobian);
+            AssembleOnElement(element, a_elem, a_elem_precond, b_elem, assembleResidual, assembleJacobian);
 
             unsigned p_indices[STENCIL_SIZE];
             for(unsigned i=0; i<NUM_NODES_PER_ELEMENT; i++)
@@ -94,6 +100,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
             if (assembleJacobian)
             {
                 this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
+                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_elem_precond); 
             }
 
             if (assembleResidual)
@@ -135,6 +142,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
             if (assembleJacobian)
             {
                 this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
+                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem); 
             }
 
             if (assembleResidual)
@@ -160,6 +168,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
     if (assembleJacobian)
     {
         this->mpLinearSystem->AssembleIntermediateLhsMatrix();
+        this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix(); 
     }
 #endif
 
@@ -174,6 +183,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
     if (assembleJacobian)
     {
         this->mpLinearSystem->AssembleFinalLhsMatrix();
+        this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix(); 
     }
 #endif
 }
@@ -182,6 +192,7 @@ template<size_t DIM>
 void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
             Element<DIM, DIM>& rElement,
             c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
+            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond, 
             c_vector<double, STENCIL_SIZE>& rBElem,
             bool assembleResidual,
             bool assembleJacobian)
@@ -193,6 +204,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     if (assembleJacobian)
     {
         rAElem.clear();
+        rAElemPrecond.clear(); 
     }
 
     if (assembleResidual)
@@ -450,9 +462,32 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                                  * wJ;
                     }
                 }
+                
+                /////////////////////////////////////////////////////
+                // Preconditioner matrix
+                // Fill the mass matrix (ie \intgl phi_i phi_j) in the 
+                // pressure-pressure block. Note, the rest of the 
+                // entries are filled in at the end
+                /////////////////////////////////////////////////////
+                for(unsigned vertex_index2=0; vertex_index2<NUM_VERTICES_PER_ELEMENT; vertex_index2++) 
+                { 
+                    unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
+                    rAElemPrecond(index1,index2) +=   linear_phi(vertex_index)
+                                                    * linear_phi(vertex_index2) 
+                                                    * wJ; 
+                } 
             }
         }
     }
+
+
+    if (assembleJacobian) 
+    { 
+        // Fill in the other blocks of the preconditioner matrix. (This doesn't
+        // effect the pressure-pressure block of the rAElemPrecond but the 
+        // pressure-pressure block of rAElem is zero
+        rAElemPrecond = rAElemPrecond + rAElem; 
+    } 
 }
 
 template<size_t DIM>

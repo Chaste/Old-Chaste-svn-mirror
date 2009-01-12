@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-LinearSystem::LinearSystem(PetscInt lhsVectorSize)
+LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
    :mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
     mKspIsSetup(false),
@@ -53,7 +53,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize)
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
     VecSetFromOptions(mRhsVector);
 
-    PetscTools::SetupMat(mLhsMatrix, lhsVectorSize, lhsVectorSize);
+    PetscTools::SetupMat(mLhsMatrix, lhsVectorSize, lhsVectorSize, matType);
 
     mSize = lhsVectorSize;
 

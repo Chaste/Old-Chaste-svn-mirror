@@ -72,7 +72,7 @@ private:
     char mPcType[30];
     
 public:
-    LinearSystem(PetscInt lhsVectorSize);
+    LinearSystem(PetscInt lhsVectorSize, MatType matType=(MatType) MATMPIAIJ);
     LinearSystem(Vec templateVector);
     LinearSystem(Vec residualVector, Mat jacobianMatrix);
     ~LinearSystem();

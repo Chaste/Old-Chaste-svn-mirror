@@ -90,6 +90,7 @@ protected:
      */
     virtual void AssembleOnElement(Element<DIM, DIM>& rElement,
                                    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
+                                   c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
                                    c_vector<double, STENCIL_SIZE>& rBElem,
                                    bool assembleResidual,
                                    bool assembleJacobian);

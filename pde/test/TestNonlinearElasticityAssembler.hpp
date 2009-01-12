@@ -462,8 +462,8 @@ public:
             double exact_x = (1.0/lambda)*mesh.GetNode(i)->rGetLocation()[0];
             double exact_y = lambda*mesh.GetNode(i)->rGetLocation()[1];
             
-            TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-6 );
-            TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-6 );
+            TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-5 );
+            TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-5 );
         }
         
         for(unsigned i=0; i<mesh.GetNumVertices(); i++)

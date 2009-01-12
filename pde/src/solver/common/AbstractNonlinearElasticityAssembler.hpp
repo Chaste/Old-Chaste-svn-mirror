@@ -79,6 +79,25 @@ protected:
 #else
     LinearSystem* mpLinearSystem;
 #endif
+    /**
+     *  The linear system which stores the matrix used for preconditioning (given
+     *  the helper functions on LinearSystem it is best to use LinearSystem and 
+     *  use these for assembling the preconditioner, rather than just use a Mat
+     *  The preconditioner is the petsc LU factorisation of 
+     * 
+     *  Jp = [A B] in displacement-pressure block form,  
+     *       [C M]
+     * 
+     *  where the A, B and C are the matrices in the normal jacobian,
+     *  ie
+     *  
+     *  J  = [A B]
+     *       [C 0]
+     *  
+     *  and M is the MASS MATRIX (ie \intgl phi_i phi_j dV, where phi_i are the
+     *  pressure basis functions).
+     */
+    LinearSystem* mpPreconditionMatrixLinearSystem;
 
     /*< Body force vector */
     c_vector<double,DIM> mBodyForce;
@@ -166,6 +185,10 @@ protected:
                 {
                     mpLinearSystem->ZeroMatrixRow(dof_index);
                     mpLinearSystem->SetMatrixElement(dof_index,dof_index,1);
+
+                    // apply same bcs to preconditioner matrix
+                    mpPreconditionMatrixLinearSystem->ZeroMatrixRow(dof_index);
+                    mpPreconditionMatrixLinearSystem->SetMatrixElement(dof_index,dof_index,1);
                 }
                 mpLinearSystem->SetRhsVectorElement(dof_index, value);
             }
@@ -205,10 +228,13 @@ protected:
         KSP solver;
         Vec solution;
         VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
+
         Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
+        Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
 
         KSPCreate(MPI_COMM_SELF,&solver);
-        KSPSetOperators(solver, r_jac, r_jac, SAME_NONZERO_PATTERN);
+
+        KSPSetOperators(solver, r_jac, r_precond_jac, SAME_NONZERO_PATTERN /*in precond between successive sovles*/);
 
         // set max iterations
         KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000);
@@ -217,13 +243,18 @@ protected:
 
         KSPSetFromOptions(solver);
         KSPSetUp(solver);
-
+        
+        PC pc;
+        KSPGetPC(solver, &pc);
+        PCSetType(pc, PCLU);         // Note: ILU factorisation doesn't have much effect, but LU works well.
+       
+        KSPSetFromOptions(solver);
         KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
+
         //Timer::PrintAndReset("KSP Solve");
 
         ReplicatableVector update(solution);
 #endif
-
         std::vector<double> old_solution(mNumDofs);
         for(unsigned i=0; i<mNumDofs; i++)
         {
@@ -334,6 +365,7 @@ public:
 #else
         mpLinearSystem = new LinearSystem(mNumDofs);
 #endif
+        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, MATAIJ);
     }
 
 
@@ -369,12 +401,14 @@ public:
 #else
         mpLinearSystem = new LinearSystem(mNumDofs);
 #endif
+        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, MATAIJ);
     }
 
 
     virtual ~AbstractNonlinearElasticityAssembler()
     {
         delete mpLinearSystem;
+        delete mpPreconditionMatrixLinearSystem;
     }
     
 
@@ -456,7 +490,6 @@ public:
     
         // we have solved for a deformation so note this
         //mADeformedHasBeenSolved = true;
-            
     }
     
 
