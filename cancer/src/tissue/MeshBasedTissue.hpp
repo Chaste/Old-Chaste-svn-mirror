@@ -204,18 +204,19 @@ public:
      * 
      * Move the node with a given index to a new point in space.
      * 
-     * @param index the index of the node to be moved
+     * @param nodeIndex the index of the node to be moved
      * @param rNewLocation the new target location of the node
      */
-    void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation);
+    void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation);
 
     /**
      * Overridden GetDampingConstant() method that includes the 
      * case of a cell-area-based damping constant.
      * 
+     * @param nodeIndex the global index of this node
      * @return the damping constant for the given TissueCell.
      */ 
-    double GetDampingConstant(TissueCell& rCell);
+    double GetDampingConstant(unsigned nodeIndex);
 
     /** 
      * Set method for mWriteTissueAreas. 

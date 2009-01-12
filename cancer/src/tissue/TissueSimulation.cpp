@@ -127,6 +127,8 @@ TissueSimulation<DIM>::~TissueSimulation()
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
+    /// \todo DoCellBirth() has not yet been tested with a vertex-based tissue - see #852
+
     if (mNoBirth)
     {
         return 0;
@@ -150,7 +152,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 TissueCell new_cell = cell.Divide();
 
                 // Add a new node to the mesh
-                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
+                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(&(*cell_iter));
 
                 TissueCell *p_new_cell = mrTissue.AddCell(new_cell, new_location);
 
@@ -162,7 +164,6 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             }
         }
     }
-
     return num_births_this_step;
 }
 
@@ -170,7 +171,9 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
-    unsigned num_deaths_this_step=0;
+    /// \todo DoCellRemoval() has not yet been tested with a vertex-based tissue - see #853
+    
+    unsigned num_deaths_this_step = 0;
 
     // This labels cells as dead or apoptosing. It does not actually remove the cells,
     // tissue.RemoveDeadCells() needs to be called for this.
@@ -195,10 +198,12 @@ const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollectio
 
 
 template<unsigned DIM>
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename AbstractTissue<DIM>::Iterator parentCell)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
+    /// \todo CalculateDividingCellCentreLocations() has not yet been tested with a vertex-based tissue - see #852
+
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
+    c_vector<double, DIM> parent_coords = dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->GetNodeCorrespondingToCell(*pParentCell)->rGetLocation();
     c_vector<double, DIM> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that
@@ -216,8 +221,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         random_vector(0) = 0.5*separation*cos(random_angle);
         random_vector(1) = 0.5*separation*sin(random_angle);
 
-        parent_coords = parent_coords-random_vector;
-        daughter_coords = parent_coords+random_vector;
+        parent_coords = parent_coords - random_vector;
+        daughter_coords = parent_coords + random_vector;
     }
     else if (DIM==3)
     {
@@ -230,13 +235,13 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
         random_vector(2) = 0.5*separation*cos(random_zenith_angle);
 
-        daughter_coords = parent_coords+random_vector;
-        parent_coords = parent_coords-random_vector;
+        daughter_coords = parent_coords + random_vector;
+        parent_coords = parent_coords - random_vector;
     }
 
     // Set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);
-    mrTissue.MoveCell(parentCell, parent_coords_point);
+    mrTissue.SetNode(pParentCell->GetLocationIndex(), parent_coords_point);
     return daughter_coords;
 }
 
@@ -249,22 +254,27 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         // Update ghost positions first because they do not affect the real cells
         (static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue))->UpdateGhostPositions(mDt);
     }
-
-    // Iterate over all cells to update their positions.
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
-         cell_iter != mrTissue.End();
-         ++cell_iter)
+    
+    // Iterate over all nodes to update their positions
+    for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
     {
-        TissueCell& cell = *cell_iter;
-        unsigned index = cell.GetLocationIndex();
-        double damping_const = mrTissue.GetDampingConstant(cell);
-        
-        ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*nodeForces[index]/damping_const);
-        
-        ApplyTissueBoundaryConditions(cell, new_point);
-        
-        // Move the cell
-        mrTissue.MoveCell(cell_iter, new_point);
+        if ( !(mrTissue.IsGhostNode(node_index)) )
+        {
+            // Get damping constant for node
+            double damping_const = mrTissue.GetDampingConstant(node_index);
+            
+            // Get new node location
+            c_vector<double, DIM> new_node_location = mrTissue.GetNode(node_index)->rGetLocation() + mDt*nodeForces[node_index]/damping_const;
+                
+            // Create ChastePoint for new node location
+            ChastePoint<DIM> new_point(new_node_location);
+                
+            // Apply any boundary conditions
+            ApplyTissueBoundaryConditions(node_index, new_point);
+            
+            // Move the node
+            mrTissue.SetNode(node_index, new_point);
+        }
     }
 }
 

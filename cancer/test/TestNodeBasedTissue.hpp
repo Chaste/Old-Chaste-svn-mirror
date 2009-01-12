@@ -163,7 +163,7 @@ public:
     }
 
 
-    void TestMoveCellAndAddCell()
+    void TestSetNodeAndAddCell()
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -184,7 +184,7 @@ public:
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
-        node_based_tissue.MoveCell(cell_iter, new_location_point);
+        node_based_tissue.SetNode(cell_iter->GetLocationIndex(), new_location_point);
 
         TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);

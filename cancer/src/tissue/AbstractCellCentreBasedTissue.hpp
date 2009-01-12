@@ -76,6 +76,19 @@ public:
      * @returns address of cell as it appears in the cell list
      */
     TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
+    
+    /**
+     * Overridden GetDampingConstant() method.
+     *  
+     * Get the damping constant for the cell associated with this node,
+     * i.e. d in drdt = F/d. This depends on whether using area-based 
+     * viscosity has been switched on, and on whether the cell is a mutant 
+     * or not.
+     * 
+     * @param nodeIndex the global index of this node
+     * @return the damping constant at the TissueCell associated with this node
+     */
+    virtual double GetDampingConstant(unsigned nodeIndex);
 
     /**
      * Write results from the current tissue state to output files.
@@ -134,6 +147,22 @@ TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell newCell, c_ve
     this->mLocationCellMap[new_node_index] = p_created_cell;
 
     return p_created_cell;
+}
+
+template<unsigned DIM>
+double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
+{
+    double damping_multiplier = 1.0;
+
+    if (   (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != HEALTHY) 
+        && (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != APC_ONE_HIT) )
+    {
+        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
+    }
+    else
+    {
+        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
+    }        
 }
 
 template<unsigned DIM>

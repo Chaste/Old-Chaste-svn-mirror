@@ -183,20 +183,21 @@ public:
      * As this method is pure virtual, it must be overridden 
      * in subclasses.
      * 
-     * @param index the index of the node to be moved
+     * @param nodeIndex the index of the node to be moved
      * @param rNewLocation the new target location of the node
      */
-    virtual void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)=0;
+    virtual void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)=0;
 
     /**
-     *  Get the damping constant for this cell - ie d in drdt = F/d.
-     *  This depends on whether using area-based viscosity has been switched on, and
-     *  on whether the cell is a mutant or not
+     * Get the damping constant for this node - ie d in drdt = F/d.
      * 
-     * @param rCell a TissueCell
-     * @return the damping constant at the TissueCell
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
+     * 
+     * @param nodeIndex the global index of this node
+     * @return the damping constant at the node
      */
-    virtual double GetDampingConstant(TissueCell& rCell);
+    virtual double GetDampingConstant(unsigned nodeIndex)=0;
 
     /**
      * Add a new cell to the tissue.
@@ -211,14 +212,6 @@ public:
     virtual TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0; 
 
     class Iterator; // Forward declaration; see below
-
-    /**
-     * Move a cell to a new location.
-     * 
-     * @param iter  pointer to the cell to move
-     * @param rNewLocation  where to move it to
-     */
-    void MoveCell(AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
 
     /**
      * Remove all cells labelled as dead.
@@ -557,21 +550,6 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
 }
 
 template<unsigned DIM>
-double AbstractTissue<DIM>::GetDampingConstant(TissueCell& rCell)
-{
-    double damping_multiplier = 1.0;
-
-    if ( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
-    {
-        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
-    }
-    else
-    {
-        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
-    }    
-}
-
-template<unsigned DIM>
 void AbstractTissue<DIM>::InitialiseCells()
 {
     for (std::list<TissueCell>::iterator iter = mCells.begin();
@@ -592,13 +570,6 @@ template<unsigned DIM>
 const std::list<TissueCell>& AbstractTissue<DIM>::rGetCells() const
 {
     return this->mCells;
-}
-
-template<unsigned DIM>
-void AbstractTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
-{
-    unsigned index = iter.GetNode()->GetIndex();
-    SetNode(index, rNewLocation);
 }
 
 template<unsigned DIM>

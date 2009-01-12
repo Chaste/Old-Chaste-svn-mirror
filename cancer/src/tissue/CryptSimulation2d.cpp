@@ -30,10 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
 
-c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell)
+c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, 2> parent_coords = parentCell.rGetLocation();
+    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetNodeCorrespondingToCell(*pParentCell)->rGetLocation();
     c_vector<double, 2> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that
@@ -49,8 +49,8 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Abst
     random_vector(0) = 0.5*separation*cos(random_angle);
     random_vector(1) = 0.5*separation*sin(random_angle);
 
-    c_vector<double, 2> proposed_new_parent_coords = parent_coords-random_vector;
-    c_vector<double, 2> proposed_new_daughter_coords = parent_coords+random_vector;
+    c_vector<double, 2> proposed_new_parent_coords = parent_coords - random_vector;
+    c_vector<double, 2> proposed_new_daughter_coords = parent_coords + random_vector;
 
     if (   (proposed_new_parent_coords(1) >= 0.0)
         && (proposed_new_daughter_coords(1) >= 0.0))
@@ -80,7 +80,7 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Abst
 
     // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
-    mrTissue.MoveCell(parentCell, parent_coords_point);
+    mrTissue.SetNode(pParentCell->GetLocationIndex(), parent_coords_point);
     return daughter_coords;
 }
 
@@ -191,7 +191,7 @@ void CryptSimulation2d::UseJiggledBottomCells()
     mUseJiggledBottomCells = true;
 }
 
-void CryptSimulation2d::ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint)
+void CryptSimulation2d::ApplyTissueBoundaryConditions(unsigned nodeIndex, ChastePoint<2>& rPoint)
 {
     bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
 
@@ -203,11 +203,10 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(TissueCell& rCell, ChasteP
          * If WntConcentration is not set up then stem cells must be pinned,
          * so we reset the x-coordinate of each stem cell.
          */
-        if (rCell.GetCellType()==STEM)
+        if (mrTissue.rGetCellUsingLocationIndex(nodeIndex).GetCellType()==STEM)
         {
-            unsigned index = rCell.GetLocationIndex();
-            rPoint.rGetLocation()[0] = mrTissue.GetNode(index)->rGetLocation()[0];
-            rPoint.rGetLocation()[1] = mrTissue.GetNode(index)->rGetLocation()[1];
+            rPoint.rGetLocation()[0] = mrTissue.GetNode(nodeIndex)->rGetLocation()[0];
+            rPoint.rGetLocation()[1] = mrTissue.GetNode(nodeIndex)->rGetLocation()[1];
         }
     }
     

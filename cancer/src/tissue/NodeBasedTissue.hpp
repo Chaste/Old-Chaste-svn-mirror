@@ -74,10 +74,10 @@ private:
     /**
      * Move the node with a given index to a new point in space.
      * 
-     * @param index the index of the node to be moved
+     * @param nodeIndex the index of the node to be moved
      * @param rNewLocation the new target location of the node
      */
-    void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation);
+    void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation);
 
 
 public:

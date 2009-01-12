@@ -69,6 +69,14 @@ VertexBasedTissue<DIM>::~VertexBasedTissue()
 
 
 template<unsigned DIM>
+double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
+{
+    /// \todo Implement variable damping constants for a vertex-based tissue (see #827)
+    return CancerParameters::Instance()->GetDampingConstantNormal();
+}
+
+
+template<unsigned DIM>
 VertexMesh<DIM, DIM>& VertexBasedTissue<DIM>::rGetMesh()
 {
     return mrMesh;
@@ -111,9 +119,9 @@ unsigned VertexBasedTissue<DIM>::AddNode(Node<DIM> *pNewNode)
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)
+void VertexBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)
 {
-    return mrMesh.SetNode(index, rNewLocation);
+    mrMesh.SetNode(nodeIndex, rNewLocation);
 }
 
 
@@ -121,13 +129,6 @@ template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumElements()
 {
     return mrMesh.GetNumElements();
-}
-
-
-template<unsigned DIM>
-void VertexBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
-{
-    /// \todo put code for moving a cell here
 }
 
 

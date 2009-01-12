@@ -103,9 +103,9 @@ Node<DIM>* NodeBasedTissue<DIM>::GetNode(unsigned index)
 
 
 template<unsigned DIM>
-void NodeBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)
+void NodeBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)
 {
-    mNodes[index].SetPoint(rNewLocation);
+    mNodes[nodeIndex].SetPoint(rNewLocation);
 }
 
 

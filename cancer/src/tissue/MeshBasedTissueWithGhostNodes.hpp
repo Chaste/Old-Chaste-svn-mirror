@@ -124,7 +124,7 @@ public:
      */
     void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
 
-    /**
+	/**
      * Update the GhostNode positions using the spring force model with rest length=1.
      * Forces are applied to ghost nodes from connected ghost and normal nodes.
      */

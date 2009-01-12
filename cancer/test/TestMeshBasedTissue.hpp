@@ -195,11 +195,11 @@ public:
 
         TS_ASSERT_EQUALS(tissue.UseAreaBasedDampingConstant(), false);
         
-        double damping_const = tissue.GetDampingConstant(cells[8]);
+        double damping_const = tissue.GetDampingConstant(8);
         
         TS_ASSERT_DELTA(damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);
         
-        double mutant_damping_const = tissue.GetDampingConstant(cells[9]);
+        double mutant_damping_const = tissue.GetDampingConstant(9);
         
         TS_ASSERT_DELTA(mutant_damping_const, CancerParameters::Instance()->GetDampingConstantMutant(), 1e-6);
 
@@ -210,7 +210,7 @@ public:
         // Note that this method is usually called by TissueSimulation::Solve()
         tissue.CreateVoronoiTessellation();
         
-        double area_based_damping_const = tissue.GetDampingConstant(cells[8]);
+        double area_based_damping_const = tissue.GetDampingConstant(8);
         
         // Since the tissue is in equilibrium, we should get the same damping constant as before
         TS_ASSERT_DELTA(area_based_damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);        
@@ -310,7 +310,7 @@ public:
         TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), p_mesh->GetNumNodes());
     }
 
-    void TestMoveCellAndAddCell()
+    void TestSetNodeAndAddCell()
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -334,7 +334,7 @@ public:
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
-        tissue.MoveCell(cell_iter, new_location_point);
+        tissue.SetNode(cell_iter->GetLocationIndex(), new_location_point);
 
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
@@ -1013,7 +1013,7 @@ public:
         ++it;
         TS_ASSERT_EQUALS(it->GetLocationIndex(), 2u);
         ChastePoint<2> new_location(1,10);
-        tissue.MoveCell(it, new_location);
+        tissue.SetNode(it->GetLocationIndex(), new_location);
 
         // Update tissue
         tissue.Update();

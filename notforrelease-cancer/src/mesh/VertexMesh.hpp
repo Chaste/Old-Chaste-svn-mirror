@@ -157,10 +157,10 @@ public:
     /**
      *  Move the node with a particular index to a new point in space.
      * 
-      * @param index the index of the node to be moved
+      * @param nodeIndex the index of the node to be moved
       * @param point the new target location of the node
       */
-    void SetNode(unsigned index, ChastePoint<SPACE_DIM> point);
+    void SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point);
 
     /**
      * Delete mNodes and mElements.
@@ -181,7 +181,7 @@ public:
      * Note: inherited classes should overload ReMesh(NodeMap&).
      */
     void ReMesh();
-    
+       
     /** 
      * Construct the mesh using a mesh reader.
      * 

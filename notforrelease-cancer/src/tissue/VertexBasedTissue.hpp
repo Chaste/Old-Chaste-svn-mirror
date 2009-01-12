@@ -112,6 +112,14 @@ public:
      * Destructor, which frees any memory allocated by the constructor.
      */
     virtual ~VertexBasedTissue();
+    
+    /**
+     * Overridden GetDampingConstant() method.
+     * 
+     * @param nodeIndex the global index of this node
+     * @return the damping constant for the given nod.
+     */ 
+    double GetDampingConstant(unsigned nodeIndex);
 
     /**
      * @return reference to  mrMesh.
@@ -162,7 +170,7 @@ public:
      * @return global index of new node in tissue
      */
     unsigned AddNode(Node<DIM> *pNewNode);
-    
+
     /**
      * Overridden SetNode() method.
      * 
@@ -172,17 +180,7 @@ public:
      * @param rNewLocation the new target location of the node
      */
     void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation);
-    
-    /**
-     * Overridden MoveCell() method.
-     * 
-     * Move a cell to a new location.
-     * 
-     * @param iter  pointer to the cell to move
-     * @param rNewLocation  where to move it to
-     */
-    void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
-    
+
     /**
      * Overridden AddCell() method.
      * Add a new cell to the tissue.

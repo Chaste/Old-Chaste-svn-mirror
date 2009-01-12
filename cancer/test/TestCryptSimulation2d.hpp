@@ -875,7 +875,7 @@ public:
 
         CryptSimulation2d simulator(conf_crypt, force_collection);
 
-        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
+        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*conf_iter));
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
@@ -913,7 +913,7 @@ public:
         // different branches will execute to make sure daughter stays in crypt ie. +ve y component
         for (unsigned repetitions=0; repetitions<=1; repetitions++)
         {
-            c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
+            c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*conf_iter));
             c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
             c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
 
@@ -953,7 +953,7 @@ public:
 
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
-        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
+        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*cyl_iter));
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
@@ -987,7 +987,7 @@ public:
 
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
-        c_vector<double,2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
+        c_vector<double,2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*cyl_iter));
         c_vector<double,2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double,2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
 

@@ -77,12 +77,12 @@ private :
      * It does this by picking a random direction (0->2PI) and placing the parent
      * and daughter in opposing directions on this axis.
      *
-     * @param node_index The parent node index
+     * @param pParentCell pointer to the parent cell
      *
-     * @return daughter_coords The coordinates for the daughter cell.
+     * @return daughter_coords the coordinates for the daughter cell.
      *
      */
-    c_vector<double, 2> CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell);
+    c_vector<double, 2> CalculateDividingCellCentreLocations(TissueCell* pParentCell);
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
@@ -150,10 +150,10 @@ public :
      * bottom of the crypt are pinned. Any cell that has moved below the bottom 
      * of the crypt is moved back up.
      * 
-     * @param rCell reference to a tissue cell
+     * @param unsigned nodeIndex index of node
      * @param rPoint reference to a point
      */
-    void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<2>& rPoint);
+    void ApplyTissueBoundaryConditions(unsigned nodeIndex, ChastePoint<2>& rPoint);
 
 };
 

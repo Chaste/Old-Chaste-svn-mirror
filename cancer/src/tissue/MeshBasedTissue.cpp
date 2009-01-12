@@ -91,15 +91,15 @@ unsigned MeshBasedTissue<DIM>::AddNode(Node<DIM> *pNewNode)
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetNode(unsigned index, ChastePoint<DIM>& rNewLocation)
+void MeshBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)
 {
-    return mrMesh.SetNode(index, rNewLocation, false);
+    mrMesh.SetNode(nodeIndex, rNewLocation, false);
 }
 
 template<unsigned DIM>
-double MeshBasedTissue<DIM>::GetDampingConstant(TissueCell& rCell)
+double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
-    double damping_multiplier = AbstractTissue<DIM>::GetDampingConstant(rCell);
+    double damping_multiplier = AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(nodeIndex);
 
     if (mUseAreaBasedDampingConstant)
     {
@@ -128,7 +128,7 @@ double MeshBasedTissue<DIM>::GetDampingConstant(TissueCell& rCell)
 
         VoronoiTessellation<DIM>& tess = this->rGetVoronoiTessellation();
 
-        double area_cell = tess.GetFaceArea(rCell.GetLocationIndex());
+        double area_cell = tess.GetFaceArea(nodeIndex);
 
         /**
          * The cell area should not be too large - the next assertion is to avoid

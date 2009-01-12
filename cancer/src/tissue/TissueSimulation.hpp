@@ -218,12 +218,12 @@ protected:
      * It does this by picking a random direction (0->2PI) and placing the parent
      * and daughter in opposing directions on this axis.
      *
-     * @param node_index The parent node index
+     * @param pParentCell pointer to the parent cell
      *
      * @return daughter_coords The coordinates for the daughter cell.
      *
      */
-    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(typename AbstractTissue<DIM>::Iterator parentCell);
+    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(TissueCell* pParentCell);
 
     /**
      * During a simulation time step, process any cell sloughing or death
@@ -473,10 +473,10 @@ public:
     /**
      * Apply any tissue boundary conditions. Can be overridden in subclasses.
      * 
-     * @param rCell reference to a tissue cell
+     * @param unsigned nodeIndex index of node
      * @param rPoint reference to a point
      */
-    virtual void ApplyTissueBoundaryConditions(TissueCell& rCell, ChastePoint<DIM>& rPoint)
+    virtual void ApplyTissueBoundaryConditions(unsigned nodeIndex, ChastePoint<DIM>& rPoint)
     {}
 
 };
