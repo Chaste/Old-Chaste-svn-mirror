@@ -35,6 +35,7 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index, std::vector
     RegisterWithNodes();
     mVertexElementArea = DOUBLE_UNSET;
     mVertexElementPerimeter = DOUBLE_UNSET;
+    mElementModified = true;
 }
 
 
@@ -94,8 +95,8 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
     // Remove the node at rIndex (removes node from element)
     this->mNodes.erase( this->mNodes.begin( ) + rIndex );
 
-    // Update perimeter and area
-        CalculateVertexElementAreaAndPerimeter();
+    // Flag that element has changed and we need to recalculate area and perimeter
+    mElementModified = true;
 }
 
 
@@ -108,7 +109,15 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DivideEdge(const unsigned& rIndex, N
     c_vector<double, SPACE_DIM> position;
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i]+this->mNodes[rIndex+1]->GetPoint()[i]);
+        if (rIndex == this->mNodes.size())
+        {
+            position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i]+this->mNodes[0]->GetPoint()[i]);
+        }
+        else
+        {
+            position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i]+this->mNodes[rIndex+1]->GetPoint()[i]);
+        }
+        
     }
     ChastePoint<SPACE_DIM> point(position);
     
@@ -119,6 +128,22 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DivideEdge(const unsigned& rIndex, N
 
     // Add element to this node
     this->mNodes[rIndex+1]->AddElement(this->mIndex);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+{
+    assert(rIndex < this->mNodes.size());
+    
+    // Add pNode to rIndex+1 element of mNodes pushing the others up.
+    this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
+
+    // Add element to this node
+    this->mNodes[rIndex+1]->AddElement(this->mIndex);
+    
+    // Flag that element has changed and we need to recalculate area and perimeter
+    mElementModified = true;
 }
 
 
@@ -156,9 +181,10 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateVertexElementAreaAndPerimet
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
 double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetArea()
 {
-    if (mVertexElementArea == DOUBLE_UNSET)
+    if ((mVertexElementArea == DOUBLE_UNSET)||(mElementModified==true))
     {
         this->CalculateVertexElementAreaAndPerimeter();
+        mElementModified = false;
     }
     
     return mVertexElementArea;
@@ -190,9 +216,10 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeter()
 {
-    if (mVertexElementPerimeter == DOUBLE_UNSET)
+    if ((mVertexElementArea == DOUBLE_UNSET)||(mElementModified==true))
     {
         this->CalculateVertexElementAreaAndPerimeter();
+        mElementModified = false;
     }
     
     return mVertexElementPerimeter;

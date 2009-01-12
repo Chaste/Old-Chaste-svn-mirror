@@ -37,7 +37,7 @@ class TestVertexElement : public CxxTest::TestSuite
 {
 public:
 
-    void TestVertexElementDeleteNode()
+    void TestVertexElementDeleteAndAddNode()
     {
 //        std::vector<Node<2>*> corner_nodes;
 //        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
@@ -86,50 +86,92 @@ public:
         // Tests Areas updated
         TS_ASSERT_DELTA(vertex_element.GetArea(),sqrt(3.0),1e-6);
         TS_ASSERT_DELTA(vertex_element.GetPerimeter(),2.0+2.0*sqrt(3.0),1e-6);
+
+        // Add New Node
+        Node<2>* new_node= new Node<2>(4, false, 0.0, 0.0);
+        vertex_element.AddNode(3, new_node); // Add node at (0,0) between nodes 3 and 0
+        
+        // Test node is added
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 5u);
+               
+        // Test other nodes are updated
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], -0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+ 
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);        
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], 0.0, 1e-9);        
+        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[1], 0.0, 1e-9);
+
+        // Tests Areas updated
+        TS_ASSERT_DELTA(vertex_element.GetArea(),sqrt(3.0)*3.0/4.0,1e-6);
+        TS_ASSERT_DELTA(vertex_element.GetPerimeter(),2.0+sqrt(3.0)+2.0,1e-6);
+
+
                  
         for (unsigned i=0; i<nodes.size(); ++i)
         {
             delete nodes[i];
         }
+        delete new_node;
      }
 
 
     void TestVertexElementDivideEdge()
     {
         std::vector<Node<2>*> corner_nodes;
-        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-        corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-        corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
-        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+        corner_nodes.push_back(new Node<2>(0, false, 1.0, 1.0));
+        corner_nodes.push_back(new Node<2>(1, false, 2.0, 1.0));
+        corner_nodes.push_back(new Node<2>(2, false, 2.0, 2.0));
+        corner_nodes.push_back(new Node<2>(3, false, 1.0, 2.0));
     
         VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
         
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
         // Pass pointer to new node position of node is not important as it will be changed
-        Node<2>* new_node= new Node<2>(4, false, 0.0, 0.0);
-        vertex_element.DivideEdge(0, new_node); // Divide edge between nodes (0,0) and (1,0)
+        Node<2>* new_node1= new Node<2>(4, false, 0.0, 0.0);
+        vertex_element.DivideEdge(0, new_node1); // Divide edge between nodes (0,0) and (1,0)
+        Node<2>* new_node2= new Node<2>(5, false, 0.0, 0.0);
+        vertex_element.DivideEdge(4, new_node2); // Divide edge between nodes (0,1) and (0,0)
         
-        // Test edge is divided
-        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 5u);
+        // Test edge are divided
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
         
         TS_ASSERT_DELTA(vertex_element.GetArea(),1.0,1e-6);
         TS_ASSERT_DELTA(vertex_element.GetPerimeter(),4.0,1e-6);
                  
         // Test other nodes are updated
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.0, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 1.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 1.0, 1e-9);
         
-        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], 1.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 1.0, 1e-9);
             
-        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], 0.0, 1e-9);     
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], 2.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], 1.0, 1e-9);     
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 2.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], 2.0, 1e-9);
+        
+        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], 1.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[1], 2.0, 1e-9);
+            
+        TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[0], 1.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[1], 1.5, 1e-9);    
                  
         for (unsigned i=0; i<corner_nodes.size(); ++i)
         {
             delete corner_nodes[i];
         }
-        delete new_node;
+        delete new_node1;
+        delete new_node2;
      }
 
 

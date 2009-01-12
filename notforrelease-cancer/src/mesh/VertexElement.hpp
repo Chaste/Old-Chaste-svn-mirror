@@ -78,12 +78,15 @@ class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 
-     /** Area of the element. */
-     double mVertexElementArea;
+    /** Area of the element. */
+    double mVertexElementArea;
      
-     /** Perimeter of the element. */
-     double mVertexElementPerimeter;
-
+    /** Perimeter of the element. */
+    double mVertexElementPerimeter;
+     
+     /** Element change need to recalculate stored area and perimeter*/
+    bool mElementModified;
+    
 public:
 
     /**
@@ -136,6 +139,15 @@ public:
      * @param pNode a pointer to the new node
      */
     void DivideEdge(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
+
+    /** 
+     * Add a node to the element between nodes at rIndex and rIndex+1.
+     * 
+     * @param rIndex the local index of the node after which the new node is added
+     * @param pNode a pointer to the new node
+     */
+    void AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
+
 
     /**
      * Calculate the area and perimeter of the (polygonal) element, 
