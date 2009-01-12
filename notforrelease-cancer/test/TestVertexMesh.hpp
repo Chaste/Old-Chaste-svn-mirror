@@ -131,7 +131,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNode(13)->rGetContainingElementIndices(), temp_list1);
     }
     
-    void TestT1Swap() throw(Exception)
+    void TestPerformT1Swap() throw(Exception)
     {
         // Make 6 nodes to assign to four elements
         std::vector<Node<2>*> nodes;
@@ -237,6 +237,115 @@ public:
         
         TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(),0.2,1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(),1.0+0.2*sqrt(41.0),1e-6); 
+    }
+    
+    
+    void TestReMesh() throw(Exception)
+    {
+        // Make 10 nodes to assign to four elements
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+        nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
+        nodes.push_back(new Node<2>(5, false, 0.5, 0.51));
+        nodes.push_back(new Node<2>(6, false, 0.5, 0.0));
+        nodes.push_back(new Node<2>(7, false, 0.55, 0.0));
+        nodes.push_back(new Node<2>(8, false, 0.25, 0.25*0.49/0.5)); //To apear on diagonal
+        nodes.push_back(new Node<2>(9, false, 0.26, 0.26*0.49/0.5));
+        
+        
+        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
+        
+        // Make two triangular and two romboid elements out of these nodes
+        nodes_elem_0.push_back(nodes[2]);
+        nodes_elem_0.push_back(nodes[3]);
+        nodes_elem_0.push_back(nodes[5]);
+        
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[5]);
+        nodes_elem_1.push_back(nodes[4]);
+        nodes_elem_1.push_back(nodes[1]);
+        
+        nodes_elem_2.push_back(nodes[1]);
+        nodes_elem_2.push_back(nodes[4]);
+        nodes_elem_2.push_back(nodes[9]);  // 2 Extra nodes on internal boundary
+        nodes_elem_2.push_back(nodes[8]);  // 2 Extra nodes on internal boundary
+        nodes_elem_2.push_back(nodes[0]);
+        nodes_elem_2.push_back(nodes[6]); // 2 Extra nodes on boundary 
+        nodes_elem_2.push_back(nodes[7]); // 2 Extra nodes on boundary
+        
+        nodes_elem_3.push_back(nodes[0]);
+        nodes_elem_3.push_back(nodes[8]);  // 2 Extra nodes on internal boundary
+        nodes_elem_3.push_back(nodes[9]);  // 2 Extra nodes on internal boundary
+        nodes_elem_3.push_back(nodes[4]);
+        nodes_elem_3.push_back(nodes[5]);
+        nodes_elem_3.push_back(nodes[3]);
+        
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+        vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
+               
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 10u); 
+        
+        // Call Remesh 
+        vertex_mesh.ReMesh();
+        
+        // Test moved nodes are in the correct place
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0],0.6,1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1],0.5,1e-8);
+               
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[0],0.4,1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1],0.5,1e-3);
+        
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(),4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(),2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(),3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(),5u);
+        //TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(),4u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(),3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(),2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(),4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(),1u); 
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(),6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(),1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(),4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(),5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(),9u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(),0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(5)->GetIndex(),6u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(),4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(),0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(),9u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(),5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(),3u);       
+        
+        /*
+         * Need to be cleverer with choices of notes to make this easy
+         *         // Test Areas and Perimeters of elements 
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(),0.3,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(),1.2+0.2*sqrt(41.0),1e-6);
+        
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetArea(),0.2,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetPerimeter(),1.0+0.2*sqrt(41.0),1e-6);
+        
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetArea(),0.3,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetPerimeter(),1.2+0.2*sqrt(41.0),1e-6);
+        
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(),0.2,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(),1.0+0.2*sqrt(41.0),1e-6); 
+        */
     }
     
     /*
@@ -408,51 +517,6 @@ public:
         TS_ASSERT_DELTA(point3[0], 1.1, 1e-6);
         TS_ASSERT_DELTA(point3[1], 1.9, 1e-6);
     }
-    
-    
-    void TestAddNodeAndReMeshMethods(void)
-    {
-        // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
-        VertexMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
-        
-        // Test the AddNode() method
-        c_vector<double, 2> point;
-        point[0] = 1.5;
-        point[1] = 0.0;        
-        Node<2>* p_node = new Node<2>(7u, point);
-        unsigned new_index = mesh.AddNode(p_node);
-
-        TS_ASSERT_EQUALS(new_index, 7u);
-        TS_ASSERT_DELTA(mesh.GetNode(7u)->rGetLocation()[0], 1.5, 1e-7);
-        TS_ASSERT_DELTA(mesh.GetNode(7u)->rGetLocation()[1], 0.0, 1e-7);
-
-        // Test the AddNode() and Remesh() methods
-        point[0] = 2.5;
-        point[1] = 1.5;
-        Node<2>* p_node2 = new Node<2>(8u, point);
-
-        NodeMap map(mesh.GetNumElements());
-        new_index = mesh.AddNode(p_node2);
-        mesh.ReMesh(); // call the version of ReMesh() that doesn't use a map
-
-        TS_ASSERT_EQUALS(new_index, 8u);
-        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[0], 2.5 ,1e-7);
-        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[1], 1.5 ,1e-7);
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
-        
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
-    }
-
-    
 };    
 
 #endif /*TESTVERTEXMESH_HPP_*/
