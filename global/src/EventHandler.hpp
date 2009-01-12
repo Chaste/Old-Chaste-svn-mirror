@@ -54,6 +54,6 @@ class EventNames
     const static char* EVENT_NAME[11];
 };
 
-typedef GenericEventHandler<11,EventNames> EventHandler;
+typedef GenericEventHandler<11, EventNames::EVENT_NAME> EventHandler;
 
 #endif /*EVENTHANDLER_HPP_*/

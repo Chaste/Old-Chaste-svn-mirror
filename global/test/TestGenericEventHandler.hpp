@@ -111,7 +111,7 @@ public:
         
         AnEventHandler::BeginEvent(TEST1);
         long dummy = 1;
-        for (unsigned i=0; i<100000000; i++)
+        for (unsigned i=0; i<1e9; i++)
         {
             dummy += 2;
         }

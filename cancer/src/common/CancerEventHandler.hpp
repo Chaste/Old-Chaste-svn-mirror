@@ -50,6 +50,6 @@ class CancerEventNames
     const static char* EVENT_NAME[9];
 };
 
-typedef GenericEventHandler<9,CancerEventNames> CancerEventHandler;
+typedef GenericEventHandler<9,CancerEventNames::EVENT_NAME> CancerEventHandler;
 
 #endif /*CANCEREVENTHANDLER_HPP_*/

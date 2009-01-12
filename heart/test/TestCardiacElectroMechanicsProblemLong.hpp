@@ -48,7 +48,7 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechanicsProblem<2> problem(&cell_factory,
-                                                  200, /* end time */
+                                                  10, /* end time */
                                                   5, /*mech mesh size*/
                                                   100, /* 100*0.01ms mech dt */
                                                   0.01, /*NHS ode dt */
@@ -57,8 +57,8 @@ public:
         problem.Solve();
 
         // test by checking the length of the tissue against hardcoded value
-//        std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
-//        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.998313, 1e-4);
+        std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
+        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.998313, 1e-4);
 
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();

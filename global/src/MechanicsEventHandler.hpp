@@ -48,6 +48,6 @@ class MechanicsEventNames
     const static char* EVENT_NAME[9];
 };
 
-typedef GenericEventHandler<7,MechanicsEventNames> MechanicsEventHandler;
+typedef GenericEventHandler<7,MechanicsEventNames::EVENT_NAME> MechanicsEventHandler;
 
 #endif /*MECHANICSEVENTHANDLER_HPP_*/
