@@ -220,6 +220,7 @@ private:
      */
     void AssembleOnElement(Element<DIM, DIM>& rElement,
                            c_matrix<double, NonlinearElasticityAssembler<DIM>::STENCIL_SIZE, NonlinearElasticityAssembler<DIM>::STENCIL_SIZE >& rAElem,
+                           c_matrix<double, NonlinearElasticityAssembler<DIM>::STENCIL_SIZE, NonlinearElasticityAssembler<DIM>::STENCIL_SIZE >& rAElemPrecond,
                            c_vector<double, NonlinearElasticityAssembler<DIM>::STENCIL_SIZE>& rBElem,
                            bool assembleResidual,
                            bool assembleJacobian)
@@ -236,6 +237,7 @@ private:
         if (assembleJacobian)
         {
             rAElem.clear();
+            rAElemPrecond.clear();
         }
 
         if (assembleResidual)
@@ -632,8 +634,31 @@ private:
                                                      * wJ;
                         }
                     }
+
+                    /////////////////////////////////////////////////////
+                    // Preconditioner matrix
+                    // Fill the mass matrix (ie \intgl phi_i phi_j) in the 
+                    // pressure-pressure block. Note, the rest of the 
+                    // entries are filled in at the end
+                    /////////////////////////////////////////////////////
+                    for(unsigned vertex_index2=0; vertex_index2< NonlinearElasticityAssembler<DIM>::NUM_VERTICES_PER_ELEMENT; vertex_index2++) 
+                    { 
+                        unsigned index2 =  NonlinearElasticityAssembler<DIM>::NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
+                        rAElemPrecond(index1,index2) +=   linear_phi(vertex_index)
+                                                        * linear_phi(vertex_index2) 
+                                                        * wJ; 
+                    } 
                 }
             }
+        }
+
+
+        if (assembleJacobian) 
+        { 
+            // Fill in the other blocks of the preconditioner matrix. (This doesn't
+            // effect the pressure-pressure block of the rAElemPrecond but the 
+            // pressure-pressure block of rAElem is zero
+            rAElemPrecond = rAElemPrecond + rAElem; 
         }
     }
 
@@ -641,7 +666,8 @@ private:
 
 //// THE FOLLOWING IS IF THE MONODOMAIN EQUATIONS ARE ADJUSTED TO USE inverse(C)
 //// (still the dealii version though)
-//// DO NOT DELETE
+//// 
+////  *** DO NOT DELETE ***
 ////
 ////
 //public:

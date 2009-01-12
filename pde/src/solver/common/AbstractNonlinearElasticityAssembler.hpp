@@ -234,7 +234,7 @@ protected:
 
         KSPCreate(MPI_COMM_SELF,&solver);
 
-        KSPSetOperators(solver, r_jac, r_precond_jac, SAME_NONZERO_PATTERN /*in precond between successive sovles*/);
+        KSPSetOperators(solver, r_jac, r_jac, SAME_NONZERO_PATTERN /*in precond between successive sovles*/);
 
         // set max iterations
         KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000);
@@ -243,10 +243,10 @@ protected:
 
         KSPSetFromOptions(solver);
         KSPSetUp(solver);
-        
-        PC pc;
-        KSPGetPC(solver, &pc);
-        PCSetType(pc, PCLU);         // Note: ILU factorisation doesn't have much effect, but LU works well.
+//        
+//        PC pc;
+//        KSPGetPC(solver, &pc);
+//        PCSetType(pc, PCLU);         // Note: ILU factorisation doesn't have much effect, but LU works well.
        
         KSPSetFromOptions(solver);
         KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);

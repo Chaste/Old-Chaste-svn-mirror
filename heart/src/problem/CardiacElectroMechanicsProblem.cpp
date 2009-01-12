@@ -53,8 +53,7 @@ template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::ConstructMeshes()
 {
     double width = mDomainWidth;
-    std::cout << "w="<<width;
-
+    
     // create electrics mesh
     mpElectricsMesh = new TetrahedralMesh<DIM,DIM>();
 
