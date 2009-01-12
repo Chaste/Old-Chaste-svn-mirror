@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "VertexBasedTissue.hpp"
-
+#include "VertexMeshWriter.hpp"
 
 template<unsigned DIM>
 VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
@@ -268,6 +268,16 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                   cell_type_counter,
                                   cell_mutation_state_counter,
                                   cell_cycle_phase_counter);
+}
+
+
+template<unsigned DIM>
+void VertexBasedTissue<DIM>::WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName)
+{
+    // The false is so the directory isn't cleaned
+    VertexMeshWriter<DIM, DIM> mesh_writer(rArchiveDirectory, rMeshFileName, false);
+
+    mesh_writer.WriteFilesUsingMesh(mrMesh);
 }
 
 

@@ -305,6 +305,17 @@ public:
      *  An assertion fails if not.
      */
     TissueCell& rGetCellUsingLocationIndex(unsigned index);
+    
+    /**
+     * If the tissue contains a mesh, write this to file. For use by 
+     * the TissueSimulationArchiver. Must be overridden in each subclass
+     * that contains a mesh.
+     * 
+     * @param rArchiveDirectory directory in which archive is stored
+     * @param rMeshFileName base name for mesh files
+     */
+    virtual void WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName);
+        
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.
@@ -743,6 +754,11 @@ typename AbstractTissue<DIM>::Iterator AbstractTissue<DIM>::End()
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName)
+{    
+}
 
 template<unsigned DIM>
 void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,

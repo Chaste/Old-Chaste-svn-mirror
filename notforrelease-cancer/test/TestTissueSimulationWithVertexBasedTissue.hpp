@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cancer headers
-#include "VertexBasedTissueSimulationArchiver.hpp"
+#include "TissueSimulationArchiver.hpp"
 
 #include "AbstractForce.hpp"
 #include "TissueSimulation.hpp"
@@ -130,10 +130,10 @@ public:
 
         simulator.Solve();
 
-        VertexBasedTissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
+        TissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
 
         TissueSimulation<2>* p_simulator
-            = VertexBasedTissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithVertexBasedTissueSaveAndLoad", 0.5);
+            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithVertexBasedTissueSaveAndLoad", 0.5);
 
         p_simulator->SetEndTime(1.0);
 

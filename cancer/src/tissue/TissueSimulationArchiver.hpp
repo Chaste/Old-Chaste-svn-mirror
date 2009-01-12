@@ -162,9 +162,7 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     pSim->rGetTissue().Update();
     if (pSim->rGetTissue().HasMesh())
     {
-        // The false is so the directory isn't cleaned
-        TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh((static_cast<MeshBasedTissue<DIM>*>(&(pSim->rGetTissue())))->rGetMesh());
+        pSim->rGetTissue().WriteMeshToFile(archive_directory, mesh_filename);
     }
     
     // Create a new archive

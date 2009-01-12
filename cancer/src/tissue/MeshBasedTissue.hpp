@@ -230,7 +230,6 @@ public:
      */
     void SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant);
 
-
     /**
      * Remove all cells that are labelled as dead.
      *
@@ -248,6 +247,15 @@ public:
      */
     unsigned RemoveDeadCells();
 
+    /**
+     * Overridden WriteMeshToFile() method. For use by 
+     * the TissueSimulationArchiver.
+     * 
+     * @param rArchiveDirectory directory in which archive is stored
+     * @param rMeshFileName base name for mesh files
+     */
+    void WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName);
+    
     /**
      * Overridden CreateOutputFiles() method.
      * 

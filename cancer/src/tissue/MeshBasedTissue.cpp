@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "MeshBasedTissue.hpp"
+#include "TrianglesMeshWriter.hpp"
+
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
@@ -347,6 +349,16 @@ void MeshBasedTissue<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rMap)
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
+
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName)
+{
+    // The false is so the directory isn't cleaned
+    TrianglesMeshWriter<DIM, DIM> mesh_writer(rArchiveDirectory, rMeshFileName, false);
+
+    mesh_writer.WriteFilesUsingMesh(mrMesh);
+}
+
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,

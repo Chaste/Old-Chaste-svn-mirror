@@ -214,6 +214,15 @@ public:
     virtual void Validate();
 
     /**
+     * Overridden WriteMeshToFile() method. For use by 
+     * the TissueSimulationArchiver.
+     * 
+     * @param rArchiveDirectory directory in which archive is stored
+     * @param rMeshFileName base name for mesh files
+     */
+    void WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName);
+    
+    /**
      * Overridden CreateOutputFiles() method.
      * 
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
