@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 #include "PetscTools.hpp"
+#include "MechanicsEventHandler.hpp"
 
 //#define ___USE_DEALII_LINEAR_SYSTEM___
 
@@ -213,10 +214,12 @@ protected:
      *  the current solution) such |f(a)| is the smallest.
      */
     void TakeNewtonStep()
-    {
+    {        
         // compute Jacobian
         //Timer::Reset();
+        MechanicsEventHandler::BeginEvent(ASSEMBLE);
         AssembleSystem(true, true);
+        MechanicsEventHandler::EndEvent(ASSEMBLE);
         //Timer::PrintAndReset("AssembleSystem");
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
@@ -225,6 +228,7 @@ protected:
         //Timer::PrintAndReset("Direct Solve");
 #else
         // solve explicity with Petsc's GMRES method.
+        MechanicsEventHandler::BeginEvent(SOLVE);
         KSP solver;
         Vec solution;
         VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
@@ -250,11 +254,14 @@ protected:
        
         KSPSetFromOptions(solver);
         KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
+        MechanicsEventHandler::EndEvent(SOLVE);
 
         //Timer::PrintAndReset("KSP Solve");
 
         ReplicatableVector update(solution);
 #endif
+
+        MechanicsEventHandler::BeginEvent(UPDATE);
         std::vector<double> old_solution(mNumDofs);
         for(unsigned i=0; i<mNumDofs; i++)
         {
@@ -318,7 +325,7 @@ protected:
             mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
 #endif
         }
-        
+        MechanicsEventHandler::EndEvent(UPDATE);
 
 
 #ifndef ___USE_DEALII_LINEAR_SYSTEM___

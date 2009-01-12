@@ -59,6 +59,9 @@ public:
         // test by checking the length of the tissue against hardcoded value
         std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
         TS_ASSERT_DELTA(r_deformed_position[5](0), 0.998313, 1e-4);
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEMLONG_HPP_*/

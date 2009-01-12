@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 const unsigned MAX_EVENTS=11;
 
-template<unsigned NUM_EVENTS, const char** EVENT_NAME>
+template<unsigned NUM_EVENTS, class EventNames>//const char** EVENT_NAME>
 class GenericEventHandler
 {
 private:
@@ -75,13 +75,13 @@ public:
         {
             std::string msg;
             msg += "The event associated with the counter for '";
-            msg += EVENT_NAME[event];
+            msg += EventNames::EVENT_NAME[event];
             msg += "' had already begun when BeginEvent was called.";
             EXCEPTION(msg);
         }
         mCpuTime[event] -= GetCpuTime();
         mHasBegun[event] = true;
-        //std::cout << PetscTools::GetMyRank()<<": Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
+        //std::cout << PetscTools::GetMyRank()<<": Beginning " << EventNames::EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
     static void EndEvent(unsigned event)
@@ -94,13 +94,13 @@ public:
         {
             std::string msg;
             msg += "The event associated with the counter for '";
-            msg += EVENT_NAME[event];
+            msg += EventNames::EVENT_NAME[event];
             msg += "' had not begun when EndEvent was called.";
             EXCEPTION(msg);
         }
         mCpuTime[event] += GetCpuTime();
         mHasBegun[event] = false;
-        //std::cout << PetscTools::GetMyRank()<<": Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
+        //std::cout << PetscTools::GetMyRank()<<": Ending " << EventNames::EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
     /** 
@@ -132,7 +132,7 @@ public:
             PetscTools::Barrier();
             if (turn == PetscTools::GetMyRank())
             {
-                printf("%2i ", turn);
+                printf("Proc%2i: ", turn); // is this debugging trace?
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
                     printf("%7.2e ", mCpuTime[event]/1000);
@@ -194,10 +194,9 @@ public:
         std::cout.flush();
         if (PetscTools::AmMaster())
         {
-            printf("p: ");
             for (unsigned event=0; event<NUM_EVENTS; event++)
             {
-                printf("%15s%2s", EVENT_NAME[event], "");
+                printf("%15s%2s", EventNames::EVENT_NAME[event], "");
             }
            std::cout << "\n";
            std::cout.flush();
@@ -215,13 +214,13 @@ public:
     }
 };
 
-template<unsigned NUM_EVENTS, const char** EVENT_NAME>
-double GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mCpuTime[] = {  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+template<unsigned NUM_EVENTS, class EventNames>
+double GenericEventHandler<NUM_EVENTS,EventNames>::mCpuTime[] = {  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-template<unsigned NUM_EVENTS, const char** EVENT_NAME>
-bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mHasBegun[] = {  false, false, false, false, false, false, false, false, false, false, false};
+template<unsigned NUM_EVENTS, class EventNames>
+bool GenericEventHandler<NUM_EVENTS,EventNames>::mHasBegun[] = {  false, false, false, false, false, false, false, false, false, false, false};
 
-template<unsigned NUM_EVENTS, const char** EVENT_NAME>
-bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mEnabled = true;
+template<unsigned NUM_EVENTS, class EventNames>
+bool GenericEventHandler<NUM_EVENTS,EventNames>::mEnabled = true;
 
 #endif /*GENERICEVENTHANDLER_HPP_*/

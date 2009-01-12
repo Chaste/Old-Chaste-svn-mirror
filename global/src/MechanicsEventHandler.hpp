@@ -25,31 +25,29 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CANCEREVENTHANDLER_HPP_
-#define CANCEREVENTHANDLER_HPP_
+#ifndef MECHANICSEVENTHANDLER_HPP_
+#define MECHANICSEVENTHANDLER_HPP_
 
 #include "GenericEventHandler.hpp"
 
-typedef enum CancerEventType_
+typedef enum MechanicsEventType_
 {
-    SETUP=0,
-    DEATH,
-    BIRTH,
+    ASSEMBLE=0,
+    SOLVE,
     UPDATE,
-    TESSELLATION,
-    FORCE,
-    POSITION,
+    ALL_MECH,
+    NON_MECH,
     OUTPUT,
-    CANCER_EVERYTHING
-} CancerEventType;
+    ALL
+} MechanicsEventType;
 
 
-class CancerEventNames
+class MechanicsEventNames
 {
     public:
     const static char* EVENT_NAME[9];
 };
 
-typedef GenericEventHandler<9,CancerEventNames> CancerEventHandler;
+typedef GenericEventHandler<7,MechanicsEventNames> MechanicsEventHandler;
 
-#endif /*CANCEREVENTHANDLER_HPP_*/
+#endif /*MECHANICSEVENTHANDLER_HPP_*/

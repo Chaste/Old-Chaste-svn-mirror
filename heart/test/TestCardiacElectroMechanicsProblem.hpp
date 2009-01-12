@@ -112,6 +112,10 @@ public:
         // check electrics output was written
         command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
+
     }
 
 //// Don't delete

@@ -202,6 +202,9 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             double domainWidth,
             unsigned numElectricsElementsEachDir)
 {
+    MechanicsEventHandler::Reset();
+    MechanicsEventHandler::BeginEvent(ALL);
+    
     // create the monodomain problem. Note the we use this to set up the cells,
     // get an initial condition (voltage) vector, and get an assembler. We won't
     // ever call solve on the MonodomainProblem
@@ -414,7 +417,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         std::cout << "\n\n ** Current time = " << stepper.GetTime();
 
         LOG(2, "  Solving electrics");
-
+        MechanicsEventHandler::BeginEvent(NON_MECH);
         for(unsigned i=0; i<mNumElecTimestepsPerMechTimestep; i++)
         {
             double current_time = stepper.GetTime() + i*mElectricsTimeStep;
@@ -470,13 +473,17 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         
         // set [Ca]
         mpCardiacMechAssembler->SetIntracellularCalciumConcentrations(intracellular_Ca);
+        MechanicsEventHandler::EndEvent(NON_MECH);
 
 
         // solve the mechanics
         LOG(2, "  Solving mechanics ");
         //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
         mpCardiacMechAssembler->SetWriteOutput(false);
+
+        MechanicsEventHandler::BeginEvent(ALL_MECH);
         mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
+        MechanicsEventHandler::EndEvent(ALL_MECH);
 
         LOG(2, "    Number of newton iterations = " << mpCardiacMechAssembler->GetNumNewtonIterations());
 
@@ -485,6 +492,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         counter++;
 
         // output the results
+        MechanicsEventHandler::BeginEvent(OUTPUT);
         if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
         {
             LOG(2, "  Writing output");
@@ -504,6 +512,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
                 WriteWatchedLocationData(stepper.GetTime(), voltage);
             }
         }
+        MechanicsEventHandler::EndEvent(OUTPUT);
 
 //        // setup the Cinverse data;
 //        std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
@@ -544,6 +553,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
     VecDestroy(voltage);
     delete p_electrics_assembler;
+    MechanicsEventHandler::EndEvent(ALL);
 }
 
 
