@@ -164,19 +164,7 @@ protected :
     unsigned mWatchedMechanicsNodeIndex;
     /*< File where watched location info is written */
     out_stream mpWatchedLocationFile;
-//    /*< Number of nodes per dimension in the mechanics mesh (taken in in constructor) */
-//    unsigned mNumElementsPerDimInMechanicsMesh;
-//    /*< Length and width of the domain, default to 1 (ie 1cm by 1cm) */
-//    double mDomainWidth;
-//    /*< Number of electrics elements in each direction (defaults to 100, amounted needed for default domain width) */
-//    unsigned mNumElectricsElementsEachDir;
-    
 
-//    /**
-//     *  Construct the two meshes
-//     */
-//    void ConstructMeshes();
-//        
     
     /**
      *  Construct the mechanics assembler (the left-hand edge being fixed

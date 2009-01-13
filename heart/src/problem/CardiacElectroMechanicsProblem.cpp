@@ -48,25 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
 
-
-//template<unsigned DIM>
-//void CardiacElectroMechanicsProblem<DIM>::ConstructMeshes()
-//{
-//    double width = mDomainWidth;
-//    
-//    // create electrics mesh
-//    mpElectricsMesh = new TetrahedralMesh<DIM,DIM>();
-//
-//    //unsigned num_elem = mNumElectricsElementsEachDir;
-//    mpElectricsMesh->ConstructRectangularMesh(mNumElectricsElementsEachDir,mNumElectricsElementsEachDir);
-//    mpElectricsMesh->Scale(width/mNumElectricsElementsEachDir,width/mNumElectricsElementsEachDir);
-//
-//    // create mechanics mesh
-//    assert(DIM==2); // the below assumes DIM==2 
-//    mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,mNumElementsPerDimInMechanicsMesh,mNumElementsPerDimInMechanicsMesh);
-//    LOG(2, "Width of meshes is " << width);
-//    LOG(2, "Num nodes in electrical and mechanical meshes are: " << mpElectricsMesh->GetNumNodes() << ", " << mpMechanicsMesh->GetNumNodes() << "\n");
-//}        
+     
 
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::ConstructMechanicsAssembler()
@@ -215,18 +197,12 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mEndTime = endTime;
     mElectricsTimeStep = 0.01;
     assert(numElecTimeStepsPerMechTimestep>0);
- //   assert(numElementsPerDimInMechanicsMesh>0);
 
-//    mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
     mNumElecTimestepsPerMechTimestep = numElecTimeStepsPerMechTimestep;
 
     mMechanicsTimeStep = mElectricsTimeStep*mNumElecTimestepsPerMechTimestep;
     assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
     mNhsOdeTimeStep = nhsOdeTimeStep;
-//    assert(domainWidth > 0);
-//    mDomainWidth = domainWidth;
-//    assert(numElectricsElementsEachDir > 0);
-//    mNumElectricsElementsEachDir = numElectricsElementsEachDir;
 
     // check whether output is required
     mWriteOutput = (outputDirectory!="");
@@ -295,9 +271,6 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     assert(mpElectricsMesh!=NULL);
     assert(mpMechanicsMesh!=NULL);
     assert(mpCardiacMechAssembler==NULL);
-
-//    // construct the two meshes
-//    ConstructMeshes();
 
     if(mIsWatchedLocation)
     {
