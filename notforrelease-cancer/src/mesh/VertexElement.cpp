@@ -109,21 +109,14 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DivideEdge(const unsigned& rIndex, N
     c_vector<double, SPACE_DIM> position;
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        if (rIndex == this->mNodes.size())
-        {
-            position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i]+this->mNodes[0]->GetPoint()[i]);
-        }
-        else
-        {
-            position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i]+this->mNodes[rIndex+1]->GetPoint()[i]);
-        }
-        
+        unsigned next_index = (rIndex+1)%(this->mNodes.size());
+        position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i] + this->mNodes[next_index]->GetPoint()[i]);
     }
     ChastePoint<SPACE_DIM> point(position);
     
     pNode->SetPoint(point);
     
-    // Add pNode to rIndex+1 element of mNodes pushing the others up.
+    // Add pNode to rIndex+1 element of mNodes pushing the others up
     this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
 
     // Add element to this node
