@@ -104,7 +104,7 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
             // Check no concentrations have gone negative
             for (unsigned i=0; i<mpOdeSystem->GetNumberOfStateVariables(); i++)
             {
-                if (mpOdeSystem->rGetStateVariables()[i]< 0)
+                if (mpOdeSystem->rGetStateVariables()[i] < -DBL_EPSILON)
                 {
                     #define COVERAGE_IGNORE
                     std::cout << "Protein["<< i <<"] = "<< mpOdeSystem->rGetStateVariables()[i] << "\n";
