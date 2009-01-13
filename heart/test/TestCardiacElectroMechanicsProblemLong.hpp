@@ -37,11 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechProbRegularGeom.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "NonlinearElasticityTools.hpp"
 
 class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
 {
 public:
-    void Test2dHardcodedResult() throw(Exception)
+    void zzz__Test2dHardcodedResult() throw(Exception)
     {
         EXIT_IF_PARALLEL;
 
@@ -66,5 +67,40 @@ public:
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
     }
+    
+    void Test3d() throw(Exception)
+    {
+        EXIT_IF_PARALLEL;
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-100*1000);
+     
+        // set up two meshes of 1mm by 1mm by 1mm
+        TetrahedralMesh<3,3> electrics_mesh;
+        electrics_mesh.ConstructCuboid(10,10,10);
+        electrics_mesh.Scale(0.1, 0.1, 0.1);
+               
+        QuadraticMesh<3> mechanics_mesh("mesh/test/data/cube_136_elements_quadratic");
+        mechanics_mesh.Scale(0.1, 0.1, 0.1);
+        
+        // fix the nodes on x=0        
+        std::vector<unsigned> fixed_nodes 
+          = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,0,0);
+
+        CardiacElectroMechanicsProblem<3> problem(&electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  fixed_nodes,
+                                                  &cell_factory,
+                                                  5.0,  /* end time */
+                                                  100,  /* 100*0.01ms mech dt */
+                                                  0.01, /* NHS ode dt */
+                                                  "TestCardiacElectroMech3d");
+
+        problem.SetNoElectricsOutput();
+        problem.Solve();
+        
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
+    }
+
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEMLONG_HPP_*/

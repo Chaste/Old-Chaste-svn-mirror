@@ -76,6 +76,12 @@ public:
         }
         LOG(2, "Fixed the " << this->mFixedNodes.size() << " nodes on x=0"); 
     }
+
+    ~CardiacElectroMechProbRegularGeom()
+    { 
+        delete this->mpElectricsMesh;
+        delete this->mpMechanicsMesh;
+    }
 };
 
 #endif /*CARDIACELECTROMECHPROBREGULARGEOM_HPP_*/

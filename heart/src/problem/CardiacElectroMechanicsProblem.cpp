@@ -245,8 +245,6 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
 
     delete mpMonodomainProblem;
     delete mpCardiacMechAssembler;
-    delete mpElectricsMesh;
-    delete mpMechanicsMesh;
 
     LogFile::Close();
 }
@@ -564,4 +562,4 @@ std::vector<c_vector<double,DIM> >& CardiacElectroMechanicsProblem<DIM>::rGetDef
 
 //template class CardiacElectroMechanicsProblem<1>; // 1d incompressible material doesn't make sense
 template class CardiacElectroMechanicsProblem<2>;
-//template class CardiacElectroMechanicsProblem<3>;
+template class CardiacElectroMechanicsProblem<3>;

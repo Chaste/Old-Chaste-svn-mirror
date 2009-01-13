@@ -102,3 +102,4 @@ unsigned QuadraturePointsGroup<DIM>::Size() const
 
 template class QuadraturePointsGroup<1>;
 template class QuadraturePointsGroup<2>;
+template class QuadraturePointsGroup<3>;
