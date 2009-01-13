@@ -212,8 +212,10 @@ protected:
      *  Take one newton step, by solving the linear system -Ju=f, (J the jacobian, f
      *  the residual, u the update), and picking s such that a_new = a_old + su (a
      *  the current solution) such |f(a)| is the smallest.
+     * 
+     *  @return The current norm of the residual after the newton step.
      */
-    void TakeNewtonStep()
+    double TakeNewtonStep()
     {        
         // compute Jacobian
         //Timer::Reset();
@@ -267,64 +269,137 @@ protected:
         {
             old_solution[i] = mCurrentSolution[i];
         }
-
-        double best_norm_resid = DBL_MAX;
-        double best_damping_value = 0.0;
-
-        std::vector<double> damping_values;
-        damping_values.reserve(12);
-        damping_values.push_back(0.0);
-        damping_values.push_back(0.05);
-        for (unsigned i=1; i<=10; i++)
+        
+        std::vector<double> damping_values; // = {1.0, 0.9, .., 0.2, 0.1, 0.05} ie size 11
+        for (unsigned i=10; i>=1; i--)
         {
             damping_values.push_back((double)i/10.0);
         }
+        damping_values.push_back(0.05);
+        assert(damping_values.size()==11);
 
-        for (unsigned i=0; i<damping_values.size(); i++)
+        double initial_norm_resid = CalculateResidualNorm();
+        unsigned index = 0;
+        for(unsigned j=0; j<mNumDofs; j++)
         {
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+            mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
+#else
+            mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
+#endif
+        }
+ 
+        // compute residual
+        AssembleSystem(true, false);
+        double norm_resid = CalculateResidualNorm();
+        std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << norm_resid << "\n" << std::flush;
+                    
+        double next_norm_resid = -DBL_MAX;
+        index = 1;
+
+        // exit loop when next norm of the residual first increases
+        while(next_norm_resid < norm_resid  && index<damping_values.size())
+        {
+            if(index!=1)
+            {
+                norm_resid = next_norm_resid;
+            }
+            
             for(unsigned j=0; j<mNumDofs; j++)
             {
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
-                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update(j);
+                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
 #else
-                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update[j];
+                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
 #endif
             }
 
             // compute residual
             AssembleSystem(true, false);
-            double norm_resid = CalculateResidualNorm();
-
-            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
-            if (norm_resid < best_norm_resid)
-            {
-                best_norm_resid = norm_resid;
-                best_damping_value = damping_values[i];
-            }
+            next_norm_resid = CalculateResidualNorm();
+            std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << next_norm_resid << "\n" << std::flush;
+            index++;
         }
 
-        if (best_damping_value == 0.0)
+        if (initial_norm_resid < norm_resid)
         {
             #define COVERAGE_IGNORE
-            assert(0);
-            EXCEPTION("Residual does not decrease in newton direction, quitting");
+            assert(0); // assert here as sometimes the following causes a seg fault - don't know why
+            EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
             #undef COVERAGE_IGNORE
         }
         else
         {
-            std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
-        }
-        //Timer::PrintAndReset("Find best damping");
-
-        // implement best update and recalculate residual
-        for(unsigned j=0; j<mNumDofs; j++)
-        {
+            index-=2;
+            std::cout << "\tBest s = " << damping_values[index] << "\n"  << std::flush;
+            for(unsigned j=0; j<mNumDofs; j++)
+            {
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
-            mCurrentSolution[j] = old_solution[j] - best_damping_value*update(j);
+                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
 #else
-            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
+                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
+            }
 #endif
-        }
+        }        
+
+
+//        double best_norm_resid = DBL_MAX;
+//        double best_damping_value = 0.0;
+//
+//        std::vector<double> damping_values;
+//        damping_values.reserve(12);
+//        damping_values.push_back(0.0);
+//        damping_values.push_back(0.05);
+//        for (unsigned i=1; i<=10; i++)
+//        {
+//            damping_values.push_back((double)i/10.0);
+//        }
+//
+//        for (unsigned i=0; i<damping_values.size(); i++)
+//        {
+//            for(unsigned j=0; j<mNumDofs; j++)
+//            {
+//#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+//                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update(j);
+//#else
+//                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update[j];
+//#endif
+//            }
+//
+//            // compute residual
+//            AssembleSystem(true, false);
+//            double norm_resid = CalculateResidualNorm();
+//
+//            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
+//            if (norm_resid < best_norm_resid)
+//            {
+//                best_norm_resid = norm_resid;
+//                best_damping_value = damping_values[i];
+//            }
+//        }
+//
+//        if (best_damping_value == 0.0)
+//        {
+//            #define COVERAGE_IGNORE
+//            assert(0);
+//            EXCEPTION("Residual does not decrease in newton direction, quitting");
+//            #undef COVERAGE_IGNORE
+//        }
+//        else
+//        {
+//            std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
+//        }
+//        //Timer::PrintAndReset("Find best damping");
+//
+//        // implement best update and recalculate residual
+//        for(unsigned j=0; j<mNumDofs; j++)
+//        {
+//#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+//            mCurrentSolution[j] = old_solution[j] - best_damping_value*update(j);
+//#else
+//            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
+//#endif
+//        }
         MechanicsEventHandler::EndEvent(UPDATE);
 
 
@@ -332,6 +407,7 @@ protected:
         VecDestroy(solution);
         KSPDestroy(solver);
 #endif
+        return norm_resid;
     }
 
 
@@ -464,10 +540,8 @@ public:
                       <<   "Newton iteration " << counter
                       << ":\n-------------------\n";
     
-            TakeNewtonStep();
-
-            AssembleSystem(true, false);
-            norm_resid = CalculateResidualNorm();
+            // take newton step (and get returned residual)
+            norm_resid = TakeNewtonStep();
     
             std::cout << "Norm of residual is " << norm_resid << "\n";    
             if(mWriteOutput)

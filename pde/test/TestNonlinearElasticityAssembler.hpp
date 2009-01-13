@@ -536,6 +536,8 @@ public:
         
         assembler.Solve();
         
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u);
+        
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 	
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
