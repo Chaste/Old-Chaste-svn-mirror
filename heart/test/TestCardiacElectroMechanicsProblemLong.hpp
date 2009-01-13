@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
-#include "CardiacElectroMechanicsProblem.hpp"
+#include "CardiacElectroMechProbRegularGeom.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
@@ -47,12 +47,15 @@ public:
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechanicsProblem<2> problem(&cell_factory,
-                                                  10, /* end time */
-                                                  5, /*mech mesh size*/
-                                                  100, /* 100*0.01ms mech dt */
-                                                  0.01, /*NHS ode dt */
-                                                  "TestCardiacElectroMechImplicit");
+        CardiacElectroMechProbRegularGeom<2> problem(1.0, /* width */
+                                                     5,   /* mech mesh size */
+                                                     96,  /* elec elem each dir */
+                                                     &cell_factory,
+                                                     10,  /* end time */
+                                                     100, /* 100*0.01ms mech dt */
+                                                     0.01,/* NHS ode dt */
+                                                     "TestCardiacElectroMechImplicit");
+
         problem.SetNoElectricsOutput();
         problem.Solve();
 

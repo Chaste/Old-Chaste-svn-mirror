@@ -164,19 +164,19 @@ protected :
     unsigned mWatchedMechanicsNodeIndex;
     /*< File where watched location info is written */
     out_stream mpWatchedLocationFile;
-    /*< Number of nodes per dimension in the mechanics mesh (taken in in constructor) */
-    unsigned mNumElementsPerDimInMechanicsMesh;
-    /*< Length and width of the domain, default to 1 (ie 1cm by 1cm) */
-    double mDomainWidth;
-    /*< Number of electrics elements in each direction (defaults to 100, amounted needed for default domain width) */
-    unsigned mNumElectricsElementsEachDir;
+//    /*< Number of nodes per dimension in the mechanics mesh (taken in in constructor) */
+//    unsigned mNumElementsPerDimInMechanicsMesh;
+//    /*< Length and width of the domain, default to 1 (ie 1cm by 1cm) */
+//    double mDomainWidth;
+//    /*< Number of electrics elements in each direction (defaults to 100, amounted needed for default domain width) */
+//    unsigned mNumElectricsElementsEachDir;
     
 
-    /**
-     *  Construct the two meshes
-     */
-    void ConstructMeshes();
-        
+//    /**
+//     *  Construct the two meshes
+//     */
+//    void ConstructMeshes();
+//        
     
     /**
      *  Construct the mechanics assembler (the left-hand edge being fixed
@@ -200,14 +200,13 @@ public :
     /**
      *  Constructor
      */
-    CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
+    CardiacElectroMechanicsProblem(TetrahedralMesh<DIM,DIM>* pElectricsMesh,
+                                   QuadraticMesh<DIM>* pMechanicsMesh,
+                                   AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
-                                   unsigned numElementsPerDimInMechanicsMesh,
                                    unsigned numElecTimeStepsPerMechTimestep,
                                    double nhsOdeTimeStep,
-                                   std::string outputDirectory = "",
-                                   double domainWidth = 1.0,
-                                   unsigned numElectricsElementsEachDir = 96);
+                                   std::string outputDirectory);
 
     /**
      *  Delete allocated memory and close the watched location file

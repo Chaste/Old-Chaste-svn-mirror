@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
-#include "CardiacElectroMechanicsProblem.hpp"
+#include "CardiacElectroMechProbRegularGeom.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
@@ -49,12 +49,14 @@ public:
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechanicsProblem<2> problem(&cell_factory,
-                                                  1, /* end time */
-                                                  1, /*mech mesh size*/
-                                                  100, /* 100*0.01ms mech dt */
-                                                  0.01,
-                                                  "");
+        CardiacElectroMechProbRegularGeom<2> problem(1.0, /* width (cm) */
+                                                     1,   /* mech elem each dir */
+                                                     96, /* elec elem each dir */
+                                                     &cell_factory,
+                                                     1.0, /* end time */
+                                                     100, /* 100*0.01ms mech dt */
+                                                     0.01,/* nhs ode timestep */ 
+                                                     "");
 
         c_vector<double,2> pos;
         pos(0) = 1.0;
@@ -85,14 +87,14 @@ public:
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechanicsProblem<2> problem(&cell_factory,
-                                                  10, /* end time */
-                                                  1, /*mech mesh size*/
-                                                  100, /* 100*0.01ms mech dt */
-                                                  0.01, /*NHS ode timestep */
-                                                  "TestCardiacElectroMechOneElement",
-                                                  0.05, /* Width of tissue */
-                                                  5);   /* Num electrics elements in each dir */
+        CardiacElectroMechProbRegularGeom<2> problem(0.05, /* width (cm) */
+                                                     1,    /* mech mesh size*/
+                                                     5,    /* elec elem each dir */
+                                                     &cell_factory,
+                                                     10.0, /* end time */
+                                                     100,  /* 100*0.01ms mech dt */
+                                                     0.01, /* NHS ode timestep */
+                                                     "TestCardiacElectroMechOneElement");
         c_vector<double,2> pos;
         pos(0) = 0.05;
         pos(1) = 0.0;
@@ -122,11 +124,13 @@ public:
 //    void TestCinverseDataStructure() throw(Exception)
 //    {
 //        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
-//        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory,
+//        CardiacElectroMechanicsProblem<2> implicit_problem(1.0   /* width*/
+//                                                           5,    /* mech mesh size*/
+//                                                           96,   /* elec elem each dir 
+//                                                           &cell_factory,
 //                                                           0.05, /* end time */
-//                                                           5, /*mech mesh size*/
-//                                                           1, /* 0.01ms mech dt */
-//                                                           0.01,
+//                                                           1,    /* 0.01ms mech dt */
+//                                                           0.01, /* nhs ode dt */
 //                                                           "TestCardiacElectroMechImplicitCinverse");
 //        implicit_problem.SetNoElectricsOutput();
 //        implicit_problem.Solve();

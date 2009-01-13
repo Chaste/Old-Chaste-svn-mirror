@@ -49,24 +49,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "NodewiseData.hpp"
 
 
-template<unsigned DIM>
-void CardiacElectroMechanicsProblem<DIM>::ConstructMeshes()
-{
-    double width = mDomainWidth;
-    
-    // create electrics mesh
-    mpElectricsMesh = new TetrahedralMesh<DIM,DIM>();
-
-    //unsigned num_elem = mNumElectricsElementsEachDir;
-    mpElectricsMesh->ConstructRectangularMesh(mNumElectricsElementsEachDir,mNumElectricsElementsEachDir);
-    mpElectricsMesh->Scale(width/mNumElectricsElementsEachDir,width/mNumElectricsElementsEachDir);
-
-    // create mechanics mesh
-    assert(DIM==2); // the below assumes DIM==2 
-    mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,mNumElementsPerDimInMechanicsMesh,mNumElementsPerDimInMechanicsMesh);
-    LOG(2, "Width of meshes is " << width);
-    LOG(2, "Num nodes in electrical and mechanical meshes are: " << mpElectricsMesh->GetNumNodes() << ", " << mpMechanicsMesh->GetNumNodes() << "\n");
-}        
+//template<unsigned DIM>
+//void CardiacElectroMechanicsProblem<DIM>::ConstructMeshes()
+//{
+//    double width = mDomainWidth;
+//    
+//    // create electrics mesh
+//    mpElectricsMesh = new TetrahedralMesh<DIM,DIM>();
+//
+//    //unsigned num_elem = mNumElectricsElementsEachDir;
+//    mpElectricsMesh->ConstructRectangularMesh(mNumElectricsElementsEachDir,mNumElectricsElementsEachDir);
+//    mpElectricsMesh->Scale(width/mNumElectricsElementsEachDir,width/mNumElectricsElementsEachDir);
+//
+//    // create mechanics mesh
+//    assert(DIM==2); // the below assumes DIM==2 
+//    mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,mNumElementsPerDimInMechanicsMesh,mNumElementsPerDimInMechanicsMesh);
+//    LOG(2, "Width of meshes is " << width);
+//    LOG(2, "Num nodes in electrical and mechanical meshes are: " << mpElectricsMesh->GetNumNodes() << ", " << mpMechanicsMesh->GetNumNodes() << "\n");
+//}        
 
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::ConstructMechanicsAssembler()
@@ -193,14 +193,13 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
 
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
+            TetrahedralMesh<DIM,DIM>* pElectricsMesh,
+            QuadraticMesh<DIM>* pMechanicsMesh,
             AbstractCardiacCellFactory<DIM>* pCellFactory,
             double endTime,
-            unsigned numElementsPerDimInMechanicsMesh,
             unsigned numElecTimeStepsPerMechTimestep,
             double nhsOdeTimeStep,
-            std::string outputDirectory,
-            double domainWidth,
-            unsigned numElectricsElementsEachDir)
+            std::string outputDirectory = "")
 {
     MechanicsEventHandler::Reset();
     MechanicsEventHandler::BeginEvent(ALL);
@@ -216,16 +215,18 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mEndTime = endTime;
     mElectricsTimeStep = 0.01;
     assert(numElecTimeStepsPerMechTimestep>0);
-    assert(numElementsPerDimInMechanicsMesh>0);
-    mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
+ //   assert(numElementsPerDimInMechanicsMesh>0);
+
+//    mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
     mNumElecTimestepsPerMechTimestep = numElecTimeStepsPerMechTimestep;
+
     mMechanicsTimeStep = mElectricsTimeStep*mNumElecTimestepsPerMechTimestep;
     assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
     mNhsOdeTimeStep = nhsOdeTimeStep;
-    assert(domainWidth > 0);
-    mDomainWidth = domainWidth;
-    assert(numElectricsElementsEachDir > 0);
-    mNumElectricsElementsEachDir = numElectricsElementsEachDir;
+//    assert(domainWidth > 0);
+//    mDomainWidth = domainWidth;
+//    assert(numElectricsElementsEachDir > 0);
+//    mNumElectricsElementsEachDir = numElectricsElementsEachDir;
 
     // check whether output is required
     mWriteOutput = (outputDirectory!="");
@@ -243,8 +244,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mNoElectricsOutput = false;
 
     // initialise all the pointers
-    mpElectricsMesh = NULL;
-    mpMechanicsMesh = NULL;
+    mpElectricsMesh = pElectricsMesh; // note these are allowed to be null, in case a child constructor wants to create them
+    mpMechanicsMesh = pMechanicsMesh;
     mpCardiacMechAssembler = NULL;
 
     // Create the Logfile (note we have to do this after the output dir has been
@@ -291,12 +292,12 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 {
     LOG(2, "Initialising meshes and cardiac mechanics assembler..");
 
-    assert(mpElectricsMesh==NULL);
-    assert(mpMechanicsMesh==NULL);
+    assert(mpElectricsMesh!=NULL);
+    assert(mpMechanicsMesh!=NULL);
     assert(mpCardiacMechAssembler==NULL);
 
-    // construct the two meshes
-    ConstructMeshes();
+//    // construct the two meshes
+//    ConstructMeshes();
 
     if(mIsWatchedLocation)
     {
@@ -599,6 +600,6 @@ std::vector<c_vector<double,DIM> >& CardiacElectroMechanicsProblem<DIM>::rGetDef
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-//template class CardiacElectroMechanicsProblem<1>;
+//template class CardiacElectroMechanicsProblem<1>; // 1d incompressible material doesn't make sense
 template class CardiacElectroMechanicsProblem<2>;
 //template class CardiacElectroMechanicsProblem<3>;
