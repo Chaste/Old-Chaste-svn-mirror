@@ -44,7 +44,12 @@ class NodeBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 private:
 
     /** List of nodes */
-    std::vector<Node<DIM> > mNodes;
+    std::vector<Node<DIM>* > mNodes;
+
+    /** Indices of nodes that have been deleted, to be reused when adding new nodes */
+    std::vector<unsigned> mDeletedNodeIndices;
+
+    bool mAddedNodes;
 
     friend class boost::serialization::access;
     /**
@@ -69,7 +74,7 @@ private:
      * @param pNewNode pointer to the new node 
      * @return global index of new node in tissue
      */
-    unsigned AddNode(Node<DIM> *pNewNode);
+    unsigned AddNode(Node<DIM>* pNewNode);
 
     /**
      * Move the node with a given index to a new point in space.
@@ -85,19 +90,19 @@ public:
     /**
      * Deafult constructor.
      * 
-     * @param rNodes a vector of Nodes
+     * @param nodes a vector of Nodes
      * @param rCells a vector of TissueCells
      */
-    NodeBasedTissue(const std::vector<Node<DIM> >& rNodes, 
+    NodeBasedTissue(const std::vector<Node<DIM>* > nodes, 
                     const std::vector<TissueCell>& rCells);
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
      * dealt with by the serialize method of our base class.
      * 
-     * @param rNodes a vector of Nodes
+     * @param nodes a vector of Nodes
      */
-    NodeBasedTissue(const std::vector<Node<DIM> >& rNodes);
+    NodeBasedTissue(const std::vector<Node<DIM>* > nodes);
 
     /**
      * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
@@ -116,8 +121,7 @@ public:
     /**
      * Destructor.
      */
-    ~NodeBasedTissue()
-    {}
+    ~NodeBasedTissue();
 
     /**
      * @return the number of nodes in the tissue.
@@ -144,6 +148,8 @@ public:
      */
     unsigned RemoveDeadCells();
 
+    void Clear();
+
     /**
      * Remove nodes that have been marked as deleted and update the node cell map.
      */
@@ -159,14 +165,14 @@ public:
      * 
      * @return vector of Nodes
      */ 
-    std::vector<Node<DIM> >& rGetNodes();
+    std::vector<Node<DIM>* >& rGetNodes();
     
     /**
      * Method for getting all nodes in the tissue (for archiving).
      * 
      * @return vector of Nodes
      */
-    const std::vector<Node<DIM> >& rGetNodes() const;
+    const std::vector<Node<DIM>* >& rGetNodes() const;
 
 };
 
@@ -294,7 +300,7 @@ inline void load_construct_data(
     Archive & ar, NodeBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Load the nodes
-    std::vector<Node<DIM> > nodes;
+    std::vector<Node<DIM>* > nodes;
     ar >> nodes;
 
     // Invoke inplace constructor to initialize instance

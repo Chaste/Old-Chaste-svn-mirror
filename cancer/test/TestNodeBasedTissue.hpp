@@ -131,11 +131,11 @@ public:
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
         // Get a std::vector of nodes from the mesh
-        std::vector<Node<2> > nodes;
+        std::vector<Node<2>* > nodes;
         
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            nodes.push_back(*(mesh.GetNode(i)));
+            nodes.push_back(mesh.GetNode(i));
         }        
         
         // Create the tissue
@@ -236,7 +236,6 @@ public:
         // Tidy up
         delete p_node;
     }
-
 
     void TestRemoveDeadCellsAndUpdate()
     {
@@ -427,7 +426,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-		// Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -626,25 +625,25 @@ public:
             TS_ASSERT_EQUALS(p_tissue->rGetCells().size(), 5u);
 
             // Check number of nodes
-            std::vector<Node<2> > nodes = p_tissue->rGetNodes();
+            std::vector<Node<2>* > nodes = p_tissue->rGetNodes();
             TS_ASSERT_EQUALS(nodes.size(), 5u);
 
             // Check some node positions
-            TS_ASSERT_EQUALS(nodes[3].GetIndex(), 3u);
-            TS_ASSERT_EQUALS(nodes[4].GetIndex(), 4u);
+            TS_ASSERT_EQUALS(nodes[3]->GetIndex(), 3u);
+            TS_ASSERT_EQUALS(nodes[4]->GetIndex(), 4u);
 
-            TS_ASSERT_DELTA(nodes[3].rGetLocation()[0], 0.0, 1e-9);
-            TS_ASSERT_DELTA(nodes[3].rGetLocation()[1], 1.0, 1e-9);
-            TS_ASSERT_DELTA(nodes[4].rGetLocation()[0], 0.5, 1e-9);
-            TS_ASSERT_DELTA(nodes[4].rGetLocation()[1], 0.5, 1e-9);
+            TS_ASSERT_DELTA(nodes[3]->rGetLocation()[0], 0.0, 1e-9);
+            TS_ASSERT_DELTA(nodes[3]->rGetLocation()[1], 1.0, 1e-9);
+            TS_ASSERT_DELTA(nodes[4]->rGetLocation()[0], 0.5, 1e-9);
+            TS_ASSERT_DELTA(nodes[4]->rGetLocation()[1], 0.5, 1e-9);
 
-            TS_ASSERT_EQUALS(nodes[3].IsBoundaryNode(), true);
-            TS_ASSERT_EQUALS(nodes[4].IsBoundaryNode(), false);
+            TS_ASSERT_EQUALS(nodes[3]->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(nodes[4]->IsBoundaryNode(), false);
 
             delete p_tissue;
         }
     }
-
+    
 };
 
 #endif /*TESTNODEBASEDTISSUE_HPP_*/

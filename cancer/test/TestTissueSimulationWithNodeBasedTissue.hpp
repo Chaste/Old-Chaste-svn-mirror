@@ -161,14 +161,9 @@ public:
     /**
      * Create a simulation of a NodeBasedTissue with a NodeBasedTissueMechanicsSystem
      * and a CellKiller. Test that no exceptions are thrown, and write the results to file.
-     *
-     *  ** NOT RUN as currently fails with positions of some cells becoming NaN **
      */
-    void failingTestCellDeath() throw (Exception)
+    void TestCellDeath() throw (Exception)
     {
-        std::string test_folder = "TestTissueSimulationWithNodeBasedTissueCellDeath";
-        LogFile::Instance()->Set(2, test_folder, "log.dat");
-
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
@@ -189,24 +184,68 @@ public:
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
-        simulator.SetOutputDirectory(test_folder);
+        simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissueCellDeath");
         simulator.SetEndTime(0.5);
 
         // Add cell killer
         RandomCellKiller<2> random_cell_killer(&node_based_tissue, 0.05);
         simulator.AddCellKiller(&random_cell_killer);
 
+        // Solve
         simulator.Solve();
 
-        // The first change in cell numbers is a death at t=0.258333
-        TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);// this needs changing to suit actual answer when test works!
-        LogFile::Close();
+        // Check some results
+        TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 17u);        
+
+        std::vector<double> node_3_location = simulator.GetNodeLocation(3);
+        TS_ASSERT_DELTA(node_3_location[0], 3.4931, 1e-4);
+        TS_ASSERT_DELTA(node_3_location[1], 1.0062, 1e-4);
+        
+        std::vector<double> node_4_location = simulator.GetNodeLocation(4);
+        TS_ASSERT_DELTA(node_4_location[0], 1.0840, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[1], 1.7208, 1e-4);
     }
 
-    /**
-     * Test archiving of a TissueSimulation that uses a NodeBasedTissue.
-     */
-    void TestArchiving() throw (Exception)
+    void TestStandardResultForArchivingTestsBelow() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Set up cells, one for each node. Get each a random birth time.
+        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+
+        // Create a node based tissue
+        NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
+
+        // Create a mechanics system
+        MeinekeInteractionForce<2> meineke_force;
+        meineke_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&meineke_force);
+
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(node_based_tissue, force_collection);
+        simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissueStandardResult");
+        simulator.SetEndTime(2.5);
+
+        // Solve
+        simulator.Solve();
+
+        // Check some results  
+        std::vector<double> node_3_location = simulator.GetNodeLocation(3);
+        TS_ASSERT_DELTA(node_3_location[0], 2.9415, 1e-4);
+        TS_ASSERT_DELTA(node_3_location[1], 0.0136, 1e-4);
+        
+        std::vector<double> node_4_location = simulator.GetNodeLocation(4);
+        TS_ASSERT_DELTA(node_4_location[0], 3.7813, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[1], -0.3702, 1e-4);
+    }
+
+    // Testing Save
+    void TestSave() throw (Exception)
     {
         // Create a simple mesh
         int num_cells_depth = 5;
@@ -229,21 +268,49 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissueSaveAndLoad");
-        simulator.SetEndTime(0.5);
+        simulator.SetEndTime(0.1);
 
+        // Solve
         simulator.Solve();
 
+        // Save the results
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
+    }
 
-        TissueSimulation<2>* p_simulator
-            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 0.5);
 
-        p_simulator->SetEndTime(1.0);
+    // Testing Load (based on previous two tests)
+    void TestLoad() throw (Exception)
+    {
+        // Load the simulation from the TestSave method above and
+        // run it from 0.1 to 1.0
+        TissueSimulation<2>* p_simulator1;
 
-        TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
+        p_simulator1 = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 0.1);
+        p_simulator1->SetEndTime(1.0);
+        p_simulator1->Solve();
 
-        /// \todo test results against previous test, once cell death and a stable force law are implemented (see #678)
-        delete p_simulator;
+        // Save, then reload and run from 1.0 to 2.5
+
+        TissueSimulationArchiver<2, TissueSimulation<2> >::Save(p_simulator1);
+
+        TissueSimulation<2>* p_simulator2
+            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 1.0);
+
+        p_simulator2->SetEndTime(2.5);
+        p_simulator2->Solve();
+  
+        // These results are from time 2.5 in TestStandardResultForArchivingTestBelow()
+        std::vector<double> node_3_location = p_simulator2->GetNodeLocation(3);
+        TS_ASSERT_DELTA(node_3_location[0], 2.9415, 1e-4);
+        TS_ASSERT_DELTA(node_3_location[1], 0.0136, 1e-4);
+        
+        std::vector<double> node_4_location = p_simulator2->GetNodeLocation(4);
+        TS_ASSERT_DELTA(node_4_location[0], 3.7813, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[1], -0.3702, 1e-4);
+
+        // Tidy up
+        delete p_simulator1;
+        delete p_simulator2;
     }
 
 };
