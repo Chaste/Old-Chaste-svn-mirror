@@ -338,7 +338,6 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
              short_axis(0) = 0.0;
              short_axis(1) = 1.0;                       
         }
-                     
         else
         {
             short_axis(0) = 1.0;
@@ -348,8 +347,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
             
             short_axis /= length_short_axis;
         }     
-    }                                           
-        
+    }
     return short_axis;        
 }
 

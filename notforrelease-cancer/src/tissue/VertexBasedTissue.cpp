@@ -133,8 +133,54 @@ unsigned VertexBasedTissue<DIM>::GetNumElements()
 
 
 template<unsigned DIM>
-TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell cell, c_vector<double,DIM> newLocation)
+TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
+//    // Get the element associated with this cell
+//    unsigned element_index = newCell.GetLocationIndex();    
+//    VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(element_index);
+//
+//    // Get the node indices owned by this element
+//    std::set<unsigned> node_indices;
+//    for (unsigned local_index=0; local_index<p_element->GetNumNodes(); local_index++)
+//    {
+//        node_indices.insert(p_element->GetNodeGlobalIndex(local_index));        
+//    }
+//
+//    // Using this element's centroid and short axis, compute 
+//    // the locations of two new nodes
+//    std::vector<c_vector<double, DIM> > new_node_locations;
+//    /// \todo Add method for computing new node locations here    
+//    c_vector<double, DIM> newLocation1 = new_node_locations[0];
+//    c_vector<double, DIM> newLocation2 = new_node_locations[1];
+//    
+//    // Create the two new nodes
+//    Node<DIM>* p_new_node1 = new Node<DIM>(this->GetNumNodes(), newLocation1, false);
+//    unsigned new_node1_index = AddNode(p_new_node1);
+//    
+//    Node<DIM>* p_new_node2 = new Node<DIM>(this->GetNumNodes(), newLocation2, false);
+//    unsigned new_node1_index = AddNode(p_new_node1);
+//    
+//    /// \todo might the new nodes be on the boundary?
+//
+//    // Update the nodes owned by the existing element
+//
+//    // Add a new element to the mesh, which shared these two nodes
+//    std::vector<Node<SPACE_DIM>*> nodes_in_new_element;
+//    
+//    /// \todo Write code to put nodes belonging to new element into the above vector
+//    
+//    VertexElement<DIM, DIM>* p_element = new VertexElement<DIM, DIM>(GetNumElements(), nodes_in_new_element);
+//
+//    // Associate the new cell with the element
+//    newCell.SetLocationIndex(new_element_index);
+//    this->mCells.push_back(newCell);
+//
+//    // Update location cell map
+//    TissueCell *p_created_cell = &(this->mCells.back());
+//    this->mLocationCellMap[new_element_index] = p_created_cell;
+//
+//    return p_created_cell;
+//    
     return NULL; /// \todo put code for adding a cell here (see #852)
 }
 
