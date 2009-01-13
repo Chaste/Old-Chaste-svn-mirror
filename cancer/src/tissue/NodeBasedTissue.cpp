@@ -83,14 +83,7 @@ template<unsigned DIM>
 void NodeBasedTissue<DIM>::Clear()
 {
     mDeletedNodeIndices.clear();
-    mAddedNodes = false;    
-
-//    for (unsigned i=0; i<mNodes.size(); i++)
-//    {
-//        delete mNodes[i];
-//    }
-//
-//    mNodes.clear();
+    mAddedNodes = false;
 }
 
 
