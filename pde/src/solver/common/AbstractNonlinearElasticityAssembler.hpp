@@ -216,21 +216,31 @@ protected:
      *  @return The current norm of the residual after the newton step.
      */
     double TakeNewtonStep()
-    {        
-        // compute Jacobian
+    {
         //Timer::Reset();
+
+        /////////////////////////////////////////////////////////////
+        // Assemble Jacobian (and preconditioner)
+        ///////////////////////////////////////////////////////////// 
         MechanicsEventHandler::BeginEvent(ASSEMBLE);
         AssembleSystem(true, true);
         MechanicsEventHandler::EndEvent(ASSEMBLE);
         //Timer::PrintAndReset("AssembleSystem");
+
+
+        /////////////////////////////////////////////////////////////
+        // Solve the linear system using Petsc GMRES and an LU 
+        // factorisation of the preconditioner. Note we
+        // don't call Solve on the linear_system as we want to
+        // set Petsc options..
+        ///////////////////////////////////////////////////////////// 
+        MechanicsEventHandler::BeginEvent(SOLVE);
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
         mpLinearSystem->Solve();
         Vector<double>& update = mpLinearSystem->rGetLhsVector(); 
         //Timer::PrintAndReset("Direct Solve");
 #else
-        // solve explicity with Petsc's GMRES method.
-        MechanicsEventHandler::BeginEvent(SOLVE);
         KSP solver;
         Vec solution;
         VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
@@ -243,7 +253,7 @@ protected:
         KSPSetOperators(solver, r_jac, r_precond_jac, SAME_NONZERO_PATTERN /*in precond between successive sovles*/);
 
         // set max iterations
-        KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000);
+        KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000); //hopefully with the preconditioner this max is way too high
         KSPSetType(solver,KSPGMRES);
         KSPGMRESSetRestart(solver,100); // gmres num restarts
 
@@ -263,6 +273,19 @@ protected:
         ReplicatableVector update(solution);
 #endif
 
+        ///////////////////////////////////////////////////////////////////////////
+        // Update the solution
+        //  Newton method:       sol = sol - update, where update=Jac^{-1}*residual
+        //  Newton with damping: sol = sol - s*update, where s is chosen
+        //   such that |residual(sol)| is minimised. Damping is important to 
+        //   avoid initial divergence.
+        //
+        // Normally, finding the best s from say 0.05,0.1,0.2,..,1.0 is cheap,
+        // but this is not the case in cardiac electromechanics calculations.
+        // Therefore, we initially check s=1 (expected to be the best most of the
+        // time, then s=0.9. If the norm of the residual increases, we assume
+        // s=1 is the best. Otherwise, check s=0.8 to see if s=0.9 is a local min. 
+        ///////////////////////////////////////////////////////////////////////////
         MechanicsEventHandler::BeginEvent(UPDATE);
         std::vector<double> old_solution(mNumDofs);
         for(unsigned i=0; i<mNumDofs; i++)

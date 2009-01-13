@@ -31,10 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CardiacElectroMechanicsProblem.hpp"
 
+/**
+ *  Child class of CardiacElectroMechanicsProblem for setting up cardiac electromechanics
+ *  problems on a square (currently just 2d). The user just has to specify the number
+ *  of elements in each direction. Note: the x=0 surface is fixed in the deformation.
+ */
 template<unsigned DIM>
 class CardiacElectroMechProbRegularGeom : public CardiacElectroMechanicsProblem<DIM>
 {
 public:
+    /** 
+     *  Constructor
+     *  @param width Width and height of the square.
+     *  @param numMechanicsElementsEachDir Num elements in each direction in the mechanics mesh.
+     *  @param numElectricsElementsEachDir Num elements in each direction in the electrics mesh
+     */
     CardiacElectroMechProbRegularGeom(double width, 
                                       unsigned numMechanicsElementsEachDir,
                                       unsigned numElectricsElementsEachDir,
@@ -74,6 +85,7 @@ public:
                 this->mFixedNodes.push_back(i);
             }
         }
+
         LOG(2, "Fixed the " << this->mFixedNodes.size() << " nodes on x=0"); 
     }
 
