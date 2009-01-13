@@ -49,21 +49,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "NodewiseData.hpp"
 
      
-
-template<unsigned DIM>
-void CardiacElectroMechanicsProblem<DIM>::ConstructMechanicsAssembler()
-{
-    std::vector<unsigned> fixed_nodes;
-    for(unsigned i=0; i<mpMechanicsMesh->GetNumNodes(); i++)
-    {
-        if( fabs(mpMechanicsMesh->GetNode(i)->rGetLocation()[0])<1e-6)
-        {
-            fixed_nodes.push_back(i);
-        }
-    }
-    mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,fixed_nodes);
-}
-
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
 {
@@ -177,6 +162,7 @@ template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             TetrahedralMesh<DIM,DIM>* pElectricsMesh,
             QuadraticMesh<DIM>* pMechanicsMesh,
+            std::vector<unsigned> fixedMechanicsNodes,
             AbstractCardiacCellFactory<DIM>* pCellFactory,
             double endTime,
             unsigned numElecTimeStepsPerMechTimestep,
@@ -215,13 +201,15 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     }
     else
     {
-        mDeformationOutputDirectory = ""; // not really necessary but a bit safer, as passed in ConstructMechanicsAssembler
+        mDeformationOutputDirectory = "";
     }
     mNoElectricsOutput = false;
 
     // initialise all the pointers
     mpElectricsMesh = pElectricsMesh; // note these are allowed to be null, in case a child constructor wants to create them
     mpMechanicsMesh = pMechanicsMesh;
+    mFixedNodes = fixedMechanicsNodes;
+    
     mpCardiacMechAssembler = NULL;
 
     // Create the Logfile (note we have to do this after the output dir has been
@@ -285,7 +273,8 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMonodomainProblem->Initialise();
 
     // construct mechanics assembler
-    ConstructMechanicsAssembler();
+    mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+
 
 //    if(mUseDirectLinearSolver)
 //    {

@@ -165,12 +165,8 @@ protected :
     /*< File where watched location info is written */
     out_stream mpWatchedLocationFile;
 
-    
-    /**
-     *  Construct the mechanics assembler (the left-hand edge being fixed
-     *  is hardcoded here, and the default material law is used
-     */
-    void ConstructMechanicsAssembler();
+    /*< Nodes for which the deformation is fixed to zero */
+    std::vector<unsigned> mFixedNodes;
 
     /** 
      *  Determine which node is closest to the watched location
@@ -190,6 +186,7 @@ public :
      */
     CardiacElectroMechanicsProblem(TetrahedralMesh<DIM,DIM>* pElectricsMesh,
                                    QuadraticMesh<DIM>* pMechanicsMesh,
+                                   std::vector<unsigned> fixedMechanicsNodes,
                                    AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
                                    unsigned numElecTimeStepsPerMechTimestep,

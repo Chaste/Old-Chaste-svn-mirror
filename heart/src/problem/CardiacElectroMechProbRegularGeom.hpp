@@ -43,7 +43,8 @@ public:
                                       unsigned numElecTimeStepsPerMechTimestep,
                                       double nhsOdeTimeStep,
                                       std::string outputDirectory = "")
-        : CardiacElectroMechanicsProblem<DIM>(NULL, NULL, pCellFactory, endTime, 
+        : CardiacElectroMechanicsProblem<DIM>(NULL, NULL, std::vector<unsigned>(), // all these set below
+                                              pCellFactory, endTime, 
                                               numElecTimeStepsPerMechTimestep,
                                               nhsOdeTimeStep, outputDirectory)
     {
@@ -63,6 +64,17 @@ public:
         this->mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,numMechanicsElementsEachDir,numMechanicsElementsEachDir);
         LOG(2, "Width of meshes is " << width);
         LOG(2, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->GetNumNodes() << "\n");
+        
+        // fix the nodes on x=0
+        this->mFixedNodes.clear();
+        for(unsigned i=0; i<this->mpMechanicsMesh->GetNumNodes(); i++)
+        {
+            if( fabs(this->mpMechanicsMesh->GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                this->mFixedNodes.push_back(i);
+            }
+        }
+        LOG(2, "Fixed the " << this->mFixedNodes.size() << " nodes on x=0"); 
     }
 };
 
