@@ -162,7 +162,6 @@ public:
         TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(mesh, cells));
     }
 
-
     void TestSetNodeAndAddCell()
     {
         // Create a simple mesh
@@ -177,7 +176,7 @@ public:
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
 
-        // Test move cell by moving node 0 by a small amount
+        // Test SetNode() by moving node 0 by a small amount
 
         NodeBasedTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
         c_vector<double,2> new_location = cell_iter.rGetLocation();
@@ -233,7 +232,8 @@ public:
         // Check the index of the new cell
         TissueCell& new_cell = node_based_tissue.rGetCells().back();
         TS_ASSERT_EQUALS(new_cell.GetLocationIndex(), old_num_nodes);
-
+    
+        // Tidy up
         delete p_node;
     }
 
@@ -541,7 +541,7 @@ public:
         TS_ASSERT_EQUALS(cell_cycle_phases[2], 0u);
         TS_ASSERT_EQUALS(cell_cycle_phases[3], 0u);
         TS_ASSERT_EQUALS(cell_cycle_phases[4], 1u);
-   }
+    }
 
     void TestArchivingTissue() throw (Exception)
     {

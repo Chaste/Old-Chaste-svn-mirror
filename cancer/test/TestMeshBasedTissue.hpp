@@ -325,7 +325,7 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);
 
         //////////////////
-        // Test move cell
+        // Test set node
         //////////////////
 
         // Move node 0 by a small amount
