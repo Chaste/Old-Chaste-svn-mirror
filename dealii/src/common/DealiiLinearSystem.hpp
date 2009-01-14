@@ -174,7 +174,7 @@ public:
         return mRhsVector.l2_norm();
     }
     
-    template<unsigned SIZE>
+    template<size_t SIZE>
     void AddLhsMultipleValues(unsigned pIndices[SIZE], c_matrix<double,SIZE,SIZE> aElem)
     {
         for(unsigned i=0; i<SIZE; i++)
@@ -190,7 +190,7 @@ public:
         } 
     }
 
-    template<unsigned SIZE>
+    template<size_t SIZE>
     void AddRhsMultipleValues(unsigned pIndices[SIZE], c_vector<double,SIZE> bElem)
     {
         for(unsigned i=0; i<SIZE; i++)

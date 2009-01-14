@@ -237,6 +237,7 @@ protected:
         MechanicsEventHandler::BeginEvent(SOLVE);
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        // solve using an umfpack (in dealii) direct solve..
         mpLinearSystem->Solve();
         Vector<double>& update = mpLinearSystem->rGetLhsVector(); 
         //Timer::PrintAndReset("Direct Solve");
@@ -266,12 +267,12 @@ protected:
        
         KSPSetFromOptions(solver);
         KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
-        MechanicsEventHandler::EndEvent(SOLVE);
 
         //Timer::PrintAndReset("KSP Solve");
 
         ReplicatableVector update(solution);
 #endif
+        MechanicsEventHandler::EndEvent(SOLVE);
 
         ///////////////////////////////////////////////////////////////////////////
         // Update the solution
@@ -361,8 +362,8 @@ protected:
                 mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
 #else
                 mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-            }
 #endif
+            }
         }        
 
 
@@ -471,7 +472,7 @@ public:
 #else
         mpLinearSystem = new LinearSystem(mNumDofs);
 #endif
-        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, MATAIJ);
+        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
     }
 
 
@@ -507,7 +508,7 @@ public:
 #else
         mpLinearSystem = new LinearSystem(mNumDofs);
 #endif
-        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, MATAIJ);
+        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
     }
 
 
