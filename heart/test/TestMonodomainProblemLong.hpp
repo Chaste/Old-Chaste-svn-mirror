@@ -112,7 +112,7 @@ public:
 
         CheckMonoLr91Vars(monodomain_problem);
 
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
         /*
          * Test that corners are 'equal', and centres of sides.

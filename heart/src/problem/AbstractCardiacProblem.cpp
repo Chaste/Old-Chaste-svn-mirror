@@ -211,7 +211,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::SetWriteInfo(bool writeInfo)
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-Vec AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::GetVoltage()
+Vec AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::GetSolution()
 {
     return mVoltage;
 }

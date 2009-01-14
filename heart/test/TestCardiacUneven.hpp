@@ -81,10 +81,10 @@ public:
             CheckMonoLr91Vars<1>(monodomain_problem);
 
             // check some voltages
-            ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+            ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
             PetscInt petsc_lo, petsc_hi;
-            VecGetOwnershipRange(monodomain_problem.GetVoltage(),&petsc_lo,&petsc_hi);
+            VecGetOwnershipRange(monodomain_problem.GetSolution(),&petsc_lo,&petsc_hi);
 
             if(PetscTools::GetMyRank() == 0)
             {
@@ -137,7 +137,7 @@ public:
             bidomain_problem.Solve();
 
             PetscInt petsc_lo, petsc_hi;
-            VecGetOwnershipRange(bidomain_problem.GetVoltage(),&petsc_lo,&petsc_hi);
+            VecGetOwnershipRange(bidomain_problem.GetSolution(),&petsc_lo,&petsc_hi);
 
             if(PetscTools::GetMyRank() == 0)
             {

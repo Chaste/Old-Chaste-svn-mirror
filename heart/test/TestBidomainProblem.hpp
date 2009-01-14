@@ -118,7 +118,7 @@ public:
             TS_FAIL(e.GetMessage());
         }
 
-        DistributedVector striped_voltage(bidomain_problem.GetVoltage());
+        DistributedVector striped_voltage(bidomain_problem.GetSolution());
         DistributedVector::Stripe voltage(striped_voltage,0);
 
         for (DistributedVector::Iterator index = DistributedVector::Begin();
@@ -212,7 +212,7 @@ public:
                 TS_FAIL(e.GetMessage());
             }
 
-            DistributedVector striped_voltage(bidomain_problem.GetVoltage());
+            DistributedVector striped_voltage(bidomain_problem.GetSolution());
             DistributedVector::Stripe voltage(striped_voltage,0);
             DistributedVector::Stripe phi_e(striped_voltage,1);
 
@@ -337,8 +337,8 @@ public:
             // now solve
             monodomain_problem.Solve();
 
-            VecDuplicate(monodomain_problem.GetVoltage(), &monodomain_results);
-            VecCopy(monodomain_problem.GetVoltage(), monodomain_results);
+            VecDuplicate(monodomain_problem.GetSolution(), &monodomain_results);
+            VecCopy(monodomain_problem.GetSolution(), monodomain_results);
         }
 
 
@@ -366,7 +366,7 @@ public:
         // compare
         ///////////////////////////////////////////////////////////////////
         DistributedVector monodomain_voltage(monodomain_results);
-        DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
+        DistributedVector dist_bidomain_voltage(bidomain_problem.GetSolution());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
 
@@ -595,8 +595,8 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        DistributedVector orthotropic_solution(orthotropic_bido.GetVoltage());
-        DistributedVector axisymmetric_solution(axisymmetric_bido.GetVoltage());
+        DistributedVector orthotropic_solution(orthotropic_bido.GetSolution());
+        DistributedVector axisymmetric_solution(axisymmetric_bido.GetSolution());
 
         DistributedVector::Stripe ortho_voltage(orthotropic_solution, 0);
         DistributedVector::Stripe axi_voltage(axisymmetric_solution, 0);

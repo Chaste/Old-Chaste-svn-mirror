@@ -36,7 +36,7 @@ template<unsigned SPACE_DIM>
 void CheckMonoLr91Vars(MonodomainProblem<SPACE_DIM>& problem)
 {
 
-    DistributedVector voltage(problem.GetVoltage());
+    DistributedVector voltage(problem.GetSolution());
     for (DistributedVector::Iterator index = DistributedVector::Begin();
          index != DistributedVector::End();
          ++index)

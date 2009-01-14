@@ -94,7 +94,7 @@ public:
         monodomain_problem.Solve();
 
         // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 94.6426, atol);
@@ -147,7 +147,7 @@ public:
         monodomain_problem.Solve();
 
         // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 22.4940, atol);
@@ -205,7 +205,7 @@ public:
         bidomain_problem.Solve();
 
         // check some voltages
-        ReplicatableVector voltage_replicated(bidomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(bidomain_problem.GetSolution());
         double atol=5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[2*1], 23.7349, atol);
@@ -272,7 +272,7 @@ public:
         bidomain_problem.Solve();
 
         // check some voltages
-        ReplicatableVector voltage_replicated(bidomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(bidomain_problem.GetSolution());
         double atol=2.0;
 
         for (unsigned node_index = 0; node_index < r_mesh.GetNumNodes(); node_index++)
@@ -337,7 +337,7 @@ public:
         monodomain_problem.Solve();
 
         // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 94.6426, atol);

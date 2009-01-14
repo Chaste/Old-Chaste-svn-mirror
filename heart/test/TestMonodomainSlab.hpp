@@ -75,7 +75,7 @@ public:
          */
         bool need_initialisation = true;
         double probe_voltage=0.0;
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         need_initialisation = true;
 
         // Test the RHF of the mesh

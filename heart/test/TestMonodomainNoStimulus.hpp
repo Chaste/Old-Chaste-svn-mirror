@@ -83,7 +83,7 @@ public:
 
         monodomain_problem.Solve();
 
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double constant_voltage = voltage_replicated[0];
         TS_ASSERT_LESS_THAN(-85.0, constant_voltage);
 

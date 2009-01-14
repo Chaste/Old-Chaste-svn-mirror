@@ -134,7 +134,7 @@ public:
 
         bidomain_problem.Solve();
         
-        Vec sol = bidomain_problem.GetVoltage();
+        Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
 
         // test V = 0 for all bath nodes

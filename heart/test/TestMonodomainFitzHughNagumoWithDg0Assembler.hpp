@@ -112,7 +112,7 @@ public:
         */
         bool need_initialisation = true;
         double probe_voltage=0.0;
-        Vec voltage=monodomain_problem.GetVoltage();
+        Vec voltage=monodomain_problem.GetSolution();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
         need_initialisation = true;

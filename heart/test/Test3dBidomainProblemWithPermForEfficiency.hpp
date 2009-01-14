@@ -72,7 +72,7 @@ public:
 
         bidomain_problem.Solve();
 
-        Vec voltage=bidomain_problem.GetVoltage();
+        Vec voltage=bidomain_problem.GetSolution();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
 

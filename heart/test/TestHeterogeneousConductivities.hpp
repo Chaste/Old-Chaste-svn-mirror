@@ -117,7 +117,7 @@ public:
         /* Solve the PDE monodomain equaion*/
         problem.Solve();
         
-        ReplicatableVector voltage_replicated(problem.GetVoltage());
+        ReplicatableVector voltage_replicated(problem.GetSolution());
         TS_ASSERT_EQUALS(mesh.GetNumNodes() * 2, voltage_replicated.size()); 
         for (unsigned i=0;i<mesh.GetNumNodes();i++)
         {

@@ -205,10 +205,10 @@ public:
 
         /* Finally, we show how to access the voltage values (at the final timestep, the
          * data for previous timesteps is not retained), using the {{{DistributedVector}}}
-         * class. The call {{{bidomain_problem.GetVoltage())}}} returns a Petsc vector
+         * class. The call {{{bidomain_problem.GetSolution())}}} returns a Petsc vector
          * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and the {{{DistributedVector}}}
          * class can be used to get the values. */
-        DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
+        DistributedVector dist_bidomain_voltage(bidomain_problem.GetSolution());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
 
@@ -225,7 +225,7 @@ public:
         }
 
         /* Recall that the {{{ReplicatableVector}}} class can also be used for easier access. */
-        //ReplicatableVector res_repl(bidomain_problem.GetVoltage());
+        //ReplicatableVector res_repl(bidomain_problem.GetSolution());
         //for(unsigned i=0; i<res_repl.size(); i++)
         //{
         //    std::cout << res_repl[i] << "\n";

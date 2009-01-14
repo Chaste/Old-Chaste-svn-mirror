@@ -108,7 +108,7 @@ public:
         CheckMonoLr91Vars<1>(monodomain_problem);
 
         // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
@@ -147,7 +147,7 @@ public:
         CheckMonoLr91Vars<1>(monodomain_problem);
 
         // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=1e-6;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
@@ -182,7 +182,7 @@ public:
         CheckMonoLr91Vars<1>(monodomain_problem);
 
         // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
@@ -223,7 +223,7 @@ public:
 
         //Since we are going to compare voltages that may be owned by
         //various processes it makes sense to replicate the data.
-        Vec voltage=monodomain_problem.GetVoltage();
+        Vec voltage=monodomain_problem.GetSolution();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
         /*
@@ -317,7 +317,7 @@ public:
          * this rather difficult, especially since the edges are sampled
          * during the upstroke.
          */
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
         // corners
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  test_tolerance);
@@ -361,7 +361,7 @@ public:
         CheckMonoLr91Vars<1>(monodomain_problem);
 
         // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);

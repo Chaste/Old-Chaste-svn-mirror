@@ -64,7 +64,7 @@ public:
 
         bidomain_problem.Solve();
 
-        Vec voltage=bidomain_problem.GetVoltage();
+        Vec voltage=bidomain_problem.GetSolution();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
 
@@ -148,8 +148,8 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        DistributedVector monodomain_voltage(monodomain_problem.GetVoltage());
-        DistributedVector bidomain_solution(bidomain_problem.GetVoltage());
+        DistributedVector monodomain_voltage(monodomain_problem.GetSolution());
+        DistributedVector bidomain_solution(bidomain_problem.GetSolution());
         DistributedVector::Stripe bidomain_voltage(bidomain_solution,0);
         DistributedVector::Stripe extracellular_potential(bidomain_solution,1);
         for (DistributedVector::Iterator index = DistributedVector::Begin();

@@ -204,7 +204,7 @@ public:
 
         bidomain_problem.Solve();
         
-        Vec sol = bidomain_problem.GetVoltage();
+        Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
 
         // test V = 0 for all bath nodes
@@ -289,7 +289,7 @@ public:
 
         bidomain_problem.Solve();
         
-        Vec sol = bidomain_problem.GetVoltage();
+        Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
         
         // test phi = x*boundary_val/sigma (solution of phi''=0, phi(0)=0, sigma*phi'(1)=boundary_val
@@ -336,7 +336,7 @@ public:
 
         bidomain_problem.Solve();
         
-        Vec sol = bidomain_problem.GetVoltage();
+        Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
 
         // test V = 0 for all bath nodes
@@ -434,7 +434,7 @@ public:
 
         bidomain_problem.Solve();
         
-        Vec sol = bidomain_problem.GetVoltage();
+        Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
         // test V = 0 for all bath nodes
         for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
