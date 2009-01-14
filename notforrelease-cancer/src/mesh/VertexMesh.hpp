@@ -206,7 +206,29 @@ public:
      * Note: inherited classes should overload ReMesh(NodeMap&).
      */
     void ReMesh();
-       
+
+    /**
+     * Given a node, find a set containing the indices of its neighbouring nodes.
+     * 
+     * @param nodeIndex global index of the node
+     * @return its neighbouring node indices
+     */
+    std::set<unsigned> GetNeighbouringNodeIndices(unsigned nodeIndex);
+
+    /**
+     * Given a node and one of its containing elements, find a set containing 
+     * the indices of those neighbouring node(s) that are NOT also in the element.
+     * 
+     * Note that we allow for more than one such index, since there is no reason 
+     * a priori to assume that each node is contained by exactly three elements.
+     * 
+     * @param nodeIndex global index of the node
+     * @param elemIndex global index of the element
+     * 
+     * @return its neighbouring nodes that are not in the element
+     */
+    std::set<unsigned> GetNeighbouringNodeNotAlsoInElement(unsigned nodeIndex, unsigned elemIndex);
+
     /** 
      * Construct the mesh using a mesh reader.
      * 

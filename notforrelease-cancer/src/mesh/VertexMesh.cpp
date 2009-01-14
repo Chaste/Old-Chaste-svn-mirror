@@ -237,7 +237,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
 }
 
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
     mDeletedNodeIndices.clear();
@@ -388,12 +388,10 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
         
                         if (distance_between_nodes < mThresholdDistance)
                         {
-                            //std::cout << "\nNodeA = " << p_current_node->GetIndex() << "\tNodeB = " << p_anticlockwise_node->GetIndex() << std::flush;
-                            
-                            // method identifys swap/merge needed then  calls method to perform swap/merge
+                            // Identify the type of node swap/merge needed then call method to perform swap/merge
                             IdentifySwapType(p_current_node, p_anticlockwise_node);
                             
-                            recheck_mesh=true;
+                            recheck_mesh = true;
                             break;
                         } 
                     }
@@ -418,12 +416,77 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
 }
 
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
 {
     NodeMap map(GetNumElements());
     ReMesh(map);
 }
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndices(unsigned nodeIndex)
+{
+    // Create a set of neighbouring node indices
+    std::set<unsigned> neighbouring_node_indices; 
+    
+    // Find the indices of the elements owned by this node
+    std::set<unsigned> containing_elem_indices = GetNode(nodeIndex)->rGetContainingElementIndices();
+
+    // Iterate over these elements
+    for (std::set<unsigned>::iterator elem_iter=containing_elem_indices.begin();
+         elem_iter != containing_elem_indices.end();
+         ++elem_iter)
+    {
+        // Find the local index of this node in this element
+        unsigned local_index = GetElement(*elem_iter)->GetNodeLocalIndex(nodeIndex);
+        
+        // Find the global indices of the preceding and successive nodes in this element
+        unsigned previous_local_index = (local_index - 1)%(GetElement(*elem_iter)->GetNumNodes());
+        unsigned next_local_index = (local_index + 1)%(GetElement(*elem_iter)->GetNumNodes());
+        
+        // Add the global indices of these two nodes to the set of neighbouring node indices
+        neighbouring_node_indices.insert(GetElement(*elem_iter)->GetNodeGlobalIndex(previous_local_index));
+        neighbouring_node_indices.insert(GetElement(*elem_iter)->GetNodeGlobalIndex(next_local_index));
+    }
+    
+    return neighbouring_node_indices;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAlsoInElement(unsigned nodeIndex, unsigned elemIndex)
+{
+    /// \todo We should probably assert here that the node is in fact contained in the element (see #827)
+
+    // Create a set of neighbouring node indices
+    std::set<unsigned> neighbouring_node_indices_not_in_this_element;
+    
+    // Get the indices of this node's neighbours
+    std::set<unsigned> node_neighbours = GetNeighbouringNodeIndices(nodeIndex);
+    
+    // Get the indices of the nodes contained in this element
+    std::set<unsigned> node_indices_in_this_element;
+    for (unsigned local_index=0; local_index<GetElement(elemIndex)->GetNumNodes(); local_index++)
+    {
+        unsigned global_index = GetElement(elemIndex)->GetNodeGlobalIndex(local_index);
+        node_indices_in_this_element.insert(global_index);
+    }
+
+    // Check if each neighbour is also in this element; if not, add it to the set
+    for (std::set<unsigned>::iterator iter=node_neighbours.begin();
+         iter!=node_neighbours.end();
+         ++iter)
+    {
+        if (node_indices_in_this_element.find(*iter) == node_indices_in_this_element.end())
+        {
+            neighbouring_node_indices_not_in_this_element.insert(*iter);
+        }
+    }
+    
+    return neighbouring_node_indices_not_in_this_element;
+}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)

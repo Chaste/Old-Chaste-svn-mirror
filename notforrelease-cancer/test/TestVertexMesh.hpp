@@ -429,12 +429,15 @@ public:
         nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
         nodes.push_back(new Node<2>(5, false, 0.5, 0.51));
         nodes.push_back(new Node<2>(6, false, 1.5, 0.5));
+        
         // Nodes on bottom edge
         nodes.push_back(new Node<2>(7, false, 0.49, 0.0));
         nodes.push_back(new Node<2>(8, false, 0.51, 0.0));
+        
         // Nodes on internal edge
         nodes.push_back(new Node<2>(9, false, 1.0, 0.49));
         nodes.push_back(new Node<2>(10, false, 1.0, 0.51));
+        
         // node on bottom left edge corner
         nodes.push_back(new Node<2>(11, false, 0.0, 0.01)); 
         
@@ -468,8 +471,7 @@ public:
         nodes_elem_4.push_back(nodes[2]);
         nodes_elem_4.push_back(nodes[10]); // Extra node on internal boundary
         nodes_elem_4.push_back(nodes[9]);  // Extra node on internal boundary
-        nodes_elem_4.push_back(nodes[1]); 
-        
+        nodes_elem_4.push_back(nodes[1]);
         
         std::vector<VertexElement<2,2>*> vertex_elements;
         vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
@@ -512,8 +514,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(), 7u); // or 8
-        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(), 7u); // or 8        
         
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 0u);
@@ -526,22 +527,47 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 9u); // or 10
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(3)->GetIndex(), 1u);
         
-        // Test Areas and Perimeters of elements 
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(),0.3,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(),1.2+0.2*sqrt(41.0),1e-6);
+        // Test areas and perimeters of elements 
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(), 0.3, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetArea(),0.2,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetPerimeter(),1.0+0.2*sqrt(41.0),1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetArea(), 0.2, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetPerimeter(), 1.0+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetArea(),0.3,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetPerimeter(),1.2+0.2*sqrt(41.0),1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetArea(), 0.3, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(),0.2,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(),1.0+0.2*sqrt(41.0),1e-6); 
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(), 0.2, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(), 1.0+0.2*sqrt(41.0), 1e-6); 
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(4)->GetArea(),0.25,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(4)->GetPerimeter(),1.0+sqrt(2.0),1e-6); 
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(4)->GetArea(), 0.25, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(4)->GetPerimeter(), 1.0+sqrt(2.0), 1e-6);        
+    }
+    
+    
+    void TestNeighbouringNodeMethods() throw(Exception)
+    {
+        // Create mesh
+        VertexMesh<2,2> mesh(2,2); // columns then rows
+            
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 16u);
         
+        // Check we have the correct neighbours for node 6
+        std::set<unsigned> neighbours = mesh.GetNeighbouringNodeIndices(6);
+        
+        std::set<unsigned> expected_neighbours;
+        expected_neighbours.insert(3);
+        expected_neighbours.insert(9);
+        expected_neighbours.insert(5);
+        
+        TS_ASSERT_EQUALS(neighbours, expected_neighbours);
+        
+        // Check that the only neighbour not also in element 2 is node 3
+        std::set<unsigned> neighbours_not_in_elem2 = mesh.GetNeighbouringNodeNotAlsoInElement(6, 2);
+        
+        TS_ASSERT_EQUALS(neighbours_not_in_elem2.size(), 1u);
+        TS_ASSERT_EQUALS(*(neighbours_not_in_elem2.begin()), 3u);
     }
 
 };    
