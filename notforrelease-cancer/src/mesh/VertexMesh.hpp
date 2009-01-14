@@ -78,20 +78,14 @@ private:
     void IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
     
     /**
-     * Helper method for ReMesh to merge verices when needed 
+     * Helper method for ReMesh to merge nodes when needed 
+     * Move node with smallest global index to center and remove other node
      * 
      * @param rNodeA one of the nodes to perform the swap with 
      * @param rNodeB the other node to perform the swap
      */  
-    void PerformVertexMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
-    
-    /**
-     * Helper method for ReMesh to perform the partial T1 Swap
-     * 
-     * @param rNodeA one of the nodes to perform the swap with 
-     * @param rNodeB the other node to perform the swap
-     */  
-    void PerformPartialT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    void PerformNodeMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB,
+                          std::set<unsigned> ElementsContainingNodes);
     
     /**
      * Helper method for ReMesh to perform the T1 Swap
@@ -99,7 +93,8 @@ private:
      * @param rNodeA one of the nodes to perform the swap with 
      * @param rNodeB the other node to perform the swap
      */  
-    void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, 
+                       std::set<unsigned> ElementsContainingNodes);
     
     
     friend class boost::serialization::access;

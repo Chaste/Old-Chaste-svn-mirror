@@ -520,63 +520,70 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
          * ---o---o---
          * on the boundray of the tissue
          */
-        
-        c_vector<double, SPACE_DIM> node_midpoint = 0.5*nodeA_location + 0.5*nodeB_location;
-        c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
-        r_nodeA_location = node_midpoint;
-        
-        unsigned nodeB_local_index =  mElements[*all_indices.begin()]->GetNodeLocalIndex(pNodeB->GetIndex());
-        assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-        
-        mElements[*all_indices.begin()]->DeleteNode(nodeB_local_index); 
+        PerformNodeMerge(pNodeA,pNodeB, all_indices);
     }
     else if (all_indices.size()==2) // nodes are in two elments hence on and interior boundary so merge nodes
     {
-        /*
-         * Looks Like 
-         * 
-         *    A   B
-         * ---o---o---
-         * on an internal edge  
-         * 
-         * OR
-         * 
-         * nothing /
-         *   --o--o (2)
-         *      (1)\
-         * 
-         */
-        
-        c_vector<double, SPACE_DIM> node_midpoint = 0.5*nodeA_location + 0.5*nodeB_location;
-        c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
-        c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
-        r_nodeA_location = node_midpoint;
-        r_nodeB_location = node_midpoint;
-        
-        if (nodeA_elem_indices.size()==2) // remove B from its element
-        {        
-            for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
-                 it != nodeB_elem_indices.end();
-                 ++it)
-            {
-                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-                assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-        
-                mElements[*it]->DeleteNode(nodeB_local_index);
-            }
+        if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
+        {
+            /*
+             * Looks Like 
+             * 
+             *    A   B
+             * ---o---o---
+             * 
+             * on an internal edge  
+             */
+             PerformNodeMerge(pNodeA,pNodeB, all_indices); 
         }
-        else // remove A from its elements
-        {   
-            assert(nodeB_elem_indices.size()==2);     
-            for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
-                 it != nodeA_elem_indices.end();
-                 ++it)
-            {
-                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-         
-                mElements[*it]->DeleteNode(nodeA_local_index);
-            }
+        else
+        {
+            /*
+             * Looks Like 
+             *
+             * Outside
+             *         /
+             *   --o--o (2)
+             *     (1) \
+             * 
+             * Here we employ a PartialT1Swap 
+             */
+             
+             PerformT1Swap(pNodeA, pNodeB, all_indices);
+             
+             
+             
+//            c_vector<double, SPACE_DIM> node_midpoint = 0.5*nodeA_location + 0.5*nodeB_location;
+//            c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
+//            c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
+//            r_nodeA_location = node_midpoint;
+//            r_nodeB_location = node_midpoint;
+//            
+//            if (nodeA_elem_indices.size()==2) // remove B from its element
+//            {        
+//                for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
+//                     it != nodeB_elem_indices.end();
+//                     ++it)
+//                {
+//                    unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+//                    assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+//            
+//                    mElements[*it]->DeleteNode(nodeB_local_index);
+//                }
+//            }
+//            else // remove A from its elements
+//            {   
+//                assert(nodeB_elem_indices.size()==2);     
+//                for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
+//                     it != nodeA_elem_indices.end();
+//                     ++it)
+//                {
+//                    unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+//                    assert(nodeA_local_index < UINT_MAX); // this element should contain node A
+//             
+//                    mElements[*it]->DeleteNode(nodeA_local_index);
+//                }
+//            }
         }
     }
     else if (all_indices.size()==3) // nodes are contained in three elments 
@@ -590,181 +597,59 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
         * (3) o--o---   or  ---o--o (3)    Element number in brackets
         *    /  (2)           (2)  \
         *   /                       \
-        * 
-        * Find which node is contained in 3 elements and which is in 2 elements
-        * remove the 2 Element node. \TODO is this the correct model??
+        *
+        * Perform a PartialT1Swap 
         */
-        
-        if (nodeA_elem_indices.size()==2)
-        {
-            /*
-             * nodeA is only in 2 elements so remove nodeA
-             */
-             
-            for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
-                 it != nodeA_elem_indices.end();
-                 ++it)
-            {
-                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-                mElements[*it]->DeleteNode(nodeA_local_index);
-            }
-        }
-        else
-        {
-            assert(nodeB_elem_indices.size()==2); // Check were in setup 1
-        
-            /*
-             * nodeB is only in 2 elements so remove nodeB 
-             */
-             
-            for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
-                 it != nodeB_elem_indices.end();
-                 ++it)
-            {
-                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-                assert(nodeB_local_index < UINT_MAX); // this element should contain node B 
-                mElements[*it]->DeleteNode(nodeB_local_index);
-            }
-        }
+        PerformT1Swap(pNodeA, pNodeB, all_indices);
+               
+//        if (nodeA_elem_indices.size()==2)
+//        {
+//            /*
+//             * nodeA is only in 2 elements so remove nodeA
+//             */
+//             
+//            for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
+//                 it != nodeA_elem_indices.end();
+//                 ++it)
+//            {
+//                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+//                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
+//                mElements[*it]->DeleteNode(nodeA_local_index);
+//            }
+//        }
+//        else
+//        {
+//            assert(nodeB_elem_indices.size()==2); // Check were in setup 1
+//        
+//            /*
+//             * nodeB is only in 2 elements so remove nodeB 
+//             */
+//             
+//            for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
+//                 it != nodeB_elem_indices.end();
+//                 ++it)
+//            {
+//                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+//                assert(nodeB_local_index < UINT_MAX); // this element should contain node B 
+//                mElements[*it]->DeleteNode(nodeB_local_index);
+//            }
+//        }
     }
     else if(all_indices.size()==4) // Correct Set up for T1Swap 
     {
         /*
-         * Compute the locations of two new nodes C, D, placed on either side of the 
-         * edge E_old formed by nodes current_node and anticlockwise_node, such 
-         * that the edge E_new formed by the new nodes is the perpendicular bisector 
-         * of E_old, with |E_new| 'just larger' than mThresholdDistance.
-         */
-        double distance_between_nodes_CD = 2*mThresholdDistance; /// \todo Decide what this should really be (see #860)
-    
-        c_vector<double, SPACE_DIM> AtoB = nodeB_location - nodeA_location;
-        c_vector<double, SPACE_DIM> PerpendicularVector, CtoD;
-        PerpendicularVector(0) = -AtoB(1);
-        PerpendicularVector(1) = AtoB(0);
-        
-        CtoD = distance_between_nodes_CD / norm_2(nodeB_location - nodeA_location) * PerpendicularVector;
-        
-        c_vector<double, SPACE_DIM> nodeC_location = nodeA_location + 0.5*AtoB - 0.5*CtoD;
-        c_vector<double, SPACE_DIM> nodeD_location = nodeC_location + CtoD;
-        
-        /*
-         * Move node A to C and node B to D
-         */
-        c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
-        r_nodeA_location = nodeC_location;
-        
-        c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
-        r_nodeB_location = nodeD_location;
-    
-        /*
-         * Restructure elements - remember to update nodes and elements.
+         * Looks Like this
          * 
-         * We need to implement the following changes:
-         * 
-         * The element whose index was in nodeA_elem_indices but not nodeB_elem_indices,
-         * and the element whose index was in nodeB_elem_indices but not nodeA_elem_indices,
-         * should now both contain nodes A and B. 
-         * 
-         * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
-         * node C lies inside, should now only contain node A. 
-         * 
-         * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
-         * node D lies inside, should now only contain node B.
-         * 
-         */
-        
-        /* 
-         * Iterate over all elements involved and identify which element they are 
-         * in the diagram then update the nodes as necessary.
-         * 
-         *   \(1)/
+         *    \(1)/
          *    \ / Node A
          * (2) |   (4)     elements in Brackets
          *    / \ Node B
          *   /(3)\
          * 
-         */    
-        
-        for (std::set<unsigned>::const_iterator it = all_indices.begin();
-             it != all_indices.end();
-             ++it)
-        {
-            if (nodeA_elem_indices.find(*it) == nodeA_elem_indices.end()) // not in nodeA_elem_indices so element 3
-            {
-                /*
-                 * In this case the element index was not in 
-                 * nodeA_elem_indices, so this element 
-                 * does not contain node A. Therefore we must add node A
-                 * (which has been moved to node C) to this element.
-                 */ 
-                 
-                /*
-                 * Locate local index of node B in element then add node A after 
-                 * in anticlockwise direction. 
-                 */  
-                
-                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-                assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-        
-                mElements[*it]->AddNode(nodeB_local_index,pNodeA);
-            }
-            else if (nodeB_elem_indices.find(*it) == nodeB_elem_indices.end()) // not in nodeB_elem_indices so element 1
-            {
-                /*
-                 * In this case the element index was not in 
-                 * nodeB_elem_indices, so this element
-                 * does not contain node B. Therefore we must add node B
-                 * (which has been moved to node D) to this element.
-                 */
-                 
-                /*
-                 * Locate local index of node A in element then add node B after 
-                 * in anticlockwise direction. 
-                 */  
-                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-                mElements[*it]->AddNode(nodeA_local_index,pNodeB); 
-            }    
-            else
-            {
-                /*
-                 * In this case the element index was in both nodeB_elem_indices and nodeB_elem_indices
-                 * so is element 2 or 4 
-                 */
-                
-                /*
-                 * Locate local index of nodeA and nodeB and use the oredering to 
-                 * identify the element if nodeB_index > nodeA_index then element 4
-                 * and if nodeA_index > nodeB_index then element 2 
-                 */  
-                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-                
-                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-                assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-         
-                unsigned nodeB_local_index_plus_one = (nodeB_local_index + 1) % (mElements[*it]->GetNumNodes());
-                
-                if (nodeA_local_index == nodeB_local_index_plus_one)// % (mElements[*it]->GetNumNodes()-1))
-                {
-                    /*
-                     * In this case the local index of nodeA is the local index of 
-                     * nodeB plus one so we are in element 2 so we remove nodeB
-                     */
-                     mElements[*it]->DeleteNode(nodeB_local_index); 
-                }
-                else
-                {
-                    assert(nodeB_local_index == (nodeA_local_index + 1) % (mElements[*it]->GetNumNodes())); // as A and B are next to each other
-                    /*
-                     * In this case the local index of nodeA is the local index of 
-                     * nodeB minus one so we are in element 4 so we remove nodeA
-                     */             
-                     mElements[*it]->DeleteNode(nodeA_local_index); 
-                }
-            }
-        }
+         * Perform a T1Swap
+         * 
+         */  
+        PerformT1Swap(pNodeA, pNodeB, all_indices);
     }
     else
     {
@@ -774,18 +659,189 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformVertexMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
-{
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB,
+                                                          std::set<unsigned> ElementsContainingNodes)
+{   
+    c_vector<double, SPACE_DIM> node_midpoint = 0.5*pNodeA->rGetLocation() + 0.5*pNodeB->rGetLocation();
+    
+    if (pNodeA->GetIndex()<pNodeB->GetIndex())
+    {
+        //Remove NodeB
+        c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
+        r_nodeA_location = node_midpoint;
+    
+        for (std::set<unsigned>::const_iterator it = ElementsContainingNodes.begin();
+             it != ElementsContainingNodes.end();
+             ++it)
+        {
+            unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+            assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+        
+            mElements[*it]->DeleteNode(nodeB_local_index); 
+        }
+    }
+    else
+    {
+        //Remove NodeA
+        c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
+        r_nodeB_location = node_midpoint;
+    
+        for (std::set<unsigned>::const_iterator it = ElementsContainingNodes.begin();
+             it != ElementsContainingNodes.end();
+             ++it)
+        {
+            unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+            assert(nodeA_local_index < UINT_MAX); // this element should contain node A
+        
+            mElements[*it]->DeleteNode(nodeA_local_index); 
+        }
+    }
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformPartialT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
-{
-}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB,
+                                                       std::set<unsigned> ElementsContainingNodes)
 {
+    /*
+     * Restructure elements - remember to update nodes and elements.
+     * 
+     * We need to implement the following changes:
+     * 
+     * The element whose index was in nodeA_elem_indices but not nodeB_elem_indices,
+     * and the element whose index was in nodeB_elem_indices but not nodeA_elem_indices,
+     * should now both contain nodes A and B. 
+     * 
+     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
+     * node C lies inside, should now only contain node A. 
+     * 
+     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
+     * node D lies inside, should now only contain node B.
+     * 
+     *
+     * Iterate over all elements involved and identify which element they are 
+     * in the diagram then update the nodes as necessary.
+     * 
+     *   \(1)/
+     *    \ / Node A
+     * (2) |   (4)     elements in Brackets
+     *    / \ Node B
+     *   /(3)\
+     * 
+     */  
+
+    /*
+     * Compute the locations of two new nodes C, D, placed on either side of the 
+     * edge E_old formed by nodes current_node and anticlockwise_node, such 
+     * that the edge E_new formed by the new nodes is the perpendicular bisector 
+     * of E_old, with |E_new| 'just larger' than mThresholdDistance.
+     */
+     
+     
+    // Find the sets of elements containing nodes A and B
+    std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
+    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();  
+
+
+
+    double distance_between_nodes_CD = 2*mThresholdDistance; /// \todo Decide what this should really be (see #860)
+    c_vector<double, SPACE_DIM> nodeA_location = pNodeA->rGetLocation();
+    c_vector<double, SPACE_DIM> nodeB_location = pNodeB->rGetLocation();
+    c_vector<double, SPACE_DIM> AtoB = nodeB_location - nodeA_location;
+    c_vector<double, SPACE_DIM> PerpendicularVector, CtoD;
+    PerpendicularVector(0) = -AtoB(1);
+    PerpendicularVector(1) = AtoB(0);
+    
+    CtoD = distance_between_nodes_CD / norm_2(nodeB_location - nodeA_location) * PerpendicularVector;
+    
+    c_vector<double, SPACE_DIM> nodeC_location = nodeA_location + 0.5*AtoB - 0.5*CtoD;
+    c_vector<double, SPACE_DIM> nodeD_location = nodeC_location + CtoD;
+    
+    /*
+     * Move node A to C and node B to D
+     */
+    c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
+    r_nodeA_location = nodeC_location;
+    
+    c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
+    r_nodeB_location = nodeD_location;
+    
+    for (std::set<unsigned>::const_iterator it = ElementsContainingNodes.begin();
+         it != ElementsContainingNodes.end();
+         ++it)
+    {
+        if (nodeA_elem_indices.find(*it) == nodeA_elem_indices.end()) // not in nodeA_elem_indices so element 3
+        {
+            /*
+             * In this case the element index was not in 
+             * nodeA_elem_indices, so this element 
+             * does not contain node A. Therefore we must add node A
+             * (which has been moved to node C) to this element.
+             *
+             * Locate local index of node B in element then add node A after 
+             * in anticlockwise direction. 
+             */  
+            
+            unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+            assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+    
+            mElements[*it]->AddNode(nodeB_local_index,pNodeA);
+        }
+        else if (nodeB_elem_indices.find(*it) == nodeB_elem_indices.end()) // not in nodeB_elem_indices so element 1
+        {
+            /*
+             * In this case the element index was not in 
+             * nodeB_elem_indices, so this element
+             * does not contain node B. Therefore we must add node B
+             * (which has been moved to node D) to this element.
+             *
+             * Locate local index of node A in element then add node B after 
+             * in anticlockwise direction. 
+             */  
+            unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+            assert(nodeA_local_index < UINT_MAX); // this element should contain node A
+            mElements[*it]->AddNode(nodeA_local_index,pNodeB); 
+        }    
+        else
+        {
+            /*
+             * In this case the element index was in both nodeB_elem_indices and nodeB_elem_indices
+             * so is element 2 or 4 
+             */
+            
+            /*
+             * Locate local index of nodeA and nodeB and use the oredering to 
+             * identify the element if nodeB_index > nodeA_index then element 4
+             * and if nodeA_index > nodeB_index then element 2 
+             */  
+            unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+            assert(nodeA_local_index < UINT_MAX); // this element should contain node A
+            
+            unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+            assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+     
+            unsigned nodeB_local_index_plus_one = (nodeB_local_index + 1) % (mElements[*it]->GetNumNodes());
+            
+            if (nodeA_local_index == nodeB_local_index_plus_one)// % (mElements[*it]->GetNumNodes()-1))
+            {
+                /*
+                 * In this case the local index of nodeA is the local index of 
+                 * nodeB plus one so we are in element 2 so we remove nodeB
+                 */
+                 mElements[*it]->DeleteNode(nodeB_local_index); 
+            }
+            else
+            {
+                assert(nodeB_local_index == (nodeA_local_index + 1) % (mElements[*it]->GetNumNodes())); // as A and B are next to each other
+                /*
+                 * In this case the local index of nodeA is the local index of 
+                 * nodeB minus one so we are in element 4 so we remove nodeA
+                 */             
+                 mElements[*it]->DeleteNode(nodeA_local_index); 
+            }
+        }
+    }
 }
 
 
