@@ -90,7 +90,7 @@ void MonodomainProblem<SPACE_DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
     ReplicatableVector voltage_replicated;
-    voltage_replicated.ReplicatePetscVector(this->mVoltage);
+    voltage_replicated.ReplicatePetscVector(this->mSolution);
     double v_max = -DBL_MAX, v_min = DBL_MAX;
     for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
     {

@@ -79,7 +79,7 @@ protected:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
-    Vec mVoltage; // Current solution
+    Vec mSolution; // Current solution
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.

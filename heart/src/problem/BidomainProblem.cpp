@@ -165,7 +165,7 @@ void BidomainProblem<SPACE_DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
     ReplicatableVector voltage_replicated;
-    voltage_replicated.ReplicatePetscVector(this->mVoltage);
+    voltage_replicated.ReplicatePetscVector(this->mSolution);
     double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
 
     for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)

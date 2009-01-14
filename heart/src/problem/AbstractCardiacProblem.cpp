@@ -58,7 +58,7 @@ AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
     mCallChaste2Meshalyzer = false;
     mpCardiacPde = NULL;
     mpAssembler = NULL;
-    mVoltage = NULL;
+    mSolution = NULL;
     mAllocatedMemoryForMesh = false;
     assert(mNodesToOutput.empty());
 
@@ -69,9 +69,9 @@ template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
 {
     delete mpCardiacPde;
-    if (mVoltage)
+    if (mSolution)
     {
-        VecDestroy(mVoltage);
+        VecDestroy(mSolution);
     }
 
     if(mAllocatedMemoryForMesh)
@@ -213,7 +213,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::SetWriteInfo(bool writeInfo)
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Vec AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::GetSolution()
 {
-    return mVoltage;
+    return mSolution;
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -274,9 +274,9 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
     progress_reporter.Update(0);
 
     // If we have already run a simulation, free the old solution vec
-    if (mVoltage)
+    if (mSolution)
     {
-        VecDestroy(mVoltage);
+        VecDestroy(mSolution);
     }
 
     while ( !stepper.IsTimeAtEnd() )
@@ -287,7 +287,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
 
         try
         {
-            mVoltage = mpAssembler->Solve();
+            mSolution = mpAssembler->Solve();
         }
         catch (Exception &e)
         {
@@ -308,7 +308,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
         VecDestroy(initial_condition);
 
         // Initial condition for next loop is current solution
-        initial_condition = mVoltage;
+        initial_condition = mSolution;
 
         // update the current time
         stepper.AdvanceOneTimeStep();
@@ -324,7 +324,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
             // Writing data out to the file <mOutputFilenamePrefix>.dat
             EventHandler::BeginEvent(WRITE_OUTPUT);
             mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
-            WriteOneStep(stepper.GetTime(), mVoltage);
+            WriteOneStep(stepper.GetTime(), mSolution);
             EventHandler::EndEvent(WRITE_OUTPUT);
         }
         
