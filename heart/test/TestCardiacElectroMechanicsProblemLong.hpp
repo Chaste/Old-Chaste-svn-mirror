@@ -42,19 +42,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
 {
 public:
-    void zzz__Test2dHardcodedResult() throw(Exception)
+    void Test2dHardcodedResult() throw(Exception)
     {
         EXIT_IF_PARALLEL;
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechProbRegularGeom<2> problem(1.0, /* width */
-                                                     5,   /* mech mesh size */
-                                                     96,  /* elec elem each dir */
+        // run to 125 ms - about where the width is at its minimum (see figures
+        // in "A numerical method for cardiac mechano–electric simulations" (Pras&JonW))        
+        CardiacElectroMechProbRegularGeom<2> problem(1.0,  /* width */
+                                                     5,    /* mech mesh size */
+                                                     96,   /* elec elem each dir */
                                                      &cell_factory,
-                                                     10,  /* end time */
-                                                     100, /* 100*0.01ms mech dt */
-                                                     0.01,/* NHS ode dt */
+                                                     125,  /* end time */
+                                                     100,  /* 100*0.01ms mech dt */
+                                                     0.01, /* NHS ode dt */
                                                      "TestCardiacElectroMechImplicit");
 
         problem.SetNoElectricsOutput();
@@ -62,7 +64,7 @@ public:
 
         // test by checking the length of the tissue against hardcoded value
         std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
-        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.998313, 1e-4);
+        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.8282, 1e-3);
 
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
@@ -90,7 +92,7 @@ public:
                                                   &mechanics_mesh,
                                                   fixed_nodes,
                                                   &cell_factory,
-                                                  5.0,  /* end time */
+                                                  1,   /* end time */
                                                   100,  /* 100*0.01ms mech dt */
                                                   0.01, /* NHS ode dt */
                                                   "TestCardiacElectroMech3d");

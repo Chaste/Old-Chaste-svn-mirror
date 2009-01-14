@@ -169,8 +169,14 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             double nhsOdeTimeStep,
             std::string outputDirectory = "")
 {
+    // Start-up mechanics event handler..
     MechanicsEventHandler::Reset();
     MechanicsEventHandler::BeginEvent(ALL);
+    // disable the electric event handler, because we use a problem class but
+    // don't call Solve, so we would have to worry about starting and ending any
+    // events in AbstractCardiacProblem::Solve() (esp. calling EndEvent(EVERYTHING))
+    // if we didn't disable it.
+    EventHandler::Disable();
     
     // create the monodomain problem. Note the we use this to set up the cells,
     // get an initial condition (voltage) vector, and get an assembler. We won't
@@ -514,6 +520,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
     VecDestroy(voltage);
     delete p_electrics_assembler;
+
     MechanicsEventHandler::EndEvent(ALL);
 }
 
