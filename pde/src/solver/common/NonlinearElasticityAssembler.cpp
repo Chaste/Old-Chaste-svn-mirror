@@ -168,9 +168,13 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
     if (assembleJacobian)
     {
         this->mpLinearSystem->AssembleIntermediateLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix(); 
     }
 #endif
+    if (assembleJacobian)
+    {
+        this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix(); 
+    }
+
 
     // Apply dirichlet boundary conditions
     this->ApplyBoundaryConditions(assembleJacobian);
@@ -183,9 +187,12 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bo
     if (assembleJacobian)
     {
         this->mpLinearSystem->AssembleFinalLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix(); 
     }
 #endif
+    if (assembleJacobian)
+    {
+        this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix(); 
+    }
 }
 
 template<size_t DIM>
@@ -632,7 +639,7 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
       mpQuadMesh(pQuadMesh)
 {
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    //// has to be done in parent as needs mesh
+    // has to be done in parent as needs mesh
     this->mpLinearSystem = new DealiiLinearSystem(*pQuadMesh);
 #endif
 

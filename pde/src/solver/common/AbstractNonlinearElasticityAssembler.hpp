@@ -38,7 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "MechanicsEventHandler.hpp"
 
-//#define ___USE_DEALII_LINEAR_SYSTEM___
+//// Note: The following ONLY WORKS IF ***UMFPACK*** IS
+//// INSTALLED (userpc60 only?) - and dealii won't complain 
+//// if it isn't, just give wrong answers.
+//#define ___USE_DEALII_LINEAR_SYSTEM___ 
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
   #include "DealiiLinearSystem.hpp"
