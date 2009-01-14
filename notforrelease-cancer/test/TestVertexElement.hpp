@@ -464,6 +464,36 @@ public:
             delete hexagon_nodes[i];
         }
     }
+    
+    void TestGetNodeLocalIndex()
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        // This is a square,                   
+        nodes.push_back(new Node<2>(3, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(0, false, 0.0, 1.0));
+
+        // Create element        
+        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
+        
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(0),3u);
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(1),2u);
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(2),1u);
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(3),0u);
+        
+        vertex_element.DeleteNode(3); // Removes (1,1) node
+        
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(0),UINT_MAX);
+        
+        // Tidy up
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+    }
+    
  
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/

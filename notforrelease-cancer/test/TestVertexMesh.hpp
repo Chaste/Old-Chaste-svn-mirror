@@ -369,7 +369,9 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
 
         // Perform a T1 swap on nodes 4 and 5
-        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
+        
+        //TODO Make this use the PerformT1Swap Method.
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
         
         // Test moved nodes are in the correct place
         TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.6, 1e-8);
@@ -420,18 +422,23 @@ public:
     {
         // Make 10 nodes to assign to four elements
         std::vector<Node<2>*> nodes;
-        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(0, false, 0.0, -0.01));
         nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
         nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
         nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
         nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
         nodes.push_back(new Node<2>(5, false, 0.5, 0.51));
-        nodes.push_back(new Node<2>(6, false, 0.5, 0.0));
-        nodes.push_back(new Node<2>(7, false, 0.55, 0.0));
-        nodes.push_back(new Node<2>(8, false, 0.25, 0.25*0.49/0.5)); //To apear on diagonal
-        nodes.push_back(new Node<2>(9, false, 0.26, 0.26*0.49/0.5));
+        nodes.push_back(new Node<2>(6, false, 1.5, 0.5));
+        // Nodes on bottom edge
+        nodes.push_back(new Node<2>(7, false, 0.49, 0.0));
+        nodes.push_back(new Node<2>(8, false, 0.51, 0.0));
+        // Nodes on internal edge
+        nodes.push_back(new Node<2>(9, false, 1.0, 0.49));
+        nodes.push_back(new Node<2>(10, false, 1.0, 0.51));
+        // node on bottom left edge corner
+        nodes.push_back(new Node<2>(11, false, 0.0, 0.01)); 
         
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
+        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3, nodes_elem_4;
         
         // Make two triangular and two romboid elements out of these nodes
         nodes_elem_0.push_back(nodes[2]);
@@ -442,33 +449,40 @@ public:
         nodes_elem_1.push_back(nodes[5]);
         nodes_elem_1.push_back(nodes[4]);
         nodes_elem_1.push_back(nodes[1]);
+        nodes_elem_1.push_back(nodes[9]);  // Extra node on internal boundary
+        nodes_elem_1.push_back(nodes[10]); // Extra node on internal boundary
         
         nodes_elem_2.push_back(nodes[1]);
         nodes_elem_2.push_back(nodes[4]);
-        nodes_elem_2.push_back(nodes[9]);  // 2 Extra nodes on internal boundary
-        nodes_elem_2.push_back(nodes[8]);  // 2 Extra nodes on internal boundary
-        nodes_elem_2.push_back(nodes[0]);
-        nodes_elem_2.push_back(nodes[6]); // 2 Extra nodes on boundary 
-        nodes_elem_2.push_back(nodes[7]); // 2 Extra nodes on boundary
+        nodes_elem_2.push_back(nodes[0]);  
+        nodes_elem_2.push_back(nodes[7]);  // Extra node on external boundary
+        nodes_elem_2.push_back(nodes[8]);  // Extra node on external boundary
         
         nodes_elem_3.push_back(nodes[0]);
-        nodes_elem_3.push_back(nodes[8]);  // 2 Extra nodes on internal boundary
-        nodes_elem_3.push_back(nodes[9]);  // 2 Extra nodes on internal boundary
         nodes_elem_3.push_back(nodes[4]);
         nodes_elem_3.push_back(nodes[5]);
         nodes_elem_3.push_back(nodes[3]);
+        nodes_elem_3.push_back(nodes[11]); // Extra node on internal boundary
+        
+        nodes_elem_4.push_back(nodes[6]);
+        nodes_elem_4.push_back(nodes[2]);
+        nodes_elem_4.push_back(nodes[10]); // Extra node on internal boundary
+        nodes_elem_4.push_back(nodes[9]);  // Extra node on internal boundary
+        nodes_elem_4.push_back(nodes[1]); 
+        
         
         std::vector<VertexElement<2,2>*> vertex_elements;
         vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
         vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
         vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
-
+        vertex_elements.push_back(new VertexElement<2,2>(4, nodes_elem_4));
+        
         // Make a vertex mesh
         VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
                
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 10u); 
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 12u); 
         
         // Call remesh 
         vertex_mesh.ReMesh();
@@ -487,28 +501,32 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 4u);
         
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 1u); 
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 9u); // or 10 
         
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 1u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 9u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(5)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(), 7u); // or 8
         
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 4u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 9u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 3u);       
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 3u);
+     
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(0)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(1)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 9u); // or 10
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(3)->GetIndex(), 1u);
         
-        /*
-         * Need to be cleverer with choices of nodes to make this easy
-         *         // Test Areas and Perimeters of elements 
+        // Test Areas and Perimeters of elements 
         TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(),0.3,1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(),1.2+0.2*sqrt(41.0),1e-6);
         
@@ -520,7 +538,10 @@ public:
         
         TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(),0.2,1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(),1.0+0.2*sqrt(41.0),1e-6); 
-        */
+        
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(4)->GetArea(),0.25,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(4)->GetPerimeter(),1.0+sqrt(2.0),1e-6); 
+        
     }
 
 };    

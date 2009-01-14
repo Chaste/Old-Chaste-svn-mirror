@@ -204,7 +204,16 @@ public:
      *  @return (short_axis_x, short_axis_y).
      */
     c_vector<double, SPACE_DIM> CalculateShortAxis();
-
+    
+    /**
+     * Calculate the local index of a node given a global index
+     * if node is not contained in element return UINT_MAX
+     * \todo This method could be moved to the AbstactElement class
+     *
+     *  @return local_index.
+     */
+    unsigned GetNodeLocalIndex(unsigned globalIndex);
+    
 };
 
 #endif /*VERTEXELEMENT_HPP_*/

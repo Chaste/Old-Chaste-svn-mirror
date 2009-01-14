@@ -362,7 +362,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
         // Start of element rearrangement code...
         
         
-        // Restrat check after each T1Swap as it changes elements
+        // Restart check after each T1Swap as it changes elements
         bool recheck_mesh = true;
         while (recheck_mesh == true)
         {
@@ -390,7 +390,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                         {
                             //std::cout << "\nNodeA = " << p_current_node->GetIndex() << "\tNodeB = " << p_anticlockwise_node->GetIndex() << std::flush;
                             
-                            PerformT1Swap(p_current_node, p_anticlockwise_node);
+                            // method identifys swap/merge needed then  calls method to perform swap/merge
+                            IdentifySwapType(p_current_node, p_anticlockwise_node);
+                            
                             recheck_mesh=true;
                             break;
                         } 
@@ -423,9 +425,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
     ReMesh(map);
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -461,15 +462,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
         c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
         r_nodeA_location = node_midpoint;
         
-        unsigned nodeB_local_index = 1000; // \TODO Refactor method to find local node index given a global one
-        for (unsigned i=0; i<mElements[*all_indices.begin()]->GetNumNodes(); i++)
-        {
-            if (mElements[*all_indices.begin()]->GetNodeGlobalIndex(i) == pNodeB->GetIndex())
-            {
-                nodeB_local_index = i;
-            }
-        }
-        assert(nodeB_local_index < 1000); // this element should contain node B
+        unsigned nodeB_local_index =  mElements[*all_indices.begin()]->GetNodeLocalIndex(pNodeB->GetIndex());
+        assert(nodeB_local_index < UINT_MAX); // this element should contain node B
         
         mElements[*all_indices.begin()]->DeleteNode(nodeB_local_index); 
     }
@@ -502,16 +496,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
                  it != nodeB_elem_indices.end();
                  ++it)
             {
-                unsigned nodeB_local_index = 1000; // \TODO Refactor method to find local node index given a global one
-                for (unsigned i=0; i<mElements[*it]->GetNumNodes(); i++)
-                {
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeB->GetIndex())
-                    {
-                        nodeB_local_index = i;
-                    }
-                }
-                assert(nodeB_local_index < 1000); // This element should contain nodeB
-                
+                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+                assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+        
                 mElements[*it]->DeleteNode(nodeB_local_index);
             }
         }
@@ -522,16 +509,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
                  it != nodeA_elem_indices.end();
                  ++it)
             {
-                unsigned nodeA_local_index = 1000;  // \TODO Refactor method to find local node index given a global one
-                for (unsigned i=0; i<mElements[*it]->GetNumNodes(); i++)
-                {
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeA->GetIndex())
-                    {
-                        nodeA_local_index = i;
-                    }
-                }
-                assert(nodeA_local_index < 1000); // This element should contain nodeB
-                
+                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
+         
                 mElements[*it]->DeleteNode(nodeA_local_index);
             }
         }
@@ -562,15 +542,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
                  it != nodeA_elem_indices.end();
                  ++it)
             {
-                unsigned nodeA_local_index = 1000;  // \TODO Refactor method to find local node index given a global one
-                for (unsigned i = 0; i<mElements[*it]->GetNumNodes(); i++)
-                {
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeA->GetIndex())
-                    {
-                        nodeA_local_index = i;
-                    }
-                }
-                assert(nodeA_local_index < 1000); // This element should contain nodeA
+                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
                 mElements[*it]->DeleteNode(nodeA_local_index);
             }
         }
@@ -586,15 +559,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
                  it != nodeB_elem_indices.end();
                  ++it)
             {
-                unsigned nodeB_local_index = 1000;  // \TODO Refactor method to find local node index given a global one
-                for (unsigned i = 0; i<mElements[*it]->GetNumNodes(); i++)
-                {
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeB->GetIndex())
-                    {
-                        nodeB_local_index = i;
-                    }
-                }
-                assert(nodeB_local_index < 1000); // This element should contain nodeA
+                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+                assert(nodeB_local_index < UINT_MAX); // this element should contain node B 
                 mElements[*it]->DeleteNode(nodeB_local_index);
             }
         }
@@ -675,16 +641,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
                  * in anticlockwise direction. 
                  */  
                 
-                unsigned nodeB_local_index = 1000;  // \TODO Refactor method to find local node index given a global one
-                for (unsigned i=0; i<mElements[*it]->GetNumNodes(); i++)
-                {
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeB->GetIndex())
-                    {
-                        nodeB_local_index = i;
-                    }     
-                }
-                assert(nodeB_local_index < 1000); // This element should contain nodeB
-                
+                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+                assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+        
                 mElements[*it]->AddNode(nodeB_local_index,pNodeA);
             }
             else if (nodeB_elem_indices.find(*it) == nodeB_elem_indices.end()) // not in nodeB_elem_indices so element 1
@@ -700,15 +659,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
                  * Locate local index of node A in element then add node B after 
                  * in anticlockwise direction. 
                  */  
-                unsigned nodeA_local_index = 1000;  // \TODO Refactor method to find local node index given a global one
-                for (unsigned i=0; i<mElements[*it]->GetNumNodes(); i++)
-                {
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeA->GetIndex())
-                    {
-                        nodeA_local_index = i;
-                    }     
-                }
-                assert(nodeA_local_index < 1000); // This element should contain nodeA
+                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
                 mElements[*it]->AddNode(nodeA_local_index,pNodeB); 
             }    
             else
@@ -723,23 +675,12 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
                  * identify the element if nodeB_index > nodeA_index then element 4
                  * and if nodeA_index > nodeB_index then element 2 
                  */  
-                unsigned nodeA_local_index = 1000; // \TODO Refactor method to find local node index given a global one
-                unsigned nodeB_local_index = 1000;
+                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
                 
-                for (unsigned i=0; i<mElements[*it]->GetNumNodes(); i++)
-                {
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeA->GetIndex())
-                    {
-                        nodeA_local_index = i;
-                    }
-                    if (mElements[*it]->GetNodeGlobalIndex(i) == pNodeB->GetIndex())
-                    {
-                        nodeB_local_index = i;
-                    }          
-                }
-                assert(nodeA_local_index < 1000); // This element should contain nodeA
-                assert(nodeB_local_index < 1000); // This element should contain nodeB
-                
+                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+                assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+         
                 unsigned nodeB_local_index_plus_one = (nodeB_local_index + 1) % (mElements[*it]->GetNumNodes());
                 
                 if (nodeA_local_index == nodeB_local_index_plus_one)// % (mElements[*it]->GetNumNodes()-1))
@@ -768,6 +709,23 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
         assert(0);
     }
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformVertexMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformPartialT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+{
+}
+
+
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

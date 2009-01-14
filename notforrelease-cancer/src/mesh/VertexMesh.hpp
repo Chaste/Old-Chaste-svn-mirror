@@ -70,12 +70,37 @@ private:
     void SetupVertexElementsOwnedByNodes();
     
     /**
+     * Helper method for ReMesh to Identify the type of swap
+     * 
+     * @param rNodeA one of the nodes to perform the swap with 
+     * @param rNodeB the other node to perform the swap
+     */  
+    void IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    
+    /**
+     * Helper method for ReMesh to merge verices when needed 
+     * 
+     * @param rNodeA one of the nodes to perform the swap with 
+     * @param rNodeB the other node to perform the swap
+     */  
+    void PerformVertexMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    
+    /**
+     * Helper method for ReMesh to perform the partial T1 Swap
+     * 
+     * @param rNodeA one of the nodes to perform the swap with 
+     * @param rNodeB the other node to perform the swap
+     */  
+    void PerformPartialT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    
+    /**
      * Helper method for ReMesh to perform the T1 Swap
      * 
      * @param rNodeA one of the nodes to perform the swap with 
      * @param rNodeB the other node to perform the swap
      */  
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    
     
     friend class boost::serialization::access;
     template<class Archive>

@@ -343,6 +343,21 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
     }
     return short_axis;        
 }
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globalIndex)
+{
+    unsigned local_index= UINT_MAX;
+    for (unsigned i=0; i<this->mNodes.size(); i++)
+    {
+        if (this->GetNodeGlobalIndex(i) == globalIndex)
+        {
+            local_index = i;
+        }
+    }
+    return local_index;  
+}
+
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////
