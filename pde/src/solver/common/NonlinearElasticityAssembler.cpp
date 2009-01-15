@@ -45,7 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, bool assembleJacobian)
+void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, 
+                                                       bool assembleJacobian)
 {
     // Check we've actually been asked to do something!
     assert(assembleResidual || assembleJacobian);
