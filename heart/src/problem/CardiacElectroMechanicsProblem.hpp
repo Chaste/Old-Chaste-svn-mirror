@@ -80,10 +80,8 @@ struct ElementAndWeights
  *  mesh, and a mechanics problem (finite elasticity plus NHS cell models) on a coarse 
  *  mesh. An implicit scheme (Jon Whiteley's algorithm) be be used.
  *
- *  At the moment just solves on the unit square. The spatial stepsize for the
- *  electrics is fixed (96 by 96), and the displacement boundary conditions are
- *  zero displacement on X=0.
- *
+ *  For solving problems on regular grids use CardiacElectroMechProbRegularGeom  
+ * 
  *  The implicit algorithm:
  *
  *  Store the position in the electrics mesh of each quad point in the mechanics mesh
@@ -145,14 +143,9 @@ protected :
     bool mWriteOutput;
     /** Whether to not write out voltages */
     bool mNoElectricsOutput;
-    /*< when to write output */
-    const static int WRITE_EVERY_NTH_TIME = 1;
 
-    /**
-     *  Whether to use a direct solver when solving linear system. Should
-     *  definitely be used if UMFPACK is installed.
-     */
-    bool mUseDirectLinearSolver;
+    /*< when to write output */
+    const static int WRITE_EVERY_NTH_TIME = 1; //hardcoded for the time being ///\todo, allow user to set this
 
     /*< Whether any location has been set to be watched (lots of output for that location */
     bool mIsWatchedLocation;
@@ -216,11 +209,6 @@ public :
     /** Call to not write out voltages */
     void SetNoElectricsOutput();
 
-//    /** Use the direct solver when solving linear systems in the
-//     *  mechanics. DEFINITELY should be used in experimental work.
-//     */
-//    void UseDirectLinearSolver();
-
     /**
      *  Set a location to be watched - for which lots of output
      *  is given. Should correspond to nodes in both meshes.
@@ -232,6 +220,7 @@ public :
      */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
     
+    /** Get the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 };
 

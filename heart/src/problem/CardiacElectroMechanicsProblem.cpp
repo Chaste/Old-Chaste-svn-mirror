@@ -215,7 +215,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mpElectricsMesh = pElectricsMesh; // note these are allowed to be null, in case a child constructor wants to create them
     mpMechanicsMesh = pMechanicsMesh;
     mFixedNodes = fixedMechanicsNodes;
-    
+
     mpCardiacMechAssembler = NULL;
 
     // Create the Logfile (note we have to do this after the output dir has been
@@ -227,10 +227,14 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     LOG(2, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
     LOG(2, "Nhs ode timestep " << mNhsOdeTimeStep);
     LOG(2, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
-
-    // by default we don't use the direct solver, as not all machines are
-    // set up to use UMFPACK yet. However, it is MUCH better than GMRES.
-    mUseDirectLinearSolver = false;
+    if(mpElectricsMesh != NULL)
+    {
+        LOG(2, "Electrics mesh has " << mpElectricsMesh->GetNumNodes() << " nodes");
+    }
+    if(mpMechanicsMesh != NULL)
+    {
+        LOG(2, "Mechanics mesh has " << mpMechanicsMesh->GetNumNodes() << " nodes");
+    }
 
     mIsWatchedLocation = false;
     mWatchedElectricsNodeIndex = UNSIGNED_UNSET;
@@ -279,12 +283,6 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     // construct mechanics assembler
     mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
 
-
-//    if(mUseDirectLinearSolver)
-//    {
-//        mpCardiacMechAssembler->UseDirectSolver();
-//    }
-
     // find the element nums and weights for each gauss point in the mechanics mesh
     mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
 
@@ -315,6 +313,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
     }
 
+//// when using *Cinverse* in electrics
 //    // get the assembler to compute which electrics nodes are in each mechanics mesh
 //    mpCardiacMechAssembler->ComputeElementsContainingNodes(mpElectricsMesh);
 //    assert(DIM==2);
@@ -412,7 +411,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             initial_voltage = voltage;
         }
 
-
+//// when using *Cinverse* in electrics
 //        p_electrics_assembler->SetMatrixIsNotAssembled();
 
         // compute Ca_I at each quad point (by interpolation, using the info on which
@@ -481,6 +480,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         }
         MechanicsEventHandler::EndEvent(OUTPUT);
 
+//// when using *Cinverse* in electrics
 //        // setup the Cinverse data;
 //        std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
 //        mpCardiacMechAssembler->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
@@ -543,12 +543,6 @@ void CardiacElectroMechanicsProblem<DIM>::SetNoElectricsOutput()
     mNoElectricsOutput = true;
 }
 
-//template<unsigned DIM>
-//void CardiacElectroMechanicsProblem<DIM>::UseDirectLinearSolver()
-//{
-//    mUseDirectLinearSolver = true;
-//}
-
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::SetWatchedPosition(c_vector<double,DIM> watchedLocation)
 {
@@ -567,6 +561,6 @@ std::vector<c_vector<double,DIM> >& CardiacElectroMechanicsProblem<DIM>::rGetDef
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-//template class CardiacElectroMechanicsProblem<1>; // 1d incompressible material doesn't make sense
+//note: 1d incompressible material doesn't make sense
 template class CardiacElectroMechanicsProblem<2>;
 template class CardiacElectroMechanicsProblem<3>;
