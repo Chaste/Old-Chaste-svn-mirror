@@ -187,6 +187,19 @@ public:
      * @param rNewLocation the new target location of the node
      */
     virtual void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)=0;
+    
+    /**
+     * @return whether a given cell is associated with a ghost node.
+     */
+    virtual bool IsCellAssociatedWithAGhostNode(TissueCell cell);
+    
+    /**
+     * @return whether a given cell is associated with a deleted node.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
+     */
+    virtual bool IsCellAssociatedWithADeletedNode(TissueCell cell)=0;
 
     /**
      * Get the damping constant for this node - ie d in drdt = F/d.
@@ -654,6 +667,12 @@ template<unsigned DIM>
 TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
 {
     return *(mLocationCellMap[index]);
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::IsCellAssociatedWithAGhostNode(TissueCell cell)
+{
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////

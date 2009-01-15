@@ -108,6 +108,13 @@ public:
     bool IsGhostNode(unsigned index);
 
     /**
+     * Overridden IsCellAssociatedWithAGhostNode() method.
+     * 
+     * @return whether a given cell is associated with a ghost node.
+     */
+    virtual bool IsCellAssociatedWithAGhostNode(TissueCell cell);
+
+    /**
      * @return the indices of those nodes that are ghost nodes.
      */
     std::set<unsigned> GetGhostNodeIndices();

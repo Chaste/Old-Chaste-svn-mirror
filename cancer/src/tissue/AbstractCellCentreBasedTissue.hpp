@@ -76,6 +76,13 @@ public:
      * @returns address of cell as it appears in the cell list
      */
     TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
+
+    /**
+     * Overridden IsCellAssociatedWithADeletedNode() method.
+     * 
+     * @return whether a given cell is associated with a deleted node.
+     */
+    bool IsCellAssociatedWithADeletedNode(TissueCell cell);
     
     /**
      * Overridden GetDampingConstant() method.
@@ -147,6 +154,12 @@ TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell newCell, c_ve
     this->mLocationCellMap[new_node_index] = p_created_cell;
 
     return p_created_cell;
+}
+
+template<unsigned DIM>
+bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell cell)
+{
+    return this->GetNode(cell.GetLocationIndex())->IsDeleted();
 }
 
 template<unsigned DIM>

@@ -197,6 +197,13 @@ unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
 
 
 template<unsigned DIM>
+bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell cell)
+{
+    return false;    
+}
+
+
+template<unsigned DIM>
 void VertexBasedTissue<DIM>::Update()
 {
     /// \todo Thought about creating an ElementMap class, but it looks like 

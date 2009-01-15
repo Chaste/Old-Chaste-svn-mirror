@@ -197,7 +197,14 @@ public:
      * @return number of cells removed
      */
     unsigned RemoveDeadCells();
-    
+
+    /**
+     * Overridden IsCellAssociatedWithADeletedNode() method.
+     * 
+     * @return whether a given cell is associated with a deleted node.
+     */
+    bool IsCellAssociatedWithADeletedNode(TissueCell cell);
+
     /**
      * Remove the VertexElements which have been marked as deleted, perform 
      * any cell rearrangements if required, and update the correspondence 

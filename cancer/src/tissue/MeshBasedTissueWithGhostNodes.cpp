@@ -65,6 +65,12 @@ bool MeshBasedTissueWithGhostNodes<DIM>::IsGhostNode(unsigned index)
 }
 
 template<unsigned DIM>
+bool MeshBasedTissueWithGhostNodes<DIM>::IsCellAssociatedWithAGhostNode(TissueCell cell)
+{
+    return this->mIsGhostNode[cell.GetLocationIndex()];
+}
+
+template<unsigned DIM>
 std::set<unsigned> MeshBasedTissueWithGhostNodes<DIM>::GetGhostNodeIndices()
 {
     std::set<unsigned> ghost_node_indices;
