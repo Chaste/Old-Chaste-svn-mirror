@@ -555,42 +555,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
              * 
              * Here we employ a PartialT1Swap 
              */
-             
              PerformT1Swap(pNodeA, pNodeB, all_indices);
-             
-             
-             
-//            c_vector<double, SPACE_DIM> node_midpoint = 0.5*nodeA_location + 0.5*nodeB_location;
-//            c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
-//            c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
-//            r_nodeA_location = node_midpoint;
-//            r_nodeB_location = node_midpoint;
-//            
-//            if (nodeA_elem_indices.size()==2) // remove B from its element
-//            {        
-//                for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
-//                     it != nodeB_elem_indices.end();
-//                     ++it)
-//                {
-//                    unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-//                    assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-//            
-//                    mElements[*it]->DeleteNode(nodeB_local_index);
-//                }
-//            }
-//            else // remove A from its elements
-//            {   
-//                assert(nodeB_elem_indices.size()==2);     
-//                for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
-//                     it != nodeA_elem_indices.end();
-//                     ++it)
-//                {
-//                    unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-//                    assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-//             
-//                    mElements[*it]->DeleteNode(nodeA_local_index);
-//                }
-//            }
         }
     }
     else if (all_indices.size()==3) // nodes are contained in three elments 
@@ -608,39 +573,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
         * Perform a PartialT1Swap 
         */
         PerformT1Swap(pNodeA, pNodeB, all_indices);
-               
-//        if (nodeA_elem_indices.size()==2)
-//        {
-//            /*
-//             * nodeA is only in 2 elements so remove nodeA
-//             */
-//             
-//            for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
-//                 it != nodeA_elem_indices.end();
-//                 ++it)
-//            {
-//                unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-//                assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-//                mElements[*it]->DeleteNode(nodeA_local_index);
-//            }
-//        }
-//        else
-//        {
-//            assert(nodeB_elem_indices.size()==2); // Check were in setup 1
-//        
-//            /*
-//             * nodeB is only in 2 elements so remove nodeB 
-//             */
-//             
-//            for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
-//                 it != nodeB_elem_indices.end();
-//                 ++it)
-//            {
-//                unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-//                assert(nodeB_local_index < UINT_MAX); // this element should contain node B 
-//                mElements[*it]->DeleteNode(nodeB_local_index);
-//            }
-//        }
     }
     else if(all_indices.size()==4) // Correct Set up for T1Swap 
     {

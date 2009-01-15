@@ -307,6 +307,87 @@ public:
         }
     }
 
+    void TestCellRearangement() throw(Exception)
+    {
+        // Make 4 nodes to assign to 2 elements
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+        nodes.push_back(new Node<2>(4, false, 0.4, 0.0));
+        nodes.push_back(new Node<2>(5, false, 0.6, 0.0));
+        nodes.push_back(new Node<2>(6, false, 0.4, 0.4));
+        nodes.push_back(new Node<2>(7, false, 0.6, 0.6));
+        
+
+        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
+                
+        // Make two triangular  elements out of these nodes
+        nodes_elem_0.push_back(nodes[0]);
+        nodes_elem_0.push_back(nodes[4]);
+        nodes_elem_0.push_back(nodes[5]);
+        nodes_elem_0.push_back(nodes[1]);
+        nodes_elem_0.push_back(nodes[2]);
+        nodes_elem_0.push_back(nodes[7]);
+        nodes_elem_0.push_back(nodes[6]);
+        
+        nodes_elem_1.push_back(nodes[0]);
+        nodes_elem_1.push_back(nodes[6]);
+        nodes_elem_1.push_back(nodes[7]);
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[3]);
+        
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        
+        // Make a vertex mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+               
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u); 
+        
+        // Perform a merge on nodes 4 and 5
+        std::set<unsigned> containing_element_indices;
+        containing_element_indices.insert(0);
+        vertex_mesh.PerformNodeMerge(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
+
+        // Perform a merge on nodes 6 and 7
+        containing_element_indices.insert(1);
+        vertex_mesh.PerformNodeMerge(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), containing_element_indices);
+                
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
+        
+        // Test merged nodes are in the correct place
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.5, 1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 0.0, 1e-8);
+               
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[0], 0.5, 1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[1], 0.5, 1e-3);
+        
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(4)->GetIndex(), 6u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u); 
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 3u);
+        
+        // Test Areas and Perimeters of elements 
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(), 0.5, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(), 2+sqrt(2), 1e-6);
+        
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetArea(), 0.5,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetPerimeter(), 2.0+sqrt(2), 1e-6);
+    }
 
     void TestPerformT1Swap() throw(Exception)
     {
@@ -369,9 +450,12 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
 
         // Perform a T1 swap on nodes 4 and 5
-        
-        //TODO Make this use the PerformT1Swap Method.
-        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
+        std::set<unsigned> containing_element_indices;
+        containing_element_indices.insert(0);
+        containing_element_indices.insert(1);
+        containing_element_indices.insert(2);
+        containing_element_indices.insert(3);
+        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
         
         // Test moved nodes are in the correct place
         TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.6, 1e-8);
