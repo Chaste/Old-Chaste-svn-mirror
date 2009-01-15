@@ -457,7 +457,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
             interpolated_nutrient += nodal_value*weights(i);
         }
 
-        CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, cell_iter.GetNode());
+        CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter));
     }
 }
 
@@ -544,7 +544,7 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
-            global_index = cell_iter.GetNode()->GetIndex();
+            global_index = cell_iter->GetLocationIndex();
             x = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
             y = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
             nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));

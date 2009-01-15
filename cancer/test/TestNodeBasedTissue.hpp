@@ -88,18 +88,6 @@ private:
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
 
-            // Test GetNode() on the iterator
-            TS_ASSERT_EQUALS(cell_iter.GetNode()->GetIndex(), mesh.GetNode(counter)->GetIndex());
-
-            // Test iter.GetNode()->GetIndex() is consistent with cell.GetLocationIndex()
-            TS_ASSERT_EQUALS((*cell_iter).GetLocationIndex(), cell_iter.GetNode()->GetIndex());
-
-            // Test rGetLocation() on the iterator
-            for (unsigned space_index=0; space_index<DIM; space_index++)
-            {
-                TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[space_index],
-                                 mesh.GetNode(counter)->rGetLocation()[space_index]);
-            }
             counter++;
         }
 
@@ -407,10 +395,10 @@ public:
              ++cell_iter)
         {
             // Record node location
-            c_vector<double, 2> node_location = cell_iter.GetNode()->rGetLocation();
+            c_vector<double, 2> node_location = node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
 
             // Get cell at each node
-            TissueCell& r_cell = node_based_tissue.rGetCellUsingLocationIndex(cell_iter.GetNode()->GetIndex());
+            TissueCell& r_cell = node_based_tissue.rGetCellUsingLocationIndex(cell_iter->GetLocationIndex());
 
             // Test GetLocationOfCell()
             TS_ASSERT_DELTA(node_location[0], node_based_tissue.GetLocationOfCell(r_cell)[0], 1e-9);

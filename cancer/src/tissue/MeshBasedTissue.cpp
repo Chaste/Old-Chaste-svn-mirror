@@ -502,7 +502,7 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
     {
         if ((!mFollowLoggedCell) || ((mFollowLoggedCell) && (cell_iter->IsLogged())))
         {
-            unsigned node_index = cell_iter.GetNode()->GetIndex();
+            unsigned node_index = cell_iter->GetLocationIndex();
             double x = this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
             double y = this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
 
@@ -539,7 +539,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
         // Only bother calculating the cell area if it is apoptotic
         if (cell_iter->GetCellType() == APOPTOTIC)
         {
-            unsigned node_index = cell_iter.GetNode()->GetIndex();
+            unsigned node_index = cell_iter->GetLocationIndex();
             double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
             apoptotic_area += cell_area;
         }

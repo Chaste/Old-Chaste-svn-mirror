@@ -114,7 +114,7 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
-        global_index = (double) cell_iter.GetNode()->GetIndex();
+        global_index = (double) cell_iter->GetLocationIndex();
         x = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
         y = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
 

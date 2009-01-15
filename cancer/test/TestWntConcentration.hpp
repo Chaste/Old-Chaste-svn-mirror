@@ -382,18 +382,18 @@ public:
             const WntCellCycleModel* p_model = (WntCellCycleModel*) iter->GetCellCycleModel();
             std::vector<double> proteins = p_model->GetProteinConcentrations();
 
-            if (iter.GetNode()->rGetLocation()[1]==0.0)
+            if (crypt.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1]==0.0)
             {
-                TS_ASSERT_DELTA(proteins[5],4.975124378109454e-03, 1e-3);
-                TS_ASSERT_DELTA(proteins[6]+proteins[7],6.002649406788524e-01, 1e-3);
-                TS_ASSERT_DELTA(proteins[8],1.00, 1e-3);
+                TS_ASSERT_DELTA(proteins[5], 4.975124378109454e-03, 1e-3);
+                TS_ASSERT_DELTA(proteins[6]+proteins[7], 6.002649406788524e-01, 1e-3);
+                TS_ASSERT_DELTA(proteins[8], 1.00, 1e-3);
             }
             else
             {
-                TS_ASSERT_DELTA(iter.GetNode()->rGetLocation()[1],1.0,1e-12);
-                TS_ASSERT_DELTA(proteins[5],1.000, 1e-3);
-                TS_ASSERT_DELTA(proteins[6]+proteins[7],0.0074, 1e-3);
-                TS_ASSERT_DELTA(proteins[8],0.00, 1e-3);
+                TS_ASSERT_DELTA(crypt.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1], 1.0, 1e-12);
+                TS_ASSERT_DELTA(proteins[5], 1.000, 1e-3);
+                TS_ASSERT_DELTA(proteins[6]+proteins[7], 0.0074, 1e-3);
+                TS_ASSERT_DELTA(proteins[8], 0.00, 1e-3);
             }
 
             ++iter;

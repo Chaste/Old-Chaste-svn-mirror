@@ -190,9 +190,9 @@ public:
              iter != tissue.End();
              ++iter)
         {
-            if (iter.GetNode()->IsBoundaryNode())
+            if (tissue.GetNodeCorrespondingToCell(*iter)->IsBoundaryNode())
             {
-                ghost_node_indices.insert( iter.GetNode()->GetIndex() );
+                ghost_node_indices.insert( iter->GetLocationIndex() );
             }
         }
         tissue.SetGhostNodes(ghost_node_indices);

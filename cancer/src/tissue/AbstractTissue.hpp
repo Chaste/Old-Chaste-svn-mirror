@@ -458,11 +458,6 @@ public:
         inline TissueCell* operator->();
 
         /**
-         * Get a pointer to the node in the mesh which represents this cell.
-         */
-        inline Node<DIM>* GetNode();
-
-        /**
          * Comparison not-equal-to.
          */
         inline bool operator!=(const Iterator& other);
@@ -688,14 +683,6 @@ TissueCell* AbstractTissue<DIM>::Iterator::operator->()
     return &(*mCellIter);
 }
 
-/// \todo This doesn't make sense for a VertexTissue (see #827)
-template<unsigned DIM>
-Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
-{
-    assert(!IsAtEnd());
-    return mrTissue.GetNode(mLocationIndex);
-}
-
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::operator!=(const AbstractTissue<DIM>::Iterator& other)
 {
@@ -718,11 +705,12 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
     return (*this);
 }
 
-/// \todo This doesn't make sense for a VertexTissue (see #827)
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
-    return !(mrTissue.IsGhostNode(mLocationIndex) || GetNode()->IsDeleted() || (*this)->IsDead());
+    return !(    mrTissue.IsCellAssociatedWithAGhostNode(*mCellIter) 
+              || mrTissue.IsCellAssociatedWithADeletedNode(*mCellIter)
+              || (*this)->IsDead() );
 }
 
 template<unsigned DIM>
