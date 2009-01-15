@@ -78,7 +78,7 @@ private:
         TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), cells.size());
 
         unsigned counter = 0;
-        for (typename NodeBasedTissue<DIM>::Iterator cell_iter = node_based_tissue.Begin();
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = node_based_tissue.Begin();
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
@@ -97,7 +97,7 @@ private:
             // Test rGetLocation() on the iterator
             for (unsigned space_index=0; space_index<DIM; space_index++)
             {
-                TS_ASSERT_EQUALS(cell_iter.rGetLocation()[space_index],
+                TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[space_index],
                                  mesh.GetNode(counter)->rGetLocation()[space_index]);
             }
             counter++;
@@ -177,8 +177,8 @@ public:
 
         // Test SetNode() by moving node 0 by a small amount
 
-        NodeBasedTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
-        c_vector<double,2> new_location = cell_iter.rGetLocation();
+        AbstractTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
+        c_vector<double,2> new_location = node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
@@ -273,7 +273,7 @@ public:
 
         // Test that each cell's node index has been correctly updated
         unsigned index = 0;
-        for (NodeBasedTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
@@ -362,7 +362,7 @@ public:
 
         unsigned counter = 0;
 
-        for (NodeBasedTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
@@ -376,7 +376,7 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 5u);
 
         // Test that the set correctly represents a monoclonal population
-        for (NodeBasedTissue<2>::Iterator cell_iter=node_based_tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter=node_based_tissue.Begin();
              cell_iter!=node_based_tissue.End();
              ++cell_iter)
         {
@@ -402,7 +402,7 @@ public:
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
 
         // Loop over nodes
-        for (NodeBasedTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
@@ -568,7 +568,7 @@ public:
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
-            for (NodeBasedTissue<2>::Iterator cell_iter = p_tissue->Begin();
+            for (AbstractTissue<2>::Iterator cell_iter = p_tissue->Begin();
                 cell_iter != p_tissue->End();
                 ++cell_iter)
             {
@@ -609,7 +609,7 @@ public:
             // this checks that individual cells and their models are archived.
             unsigned counter = 0u;
 
-            for (NodeBasedTissue<2>::Iterator cell_iter = p_tissue->Begin();
+            for (AbstractTissue<2>::Iterator cell_iter = p_tissue->Begin();
                  cell_iter != p_tissue->End();
                  ++cell_iter)
             {

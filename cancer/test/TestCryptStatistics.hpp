@@ -226,7 +226,7 @@ public:
         // TEST crypt_statistics::LabelSPhaseCells
 
         // First remove labels
-        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -237,7 +237,7 @@ public:
 
         // Iterate over cells checking for correct labels
         unsigned counter = 0;
-        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -259,7 +259,7 @@ public:
         crypt_statistics.LabelAllCellsAsHealthy();
         // Iterate over cells checking for correct labels
         counter = 0;
-        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -280,7 +280,7 @@ public:
         // see the section
         test_section=crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
 
-        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {

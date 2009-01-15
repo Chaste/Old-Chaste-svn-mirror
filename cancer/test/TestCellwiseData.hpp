@@ -82,7 +82,7 @@ public:
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(1.23, mesh.GetNode(0));
-        MeshBasedTissue<2>::Iterator iter = tissue.Begin();
+        AbstractTissue<2>::Iterator iter = tissue.Begin();
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 1.23, 1e-12);
 
         p_data->SetValue(2.23, mesh.GetNode(1));
@@ -115,7 +115,7 @@ public:
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
-        MeshBasedTissue<2>::Iterator iter2 = tissue.Begin();
+        AbstractTissue<2>::Iterator iter2 = tissue.Begin();
         
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
 
@@ -196,7 +196,7 @@ public:
             TS_ASSERT(p_data->IsSetUp());
             TS_ASSERT(!p_data->mUseConstantDataForTesting);
 
-            for (MeshBasedTissue<2>::Iterator iter = tissue.Begin();
+            for (AbstractTissue<2>::Iterator iter = tissue.Begin();
                  iter != tissue.End();
                  ++iter)
             {

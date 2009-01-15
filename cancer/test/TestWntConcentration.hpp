@@ -234,7 +234,7 @@ public:
         p_wnt = WntConcentration::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // set up again
 
-        MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
+        AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
 
         double wnt_at_cell0 = p_wnt->GetWntLevel(&(*cell_iter));
 
@@ -246,7 +246,7 @@ public:
             TS_ASSERT_DELTA(p_wnt->GetWntLevel(&(*cell_iter)), wnt_at_cell0, 1e-12);
 
             // Test GetWntGradient(TissueCell*) method
-            c_vector<double,2> cell_location = cell_iter.rGetLocation();
+            c_vector<double,2> cell_location = crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
             double r = norm_2(cell_location);
 
             c_vector<double,2> expected_wnt_gradient;
@@ -375,7 +375,7 @@ public:
         // As there is no tissue simulation we must explicitly initialise the cells
         crypt.InitialiseCells();
 
-        MeshBasedTissue<2>::Iterator iter = crypt.Begin();
+        AbstractTissue<2>::Iterator iter = crypt.Begin();
 
         while (iter!=crypt.End())
         {

@@ -138,25 +138,25 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
 
     // loop over cells and add to the store if they are within a cell's radius of the
     // specified line
-    for (MeshBasedTissue<2>::Iterator cell_iter = mrCrypt.Begin();
+    for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
         if (periodic)
         {
-            if (CellIsInSectionPeriodic(xBottom, xTop, yTop, cell_iter.rGetLocation()))
+            if (CellIsInSectionPeriodic(xBottom, xTop, yTop, mrCrypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()))
             {
                 // set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
+                std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1]);
                 cells_list.push_back(pair);
             }
         }
         else
         {
-            if (CellIsInSection(xBottom, xTop, yTop, cell_iter.rGetLocation()))
+            if (CellIsInSection(xBottom, xTop, yTop, mrCrypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()))
             {
                 // set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
+                std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1]);
                 cells_list.push_back(pair);
             }
         }

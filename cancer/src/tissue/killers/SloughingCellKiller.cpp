@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "SloughingCellKiller.hpp"
-
+#include "AbstractCellCentreBasedTissue.hpp"
 
 SloughingCellKiller::SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides)
     : AbstractCellKiller<2>(pCrypt),
@@ -50,8 +50,8 @@ void SloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
          cell_iter != this->mpTissue->End();
          ++cell_iter)
     {
-        double x = cell_iter.rGetLocation()[0];
-        double y = cell_iter.rGetLocation()[1];
+        double x = (static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
+        double y = (static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
 
         if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
         {

@@ -115,8 +115,8 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
          ++cell_iter)
     {
         global_index = (double) cell_iter.GetNode()->GetIndex();
-        x = cell_iter.rGetLocation()[0];
-        y = cell_iter.rGetLocation()[1];
+        x = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
+        y = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
 
         // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());

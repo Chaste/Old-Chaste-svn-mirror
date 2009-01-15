@@ -186,7 +186,7 @@ public:
 
         // Set boundary nodes to be ghosts
         std::set<unsigned> ghost_node_indices;
-        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
+        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
              iter != tissue.End();
              ++iter)
         {

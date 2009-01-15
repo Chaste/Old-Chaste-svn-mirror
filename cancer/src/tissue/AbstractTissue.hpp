@@ -463,11 +463,6 @@ public:
         inline Node<DIM>* GetNode();
 
         /**
-         * Get the location in space of this cell.
-         */
-        inline const c_vector<double, DIM>& rGetLocation();
-
-        /**
          * Comparison not-equal-to.
          */
         inline bool operator!=(const Iterator& other);
@@ -699,13 +694,6 @@ Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
 {
     assert(!IsAtEnd());
     return mrTissue.GetNode(mLocationIndex);
-}
-
-/// \todo This doesn't make sense for a VertexTissue (see #827)
-template<unsigned DIM>
-const c_vector<double, DIM>& AbstractTissue<DIM>::Iterator::rGetLocation()
-{
-    return GetNode()->rGetLocation();
 }
 
 template<unsigned DIM>

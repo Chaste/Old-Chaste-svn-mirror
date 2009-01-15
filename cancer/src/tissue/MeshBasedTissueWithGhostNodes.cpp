@@ -157,8 +157,8 @@ c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenN
 {
     assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
-    c_vector<double, DIM> node_a_location = this->mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
-    c_vector<double, DIM> node_b_location = this->mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_a_location = this->GetNode(rNodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = this->GetNode(rNodeBGlobalIndex)->rGetLocation();
 
     // There is reason not to substract one position from the other (cylindrical meshes)
     unit_difference = this->mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);

@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "RadialSloughingCellKiller.hpp"
+#include "AbstractCellCentreBasedTissue.hpp"
 
 RadialSloughingCellKiller::RadialSloughingCellKiller(AbstractTissue<2>* pTissue, c_vector<double,2> centre, double radius)
         : AbstractCellKiller<2>(pTissue),
@@ -51,7 +52,7 @@ void RadialSloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
          ++cell_iter)
     {
         // Get distance from centre of tissue
-        double r = norm_2(cell_iter.rGetLocation() - mCentre);
+        double r = norm_2((static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation() - mCentre);
 
         if ( r > mRadius )
         {

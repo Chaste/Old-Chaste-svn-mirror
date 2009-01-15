@@ -337,7 +337,7 @@ void MeshBasedTissue<DIM>::SetBottomCellAncestors()
     unsigned index = 0;
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        if (cell_iter.rGetLocation()[1] < 0.5)
+        if (this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1] < 0.5)
         {
             cell_iter->SetAncestor(index++);
         }
@@ -503,8 +503,8 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
         if ((!mFollowLoggedCell) || ((mFollowLoggedCell) && (cell_iter->IsLogged())))
         {
             unsigned node_index = cell_iter.GetNode()->GetIndex();
-            double x = cell_iter.rGetLocation()[0];
-            double y = cell_iter.rGetLocation()[1];
+            double x = this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
+            double y = this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
 
             double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
             double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);

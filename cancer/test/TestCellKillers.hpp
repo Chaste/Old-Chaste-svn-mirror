@@ -168,12 +168,12 @@ public:
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
+        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
-            double x = iter.rGetLocation()[0];
-            double y = iter.rGetLocation()[1];
+            double x = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[0];
+            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
 
             if ( (x<0) || (x>0.5) || (y>0.5))
             {
@@ -187,12 +187,12 @@ public:
 
         tissue.RemoveDeadCells();
 
-        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
+        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
-            double x = iter.rGetLocation()[0];
-            double y = iter.rGetLocation()[1];
+            double x = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[0];
+            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
 
             TS_ASSERT_LESS_THAN_EQUALS(x, 0.5);
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
@@ -233,11 +233,11 @@ public:
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (MeshBasedTissue<2>::Iterator iter = tissue.Begin();
+        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
-            double y = iter.rGetLocation()[1];
+            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
             if (y>0.5)
             {
                 TS_ASSERT_EQUALS(iter->IsDead(), true);
@@ -250,11 +250,11 @@ public:
 
         tissue.RemoveDeadCells();
 
-        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
+        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
-            double y = iter.rGetLocation()[1];
+            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
     }

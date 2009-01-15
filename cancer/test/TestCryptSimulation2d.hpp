@@ -280,7 +280,7 @@ public:
         simulator.Solve();
 
         // All fully differentiated cells have sloughed off
-        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -647,7 +647,7 @@ public:
         // Cover the write Voronoi data method
         crypt.SetWriteVoronoiData(true, false);
 
-        MeshBasedTissue<2>::Iterator cell_iterator = crypt.Begin();
+        AbstractTissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
@@ -687,7 +687,7 @@ public:
         simulator.Solve();
 
         // Check that nothing has moved below y=0
-        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -866,7 +866,7 @@ public:
 
         MeshBasedTissue<2> conf_crypt(conf_mesh, conf_cells);
 
-        MeshBasedTissue<2>::Iterator conf_iter = conf_crypt.Begin();
+        AbstractTissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -899,7 +899,7 @@ public:
         cells_generator.GenerateForCrypt(conf_cells, conf_mesh, true);
         MeshBasedTissue<2> conf_crypt(conf_mesh, conf_cells);
 
-        MeshBasedTissue<2>::Iterator conf_iter = conf_crypt.Begin();
+        AbstractTissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -944,7 +944,7 @@ public:
         cells_generator.GenerateForCrypt(cyl_cells, cyl_mesh, true);
         MeshBasedTissue<2> cyl_crypt(cyl_mesh, cyl_cells);
 
-        MeshBasedTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
+        AbstractTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -978,7 +978,7 @@ public:
 
         MeshBasedTissue<2> cyl_crypt(cyl_mesh, cyl_cells);
 
-        MeshBasedTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
+        AbstractTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -1113,18 +1113,18 @@ public:
         simulator.UseJiggledBottomCells();
 
         //Move the first cell (which should be on y=0) down a bit
-        MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
-        assert(cell_iter.rGetLocation()[1] == 0.0);
+        AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        assert(crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1] == 0.0);
 
         // Move the cell (can't use the iterator for this as it is const)
         crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[1] = -0.1;
-        assert(cell_iter.rGetLocation()[1] < 0.0);
+        assert(crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1] < 0.0);
 
         simulator.Solve();
 
         //The cell should have been pulled up, but not above y=0. However it should
         // then been moved to above y=0 by the jiggling
-        TS_ASSERT_LESS_THAN(0.0, cell_iter.rGetLocation()[1]);
+        TS_ASSERT_LESS_THAN(0.0, crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1]);
     }
 
 

@@ -163,7 +163,7 @@ public:
         simulator.Solve();
 
         // Check the correct solution was obtained
-        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -430,7 +430,7 @@ public:
 
         // Just check that we do indeed have three apoptotic cells
         unsigned num_apoptotic_cells = 0;
-        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -594,7 +594,7 @@ public:
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(cell_iter.rGetLocation());
+            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation());
             Element<2,2>* p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
 
 

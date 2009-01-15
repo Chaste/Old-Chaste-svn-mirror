@@ -45,11 +45,11 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMe
     }
 
     // Loop over cells, find which coarse element it is in, and add 1 to the mSourceTermOnCoarseElements[elem_index];
-    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
         cell_iter != mrTissue.End();
         ++cell_iter)
     {
-        const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
+        const ChastePoint<DIM>& r_position_of_cell = mrTissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
         unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 
         if (cell_iter->GetCellType()!=APOPTOTIC)
