@@ -674,6 +674,7 @@ TissueCell* AbstractTissue<DIM>::Iterator::operator->()
     return &(*mCellIter);
 }
 
+/// \todo This doesn't make sense for a VertexTissue (see #827)
 template<unsigned DIM>
 Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
 {
@@ -681,6 +682,7 @@ Node<DIM>* AbstractTissue<DIM>::Iterator::GetNode()
     return mrTissue.GetNode(mLocationIndex);
 }
 
+/// \todo This doesn't make sense for a VertexTissue (see #827)
 template<unsigned DIM>
 const c_vector<double, DIM>& AbstractTissue<DIM>::Iterator::rGetLocation()
 {
@@ -709,6 +711,7 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
     return (*this);
 }
 
+/// \todo This doesn't make sense for a VertexTissue (see #827)
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {

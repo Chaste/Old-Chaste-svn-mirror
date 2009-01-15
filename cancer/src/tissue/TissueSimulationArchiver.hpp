@@ -42,9 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimulationTime.hpp"
 #include "WntConcentration.hpp"
 #include "CellwiseData.hpp"
-
-#include "MeshBasedTissue.hpp"
-#include "TrianglesMeshWriter.hpp"
 #include "MeshArchiveInfo.hpp"
 
 template<unsigned DIM, class SIM>

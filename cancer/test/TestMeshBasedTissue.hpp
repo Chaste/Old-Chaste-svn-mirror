@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
-#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptSimulation2d.hpp"
 #include "MeinekeInteractionForce.hpp"
-#include "OutputFileHandler.hpp"
 #include "WntConcentration.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"

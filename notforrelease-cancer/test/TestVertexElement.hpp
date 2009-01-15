@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTVERTEXELEMENT_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include "VertexElement.hpp"
 
 

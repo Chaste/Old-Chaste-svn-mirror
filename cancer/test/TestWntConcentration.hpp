@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 
-#include "OutputFileHandler.hpp"
 #include "MeshBasedTissue.hpp"
 #include "WntCellCycleModel.hpp"
 

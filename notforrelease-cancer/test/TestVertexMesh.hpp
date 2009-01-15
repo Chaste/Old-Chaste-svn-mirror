@@ -34,8 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "VertexElement.hpp"
-#include "VertexMesh.hpp"
 #include "VertexMeshWriter.hpp"
 
 class TestVertexMesh : public CxxTest::TestSuite

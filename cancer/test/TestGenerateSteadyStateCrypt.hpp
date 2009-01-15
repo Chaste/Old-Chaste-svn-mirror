@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "OutputFileHandler.hpp"
 
 
 class TestGenerateSteadyStateCrypt : public CxxTest::TestSuite

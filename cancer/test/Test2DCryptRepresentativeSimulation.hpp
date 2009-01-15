@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
-#include "OutputFileHandler.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
 

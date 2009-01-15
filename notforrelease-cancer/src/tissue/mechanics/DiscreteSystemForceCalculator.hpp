@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTwoBodyInteractionForce.hpp"
 #include "MeshBasedTissue.hpp"
-#include "OutputFileHandler.hpp"
 
 /**
  * A class for calculating the force and stress on each node in a mesh-based tissue.

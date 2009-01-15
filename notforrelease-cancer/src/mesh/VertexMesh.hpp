@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMesh.hpp"
 #include "VertexMeshReader2d.hpp"
 #include "VertexElement.hpp"
-#include "BoundaryElement.hpp"
 #include "NodeMap.hpp"
 
 /**

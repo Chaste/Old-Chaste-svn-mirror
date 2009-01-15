@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 #include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 /**

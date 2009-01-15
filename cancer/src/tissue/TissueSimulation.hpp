@@ -38,11 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractForce.hpp"
 #include "AbstractCellKiller.hpp"
 #include "AbstractTissue.hpp"
-
 #include "RandomNumberGenerator.hpp"
-#include "CancerParameters.hpp"
-#include "OutputFileHandler.hpp"
-#include "TissueCell.hpp"
 #include "ChastePoint.hpp"
 
 

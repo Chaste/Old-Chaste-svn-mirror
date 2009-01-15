@@ -26,9 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "CryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
+#include "IngeWntSwatCellCycleModel.hpp"
 
 c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
@@ -118,7 +118,7 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
         x = cell_iter.rGetLocation()[0];
         y = cell_iter.rGetLocation()[1];
 
-        // If writing beta-catenin, the model has be be IngeWntSwatCellCycleModel
+        // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
 
         b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();

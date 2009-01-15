@@ -37,8 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "OutputFileHandler.hpp"
-#include "CellTypes.hpp"
-#include "CellMutationStates.hpp"
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

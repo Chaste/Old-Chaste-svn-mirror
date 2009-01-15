@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
-#include "FixedCellCycleModel.hpp"
 #include "MeinekeInteractionForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"

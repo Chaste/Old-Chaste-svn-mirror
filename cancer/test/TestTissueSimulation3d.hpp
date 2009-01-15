@@ -34,11 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationArchiver.hpp"
 
 #include "TissueSimulation.hpp"
+#include "TrianglesMeshWriter.hpp"
 #include "MeinekeInteractionForce.hpp"
 #include "FixedCellCycleModel.hpp"
-#include "OutputFileHandler.hpp"
-#include "AbstractCancerTestSuite.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestTissueSimulation3d : public AbstractCancerTestSuite

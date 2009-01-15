@@ -36,8 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodeBasedTissue.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "OutputFileHandler.hpp"
-#include "AbstractCellsGenerator.hpp"
+#include "TetrahedralMesh.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

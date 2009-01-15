@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DiscreteSystemForceCalculator.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "MeinekeInteractionForce.hpp"
-#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

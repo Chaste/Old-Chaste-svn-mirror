@@ -38,13 +38,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "OutputFileHandler.hpp"
 
 /**
  * This class consists of a single crypt simulation archiving test.

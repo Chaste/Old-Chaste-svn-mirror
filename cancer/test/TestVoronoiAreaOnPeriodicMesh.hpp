@@ -31,11 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 
-#include "VoronoiCell.hpp"
 #include "VoronoiTessellation.hpp"
-#include "TetrahedralMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "Exception.hpp"
 #include "TrianglesMeshWriter.hpp"
 
 

@@ -28,46 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERTEXELEMENT_HPP_
 #define VERTEXELEMENT_HPP_
 
-#include "Node.hpp"
-#include "ChastePoint.hpp"
-#include "UblasCustomFunctions.hpp"
 #include "AbstractElement.hpp"
-#include "Exception.hpp"
-#include "RandomNumberGenerator.hpp"
 
-#include <vector>
-#include <cmath>
-
-//double ComputePolarAngle(double x, double y)
-//{
-//    if (x==0)
-//    {
-//        if (y>0)
-//        {
-//            return M_PI/2.0;
-//        }
-//        else if (y<0)
-//        {
-//            return -M_PI/2.0;
-//        }
-//        else
-//        {
-//            EXCEPTION("Tried to compute polar angle of (0,0)");
-//        }
-//    }
-//
-//    double angle = atan(y/x);
-//
-//    if (y >= 0 && x < 0 )
-//    {
-//        angle += M_PI;
-//    }
-//    else if (y < 0 && x < 0 )
-//    {
-//        angle -= M_PI;
-//    }
-//    return angle;
-//};
 
 /**
  * When creating an element within a mesh one needs to specify its global index.

@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 
-#include "VertexMesh.hpp"
 #include "VertexMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 

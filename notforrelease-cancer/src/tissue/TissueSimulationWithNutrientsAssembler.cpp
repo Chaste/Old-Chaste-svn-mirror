@@ -26,8 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <vector>
-
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"

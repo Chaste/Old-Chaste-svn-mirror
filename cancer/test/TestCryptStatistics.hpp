@@ -40,8 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeinekeInteractionForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "SimpleDataWriter.hpp"
-#include "OutputFileHandler.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,
