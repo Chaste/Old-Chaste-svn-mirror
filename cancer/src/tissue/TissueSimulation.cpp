@@ -555,7 +555,7 @@ void TissueSimulation<DIM>::Solve()
             }
         }
 
-        // Update the topology of the tissue
+        // Update the topology of the tissue (and tessellate if needed)
         CancerEventHandler::BeginEvent(UPDATE);
         if (mUpdateTissue)
         {
@@ -564,22 +564,6 @@ void TissueSimulation<DIM>::Solve()
             LOG(1, "\tdone.\n");
         }
         CancerEventHandler::EndEvent(UPDATE);
-
-        /////////////////////////
-        // Tessellate if needed
-        /////////////////////////
-        CancerEventHandler::BeginEvent(TESSELLATION);
-        
-        if (dynamic_cast<MeshBasedTissue<DIM>*>(&mrTissue))
-        {
-            if (    (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteVoronoiData()
-                 || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UseAreaBasedDampingConstant()
-                 || (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->GetWriteTissueAreas() )
-            {
-                (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->CreateVoronoiTessellation();
-            }
-        }
-        CancerEventHandler::EndEvent(TESSELLATION);
 
         /////////////////////////
         // Calculate Forces
