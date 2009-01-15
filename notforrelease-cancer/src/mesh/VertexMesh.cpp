@@ -223,6 +223,13 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetThresholdDistance() const
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetThresholdDistance(double thresholdDistance)
+{
+    mThresholdDistance = thresholdDistance;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
 {
     for (unsigned index=0; index<mElements.size(); index++)

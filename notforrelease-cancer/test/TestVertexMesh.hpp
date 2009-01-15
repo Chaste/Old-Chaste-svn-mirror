@@ -420,68 +420,11 @@ public:
 
     void TestReMesh() throw(Exception)
     {
-        // Make 10 nodes to assign to four elements
-        std::vector<Node<2>*> nodes;
-        nodes.push_back(new Node<2>(0, false, 0.0, -0.01));
-        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
-        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
-        nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
-        nodes.push_back(new Node<2>(5, false, 0.5, 0.51));
-        nodes.push_back(new Node<2>(6, false, 1.5, 0.5));
-        
-        // Nodes on bottom edge
-        nodes.push_back(new Node<2>(7, false, 0.49, 0.0));
-        nodes.push_back(new Node<2>(8, false, 0.51, 0.0));
-        
-        // Nodes on internal edge
-        nodes.push_back(new Node<2>(9, false, 1.0, 0.49));
-        nodes.push_back(new Node<2>(10, false, 1.0, 0.51));
-        
-        // node on bottom left edge corner
-        nodes.push_back(new Node<2>(11, false, 0.0, 0.01)); 
-        
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3, nodes_elem_4;
-        
-        // Make two triangular and two romboid elements out of these nodes
-        nodes_elem_0.push_back(nodes[2]);
-        nodes_elem_0.push_back(nodes[3]);
-        nodes_elem_0.push_back(nodes[5]);
-        
-        nodes_elem_1.push_back(nodes[2]);
-        nodes_elem_1.push_back(nodes[5]);
-        nodes_elem_1.push_back(nodes[4]);
-        nodes_elem_1.push_back(nodes[1]);
-        nodes_elem_1.push_back(nodes[9]);  // Extra node on internal boundary
-        nodes_elem_1.push_back(nodes[10]); // Extra node on internal boundary
-        
-        nodes_elem_2.push_back(nodes[1]);
-        nodes_elem_2.push_back(nodes[4]);
-        nodes_elem_2.push_back(nodes[0]);  
-        nodes_elem_2.push_back(nodes[7]);  // Extra node on external boundary
-        nodes_elem_2.push_back(nodes[8]);  // Extra node on external boundary
-        
-        nodes_elem_3.push_back(nodes[0]);
-        nodes_elem_3.push_back(nodes[4]);
-        nodes_elem_3.push_back(nodes[5]);
-        nodes_elem_3.push_back(nodes[3]);
-        nodes_elem_3.push_back(nodes[11]); // Extra node on internal boundary
-        
-        nodes_elem_4.push_back(nodes[6]);
-        nodes_elem_4.push_back(nodes[2]);
-        nodes_elem_4.push_back(nodes[10]); // Extra node on internal boundary
-        nodes_elem_4.push_back(nodes[9]);  // Extra node on internal boundary
-        nodes_elem_4.push_back(nodes[1]);
-        
-        std::vector<VertexElement<2,2>*> vertex_elements;
-        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-        vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
-        vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
-        vertex_elements.push_back(new VertexElement<2,2>(4, nodes_elem_4));
-        
-        // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
+        // Create mesh
+        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/test_remesh_mesh");
+        VertexMesh<2,2> vertex_mesh;
+        vertex_mesh.ConstructFromMeshReader(mesh_reader);
+        vertex_mesh.SetThresholdDistance(0.1);
                
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 12u); 

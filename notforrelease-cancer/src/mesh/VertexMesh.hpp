@@ -133,6 +133,14 @@ public:
      * @return mThresholdDistance
      */
     double GetThresholdDistance() const;
+    
+    /**
+     * Set method for mThresholdDistance.
+     * 
+     * @param thresholdDistance
+     */
+    void SetThresholdDistance(double thresholdDistance);
+
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.
      * 
