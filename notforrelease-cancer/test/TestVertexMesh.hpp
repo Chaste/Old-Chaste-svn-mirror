@@ -305,7 +305,7 @@ public:
         }
     }
 
-    void TestCellRearangement() throw(Exception)
+    void TestNodesMerging() throw(Exception)
     {
         // Make 4 nodes to assign to 2 elements
         std::vector<Node<2>*> nodes;
@@ -519,14 +519,14 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.6, 1e-8);
         TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 0.5, 1e-8);
                
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[0], 0.4, 1e-3);
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1], 0.5, 1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[0], 0.4, 1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1], 0.5, 1e-8);
         //Bottom left T1Swap
         TS_ASSERT_DELTA(vertex_mesh.GetNode(0)->rGetLocation()[0], 0.1, 1e-8);
         TS_ASSERT_DELTA(vertex_mesh.GetNode(0)->rGetLocation()[1], 0.0, 1e-8);
                
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(11)->rGetLocation()[0], -0.1, 1e-3);
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(11)->rGetLocation()[1], 0.0, 1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(11)->rGetLocation()[0], -0.1, 1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(11)->rGetLocation()[1], 0.0, 1e-8);
         
         
         // Test elements have correct nodes
@@ -588,6 +588,53 @@ public:
         TS_ASSERT_EQUALS(neighbours_not_in_elem2.size(), 1u);
         TS_ASSERT_EQUALS(*(neighbours_not_in_elem2.begin()), 3u);
     }
+    
+    
+    // \todo this test is too simple need to use a non regular element
+    void TestDivideVertexElement() throw(Exception)
+    {   
+        // Make four nodes
+        std::vector<Node<2>*> basic_nodes;
+        basic_nodes.push_back(new Node<2>(0, false, 2.0, -1.0));
+        basic_nodes.push_back(new Node<2>(1, false, 2.0, 1.0));
+        basic_nodes.push_back(new Node<2>(2, false, -2.0, 1.0));
+        basic_nodes.push_back(new Node<2>(3, false, -2.0, -1.0));
+        
+        std::vector<Node<2>*> nodes_elem;
+        
+        // Make one rectangular element out of these nodes
+        nodes_elem.push_back(basic_nodes[0]);
+        nodes_elem.push_back(basic_nodes[1]);
+        nodes_elem.push_back(basic_nodes[2]);
+        nodes_elem.push_back(basic_nodes[3]);
+        
+        std::vector<VertexElement<2,2>*> basic_vertex_elements;
+        basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem));
+        
+        // Make a vertex mesh
+        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
+
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 4u);
+        
+        //only makes new nodes 
+        basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(0));
+        
+        //TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 6u);
+        
+        //Now test the position of new nodes.
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetNode(4)->rGetLocation()[0], 0.0, 1e-8);
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetNode(4)->rGetLocation()[1], 1.0, 1e-8);
+               
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetNode(5)->rGetLocation()[0], 0.0, 1e-8);
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetNode(5)->rGetLocation()[1], -1.0, 1e-8);
+        
+        //Now test the nodes in each element. 
+        
+        
+    }
+    
 
 };    
 

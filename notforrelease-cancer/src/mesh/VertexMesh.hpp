@@ -71,6 +71,8 @@ private:
     /**
      * Helper method for ReMesh to Identify the type of swap
      * 
+     * \todo This method currently assumes SPACE_DIM = 2 
+     * 
      * @param rNodeA one of the nodes to perform the swap with 
      * @param rNodeB the other node to perform the swap
      */  
@@ -89,12 +91,33 @@ private:
     /**
      * Helper method for ReMesh to perform the T1 Swap
      * 
+     * \todo This method currently assumes SPACE_DIM = 2 
+     * 
      * @param rNodeA one of the nodes to perform the swap with 
      * @param rNodeB the other node to perform the swap
      */  
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, 
                        std::set<unsigned> ElementsContainingNodes);
     
+    /**
+     * Method to divide an element in half 
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 
+     * 
+     * @param rElement the element to divide
+     */  
+    void DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
+    
+    /**
+     * Method to divide an element given 2 nodes in which to divide the element with 
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 
+     * 
+     * @param rElement the element to divide
+     * @param NodeAIndex the local index for how to divide
+     * @param NodeBindex the local index for how to divide
+     */  
+    void DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned NodeAIndex, unsigned NodeBIndex);
     
     friend class boost::serialization::access;
     template<class Archive>

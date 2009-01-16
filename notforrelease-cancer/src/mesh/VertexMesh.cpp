@@ -643,6 +643,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB,
                                                        std::set<unsigned> ElementsContainingNodes)
 {
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert( SPACE_DIM==2 ); // only works in 2D at present
+    assert( ELEMENT_DIM == SPACE_DIM );
+    #undef COVERAGE_IGNORE
+    
     /*
      * Restructure elements - remember to update nodes and elements.
      * 
@@ -783,7 +789,118 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA, 
     }
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
+{
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert( SPACE_DIM==2 ); // only works in 2D at present
+    assert( ELEMENT_DIM == SPACE_DIM );
+    #undef COVERAGE_IGNORE
+    
+    // Find ShortAxis
+    c_vector<double, SPACE_DIM> centroid = pElement->CalculateCentroid();
+    c_vector<double, SPACE_DIM> short_axis = pElement->CalculateShortAxis();
+    c_vector<double, SPACE_DIM> long_axis; // This is perpendicular to the short axis
+    long_axis(0)=-short_axis(1);
+    long_axis(1)=short_axis(0);
+    
+    //\todo Remove this temporary bool
+    
+    // Store if the node is on the side of the short axis which the long axis points to 
+    bool is_on_left[pElement->GetNumNodes()];
+    
+    for (unsigned i=0; i<pElement->GetNumNodes(); i++)
+    {
+        c_vector<double, SPACE_DIM> node_location_from_centroid = pElement->GetNodeLocation(i)- centroid; 
+        
+        if (inner_prod(node_location_from_centroid,long_axis)>=0)
+        {
+            is_on_left[i]=true;
+        }
+        else // inner_prod(node_location_from_centroid,long_axis)<0
+        {
+            is_on_left[i]=false;
+        }
+    }
+    
+    std::vector<unsigned> intersecting_nodes;
+        
+    for (unsigned i=0; i<pElement->GetNumNodes()-1; i++)
+    {
+        if(is_on_left[i]!=is_on_left[i+1])
+        {
+            intersecting_nodes.push_back(i);
+        }
+    }
+    if(is_on_left[0]!=is_on_left[pElement->GetNumNodes()-1])
+    {
+        intersecting_nodes.push_back(pElement->GetNumNodes()-1);
+    }
+    
+    //\todo remove assert and make and if statement returning an error if needed
+    assert(intersecting_nodes.size()==2); //only  divide if 2 intersections 
+    
+    std::vector<unsigned> new_node_global_indices;  
+    
+    for (unsigned i=0; i<intersecting_nodes.size(); i++)
+    {
+       // Find intersections between edges and short_axis
+        c_vector<double, SPACE_DIM> position_a = pElement->GetNodeLocation(intersecting_nodes[i]);
+        c_vector<double, SPACE_DIM> position_b;
+        if (intersecting_nodes[i]<pElement->GetNumNodes()-1)
+        {
+             position_b = pElement->GetNodeLocation(intersecting_nodes[i]+1);
+        }
+        else
+        {
+            position_b = pElement->GetNodeLocation(0);
+        }
+        
+        c_vector<double, SPACE_DIM> a_to_b = position_b - position_a;
+        
+        /*
+         * Let the first onde on edge be a and the 2nd be b the we are interested in
+         * the intersection of
+         *  
+         * position_a + alpha * a_to_b 
+         * and
+         * centroid + beta * short_axis 
+         * 
+         */
+         // \todo remove intersection test and beta as not needed       
+        c_vector<double, SPACE_DIM> intersection, intersection_test;
+         
+        double alpha, beta;
+        double determinant = a_to_b[0]*short_axis[1] - a_to_b[1]*short_axis[0];
+        alpha = (centroid[0]*a_to_b[1]-position_a[0]*a_to_b[1]
+                -centroid[1]*a_to_b[0]+position_a[1]*a_to_b[0])/determinant;
+        beta = (centroid[0]*short_axis[1]-position_a[0]*short_axis[1]
+               -centroid[1]*short_axis[0]+position_a[1]*short_axis[0])/determinant;
 
+        intersection = centroid+ alpha*short_axis;
+        intersection_test = position_a + beta * a_to_b;
+        
+        assert(fabs(intersection[0]- intersection_test[0])<1e-6);
+        assert(fabs(intersection[1]- intersection_test[1])<1e-6);
+        
+        // Create New node with location intersection and add it to all correct elements
+        
+        unsigned node_global_index = this->AddNode(new Node<SPACE_DIM>(0, false, intersection[0], intersection[1]));
+        new_node_global_indices.push_back(node_global_index);
+    }
+    
+    //std::cout << "\n" << new_node_global_indices.size() << "\t" << new_node_global_indices[0] << "\t" << new_node_global_indices[1] << std::flush; 
+    
+    // Now call DivideElement(.,.,.) to divide the elemenent using the new nodes 
+    // DivideElement(new_node_local_index[0], new_node_local_index[1]);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned NodeAIndex, unsigned NodeBIndex)
+{
+    // Sort out nodes in elments including refreshing containing_elements and area of elements
+}
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
