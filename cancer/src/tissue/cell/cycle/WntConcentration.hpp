@@ -75,8 +75,10 @@ private:
 
     /**
      *  The Tissue in which the WntConcentration occurs.
+     *
+     *  \todo Figure out how to generalise this to an AbstractTissue and work out the Wnt Concentration for a vertex cell
      */
-    AbstractTissue<2>* mpTissue;
+    AbstractCellCentreBasedTissue<2>* mpTissue;
 
     /**
      *  Whether this WntConcentration object has had its type set.
@@ -129,7 +131,7 @@ public:
     virtual ~WntConcentration();
 
     /**
-     *  Destroy the current WntConcentration instance. 
+     *  Destroy the current WntConcentration instance.
      *  Should be called at the end of a simulation.
      */
     static void Destroy();
@@ -137,7 +139,7 @@ public:
     /**
      *  Get the Wnt level at a given height in the crypt. Note the
      *  CancerParameters::CryptLength() is used for this.
-     *  
+     *
      *  @param height The height of the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this height in the crypt (dimensionless)
      */
@@ -147,7 +149,7 @@ public:
      *  Get the Wnt level at a given cell in the crypt. The crypt
      *  must be set for this. Note the CancerParameters::CryptLength()
      *  is used for this.
-     * 
+     *
      *  @param pCell pointer to the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this cell
      */
@@ -168,8 +170,10 @@ public:
 
     /**
      *  Set the crypt. Must be called before GetWntLevel().
+     *
+     *  \todo Figure out how to generalise this to AbstractTissue so it works with vertex models.
      */
-    void SetTissue(AbstractTissue<2>& rTissue);
+    void SetTissue(AbstractCellCentreBasedTissue<2>& rTissue);
 
     /**
      *  Get the type of Wnt concentration.
@@ -189,12 +193,12 @@ public:
 
     /**
      *  Whether a Wnt concentration has been set up.
-     * 
-     *  For archiving, and to let a TissueSimulation 
-     *  find out whether whether a WntConcentration has 
-     *  been set up or not, i.e. whether stem cells should 
+     *
+     *  For archiving, and to let a TissueSimulation
+     *  find out whether whether a WntConcentration has
+     *  been set up or not, i.e. whether stem cells should
      *  be motile.
-     * 
+     *
      *  @return whether the Wnt concentration is set up
      */
     bool IsWntSetUp();

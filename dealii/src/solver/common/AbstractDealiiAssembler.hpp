@@ -71,7 +71,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //#include <lac/sparse_ilu.h>
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 #include "Exception.hpp"

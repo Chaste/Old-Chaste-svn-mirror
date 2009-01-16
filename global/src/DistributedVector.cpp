@@ -29,11 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "DistributedVector.hpp"
 
-#include <vector>
-#include <petscvec.h>
-#include <iostream>
-#include <assert.h>
-
 unsigned DistributedVector::mLo=0;
 unsigned DistributedVector::mHi=0;
 unsigned DistributedVector::mGlobalHi=0;
@@ -45,7 +40,7 @@ void DistributedVector::CheckForPetsc()
     assert(mPetscStatusKnown==false);
     PetscTruth petsc_is_initialised;
     PetscInitialized(&petsc_is_initialised);
-    
+
     //Tripping this assertion means that PETSc and MPI weren't intialised
     //A unit test should include the global fixture:
     //#include "PetscSetupAndFinalize.hpp"

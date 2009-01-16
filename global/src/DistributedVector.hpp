@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include "DistributedVectorException.hpp"
 
 /***
@@ -52,7 +52,7 @@ private:
     static unsigned mGlobalHi;
     /** Whether we've checked that PETSc is initialised. */
     static bool mPetscStatusKnown;
-    
+
     // Data local to a single vector.
     /** How many processors own parts of this vector. */
     unsigned mNumChunks;
@@ -65,7 +65,7 @@ private:
      * Double check (in debug code) that PETSc has been initialised properly
      */
     static void CheckForPetsc();
-        
+
 public:
 
     /**
