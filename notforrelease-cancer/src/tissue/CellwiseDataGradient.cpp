@@ -106,12 +106,12 @@ void CellwiseDataGradient<DIM>::SetupGradients()
          cell_iter != r_tissue.End();
          ++cell_iter)
     {
-        unsigned node_global_index = cell_iter->GetLocationIndex();
+        unsigned node_global_index = r_tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
 
         if  (!num_real_elems_for_node[node_global_index]>0)
         {
             // The node is a real node which is not in any real element
-            // but shoud be connected to some cells (if more than one cell in mesh)
+            // but should be connected to some cells (if more than one cell in mesh)
             Node<DIM>& this_node = *(r_tissue.GetNodeCorrespondingToCell(*cell_iter));
 
             mGradients[node_global_index] = zero_vector<double>(DIM);
