@@ -45,41 +45,55 @@ public:
     {
         const double smidge=1e-10;
 
-        double startTime=0.0;
-        double endTime=2.0;
-        double timeStep=3.7e-05;
+        double start_time=0.0;
+        double end_time=2.0;
+        double timestep=3.7e-05;
 
-        TS_ASSERT_THROWS_ANYTHING(TimeStepper(endTime, startTime, timeStep));
+        ////////////////////////////////////////////////////////
+        // This is how a time stepper is normally used 
+        ////////////////////////////////////////////////////////
+        TimeStepper my_stepper(start_time, end_time, timestep);
+        while ( !my_stepper.IsTimeAtEnd() )
+        {
+            // do something
 
-        TimeStepper stepper(startTime, endTime, timeStep);
+            my_stepper.AdvanceOneTimeStep();
+        }
+
+
+        ////////////////////////////////////////////////////////
+        // tests
+        ////////////////////////////////////////////////////////
+        TS_ASSERT_THROWS_ANYTHING(TimeStepper(end_time, start_time, timestep));
+
+        TimeStepper stepper(start_time, end_time, timestep);
 
         TS_ASSERT_EQUALS( stepper.EstimateTimeSteps(),
-                          (unsigned) ceil((endTime - startTime)/timeStep) );
+                          (unsigned) ceil((end_time - start_time)/timestep) );
 
-
-        double real_time_step = timeStep;
+        double real_time_step = timestep;
         unsigned time_step_number = 0;
-        double current_time = startTime;
+        double current_time = start_time;
 
         /* We'll trap for stopping times that are close to the end time
          * in order to avoid having a timestep of 1e-14 (or whatever) at
          * the end in the case of rounding errors.
          */
-        double close_to_end_time = endTime - smidge*timeStep;
+        double close_to_end_time = end_time - smidge*timestep;
 
-        while (current_time < endTime)
+        while (current_time < end_time)
         {
             TS_ASSERT(!stepper.IsTimeAtEnd());
 
             time_step_number++;
             // Determine what the value time step should really be like
-            double to_time = startTime+time_step_number*timeStep;
+            double to_time = start_time+time_step_number*timestep;
 
             if (to_time >= close_to_end_time)
             {
-                real_time_step = endTime - current_time;
-                // std::cout<<"InternalSolve "<<timeStep<<" "<<real_time_step<<"\n";
-                to_time = endTime;
+                real_time_step = end_time - current_time;
+                // std::cout<<"InternalSolve "<<timestep<<" "<<real_time_step<<"\n";
+                to_time = end_time;
             }
 
             //std::cout << stepper.GetNextTimeStep()-real_time_step << std::endl;
