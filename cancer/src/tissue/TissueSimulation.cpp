@@ -136,25 +136,21 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
-        TissueCell& cell = *cell_iter;
-
         // Check if this cell is ready to divide - if so create a new cell etc.
-        if (cell.GetAge() > 0.0)
+        if (cell_iter->GetAge() > 0.0)
         {
-            if (cell.ReadyToDivide())
+            if (cell_iter->ReadyToDivide())
             {
                 // Create new cell
-                TissueCell new_cell = cell.Divide();
+                TissueCell new_cell = cell_iter->Divide();
 
                 // Add a new node to the mesh
                 c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(&(*cell_iter));
 
-                TissueCell *p_new_cell = mrTissue.AddCell(new_cell, new_location);
+                // Add a new cell to the tissue
+                mrTissue.AddCell(new_cell, new_location, &(*cell_iter));
 
-                if (mrTissue.HasMesh())
-                {
-                    (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->MarkSpring(cell, *p_new_cell);
-                }
+                // Update counter
                 num_births_this_step++;
             }
         }
@@ -173,8 +169,8 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
     // This labels cells as dead or apoptosing. It does not actually remove the cells,
     // tissue.RemoveDeadCells() needs to be called for this.
     for (typename std::vector<AbstractCellKiller<DIM>*>::iterator killer_iter = mCellKillers.begin();
-                 killer_iter != mCellKillers.end();
-                 ++killer_iter)
+         killer_iter != mCellKillers.end();
+         ++killer_iter)
     {
         (*killer_iter)->TestAndLabelCellsForApoptosisOrDeath();
     }

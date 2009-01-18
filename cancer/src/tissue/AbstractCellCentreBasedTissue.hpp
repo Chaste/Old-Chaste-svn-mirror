@@ -73,9 +73,10 @@ public:
      * 
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
+     * @param pParentCell pointer to a parent cell (if required)
      * @returns address of cell as it appears in the cell list
      */
-    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation);
+    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
 
     /**
      * Overridden IsCellAssociatedWithADeletedNode() method.
@@ -140,7 +141,7 @@ Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(const 
 }
 
 template<unsigned DIM>
-TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation)
+TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
     // Create a new node
     Node<DIM>* p_new_node = new Node<DIM>(this->GetNumNodes(), newLocation, false);   // never on boundary

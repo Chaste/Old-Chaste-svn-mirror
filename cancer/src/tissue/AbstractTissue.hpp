@@ -220,9 +220,10 @@ public:
      *
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
+     * @param pParentCell pointer to a parent cell (if required)
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation)=0; 
+    virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL)=0; 
 
     class Iterator; // Forward declaration; see below
 

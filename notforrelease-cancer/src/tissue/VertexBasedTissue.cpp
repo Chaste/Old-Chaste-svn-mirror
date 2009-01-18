@@ -140,7 +140,7 @@ unsigned VertexBasedTissue<DIM>::GetNumElements()
 
 
 template<unsigned DIM>
-TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation)
+TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
 //    // Get the element associated with this cell
 //    unsigned element_index = GetElementCorrespondingToCell(rNewCell);    
