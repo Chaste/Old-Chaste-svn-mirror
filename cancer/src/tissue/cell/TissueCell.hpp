@@ -174,7 +174,7 @@ public:
     /**
      * Get the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
      */
-    unsigned GetLocationIndex() const;
+    unsigned GetLocationIndex() const; /// \todo this method should be removed as part of #877
 
     /** 
      * Get the cell's age from its cell cycle model.

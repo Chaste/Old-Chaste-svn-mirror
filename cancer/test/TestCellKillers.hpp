@@ -112,14 +112,15 @@ public:
         p_simulation_time->IncrementTimeOneStep();
 
         // Store 'locations' of cells which are not dead
-        for (std::list<TissueCell>::iterator it = r_cells.begin();
-             it != r_cells.end(); ++it)
+        for (std::list<TissueCell>::iterator cell_iter = r_cells.begin();
+             cell_iter != r_cells.end();
+             ++cell_iter)
         {
-            if (!it->IsDead())
+            if (!cell_iter->IsDead())
             {
-                Node<2>* p_node = mesh.GetNode(it->GetLocationIndex());
-                c_vector< double, 2 > location = p_node->rGetLocation();
-                old_locations.insert(location[0]+location[1]*1000);
+                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+                c_vector<double, 2> location = p_node->rGetLocation();
+                old_locations.insert(location[0] + location[1]*1000);
             }
         }
 
@@ -128,13 +129,14 @@ public:
 
         // Check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for (std::list<TissueCell>::iterator it = r_cells.begin();
-             it != r_cells.end(); ++it)
+        for (std::list<TissueCell>::iterator cell_iter = r_cells.begin();
+             cell_iter != r_cells.end();
+             ++cell_iter)
         {
-            TS_ASSERT(!it->IsDead());
-            Node<2>* p_node = mesh.GetNode(it->GetLocationIndex());
-            c_vector< double, 2 > location = p_node->rGetLocation();
-            new_locations.insert(location[0]+location[1]*1000);
+            TS_ASSERT(!cell_iter->IsDead());
+            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+            c_vector<double, 2> location = p_node->rGetLocation();
+            new_locations.insert(location[0] + location[1]*1000);
         }
 
         TS_ASSERT(new_locations == old_locations);

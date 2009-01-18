@@ -186,13 +186,13 @@ public:
 
         // Set boundary nodes to be ghosts
         std::set<unsigned> ghost_node_indices;
-        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            if (tissue.GetNodeCorrespondingToCell(*iter)->IsBoundaryNode())
+            if (tissue.GetNodeCorrespondingToCell(*cell_iter)->IsBoundaryNode())
             {
-                ghost_node_indices.insert( iter->GetLocationIndex() );
+                ghost_node_indices.insert(tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex());
             }
         }
         tissue.SetGhostNodes(ghost_node_indices);

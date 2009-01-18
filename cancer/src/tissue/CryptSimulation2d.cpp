@@ -80,7 +80,10 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Tiss
 
     // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
-    mrTissue.SetNode(pParentCell->GetLocationIndex(), parent_coords_point);
+    
+    unsigned node_index = mpStaticCastTissue->GetNodeCorrespondingToCell(*pParentCell)->GetIndex();
+    mrTissue.SetNode(node_index, parent_coords_point);
+
     return daughter_coords;
 }
 

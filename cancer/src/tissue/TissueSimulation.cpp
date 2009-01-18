@@ -236,7 +236,9 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 
     // Set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);
-    mrTissue.SetNode(pParentCell->GetLocationIndex(), parent_coords_point);
+    unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))->GetNodeCorrespondingToCell(*pParentCell)->GetIndex();
+    mrTissue.SetNode(node_index, parent_coords_point);
+
     return daughter_coords;
 }
 

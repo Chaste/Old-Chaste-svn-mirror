@@ -135,7 +135,7 @@ public:
 
         statistics.LabelSPhaseCells();
 
-        std::vector< TissueCell* > test_section2 = statistics.GetCryptSection();
+        std::vector<TissueCell*> test_section2 = statistics.GetCryptSection();
         std::vector<bool> labelled_cells = statistics.GetWhetherCryptSectionCellsAreLabelled(test_section2);
 
         TS_ASSERT_EQUALS(test_section2.size(), labelled_cells.size());
@@ -143,7 +143,7 @@ public:
         // Three of these cells are labelled - at node 376, 399 and 400.
         for (unsigned i=0; i<test_section2.size(); i++)
         {
-            unsigned node_index = test_section2[i]->GetLocationIndex();
+            unsigned node_index = crypt.GetNodeCorrespondingToCell(*(test_section2[i]))->GetIndex();
             if (node_index == 376u || node_index == 399u || node_index == 400u)
             {
                 TS_ASSERT_EQUALS(labelled_cells[i], true);

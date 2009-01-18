@@ -683,7 +683,7 @@ public:
              cell_iter != simulator.rGetTissue().End();
              ++cell_iter)
         {
-            if (simulator.rGetTissue().GetNode(cell_iter->GetLocationIndex())->IsBoundaryNode())
+            if ( (static_cast<AbstractCellCentreBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNodeCorrespondingToCell(*cell_iter)->IsBoundaryNode() )
             {
                 TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), 1.0, 1e-1);
             }

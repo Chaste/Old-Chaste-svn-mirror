@@ -89,13 +89,12 @@ public:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS((*cell_iter).GetLocationIndex(), counter);
+            TS_ASSERT_EQUALS(tissue.GetElementCorrespondingToCell(*cell_iter)->GetIndex(), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
 
-            // Test GetLocationIndex() on the iterator
-            TS_ASSERT_EQUALS(cell_iter->GetLocationIndex(), mesh.GetElement(counter)->GetIndex());
+            TS_ASSERT_EQUALS(counter, mesh.GetElement(counter)->GetIndex());
 
             counter++;
         }
@@ -202,7 +201,7 @@ public:
              ++cell_iter)
         {
             // Record element index corresponding to cell
-            unsigned element_index = cell_iter->GetLocationIndex();
+            unsigned element_index = tissue.GetElementCorrespondingToCell(*cell_iter)->GetIndex();
             element_indices.insert(element_index);
         }
 

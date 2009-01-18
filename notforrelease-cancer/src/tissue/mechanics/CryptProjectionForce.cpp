@@ -55,10 +55,10 @@ void CryptProjectionForce::UpdateNode3dLocationMap(AbstractTissue<2>& rTissue)
          ++cell_iter)
     {
         // Get node index
-        unsigned node_index = cell_iter->GetLocationIndex();
+        unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
 
         // Get 3D location
-        node_location_2d = rTissue.GetNode(cell_iter->GetLocationIndex())->rGetLocation();
+        node_location_2d = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
 
         node_location_3d[0] = node_location_2d[0];
         node_location_3d[1] = node_location_2d[1];
@@ -231,8 +231,8 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
     UpdateNode3dLocationMap(rTissue);
 
     for (MeshBasedTissue<2>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<2>*>(&rTissue))->SpringsBegin();
-        spring_iterator!=(static_cast<MeshBasedTissue<2>*>(&rTissue))->SpringsEnd();
-        ++spring_iterator)
+         spring_iterator!=(static_cast<MeshBasedTissue<2>*>(&rTissue))->SpringsEnd();
+         ++spring_iterator)
     {
         unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
         unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
@@ -256,7 +256,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
             if (cell_iter->GetCellType()==STEM)
             {
                 c_vector<double, 2>  wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
-                unsigned index = cell_iter->GetLocationIndex();
+                unsigned index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
 
                 rForces[index] += wnt_chemotactic_force;
             }

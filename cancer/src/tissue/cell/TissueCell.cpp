@@ -135,7 +135,7 @@ void TissueCell::SetLocationIndex(unsigned index)
     mLocationIndex = index;
 }
 
-
+/// \todo this method should be removed as part of #877
 unsigned TissueCell::GetLocationIndex() const
 {
     return mLocationIndex;

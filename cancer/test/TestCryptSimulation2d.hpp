@@ -691,7 +691,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_LESS_THAN(-1e-15,p_mesh->GetNode(cell_iter->GetLocationIndex())->rGetLocation()[1]);
+            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1]);
         }
 
         c_vector<unsigned,5> cell_mutation_state_count = simulator.GetCellMutationStateCount();

@@ -178,6 +178,11 @@ public:
     void SetNode(unsigned index, ChastePoint<DIM>& rNewLocation);
 
     /**
+     * Get a pointer to the element corresponding to a given TissueCell.
+     */
+    VertexElement<DIM, DIM>* GetElementCorrespondingToCell(const TissueCell& rCell);
+
+    /**
      * Overridden AddCell() method.
      * Add a new cell to the tissue.
      * 

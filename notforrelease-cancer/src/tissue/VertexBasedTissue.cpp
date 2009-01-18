@@ -126,6 +126,13 @@ void VertexBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewL
 
 
 template<unsigned DIM>
+VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElementCorrespondingToCell(const TissueCell& rCell)
+{
+    return mrMesh.GetElement(rCell.GetLocationIndex());
+}
+
+
+template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumElements()
 {
     return mrMesh.GetNumElements();
@@ -136,7 +143,7 @@ template<unsigned DIM>
 TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
 //    // Get the element associated with this cell
-//    unsigned element_index = newCell.GetLocationIndex();    
+//    unsigned element_index = GetElementCorrespondingToCell(newCell);    
 //    VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(element_index);
 //
 //    // Get the node indices owned by this element
@@ -217,16 +224,16 @@ void VertexBasedTissue<DIM>::Update()
         // Fix up the mappings between TissueCells and VertexElements
         this->mLocationCellMap.clear();
         
-        for (std::list<TissueCell>::iterator iter = this->mCells.begin();
-             iter != this->mCells.end();
-             ++iter)
+        for (std::list<TissueCell>::iterator cell_iter = this->mCells.begin();
+             cell_iter != this->mCells.end();
+             ++cell_iter)
         {
-            unsigned old_elem_index = iter->GetLocationIndex();
+            unsigned old_elem_index = GetElementCorrespondingToCell(*cell_iter)->GetIndex();
             assert(!element_map.IsDeleted(old_elem_index));
             
             unsigned new_elem_index = element_map.GetNewIndex(old_elem_index);
-            iter->SetLocationIndex(new_elem_index);
-            this->mLocationCellMap[new_elem_index] = &(*iter);
+            cell_iter->SetLocationIndex(new_elem_index);
+            this->mLocationCellMap[new_elem_index] = &(*cell_iter);
         }
     }
 
@@ -244,7 +251,7 @@ void VertexBasedTissue<DIM>::Validate()
          cell_iter!=this->End();
          ++cell_iter)
     {
-        unsigned elem_index = cell_iter->GetLocationIndex();
+        unsigned elem_index = GetElementCorrespondingToCell(*cell_iter)->GetIndex();
         validated_element[elem_index] = true;
     }
 

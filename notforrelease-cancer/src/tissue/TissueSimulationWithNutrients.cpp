@@ -486,7 +486,7 @@ unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCel
     }
 
     // Find new element, using the previous one as a guess
-    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetNode(rCell.GetLocationIndex())->rGetLocation();
+    const ChastePoint<DIM>& r_cell_position = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(rCell)->rGetLocation();
     unsigned new_element_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_cell_position, false, test_elements);
 
     // Update mCellNutrientElementMap
@@ -544,7 +544,7 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
-            global_index = cell_iter->GetLocationIndex();
+            global_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
             x = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
             y = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
             nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
