@@ -71,11 +71,11 @@ public:
     /**
      * Add a new cell to the tissue.
      * 
-     * @param cell  the cell to add
+     * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list
      */
-    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
+    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation);
 
     /**
      * Overridden IsCellAssociatedWithADeletedNode() method.
@@ -140,15 +140,15 @@ Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(const 
 }
 
 template<unsigned DIM>
-TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation)
 {
     // Create a new node
     Node<DIM>* p_new_node = new Node<DIM>(this->GetNumNodes(), newLocation, false);   // never on boundary
     unsigned new_node_index = AddNode(p_new_node); // use copy constructor so it doesn't matter that new_node goes out of scope
 
     // Associate the new cell with the node
-    newCell.SetLocationIndex(new_node_index);
-    this->mCells.push_back(newCell);
+    rNewCell.SetLocationIndex(new_node_index);
+    this->mCells.push_back(rNewCell);
 
     TissueCell *p_created_cell = &(this->mCells.back());
     this->mLocationCellMap[new_node_index] = p_created_cell;

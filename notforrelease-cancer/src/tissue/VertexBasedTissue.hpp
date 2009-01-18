@@ -186,11 +186,11 @@ public:
      * Overridden AddCell() method.
      * Add a new cell to the tissue.
      * 
-     * @param newCell  the cell to add
+     * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    TissueCell* AddCell(TissueCell newCell, c_vector<double,DIM> newLocation);
+    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation);
 
     /**
      * Remove all cells labelled as dead.

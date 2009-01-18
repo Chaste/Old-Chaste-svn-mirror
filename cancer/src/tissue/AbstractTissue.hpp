@@ -218,11 +218,11 @@ public:
      * As this method is pure virtual, it must be overridden 
      * in subclasses.
      *
-     * @param cell  the cell to add
+     * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    virtual TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0; 
+    virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation)=0; 
 
     class Iterator; // Forward declaration; see below
 

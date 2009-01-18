@@ -160,11 +160,11 @@ public:
     /**
      * Add a new cell to the tissue and update mIsGhostNode.
      *
-     * @param cell  the cell to add
+     * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
+    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation);
 
     /**
      * Check consistency of our internal data structures. Each node must

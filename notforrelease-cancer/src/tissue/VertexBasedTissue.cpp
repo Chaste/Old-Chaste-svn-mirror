@@ -140,10 +140,10 @@ unsigned VertexBasedTissue<DIM>::GetNumElements()
 
 
 template<unsigned DIM>
-TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation)
 {
 //    // Get the element associated with this cell
-//    unsigned element_index = GetElementCorrespondingToCell(newCell);    
+//    unsigned element_index = GetElementCorrespondingToCell(rNewCell);    
 //    VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(element_index);
 //
 //    // Get the node indices owned by this element
@@ -180,7 +180,7 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,
 //
 //    // Associate the new cell with the element
 //    newCell.SetLocationIndex(new_element_index);
-//    this->mCells.push_back(newCell);
+//    this->mCells.push_back(rNewCell);
 //
 //    // Update location cell map
 //    TissueCell *p_created_cell = &(this->mCells.back());

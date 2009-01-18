@@ -339,7 +339,7 @@ public:
         new_cell_location[0] = 2;
         new_cell_location[1] = 2;
 
-        tissue.AddCell(cell,new_cell_location);
+        tissue.AddCell(cell, new_cell_location);
 
         // Tissue should have updated mesh and cells
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_num_nodes+1);

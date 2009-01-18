@@ -173,10 +173,10 @@ c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenN
 }
 
 template<unsigned DIM>
-TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation)
 {
     // Add cell
-    TissueCell *p_created_cell = MeshBasedTissue<DIM>::AddCell(newCell, newLocation);
+    TissueCell *p_created_cell = MeshBasedTissue<DIM>::AddCell(rNewCell, newLocation);
 
     // Update size of mIsGhostNode if necessary
     unsigned new_node_index = p_created_cell->GetLocationIndex();
