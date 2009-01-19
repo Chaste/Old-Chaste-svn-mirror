@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 
 #include "TissueSimulation.hpp"
-#include "MeshBasedTissueWithGhostNodes.hpp"
+#include "AbstractCellCentreBasedTissue.hpp"
 #include "CancerEventHandler.hpp"
 #include "LogFile.hpp"
 
