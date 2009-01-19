@@ -204,6 +204,27 @@ unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
 
 
 template<unsigned DIM>
+void VertexBasedTissue<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
+{
+    // Iterate over all nodes associated with real cells to update their positions
+    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++) 
+    {        
+        // Get damping constant for node
+        double damping_const = this->GetDampingConstant(node_index);
+                
+        // Get new node location
+        c_vector<double, DIM> new_node_location = this->GetNode(node_index)->rGetLocation() + dt*rNodeForces[node_index]/damping_const;
+            
+        // Create ChastePoint for new node location
+        ChastePoint<DIM> new_point(new_node_location);
+
+        // Move the node
+        this->SetNode(node_index, new_point);
+    }
+}
+
+
+template<unsigned DIM>
 bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell cell)
 {
     return false;    

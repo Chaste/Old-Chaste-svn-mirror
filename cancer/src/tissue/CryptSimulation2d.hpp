@@ -149,10 +149,9 @@ public :
      * bottom of the crypt are pinned. Any cell that has moved below the bottom 
      * of the crypt is moved back up.
      * 
-     * @param unsigned nodeIndex index of node
-     * @param rPoint reference to a point
+     * @param rOldLocations the node locations at the previous time step
      */
-    void ApplyTissueBoundaryConditions(unsigned nodeIndex, ChastePoint<2>& rPoint);
+    void ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations);
 
 };
 

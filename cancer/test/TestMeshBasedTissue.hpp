@@ -627,6 +627,88 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
     }
 
+    void TestUpdateNodeLocations()
+    {
+        // Test MeshBasedTissue::UpdateNodeLocations()
+        
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        std::vector<TissueCell> cells;
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh);
+
+        // Create a tissue, with no ghost nodes at the moment
+        MeshBasedTissue<2> tissue(mesh, cells);
+        
+        // Make up some forces
+        std::vector<c_vector<double, 2> > old_posns(tissue.GetNumNodes());
+        std::vector<c_vector<double, 2> > forces_on_nodes(tissue.GetNumNodes());
+                
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            old_posns[i][0] = tissue.GetNode(i)->rGetLocation()[0];
+            old_posns[i][1] = tissue.GetNode(i)->rGetLocation()[1];
+
+            forces_on_nodes[i][0] = i*0.01;
+            forces_on_nodes[i][1] = 2*i*0.01;
+        }
+
+        // Call method
+        double time_step = 0.01;
+        tissue.UpdateNodeLocations(forces_on_nodes, time_step);
+       
+        // Check that node locations were correctly updated
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            TS_ASSERT_DELTA(tissue.GetNode(i)->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
+            TS_ASSERT_DELTA(tissue.GetNode(i)->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
+        }
+        
+        // Test MeshBasedTissueWithGhostNodes::UpdateNodeLocations()
+        
+        HoneycombMeshGenerator generator(3, 3, 1, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+
+        std::vector<TissueCell> cells2;
+        FixedCellCycleModelCellsGenerator<2> cells_generator2;
+        cells_generator2.GenerateForCrypt(cells2, *p_mesh, true);
+
+        MeshBasedTissueWithGhostNodes<2> tissue2(*p_mesh, cells2, ghost_node_indices);
+        
+        // Make up some forces
+        std::vector<c_vector<double, 2> > old_posns2(tissue2.GetNumNodes());
+        std::vector<c_vector<double, 2> > forces_on_nodes2(tissue2.GetNumNodes());
+                
+        for (unsigned i=0; i<tissue2.GetNumNodes(); i++)
+        {
+            old_posns2[i][0] = tissue2.GetNode(i)->rGetLocation()[0];
+            old_posns2[i][1] = tissue2.GetNode(i)->rGetLocation()[1];
+
+            forces_on_nodes2[i][0] = i*0.01;
+            forces_on_nodes2[i][1] = 2*i*0.01;
+        }
+
+        // Call method
+        tissue2.UpdateNodeLocations(forces_on_nodes2, time_step);
+
+        // Check that node locations were correctly updated
+        for (unsigned i=0; i<tissue2.GetNumNodes(); i++)
+        {
+            std::set<unsigned>::iterator iter = ghost_node_indices.find(i);
+            bool is_a_ghost_node = (iter!=ghost_node_indices.end());
+
+            if (!is_a_ghost_node)
+            {
+                TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[0], old_posns2[i][0] +   i*0.01*0.01, 1e-9);
+                TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[1], old_posns2[i][1] + 2*i*0.01*0.01, 1e-9);
+            }
+        }
+    }
+
     // Test update ghost node positions
     void TestOutputWriters()
     {

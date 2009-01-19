@@ -86,6 +86,14 @@ public:
     bool IsCellAssociatedWithADeletedNode(TissueCell cell);
     
     /**
+     * Overridden UpdateNodeLocations() method.
+     * 
+     * @param rNodeForces a vector containing the force on each node in the tissue
+     * @param dt the time step
+     */
+    virtual void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt);
+        
+    /**
      * Overridden GetDampingConstant() method.
      *  
      * Get the damping constant for the cell associated with this node,
@@ -161,6 +169,31 @@ template<unsigned DIM>
 bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell cell)
 {
     return this->GetNode(cell.GetLocationIndex())->IsDeleted();
+}
+
+template<unsigned DIM>
+void AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
+{
+    // Iterate over all nodes associated with real cells to update their positions
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); 
+         cell_iter != this->End(); 
+         ++cell_iter) 
+    {
+        // Get index of node associated with cell
+        unsigned node_index = cell_iter->GetLocationIndex(); 
+        
+        // Get damping constant for node
+        double damping_const = this->GetDampingConstant(node_index);
+                
+        // Get new node location
+        c_vector<double, DIM> new_node_location = this->GetNode(node_index)->rGetLocation() + dt*rNodeForces[node_index]/damping_const;
+            
+        // Create ChastePoint for new node location
+        ChastePoint<DIM> new_point(new_node_location);
+
+        // Move the node
+        this->SetNode(node_index, new_point);
+    }
 }
 
 template<unsigned DIM>

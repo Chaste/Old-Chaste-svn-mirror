@@ -91,6 +91,18 @@ public:
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh);
 
     /**
+     * Overridden UpdateNodeLocation() method.
+     * 
+     * Update the location of each node in the tissue given 
+     * a vector of forces on nodes and a time step over which 
+     * to integrate the equations of motion.
+     * 
+     * @param rNodeForces  forces on nodes
+     * @param dt time step
+     */
+    void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt);
+
+    /**
      * @return mIsGhostNode.
      */
     std::vector<bool>& rGetGhostNodes();

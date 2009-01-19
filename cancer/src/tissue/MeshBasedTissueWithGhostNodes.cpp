@@ -233,6 +233,15 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rM
     }
 }
 
+template<unsigned DIM>
+void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
+{
+    // First update ghost positions first because they do not affect the real cells
+    UpdateGhostPositions(dt);
+        
+    // Then call the base class method
+    AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(rNodeForces, dt);
+}
 
 
 /////////////////////////////////////////////////////////////////////////////

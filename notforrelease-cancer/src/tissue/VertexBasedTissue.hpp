@@ -168,6 +168,14 @@ public:
     unsigned AddNode(Node<DIM> *pNewNode);
 
     /**
+     * Overridden UpdateNodeLocations() method.
+     * 
+     * @param rNodeForces a vector containing the force on each node in the tissue
+     * @param dt the time step
+     */
+    void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt);
+
+    /**
      * Overridden SetNode() method.
      * 
      * Move the node with a given index to a new point in space.

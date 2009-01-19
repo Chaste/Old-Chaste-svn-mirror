@@ -200,6 +200,19 @@ public:
      * in subclasses.
      */
     virtual bool IsCellAssociatedWithADeletedNode(TissueCell cell)=0;
+    
+    /**
+     * Update the location of each node in the tissue given 
+     * a vector of forces on nodes and a time step over which 
+     * to integrate the equations of motion.
+     * 
+     * As this method is pure virtual, it must be overridden 
+     * in subclasses.
+     * 
+     * @param rNodeForces  forces on nodes
+     * @param dt time step
+     */
+    virtual void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)=0;
 
     /**
      * Get the damping constant for this node - ie d in drdt = F/d.

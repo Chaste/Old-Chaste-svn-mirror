@@ -267,12 +267,12 @@ public:
         simulator.Solve();
 
         // Find the height of the current crypt
-        double height_after_division=p_mesh->GetWidth(1);
+        double height_after_division = p_mesh->GetWidth(1);
         simulator.SetEndTime(0.8);
         simulator.Solve();
 
         // Find the height of the current crypt
-        double height_after_relaxation=p_mesh->GetWidth(1);
+        double height_after_relaxation = p_mesh->GetWidth(1);
 
         TS_ASSERT_LESS_THAN(height_after_division, height_after_relaxation);
 
@@ -285,6 +285,10 @@ public:
              ++cell_iter)
         {
              TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
+             if (cell_iter->GetCellType() == DIFFERENTIATED)
+             {
+                std::cout << cell_iter->GetLocationIndex() << "\n" << std::flush;
+             }
         }
 
         // Close the log file opened in this test

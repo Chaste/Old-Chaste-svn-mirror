@@ -344,6 +344,41 @@ public:
             delete p_tissue;
         }
     }
+    
+    void TestUpdateNodeLocations()
+    {
+        // Create a simple 2D VertexMesh
+        VertexMesh<2,2> mesh(5,3); // columns then rows
+
+        // Set up cells
+        std::vector<TissueCell> cells = SetUpCells(mesh);
+        
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+        
+        // Make up some forces
+        std::vector<c_vector<double, 2> > old_posns(tissue.GetNumNodes());
+        std::vector<c_vector<double, 2> > forces_on_nodes(tissue.GetNumNodes());
+                
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            old_posns[i][0] = mesh.GetNode(i)->rGetLocation()[0];
+            old_posns[i][1] = mesh.GetNode(i)->rGetLocation()[1];
+
+            forces_on_nodes[i][0] = i*0.01;
+            forces_on_nodes[i][1] = 2*i*0.01;
+        }
+        
+        double time_step = 0.01;
+
+        tissue.UpdateNodeLocations(forces_on_nodes, time_step);
+       
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            TS_ASSERT_DELTA(tissue.GetNode(i)->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
+            TS_ASSERT_DELTA(tissue.GetNode(i)->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
+        }
+    }
 };
 
 

@@ -240,35 +240,23 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 
 
 template<unsigned DIM>
-void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& nodeForces)
+void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
 {
-    if (mrTissue.HasGhostNodes())
-    {
-        // Update ghost positions first because they do not affect the real cells
-        (static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue))->UpdateGhostPositions(mDt);
-    }
-    
-    // Iterate over all nodes to update their positions
+    // Get the previous node positions (these may be needed 
+    // when applying boundary conditions, e.g. in the case 
+    // of immotile cells)
+    std::vector<c_vector<double, DIM> > old_node_locations;
+    old_node_locations.reserve(mrTissue.GetNumNodes());
     for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
     {
-        if ( !(mrTissue.IsGhostNode(node_index)) )
-        {
-            // Get damping constant for node
-            double damping_const = mrTissue.GetDampingConstant(node_index);
-            
-            // Get new node location
-            c_vector<double, DIM> new_node_location = mrTissue.GetNode(node_index)->rGetLocation() + mDt*nodeForces[node_index]/damping_const;
-                
-            // Create ChastePoint for new node location
-            ChastePoint<DIM> new_point(new_node_location);
-                
-            // Apply any boundary conditions
-            ApplyTissueBoundaryConditions(node_index, new_point);
-            
-            // Move the node
-            mrTissue.SetNode(node_index, new_point);
-        }
+        old_node_locations[node_index] = mrTissue.GetNode(node_index)->rGetLocation();
     }
+    
+    // Update node locations
+    mrTissue.UpdateNodeLocations(rNodeForces, mDt);
+    
+    // Apply any boundary conditions
+    ApplyTissueBoundaryConditions(old_node_locations);
 }
 
 

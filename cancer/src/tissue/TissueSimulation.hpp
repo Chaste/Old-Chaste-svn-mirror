@@ -232,11 +232,20 @@ protected:
     unsigned DoCellRemoval();
 
     /**
-     * Moves each node to a new position for this timestep
+     * Moves each node to a new position for this timestep by
+     * calling the tissue UpdateNodeLocations() method then 
+     * applying any boundary conditions.
      *
-     * @param nodeForces the x and y force components on each node.
+     * @param rNodeForces the forces on nodes
      */
-    virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& nodeForces);
+    virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces);
+
+    /**
+     * Apply any tissue boundary conditions. Can be overridden in subclasses.
+     */
+    virtual void ApplyTissueBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)
+    {
+    }
 
     /**
      *  A method for subclasses to do something at the end of each timestep
@@ -466,15 +475,6 @@ public:
      */
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
     
-    /**
-     * Apply any tissue boundary conditions. Can be overridden in subclasses.
-     * 
-     * @param unsigned nodeIndex index of node
-     * @param rPoint reference to a point
-     */
-    virtual void ApplyTissueBoundaryConditions(unsigned nodeIndex, ChastePoint<DIM>& rPoint)
-    {}
-
 };
 
 
