@@ -122,9 +122,10 @@ public:
     /**
      * Overridden IsCellAssociatedWithAGhostNode() method.
      * 
+     * @param rCell the cell
      * @return whether a given cell is associated with a ghost node.
      */
-    virtual bool IsCellAssociatedWithAGhostNode(TissueCell cell);
+    virtual bool IsCellAssociatedWithAGhostNode(TissueCell& rCell);
 
     /**
      * @return the indices of those nodes that are ghost nodes.

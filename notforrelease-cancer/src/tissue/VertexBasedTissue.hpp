@@ -216,9 +216,10 @@ public:
     /**
      * Overridden IsCellAssociatedWithADeletedNode() method.
      * 
+     * @param rCell the cell
      * @return whether a given cell is associated with a deleted node.
      */
-    bool IsCellAssociatedWithADeletedNode(TissueCell cell);
+    bool IsCellAssociatedWithADeletedNode(TissueCell& rCell);
 
     /**
      * Remove the VertexElements which have been marked as deleted, perform 

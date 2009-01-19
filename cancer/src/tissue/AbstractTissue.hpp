@@ -189,17 +189,23 @@ public:
     virtual void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)=0;
     
     /**
+     * Helper method for establishing if a cell is real.
+     * 
+     * @param rCell the cell
      * @return whether a given cell is associated with a ghost node.
      */
-    virtual bool IsCellAssociatedWithAGhostNode(TissueCell cell);
+    virtual bool IsCellAssociatedWithAGhostNode(TissueCell& rCell);
     
     /**
-     * @return whether a given cell is associated with a deleted node.
+     * Helper method for establishing if a cell is real.
      * 
      * As this method is pure virtual, it must be overridden 
      * in subclasses.
+     * 
+     * @param rCell the cell
+     * @return whether a given cell is associated with a deleted node.
      */
-    virtual bool IsCellAssociatedWithADeletedNode(TissueCell cell)=0;
+    virtual bool IsCellAssociatedWithADeletedNode(TissueCell& rCell)=0;
     
     /**
      * Update the location of each node in the tissue given 
@@ -674,7 +680,7 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
 }
 
 template<unsigned DIM>
-bool AbstractTissue<DIM>::IsCellAssociatedWithAGhostNode(TissueCell cell)
+bool AbstractTissue<DIM>::IsCellAssociatedWithAGhostNode(TissueCell& rCell)
 {
     return false;
 }

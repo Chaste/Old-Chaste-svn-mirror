@@ -65,9 +65,9 @@ bool MeshBasedTissueWithGhostNodes<DIM>::IsGhostNode(unsigned index)
 }
 
 template<unsigned DIM>
-bool MeshBasedTissueWithGhostNodes<DIM>::IsCellAssociatedWithAGhostNode(TissueCell cell)
+bool MeshBasedTissueWithGhostNodes<DIM>::IsCellAssociatedWithAGhostNode(TissueCell& rCell)
 {
-    return this->mIsGhostNode[cell.GetLocationIndex()];
+    return this->mIsGhostNode[rCell.GetLocationIndex()];
 }
 
 template<unsigned DIM>

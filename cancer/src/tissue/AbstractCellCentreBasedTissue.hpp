@@ -81,9 +81,10 @@ public:
     /**
      * Overridden IsCellAssociatedWithADeletedNode() method.
      * 
+     * @param rCell the cell
      * @return whether a given cell is associated with a deleted node.
      */
-    bool IsCellAssociatedWithADeletedNode(TissueCell cell);
+    bool IsCellAssociatedWithADeletedNode(TissueCell& rCell);
     
     /**
      * Overridden UpdateNodeLocations() method.
@@ -166,9 +167,9 @@ TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_
 }
 
 template<unsigned DIM>
-bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell cell)
+bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell& rCell)
 {
-    return this->GetNode(cell.GetLocationIndex())->IsDeleted();
+    return this->GetNode(rCell.GetLocationIndex())->IsDeleted();
 }
 
 template<unsigned DIM>
