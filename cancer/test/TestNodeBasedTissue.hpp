@@ -148,6 +148,57 @@ public:
         // Fails as no cell or ghost correponding to node 0
         TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(mesh, cells));
     }
+    
+    void TestAddCellMemoryLeak()
+    {
+        // Create two nodes
+        ChastePoint<2> point0;
+        point0.rGetLocation()[0] = 0.0;
+        point0.rGetLocation()[1] = 0.0;
+        Node<2>* p_node0 = new Node<2>(0, point0, false);
+        
+        ChastePoint<2> point1;
+        point1.rGetLocation()[0] = 1.0;
+        point1.rGetLocation()[1] = 1.0;
+        Node<2>* p_node1 = new Node<2>(1, point1, false);
+
+        std::vector<Node<2>* > nodes;
+        nodes.push_back(p_node0);
+        nodes.push_back(p_node1);
+
+        // Create two cells
+        TissueCell cell0(STEM, HEALTHY, new FixedCellCycleModel());
+        cell0.SetBirthTime(-1);
+        cell0.SetLocationIndex(0);
+
+        TissueCell cell1(STEM, HEALTHY, new FixedCellCycleModel());
+        cell1.SetBirthTime(-1);
+        cell1.SetLocationIndex(1);
+
+        std::vector<TissueCell> cells;
+        cells.push_back(cell0);
+        cells.push_back(cell1);
+
+        // Create a tissue
+        NodeBasedTissue<2> node_based_tissue(nodes, cells);
+        
+        // Create a new cell, DON'T set the node index, set birth time=-1
+        TissueCell cell2(STEM, HEALTHY, new FixedCellCycleModel());
+        cell2.SetBirthTime(-1);
+
+        c_vector<double,2> cell2_location;
+        cell2_location[0] = 2.0;
+        cell2_location[1] = 2.0;
+
+        node_based_tissue.AddCell(cell2, cell2_location);
+
+        // Tidy up
+        delete p_node0;
+        delete p_node1;
+
+        /// \todo (see #844) the line below fixes the memory leak - how do we do this in the destructor?
+        delete node_based_tissue.mNodes[2]; 
+    }
 
     void TestSetNodeAndAddCell()
     {
