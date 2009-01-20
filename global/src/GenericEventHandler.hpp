@@ -81,7 +81,7 @@ public:
         }
         mCpuTime[event] -= GetCpuTime();
         mHasBegun[event] = true;
-        //std::cout << PetscTools::GetMyRank()<<": Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
+        //std::cout << PetscTools::GetMyRank()<<": Beginning " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
     static void EndEvent(unsigned event)
@@ -132,7 +132,11 @@ public:
             PetscTools::Barrier();
             if (turn == PetscTools::GetMyRank())
             {
-                printf("Proc%2i: ", turn); // is this debugging trace?
+                if (!PetscTools::IsSequential())
+                {
+                    //Report the process number at the beginning of the line
+                    printf("%3i: ", turn); //5 chars
+                }
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
                     printf("%7.2e ", mCpuTime[event]/1000);
@@ -151,7 +155,7 @@ public:
             if (PetscTools::AmMaster())
             {
                 total=TotalCpuTime[NUM_EVENTS-1];
-                printf("av ");
+                printf("avg: "); //5 chars
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
                     printf("%7.2e ", TotalCpuTime[event]/(1000*PetscTools::NumProcs()));
@@ -166,7 +170,7 @@ public:
             if (PetscTools::AmMaster())
             {
                 total=MaxCpuTime[NUM_EVENTS-1];
-                printf("mx ");
+                printf("max: "); //5 chars
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
                     printf("%7.2e ", MaxCpuTime[event]/(1000));//*PetscTools::NumProcs()));
@@ -194,6 +198,11 @@ public:
         std::cout.flush();
         if (PetscTools::AmMaster())
         {
+            if (!PetscTools::IsSequential())
+            {
+                //Report the process number at the beginning of the line
+                printf("Proc "); //5 chars
+            }
             for (unsigned event=0; event<NUM_EVENTS; event++)
             {
                 printf("%15s%2s", EVENT_NAME[event], "");
