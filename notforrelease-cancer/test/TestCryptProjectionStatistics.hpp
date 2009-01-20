@@ -109,7 +109,7 @@ public:
         for (unsigned i=0; i<test_section.size(); i++)
         {
             TissueCell* cell = test_section[i];
-            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(),
+            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(cell)->GetIndex(),
                               expected_indices[i]);
         }
 
@@ -143,7 +143,7 @@ public:
         // Three of these cells are labelled - at node 376, 399 and 400.
         for (unsigned i=0; i<test_section2.size(); i++)
         {
-            unsigned node_index = crypt.GetNodeCorrespondingToCell(*(test_section2[i]))->GetIndex();
+            unsigned node_index = crypt.GetNodeCorrespondingToCell(test_section2[i])->GetIndex();
             if (node_index == 376u || node_index == 399u || node_index == 400u)
             {
                 TS_ASSERT_EQUALS(labelled_cells[i], true);

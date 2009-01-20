@@ -49,11 +49,11 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     #undef COVERAGE_IGNORE
 
     mDeleteTissue = deleteTissueAndForceCollection;
-    
+
     mInitialiseCells = initialiseCells;
 
     mpParams = CancerParameters::Instance();
-    
+
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
 
@@ -82,9 +82,9 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     mNumBirths = 0;
     mNumDeaths = 0;
     mSamplingTimestepMultiple = 1;
-    
+
     mAllocatedMemoryForForceCollection = deleteTissueAndForceCollection;
-    
+
     mForceCollection = forceCollection;
     if (mInitialiseCells)
     {
@@ -95,26 +95,26 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
 
 template<unsigned DIM>
 TissueSimulation<DIM>::~TissueSimulation()
-{   
-    if (mAllocatedMemoryForForceCollection) 
-    {    
+{
+    if (mAllocatedMemoryForForceCollection)
+    {
         for (typename std::vector<AbstractForce<DIM>*>::iterator force_iter = mForceCollection.begin();
              force_iter != mForceCollection.end();
              ++force_iter)
-        {     
+        {
             delete *force_iter;
         }
     }
 
-    if (mDeleteTissue) 
-    { 
-        for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin(); 
-             it != mCellKillers.end(); 
-             ++it) 
-        { 
-            delete *it; 
-        } 
-        delete &mrTissue; 
+    if (mDeleteTissue)
+    {
+        for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
+             it != mCellKillers.end();
+             ++it)
+        {
+            delete *it;
+        }
+        delete &mrTissue;
     }
 }
 
@@ -163,7 +163,7 @@ template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
     /// \todo DoCellRemoval() has not yet been tested with a vertex-based tissue - see #853
-    
+
     unsigned num_deaths_this_step = 0;
 
     // This labels cells as dead or apoptosing. It does not actually remove the cells,
@@ -194,7 +194,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     /// \todo CalculateDividingCellCentreLocations() has not yet been tested with a vertex-based tissue - see #852
 
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, DIM> parent_coords = dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->GetNodeCorrespondingToCell(*pParentCell)->rGetLocation();
+    c_vector<double, DIM> parent_coords = dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->GetLocationOfCell(pParentCell);
     c_vector<double, DIM> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that
@@ -232,7 +232,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 
     // Set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);
-    unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))->GetNodeCorrespondingToCell(*pParentCell)->GetIndex();
+    unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))->GetNodeCorrespondingToCell(pParentCell)->GetIndex();
     mrTissue.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
@@ -242,8 +242,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 template<unsigned DIM>
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
 {
-    // Get the previous node positions (these may be needed 
-    // when applying boundary conditions, e.g. in the case 
+    // Get the previous node positions (these may be needed
+    // when applying boundary conditions, e.g. in the case
     // of immotile cells)
     std::vector<c_vector<double, DIM> > old_node_locations;
     old_node_locations.reserve(mrTissue.GetNumNodes());
@@ -251,10 +251,10 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     {
         old_node_locations[node_index] = mrTissue.GetNode(node_index)->rGetLocation();
     }
-    
+
     // Update node locations
     mrTissue.UpdateNodeLocations(rNodeForces, mDt);
-    
+
     // Apply any boundary conditions
     ApplyTissueBoundaryConditions(old_node_locations);
 }
@@ -484,17 +484,17 @@ void TissueSimulation<DIM>::Solve()
 
     // Initialise a vector of forces on node
     std::vector<c_vector<double, DIM> > forces(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
-    
+
     /////////////////////////////////////////////////////////////////////
     // Main time loop
     /////////////////////////////////////////////////////////////////////
-    
+
     while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccurred()) )
     {
         LOG(1, "--TIME = " << p_simulation_time->GetTime() << "\n");
-        
+
         /////////////////////////
-        // Remove dead cells 
+        // Remove dead cells
         /////////////////////////
         CancerEventHandler::BeginEvent(DEATH);
         unsigned deaths_this_step = DoCellRemoval();
@@ -516,8 +516,8 @@ void TissueSimulation<DIM>::Solve()
         ////////////////////////////
 
         /**
-         * If the tissue has a mesh, then we currently must call the Update() 
-         * method at each time step. Otherwise, we only need to call Update() 
+         * If the tissue has a mesh, then we currently must call the Update()
+         * method at each time step. Otherwise, we only need to call Update()
          * after there has been any cell birth or cell death.
          */
         if (mrTissue.HasMesh())
@@ -550,11 +550,11 @@ void TissueSimulation<DIM>::Solve()
         // Calculate Forces
         /////////////////////////
         CancerEventHandler::BeginEvent(FORCE);
-        
+
         // First set all the forces to zero
         for (unsigned i=0; i<forces.size(); i++)
         {
-             forces[i].clear(); 
+             forces[i].clear();
         }
 
         // Then resize the std::vector if the number of cells has increased or decreased
@@ -563,7 +563,7 @@ void TissueSimulation<DIM>::Solve()
         {
             forces.resize(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
         }
-        
+
         // Now add force contributions from each AbstractForce
         for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
              iter !=mForceCollection.end();
@@ -581,7 +581,7 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::EndEvent(POSITION);
 
         //////////////////////////////////////////
-        // PostSolve, which may be implemented by 
+        // PostSolve, which may be implemented by
         // child classes (eg to solve nutrient pdes)
         //////////////////////////////////////////
         PostSolve();

@@ -81,7 +81,7 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     assert(pCell!=NULL);
 
     double height;
-    unsigned node_index = mpTissue->GetNodeCorrespondingToCell(*pCell)->GetIndex();  // Getting the index rather than the node avoids templating this class
+    unsigned node_index = mpTissue->GetNodeCorrespondingToCell(pCell)->GetIndex();  // Getting the index rather than the node avoids templating this class
 
     if (mWntType==RADIAL)
     {
@@ -111,7 +111,7 @@ c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
     assert(pCell!=NULL);
 
     // Note that this only works correctly for a cell-centre-based tissue (see #878)
-    c_vector<double,2> location_of_cell = mpTissue->GetNodeCorrespondingToCell(*pCell)->rGetLocation();
+    c_vector<double,2> location_of_cell = mpTissue->GetLocationOfCell(pCell);
 
     return GetWntGradient(location_of_cell);
 }

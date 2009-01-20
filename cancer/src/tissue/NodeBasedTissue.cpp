@@ -94,7 +94,7 @@ void NodeBasedTissue<DIM>::Validate()
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = cell_iter->GetLocationIndex();
+        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
         validated_node[node_index] = true;
     }
 
@@ -141,9 +141,6 @@ void NodeBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLoc
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::Update()
 {
-    // Remove current data
-    Clear();
-        
     // Create and reserve space for a temporary vector
     std::vector<Node<DIM>* > old_nodes;
     old_nodes.reserve(mNodes.size());
@@ -157,40 +154,62 @@ void NodeBasedTissue<DIM>::Update()
         }
     }
 
-    // Update mNodes
-    mNodes = old_nodes;
+    std::map<unsigned,TissueCell*> old_map = this->mLocationCellMap;
+    mNodes.clear();
+    // Clear maps
+    this->mLocationCellMap.clear();
+    this->mCellLocationMap.clear();
 
-    // Update the correspondence between nodes and cells.
-    // We expect the node indices to be {0,1,...,num_nodes}
-    std::set<unsigned> expected_node_indices;
-    for (unsigned i=0; i<GetNumNodes(); i++)
+    // Update mNodes to new indices which go from 0 to NumNodes-1.
+    for (unsigned i=0; i<old_nodes.size() ; i++)
     {
-        expected_node_indices.insert(i);
+        // Get the living cell associated with the old node
+        TissueCell* p_live_cell = old_map[old_nodes[i]->GetIndex()];
+        // Set the node up
+        mNodes.push_back(old_nodes[i]);
+        mNodes[i]->SetIndex(i);
+        // Set the maps up
+        this->mLocationCellMap[i] = p_live_cell;
+        this->mCellLocationMap[p_live_cell] = i;
     }
+//    mNodes = old_nodes;
+//
+//    // Update the correspondence between nodes and cells.
+//    // We expect the node indices to be {0,1,...,num_nodes}
+//    std::set<unsigned> expected_node_indices;
+//    for (unsigned i=0; i<GetNumNodes(); i++)
+//    {
+//        expected_node_indices.insert(i);
+//    }
+//
+//    // Get the actual set of node indices
+//    std::set<unsigned> node_indices;
+//    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+//    {
+//        unsigned node_index_from_cell = this->mCellLocationMap[&(*cell_iter)];
+//        node_indices.insert(node_index_from_cell);
+//    }
+//
+//    // If necessary, update the node cell map
+//    if (node_indices != expected_node_indices)
+//    {
+//        // Fix up the mappings between cells and nodes
+//        this->mLocationCellMap.clear();
+//        this->mCellLocationMap.clear();
+//        unsigned new_node_index = 0;
+//        for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+//        {
+//            this->mLocationCellMap[new_node_index] = &(*cell_iter);
+//            this->mCellLocationMap[&(*cell_iter)] = new_node_index;
+//            mNodes[new_node_index]->SetIndex(new_node_index);
+//            new_node_index++;
+//        }
+//    }
 
-    // Get the actual set of node indices
-    std::set<unsigned> node_indices;
-    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-    {
-        unsigned node_index = cell_iter->GetLocationIndex();
-        node_indices.insert(node_index);
-    }
+    // Remove current dead indices data
+    Clear();
 
-    // If necessary, update the node cell map
-    if (node_indices != expected_node_indices)
-    {
-        // Fix up the mappings between cells and nodes
-        this->mLocationCellMap.clear();
-        unsigned new_node_index = 0;
-        for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-        {
-            cell_iter->SetLocationIndex(new_node_index);
-            this->mLocationCellMap[new_node_index] = &(*cell_iter);
-            new_node_index++;
-        }
-    }
-
-    Validate();
+    this->Validate();
 }
 
 
@@ -207,10 +226,12 @@ unsigned NodeBasedTissue<DIM>::RemoveDeadCells()
         {
             // Remove the node
             num_removed++;
-            this->GetNodeCorrespondingToCell(*cell_iter)->MarkAsDeleted();
-            mDeletedNodeIndices.push_back(cell_iter->GetLocationIndex());
+            this->GetNodeCorrespondingToCell(&(*cell_iter))->MarkAsDeleted();
+            mDeletedNodeIndices.push_back( this->mCellLocationMap[&(*cell_iter)] );
             cell_iter = this->mCells.erase(cell_iter);
             --cell_iter;
+            //this->mLocationCellMap.erase(this->mCellLocationMap[&(*cell_iter)]);
+            //this->mCellLocationMap.erase(&(*cell_iter));
         }
     }
     return num_removed;

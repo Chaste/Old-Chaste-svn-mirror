@@ -57,6 +57,9 @@ protected:
     /** Map location (node or VertexElement) indices back to cells */
     std::map<unsigned, TissueCell*> mLocationCellMap;
 
+    /** Map cells to location (node or VertexElement) indices */
+    std::map<TissueCell*, unsigned> mCellLocationMap;
+
     /** Current cell mutation state counts */
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> mCellMutationStateCount;
 
@@ -68,7 +71,7 @@ protected:
 
     /** Results file for node visualization */
     out_stream mpVizNodesFile;
-    
+
     /** Results file for cell visualization */
     out_stream mpVizCellTypesFile;
 
@@ -99,6 +102,7 @@ protected:
     {
         archive & mCells;
         archive & mLocationCellMap;
+        archive & mCellLocationMap;
         archive & mTissueContainsMesh;
         archive & mTissueContainsGhostNodes;
     }
@@ -132,7 +136,7 @@ public:
      * @return reference to mCells.
      */
     std::list<TissueCell>& rGetCells();
-    
+
     /**
      * @return const reference to mCells (used in archiving).
      */
@@ -150,71 +154,73 @@ public:
 
     /**
      * @return the number of nodes in the tissue.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
      */
     virtual unsigned GetNumNodes()=0;
 
     /**
      * @return a pointer to the node with a given index.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @param index  global index of the specified node
      */
     virtual Node<DIM>* GetNode(unsigned index)=0;
-    
+
     /**
      * Add a new node to the tissue.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
-     * @param pNewNode pointer to the new node 
+     *
+     * @param pNewNode pointer to the new node
      * @return global index of new node in tissue
      */
     virtual unsigned AddNode(Node<DIM> *pNewNode)=0;
 
     /**
      * Move the node with a given index to a new point in space.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @param nodeIndex the index of the node to be moved
      * @param rNewLocation the new target location of the node
      */
     virtual void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)=0;
-    
+
     /**
      * Helper method for establishing if a cell is real.
-     * 
+     *
      * @param rCell the cell
      * @return whether a given cell is associated with a ghost node.
      */
     virtual bool IsCellAssociatedWithAGhostNode(TissueCell& rCell);
-    
+
     /**
      * Helper method for establishing if a cell is real.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @param rCell the cell
      * @return whether a given cell is associated with a deleted node.
+     *
+     * As this method is pure virtual, it must be overridden
      */
     virtual bool IsCellAssociatedWithADeletedNode(TissueCell& rCell)=0;
-    
+
     /**
-     * Update the location of each node in the tissue given 
-     * a vector of forces on nodes and a time step over which 
+     * Update the location of each node in the tissue given
+     * a vector of forces on nodes and a time step over which
      * to integrate the equations of motion.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @param rNodeForces  forces on nodes
      * @param dt time step
      */
@@ -222,10 +228,10 @@ public:
 
     /**
      * Get the damping constant for this node - ie d in drdt = F/d.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @param nodeIndex the global index of this node
      * @return the damping constant at the node
      */
@@ -233,8 +239,8 @@ public:
 
     /**
      * Add a new cell to the tissue.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
      * @param rNewCell  the cell to add
@@ -242,22 +248,22 @@ public:
      * @param pParentCell pointer to a parent cell (if required)
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL)=0; 
+    virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL)=0;
 
     class Iterator; // Forward declaration; see below
 
     /**
      * Remove all cells labelled as dead.
-     * 
-     * As this method is pure virtual, it must be overridden 
+     *
+     * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @return number of cells removed
      */
     virtual unsigned RemoveDeadCells()=0;
 
     /**
-     * Remove the Nodes (for cell-centre) or VertexElements (for cell-vertex) which 
+     * Remove the Nodes (for cell-centre) or VertexElements (for cell-vertex) which
      * have been marked as deleted and update the correspondence with TissueCells.
      */
     virtual void Update()=0;
@@ -303,11 +309,11 @@ public:
     c_vector<unsigned, 5> GetCellCyclePhaseCount();
 
     /**
-     * Find if a given node is a ghost node. The abstract method always returns false 
+     * Find if a given node is a ghost node. The abstract method always returns false
      * but is overridden in subclasses.
-     * 
+     *
      * @param index the global index of a specified node
-     * 
+     *
      * @return whether the node is a ghost node
      */
     virtual bool IsGhostNode(unsigned index);
@@ -338,21 +344,21 @@ public:
      *  An assertion fails if not.
      */
     TissueCell& rGetCellUsingLocationIndex(unsigned index);
-    
+
     /**
-     * If the tissue contains a mesh, write this to file. For use by 
+     * If the tissue contains a mesh, write this to file. For use by
      * the TissueSimulationArchiver. Must be overridden in each subclass
      * that contains a mesh.
-     * 
+     *
      * @param rArchiveDirectory directory in which archive is stored
      * @param rMeshFileName base name for mesh files
      */
     virtual void WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName);
-        
+
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.
-     * 
+     *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
      * @param rCleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
      * @param outputCellMutationStates  whether to create a cell mutation state results file
@@ -378,7 +384,7 @@ public:
 
     /**
      * Write the current time and node results to output files.
-     * 
+     *
      * @param outputCellMutationStates  whether to output cell mutation state results
      * @param outputCellTypes  whether to output cell type results
      * @param outputCellVariables  whether to output cell-cycle variable results
@@ -399,7 +405,7 @@ public:
 
     /**
      * Generate results for a given cell in the current tissue state to output files.
-     * 
+     *
      * @param locationIndex location index of the cell
      * @param outputCellMutationStates  whether to output cell mutation state results
      * @param outputCellTypes  whether to output cell type results
@@ -422,7 +428,7 @@ public:
 
     /**
      * Write the current state of each cell to output files.
-     * 
+     *
      * @param outputCellMutationStates  whether to output cell mutation state results
      * @param outputCellTypes  whether to output cell type results
      * @param outputCellVariables  whether to output cell-cycle variable results
@@ -443,7 +449,7 @@ public:
 
     /**
      * Close any output files.
-     * 
+     *
      * @param outputCellMutationStates  whether a cell mutation state results file is open
      * @param outputCellTypes  whether a cell type results file is open
      * @param outputCellVariables  whether a cell-cycle variable results file is open
@@ -518,9 +524,6 @@ public:
 
         /** Cell iterator member. */
         std::list<TissueCell>::iterator mCellIter;
-
-        /** Location index member. */
-        unsigned mLocationIndex;
     };
 
     /**
@@ -563,9 +566,11 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     {
         /// \todo Check it points to a real cell (see #430),
         /// if not do:
-        /// it = this->mCells.erase(it); --it; continue; 
-        unsigned index = it->GetLocationIndex();
+        /// it = this->mCells.erase(it); --it; continue;
+        /// (or never create it in the first place...)
+        unsigned index = it->GetLocationIndex();    /// \todo #877 - This line to be removed and this info provided as an input.
         mLocationCellMap[index] = &(*it);
+        mCellLocationMap[&(*it)] = index;
     }
 
     // Initialise cell counts to zero
@@ -634,7 +639,7 @@ void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
 {
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        cell_iter->SetAncestor(cell_iter->GetLocationIndex());
+        cell_iter->SetAncestor( mCellLocationMap[&(*cell_iter)] );
     }
 }
 
@@ -715,10 +720,6 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
     do
     {
         ++mCellIter;
-        if (!IsAtEnd())
-        {
-            mLocationIndex = mCellIter->GetLocationIndex();
-        }
     }
     while (!IsAtEnd() && !IsRealCell());
 
@@ -728,7 +729,7 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
-    return !(    mrTissue.IsCellAssociatedWithAGhostNode(*mCellIter) 
+    return !(    mrTissue.IsCellAssociatedWithAGhostNode(*mCellIter)
               || mrTissue.IsCellAssociatedWithADeletedNode(*mCellIter)
               || (*this)->IsDead() );
 }
@@ -746,10 +747,7 @@ AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<Tissu
 {
     // Make sure the tissue isn't empty
     assert(mrTissue.rGetCells().size() > 0);
-    if (!IsAtEnd())
-    {
-        mLocationIndex = cellIter->GetLocationIndex();
-    }
+
     // Make sure we start at a real cell
     if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())
     {
@@ -775,7 +773,7 @@ typename AbstractTissue<DIM>::Iterator AbstractTissue<DIM>::End()
 
 template<unsigned DIM>
 void AbstractTissue<DIM>::WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName)
-{    
+{
 }
 
 template<unsigned DIM>
@@ -790,7 +788,7 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpVizCellTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
-    
+
     if (outputCellAncestors)
     {
         mpCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizancestors");
@@ -823,7 +821,7 @@ void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
 {
     mpVizNodesFile->close();
     mpVizCellTypesFile->close();
-    
+
     if (outputCellMutationStates)
     {
         mpCellMutationStatesFile->close();
@@ -863,9 +861,9 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         colour = INVISIBLE_COLOUR;
     }
     else
-    {            
+    {
         TissueCell* p_cell = mLocationCellMap[locationIndex];
-        
+
         // Cell cycle phase
         if (outputCellCyclePhases)
         {
@@ -890,7 +888,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
                     NEVER_REACHED;
             }
         }
-        
+
         // Cell ancestors
         if (outputCellAncestors)
         {
@@ -903,7 +901,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
             }
             *mpCellAncestorsFile << colour << " ";
         }
-    
+
         // Set colour dependent on cell type
         switch (p_cell->GetCellType())
         {
@@ -938,8 +936,8 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
             default:
                 NEVER_REACHED;
         }
-    
-        // Override colours for mutant or labelled cells        
+
+        // Override colours for mutant or labelled cells
         CellMutationState mutation = p_cell->GetMutationState();
         switch (mutation)
         {
@@ -980,13 +978,13 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
             default:
                 NEVER_REACHED;
         }
-    
+
         if (p_cell->HasApoptosisBegun())
         {
             // For any type of cell set the colour to this if it is undergoing apoptosis.
             colour = APOPTOSIS_COLOUR;
         }
-    
+
         // Write cell variable data to file if required
         if (outputCellVariables)
         {
@@ -994,8 +992,8 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
 
             // Loop over cell positions
             /// \todo Note that the output format of mpCellVariablesFile has changed, it now
-            //        outputs the location index (either node index or vertex element index) 
-            //        associated with the cell. This is so that this code works for vertex- 
+            //        outputs the location index (either node index or vertex element index)
+            //        associated with the cell. This is so that this code works for vertex-
             //        as well as cell-centre-based tissues (see #827).
             for (unsigned i=0; i<DIM; i++)
             {
@@ -1022,7 +1020,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(bool outputCellMutationStates,
                                                   std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     *mpVizCellTypesFile << "\n";
-    
+
     if (outputCellAncestors)
     {
         *mpCellAncestorsFile << "\n";
@@ -1080,10 +1078,10 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetTime();
-    
+
     *mpVizNodesFile << time << "\t";
     *mpVizCellTypesFile << time << "\t";
-    
+
     if (outputCellAncestors)
     {
         *mpCellAncestorsFile << time << "\t";
@@ -1104,7 +1102,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
     {
         *mpCellCyclePhasesFile << time << "\t";
     }
-    
+
     // Set up cell type counter
     rCellTypeCounter.reserve(mCellTypeCount.size());
     for (unsigned i=0; i<NUM_CELL_TYPES; i++)
@@ -1125,7 +1123,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
     {
         rCellCyclePhaseCounter[i] = 0;
     }
-   
+
     // Write node data to file
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
     {

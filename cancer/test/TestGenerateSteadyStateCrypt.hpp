@@ -60,7 +60,7 @@ public:
         std::string output_directory = "SteadyStateCrypt";
 
         double end_of_simulation = 150.0; // hours
-        double time_of_each_run = 50.0; // for each run
+        double time_of_each_run = 10.0; // for each run - the more saves and loads the better for testing this
 
         unsigned cells_across = 13;
         unsigned cells_up = 25;
@@ -88,7 +88,7 @@ public:
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory(output_directory);
 

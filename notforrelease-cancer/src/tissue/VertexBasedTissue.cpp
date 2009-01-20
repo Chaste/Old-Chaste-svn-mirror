@@ -36,7 +36,7 @@ VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
     : AbstractTissue<DIM>(rCells),
       mrMesh(rMesh),
       mDeleteMesh(deleteMesh)
-{    
+{
     // This must always be true
     assert( this->mCells.size() == mrMesh.GetNumElements() );
 
@@ -93,7 +93,7 @@ const VertexMesh<DIM, DIM>& VertexBasedTissue<DIM>::rGetMesh() const
 template<unsigned DIM>
 VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElement(unsigned elementIndex)
 {
-    return mrMesh.GetElement(elementIndex);    
+    return mrMesh.GetElement(elementIndex);
 }
 
 
@@ -126,9 +126,9 @@ void VertexBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewL
 
 
 template<unsigned DIM>
-VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElementCorrespondingToCell(const TissueCell& rCell)
+VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElementCorrespondingToCell(TissueCell* pCell)
 {
-    return mrMesh.GetElement(rCell.GetLocationIndex());
+    return mrMesh.GetElement(this->mCellLocationMap[pCell]);
 }
 
 
@@ -143,51 +143,51 @@ template<unsigned DIM>
 TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
 //    // Get the element associated with this cell
-//    unsigned element_index = GetElementCorrespondingToCell(rNewCell);    
+//    unsigned element_index = GetElementCorrespondingToCell(rNewCell);
 //    VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(element_index);
 //
 //    // Get the node indices owned by this element
 //    std::set<unsigned> node_indices;
 //    for (unsigned local_index=0; local_index<p_element->GetNumNodes(); local_index++)
 //    {
-//        node_indices.insert(p_element->GetNodeGlobalIndex(local_index));        
+//        node_indices.insert(p_element->GetNodeGlobalIndex(local_index));
 //    }
 //
-//    // Using this element's centroid and short axis, compute 
+//    // Using this element's centroid and short axis, compute
 //    // the locations of two new nodes
 //    std::vector<c_vector<double, DIM> > new_node_locations;
-//    /// \todo Add method for computing new node locations here    
+//    /// \todo Add method for computing new node locations here
 //    c_vector<double, DIM> newLocation1 = new_node_locations[0];
 //    c_vector<double, DIM> newLocation2 = new_node_locations[1];
-//    
+//
 //    // Create the two new nodes
 //    Node<DIM>* p_new_node1 = new Node<DIM>(this->GetNumNodes(), newLocation1, false);
 //    unsigned new_node1_index = AddNode(p_new_node1);
-//    
+//
 //    Node<DIM>* p_new_node2 = new Node<DIM>(this->GetNumNodes(), newLocation2, false);
 //    unsigned new_node1_index = AddNode(p_new_node1);
-//    
+//
 //    /// \todo might the new nodes be on the boundary?
 //
 //    // Update the nodes owned by the existing element
 //
 //    // Add a new element to the mesh, which shared these two nodes
 //    std::vector<Node<SPACE_DIM>*> nodes_in_new_element;
-//    
+//
 //    /// \todo Write code to put nodes belonging to new element into the above vector
-//    
+//
 //    VertexElement<DIM, DIM>* p_element = new VertexElement<DIM, DIM>(GetNumElements(), nodes_in_new_element);
 //
 //    // Associate the new cell with the element
-//    newCell.SetLocationIndex(new_element_index);
 //    this->mCells.push_back(rNewCell);
 //
 //    // Update location cell map
 //    TissueCell *p_created_cell = &(this->mCells.back());
 //    this->mLocationCellMap[new_element_index] = p_created_cell;
+//    this->mCellLocationMap[p_created_cell] = new_element_index;
 //
 //    return p_created_cell;
-//    
+//
     return NULL; /// \todo put code for adding a cell here (see #852)
 }
 
@@ -198,7 +198,7 @@ unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
     unsigned num_removed = 0;
 
     /// \todo put code for removing dead cells here (see #853)
-    
+
     return num_removed;
 }
 
@@ -207,14 +207,14 @@ template<unsigned DIM>
 void VertexBasedTissue<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
 {
     // Iterate over all nodes associated with real cells to update their positions
-    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++) 
-    {        
+    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
+    {
         // Get damping constant for node
         double damping_const = this->GetDampingConstant(node_index);
-                
+
         // Get new node location
         c_vector<double, DIM> new_node_location = this->GetNode(node_index)->rGetLocation() + dt*rNodeForces[node_index]/damping_const;
-            
+
         // Create ChastePoint for new node location
         ChastePoint<DIM> new_point(new_node_location);
 
@@ -227,14 +227,14 @@ void VertexBasedTissue<DIM>::UpdateNodeLocations(const std::vector< c_vector<dou
 template<unsigned DIM>
 bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell& rCell)
 {
-    return false;    
+    return false;
 }
 
 
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::Update()
 {
-    /// \todo Thought about creating an ElementMap class, but it looks like 
+    /// \todo Thought about creating an ElementMap class, but it looks like
     //        we can just hijack NodeMap for our purposes... in fact, what *is*
     //        specific to Nodes in NodeMap?? (see #827)
     NodeMap element_map(mrMesh.GetNumElements());
@@ -243,18 +243,21 @@ void VertexBasedTissue<DIM>::Update()
     if (!element_map.IsIdentityMap())
     {
         // Fix up the mappings between TissueCells and VertexElements
+        std::map<TissueCell*, unsigned> old_map = this->mCellLocationMap;
+
+        this->mCellLocationMap.clear();
         this->mLocationCellMap.clear();
-        
+
         for (std::list<TissueCell>::iterator cell_iter = this->mCells.begin();
              cell_iter != this->mCells.end();
              ++cell_iter)
         {
-            unsigned old_elem_index = GetElementCorrespondingToCell(*cell_iter)->GetIndex();
+            unsigned old_elem_index = old_map[&(*cell_iter)];
             assert(!element_map.IsDeleted(old_elem_index));
-            
             unsigned new_elem_index = element_map.GetNewIndex(old_elem_index);
-            cell_iter->SetLocationIndex(new_elem_index);
+
             this->mLocationCellMap[new_elem_index] = &(*cell_iter);
+            this->mCellLocationMap[&(*cell_iter)] = new_elem_index;
         }
     }
 
@@ -272,7 +275,7 @@ void VertexBasedTissue<DIM>::Validate()
          cell_iter!=this->End();
          ++cell_iter)
     {
-        unsigned elem_index = GetElementCorrespondingToCell(*cell_iter)->GetIndex();
+        unsigned elem_index = GetElementCorrespondingToCell(&(*cell_iter))->GetIndex();
         validated_element[elem_index] = true;
     }
 
@@ -296,7 +299,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                                  bool outputCellAncestors)
 {
     std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
-    
+
     this->WriteTimeAndNodeResultsToFiles(outputCellMutationStates,
                                          outputCellTypes,
                                          outputCellVariables,
@@ -305,7 +308,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                          cell_type_counter,
                                          cell_mutation_state_counter,
                                          cell_cycle_phase_counter);
-       
+
     // Write element data to file
     *mpElementFile << SimulationTime::Instance()->GetTime() << "\t";
     for (unsigned elem_index=0; elem_index<GetNumElements(); elem_index++)
@@ -326,7 +329,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     *mpElementFile << "\n";
 
     for (unsigned elem_index=0; elem_index<GetNumElements(); elem_index++)
-    {       
+    {
         if (!(mrMesh.GetElement(elem_index)->IsDeleted()))
         {
             this->GenerateCellResults(elem_index,
@@ -340,7 +343,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                       cell_cycle_phase_counter);
         }
     }
-    
+
     this->WriteCellResultsToFiles(outputCellMutationStates,
                                   outputCellTypes,
                                   outputCellVariables,

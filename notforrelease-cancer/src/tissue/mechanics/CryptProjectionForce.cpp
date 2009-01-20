@@ -55,10 +55,10 @@ void CryptProjectionForce::UpdateNode3dLocationMap(AbstractTissue<2>& rTissue)
          ++cell_iter)
     {
         // Get node index
-        unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+        unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
 
         // Get 3D location
-        node_location_2d = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+        node_location_2d = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetLocationOfCell(&(*cell_iter));
 
         node_location_3d[0] = node_location_2d[0];
         node_location_3d[1] = node_location_2d[1];
@@ -96,17 +96,17 @@ double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(c_vector<dou
 
 c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<2>& rTissue)
 {
-    assert(rTissue.HasMesh());    
-    
+    assert(rTissue.HasMesh());
+
     // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
-    
+
     // Get the node locations in 2D
     c_vector<double,2> node_a_location_2d = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
     c_vector<double,2> node_b_location_2d = rTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
 
     // "Get the unit vector parallel to the line joining the two nodes" [MeinekeInteractionForce]
-    
+
     // Create a unit vector in the direction of the 3D spring
     c_vector<double,3> unit_difference = mNode3dLocationMap[nodeBGlobalIndex] - mNode3dLocationMap[nodeAGlobalIndex];
 
@@ -114,11 +114,11 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     double distance_between_nodes = norm_2(unit_difference);
     assert(distance_between_nodes > 0);
     assert(!isnan(distance_between_nodes));
-    
+
     unit_difference /= distance_between_nodes;
 
-    // If mUseCutoffPoint has been set, then there is zero force between 
-    // two nodes located a distance apart greater than mUseCutoffPoint 
+    // If mUseCutoffPoint has been set, then there is zero force between
+    // two nodes located a distance apart greater than mUseCutoffPoint
     if (this->mUseCutoffPoint)
     {
         if (distance_between_nodes >= this->mCutoffPoint)
@@ -127,14 +127,14 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
             return zero_vector<double>(2);
         }
     }
-    
+
     // Calculate the rest length of the spring connecting the two nodes
-    
+
     double rest_length = 1.0;
-    
+
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
-    
+
     assert(!isnan(ageA));
     assert(!isnan(ageB));
 
@@ -166,7 +166,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
-    // If either of the cells has begun apoptosis, then the length of the spring 
+    // If either of the cells has begun apoptosis, then the length of the spring
     // connecting them decreases linearly with time
     if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
@@ -178,24 +178,24 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
         double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
         b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
     }
-    
+
     rest_length = a_rest_length + b_rest_length;
-    
+
     // Assert that the rest length does not exceed 1
     assert(rest_length <= 1.0+1e-12);
 
     bool is_closer_than_rest_length = true;
-    
+
     if (distance_between_nodes - rest_length >0)
     {
         is_closer_than_rest_length = false;
     }
-           
-    // Although in this class the 'spring constant' is a constant parameter, in 
+
+    // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
     double multiplication_factor = 1.0;
     multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
-    
+
     // Calculate the 3D force between the two points
     c_vector<double,3> force_between_nodes = multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 
@@ -256,7 +256,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
             if (cell_iter->GetCellType()==STEM)
             {
                 c_vector<double, 2>  wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
-                unsigned index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+                unsigned index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
 
                 rForces[index] += wnt_chemotactic_force;
             }

@@ -86,7 +86,7 @@ private:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex(), counter);
+            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex(), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -139,28 +139,28 @@ public:
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh);
-        
+
         // Give cells 0 and 1 specific mutations to enable later testing
         cells[0].SetMutationState(LABELLED);
         cells[1].SetMutationState(APC_ONE_HIT);
-        
+
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
-        
+
         // Create cell pair
         std::set<TissueCell*> cell_pair = tissue.CreateCellPair(cells[0], cells[1]);
 
-        // Check the cell pair was created correctly        
+        // Check the cell pair was created correctly
         std::set<TissueCell*>::iterator cell_pair_iter = cell_pair.begin();
-        
+
         TissueCell* p_cell0 = *cell_pair_iter;
         TS_ASSERT_EQUALS(p_cell0->GetMutationState(), LABELLED);
-        
-        ++cell_pair_iter;        
+
+        ++cell_pair_iter;
         TissueCell* p_cell1 = *cell_pair_iter;
         TS_ASSERT_EQUALS(p_cell1->GetMutationState(), APC_ONE_HIT);
     }
-    
+
     void TestAreaBasedDampingConstant()
     {
         // Create a simple mesh
@@ -181,26 +181,26 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         TS_ASSERT_EQUALS(tissue.UseAreaBasedDampingConstant(), false);
-        
+
         double damping_const = tissue.GetDampingConstant(8);
-        
+
         TS_ASSERT_DELTA(damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);
-        
+
         double mutant_damping_const = tissue.GetDampingConstant(9);
-        
+
         TS_ASSERT_DELTA(mutant_damping_const, CancerParameters::Instance()->GetDampingConstantMutant(), 1e-6);
 
         tissue.SetAreaBasedDampingConstant(true);
 
         TS_ASSERT_EQUALS(tissue.UseAreaBasedDampingConstant(), true);
-        
+
         // Note that this method is usually called by TissueSimulation::Solve()
         tissue.CreateVoronoiTessellation();
-        
+
         double area_based_damping_const = tissue.GetDampingConstant(8);
-        
+
         // Since the tissue is in equilibrium, we should get the same damping constant as before
-        TS_ASSERT_DELTA(area_based_damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);        
+        TS_ASSERT_DELTA(area_based_damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);
     }
 
     /*
@@ -284,7 +284,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned node_index = tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+            unsigned node_index = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
             TS_ASSERT_EQUALS(is_ghost_node[node_index], false);
             counter++;
         }
@@ -317,11 +317,11 @@ public:
 
         // Move node 0 by a small amount
         AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-        c_vector<double,2> new_location = tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+        c_vector<double,2> new_location = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation();
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
-        tissue.SetNode(tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex(), new_location_point);
+        tissue.SetNode(tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex(), new_location_point);
 
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
@@ -356,9 +356,9 @@ public:
 
         // Check the index of the new cell
         TissueCell& new_cell = tissue.rGetCells().back();
-        TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(new_cell)->GetIndex(), old_num_nodes);
+        TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(&new_cell)->GetIndex(), old_num_nodes);
     }
-    
+
     void TestAreaBasedVisocityOnAPeriodicMesh() throw (Exception)
     {
         // Set up the simulation time
@@ -464,7 +464,7 @@ public:
              ++cell_iter)
         {
             // Record node index corresponding to cell
-            unsigned node_index = tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+            unsigned node_index = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
             node_indices.insert(node_index);
         }
 
@@ -556,7 +556,7 @@ public:
              ++cell_iter)
         {
             // Record node index corresponding to cell
-            unsigned node_index_with_ghost_nodes = tissue_with_ghost_nodes.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+            unsigned node_index_with_ghost_nodes = tissue_with_ghost_nodes.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
             node_indices_with_ghost_nodes.insert(node_index_with_ghost_nodes);
         }
 
@@ -810,10 +810,10 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(spring_iterator.rGetCellA())->GetIndex(),
+            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(&(spring_iterator.rGetCellA()))->GetIndex(),
                              spring_iterator.GetNodeA()->GetIndex());
 
-            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(spring_iterator.rGetCellB())->GetIndex(),
+            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(&(spring_iterator.rGetCellB()))->GetIndex(),
                              spring_iterator.GetNodeB()->GetIndex());
         }
 
@@ -860,10 +860,10 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(spring_iterator.rGetCellA())->GetIndex(),
+            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(&(spring_iterator.rGetCellA()))->GetIndex(),
                              spring_iterator.GetNodeA()->GetIndex());
 
-            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(spring_iterator.rGetCellB())->GetIndex(),
+            TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(&(spring_iterator.rGetCellB()))->GetIndex(),
                              spring_iterator.GetNodeB()->GetIndex());
         }
 
@@ -918,11 +918,11 @@ public:
              ++cell_iter)
         {
             // Record node location
-            c_vector<double,2> node_location = tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+            c_vector<double,2> node_location = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation();
 
             // Test GetLocationOfCell()
-            TS_ASSERT_DELTA(node_location[0], tissue.GetLocationOfCell(*cell_iter)[0], 1e-9);
-            TS_ASSERT_DELTA(node_location[1], tissue.GetLocationOfCell(*cell_iter)[1], 1e-9);
+            TS_ASSERT_DELTA(node_location[0], tissue.GetLocationOfCell(&(*cell_iter))[0], 1e-9);
+            TS_ASSERT_DELTA(node_location[1], tissue.GetLocationOfCell(&(*cell_iter))[1], 1e-9);
         }
     }
 
@@ -968,7 +968,7 @@ public:
 
             // Set area-based viscosity
             p_tissue->SetAreaBasedDampingConstant(true);
-            
+
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -996,7 +996,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
 
-            // The following line is required because the loading of a tissue 
+            // The following line is required because the loading of a tissue
             // is usually called by the method TissueSimulation::Load()
             MeshArchiveInfo::meshPathname = "mesh/test/data/square_4_elements";
 
@@ -1052,11 +1052,11 @@ public:
 
         // Mark some springs
         tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
-        
+
         // Unmark and re-mark spring (for coverage)
-        tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));        
+        tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
         tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
-        
+
         tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(3), tissue.rGetCellUsingLocationIndex(4));
 
         // Check if springs are marked
@@ -1078,9 +1078,9 @@ public:
         AbstractTissue<2>::Iterator it=tissue.Begin();
         ++it;
         ++it;
-        TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(*it)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(tissue.GetNodeCorrespondingToCell(&(*it))->GetIndex(), 2u);
         ChastePoint<2> new_location(1, 10);
-        tissue.SetNode(tissue.GetNodeCorrespondingToCell(*it)->GetIndex(), new_location);
+        tissue.SetNode(tissue.GetNodeCorrespondingToCell(&(*it))->GetIndex(), new_location);
 
         // Update tissue
         tissue.Update();
@@ -1118,7 +1118,7 @@ public:
              cell_iter!=tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex());
+            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex());
             counter ++;
         }
         TS_ASSERT_EQUALS(counter, 5u);

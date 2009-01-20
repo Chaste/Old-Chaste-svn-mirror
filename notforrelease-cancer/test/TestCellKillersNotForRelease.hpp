@@ -42,8 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCancerTestSuite.hpp"
 
 /**
- * This class contains tests for methods on classes 
- * inheriting from AbstractCellKiller that are not 
+ * This class contains tests for methods on classes
+ * inheriting from AbstractCellKiller that are not
  * yet ready for release.
  */
 class TestCellKillersNotForRelease : public AbstractCancerTestSuite
@@ -75,7 +75,7 @@ public:
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh);
-        
+
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
@@ -88,7 +88,7 @@ public:
             cell_iter!=tissue.End();
             ++cell_iter)
         {
-            double r = norm_2(tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation() - centre);
+            double r = norm_2(tissue.GetLocationOfCell(&(*cell_iter)) - centre);
 
             if (r > radius)
             {
@@ -108,21 +108,21 @@ public:
             cell_iter!=tissue.End();
             ++cell_iter)
         {
-            double r = norm_2(tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation() - centre);
+            double r = norm_2(tissue.GetLocationOfCell(&(*cell_iter)) - centre);
             TS_ASSERT_LESS_THAN_EQUALS(r, radius);
         }
     }
 
     void TestOxygenBasedCellKiller(void) throw(Exception)
     {
-        // Set up        
+        // Set up
         CancerParameters::Instance()->SetHepaOneParameters();
-        
+
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;
         int num_timesteps = 100*(int)end_time; // ensure the time step is not too small
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
-        
+
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
@@ -132,7 +132,7 @@ public:
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh);
-        
+
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
@@ -180,7 +180,7 @@ public:
         {
             if (!cell_iter->IsDead())
             {
-                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
@@ -196,7 +196,7 @@ public:
              ++cell_iter)
         {
             TS_ASSERT(!cell_iter->IsDead());
-            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }
@@ -253,7 +253,7 @@ public:
             TS_ASSERT_DELTA(p_cell_killer->GetCentre()[0], 0.1, 1e-9);
             TS_ASSERT_DELTA(p_cell_killer->GetCentre()[1], 0.2, 1e-9);
             TS_ASSERT_DELTA(p_cell_killer->GetRadius(), 0.4, 1e-9);
-            
+
             delete p_cell_killer;
         }
     }

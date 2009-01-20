@@ -246,7 +246,7 @@ public:
             TS_ASSERT_DELTA(p_wnt->GetWntLevel(&(*cell_iter)), wnt_at_cell0, 1e-12);
 
             // Test GetWntGradient(TissueCell*) method
-            c_vector<double,2> cell_location = crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+            c_vector<double,2> cell_location = crypt.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation();
             double r = norm_2(cell_location);
 
             c_vector<double,2> expected_wnt_gradient;
@@ -382,7 +382,7 @@ public:
             const WntCellCycleModel* p_model = (WntCellCycleModel*) iter->GetCellCycleModel();
             std::vector<double> proteins = p_model->GetProteinConcentrations();
 
-            if (crypt.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1]==0.0)
+            if (crypt.GetLocationOfCell(&(*iter))[1]==0.0)
             {
                 TS_ASSERT_DELTA(proteins[5], 4.975124378109454e-03, 1e-3);
                 TS_ASSERT_DELTA(proteins[6]+proteins[7], 6.002649406788524e-01, 1e-3);
@@ -390,7 +390,7 @@ public:
             }
             else
             {
-                TS_ASSERT_DELTA(crypt.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1], 1.0, 1e-12);
+                TS_ASSERT_DELTA(crypt.GetLocationOfCell(&(*iter))[1], 1.0, 1e-12);
                 TS_ASSERT_DELTA(proteins[5], 1.000, 1e-3);
                 TS_ASSERT_DELTA(proteins[6]+proteins[7], 0.0074, 1e-3);
                 TS_ASSERT_DELTA(proteins[8], 0.00, 1e-3);

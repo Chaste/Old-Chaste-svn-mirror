@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCancerTestSuite.hpp"
 
 /**
- * This class contains tests for methods on classes 
+ * This class contains tests for methods on classes
  * inheriting from AbstractCellKiller.
  */
 class TestCellKillers : public AbstractCancerTestSuite
@@ -53,7 +53,7 @@ public:
         // Set up
         CancerParameters *p_params = CancerParameters::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        
+
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
@@ -74,7 +74,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue, -0.1));
         TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue,  1.1));
 
-        // Create cell killer 
+        // Create cell killer
         RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
 
         // Check that a single cell reaches apoptosis
@@ -118,7 +118,7 @@ public:
         {
             if (!cell_iter->IsDead())
             {
-                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
@@ -134,7 +134,7 @@ public:
              ++cell_iter)
         {
             TS_ASSERT(!cell_iter->IsDead());
-            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }
@@ -153,12 +153,12 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.25,-0.25);
-        
+
         // Create cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh);
-        
+
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
@@ -174,8 +174,8 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double x = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[0];
-            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
+            double x = tissue.GetLocationOfCell(&(*iter))[0];
+            double y = tissue.GetLocationOfCell(&(*iter))[1];
 
             if ( (x<0) || (x>0.5) || (y>0.5))
             {
@@ -193,8 +193,8 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double x = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[0];
-            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
+            double x = tissue.GetLocationOfCell(&(*iter))[0];
+            double y = tissue.GetLocationOfCell(&(*iter))[1];
 
             TS_ASSERT_LESS_THAN_EQUALS(x, 0.5);
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
@@ -239,7 +239,7 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
+            double y = tissue.GetLocationOfCell(&(*iter))[1];
             if (y>0.5)
             {
                 TS_ASSERT_EQUALS(iter->IsDead(), true);
@@ -256,7 +256,7 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double y = tissue.GetNodeCorrespondingToCell(*iter)->rGetLocation()[1];
+            double y = tissue.GetLocationOfCell(&(*iter))[1];
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
     }
@@ -294,7 +294,7 @@ public:
 
             // Test we have restored the probability correctly
             TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
-            
+
             delete p_cell_killer;
         }
     }
@@ -342,7 +342,7 @@ public:
 
             // Test we have restored the sloughing properties correctly
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
-            
+
             delete p_cell_killer;
         }
     }

@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "MeshBasedTissueWithGhostNodes.hpp"
 
-/// \todo 
+/// \todo
 /// Make this constructor take in ghost nodes, and validate the three objects
 /// are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
 /// *cannot* be cells, making it more difficult to construct the cells.
@@ -67,7 +67,7 @@ bool MeshBasedTissueWithGhostNodes<DIM>::IsGhostNode(unsigned index)
 template<unsigned DIM>
 bool MeshBasedTissueWithGhostNodes<DIM>::IsCellAssociatedWithAGhostNode(TissueCell& rCell)
 {
-    return this->mIsGhostNode[rCell.GetLocationIndex()];
+    return this->mIsGhostNode[ this->mCellLocationMap[&rCell] ];
 }
 
 template<unsigned DIM>
@@ -160,7 +160,7 @@ c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenN
     c_vector<double, DIM> node_a_location = this->GetNode(rNodeAGlobalIndex)->rGetLocation();
     c_vector<double, DIM> node_b_location = this->GetNode(rNodeBGlobalIndex)->rGetLocation();
 
-    // There is reason not to substract one position from the other (cylindrical meshes)
+    // There is reason not to subtract one position from the other (cylindrical meshes)
     unit_difference = this->mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);
 
     double distance_between_nodes = norm_2(unit_difference);
@@ -179,7 +179,7 @@ TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell& rNewCell, c_
     TissueCell *p_created_cell = MeshBasedTissue<DIM>::AddCell(rNewCell, newLocation, pParentCell);
 
     // Update size of mIsGhostNode if necessary
-    unsigned new_node_index = p_created_cell->GetLocationIndex();
+    unsigned new_node_index = this->mCellLocationMap[p_created_cell];
 
     if (this->GetNumNodes() > this->mIsGhostNode.size())
     {
@@ -197,7 +197,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::Validate()
     std::vector<bool> validated_node = mIsGhostNode;
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = cell_iter->GetLocationIndex();
+        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
         validated_node[node_index] = true;
     }
 
@@ -238,7 +238,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
 {
     // First update ghost positions first because they do not affect the real cells
     UpdateGhostPositions(dt);
-        
+
     // Then call the base class method
     AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(rNodeForces, dt);
 }

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "CellwiseData.hpp"
 
-              
+
 template<unsigned DIM>
 TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
                                    std::vector<AbstractForce<DIM>*> forceCollection,
@@ -44,9 +44,9 @@ TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue
                                    AveragedSinksPde<DIM>* pAveragedSinksPde,
                                    bool deleteTissueAndForceCollection,
                                    bool initialiseCells)
-    : TissueSimulation<DIM>(rTissue, 
-                            forceCollection, 
-                            deleteTissueAndForceCollection, 
+    : TissueSimulation<DIM>(rTissue,
+                            forceCollection,
+                            deleteTissueAndForceCollection,
                             initialiseCells),
       mNutrientSolution(NULL),
       mpPde(pPde),
@@ -150,7 +150,7 @@ void TissueSimulationWithNutrients<2>::CreateCoarseNutrientMesh(double coarseGra
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        centre_of_tissue += (static_cast<AbstractCellCentreBasedTissue<2>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+        centre_of_tissue += (static_cast<AbstractCellCentreBasedTissue<2>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter));
     }
     centre_of_tissue /= this->mrTissue.GetNumRealCells();
 
@@ -160,7 +160,7 @@ void TissueSimulationWithNutrients<2>::CreateCoarseNutrientMesh(double coarseGra
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        double radius = norm_2(centre_of_tissue - (static_cast<AbstractCellCentreBasedTissue<2>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation() );
+        double radius = norm_2(centre_of_tissue - (static_cast<AbstractCellCentreBasedTissue<2>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter)));
         if (radius > max_tissue_radius)
         {
             max_tissue_radius = radius;
@@ -208,7 +208,7 @@ void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
         ++cell_iter)
     {
         // Find the element of mpCoarseNutrientMesh that contains this cell
-        const ChastePoint<DIM>& r_position_of_cell = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+        const ChastePoint<DIM>& r_position_of_cell = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation();
         unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
         mCellNutrientElementMap[&(*cell_iter)] = elem_index;
     }
@@ -331,7 +331,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        centre += (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+        centre += (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter));
     }
     centre /= this->mrTissue.GetNumRealCells();
 
@@ -341,7 +341,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        double radius = norm_2(centre - (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation());
+        double radius = norm_2(centre - (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter)));
         if (radius > max_radius)
         {
             max_radius = radius;
@@ -446,7 +446,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 
         Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(elem_index);
 
-        const ChastePoint<DIM>& r_position_of_cell = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+        const ChastePoint<DIM>& r_position_of_cell = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter));
 
         c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
 
@@ -457,7 +457,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
             interpolated_nutrient += nodal_value*weights(i);
         }
 
-        CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter));
+        CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(&(*cell_iter)));
     }
 }
 
@@ -486,7 +486,7 @@ unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCel
     }
 
     // Find new element, using the previous one as a guess
-    const ChastePoint<DIM>& r_cell_position = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(rCell)->rGetLocation();
+    const ChastePoint<DIM>& r_cell_position = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&rCell);
     unsigned new_element_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_cell_position, false, test_elements);
 
     // Update mCellNutrientElementMap
@@ -544,9 +544,9 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
-            global_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
-            x = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
-            y = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
+            global_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+            x = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter))[0];
+            y = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter))[1];
             nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
 
             (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";

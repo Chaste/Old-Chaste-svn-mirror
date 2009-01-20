@@ -83,7 +83,7 @@ private:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex(), counter);
+            TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex(), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -119,12 +119,12 @@ public:
 
         // Get a std::vector of nodes from the mesh
         std::vector<Node<2>* > nodes;
-        
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             nodes.push_back(mesh.GetNode(i));
-        }        
-        
+        }
+
         // Create the tissue
         NodeBasedTissue<2> node_based_tissue(nodes, cells);
 
@@ -145,10 +145,10 @@ public:
         std::vector<TissueCell> cells = SetUpCells(&mesh);
         cells[0].SetLocationIndex(1);
 
-        // Fails as no cell or ghost correponding to node 0
+        // Fails as no cell or ghost corresponding to node 0
         TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(mesh, cells));
     }
-    
+
     void TestAddCellMemoryLeak()
     {
         // Create two nodes
@@ -156,7 +156,7 @@ public:
         point0.rGetLocation()[0] = 0.0;
         point0.rGetLocation()[1] = 0.0;
         Node<2>* p_node0 = new Node<2>(0, point0, false);
-        
+
         ChastePoint<2> point1;
         point1.rGetLocation()[0] = 1.0;
         point1.rGetLocation()[1] = 1.0;
@@ -181,7 +181,7 @@ public:
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(nodes, cells);
-        
+
         // Create a new cell, DON'T set the node index, set birth time=-1
         TissueCell cell2(STEM, HEALTHY, new FixedCellCycleModel());
         cell2.SetBirthTime(-1);
@@ -197,7 +197,7 @@ public:
         delete p_node1;
 
         /// \todo (see #844) the line below fixes the memory leak - how do we do this in the destructor?
-        delete node_based_tissue.mNodes[2]; 
+        delete node_based_tissue.mNodes[2];
     }
 
     void TestSetNodeAndAddCell()
@@ -217,11 +217,11 @@ public:
         // Test SetNode() by moving node 0 by a small amount
 
         AbstractTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
-        c_vector<double,2> new_location = node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+        c_vector<double,2> new_location = node_based_tissue.GetLocationOfCell(&(*cell_iter));
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
-        node_based_tissue.SetNode(node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex(), new_location_point);
+        node_based_tissue.SetNode(node_based_tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex(), new_location_point);
 
         TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
@@ -269,8 +269,8 @@ public:
 
         // Check the index of the new cell
         TissueCell& new_cell = node_based_tissue.rGetCells().back();
-        TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(new_cell)->GetIndex(), old_num_nodes);
-    
+        TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(&new_cell)->GetIndex(), old_num_nodes);
+
         // Tidy up
         delete p_node;
     }
@@ -316,7 +316,7 @@ public:
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetLocationIndex(), index);
+            TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex(), index);
             index++;
         }
     }
@@ -405,7 +405,7 @@ public:
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex());
+            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), node_based_tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex());
             counter ++;
         }
         TS_ASSERT_EQUALS(counter, 5u);
@@ -446,11 +446,11 @@ public:
              ++cell_iter)
         {
             // Record node location
-            c_vector<double, 2> node_location = node_based_tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+            c_vector<double, 2> node_location = node_based_tissue.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation();
 
             // Test GetLocationOfCell()
-            TS_ASSERT_DELTA(node_location[0], node_based_tissue.GetLocationOfCell(*cell_iter)[0], 1e-9);
-            TS_ASSERT_DELTA(node_location[1], node_based_tissue.GetLocationOfCell(*cell_iter)[1], 1e-9);
+            TS_ASSERT_DELTA(node_location[0], node_based_tissue.GetLocationOfCell(&(*cell_iter))[0], 1e-9);
+            TS_ASSERT_DELTA(node_location[1], node_based_tissue.GetLocationOfCell(&(*cell_iter))[1], 1e-9);
         }
     }
 
@@ -678,7 +678,7 @@ public:
             delete p_tissue;
         }
     }
-    
+
 };
 
 #endif /*TESTNODEBASEDTISSUE_HPP_*/

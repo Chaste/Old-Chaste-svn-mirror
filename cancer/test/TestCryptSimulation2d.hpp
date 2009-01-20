@@ -287,7 +287,7 @@ public:
              TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
              if (cell_iter->GetCellType() == DIFFERENTIATED)
              {
-                std::cout << cell_iter->GetLocationIndex() << "\n" << std::flush;
+                std::cout << crypt.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex() << "\n" << std::flush;
              }
         }
 
@@ -695,7 +695,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1]);
+            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation()[1]);
         }
 
         c_vector<unsigned,5> cell_mutation_state_count = simulator.GetCellMutationStateCount();
@@ -803,7 +803,7 @@ public:
 
         NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles(1e-15));
-        
+
         NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.vizcelltypes");
         TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
 
@@ -1118,17 +1118,17 @@ public:
 
         //Move the first cell (which should be on y=0) down a bit
         AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
-        assert(crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1] == 0.0);
+        assert(crypt.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation()[1] == 0.0);
 
         // Move the cell (can't use the iterator for this as it is const)
         crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[1] = -0.1;
-        assert(crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1] < 0.0);
+        assert(crypt.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation()[1] < 0.0);
 
         simulator.Solve();
 
         //The cell should have been pulled up, but not above y=0. However it should
         // then been moved to above y=0 by the jiggling
-        TS_ASSERT_LESS_THAN(0.0, crypt.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1]);
+        TS_ASSERT_LESS_THAN(0.0, crypt.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation()[1]);
     }
 
 
@@ -1247,14 +1247,14 @@ public:
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizancestors";
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
-        
+
         NumericFileComparison comp_nodes(results_file1, "cancer/test/data/AncestorCrypt/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles());
         NumericFileComparison comp_ans(results_file2, "cancer/test/data/AncestorCrypt/results.vizancestors");
         TS_ASSERT(comp_ans.CompareFiles());
         NumericFileComparison comp_celltypes(results_file3, "cancer/test/data/AncestorCrypt/results.vizcelltypes");
         TS_ASSERT(comp_celltypes.CompareFiles());
-        
+
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/AncestorCrypt/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file3 + " cancer/test/data/AncestorCrypt/results.vizcelltypes").c_str()), 0);

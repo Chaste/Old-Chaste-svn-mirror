@@ -93,7 +93,7 @@ public:
 
         for (unsigned i=0; i<test_section.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(*(test_section[i]))->GetIndex(), expected_indices[i]);
+            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(test_section[i])->GetIndex(), expected_indices[i]);
         }
 
         // Test that we get a valid section when the x-values are the same
@@ -106,7 +106,7 @@ public:
 
         for (unsigned i=0; i<test_section_vertical.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(*(test_section_vertical[i]))->GetIndex(), expected_indices_vertical[i]);
+            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(test_section_vertical[i])->GetIndex(), expected_indices_vertical[i]);
         }
 
         std::vector< TissueCell* > test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
@@ -118,7 +118,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(*(test_section_periodic[i]))->GetIndex(), expected_indices_periodic[i]);
+            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(test_section_periodic[i])->GetIndex(), expected_indices_periodic[i]);
         }
 
         std::vector< TissueCell* > test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
@@ -130,7 +130,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_2.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(*(test_section_periodic_2[i]))->GetIndex(), expected_indices_periodic_2[i]);
+            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(test_section_periodic_2[i])->GetIndex(), expected_indices_periodic_2[i]);
         }
 
         // Test an overwritten method
@@ -142,7 +142,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_3.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(*(test_section_periodic_3[i]))->GetIndex(), expected_indices_periodic_3[i]);
+            TS_ASSERT_EQUALS(crypt.GetNodeCorrespondingToCell(test_section_periodic_3[i])->GetIndex(), expected_indices_periodic_3[i]);
         }
     }
 
@@ -169,11 +169,11 @@ public:
                                             0.3,2.0,3.0,4.0,true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
-        
+
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
         CryptSimulation2d simulator(crypt, force_collection, false, false);
 
         simulator.SetOutputDirectory(output_directory);
@@ -221,7 +221,7 @@ public:
 
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/MakeMeinekeGraphs/results.vizcelltypes").c_str()), 0);
-        
+
         // TEST crypt_statistics::LabelSPhaseCells
 
         // First remove labels

@@ -33,8 +33,8 @@ SloughingCellKiller::SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughS
       mSloughSides(sloughSides)
 {
 }
-    
-    
+
+
 bool SloughingCellKiller::GetSloughSides() const
 {
     return mSloughSides;
@@ -50,8 +50,8 @@ void SloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
          cell_iter != this->mpTissue->End();
          ++cell_iter)
     {
-        double x = (static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
-        double y = (static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
+        double x = (static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetLocationOfCell(&(*cell_iter))[0];
+        double y = (static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetLocationOfCell(&(*cell_iter))[1];
 
         if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
         {

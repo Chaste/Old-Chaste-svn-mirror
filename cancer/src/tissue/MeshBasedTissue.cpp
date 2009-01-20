@@ -113,13 +113,13 @@ double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
     {
         /**
          * We use a linear dependence of the form
-         * 
+         *
          * new_damping_const = old_damping_const * (d0+d1*A)
-         * 
+         *
          * where d0, d1 are parameters, A is the cell's area, and old_damping_const
          * is the damping constant if not using mUseAreaBasedDampingConstant
          */
-        
+
         #define COVERAGE_IGNORE
         assert(DIM==2);
         #undef COVERAGE_IGNORE
@@ -147,7 +147,7 @@ double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 
         damping_multiplier = d0 + area_cell*d1;
     }
-    
+
     return damping_multiplier;
 }
 
@@ -158,7 +158,7 @@ void MeshBasedTissue<DIM>::Validate()
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = cell_iter->GetLocationIndex();
+        unsigned node_index = GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
         validated_node[node_index] = true;
     }
 
@@ -225,11 +225,14 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 
             // Remove the node from the mesh
             num_removed++;
-            mrMesh.DeleteNodePriorToReMesh(it->GetLocationIndex());
+            mrMesh.DeleteNodePriorToReMesh( this->mCellLocationMap[&(*it)] );
             it = this->mCells.erase(it);
+            //this->mLocationCellMap.erase(this->mCellLocationMap[&(*it)]);
+            //this->mCellLocationMap.erase(&(*it));
             --it;
         }
     }
+
     return num_removed;
 }
 
@@ -245,18 +248,25 @@ void MeshBasedTissue<DIM>::Update()
         UpdateGhostNodesAfterReMesh(map);
 
         // Fix up the mappings between cells and nodes
+        std::map<TissueCell*, unsigned> old_map = this->mCellLocationMap;
+        // This removes any dead pointers from the maps
+        // (if we don't do this then archiving is a disaster that won't wait to happen...)
         this->mLocationCellMap.clear();
+        this->mCellLocationMap.clear();
+
         for (std::list<TissueCell>::iterator it = this->mCells.begin();
              it != this->mCells.end();
              ++it)
         {
-            unsigned old_node_index = it->GetLocationIndex();
+            unsigned old_node_index = old_map[&(*it)];
 
             // This shouldn't ever happen, as the cell vector only contains living cells
             assert(!map.IsDeleted(old_node_index));
             unsigned new_node_index = map.GetNewIndex(old_node_index);
-            it->SetLocationIndex(new_node_index);
+
+            // Fix up the mappings between cells and nodes
             this->mLocationCellMap[new_node_index] = &(*it);
+            this->mCellLocationMap[&(*it)] = new_node_index;
         }
     }
 
@@ -270,8 +280,8 @@ void MeshBasedTissue<DIM>::Update()
         assert(r_pair.size() == 2);
         TissueCell* p_cell_1 = *(r_pair.begin());
         TissueCell* p_cell_2 = *(++r_pair.begin());
-        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(*p_cell_1);
-        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(*p_cell_2);
+        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(p_cell_1);
+        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(p_cell_2);
 
         bool joined = false;
 
@@ -305,11 +315,11 @@ void MeshBasedTissue<DIM>::Update()
     }
 
     Validate();
-    
+
     // Tessellate if needed
-    
+
     CancerEventHandler::BeginEvent(TESSELLATION);
-    
+
     if (   GetWriteVoronoiData()
         || UseAreaBasedDampingConstant()
         || GetWriteTissueAreas() )
@@ -337,7 +347,7 @@ void MeshBasedTissue<DIM>::SetBottomCellAncestors()
     unsigned index = 0;
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        if (this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1] < 0.5)
+        if (this->GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation()[1] < 0.5)
         {
             cell_iter->SetAncestor(index++);
         }
@@ -515,9 +525,9 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
     {
         if ((!mFollowLoggedCell) || ((mFollowLoggedCell) && (cell_iter->IsLogged())))
         {
-            unsigned node_index = cell_iter->GetLocationIndex();
-            double x = this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
-            double y = this->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
+            unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+            double x = this->GetLocationOfCell(&(*cell_iter))[0];
+            double y = this->GetLocationOfCell(&(*cell_iter))[1];
 
             double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
             double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);
@@ -552,7 +562,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
         // Only bother calculating the cell area if it is apoptotic
         if (cell_iter->GetCellType() == APOPTOTIC)
         {
-            unsigned node_index = cell_iter->GetLocationIndex();
+            unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
             double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
             apoptotic_area += cell_area;
         }
@@ -683,7 +693,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         assert(p_model);
 
         // Check cell exists in tissue
-        unsigned node_index = p_cell->GetLocationIndex();
+        unsigned node_index = this->mCellLocationMap[p_cell];
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
         TissueCell& r_cell = this->rGetCellUsingLocationIndex(node_index);
 #define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions
@@ -718,7 +728,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
             assert(p_cell);
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
             assert(p_model);
-            unsigned node_index = p_cell->GetLocationIndex();
+            unsigned node_index = this->mCellLocationMap[p_cell];
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
 
 #define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions

@@ -44,8 +44,8 @@ class TestVertexBasedTissue : public AbstractCancerTestSuite
 private:
 
     /**
-     * Set up cells, one for each VertexElement. 
-     * Give each cell a birth time of -elem_index, 
+     * Set up cells, one for each VertexElement.
+     * Give each cell a birth time of -elem_index,
      * so its age is elem_index.
      */
     template<unsigned DIM>
@@ -62,7 +62,7 @@ private:
         }
         return cells;
     }
-    
+
 public:
 
     // Test construction, accessors and iterator
@@ -73,10 +73,10 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
-        
+
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
-        
+
         // Test we have the correct number of cells and elements
         TS_ASSERT_EQUALS(tissue.GetNumElements(), mesh.GetNumElements());
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), cells.size());
@@ -89,7 +89,7 @@ public:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS(tissue.GetElementCorrespondingToCell(*cell_iter)->GetIndex(), counter);
+            TS_ASSERT_EQUALS(tissue.GetElementCorrespondingToCell(&(*cell_iter))->GetIndex(), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -101,11 +101,11 @@ public:
 
         // Test we have gone through all cells in the for loop
         TS_ASSERT_EQUALS(counter, tissue.GetNumRealCells());
-        
+
         // Test GetNumNodes() method
         TS_ASSERT_EQUALS(tissue.GetNumNodes(), mesh.GetNumNodes());
     }
-    
+
     void TestValidateVertexBasedTissue()
     {
         // Create a simple vertex-based mesh
@@ -118,12 +118,12 @@ public:
         // This test fails as there is no cell to element 0
         TS_ASSERT_THROWS_ANYTHING(VertexBasedTissue<2> tissue(mesh, cells));
     }
-    
+
     void TestUpdateWithoutBirthOrDeath()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
-        
+
         // Create a simple vertex-based mesh
         VertexMesh<2,2> mesh(4,6); // columns then rows
 
@@ -132,23 +132,23 @@ public:
 
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
-        
-        /// \todo Coverage (can be removed once test below is completed - see #853) 
+
+        /// \todo Coverage (can be removed once test below is completed - see #853)
         unsigned num_cells_removed = tissue.RemoveDeadCells();
         TS_ASSERT_EQUALS(num_cells_removed, 0u);
-        
+
         p_simulation_time->IncrementTimeOneStep();
-        
-        TS_ASSERT_THROWS_NOTHING(tissue.Update());    
+
+        TS_ASSERT_THROWS_NOTHING(tissue.Update());
     }
-    
+
     /// \todo This test currently fails, since the method RemoveDeadCells() does not yet
     // delete the elements/nodes assoicated with dead cells (see #853)
     void DONTTestRemoveDeadCellsAndUpdate()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
-        
+
         // Create a simple vertex-based mesh
         VertexMesh<2,2> mesh(4,6); // columns then rows
 
@@ -159,31 +159,31 @@ public:
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
 
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 24u);        
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 24u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 24u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 24u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 68u);
 
         p_simulation_time->IncrementTimeOneStep();
-        
+
         // Remove dead cells
         unsigned num_cells_removed = tissue.RemoveDeadCells();
-       
-        /// \todo Currently RemoveDeadCells() does nothing, and is only 
-        //        in a test for coverage. Cell death will be implemented 
+
+        /// \todo Currently RemoveDeadCells() does nothing, and is only
+        //        in a test for coverage. Cell death will be implemented
         //        in #853.
         TS_ASSERT_EQUALS(num_cells_removed, 1u);
-        
-        // We should now have one less real cell, since one cell has been 
+
+        // We should now have one less real cell, since one cell has been
         // marked as dead, so is skipped by the tissue iterator
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 23u);
-        
+
         /// \todo Need some more tests here, on the new number of elements/nodes
-                
+
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), cells.size()); // the tissue now copies cells
 
         tissue.Update();
-        
+
         // Finally, check the cells' element indices have updated
 
         // We expect the cell element indices to be {0,11,...,23}
@@ -201,13 +201,13 @@ public:
              ++cell_iter)
         {
             // Record element index corresponding to cell
-            unsigned element_index = tissue.GetElementCorrespondingToCell(*cell_iter)->GetIndex();
+            unsigned element_index = tissue.GetElementCorrespondingToCell(&(*cell_iter))->GetIndex();
             element_indices.insert(element_index);
         }
 
-        TS_ASSERT_EQUALS(element_indices, expected_elem_indices);        
+        TS_ASSERT_EQUALS(element_indices, expected_elem_indices);
     }
-    
+
     void TestVertexBasedTissueOutputWriters()
     {
         // Create a simple vertex-based mesh
@@ -218,7 +218,7 @@ public:
 
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
-        
+
         // For coverage of WriteResultsToFiles()
         tissue.rGetCellUsingLocationIndex(0).SetCellType(TRANSIT);
         tissue.rGetCellUsingLocationIndex(0).SetMutationState(LABELLED);
@@ -267,15 +267,15 @@ public:
             unsigned num_steps=10;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
-            
+
             // Create mesh
             VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
             VertexMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-    
+
             // Set up cells
             std::vector<TissueCell> cells = SetUpCells(mesh);
-    
+
             // Create tissue
             VertexBasedTissue<2>* const p_tissue = new VertexBasedTissue<2>(mesh, cells);
 
@@ -287,7 +287,7 @@ public:
             {
                 cell_iter->ReadyToDivide();
             }
-            
+
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -295,7 +295,7 @@ public:
             // Write the tissue to the archive
             output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
             output_arch << p_tissue;
-            
+
             // Tidy up
             SimulationTime::Destroy();
             delete p_tissue;
@@ -314,10 +314,10 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
-            
+
             VertexBasedTissue<2>* p_tissue;
 
-            // The following line is required because the loading of a tissue 
+            // The following line is required because the loading of a tissue
             // is usually called by the method TissueSimulation::Load()
             MeshArchiveInfo::meshPathname = "notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh";
 

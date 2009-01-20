@@ -167,7 +167,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            double radius = norm_2(tissue.GetLocationOfCell(*cell_iter));
+            double radius = norm_2(tissue.GetLocationOfCell(&(*cell_iter)));
             double analytic_solution = 1 - 0.25*(1 - pow(radius,2.0));
 
             // Get cell model
@@ -408,7 +408,7 @@ public:
 
         // Set up PDE
         SimpleNutrientPde<2> pde(0.1);
-        
+
         // Set up force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
@@ -445,11 +445,11 @@ public:
          * We have 25 cells. Adding up the boundary cell areas, we
          * should have the equivalent area of 16 full regular hexagonal
          * cells.
-         * 
-         * The area of a single hexagonal cell is sqrt(3)/2, so the 
+         *
+         * The area of a single hexagonal cell is sqrt(3)/2, so the
          * correct spheroid radius is given by sqrt((16*sqrt(3)/2)/pi).
-         * 
-         * Since there are 3 apoptotic cells, the correct apoptotic radius 
+         *
+         * Since there are 3 apoptotic cells, the correct apoptotic radius
          * is given by sqrt((3*sqrt(3)/2)/pi).
          */
 
@@ -594,7 +594,7 @@ public:
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation());
+            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetLocationOfCell(&(*cell_iter)));
             Element<2,2>* p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
 
 
@@ -683,7 +683,7 @@ public:
              cell_iter != simulator.rGetTissue().End();
              ++cell_iter)
         {
-            if ( (static_cast<AbstractCellCentreBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNodeCorrespondingToCell(*cell_iter)->IsBoundaryNode() )
+            if ( (static_cast<AbstractCellCentreBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNodeCorrespondingToCell(&(*cell_iter))->IsBoundaryNode() )
             {
                 TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), 1.0, 1e-1);
             }

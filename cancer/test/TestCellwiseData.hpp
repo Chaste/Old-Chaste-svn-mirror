@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCellwiseData : public AbstractCancerTestSuite
 {
 public:
-	
+
 
     void TestCellwiseDataSimple() throw(Exception)
     {
@@ -67,7 +67,7 @@ public:
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
 
         // One variable tests
-        
+
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
@@ -78,7 +78,7 @@ public:
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetTissue(tissue);
-        
+
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(1.23, mesh.GetNode(0));
@@ -110,18 +110,18 @@ public:
 
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 2);
         p_data->SetTissue(tissue);
-        
+
         TS_ASSERT_THROWS_ANYTHING(p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1));
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
         AbstractTissue<2>::Iterator iter2 = tissue.Begin();
-        
+
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
 
         p_data->SetValue(4.23, mesh.GetNode(1), 1);
         ++iter2;
-        
+
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 4.23, 1e-12);
 
         // Other values should have been initialised to zero
@@ -163,17 +163,21 @@ public:
             p_data->SetTissue(tissue);
 
             // Put some data in
-            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+            unsigned i=0;
+            for (AbstractTissue<2>::Iterator iter = tissue.Begin();
+                     iter != tissue.End();
+                     ++iter)
             {
-                p_data->SetValue((double) i, mesh.GetNode(i), 0);
+                p_data->SetValue((double) i, tissue.GetNodeCorrespondingToCell(&(*iter)), 0);
+                i++;
             }
 
             TS_ASSERT(p_data->IsSetUp());
 
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // Write to the archive
             output_arch << static_cast<const CellwiseData<2>&>(*CellwiseData<2>::Instance());
 
@@ -196,15 +200,17 @@ public:
             TS_ASSERT(p_data->IsSetUp());
             TS_ASSERT(!p_data->mUseConstantDataForTesting);
 
+            // We will have constructed a new Tissue on load so set it again for this test
+            p_data->SetTissue(tissue);
+
             for (AbstractTissue<2>::Iterator iter = tissue.Begin();
                  iter != tissue.End();
                  ++iter)
             {
-                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0), (double) tissue.GetNodeCorrespondingToCell(*iter)->GetIndex(), 1e-12);
+                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0u), (double) tissue.GetNodeCorrespondingToCell(&(*iter))->GetIndex(), 1e-12);
             }
 
             // Tidy up
-            delete p_data->mpTissue;
             CellwiseData<2>::Destroy();
         }
     }

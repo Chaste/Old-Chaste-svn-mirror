@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetNodeCorrespondingToCell(*pParentCell)->rGetLocation();
+    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetNodeCorrespondingToCell(pParentCell)->rGetLocation();
     c_vector<double, 2> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that
@@ -80,8 +80,8 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Tiss
 
     // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
-    
-    unsigned node_index = mpStaticCastTissue->GetNodeCorrespondingToCell(*pParentCell)->GetIndex();
+
+    unsigned node_index = mpStaticCastTissue->GetNodeCorrespondingToCell(pParentCell)->GetIndex();
     mrTissue.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
@@ -117,9 +117,9 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
-        global_index = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
-        x = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[0];
-        y = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter)->rGetLocation()[1];
+        global_index = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+        x = mpStaticCastTissue->GetLocationOfCell(&(*cell_iter))[0];
+        y = mpStaticCastTissue->GetLocationOfCell(&(*cell_iter))[1];
 
         // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
@@ -202,19 +202,19 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
         WntConcentration::Destroy();
     }
 
-    // Iterate over all nodes associated with real cells to update their positions 
-    // according to any tissue boundary conditions 
-    for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();  
-         cell_iter != mrTissue.End();  
-         ++cell_iter) 
+    // Iterate over all nodes associated with real cells to update their positions
+    // according to any tissue boundary conditions
+    for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
+         cell_iter != mrTissue.End();
+         ++cell_iter)
     {
-        // Get index of node associated with cell 
-        unsigned node_index = cell_iter->GetLocationIndex(); 
+        // Get index of node associated with cell
+        unsigned node_index = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
 
-        // Get pointer to this node 
-        Node<2>* p_node = mrTissue.GetNode(node_index); 
+        // Get pointer to this node
+        Node<2>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
 
-        if (!is_wnt_included)  
+        if (!is_wnt_included)
         {
             /**
              * If WntConcentration is not set up then stem cells must be pinned,
@@ -224,13 +224,13 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
             {
                 // Get old node location
                 c_vector<double, 2> old_node_location = rOldLocations[node_index];
-                    
+
                 // Return node to old location
                 p_node->rGetModifiableLocation()[0] = old_node_location[0];
                 p_node->rGetModifiableLocation()[1] = old_node_location[1];
             }
         }
-        
+
         // Any cell that has moved below the bottom of the crypt must be moved back up
         if (p_node->rGetLocation()[1] < 0.0)
         {
@@ -242,12 +242,12 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
                 * get stuck on the bottom of the crypt (as per #422).
                 *
                 * Note that all stem cells may get moved to the same height, so
-                * we use a random perturbation to help ensure we are not simply 
+                * we use a random perturbation to help ensure we are not simply
                 * faced with the same problem at a different height!
                 */
                 p_node->rGetModifiableLocation()[1] = 0.05*mpRandomGenerator->ranf();
             }
         }
-        assert(p_node->rGetLocation()[1] >= 0.0);      
+        assert(p_node->rGetLocation()[1] >= 0.0);
     }
 }
