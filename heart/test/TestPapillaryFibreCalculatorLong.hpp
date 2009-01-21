@@ -49,8 +49,8 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
                 
-        PapillaryFibreCalculator calculator;
-        std::vector<c_vector<double,3> > fibre_orientations = calculator.CalculateFibreOrientations(mesh);
+        PapillaryFibreCalculator calculator(mesh);
+        std::vector<c_vector<double,3> > fibre_orientations = calculator.CalculateFibreOrientations();
         
         for(unsigned i=0; i<fibre_orientations.size(); i++)
         {

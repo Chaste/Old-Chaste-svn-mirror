@@ -52,11 +52,11 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumElements(),12u);
         
-        PapillaryFibreCalculator calculator;
+        PapillaryFibreCalculator calculator(mesh);
         
         // Call GetRadiusVectors on an element
         unsigned element_index = 0;
-        c_vector<double, 3> radius_vector = calculator.GetRadiusVectorForOneElement(mesh, element_index);
+        c_vector<double, 3> radius_vector = calculator.GetRadiusVectorForOneElement(element_index);
         
         // Check they are right
         TS_ASSERT_DELTA(radius_vector[0], -0.275, 1e-9);
@@ -76,11 +76,13 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumElements(),12u);
         
-        PapillaryFibreCalculator calculator;
+        PapillaryFibreCalculator calculator(mesh);
         
         // Call GetRadiusVectors on an element
         
-        std::vector< c_vector<double, 3> > radius_vectors = calculator.GetRadiusVectors(mesh);
+        calculator.GetRadiusVectors();
+        
+        std::vector< c_vector<double,3> >& radius_vectors = calculator.mRadiusVectors; 
         
         // Check they are right
         TS_ASSERT_DELTA(radius_vectors[0][0], -0.275, 1e-9);
@@ -96,7 +98,8 @@ public:
         ///////////////////////////////////////////////////////////
         // Test ConstructStructureTensors() 
         ///////////////////////////////////////////////////////////
-        std::vector< c_matrix<double,3,3> > tensor_i = calculator.ConstructStructureTensors(radius_vectors);
+        calculator.ConstructStructureTensors();
+        std::vector< c_matrix<double,3,3> >& tensor_i = calculator.mStructureTensors; 
     
         // Worked out by hand...
         TS_ASSERT_DELTA(tensor_i[0](0,0),7.5625e-02,1e-9);
@@ -122,9 +125,9 @@ public:
         //////////////////////////////////////////////////////////////
         // Test SmoothStructureTensor()
         //////////////////////////////////////////////////////////////
-        std::vector< c_matrix<double,3,3> > tensor_smooth(12);
-        calculator.SmoothStructureTensors(tensor_i, mesh, tensor_smooth);
-        
+        calculator.SmoothStructureTensors();
+        std::vector< c_matrix<double,3,3> >& tensor_smooth = calculator.mSmoothedStructureTensors;
+
         // hard-coded (as difficult to test)
         TS_ASSERT_DELTA(tensor_smooth[0](0,0), 0.075625, 1e-5);         
     }
