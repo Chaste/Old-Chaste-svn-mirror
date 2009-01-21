@@ -474,6 +474,14 @@ void HeartConfig::GetExtracellularConductivities(c_vector<double, 1>& extraCondu
     extraConductivities[0] = extra_x_cond;
 }
 
+double HeartConfig::GetBathConductivity() const
+{
+    /*bath conductivity mS/cm*/
+    return DecideLocation( & mpUserParameters->Physiological().BathConductivity(),
+                           & mpDefaultParameters->Physiological().BathConductivity(),
+                           "BathConductivity")->get();
+}
+
 double HeartConfig::GetSurfaceAreaToVolumeRatio() const
 {
     /*surface area to volume ratio: 1/cm*/
@@ -747,6 +755,11 @@ void HeartConfig::SetExtracellularConductivities(const c_vector<double, 1>& extr
                               DBL_MAX);
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
+}
+
+void HeartConfig::SetBathConductivity(double bathConductivity)
+{
+    mpUserParameters->Physiological().BathConductivity().set(bathConductivity);
 }
 
 void HeartConfig::SetSurfaceAreaToVolumeRatio(double ratio)

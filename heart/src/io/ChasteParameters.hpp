@@ -2093,6 +2093,28 @@ class physiological_type: public ::xml_schema::type
   void
   ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
 
+  // BathConductivity
+  // 
+  public:
+  struct BathConductivity
+  {
+    typedef ::xml_schema::decimal type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const BathConductivity::container&
+  BathConductivity () const;
+
+  BathConductivity::container&
+  BathConductivity ();
+
+  void
+  BathConductivity (const BathConductivity::type&);
+
+  void
+  BathConductivity (const BathConductivity::container&);
+
   // SurfaceAreaToVolumeRatio
   // 
   public:
@@ -2162,6 +2184,7 @@ class physiological_type: public ::xml_schema::type
 
   ::xsd::cxx::tree::optional< IntracellularConductivities::type > _xsd_IntracellularConductivities_;
   ::xsd::cxx::tree::optional< ExtracellularConductivities::type > _xsd_ExtracellularConductivities_;
+  ::xsd::cxx::tree::optional< BathConductivity::type > _xsd_BathConductivity_;
   ::xsd::cxx::tree::optional< SurfaceAreaToVolumeRatio::type > _xsd_SurfaceAreaToVolumeRatio_;
   ::xsd::cxx::tree::optional< Capacitance::type > _xsd_Capacitance_;
 };

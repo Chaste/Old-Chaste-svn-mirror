@@ -95,6 +95,8 @@ public:
     void GetExtracellularConductivities(c_vector<double, 3>& extraConductivities) const;
     void GetExtracellularConductivities(c_vector<double, 2>& extraConductivities) const;    
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
+    
+    double GetBathConductivity() const;
 
     double GetSurfaceAreaToVolumeRatio() const;
     double GetCapacitance() const;
@@ -138,6 +140,8 @@ public:
     void SetExtracellularConductivities(const c_vector<double, 3>& extraConductivities);
     void SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities);
     void SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities);
+    
+    void SetBathConductivity(double bathConductivity);
     
     void SetSurfaceAreaToVolumeRatio(double ratio);
     void SetCapacitance(double capacitance);

@@ -1339,6 +1339,30 @@ ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type 
   this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
 }
 
+const physiological_type::BathConductivity::container& physiological_type::
+BathConductivity () const
+{
+  return this->_xsd_BathConductivity_;
+}
+
+physiological_type::BathConductivity::container& physiological_type::
+BathConductivity ()
+{
+  return this->_xsd_BathConductivity_;
+}
+
+void physiological_type::
+BathConductivity (const BathConductivity::type& BathConductivity)
+{
+  this->_xsd_BathConductivity_.set (BathConductivity);
+}
+
+void physiological_type::
+BathConductivity (const BathConductivity::container& BathConductivity)
+{
+  this->_xsd_BathConductivity_ = BathConductivity;
+}
+
 const physiological_type::SurfaceAreaToVolumeRatio::container& physiological_type::
 SurfaceAreaToVolumeRatio () const
 {
@@ -3809,6 +3833,7 @@ physiological_type ()
 : ::xml_schema::type (),
 _xsd_IntracellularConductivities_ (::xml_schema::flags (), this),
 _xsd_ExtracellularConductivities_ (::xml_schema::flags (), this),
+_xsd_BathConductivity_ (::xml_schema::flags (), this),
 _xsd_SurfaceAreaToVolumeRatio_ (::xml_schema::flags (), this),
 _xsd_Capacitance_ (::xml_schema::flags (), this)
 {
@@ -3825,6 +3850,9 @@ _xsd_IntracellularConductivities_ (_xsd_physiological_type._xsd_IntracellularCon
 _xsd_ExtracellularConductivities_ (_xsd_physiological_type._xsd_ExtracellularConductivities_,
                                    f | ::xml_schema::flags::not_root,
                                    this),
+_xsd_BathConductivity_ (_xsd_physiological_type._xsd_BathConductivity_,
+                        f | ::xml_schema::flags::not_root,
+                        this),
 _xsd_SurfaceAreaToVolumeRatio_ (_xsd_physiological_type._xsd_SurfaceAreaToVolumeRatio_,
                                 f | ::xml_schema::flags::not_root,
                                 this),
@@ -3841,6 +3869,7 @@ physiological_type (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f, c),
 _xsd_IntracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ExtracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
+_xsd_BathConductivity_ (f | ::xml_schema::flags::not_root, this),
 _xsd_SurfaceAreaToVolumeRatio_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Capacitance_ (f | ::xml_schema::flags::not_root, this)
 {
@@ -3888,6 +3917,22 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (this->ExtracellularConductivities ())
           continue;
         this->ExtracellularConductivities (r);
+        continue;
+      }
+    }
+
+    // BathConductivity
+    //
+    {
+      if (e.name () == "BathConductivity" && e.namespace_ ().empty ())
+      {
+        if (this->BathConductivity ())
+          continue;
+        this->BathConductivity (
+          BathConductivity::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
         continue;
       }
     }
@@ -5090,6 +5135,16 @@ operator<< (::xercesc::DOMElement& e,
         "ExtracellularConductivities",
         e);
       s.dom_element () << *i.ExtracellularConductivities ();
+    }
+  }
+
+  {
+    if (i.BathConductivity ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "BathConductivity",
+        e);
+      s.dom_element () << *i.BathConductivity ();
     }
   }
 

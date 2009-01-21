@@ -150,6 +150,8 @@ public :
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
         
+         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 7.0);
+        
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 1.0);
@@ -265,6 +267,9 @@ public :
         TS_ASSERT_EQUALS(extra[0], -3.0);
         TS_ASSERT_EQUALS(extra[1], -2.0);
         TS_ASSERT_EQUALS(extra[2], -1.0);
+        
+        HeartConfig::Instance()->SetBathConductivity(150);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 150);
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2000);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 2000);

@@ -49,8 +49,10 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
     }
     else // bath element
     {
-        ///\todo: the conductivity here is hardcoded to be 7!   also see hardcoded value in TS_ASSERT in Test1dProblemOnlyBathGroundedOneSide         
-        const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = 7.0*identity_matrix<double>(SPACE_DIM);
+         
+        ///\todo: the conductivity here is hardcoded to be 7!   also see hardcoded value in TS_ASSERT in Test1dProblemOnlyBathGroundedOneSide
+        double bath_cond=HeartConfig::Instance()->GetBathConductivity(); 
+        const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = bath_cond*identity_matrix<double>(SPACE_DIM);
 
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_b_grad_phi =

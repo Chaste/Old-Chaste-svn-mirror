@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define BIDOMAINWITHBATHASSEMBLER_HPP_
 
 #include "BidomainDg0Assembler.hpp"
-
+#include "HeartConfig.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainWithBathAssembler
@@ -39,9 +39,9 @@ class BidomainWithBathAssembler
 public:
     static const unsigned CARDIAC_TISSUE = 0; 
     static const unsigned BATH = 1;
-    
-    
+
 public:
+
     /**
      *  ComputeMatrixTerm()
      *

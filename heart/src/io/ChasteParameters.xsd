@@ -169,6 +169,7 @@
     <xs:all>
       <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
+      <xs:element name="BathConductivity" type="xs:decimal" minOccurs="0"/>
       <xs:element name="SurfaceAreaToVolumeRatio" type="xs:decimal" minOccurs="0"/>
       <xs:element name="Capacitance" type="xs:decimal" minOccurs="0"/>
     </xs:all>      

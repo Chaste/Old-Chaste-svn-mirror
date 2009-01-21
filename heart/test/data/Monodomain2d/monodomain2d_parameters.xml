@@ -12,6 +12,7 @@
   <Physiological>
     <IntracellularConductivities longi="0.0005" normal="1.79769313486232e+308" trans="0.0005"/>
     <ExtracellularConductivities longi="7" normal="7" trans="7"/>
+    <BathConductivity>7.000000000000000000</BathConductivity>
     <SurfaceAreaToVolumeRatio>1.000000000000000000</SurfaceAreaToVolumeRatio>
     <Capacitance>1.000000000000000000</Capacitance>
   </Physiological>

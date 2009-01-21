@@ -284,7 +284,7 @@ public:
         EulerIvpOdeSolver euler_solver;
         euler_solver.SolveAndUpdateStateVariable(&my_ode_using_state_vars, 0.0, 1.0, 0.01);
 
-        /* To see what the solution was at the end, let's print out the state variable. */
+        /* To see what the solution was at the end, we have to use the state variable. */
         std::cout << "Solution at end time = " << my_ode_using_state_vars.rGetStateVariables()[0] << "\n";
     }
 
