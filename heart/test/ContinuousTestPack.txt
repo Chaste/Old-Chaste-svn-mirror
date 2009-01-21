@@ -23,6 +23,7 @@ TestMonodomainPde.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestNeumannStimulus.hpp
 TestNhsSystemWithImplicitSolver.hpp
+TestPapillaryFibreCalculator.hpp
 TestPlaneStimulusCellFactory.hpp
 TestPropagationPropertiesCalculator.hpp
 TestChasteParametersReader.hpp

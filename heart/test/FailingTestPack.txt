@@ -1,3 +1,2 @@
 Test1dFibreWithHeterogeneity.hpp
 TestBidomainCompareWithMemfem.hpp
-TestPapillaryFibreCalculator.hpp

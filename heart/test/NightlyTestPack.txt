@@ -12,6 +12,7 @@ TestMonodomainProblemLong.hpp
 TestMonodomainHeartApex.hpp
 TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
+TestPapillaryFibreCalculatorLong.hpp
 TestPerformance.hpp
 TestPerformanceOfAssembly.hpp
 TestRunningBidomainSimulationsTutorial.hpp

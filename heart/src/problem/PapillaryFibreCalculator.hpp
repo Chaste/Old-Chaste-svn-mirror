@@ -33,9 +33,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Always 3D
 class PapillaryFibreCalculator
 {
+// Allow the test class to use the private functions.
+friend class TestPapillaryFibreCalculator;
+    
 private:
+//    TetrahedralMesh<3,3>& mrMesh;
+//    std::vector< c_vector<double, 3> > mRadiusVectors; 
+//    std::vector< c_matrix<double,3,3> > mStructureTensors;    
+//    std::vector< c_matrix<double,3,3> > mSmoothedStructureTensors;    
 
-public:
+   /**
+     * This method calculates the vector from the centroid of an element to all of
+     * the boundary nodes. It returns the shortest of the vectors. 
+     * 
+     * @param rMesh  A reference to the mesh (must be a TetrahedralMesh<3,3>)
+     * @param elementIndex  The index of the element we are calculating radial vectors for
+     * @return The shortest radial vector
+     */
     c_vector<double, 3> GetRadiusVectorForOneElement(TetrahedralMesh<3,3>& rMesh, unsigned elementIndex)
     {
         c_vector<double, 3> centroid = (rMesh.GetElement(elementIndex))->CalculateCentroid();
@@ -67,11 +81,18 @@ public:
         return radial_vector;
     }
     
+    /**
+     * This method calls GetRadiusVectorForOneElement() for each of the elements and 
+     * returns a radial vector for each element of the mesh.
+     * 
+     * @param rMesh  The mesh
+     * @return  A vector (of length # elements) of radial vectors 
+     */
     std::vector< c_vector<double, 3> > GetRadiusVectors(TetrahedralMesh<3,3>& rMesh)
     {
        std::vector < c_vector<double, 3> > radial_vectors;
        
-       // Loops over all elements finding radius vector
+        // Loops over all elements finding radius vector
         TetrahedralMesh<3,3>::ElementIterator iter = rMesh.GetElementIteratorBegin();
         while (iter != rMesh.GetElementIteratorEnd())
         {
@@ -86,6 +107,15 @@ public:
         return radial_vectors;
     }
     
+    
+    /**
+     * This generates structure tensors from the radial vectors by taking 
+     * 
+     * T = r.r'
+     * 
+     * @param radiusVectors  A std::vector (of length # elements) that contains the vector for each element that points to the nearest boundary node
+     * @return  The structure tensor
+     */
     std::vector< c_matrix<double,3,3> > ConstructStructureTensors(std::vector< c_vector<double, 3> > radiusVectors)
     {
         std::vector< c_matrix<double,3,3> > tensor_i;
@@ -97,9 +127,85 @@ public:
         }
         
         return tensor_i;
-     
-        
     }
+    
+    /**
+     * Smoothes the structure tensor components for each papillary element by looping 
+     * over all other papillary elements, calculating
+     * distance geometric distance between the two elements; 
+     * if it is within a certain limit, include this in the Gaussian kernel
+     * 
+     * @param tensor  The 'rough' tensor for each element
+     * @param rMesh  The mesh
+     * @return The smoothed tensor for each element
+     */
+    void SmoothStructureTensors(const std::vector< c_matrix<double,3,3> >& rPreSmoothedTensors, 
+                                TetrahedralMesh<3,3>& rMesh, 
+                                std::vector<c_matrix<double,3,3> >& rSmoothedTensors)
+    {
+        assert(rSmoothedTensors.size()==rPreSmoothedTensors.size());
+
+        double g_factor = 0;
+        double sigma = 0.05; //cm
+        double g_factor_sum = 0;
+        double r_max = 0.1; //cm
+
+        for(TetrahedralMesh<3,3>::ElementIterator elem_iter = rMesh.GetElementIteratorBegin();
+            elem_iter != rMesh.GetElementIteratorEnd();
+            ++elem_iter)
+        {
+            rSmoothedTensors[ (*elem_iter)->GetIndex()] = zero_matrix<double>(3,3);
+            
+            c_vector<double, 3> centroid = (*elem_iter)->CalculateCentroid();  
+            g_factor_sum = 0;
+            
+            for(TetrahedralMesh<3,3>::ElementIterator iter_2 = rMesh.GetElementIteratorBegin();
+                iter_2 != rMesh.GetElementIteratorEnd();
+                ++iter_2)
+            {
+                c_vector<double, 3> centroid_2 = (*iter_2)->CalculateCentroid();
+                double r = norm_2(centroid-centroid_2);             
+                if (r < r_max)
+                {
+                    g_factor = exp(-r/(2*sigma*sigma));
+                
+                    g_factor_sum += g_factor;
+                
+                    rSmoothedTensors[ (*elem_iter)->GetIndex()] += g_factor*rPreSmoothedTensors[ (*iter_2)->GetIndex()];
+                }
+            }      
+        
+            rSmoothedTensors[ (*elem_iter)->GetIndex()] /= g_factor_sum;
+        }
+    }
+    
+public:
+
+    /// \todo put a constructor in here than can assign the rMesh to a member variable.
+ 
+    /**
+     * 
+     * 
+     */
+     std::vector<c_vector<double,3> > CalculateFibreOrientations(TetrahedralMesh<3,3>& rMesh)
+     {
+        std::vector< c_vector<double, 3> > radial_vectors = GetRadiusVectors(rMesh);
+        
+        std::vector< c_matrix<double,3,3> > tensors = ConstructStructureTensors(radial_vectors);
+        
+        std::vector< c_matrix<double,3,3> > smoothed_tensors(tensors.size());
+        SmoothStructureTensors(tensors, rMesh, smoothed_tensors);
+
+        // Calculate eigenvalues etc...
+        std::vector<c_vector<double,3> > fibre_orientations(tensors.size());
+        for(unsigned i=0; i<fibre_orientations.size(); i++)
+        {
+            fibre_orientations[i] = CalculateEigenvectorForSmallestEigenvalue(smoothed_tensors[i]);
+        }
+
+        return fibre_orientations;
+     }
 };
 
 #endif /*PAPILLARYFIBRECALCULATOR_HPP_*/
+
