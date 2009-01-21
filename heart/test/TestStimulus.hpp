@@ -272,7 +272,7 @@ public:
         multi_stim.AddStimulus(&r2);
         
         // Test on 0.5s so we avoid worrying about <= or < and stuff!
-        for (double time=5.5; time<500.0; time=time+1)
+        for (double time=0.5; time<500.0; time=time+1)
         {
             if (time>=100 && time <=200)
             {   // first stimulus active when mod(t-100,20) < 10

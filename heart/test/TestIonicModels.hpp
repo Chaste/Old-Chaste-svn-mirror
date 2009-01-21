@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
+#include "MultiStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
@@ -562,11 +563,15 @@ public:
                                  duration_stimulus,
                                  start_stimulus);
         
+        // Just adding to check that multi-stim works properly with a cell model.                         
+        MultiStimulus multi_stim;
+        multi_stim.AddStimulus(&stimulus);
+        
         double time_step = 0.2;
         
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
         
-        BackwardEulerNobleVargheseKohlNoble1998 n98_backward_system(&stimulus);
+        BackwardEulerNobleVargheseKohlNoble1998 n98_backward_system(&multi_stim);
 
         // Solve and write to file
         ck_start = clock();
