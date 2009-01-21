@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Constructor
  */
-RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime)
+RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime)
 {
     assert(period > 0);
     assert(period >= duration);
@@ -43,6 +43,7 @@ RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, do
     mDuration = duration;
     mPeriod = period;
     mStartTime = startTime;
+    mStopTime = stopTime;
 
     //Swell duration to avoid rounding issues
     mDuration += period*DBL_EPSILON;
@@ -65,7 +66,7 @@ double RegularStimulus::GetStimulus(double time)
 {
     double beatTime = fmod(time-mStartTime,mPeriod);
 
-    if (beatTime >=0 && beatTime <= mDuration)
+    if (beatTime >=0 && beatTime <= mDuration && time <= mStopTime)
     {
         return mMagnitudeOfStimulus;
     }

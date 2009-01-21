@@ -44,9 +44,10 @@ private:
     double mDuration;
     double mPeriod;
     double mStartTime;
+    double mStopTime;
 
 public:
-    RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime);
+    RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime=DBL_MAX);
     ~RegularStimulus();
     double GetStimulus(double time);
 
