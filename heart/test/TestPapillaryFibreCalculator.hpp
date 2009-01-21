@@ -38,15 +38,93 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "SimpleDataWriter.hpp"
 #include "UblasCustomFunctions.hpp"
+#include "PapillaryFibreCalculator.hpp"
 
 class TestPapillaryFibreCalculator : public CxxTest::TestSuite
 {
 public:
 
-    void TestPapillaryFibre(void) throw(Exception)
+    void TestGetSingleRadiusVector(void) throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/simple_cube");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),12u);
+        
+        PapillaryFibreCalculator calculator;
+        
+        // Call GetRadiusVectors on an element
+        unsigned element_index = 0;
+        c_vector<double, 3> radius_vector = calculator.GetRadiusVectorForOneElement(mesh, element_index);
+        
+        // Check they are right
+        TS_ASSERT_DELTA(radius_vector[0], -0.275, 1e-9);
+        TS_ASSERT_DELTA(radius_vector[1], -0.025, 1e-9);
+        TS_ASSERT_DELTA(radius_vector[2], -0.275, 1e-9);
+    }
+    
+    void TestGetRadiusVectorsAndConstructStructureTensor(void) throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/simple_cube");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),12u);
+        
+        PapillaryFibreCalculator calculator;
+        
+        // Call GetRadiusVectors on an element
+        
+        std::vector< c_vector<double, 3> > radius_vectors = calculator.GetRadiusVectors(mesh);
+        
+        // Check they are right
+        TS_ASSERT_DELTA(radius_vectors[0][0], -0.275, 1e-9);
+        TS_ASSERT_DELTA(radius_vectors[0][1], -0.025, 1e-9);
+        TS_ASSERT_DELTA(radius_vectors[0][2], -0.275, 1e-9);
+        
+        TS_ASSERT_DELTA(radius_vectors[5][0], 0.475, 1e-9);
+        TS_ASSERT_DELTA(radius_vectors[5][1], 0.225, 1e-9);
+        TS_ASSERT_DELTA(radius_vectors[5][2], 0.475, 1e-9);
+        
+        TS_ASSERT_EQUALS(radius_vectors.size(), mesh.GetNumElements());
+        
+        ///////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////
+        std::vector< c_matrix<double,3,3> > tensor_i = calculator.ConstructStructureTensors(radius_vectors);
+    
+        // Worked out by hand...
+        TS_ASSERT_DELTA(tensor_i[0](0,0),7.5625e-02,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](0,1),6.8750e-03,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](0,2),7.5625e-02,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](1,0),6.8750e-03,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](1,1),6.2500e-04,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](1,2),6.8750e-03,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](2,0),7.5625e-02,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](2,1),6.8750e-03,1e-9);
+        TS_ASSERT_DELTA(tensor_i[0](2,2),7.5625e-02,1e-9);
+        
+        TS_ASSERT_DELTA(tensor_i[5](0,0),0.225625,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](0,1),0.106875,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](0,2),0.225625,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](1,0),0.106875,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](1,1),0.050625,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](1,2),0.106875,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](2,0),0.225625,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](2,1),0.106875,1e-9);
+        TS_ASSERT_DELTA(tensor_i[5](2,2),0.225625,1e-9);
+       
+    }
+    
+    void TestGaussianSmoothing(void) throw(Exception)
+    {
+        
+    }
+
+    void xTestCompletePapillaryFibreOnCylinder(void) throw(Exception)
     {
         std::cout<<"\n Hello, beginning! \n"<<std::flush;
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cylinder_14748_elem");
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cylinder_3043");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         std::ifstream pap_facefile;
@@ -95,6 +173,7 @@ public:
                     nearest_r_squared = r_squared;
                     nearest_face_node = bound_node_index;
                 }   
+                ++bound_node_iter;
             }
             // Once we have the papillary face node which is closest, use this to re-define its coordinates
 //            for (unsigned k=0;k<3;k++)
@@ -159,21 +238,24 @@ public:
             {
             c_vector<double, 3> centroid_2 = (*iter_2)->CalculateCentroid();
             double r = norm_2(centroid-centroid_2);             
-                if (r < r_max)
+            if (r < r_max)
+            {
+                g_factor = exp(-r/(2*sigma*sigma));
+                
+                g_factor_sum = g_factor + g_factor_sum;
+                
+                for (int l=0;l<3;l++)
                 {
-                    g_factor = exp(-r/(2*sigma*sigma));
-                    
-                    g_factor_sum = g_factor + g_factor_sum;
-                    
-                    for (int l=0;l<3;l++)
+                    for (int k=0;k<3;k++)
                     {
-                        for (int k=0;k<3;k++)
-                        {
-                            tensorS[ (*iter)->GetIndex()](k,l) = tensorS[ (*iter)->GetIndex()](k,l) + g_factor*tensorI[ (*iter_2)->GetIndex()](k,l);
-                        }
-                    }     
-                }
-        }         
+                        tensorS[ (*iter)->GetIndex()](k,l) = tensorS[ (*iter)->GetIndex()](k,l) + g_factor*tensorI[ (*iter_2)->GetIndex()](k,l);
+                    }
+                }     
+            }
+            ++elem_iter;
+        }      
+        
+           
         for (unsigned int l=0;l<3;l++)
         {
             for (unsigned int k=0;k<3;k++)
