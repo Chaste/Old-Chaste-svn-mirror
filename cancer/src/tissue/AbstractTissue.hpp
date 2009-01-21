@@ -93,9 +93,6 @@ protected:
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
 
-    /** Whether the tissue contains ghost nodes */
-    bool mTissueContainsGhostNodes;
-
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -104,7 +101,6 @@ protected:
         archive & mLocationCellMap;
         archive & mCellLocationMap;
         archive & mTissueContainsMesh;
-        archive & mTissueContainsGhostNodes;
     }
 
 public:
@@ -146,11 +142,6 @@ public:
      * @return whether the tissue contains a mesh.
      */
     bool HasMesh();
-
-    /**
-     * @return whether the tissue contains ghost nodes.
-     */
-    bool HasGhostNodes();
 
     /**
      * @return the number of nodes in the tissue.
@@ -553,8 +544,7 @@ enum cell_colours
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
              : mCells(rCells.begin(), rCells.end()),
-               mTissueContainsMesh(false),
-               mTissueContainsGhostNodes(false)
+               mTissueContainsMesh(false)
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
@@ -615,12 +605,6 @@ template<unsigned DIM>
 bool AbstractTissue<DIM>::HasMesh()
 {
     return mTissueContainsMesh;
-}
-
-template<unsigned DIM>
-bool AbstractTissue<DIM>::HasGhostNodes()
-{
-    return mTissueContainsGhostNodes;
 }
 
 template<unsigned DIM>

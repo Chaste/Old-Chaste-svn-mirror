@@ -41,7 +41,6 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
              : MeshBasedTissue<DIM>(rMesh, rCells, deleteMesh, false)   // Do not call the base class Validate().
 {
     SetGhostNodes(ghostNodeIndices);
-    this->mTissueContainsGhostNodes = true;
     Validate();
 }
 
@@ -49,7 +48,6 @@ template<unsigned DIM>
 MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh)
              : MeshBasedTissue<DIM>(rMesh)
 {
-    this->mTissueContainsGhostNodes = true;
 }
 
 template<unsigned DIM>
