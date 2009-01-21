@@ -33,17 +33,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStimulusFunction.hpp"
 
 /**
- * Provides a regular stimulus of magnitude 'magnitudeOfStimulus' at
- * frequency 'frequency' for duration 'duration' starting at time
- * 'startTime'.
+ * Provides a periodic square-wave stimulus.
  */
 class RegularStimulus : public AbstractStimulusFunction
 {
 private:
+    /** The 'height' of the square wave applied */
     double mMagnitudeOfStimulus;
+    /** The length of the square wave */
     double mDuration;
+    /** The time between applications of the wave */
     double mPeriod;
+    /** The time at which the first wave is applied */
     double mStartTime;
+    /** The time at which all stimuli are removed (even if halfway through a wave)*/
     double mStopTime;
 
 public:

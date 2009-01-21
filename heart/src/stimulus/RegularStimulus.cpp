@@ -32,7 +32,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 
 /**
- * Constructor
+ * Constructor for RegularStimulus
+ * 
+ * @param magnitudeOfStimulus  The size of the stimulus
+ * @param duration  How long the square wave is applied for
+ * @param period  The time between square waves being applied
+ * @param startTime  The time at which the first wave is applied
+ * @param stopTime  The time the stimulus is removed (defaults to DBL_MAX if omitted)
  */
 RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime)
 {
@@ -60,7 +66,8 @@ RegularStimulus::~RegularStimulus()
 /**
  * Get the magnitude of stimulus at time 'time'
  *
- * @return  Magnitude of stimulus at time 'time'
+ * @param time  The current time
+ * @return  Magnitude of stimulus
  */
 double RegularStimulus::GetStimulus(double time)
 {
