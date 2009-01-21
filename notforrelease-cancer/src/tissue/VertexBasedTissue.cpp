@@ -32,8 +32,9 @@ template<unsigned DIM>
 VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                                           const std::vector<TissueCell>& rCells,
                                           bool deleteMesh,
-                                          bool validate)
-    : AbstractTissue<DIM>(rCells),
+                                          bool validate,
+                                          const std::vector<unsigned> locationIndices)
+    : AbstractTissue<DIM>(rCells, locationIndices),
       mrMesh(rMesh),
       mDeleteMesh(deleteMesh)
 {

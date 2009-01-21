@@ -71,8 +71,7 @@ public:
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
-            double birth_time = 0.0-elem_index;
-            cell.SetLocationIndex(elem_index);
+            double birth_time = 0.0 - elem_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -108,8 +107,7 @@ public:
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
-            double birth_time = 0.0-elem_index;
-            cell.SetLocationIndex(elem_index);
+            double birth_time = 0.0 - elem_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

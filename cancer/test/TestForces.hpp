@@ -70,7 +70,6 @@ public:
             }
 
             TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
@@ -467,7 +466,6 @@ public:
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(-50.0);
             cells.push_back(cell);
         }
@@ -594,7 +592,6 @@ public:
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
-                cell.SetLocationIndex(i);
                 cell.SetBirthTime(-50.0);
                 cells.push_back(cell);
             }

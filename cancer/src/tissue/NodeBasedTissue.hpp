@@ -94,7 +94,8 @@ public:
      * @param rCells a vector of TissueCells
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes, 
-                    const std::vector<TissueCell>& rCells);
+                    const std::vector<TissueCell>& rCells,                    
+                    const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are

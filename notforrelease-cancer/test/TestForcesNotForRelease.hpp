@@ -67,7 +67,6 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, LABELLED, new FixedCellCycleModel());
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
@@ -135,7 +134,6 @@ public:
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
-                cell.SetLocationIndex(i);
                 cell.SetBirthTime(-50.0);
                 cells.push_back(cell);
             }
@@ -197,7 +195,6 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            cell.SetLocationIndex(i);
 
             if (i==4 || i==5)
             {
@@ -372,7 +369,6 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(-10.0);
             cells.push_back(cell);
         }
@@ -453,7 +449,6 @@ public:
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
-                cell.SetLocationIndex(i);
                 cell.SetBirthTime(-50.0);
                 cells.push_back(cell);
             }
@@ -520,7 +515,6 @@ public:
             }
 
             TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
@@ -615,8 +609,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetLocationIndex(i);
+            double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

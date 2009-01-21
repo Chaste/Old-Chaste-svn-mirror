@@ -95,7 +95,8 @@ public:
     VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                       const std::vector<TissueCell>& rCells,
                       bool deleteMesh=false,
-                      bool validate=true);
+                      bool validate=true,
+                      const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Constructor for use by the de-serializer.

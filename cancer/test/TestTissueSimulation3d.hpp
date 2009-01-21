@@ -87,8 +87,7 @@ public:
             generation = 0;
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetLocationIndex(i);
-            if ( i == 50u)
+            if (i == 50u)
             {
                 cell.SetBirthTime(-50.0 );
             }
@@ -121,13 +120,11 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(0.0);
             cells.push_back(cell);
         }
 
-        // Setting last cell to undergo cell birth.
-        cell.SetLocationIndex(mesh.GetNumNodes()-1);
+        // Setting last cell to undergo cell birth
         cell.SetBirthTime(-50.0);
         cells.push_back(cell);
 
@@ -175,7 +172,6 @@ public:
             generation = 0;
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                ( CancerParameters::Instance()->GetStemCellG1Duration()
                                  + CancerParameters::Instance()->GetSG2MDuration()   ));
@@ -258,7 +254,6 @@ public:
             generation = 0;
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                 (  CancerParameters::Instance()->GetStemCellG1Duration() +
                                    CancerParameters::Instance()->GetSG2MDuration()  ));

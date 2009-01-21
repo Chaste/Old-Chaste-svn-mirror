@@ -29,8 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
-                                      const std::vector<TissueCell>& rCells)
-        : AbstractCellCentreBasedTissue<DIM>(rCells)
+                                      const std::vector<TissueCell>& rCells,
+                                      const std::vector<unsigned> locationIndices)
+        : AbstractCellCentreBasedTissue<DIM>(rCells, locationIndices)
 {
     Clear();
     for (unsigned index=0; index<nodes.size(); index++)

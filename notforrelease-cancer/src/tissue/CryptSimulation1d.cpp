@@ -162,7 +162,6 @@ void CryptSimulation1d::Solve()
                         unsigned new_node_index = AddNodeToElement(p_element,SimulationTime::Instance()->GetTime());
 
                         // Update cells
-                        new_cell.SetLocationIndex(new_node_index);
                         if (new_node_index == mCells.size())
                         {
                             mCells.push_back(new_cell);

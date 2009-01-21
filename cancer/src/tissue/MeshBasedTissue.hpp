@@ -146,6 +146,7 @@ public:
      */
     MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
                     const std::vector<TissueCell>& rCells,
+                    const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                     bool deleteMesh=false,
                     bool validate=true);
 

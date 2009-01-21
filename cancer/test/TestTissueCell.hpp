@@ -1130,8 +1130,6 @@ public:
 
             TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
 
-            stem_cell.SetLocationIndex(3);
-
             // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);

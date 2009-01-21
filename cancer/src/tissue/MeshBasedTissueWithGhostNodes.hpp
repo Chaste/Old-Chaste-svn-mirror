@@ -81,7 +81,8 @@ public:
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
                                   const std::vector<TissueCell>& rCells,
                                   const std::set<unsigned> ghostNodeIndices = std::set<unsigned>(),
-                                  bool deleteMesh=false);
+                                  bool deleteMesh=false,                                  
+                                  const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Constructor for use by the de-serializer.

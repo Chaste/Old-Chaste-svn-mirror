@@ -31,17 +31,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
-                  const std::vector<TissueCell>& rCells,
-                  bool deleteMesh,
-                  bool validate)
-             : AbstractCellCentreBasedTissue<DIM>(rCells),
-               mrMesh(rMesh),
-               mpVoronoiTessellation(NULL),
-               mDeleteMesh(deleteMesh),
-               mWriteVoronoiData(false),
-               mFollowLoggedCell(false),
-               mWriteTissueAreas(false),
-               mUseAreaBasedDampingConstant(false)
+                                      const std::vector<TissueCell>& rCells,
+                                      const std::vector<unsigned> locationIndices,
+                                      bool deleteMesh,
+                                      bool validate)
+    : AbstractCellCentreBasedTissue<DIM>(rCells, locationIndices),
+      mrMesh(rMesh),
+      mpVoronoiTessellation(NULL),
+      mDeleteMesh(deleteMesh),
+      mWriteVoronoiData(false),
+      mFollowLoggedCell(false),
+      mWriteTissueAreas(false),
+      mUseAreaBasedDampingConstant(false)
 {
     // This must always be true
     assert( this->mCells.size() <= mrMesh.GetNumNodes() );

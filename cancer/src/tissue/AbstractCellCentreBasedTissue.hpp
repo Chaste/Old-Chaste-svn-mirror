@@ -50,7 +50,8 @@ public:
     /**
      * Default constructor.
      */
-    AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells);
+    AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,
+                                  const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Constructor for use by archiving - doesn't take in cells, since these are dealt
@@ -125,8 +126,9 @@ public:
 };
 
 template<unsigned DIM>
-AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells)
-    : AbstractTissue<DIM>(rCells)
+AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,
+                                                                  const std::vector<unsigned> locationIndices)
+    : AbstractTissue<DIM>(rCells, locationIndices)
 {
 }
 

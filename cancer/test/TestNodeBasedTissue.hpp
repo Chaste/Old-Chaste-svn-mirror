@@ -51,8 +51,7 @@ private:
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetLocationIndex(i);
+            double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -133,21 +132,21 @@ public:
         TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), cells.size());
     }
 
-    void TestValidate()
-    {
-        // Create a simple mesh
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Set up cells, one for each node. Get each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
-        cells[0].SetLocationIndex(1);
-
-        // Fails as no cell or ghost corresponding to node 0
-        TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(mesh, cells));
-    }
+//    void TestValidate()
+//    {
+//        // Create a simple mesh
+//        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+//        TetrahedralMesh<2,2> mesh;
+//        mesh.ConstructFromMeshReader(mesh_reader);
+//
+//        // Set up cells, one for each node. Get each a birth time of -node_index,
+//        // so the age = node_index
+//        std::vector<TissueCell> cells = SetUpCells(&mesh);
+//        cells[0].SetLocationIndex(1);
+//
+//        // Fails as no cell or ghost corresponding to node 0
+//        TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(mesh, cells));
+//    }
 
     void TestAddCellMemoryLeak()
     {
@@ -169,11 +168,9 @@ public:
         // Create two cells
         TissueCell cell0(STEM, HEALTHY, new FixedCellCycleModel());
         cell0.SetBirthTime(-1);
-        cell0.SetLocationIndex(0);
 
         TissueCell cell1(STEM, HEALTHY, new FixedCellCycleModel());
         cell1.SetBirthTime(-1);
-        cell1.SetLocationIndex(1);
 
         std::vector<TissueCell> cells;
         cells.push_back(cell0);
@@ -542,7 +539,6 @@ public:
             {
                 birth_time = -23.5;
             }
-            cell.SetLocationIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

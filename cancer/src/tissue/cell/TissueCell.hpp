@@ -65,7 +65,6 @@ private:
         archive & mCellType;
         archive & mMutationState;
         archive & mpCellCycleModel;
-        archive & mLocationIndex;
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
         archive & mIsDead;
@@ -85,9 +84,6 @@ protected:
     
     /** The cell's cell-cycle model */
     AbstractCellCycleModel* mpCellCycleModel;
-    
-    /** An index of either the node or vertex element that a cell is paired with */
-    unsigned mLocationIndex;
     
     /** An index which is inherited by all children of this cell */
     unsigned mAncestor;
@@ -163,18 +159,6 @@ public:
      * Calls Initialise on the cell cycle model associated with this cell.
      */
     void InitialiseCellCycleModel();
-
-    /**
-     * Set the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
-     *
-     * @param index Index of the node / VertexElement in the mesh
-     */
-    void SetLocationIndex(unsigned index);
-    
-    /**
-     * Get the node (for cell-centre) or VertexElement (for cell-vertex) which this cell is associated with.
-     */
-    unsigned GetLocationIndex() const; /// \todo this method should be removed as part of #877
 
     /** 
      * Get the cell's age from its cell cycle model.

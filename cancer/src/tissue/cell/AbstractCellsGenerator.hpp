@@ -197,7 +197,6 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
             cell.InitialiseCellCycleModel();
         }
 
-        cell.SetLocationIndex(i);
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);
     }
