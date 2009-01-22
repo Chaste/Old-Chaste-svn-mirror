@@ -62,8 +62,14 @@ private:
     /** Indices of nodes that have been deleted. These indices can be reused when adding new elements/nodes. */
     std::vector<unsigned> mDeletedNodeIndices;
     
+     /** Indices of elements that have been deleted. These indices can be reused when adding new elements. */
+    std::vector<unsigned> mDeletedElementIndices;
+    
     /** Whether nodes have been added to the mesh. */
     bool mAddedNodes;
+    
+    /** Whether Elements have been added to the mesh. */
+    bool mAddedElements;
 
     /** Create correspondences between VertexElements and Nodes in the mesh. */
     void SetupVertexElementsOwnedByNodes();
@@ -114,10 +120,12 @@ private:
      * \todo This method currently assumes SPACE_DIM = 2 
      * 
      * @param rElement the element to divide
-     * @param NodeAIndex the local index for how to divide
-     * @param NodeBindex the local index for how to divide
+     * @param NodeAIndex the local index of node where to divide
+     * @param NodeBindex the local index of node where to divide
+     * 
+     * @return the index of the new Element
      */  
-    void DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned NodeAIndex, unsigned NodeBIndex);
+    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned NodeAIndex, unsigned NodeBIndex);
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -203,6 +211,14 @@ public:
      *
      */
     unsigned AddNode(Node<SPACE_DIM> *pNewNode);
+
+
+    /**
+     * Add an element to the mesh.
+     *
+     */
+    unsigned AddElement(VertexElement<ELEMENT_DIM, SPACE_DIM> *pNewElement);
+
 
     /**
      *  Move the node with a particular index to a new point in space.
