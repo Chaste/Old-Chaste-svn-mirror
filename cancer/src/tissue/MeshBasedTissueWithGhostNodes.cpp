@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      MutableMesh<DIM, DIM>& rMesh,
-     const std::vector<TissueCell>& rCells,     
+     const std::vector<TissueCell>& rCells,
      const std::set<unsigned> ghostNodeIndices,
      bool deleteMesh,
      const std::vector<unsigned> locationIndices)
