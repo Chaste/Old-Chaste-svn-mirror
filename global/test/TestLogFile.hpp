@@ -129,20 +129,15 @@ public:
 
         p_log_file->Set(1, "TestLogFile", "log4.txt");
 
-#ifndef NDEBUG
         unsigned i=0;
-#endif
+
         LOG(1, "Level 1 info, will be written. i = " << i);
         LOG(2, "Level 2 info, WONT be written. i = " << i);
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
 
-#ifndef NDEBUG
         // this will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);
-#else
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/empty_log4.txt").c_str()), 0);
-#endif
         LogFile::Close();
     }
 
@@ -202,11 +197,10 @@ public:
 //        {
 //        }
 //        LogFile::Close();
-//#ifndef NDEBUG
+//
 //        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
 //        // this will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING
 //        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log6.txt  global/test/data/good_log6.txt").c_str()), 0);
-//#endif
 //    }
 
 };

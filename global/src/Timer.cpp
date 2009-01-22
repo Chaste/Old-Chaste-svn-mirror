@@ -27,38 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TIMER_HPP_
-#define TIMER_HPP_
+#include "Timer.hpp"
 
-#include <ctime>
-#include <iostream>
-#include <string>
-#include "LogFile.hpp"
+time_t Timer::StartTime;
 
-class Timer
-{
-private:
-    static time_t StartTime;
-
-public:
-    static void Reset()
-    {
-        StartTime = std::clock();
-    }
-
-    static void Print(std::string message)
-    {
-        double time = (std::clock() - StartTime)/(CLOCKS_PER_SEC+0.0); //0.0 is to ensure double division
-        std::cout << message << " time is " << time << "s\n" << std::flush;
-        LOG(2,"    " << message << " time is "<< time <<"s");
-    }
-
-    static void PrintAndReset(std::string message)
-    {
-        Print(message);
-        Reset();
-    }
-};
-
-
-#endif /*TIMER_HPP_*/
