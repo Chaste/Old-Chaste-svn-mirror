@@ -74,8 +74,8 @@ public:
      * (This will change in future so that you don't need cells for ghost nodes.)
      *
      * @param rMesh a mutable tetrahedral mesh
-     * @param cells TissueCells corresponding to the nodes of the mesh
-     * @param ghostNodeIndices set of indices of ghost nodes
+     * @param rCells TissueCells corresponding to the nodes of the mesh
+     * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,

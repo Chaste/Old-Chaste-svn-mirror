@@ -49,6 +49,9 @@ public:
 
     /**
      * Default constructor.
+     * 
+     * @param rCells a vector of cells
+     * @param locationIndices an optional vector of location indices that correspond to real cells
      */
     AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,
                                   const std::vector<unsigned> locationIndices=std::vector<unsigned>());

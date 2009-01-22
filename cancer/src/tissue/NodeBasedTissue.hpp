@@ -92,6 +92,7 @@ public:
      * 
      * @param nodes a vector of Nodes
      * @param rCells a vector of TissueCells
+     * @param locationIndices an optional vector of location indices that correspond to real cells
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes, 
                     const std::vector<TissueCell>& rCells,                    

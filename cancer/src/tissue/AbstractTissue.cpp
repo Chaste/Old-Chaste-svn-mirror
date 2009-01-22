@@ -52,10 +52,6 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
     std::list<TissueCell>::iterator it = mCells.begin();
     for (unsigned i=0; it != mCells.end(); ++it, ++i)
     {
-        /// \todo Check it points to a real cell (see #430),
-        /// if not do:
-        /// it = this->mCells.erase(it); --it; continue;
-        /// (or never create it in the first place...)
         unsigned index = i;
         if (!locationIndices.empty())
         {

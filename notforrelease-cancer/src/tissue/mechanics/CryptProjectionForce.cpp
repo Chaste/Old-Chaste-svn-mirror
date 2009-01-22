@@ -132,8 +132,6 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
 
     double rest_length = 1.0;
 
-    /// \todo add some form of assertion that these two nodes do actually 
-    /// correspond to real cells! (see #430)
     assert( !(rTissue.IsGhostNode(nodeAGlobalIndex)) && !(rTissue.IsGhostNode(nodeBGlobalIndex)) );
 
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();

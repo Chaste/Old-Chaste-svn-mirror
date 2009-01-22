@@ -141,6 +141,7 @@ public:
      *
      * @param rMesh a mutable tetrahedral mesh
      * @param rCells TissueCells corresponding to the nodes of the mesh
+     * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      * @param validate whether to validate the tissue
      */
@@ -249,9 +250,6 @@ public:
      *
      * Note also that after calling this method the tissue will be in an inconsistent state until 
      * Update() is called! So don't try iterating over cells or anything like that.
-     * 
-     * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
-     * between nodes and cells (see #430) - most of the work will actually be in AbstractTissue.
      *
      * @return number of cells removed.
      */

@@ -91,6 +91,7 @@ public:
      * @param cells reference to a vector of TissueCells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      * @param validate whether to validate the tissue when it is created (defaults to true)
+     * @param locationIndices an optional vector of location indices that correspond to real cells
      */
     VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
                       const std::vector<TissueCell>& rCells,
