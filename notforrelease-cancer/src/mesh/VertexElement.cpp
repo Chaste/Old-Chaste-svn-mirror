@@ -102,30 +102,6 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexElement<ELEMENT_DIM, SPACE_DIM>::DivideEdge(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
-{
-    assert(rIndex < this->mNodes.size());
-
-    // Update the pNode location
-    c_vector<double, SPACE_DIM> position;
-    for (unsigned i=0; i<SPACE_DIM; i++)
-    {
-        unsigned next_index = (rIndex+1)%(this->mNodes.size());
-        position[i] = 0.5*(this->mNodes[rIndex]->GetPoint()[i] + this->mNodes[next_index]->GetPoint()[i]);
-    }
-    ChastePoint<SPACE_DIM> point(position);
-    
-    pNode->SetPoint(point);
-    
-    // Add pNode to rIndex+1 element of mNodes pushing the others up
-    this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
-
-    // Add element to this node
-    this->mNodes[rIndex+1]->AddElement(this->mIndex);
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
 {
     assert(rIndex < this->mNodes.size());

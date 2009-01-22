@@ -95,14 +95,6 @@ public:
     void DeleteNode(const unsigned& rIndex);
 
     /** 
-     * Add a node on the edge between nodes at rIndex and rIndex+1.
-     * 
-     * @param rIndex the local index of the node after which the new node is added
-     * @param pNode a pointer to the new node
-     */
-    void DivideEdge(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
-
-    /** 
      * Add a node to the element between nodes at rIndex and rIndex+1.
      * 
      * @param rIndex the local index of the node after which the new node is added

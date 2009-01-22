@@ -232,7 +232,15 @@ public:
      * Delete mNodes and mElements.
      */
     void Clear();
-    
+
+    /** 
+     * Add a node on the edge between two nodes.
+     * 
+     * @param pNodeA a pointer to one node
+     * @param pNodeB a pointer to the other nodes
+     */
+    void DivideEdge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+        
     /**
      * Re-mesh the mesh.
      * 

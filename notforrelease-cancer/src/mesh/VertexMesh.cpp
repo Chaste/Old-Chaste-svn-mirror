@@ -334,13 +334,71 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DI
     
     return pNewElement->GetIndex();
 }
-    
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point)
 {
     mNodes[nodeIndex]->SetPoint(point);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+{
+    // Find the indices of the elements owned by each node
+    std::set<unsigned> elements_containing_nodeA = pNodeA->rGetContainingElementIndices();
+    std::set<unsigned> elements_containing_nodeB = pNodeB->rGetContainingElementIndices();
+    
+    // Find common elements
+    std::set<unsigned> shared_elements;
+    std::set_intersection(elements_containing_nodeA.begin(),
+                          elements_containing_nodeA.end(),
+                          elements_containing_nodeB.begin(),
+                          elements_containing_nodeB.end(),
+                          std::inserter(shared_elements, shared_elements.begin()));
+    
+    // Check that the nodes have a common edge
+    assert(shared_elements.size()>0);
+    
+    // Create a new node (position is not important as it will be changed)
+    Node<SPACE_DIM>* p_new_node = new Node<SPACE_DIM>(GetNumNodes(), false, 0.0, 0.0);
+
+    // Update the node location
+    c_vector<double, SPACE_DIM> new_node_position = 0.5*(pNodeA->rGetLocation() + pNodeB->rGetLocation());
+    ChastePoint<SPACE_DIM> point(new_node_position);    
+    p_new_node->SetPoint(new_node_position);
+    
+    // Add node to mesh
+    mNodes.push_back(p_new_node);
+
+    // Iterate over common elements    
+    for (std::set<unsigned>::iterator iter=shared_elements.begin();
+         iter!=shared_elements.end();
+         ++iter)
+    {
+        // Find which node has the lower local index in this element
+        /// \todo tidy this code up (see #885)
+        unsigned local_indexA = GetElement(*iter)->GetNodeLocalIndex(pNodeA->GetIndex());
+        unsigned local_indexB = GetElement(*iter)->GetNodeLocalIndex(pNodeB->GetIndex());
+        
+        unsigned index = local_indexB;
+        if ( (local_indexA == 0) || (local_indexB == 0) || (local_indexB > local_indexA) )
+        {
+            index = local_indexA;                 
+        }
+        if ( (local_indexA == 0) && (local_indexB == GetElement(*iter)->GetNumNodes()-1))
+        if (local_indexA == 0)
+        {
+            index = local_indexB;
+        }
+
+        // Add new node to this element
+        GetElement(*iter)->AddNode(index, p_new_node);
+        
+        // Add this element to new node
+        p_new_node->AddElement(*iter);
+    }
 }
 
 
