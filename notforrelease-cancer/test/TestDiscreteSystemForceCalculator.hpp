@@ -50,13 +50,13 @@ public:
         // Set up a tissue
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = mesh_generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Create the force law and pass in to a std::list
         MeinekeInteractionForce<2> force;

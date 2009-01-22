@@ -606,8 +606,16 @@ AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<Tissu
     : mrTissue(rTissue),
       mCellIter(cellIter)
 {
-    // Make sure the tissue isn't empty
-    assert(mrTissue.rGetCells().size() > 0);
+    // The tissue should not be empty
+    if (mrTissue.rGetCells().size() == 0)
+    {
+        std::stringstream ss;
+        ss << "There are no real cells in the tissue";
+        EXCEPTION(ss.str());
+    }
+        
+//    // Make sure the tissue isn't empty
+//    assert(mrTissue.rGetCells().size() > 0);
 
     // Make sure we start at a real cell
     if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())

@@ -45,21 +45,6 @@ class TestMeshBasedTissue : public AbstractCancerTestSuite
 private:
 
     template<unsigned DIM>
-    std::vector<TissueCell> SetUpCells(MutableMesh<DIM,DIM>* pMesh)
-    {
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
-        {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        return cells;
-    }
-
-    template<unsigned DIM>
     void TestSmallMeshBasedTissue(std::string meshFilename)
     {
         // Create a simple mesh
@@ -74,7 +59,7 @@ private:
         generator.GenerateBasic(cells, mesh);
 
         // Create the tissue
-        MeshBasedTissue<DIM> tissue(mesh,cells);
+        MeshBasedTissue<DIM> tissue(mesh, cells);
 
         TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(tissue.rGetCells().size(),cells.size());
@@ -237,6 +222,7 @@ public:
         // Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
+        std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
@@ -244,15 +230,18 @@ public:
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
+            
+            cell_location_indices.push_back(i);
         }
 
-        // Fails as no cell or ghost corresponding to node 4
-        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells));
-
-        std::set<unsigned> ghost_nodes;
-        ghost_nodes.insert(4u);
-        // Passes as node 4 is a ghost node now.
-        MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells, ghost_nodes);
+        // Fails as the tissue constructor is not given the location indices
+        // corresponding to real cells, so cannot work out which nodes are
+        // ghost nodes
+        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells));
+        
+        // Passes as the tissue constructor automatically works out which 
+        // cells are ghost nodes using the mesh and cell_location_indices
+        TS_ASSERT_THROWS_NOTHING(MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells, cell_location_indices));
     }
 
     // Test with ghost nodes, checking that the Iterator doesn't loop over ghost nodes
@@ -264,25 +253,40 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
 
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        // Set up cells
-        std::vector<TissueCell> cells;
+        // Set up cells 
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateBasic(temp_cells, *p_mesh);
 
-        // Create a tissue, with no ghost nodes at the moment
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh,cells);
-
-        // Iterator should loop over all nodes
-        unsigned counter = 0;
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
-             ++cell_iter)
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
         {
-            counter++;
+            cells.push_back(temp_cells[location_indices[i]]);       
         }
-        TS_ASSERT_EQUALS(counter, p_mesh->GetNumNodes());
+
+        // Create a tissue
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+       
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices_set;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            location_indices_set.insert(location_indices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices_set.begin(), location_indices_set.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
         // Set ghost nodes
         tissue.SetGhostNodes(ghost_node_indices);
@@ -301,7 +305,7 @@ public:
         TS_ASSERT_EQUALS(ghost_node_indices, ghost_node_indices2);
 
         // Check the iterator doesn't loop over ghost nodes
-        counter = 0;
+        unsigned counter = 0;
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
@@ -394,14 +398,21 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, scale_factor);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true); // true = mature cells
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true); // true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
 
@@ -409,14 +420,14 @@ public:
         // so just check the areas of all the cells are correct.
 
         tissue.CreateVoronoiTessellation();
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            // Check if this is a real cell
-            if (ghost_node_indices.find(i)==ghost_node_indices.end())
-            {
-                double area = tissue.rGetVoronoiTessellation().GetFaceArea(i);
-                TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
-            }
+            unsigned node_index = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+            double area = tissue.rGetVoronoiTessellation().GetFaceArea(node_index);
+            TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
         }
     }
 
@@ -510,7 +521,7 @@ public:
         cells[27].StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
-        MeshBasedTissueWithGhostNodes<2> tissue_with_ghost_nodes(mesh,cells);
+        MeshBasedTissueWithGhostNodes<2> tissue_with_ghost_nodes(mesh, cells);
 
         // Set ghost nodes (using alternative constructor)
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
@@ -602,7 +613,7 @@ public:
         cells[27].StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
-        MeshBasedTissueWithGhostNodes<2> tissue(mesh,cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells);
 
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
         for (unsigned i=0; i<10; i++)
@@ -693,13 +704,20 @@ public:
 
         HoneycombMeshGenerator generator(3, 3, 1, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        std::vector<TissueCell> cells2;
+        std::vector<TissueCell> temp_cells2;
         FixedCellCycleModelCellsGenerator<2> cells_generator2;
-        cells_generator2.GenerateForCrypt(cells2, *p_mesh, true);
+        cells_generator2.GenerateForCrypt(temp_cells2, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> tissue2(*p_mesh, cells2, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells2;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells2.push_back(temp_cells2[location_indices[i]]);       
+        }
+        
+        MeshBasedTissueWithGhostNodes<2> tissue2(*p_mesh, cells2, location_indices);
 
         // Make up some forces
         std::vector<c_vector<double, 2> > old_posns2(tissue2.GetNumNodes());
@@ -718,16 +736,13 @@ public:
         tissue2.UpdateNodeLocations(forces_on_nodes2, time_step);
 
         // Check that node locations were correctly updated
-        for (unsigned i=0; i<tissue2.GetNumNodes(); i++)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            std::set<unsigned>::iterator iter = ghost_node_indices.find(i);
-            bool is_a_ghost_node = (iter!=ghost_node_indices.end());
-
-            if (!is_a_ghost_node)
-            {
-                TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[0], old_posns2[i][0] +   i*0.01*0.01, 1e-9);
-                TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[1], old_posns2[i][1] + 2*i*0.01*0.01, 1e-9);
-            }
+            unsigned i = tissue2.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+            TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[0], old_posns2[i][0] +   i*0.01*0.01, 1e-9);
+            TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[1], old_posns2[i][1] + 2*i*0.01*0.01, 1e-9);
         }
     }
 
@@ -805,15 +820,40 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghosts, false);
 
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateBasic(temp_cells, *p_mesh);
 
-        // Create a tissue, with no ghost nodes at the moment
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh,cells);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        // Create a tissue
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices_set;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            location_indices_set.insert(location_indices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices_set.begin(), location_indices_set.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
         // Set ghost nodes
         tissue.SetGhostNodes(ghost_node_indices);
@@ -856,7 +896,7 @@ public:
         generator.GenerateBasic(cells, mesh);
 
         // Create a tissue, with no ghost nodes at the moment
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh,cells);
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells);
 
         // Make nodes 0-10 ghost nodes
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);

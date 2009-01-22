@@ -101,12 +101,19 @@ Cylindrical2dMesh* HoneycombMeshGenerator::GetCylindricalMesh()
     return (Cylindrical2dMesh*) mpMesh;
 }
 
-
-std::set<unsigned> HoneycombMeshGenerator::GetGhostNodeIndices()
+std::vector<unsigned> HoneycombMeshGenerator::GetCellLocationIndices()
 {
-    return mGhostNodeIndices;
+    std::vector<unsigned> location_indices;
+    
+    for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
+    {
+        if (mGhostNodeIndices.find(i)==mGhostNodeIndices.end())
+        {
+            location_indices.push_back(i);
+        }
+    }
+    return location_indices;
 }
-
 
 MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
 {

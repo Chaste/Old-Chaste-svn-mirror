@@ -72,14 +72,14 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.InitialiseCells(); // must be called explicitly as there is no simulation
 
         CryptStatistics crypt_statistics(crypt);
@@ -160,15 +160,21 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         StochasticCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true,
-                                            0.3,2.0,3.0,4.0,true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true, 0.3, 2.0, 3.0, 4.0, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -352,11 +358,6 @@ public:
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
         p_params->SetSpringStiffness(30.0); //normally 15.0;
 
-        std::set<unsigned> ghost_node_indices;
-        ghost_node_indices.clear();
-
-        std::vector<TissueCell> cells;
-
         double time_of_each_run;
         AbstractCellKiller<2>* p_cell_killer;
         std::vector<bool> labelled;
@@ -365,14 +366,13 @@ public:
         MeshBasedTissueWithGhostNodes<2>* p_crypt;
 
         HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices;
 
         Cylindrical2dMesh* p_mesh;
-
         SimulationTime* p_simulation_time;
 
         // Loop over the number of simulations
-        for (unsigned simulation_index=0; simulation_index< num_simulations; simulation_index++)
+        for (unsigned simulation_index=0; simulation_index<num_simulations; simulation_index++)
         {
             // Create new structures for each simulation
             p_mesh = generator.GetCylindricalMesh();
@@ -383,12 +383,21 @@ public:
             p_simulation_time->SetStartTime(0.0);
 
             // Set up cells
+            std::vector<TissueCell> temp_cells;
             StochasticCellCycleModelCellsGenerator<2> cells_generator;
-            cells_generator.GenerateForCrypt(cells, *p_mesh, true,
-                                             0.3,2.0,3.0,4.0,true);
+            cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true, 0.3, 2.0, 3.0, 4.0, true);
+
+            location_indices = generator.GetCellLocationIndices();
+
+            /// \todo (sort out cell generator - see #430)
+            std::vector<TissueCell> cells;
+            for (unsigned i=0; i<location_indices.size(); i++)
+            {
+                cells.push_back(temp_cells[location_indices[i]]);       
+            }
 
             // Set up crypt
-            p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);
+            p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
 
             // Set up force law
             MeinekeInteractionForce<2> meineke_force;
@@ -407,7 +416,7 @@ public:
             simulator.SetEndTime(time_of_each_run);
 
             // Set up cell killer
-            p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
+            p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(), 0.01);
             simulator.AddCellKiller(p_cell_killer);
 
             simulator.UseJiggledBottomCells();
@@ -422,7 +431,7 @@ public:
             simulator.SetEndTime(2.0*time_of_each_run);
             simulator.Solve();
 
-            std::vector<TissueCell*> crypt_section = p_crypt_statistics->GetCryptSection(8.0,8.0);
+            std::vector<TissueCell*> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
             labelled = p_crypt_statistics->GetWhetherCryptSectionCellsAreLabelled(crypt_section);
 
             // Store information from this simulation in a global vector.
@@ -437,11 +446,11 @@ public:
                 }
             }
 
+            // Tidy up
             cells.clear();
             labelled.clear();
             WntConcentration::Destroy();
 
-            //delete p_generator;
             delete p_crypt_statistics;
             delete p_crypt;
             delete p_cell_killer;
@@ -451,7 +460,7 @@ public:
         std::vector<double> percentage_of_labelled_cells(max_length_of_crypt_section);
         for (unsigned index=0; index < max_length_of_crypt_section; index ++)
         {
-            percentage_of_labelled_cells[index] = (double)labelled_cells_counter[index]/num_simulations;
+            percentage_of_labelled_cells[index] = (double) labelled_cells_counter[index]/num_simulations;
         }
 
          //Write data to file
@@ -459,7 +468,7 @@ public:
 
         // Test against previous run
         // ... and checking visualization of labelled cells against previous run
-        OutputFileHandler handler("MakeMoreMeinekeGraphs",false);
+        OutputFileHandler handler("MakeMoreMeinekeGraphs", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "percentage_of_labelled_cells.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
 

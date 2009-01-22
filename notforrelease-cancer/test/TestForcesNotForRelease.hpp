@@ -61,17 +61,17 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<location_indices.size(); i++)
         {
             TissueCell cell(STEM, LABELLED, new FixedCellCycleModel());
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Set up cellwise data and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -275,7 +275,7 @@ public:
         TS_ASSERT_DELTA(force_on_spring[0], -5.7594, 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1],  0.0230, 1e-4);
 
-/////////////////////////////////////////////////////////////////
+
         // Test force calculation with a cutoff
 
         double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(),
@@ -503,23 +503,22 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<location_indices.size(); i++)
         {
             CellMutationState mutation_state = HEALTHY;
             if (i==60)
             {
                 mutation_state = APC_TWO_HIT;
             }
-
             TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Create two different force laws and add to a std::list
         MeinekeInteractionForce<2> meineke_force;
@@ -551,16 +550,14 @@ public:
              (*iter)->AddForceContribution(node_forces, tissue);
         }
 
-        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            std::set<unsigned>::iterator iter = ghost_node_indices.find(i);
-            bool is_a_ghost_node = (iter!=ghost_node_indices.end());
+            unsigned node_index = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
 
-            if (!is_a_ghost_node)
-            {
-                TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);
-                TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
-            }
+            TS_ASSERT_DELTA(node_forces[node_index][0], 0.0, 1e-4);
+            TS_ASSERT_DELTA(node_forces[node_index][1], 0.0, 1e-4);
         }
 
         // Move a node along the x-axis and calculate the force exerted on a neighbour
@@ -613,12 +610,12 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        
+
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
 
         // Create force law
-        VertexBasedTissueForce<2> force;        
+        VertexBasedTissueForce<2> force;
 
         // Initialise a vector of new node forces
         std::vector<c_vector<double, 2> > node_forces;
@@ -628,9 +625,9 @@ public:
         {
              node_forces.push_back(zero_vector<double>(2));
         }
-        
+
         force.AddForceContribution(node_forces, tissue);
-        
+
         /// \todo add tests! (see #861)
     }
 

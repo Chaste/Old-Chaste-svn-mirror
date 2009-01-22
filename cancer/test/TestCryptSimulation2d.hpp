@@ -117,13 +117,20 @@ public:
     {
         HoneycombMeshGenerator generator(3, 3, 1, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -146,6 +153,24 @@ public:
 
         simulator.SetDt(0.01);
         simulator.UpdateNodePositions(forces);
+
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices_set;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            location_indices_set.insert(location_indices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices_set.begin(), location_indices_set.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -178,14 +203,14 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -239,7 +264,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -251,7 +276,7 @@ public:
             cells[i].SetBirthTime(-11.5);
         }
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -307,14 +332,14 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, false);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
@@ -357,13 +382,20 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Set up a simulation
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        std::vector<TissueCell> cells;
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        std::vector<TissueCell> temp_cells;
 
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, false);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
@@ -412,13 +444,20 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Set up a simulation
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        std::vector<TissueCell> cells;
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        std::vector<TissueCell> temp_cells;
 
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, false);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.SetAreaBasedDampingConstant(true);
 
         WntConcentration::Instance()->SetType(LINEAR);
@@ -460,14 +499,21 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
@@ -527,14 +573,21 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
@@ -639,14 +692,21 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false, crypt_width/cells_across);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover the write Voronoi data method
         crypt.SetWriteVoronoiData(true, false);
@@ -740,14 +800,21 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -845,7 +912,7 @@ public:
         unsigned num_births = simulator.DoCellBirth();
 
         TS_ASSERT_EQUALS(num_births, 1u);
-        TS_ASSERT_EQUALS(num_deaths,11u);
+        TS_ASSERT_EQUALS(num_deaths, 11u);
     }
 
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
@@ -1015,14 +1082,14 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -1053,9 +1120,11 @@ public:
     }
 
 
-    // Death on a non-periodic mesh
-    // Massive amount of random death eventually leading to every cell being killed off..
-    // Note that birth does occur too.
+    /// \todo changed test below because once ghost nodes are not 
+    /// associated with cells, we will never be able to get to 
+    /// a situation where there are no real cells
+    
+    // Test death on a non-periodic mesh. Note that birth does occur too.
     void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {
         unsigned cells_across = 2;
@@ -1064,14 +1133,21 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -1080,15 +1156,15 @@ public:
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
-        simulator.SetEndTime(0.6);
+        simulator.SetEndTime(0.5);
 
         RandomCellKiller<2> random_cell_killer(&crypt, 0.1);
         simulator.AddCellKiller(&random_cell_killer);
 
         simulator.Solve();
 
-        // There should be no cells left after this amount of time
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
+        // There should be no cells left at this time
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 1u);
     }
 
 
@@ -1097,14 +1173,14 @@ public:
         HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -1136,14 +1212,21 @@ public:
     {
         HoneycombMeshGenerator generator(5, 4, 1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
-        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, false);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
@@ -1191,26 +1274,29 @@ public:
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
         p_params->SetSpringStiffness(30.0); //normally 15.0;
 
-        std::set<unsigned> ghost_node_indices;
-        ghost_node_indices.clear();
-
-        std::vector<TissueCell> cells;
-
         double time_of_each_run;
         std::vector<bool> labelled;
 
         HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         Cylindrical2dMesh* p_mesh;
         p_mesh = generator.GetCylindricalMesh();
 
         // Set up cells
+        std::vector<TissueCell> temp_cells;
         StochasticCellCycleModelCellsGenerator<2>cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true,
-                                            0.3,2.0,3.0,4.0,true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true, 0.3, 2.0, 3.0, 4.0, true);
+
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
         // Set up crypt
-        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
         p_crypt->SetBottomCellAncestors();
 
         // Set up crypt simulation

@@ -220,7 +220,7 @@ public:
         spheroid_centre[1] = 0.5*((double) height);
         spheroid_centre[2] = 0.5*((double) depth);
 
-        std::set<unsigned> ghost_node_indices;
+        std::vector<unsigned> location_indices;
 
         for (unsigned i=0; i<num_cells; i++)
         {
@@ -245,9 +245,9 @@ public:
                     min_spatial_dimension = depth;
                 }
             }
-            if ( norm_2(node_location - spheroid_centre) > 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
+            if ( norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
             {
-                ghost_node_indices.insert(i);
+                location_indices.push_back(i);
             }
 
             cell_type = STEM;
@@ -260,12 +260,19 @@ public:
             cells.push_back(cell);
         }
 
-        TS_ASSERT(ghost_node_indices.size() < num_cells);
-        TS_ASSERT(ghost_node_indices.size() > 0);
-        TS_ASSERT_EQUALS(ghost_node_indices.size(), 56u);
+        TS_ASSERT(location_indices.size() <= num_cells);
+        TS_ASSERT(location_indices.size() < mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(location_indices.size(), 8u);
+
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> real_cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            real_cells.push_back(cells[location_indices[i]]);       
+        }
 
         // Test Save with a MeshBasedTissueWithGhostNodes
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, ghost_node_indices);        
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, real_cells, location_indices);        
                 
         MeinekeInteractionForce<3> meineke_force;
         meineke_force.UseCutoffPoint(1.5);

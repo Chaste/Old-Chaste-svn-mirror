@@ -69,7 +69,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -79,7 +79,7 @@ public:
         StochasticWntCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
         CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);

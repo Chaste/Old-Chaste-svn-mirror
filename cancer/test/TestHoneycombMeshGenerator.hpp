@@ -85,8 +85,8 @@ public:
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
 
-        std::set<unsigned> ghosts = generator.GetGhostNodeIndices();
-        TS_ASSERT_EQUALS(ghosts.size(), 12u);
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        TS_ASSERT_EQUALS(location_indices.size(), 4u);
     }
 
     void TestHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)
@@ -96,41 +96,37 @@ public:
         unsigned ghosts = 2;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
-
-
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        // check the mesh
 
+        // Check the mesh
         MutableMesh<2,2>* p_mesh2;
-
-        TS_ASSERT_THROWS_ANYTHING(p_mesh2=generator.GetMesh());
-
+        TS_ASSERT_THROWS_ANYTHING(p_mesh2 = generator.GetMesh());
 
         Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width)*(num_cells_depth+2*ghosts));
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), (num_cells_width)*(num_cells_depth+2*ghosts));
 
-        // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],0.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-(double)ghosts*sqrt(3.0)/2.0, 1e-5);
+        // Zeroth node
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1], -(double)ghosts*sqrt(3.0)/2.0, 1e-5);
 
-        // first real node
+        // First real node
         int index = (num_cells_width)*ghosts; // 4 here is the number of ghost nodes in a row
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.0,1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0,1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0, 1e-12);
 
-        // last real node
+        // Last real node
         index = (ghosts+num_cells_depth)*(num_cells_width)-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 7.5,1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 21.0*sqrt(3)/2.0,1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 7.5, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 21.0*sqrt(3)/2.0, 1e-4);
 
-        // last node
+        // Last node
         int last_node = p_mesh->GetNumNodes()-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], 7.5,1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], (ghosts+num_cells_depth-1)*sqrt(3.0)/2.0,1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], 7.5, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], (ghosts+num_cells_depth-1)*sqrt(3.0)/2.0, 1e-4);
 
-        // check the ghost nodes
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width)));
+        // Check the ghost nodes
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        TS_ASSERT_EQUALS(location_indices.size(), p_mesh->GetNumNodes() - 2*(ghosts*(num_cells_width)));
 
         std::set<unsigned> correct_ghost_node_indices;
 
@@ -138,13 +134,30 @@ public:
         {
             correct_ghost_node_indices.insert(i);
         }
-
         correct_ghost_node_indices.insert( (ghosts+num_cells_depth)*num_cells_width+1 );
+
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices_set;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            location_indices_set.insert(location_indices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices_set.begin(), location_indices_set.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
+
         bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
                                      correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
 
         TS_ASSERT_EQUALS(all_included, true);
-
 
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
@@ -161,41 +174,37 @@ public:
         double x_factor = width/(double)num_cells_width;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true, width/num_cells_width);
-
-
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        // check the mesh
 
+        // Check the mesh
         MutableMesh<2,2>* p_mesh2;
-
-        TS_ASSERT_THROWS_ANYTHING(p_mesh2=generator.GetMesh());
-
+        TS_ASSERT_THROWS_ANYTHING(p_mesh2 = generator.GetMesh());
 
         Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width)*(num_cells_depth+2*ghosts));
 
-        // zeroth node
+        // Zeroth node
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1], -x_factor*(double)ghosts*sqrt(3.0)/2.0, 1e-5);
 
-        // first real node
+        // First real node
         int index = (num_cells_width)*ghosts; // 4 here is the number of ghost nodes in a row
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.0,1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0,1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0, 1e-12);
 
-        // last real node
+        // Last real node
         index = (ghosts+num_cells_depth)*(num_cells_width)-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], x_factor*7.5,1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], x_factor*21.0*sqrt(3)/2.0,1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], x_factor*7.5, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], x_factor*21.0*sqrt(3)/2.0, 1e-4);
 
-        // last node
+        // Last node
         int last_node = p_mesh->GetNumNodes()-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], x_factor*7.5,1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], x_factor*(ghosts+num_cells_depth-1)*sqrt(3.0)/2.0,1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], x_factor*7.5, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], x_factor*(ghosts+num_cells_depth-1)*sqrt(3.0)/2.0, 1e-4);
 
-        // check the ghost nodes
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width)));
+        // Check the ghost nodes
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        TS_ASSERT_EQUALS(location_indices.size(), p_mesh->GetNumNodes() - 2*(ghosts*(num_cells_width)));
 
         std::set<unsigned> correct_ghost_node_indices;
 
@@ -203,13 +212,30 @@ public:
         {
             correct_ghost_node_indices.insert(i);
         }
-
         correct_ghost_node_indices.insert( (ghosts+num_cells_depth)*num_cells_width+1 );
+
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices_set;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            location_indices_set.insert(location_indices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices_set.begin(), location_indices_set.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
+
         bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
                                      correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
 
         TS_ASSERT_EQUALS(all_included, true);
-
 
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), x_factor*(double)num_cells_width, 1e-7);
@@ -224,53 +250,68 @@ public:
         double width = 8.0;
         unsigned ghosts = 2;
 
-        HoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false);
-
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, false);
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
-        // check the mesh
+        // Check the mesh
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
-
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
 
         // Scaling Factor
-        double spooky = (double)ghosts;
+        double spooky = (double) ghosts;
 
-        // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-spooky, 1e-6);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-spooky*sqrt(3)/2,1e-6);
+        // Zeroth node
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0], -spooky, 1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1], -spooky*sqrt(3)/2, 1e-6);
 
         unsigned this_many_ghosts_at_start = ((2*ghosts+num_cells_width)*ghosts+ghosts);
 
-        // first real node
-        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[0], 0.0,1e-6);
-        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[1], 0.0,1e-6);
+        // First real node
+        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[1], 0.0, 1e-6);
 
-        // last real node
+        // Last real node
         int index = (2*ghosts+num_cells_width)*(ghosts+num_cells_depth)+ghosts+num_cells_width;
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], width,  1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], width, 1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], length, 1e-4);
 
-        // last node
+        // Last node
         int last_node = p_mesh->GetNumNodes()-1;
         double last_node_y = length+(spooky-1)*(sqrt(3)/2);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky-0.5),1e-6);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y,1e-5);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky-0.5), 1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y, 1e-5);
 
-        // check the ghost nodes
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width + 2*ghosts + num_cells_depth)));
+        // Check the ghost nodes
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        TS_ASSERT_EQUALS(location_indices.size(), p_mesh->GetNumNodes() - 2*(ghosts*(num_cells_width + 2*ghosts + num_cells_depth)));
 
         std::set<unsigned> correct_ghost_node_indices;
-
         for (unsigned i=0; i<this_many_ghosts_at_start; i++)
         {
             correct_ghost_node_indices.insert(i);
         }
-
         correct_ghost_node_indices.insert( this_many_ghosts_at_start+num_cells_width+1 );
+
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices_set;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            location_indices_set.insert(location_indices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices_set.begin(), location_indices_set.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
+
         bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
                                      correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
 
@@ -288,59 +329,73 @@ public:
         double width = 6.0;
         unsigned ghosts = 4;
 
-        HoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false,width/num_cells_width);
-
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, false, width/num_cells_width);
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
-        // check the mesh
+        // Check the mesh
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
+        TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(), (num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
 
-        TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
+        // Scaling factor
+        double factor = (width/(double)num_cells_width);
+        double spooky = (double) ghosts;
 
-        // Scaling Factor
-        double F = (width/(double)num_cells_width);
-        double spooky = (double)ghosts;
-
-        // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-spooky*F, 1e-6);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-spooky*F*sqrt(3)/2,1e-6);
+        // Zeroth node
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0], -spooky*factor, 1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1], -spooky*factor*sqrt(3)/2, 1e-6);
 
         unsigned this_many_ghosts_at_start = ((2*ghosts+num_cells_width)*ghosts+ghosts);
 
-        // first real node
-        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[0], 0.0,1e-6);
-        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[1], 0.0,1e-6);
+        // First real node
+        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[1], 0.0, 1e-6);
 
-        // last real node
+        // Last real node
         int index = (2*ghosts+num_cells_width)*(ghosts+num_cells_depth)+ghosts+num_cells_width;
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], width,  1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], width, 1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], length, 1e-4);
 
-        // last node
+        // Last node
         int last_node = p_mesh->GetNumNodes()-1;
-        double last_node_y = length+(spooky-1)*F*(sqrt(3)/2);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky-0.5)*F,1e-6);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y,1e-6);
+        double last_node_y = length+(spooky-1)*factor*(sqrt(3)/2);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky-0.5)*factor, 1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y, 1e-6);
 
-        // check the ghost nodes
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width + 2*ghosts + num_cells_depth)));
+        // Check the ghost nodes
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        TS_ASSERT_EQUALS(location_indices.size(), p_mesh->GetNumNodes() - 2*(ghosts*(num_cells_width + 2*ghosts + num_cells_depth)));
 
         std::set<unsigned> correct_ghost_node_indices;
-
         for (unsigned i=0; i<this_many_ghosts_at_start; i++)
         {
             correct_ghost_node_indices.insert(i);
         }
-
         correct_ghost_node_indices.insert( this_many_ghosts_at_start+num_cells_width+1 );
+
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices_set;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            location_indices_set.insert(location_indices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices_set.begin(), location_indices_set.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
+
         bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
                                      correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
 
         TS_ASSERT_EQUALS(all_included, true);
-
 
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
@@ -361,7 +416,7 @@ public:
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
 
-        unsigned num_non_boundary_nodes=0;
+        unsigned num_non_boundary_nodes = 0;
         for (unsigned node_index=0; node_index<16u; node_index++)
         {
             if (! p_mesh->GetNode(node_index)->IsBoundaryNode())

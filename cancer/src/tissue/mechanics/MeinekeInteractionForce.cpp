@@ -96,6 +96,10 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 
     double rest_length = 1.0;
 
+    /// \todo add some form of assertion that these two nodes do actually 
+    /// correspond to real cells! (see #430)
+    assert( !(rTissue.IsGhostNode(nodeAGlobalIndex)) && !(rTissue.IsGhostNode(nodeBGlobalIndex)) );
+
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
 

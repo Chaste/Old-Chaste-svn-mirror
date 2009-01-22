@@ -242,24 +242,31 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            temp_cells.push_back(cell);
         }
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>* > force_collection;

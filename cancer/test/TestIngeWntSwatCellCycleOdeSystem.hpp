@@ -610,22 +610,29 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
 
-        for (unsigned i=0; i<cells.size(); i++)
+        for (unsigned i=0; i<temp_cells.size(); i++)
         {
-            cells[i].SetBirthTime(-1.1); // just to make the test run a bit quicker
+            temp_cells[i].SetBirthTime(-1.1); // just to make the test run a bit quicker
         }
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        /// \todo (sort out cell generator - see #430)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
+
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration::Instance()->SetType(LINEAR);
         CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);

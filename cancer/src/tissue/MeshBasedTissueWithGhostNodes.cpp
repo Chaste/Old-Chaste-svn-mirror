@@ -27,21 +27,56 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "MeshBasedTissueWithGhostNodes.hpp"
 
-/// \todo
-/// Make this constructor take in ghost nodes, and validate the three objects
-/// are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
-/// *cannot* be cells, making it more difficult to construct the cells.
-/// also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc (see #430)
+
 template<unsigned DIM>
 MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      MutableMesh<DIM, DIM>& rMesh,
      const std::vector<TissueCell>& rCells,
-     const std::set<unsigned> ghostNodeIndices,
-     bool deleteMesh,
-     const std::vector<unsigned> locationIndices)
+     const std::vector<unsigned> locationIndices,
+     bool deleteMesh)
              : MeshBasedTissue<DIM>(rMesh, rCells, locationIndices, deleteMesh, false)   // Do not call the base class Validate().
 {
-    SetGhostNodes(ghostNodeIndices);
+    if (!locationIndices.empty())
+    {
+        // Create a set of node indices corresponding to ghost nodes
+        std::set<unsigned> node_indices;
+        std::set<unsigned> location_indices;
+        std::set<unsigned> ghost_node_indices;
+        
+        for (unsigned i=0; i<this->GetNumNodes(); i++)
+        {
+            node_indices.insert(this->GetNode(i)->GetIndex());
+        }
+        for (unsigned i=0; i<locationIndices.size(); i++)
+        {
+            location_indices.insert(locationIndices[i]);
+        }
+    
+        std::set_difference(node_indices.begin(), node_indices.end(),
+                            location_indices.begin(), location_indices.end(),
+                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
+
+        SetGhostNodes(ghost_node_indices);
+        
+        for (std::set<unsigned>::iterator iter=ghost_node_indices.begin();
+             iter!=ghost_node_indices.end();
+             ++iter)
+        {
+            this->mLocationCellMap[*iter] = NULL;
+            this->mCellLocationMap[NULL] = *iter;
+        }
+    }
+    else
+    {
+        if (rCells.size() != this->GetNumNodes())
+        {
+            std::stringstream ss;
+            ss << "No vector of location indices of real cells is supplied, but the number of cells does not match the number of nodes";
+            EXCEPTION(ss.str());
+        }
+        
+        this->mIsGhostNode = std::vector<bool>(this->GetNumNodes(), false);
+    }
     Validate();
 }
 
@@ -194,6 +229,7 @@ template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::Validate()
 {
     std::vector<bool> validated_node = mIsGhostNode;
+
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = this->mCellLocationMap[&(*cell_iter)];

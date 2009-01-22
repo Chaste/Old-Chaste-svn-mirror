@@ -79,10 +79,9 @@ public:
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-                                  const std::vector<TissueCell>& rCells,
-                                  const std::set<unsigned> ghostNodeIndices = std::set<unsigned>(),
-                                  bool deleteMesh=false,                                  
-                                  const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+                                  const std::vector<TissueCell>& rCells,                                  
+                                  const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
+                                  bool deleteMesh=false);
 
     /**
      * Constructor for use by the de-serializer.

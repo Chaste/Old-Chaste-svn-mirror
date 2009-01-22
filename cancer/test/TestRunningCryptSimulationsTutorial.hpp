@@ -108,7 +108,7 @@ public:
          */
         HoneycombMeshGenerator generator(6, 9, 2, true); // params are: cells across, cells up, thickness of ghost layer, whether to be cylindrical
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
          * To do this, we can use a static method on the {{{FixedCellCycleModelCellsGenerator}}}
@@ -127,7 +127,7 @@ public:
          * mesh and ghost nodes, we use aparticular type of tissue called a 
          * {{{MeshBasedTissueWithGhostNodes}}}.
          */
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         /* We must now create one or more force laws, which determine the mechanics of
          * the tissue. For this test, we assume that a cell experiences a force from each
@@ -199,10 +199,10 @@ public:
         RandomNumberGenerator::Instance()->Reseed(0);
         CancerParameters::Instance()->Reset();
 
-        /* Create a cylindrical mesh, and get the ghost node indices, exactly as before. */
+        /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
         HoneycombMeshGenerator generator(6, 9, 2, true);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Create the cells, using the same method as before. Here, though, we pass
          * in 'WNT' as the third parameters, saying the cells should have a
@@ -212,7 +212,7 @@ public:
         cells_generator.GenerateForCrypt(cells, *p_mesh, true);
 
         /* Create the tissue, as before. */
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         /* The other change needed: Cells with a Wnt-based cell cycle need to know
          * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
