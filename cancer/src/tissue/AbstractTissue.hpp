@@ -109,8 +109,8 @@ public:
      * Default constructor.
      */
     AbstractTissue(const std::vector<TissueCell>& rCells,
-                   const std::vector<unsigned> locationIndices=std::vector<unsigned>());
-    
+                   std::vector<unsigned> locationIndices=std::vector<unsigned>());
+
     /**
      * Constructor for use by archiving - doesn't take in cells, since these are dealt
      * with by the serialize method.
@@ -544,51 +544,40 @@ enum cell_colours
 
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
-                                    const std::vector<unsigned> locationIndices)
+                                    std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
       mTissueContainsMesh(false)
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
-    
+
     if (locationIndices.empty())
     {
-        // Set up the map between location indices and cells
-        unsigned index = 0;
-        for (std::list<TissueCell>::iterator it = mCells.begin();
-             it != mCells.end();
-             ++it)
+        for (unsigned i=0 ; i<mCells.size() ; i++)
         {
-            /// \todo Check it points to a real cell (see #430),
-            /// if not do:
-            /// it = this->mCells.erase(it); --it; continue;
-            /// (or never create it in the first place...)
-            mLocationCellMap[index] = &(*it);
-            mCellLocationMap[&(*it)] = index;
-            index++;
-        }        
-    }
-    else
-    {
-        // There must be a one-one correspondence between cells and location indices
-        assert(mCells.size() == locationIndices.size());
-    
-        // Set up the map between location indices and cells
-        std::list<TissueCell>::iterator it = mCells.begin();
-        for (unsigned i=0; i<locationIndices.size(); i++)
-        {
-            // Assume that the ordering matches
-            
-            /// \todo Check it points to a real cell (see #430),
-            /// if not do:
-            /// it = this->mCells.erase(it); --it; continue;
-            /// (or never create it in the first place...)
-            unsigned index = locationIndices[i];
-            mLocationCellMap[index] = &(*it);
-            mCellLocationMap[&(*it)] = index;
-            ++it;
+            locationIndices.push_back(i);
         }
     }
+
+    // There must be a one-one correspondence between cells and location indices
+    assert(mCells.size() == locationIndices.size());
+
+    // Set up the map between location indices and cells
+    std::list<TissueCell>::iterator it = mCells.begin();
+    for (unsigned i=0; i<locationIndices.size(); i++)
+    {
+        // Assume that the ordering matches
+
+        /// \todo Check it points to a real cell (see #430),
+        /// if not do:
+        /// it = this->mCells.erase(it); --it; continue;
+        /// (or never create it in the first place...)
+        unsigned index = locationIndices[i];
+        mLocationCellMap[index] = &(*it);
+        mCellLocationMap[&(*it)] = index;
+        ++it;
+    }
+
 
     // Initialise cell counts to zero
     for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)

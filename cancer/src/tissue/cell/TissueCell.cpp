@@ -127,7 +127,7 @@ void TissueCell::InitialiseCellCycleModel()
     mpCellCycleModel->Initialise();
 }
 
-
+/// \todo this method should be removed as part of #877
 double TissueCell::GetAge() const
 {
     return mpCellCycleModel->GetAge();
