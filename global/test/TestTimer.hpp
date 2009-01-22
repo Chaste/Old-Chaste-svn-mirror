@@ -44,7 +44,7 @@ public:
         
         // Rum simulation which shows **** cures cancer
         
-        Timer::PrintAndReset("Cure cancer:");
+        Timer::PrintAndReset("Cure cancer");
         
         // Rum simulation which shows **** cures heart disease
         

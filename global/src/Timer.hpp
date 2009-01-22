@@ -49,8 +49,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  *  which outputs (for example):
  * 
- *  First thing: 10s
- *  Other thing: 2s
+ *  First thing time: 10s
+ *  Other thing time: 2s
  */
 class Timer
 {
@@ -73,8 +73,8 @@ public:
     static void Print(std::string message)
     {
         double time = (std::clock() - StartTime)/(CLOCKS_PER_SEC+0.0); //0.0 is to ensure double division
-        std::cout << message << " time is " << time << "s\n" << std::flush;
-        LOG(2,"    " << message << " time is "<< time <<"s");
+        std::cout << message << " time: " << time << "s\n" << std::flush;
+        LOG(2,"    " << message << " time: "<< time <<"s");
     }
 
     /**
