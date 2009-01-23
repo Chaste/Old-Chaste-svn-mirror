@@ -378,7 +378,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
          ++iter)
     {
         // Find which node has the lower local index in this element
-        /// \todo tidy this code up (see #885)
         unsigned local_indexA = GetElement(*iter)->GetNodeLocalIndex(pNodeA->GetIndex());
         unsigned local_indexB = GetElement(*iter)->GetNodeLocalIndex(pNodeB->GetIndex());
         
