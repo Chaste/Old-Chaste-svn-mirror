@@ -762,14 +762,13 @@ public:
 
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 4u);
-        
-        // divides element using 2 nodes
-        unsigned new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(0),2,0);
+
+        // Divide element using 2 nodes
+        unsigned new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(0), 2, 0);
        
         TS_ASSERT_EQUALS(new_element_index, 1u);
-         
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
-        
+
         // Test elements have correct nodes
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
@@ -780,8 +779,7 @@ public:
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u); 
-        
-        
+
         // Make four nodes
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 2.0, -1.0));
@@ -803,12 +801,12 @@ public:
         // Make a vertex mesh
         VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         
-        //Also calculate new nodes the divides element 
-        basic_vertex_mesh.DivideElement(vertex_mesh.GetElement(0));
-        
-//        //TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+//        // Dvide element along short axis 
+//        vertex_mesh.DivideElement(vertex_mesh.GetElement(0));
 //        
+//        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+//        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+//
 //        //Now test the position of new nodes.
 //        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.0, 1e-8);
 //        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 1.0, 1e-8);
@@ -817,10 +815,8 @@ public:
 //        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1], -1.0, 1e-8);
 //        
 //        //Now test the nodes in each element. 
-        
-        
+
     }
-    
 
 };    
 

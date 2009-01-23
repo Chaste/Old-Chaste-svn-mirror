@@ -110,7 +110,7 @@ private:
      * 
      * \todo This method currently assumes SPACE_DIM = 2 
      * 
-     * @param rElement the element to divide
+     * @param pElement the element to divide
      */  
     void DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
     
@@ -120,12 +120,12 @@ private:
      * \todo This method currently assumes SPACE_DIM = 2 
      * 
      * @param rElement the element to divide
-     * @param NodeAIndex the local index of node where to divide
-     * @param NodeBindex the local index of node where to divide
+     * @param nodeAIndex the local index of node where to divide
+     * @param nodeBindex the local index of node where to divide
      * 
      * @return the index of the new Element
      */  
-    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned NodeAIndex, unsigned NodeBIndex);
+    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned nodeAIndex, unsigned nodeBIndex);
     
     friend class boost::serialization::access;
     template<class Archive>

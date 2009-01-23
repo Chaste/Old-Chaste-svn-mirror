@@ -312,6 +312,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
     return pNewNode->GetIndex();
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DIM,SPACE_DIM> *pNewElement)
 {
@@ -387,7 +388,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
             index = local_indexA;                 
         }
         if ( (local_indexA == 0) && (local_indexB == GetElement(*iter)->GetNumNodes()-1))
-        if (local_indexA == 0)
         {
             index = local_indexB;
         }
@@ -676,6 +676,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     }
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA, 
                                                           Node<SPACE_DIM>* pNodeB,
@@ -875,15 +876,17 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
     assert( SPACE_DIM==2 ); // only works in 2D at present
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
-    
+
     // Find short axis
     c_vector<double, SPACE_DIM> centroid = pElement->CalculateCentroid();
     c_vector<double, SPACE_DIM> short_axis = pElement->CalculateShortAxis();
+
+    // Find long axis
     c_vector<double, SPACE_DIM> long_axis; // this is perpendicular to the short axis
     long_axis(0) = -short_axis(1);
     long_axis(1) = short_axis(0);
     
-    /// \todo Remove this temporary bool
+    /// \todo Remove this temporary bool (see #880)
     
     unsigned num_nodes = pElement->GetNumNodes();
 
@@ -918,7 +921,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
         intersecting_nodes.push_back(num_nodes-1);
     }
     
-    /// \todo remove assert and make an if statement returning an error if needed
+    /// \todo remove assert and make an if statement returning an error if needed (see #880)
     assert(intersecting_nodes.size()==2); // only divide if 2 intersections 
     
     std::vector<unsigned> new_node_global_indices;  
@@ -955,62 +958,56 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
                         -centroid[1]*a_to_b[0]+position_a[1]*a_to_b[0])/determinant;
 
         c_vector<double, SPACE_DIM> intersection = centroid + alpha*short_axis;
-        
-        // Create New node with location intersection and add it to all correct elements
+
+        // Add new node to the mesh
         unsigned node_global_index = this->AddNode(new Node<SPACE_DIM>(0, false, intersection[0], intersection[1]));
+
+        // Store index of new node
         new_node_global_indices.push_back(node_global_index);
-        
-        /*
-         * 
-         * 
-         *   Now need to add node to correct elements
-         * 
-         * 
-         */
     }
     
-//    std::cout << "\n global indices" << new_node_global_indices.size() << "\t" << new_node_global_indices[0] << "\t" << new_node_global_indices[1] << std::flush; 
-//    std::cout << "\n element nodes \t" << pElement->GetNumNodes() << "\t" << std::flush; 
-//    // NOTE pElement->GetNodeLocalIndex will return UINT_MAX if node is not in this element.
-//    std::cout << "\n local indices" << new_node_global_indices.size() << "\t" << pElement->GetNodeLocalIndex(new_node_global_indices[0]) << "\t" << pElement->GetNodeLocalIndex(new_node_global_indices[1]) << std::flush; 
-//        
-//    // Now call DivideElement(.,.,.) to divide the elemenent using the new nodes 
+    /*
+     * \todo (#880)
+     * 
+     * At this point the mesh contains the new nodes, whose indices
+     * are contained in the vector new_node_global_indices, but we
+     * have not yet created a new element or updated the correspondence
+     * between nodes and elements.
+     */
+
+//    // Now call DivideElement() to divide the element using the new nodes 
 //    DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]),pElement->GetNodeLocalIndex(new_node_global_indices[1]));
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned NodeAIndex, unsigned NodeBIndex)
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned nodeAIndex, unsigned nodeBIndex)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
     assert( SPACE_DIM==2 ); // only works in 2D at present
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
-   
-    assert(NodeBIndex!=NodeAIndex);
-    // sort NodeA and NodeB such that NodeBIndex>NodeAindex
-    unsigned Node1Index, Node2Index;
-    if (NodeAIndex<NodeBIndex)
+
+    // Sort nodeA and nodeB such that nodeBIndex>nodeAindex
+    assert(nodeBIndex!=nodeAIndex);
+    unsigned node1Index, node2Index;
+    if (nodeAIndex<nodeBIndex)
     {
-        Node1Index=NodeAIndex;
-        Node2Index=NodeBIndex;
+        node1Index = nodeAIndex;
+        node2Index = nodeBIndex;
     }
     else
     {
-        Node1Index=NodeBIndex;
-        Node2Index=NodeAIndex;
+        node1Index = nodeBIndex;
+        node2Index = nodeAIndex;
     }
     
-//    std::cout << "\n node1 " << Node1Index << std::flush;
-//    std::cout << "\n node2 " << Node2Index << std::flush;
-    
-    // copy element 
-//    std::cout<<"\nCopy Element \n"<< std::flush; 
+    // Copy element  
     std::vector<Node<SPACE_DIM>*> nodes_elem;
     unsigned num_nodes = pElement->GetNumNodes(); //Store this as it changes when you delete nodes from element
     
-    for(unsigned i=0; i<num_nodes; i++)
+    for (unsigned i=0; i<num_nodes; i++)
     {
         nodes_elem.push_back(pElement->GetNode(i));
     }
@@ -1025,14 +1022,14 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 //        std::cout << "\n containing elements of node " <<  mElements[new_element_index]->GetNodeGlobalIndex(i) << "\t ("<<  mElements[new_element_index]->GetNode(i)->GetNumContainingElements() << ")" <<std::flush;
 //    }
     
-    for(unsigned i=num_nodes; i>0; i--)
+    for (unsigned i=num_nodes; i>0; i--)
     {
         
-        if (i-1<Node1Index || i-1>Node2Index)
+        if (i-1<node1Index || i-1>node2Index)
         {
             pElement->DeleteNode(i-1);
         }
-        else if (i-1>Node1Index && i-1<Node2Index)
+        else if (i-1>node1Index && i-1<node2Index)
         {
             mElements[new_element_index]->DeleteNode(i-1);
         }
