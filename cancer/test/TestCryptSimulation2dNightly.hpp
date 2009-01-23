@@ -686,8 +686,8 @@ public:
             }
         }
 
-        // Check no new ghost nodes have been created.
-        TS_ASSERT_EQUALS(num_ghosts, ghost_node_indices.size());
+        // Check no new ghost nodes have been created
+        TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes() - location_indices.size());
 
         // There should be this number of cells left after this amount of time
         // (we have lost two rows of 7 but had a bit of birth too)
@@ -732,14 +732,14 @@ public:
         // Just enough time to kill off all the cells, as two are killed per timestep
         double dt = 0.01;
         unsigned num_cells = crypt.GetNumRealCells();
+
         simulator.SetDt(dt);
         simulator.SetEndTime(0.5*dt*num_cells);
-
         simulator.Solve();
 
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
         unsigned num_ghosts = 0;
-        for (unsigned i=0; i < ghost_node_indices_after.size(); i++)
+        for (unsigned i=0; i<ghost_node_indices_after.size(); i++)
         {
             if (ghost_node_indices_after[i])
             {
@@ -747,8 +747,8 @@ public:
             }
         }
 
-        // Check no new ghost nodes have been created.
-        TS_ASSERT_EQUALS(num_ghosts, ghost_node_indices.size());
+        // Check no new ghost nodes have been created
+        TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes() - location_indices.size());
 
         // All cells should have been removed in this time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
