@@ -360,7 +360,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
     
     // Check that the nodes have a common edge
     assert(shared_elements.size()>0);
-    
+
     // Create a new node (position is not important as it will be changed)
     Node<SPACE_DIM>* p_new_node = new Node<SPACE_DIM>(GetNumNodes(), false, 0.0, 0.0);
 
