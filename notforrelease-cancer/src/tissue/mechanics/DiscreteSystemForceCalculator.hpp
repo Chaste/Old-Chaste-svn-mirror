@@ -45,7 +45,7 @@ private:
      */
     MeshBasedTissue<2>& mrTissue;
     
-    /** The mechanics used to determine the new location of the cells */
+    /** The mechanics used to determine the new location of the cells. */
     std::vector<AbstractTwoBodyInteractionForce<2>*> mForceCollection;
     
     /**
@@ -53,7 +53,7 @@ private:
      */
     double mEpsilon;
 
-    /** The file that the results of CalculateExtremalNormalForces */
+    /** The file that the results of CalculateExtremalNormalForces. */
     out_stream mpStressResultsFile;
 
     /**

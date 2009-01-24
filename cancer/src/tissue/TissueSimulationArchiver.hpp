@@ -48,6 +48,7 @@ template<unsigned DIM, class SIM>
 class TissueSimulationArchiver
 {
 public:
+
     /**
      * Loads a saved tissue simulation to run further.
      *
@@ -71,6 +72,7 @@ public:
     static void Save(SIM* pSim);
 
 private:
+
     /**
      * Find the right archive (and mesh) to load.  The files are contained within
      * the 'archive' folder in rArchiveDirectory, with the archive itself called

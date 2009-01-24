@@ -118,7 +118,7 @@ public:
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
-     * Get method for member variable.
+     * @return mDividedSymmetrically
      */
     bool DividedSymmetrically();
 

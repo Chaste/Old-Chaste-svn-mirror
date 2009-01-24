@@ -85,6 +85,9 @@ public:
 
     /**
      * Default constructor.
+     * 
+     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the 
+     * interactions modelled by the cell cycle ODE system.
      */
     IngeWntSwatCellCycleModel(unsigned hypothesis)
        : mHypothesis(hypothesis)
@@ -110,14 +113,14 @@ public:
     * @param generation the cell's generation
     */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
-                      AbstractOdeSystem* pParentOdeSystem,
-                      const CellMutationState& rMutationState,
-                      double birthTime,
-                      double lastTime,
-                      bool inSG2MPhase,
-                      bool readyToDivide,
-                      double divideTime,
-                      unsigned generation);
+                              AbstractOdeSystem* pParentOdeSystem,
+                              const CellMutationState& rMutationState,
+                              double birthTime,
+                              double lastTime,
+                              bool inSG2MPhase,
+                              bool readyToDivide,
+                              double divideTime,
+                              unsigned generation);
 
     /**
      * A 'private' constructor for archiving.
@@ -127,8 +130,8 @@ public:
      * @param rMutationState the mutation state of the cell (used by ODEs)
      */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
-                      const std::vector<double>& rParentProteinConcentrations,
-                      const CellMutationState& rMutationState);
+                              const std::vector<double>& rParentProteinConcentrations,
+                              const CellMutationState& rMutationState);
 
     /**
      * Returns a new IngeWntSwatCellCycleModel created with the correct initial conditions.
@@ -145,7 +148,9 @@ public:
     void Initialise();
 
     /**
-     * Solve the ODE to the current time
+     * Solve the ODE to the current time.
+     * 
+     * @param currentTime the current time
      * @return Whether a stopping event occurred.
      */
     bool SolveOdeToTime(double currentTime);

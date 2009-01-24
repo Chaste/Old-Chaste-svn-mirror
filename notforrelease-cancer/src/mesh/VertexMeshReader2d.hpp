@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 #include <cassert>
+#include <vector>
+
+#include "Exception.hpp"
 
 struct VertexElementData
 {
@@ -44,130 +47,78 @@ struct VertexElementData
 class VertexMeshReader2d 
 {
 private:
-    
+
+    /** The base name for mesh files */
     std::string mFilesBaseName;
 
+    /** The nodes file for the mesh */
     std::ifstream mNodesFile;
+
+    /** The elements file for the mesh */
     std::ifstream mElementsFile;
-    
-    bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
-    
+
+    /** True if input data is numbered from zero, false otherwise */
+    bool mIndexFromZero;
+
+    /** Number of nodes in the mesh */
     unsigned mNumNodes;
+
+    /** Number of elements in the mesh */
     unsigned mNumElements;
+
+    /** Number of nodes read in by the reader */
     unsigned mNodesRead;
+
+    /** Number of elements read in by the reader */
     unsigned mElementsRead;
-    
-    unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
-    unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
 
-    void OpenFiles()
-    {
-        OpenNodeFile();
-        OpenElementsFile();
-    }
-    
-    void OpenNodeFile()
-    {        
-        // Nodes definition
-        std::string file_name = mFilesBaseName + ".node";
-        mNodesFile.open(file_name.c_str());
-        if (!mNodesFile.is_open())
-        {
-            EXCEPTION("Could not open data file: " + file_name);
-        }
-    }
-    
-    void OpenElementsFile()
-    {
-        // Elements definition
-        std::string file_name;
-        file_name = mFilesBaseName + ".cell";
+    /** Is the number of attributes stored at each node */
+    unsigned mNumNodeAttributes;
 
-        mElementsFile.open(file_name.c_str());
-        if (!mElementsFile.is_open())
-        {
-            EXCEPTION("Could not open data file: " + file_name);
-        }
-    }
+    /** Is the number of attributes stored for each element */
+    unsigned mNumElementAttributes;
 
-    void ReadHeaders()
-    {
-        std::string buffer;
-        
-        GetNextLineFromStream(mNodesFile, buffer);
-        std::stringstream buffer_stream(buffer);
-        buffer_stream >> mNumNodes >> mNumNodeAttributes;
+    /**
+     * Open node and element files.
+     */
+    void OpenFiles();
 
-        // Get the next line to see if it is indexed from zero or not               
-        GetNextLineFromStream(mNodesFile, buffer);
-        std::stringstream buffer_stream_ii(buffer);
+    /**
+     * Open node file.
+     */
+    void OpenNodeFile();
 
-        unsigned first_index;
-        buffer_stream_ii >> first_index;
-        assert(first_index == 0 || first_index == 1);         
-        mIndexFromZero = (first_index == 0);
-        
-        // Close, reopen, skip header
-        mNodesFile.close();
-        OpenNodeFile();
-        GetNextLineFromStream(mNodesFile, buffer);
-        
-        /// \todo: rename std::stringstream variables
-        GetNextLineFromStream(mElementsFile, buffer);
-        std::stringstream buffer_stream2(buffer);
+    /**
+     * Open element file.
+     */
+    void OpenElementsFile();
 
-        buffer_stream2 >> mNumElements >> mNumElementAttributes;   
-    }
+    /**
+     * Read the file headers to determine node and element numbers and attributes.
+     */
+    void ReadHeaders();
 
-    void CloseFiles()
-    {
-        mNodesFile.close();
-        mElementsFile.close();
-    }
-    
-    void GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
-    {
-        bool line_is_blank;
-        
-        do
-        {
-            getline(fileStream, rawLine);
+    /**
+     * Close node and element files.
+     */
+    void CloseFiles();
 
-            if (fileStream.eof())
-            {
-                /// \todo: improve this error message
-                EXCEPTION("File contains incomplete data");
-            }
-    
-            // Get rid of any comment
-            rawLine = rawLine.substr(0,rawLine.find('#', 0));
-            
-            line_is_blank = (rawLine.find_first_not_of(" \t", 0) == std::string::npos);  
-        }
-        while (line_is_blank);      
-    }
-    
+    /**
+     * Get the next line from a given file stream.
+     * 
+     * @param fileStream the file stream
+     * @param rawLine the raw line (may contain comments)
+     */
+    void GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine);
+
 public:
 
     /**
      * Constructor.
      * 
-     * @param rBaseName reference to the base name for results files
+     * @param pathBaseName the base name for results files
      */
-    VertexMeshReader2d(std::string pathBaseName)
-        : mFilesBaseName(pathBaseName),
-          mNumNodes(0),
-          mNumElements(0),
-          mNodesRead(0),
-          mElementsRead(0),
-          mNumElementAttributes(0)
-    {
-        mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
-        
-        OpenFiles();
-
-        ReadHeaders();
-    }
+    VertexMeshReader2d(std::string pathBaseName);
     
     /**
      * Destructor.
@@ -178,122 +129,32 @@ public:
     /**
      * @return the number of elements in the mesh.
      */
-    unsigned GetNumElements() const
-    {
-        return mNumElements;
-    }
-    
+    unsigned GetNumElements() const;
+
     /**
      * @return the number of nodes in the mesh.
      */
-    unsigned GetNumNodes() const
-    {
-        return mNumNodes;
-    }
+    unsigned GetNumNodes() const;
 
     /**
-     * @return the number of attributes in the mesh */
-    unsigned GetNumElementAttributes() const
-    {
-        return mNumElementAttributes;
-    }
+     * @return the number of attributes in the mesh
+     */
+    unsigned GetNumElementAttributes() const;
 
     /**
      * Reset pointers to beginning.
      */
-    void Reset()
-    {
-        CloseFiles();
-        OpenFiles();
-        ReadHeaders();
-        
-        mNodesRead = 0;
-        mElementsRead = 0;     
-    }
+    void Reset();
 
     /**
      * @return the coordinates of each node in turn.
      */
-    std::vector<double> GetNextNode()
-    {
-        std::vector<double> ret_coords;
-        
-        std::string buffer;     
-        GetNextLineFromStream(mNodesFile, buffer);
-
-        std::stringstream buffer_stream(buffer);
-
-        unsigned index;     
-        buffer_stream >> index;
-        
-        unsigned offset = mIndexFromZero ? 0 : 1;
-        if (index != mNodesRead + offset)
-        {
-            std::stringstream error;
-            error << "Data for node " << mNodesRead << " missing";
-            EXCEPTION(error.str());
-        }
-
-        double coord;        
-        for (unsigned i=0; i<2; i++)
-        {
-            buffer_stream >> coord;
-            ret_coords.push_back(coord);
-        }
-                
-        mNodesRead++;        
-        return ret_coords;
-    }
+    std::vector<double> GetNextNode();
 
     /**
      * @return the nodes of each element (and any attribute infomation, if there is any) in turn
      */
-    VertexElementData GetNextElementData()
-    {
-        VertexElementData element_data;       
-        
-        std::string buffer;     
-        GetNextLineFromStream(mElementsFile, buffer);
-
-        std::stringstream buffer_stream(buffer);
-
-        unsigned element_index;     
-        buffer_stream >> element_index;
-
-        unsigned offset = mIndexFromZero ? 0 : 1;
-        if (element_index != mElementsRead + offset)
-        {
-            std::stringstream error;
-            error << "Data for element " << mElementsRead << " missing";
-            EXCEPTION(error.str());
-        }
-        
-        unsigned num_nodes_in_element;
-        buffer_stream >> num_nodes_in_element;
-        
-        unsigned node_index;
-        for (unsigned i=0; i<num_nodes_in_element; i++)
-        {
-            buffer_stream >> node_index;
-            element_data.NodeIndices.push_back(node_index - offset);
-        }
-         
-        if (mNumElementAttributes > 0)
-        {
-            assert(mNumElementAttributes==1);
-
-            unsigned attribute_value;
-            buffer_stream >> attribute_value;
-            element_data.AttributeValue = attribute_value;
-        }
-        else
-        {
-            element_data.AttributeValue = 0;
-        }
-
-        mElementsRead++;
-        return element_data;
-    }
+    VertexElementData GetNextElementData();
 
 };
 

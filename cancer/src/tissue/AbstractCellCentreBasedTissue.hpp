@@ -63,12 +63,20 @@ public:
     AbstractCellCentreBasedTissue();
 
     /**
-     * Find where the given cell is in space.
+     * Find where a given cell is in space.
+     * 
+     * @param pCell pointer to the cell
+     * 
+     * @return the location of the cell
      */
     c_vector<double, DIM> GetLocationOfCell(TissueCell* pCell);
 
     /**
-     * Get a pointer to the node corresponding to a given TissueCell.
+     * Get a pointer to the node corresponding to a given cell.
+     * 
+     * @param pCell pointer to the cell
+     * 
+     * @return address of the node 
      */
     Node<DIM>* GetNodeCorrespondingToCell(TissueCell* pCell);
 
@@ -78,6 +86,7 @@ public:
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
+     * 
      * @returns address of cell as it appears in the cell list
      */
     TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
@@ -86,6 +95,7 @@ public:
      * Overridden IsCellAssociatedWithADeletedNode() method.
      *
      * @param rCell the cell
+     * 
      * @return whether a given cell is associated with a deleted node.
      */
     bool IsCellAssociatedWithADeletedNode(TissueCell& rCell);
@@ -127,137 +137,5 @@ public:
                                      bool outputCellAncestors);
 
 };
-
-template<unsigned DIM>
-AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,
-                                                                  const std::vector<unsigned> locationIndices)
-    : AbstractTissue<DIM>(rCells, locationIndices)
-{
-}
-
-template<unsigned DIM>
-AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue()
-    : AbstractTissue<DIM>()
-{
-}
-
-template<unsigned DIM>
-c_vector<double, DIM> AbstractCellCentreBasedTissue<DIM>::GetLocationOfCell(TissueCell* pCell)
-{
-    return GetNodeCorrespondingToCell(pCell)->rGetLocation();
-}
-
-template<unsigned DIM>
-Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(TissueCell* pCell)
-{
-    return this->GetNode(this->mCellLocationMap[pCell]);
-}
-
-template<unsigned DIM>
-TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
-{
-    // Create a new node
-    Node<DIM>* p_new_node = new Node<DIM>(this->GetNumNodes(), newLocation, false);   // never on boundary
-    unsigned new_node_index = AddNode(p_new_node); // use copy constructor so it doesn't matter that new_node goes out of scope
-
-    this->mCells.push_back(rNewCell);
-    TissueCell *p_created_cell = &(this->mCells.back());
-    this->mLocationCellMap[new_node_index] = p_created_cell;
-    this->mCellLocationMap[p_created_cell] = new_node_index;
-
-    return p_created_cell;
-}
-
-template<unsigned DIM>
-bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell& rCell)
-{
-    return this->GetNode(this->mCellLocationMap[&rCell])->IsDeleted();
-}
-
-template<unsigned DIM>
-void AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
-{
-    // Iterate over all nodes associated with real cells to update their positions
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
-         cell_iter != this->End();
-         ++cell_iter)
-    {
-        // Get index of node associated with cell
-        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-
-        // Get damping constant for node
-        double damping_const = this->GetDampingConstant(node_index);
-
-        // Get new node location
-        c_vector<double, DIM> new_node_location = this->GetNode(node_index)->rGetLocation() + dt*rNodeForces[node_index]/damping_const;
-
-        // Create ChastePoint for new node location
-        ChastePoint<DIM> new_point(new_node_location);
-
-        // Move the node
-        this->SetNode(node_index, new_point);
-    }
-}
-
-template<unsigned DIM>
-double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
-{
-    double damping_multiplier = 1.0;
-
-    if (   (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != HEALTHY)
-        && (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != APC_ONE_HIT) )
-    {
-        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
-    }
-    else
-    {
-        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
-    }
-}
-
-template<unsigned DIM>
-void AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
-                                                             bool outputCellTypes,
-                                                             bool outputCellVariables,
-                                                             bool outputCellCyclePhases,
-                                                             bool outputCellAncestors)
-{
-    std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
-
-    this->WriteTimeAndNodeResultsToFiles(outputCellMutationStates,
-                                         outputCellTypes,
-                                         outputCellVariables,
-                                         outputCellCyclePhases,
-                                         outputCellAncestors,
-                                         cell_type_counter,
-                                         cell_mutation_state_counter,
-                                         cell_cycle_phase_counter);
-
-    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
-    {
-        if ( !(this->GetNode(node_index)->IsDeleted()) )
-        {
-            this->GenerateCellResults(node_index,
-                                      outputCellMutationStates,
-                                      outputCellTypes,
-                                      outputCellVariables,
-                                      outputCellCyclePhases,
-                                      outputCellAncestors,
-                                      cell_type_counter,
-                                      cell_mutation_state_counter,
-                                      cell_cycle_phase_counter);
-        }
-    }
-
-    this->WriteCellResultsToFiles(outputCellMutationStates,
-                                  outputCellTypes,
-                                  outputCellVariables,
-                                  outputCellCyclePhases,
-                                  outputCellAncestors,
-                                  cell_type_counter,
-                                  cell_mutation_state_counter,
-                                  cell_cycle_phase_counter);
-}
-
 
 #endif /*ABSTRACTCELLCENTREBASEDTISSUE_HPP_*/

@@ -55,6 +55,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::RegisterWithNodes()
     }
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
 {
@@ -320,6 +321,8 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
     }
     return short_axis;        
 }
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globalIndex)
 {

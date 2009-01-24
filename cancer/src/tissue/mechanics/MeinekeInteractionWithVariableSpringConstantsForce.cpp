@@ -71,7 +71,7 @@ void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetMutantSprings(b
 }
 
 template<unsigned DIM>
-void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetBCatSprings(bool useBCatSprings)
+void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetBetaCateninSprings(bool useBCatSprings)
 {
     mUseBCatSprings = useBCatSprings;
 }

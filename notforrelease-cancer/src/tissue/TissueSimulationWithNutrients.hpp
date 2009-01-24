@@ -128,14 +128,14 @@ private :
     void SetupWriteNutrient();
 
     /**
-     *  Write the nutrient distribution to file at a specified time.
+     * Write the nutrient distribution to file at a specified time.
      *
      * @param time The time at which to record the nutrient distribution
      */
     void WriteNutrient(double time);
 
     /**
-     *  Write the average radial nutrient distribution to file at a specified time.
+     * Write the average radial nutrient distribution to file at a specified time.
      *
      * @param time The time at which to record the average radial nutrient distribution
      * @param numIntervals  The number of radial intervals in which the average nutrient concentration is calculated
@@ -170,7 +170,7 @@ private :
     /**
      *  Create a coarse mesh on which to solve the nutrient PDE.
      * 
-     * \todo currently only works in 2d (see #737)
+     * \todo currently only works in 2D (see #737)
      */
     void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
 

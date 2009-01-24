@@ -45,6 +45,7 @@ template<class ODE_SYSTEM>
 class CellwiseOdeSystemInformation : public AbstractOdeSystemInformation
 {
 public:
+
     /**
      * Default constructor; calls Initialise.
      *
@@ -52,7 +53,9 @@ public:
      *   mpSystemInfo.reset(new CellwiseOdeSystemInformation<CLASS>);
      */
     CellwiseOdeSystemInformation();
+
 protected:
+
     /**
      * Generic implementation of Initialise, which does nothing.
      *

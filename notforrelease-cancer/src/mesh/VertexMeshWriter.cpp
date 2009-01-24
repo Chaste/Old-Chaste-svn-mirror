@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rDirectory,
-                                       const std::string& rBaseName,
-                                       const bool clearOutputDir)
+                                                           const std::string& rBaseName,
+                                                           const bool clearOutputDir)
 {
      mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
      mBaseName = rBaseName; 
@@ -94,7 +94,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<EL
     *p_element_file << num_attr << "\n";
 
     // Write each element's data 
-    /// \todo need to think about how best to do this in 3D (see #821)
+    /// \todo need to think about how best to do this in 3D (see #866)
     for (unsigned element_num=0; element_num<num_elements; element_num++)
     {
         *p_element_file << element_num;
@@ -109,46 +109,6 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<EL
     }
     *p_element_file << comment << "\n";
     p_element_file->close();
-
-    //Write boundary face file
-//    std::string face_file_name = this->mBaseName;
-//
-//    if (SPACE_DIM == 1)
-//    {
-//        // In 1-D there is no boundary file.  It's trivial to calculate
-//        return;
-//    }
-//    else if (SPACE_DIM == 2)
-//    {
-//        face_file_name=face_file_name+".edge";
-//    }
-//    else
-//    {
-//        face_file_name=face_file_name+".face";
-//    }
-//    out_stream p_face_file = this->mpOutputFileHandler->OpenOutputFile(face_file_name);
-//
-//    //Write the boundary face header
-//    unsigned num_faces = this->GetNumBoundaryFaces();
-//
-//    *p_face_file<< num_faces << "\t";
-//    *p_face_file<< max_bdy_marker<< "\n";
-//
-//    //Write each face's data
-//    for (unsigned item_num=0; item_num<num_faces; item_num++)
-//    {
-//        std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
-//        *p_face_file<< item_num;
-//        for (unsigned i=0;i<ELEMENT_DIM;i++)
-//        {
-//            *p_face_file<<"\t"<<current_item[i];
-//        }
-//        *p_face_file<<"\t"<<default_marker<<"\n";
-//
-//    }
-//    *p_face_file<<comment<<"\n";
-//    p_face_file->close();
-
 }
 
 

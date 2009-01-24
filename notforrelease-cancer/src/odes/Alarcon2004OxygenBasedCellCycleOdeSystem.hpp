@@ -129,6 +129,8 @@ public:
      *
      * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS.
+     * 
+     * @return whether or not stopping conditions have been met
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
 

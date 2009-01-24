@@ -77,7 +77,7 @@ private:
     /**
      * Helper method for ReMesh to Identify the type of swap
      * 
-     * \todo This method currently assumes SPACE_DIM = 2 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
      * @param rNodeA one of the nodes to perform the swap with 
      * @param rNodeB the other node to perform the swap
@@ -97,7 +97,7 @@ private:
     /**
      * Helper method for ReMesh to perform the T1 Swap
      * 
-     * \todo This method currently assumes SPACE_DIM = 2 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
      * @param rNodeA one of the nodes to perform the swap with 
      * @param rNodeB the other node to perform the swap
@@ -108,7 +108,7 @@ private:
     /**
      * Method to divide an element in half 
      * 
-     * \todo This method currently assumes SPACE_DIM = 2 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
      * @param pElement the element to divide
      */  
@@ -117,13 +117,13 @@ private:
     /**
      * Method to divide an element given 2 nodes in which to divide the element with 
      * 
-     * \todo This method currently assumes SPACE_DIM = 2 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
      * @param rElement the element to divide
      * @param nodeAIndex the local index of node where to divide
      * @param nodeBindex the local index of node where to divide
      * 
-     * @return the index of the new Element
+     * @return the index of the new element
      */  
     unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned nodeAIndex, unsigned nodeBIndex);
     
@@ -207,8 +207,10 @@ public:
     /**
      * Add a node to the mesh.
      *
-     * NB. After calling this one or more times, you must then call ReMesh
-     *
+     * Note: After calling this one or more times, you must then call ReMesh.
+     * 
+     * @param pNewNode pointer to the new node
+     * @return the global index of the new node in the mesh.
      */
     unsigned AddNode(Node<SPACE_DIM> *pNewNode);
 
@@ -244,9 +246,9 @@ public:
     /**
      * Re-mesh the mesh.
      * 
-     * @param map a NodeMap which associates the indices of VertexElements in the old mesh
-     *            with indices of VertexElements in the new mesh.  This should be created 
-     *            with the correct size, GetNumElements()
+     * @param elementMap a NodeMap which associates the indices of VertexElements in the old mesh
+     *                   with indices of VertexElements in the new mesh.  This should be created 
+     *                   with the correct size, GetNumElements()
      */
     void ReMesh(NodeMap& elementMap);
 

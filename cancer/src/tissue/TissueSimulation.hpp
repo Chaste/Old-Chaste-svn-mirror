@@ -242,6 +242,8 @@ protected:
 
     /**
      * Apply any tissue boundary conditions. Can be overridden in subclasses.
+     * 
+     * @param rOldLocations
      */
     virtual void ApplyTissueBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)
     {
@@ -301,7 +303,7 @@ public:
     /**
      * Get a node's location (ONLY FOR TESTING)
      *
-     * @param the node index
+     * @param rNodeIndex  the node index
      * @return the co-ordinates of this node.
      */
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
@@ -371,7 +373,7 @@ public:
     /**
      * Set the end time and resets the timestep to be endtime/100.
      * 
-     * @param endtime the end time to use
+     * @param endTime the end time to use
      */
     void SetEndTime(double endTime);
     

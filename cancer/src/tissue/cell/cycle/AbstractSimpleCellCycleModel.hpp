@@ -49,6 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractSimpleCellCycleModel : public AbstractCellCycleModel
 {
 private:
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -62,11 +63,7 @@ protected:
      * Protected constructor for creating an identical daughter cell
      * (with the same G1 duration).
      */
-    AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
-    {
-        mG1Duration = g1Duration;
-        mGeneration = generation;
-    }
+    AbstractSimpleCellCycleModel(double g1Duration, unsigned generation);
 
     /**
      * Subclasses can override this function if they wish,

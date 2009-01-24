@@ -53,6 +53,7 @@ class TissueCell; // Circular definition (cells need to know about cycle models 
 class AbstractCellCycleModel
 {
 private:
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -174,12 +175,12 @@ public:
     double GetBirthTime() const;
 
     /**
-     * Returns the cell's age...
+     * Returns the cell's age.
      */
     double GetAge();
 
     /**
-     * Sets the cell's generation...
+     * Sets the cell's generation.
      */
     void SetGeneration(unsigned generation);
 
@@ -231,10 +232,7 @@ public:
      * CreateDaughterCellCycleModel(), in order to reduce coding effort
      * for the refactor.
      */
-    virtual AbstractCellCycleModel* CreateCellCycleModel()
-    {
-        return CreateDaughterCellCycleModel();
-    }
+    virtual AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
      * Builder method to create new instances of the cell cycle model.

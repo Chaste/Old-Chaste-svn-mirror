@@ -122,6 +122,12 @@ void AbstractCellCycleModel::ResetForDivision()
 }
 
 
+AbstractCellCycleModel* AbstractCellCycleModel::CreateCellCycleModel()
+{
+    return CreateDaughterCellCycleModel();
+}
+
+
 double AbstractCellCycleModel::GetSDuration()
 {
     return CancerParameters::Instance()->GetSDuration();

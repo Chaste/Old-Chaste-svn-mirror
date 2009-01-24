@@ -54,6 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -88,18 +89,11 @@ protected:
     virtual double GetOdeStopTime();
 
 public:
+
     /**
      * Just a default constructor (no member variables)
      */
-    AbstractWntOdeBasedCellCycleModel()
-    {
-#ifdef CHASTE_CVODE
-        // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so.
-        msSolver.CheckForStoppingEvents();
-        msSolver.SetMaxSteps(10000);
-        //msSolver.SetTolerances(1e-6, 1e-8);
-#endif //CHASTE_CVODE
-    }
+    AbstractWntOdeBasedCellCycleModel();
 
     /**
      * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
@@ -122,7 +116,7 @@ public:
      * This must be implemented by subclasses to change cell type to reflect
      * current levels of beta-catenin.
      */
-    virtual void ChangeCellTypeDueToCurrentBetaCateninLevel() = 0;
+    virtual void ChangeCellTypeDueToCurrentBetaCateninLevel()=0;
 
 };
 

@@ -54,7 +54,7 @@ public:
      * @param rMesh  The mesh the cells should be associated with.
      */
     void GenerateBasic(std::vector<TissueCell>& rCells,
-                               TetrahedralMesh<DIM,DIM>& rMesh);
+                       TetrahedralMesh<DIM,DIM>& rMesh);
 
     /**
      * @return default cell cycle time for a transit cell.

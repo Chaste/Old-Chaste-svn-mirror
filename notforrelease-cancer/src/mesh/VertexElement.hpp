@@ -31,10 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractElement.hpp"
 
 
-/**
- * When creating an element within a mesh one needs to specify its global index.
- * If the element is not used within a mesh the following constant is used instead.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
@@ -102,7 +98,6 @@ public:
      */
     void AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
 
-
     /**
      * Calculate the area and perimeter of the (polygonal) element, 
      * and store as the member variables mVertexElementArea and 
@@ -132,7 +127,7 @@ public:
     /**
      * Compute the second moments of area of the (polygonal) element.
      * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
      * @return (Ixx,Iyy,Ixy).
      */
@@ -141,7 +136,7 @@ public:
     /**
      * Compute the centroid of the (polygonal) element.
      * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
      * @return (centroid_x,centroid_y).
      */
@@ -153,7 +148,7 @@ public:
      * of the inertial tensor. If the polygon is regular then the 
      * eigenvalues are the same, so we return a random unit vector.
      *  
-     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
      *  @return (short_axis_x, short_axis_y).
      */
@@ -162,9 +157,11 @@ public:
     /**
      * Calculate the local index of a node given a global index
      * if node is not contained in element return UINT_MAX
+     * 
      * \todo This method could be moved to the AbstactElement class
      *
-     *  @return local_index.
+     * @param globalIndex the global index of the node in the mesh
+     * @return local_index.
      */
     unsigned GetNodeLocalIndex(unsigned globalIndex);
     

@@ -131,8 +131,9 @@ public:
      */
     std::vector<unsigned> GetCellLocationIndices();
 
-    /**
-     * @return  a honeycomb mesh constructed to be roughly circular.
+    /** 
+     * @param radius the radius of the circular mesh
+     * @return a honeycomb mesh constructed to be roughly circular.
      */
     MutableMesh<2,2>* GetCircularMesh(double radius);
 

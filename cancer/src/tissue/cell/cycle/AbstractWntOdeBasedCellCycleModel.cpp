@@ -35,6 +35,17 @@ RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
 #endif //CHASTE_CVODE
 
 
+AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
+{
+#ifdef CHASTE_CVODE
+    // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so.
+    msSolver.CheckForStoppingEvents();
+    msSolver.SetMaxSteps(10000);
+    //msSolver.SetTolerances(1e-6, 1e-8);
+#endif //CHASTE_CVODE
+}
+
+
 double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccurred());

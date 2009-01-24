@@ -256,7 +256,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
-    /// \todo add an assertion
+    /// \todo add an assertion (see #430)
 
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
@@ -323,7 +323,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
-    /// \todo add an assertion
+    /// \todo add an assertion (see #430)
 
     // Loop over cells and calculate centre of distribution
     c_vector<double, DIM> centre = zero_vector<double>(DIM);

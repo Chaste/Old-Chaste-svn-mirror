@@ -35,6 +35,13 @@ void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
 }
 
 
+AbstractSimpleCellCycleModel::AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
+{
+    mG1Duration = g1Duration;
+    mGeneration = generation;
+}
+    
+    
 void AbstractSimpleCellCycleModel::Initialise()
 {
     SetG1Duration();

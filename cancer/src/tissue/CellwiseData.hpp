@@ -77,7 +77,6 @@ private:
         archive & mUseConstantDataForTesting;
     }
 
-
 protected:
 
     /**
@@ -139,7 +138,7 @@ public:
      *  assumes 1 variable so only really needs to be called if numVars > 1.
      * 
      * @param numNodes number of nodes in the tissue
-     * @param numVars number of variables     * 
+     * @param numVars number of variables
      */
     void SetNumNodesAndVars(unsigned numNodes, unsigned numVars);
 

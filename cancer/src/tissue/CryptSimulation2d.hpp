@@ -79,7 +79,6 @@ private :
      * @param pParentCell pointer to the parent cell
      *
      * @return daughter_coords the coordinates for the daughter cell.
-     *
      */
     c_vector<double, 2> CalculateDividingCellCentreLocations(TissueCell* pParentCell);
 
@@ -151,7 +150,7 @@ public :
      * 
      * @param rOldLocations the node locations at the previous time step
      */
-    void ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations);
+    void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
 
 };
 

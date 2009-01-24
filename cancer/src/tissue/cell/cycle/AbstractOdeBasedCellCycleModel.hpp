@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel
 {
 private:
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -106,7 +107,7 @@ public:
      *
      * @return Whether a stopping event occurred.
      */
-    virtual bool SolveOdeToTime(double currentTime) = 0;
+    virtual bool SolveOdeToTime(double currentTime)=0;
 
     /**
      * This method must be implemented by each subclass
@@ -116,7 +117,7 @@ public:
      *
      * @return The time at which the ODE reached its stopping event.
      */
-    virtual double GetOdeStopTime() = 0;
+    virtual double GetOdeStopTime()=0;
 
     /**
      * This overrides the AbstractCellCycleModel::SetBirthTime(double birthTime)

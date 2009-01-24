@@ -106,13 +106,19 @@ public :
     ~CryptProjectionForce();
 
     /**
-     * Get methods for member variables.
+     * @return mA.
      */
     double GetA() const;
+
+    /**
+     * @return mB.
+     */
     double GetB() const;
 
     /**
-     * Set method for member variable.
+     * Set mIncludeWntChemotaxis.
+     * 
+     * @param includeWntChemotaxis whether to include Wnt-dependent chemotaxis
      */
     void SetWntChemotaxis(bool includeWntChemotaxis);
 
@@ -134,7 +140,7 @@ public :
      *  whose 2D position is a distance r from the centre of the tissue, which we assume
      *  to be at (0,0).
      *
-     *  @param rNodeLocation
+     *  @param rNodeLocation the 2D location of a node
      *  @return the gradient
      */
     double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double,2>& rNodeLocation);

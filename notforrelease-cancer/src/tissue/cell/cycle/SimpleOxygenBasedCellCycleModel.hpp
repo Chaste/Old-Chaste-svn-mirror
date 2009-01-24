@@ -104,9 +104,13 @@ public:
     void UpdateHypoxicDuration();
 
     /**
-     * Get methods for member variables.
+     * @return mCurrentHypoxicDuration
      */
     double GetCurrentHypoxicDuration();
+
+    /**
+     * @return mCurrentHypoxiaOnsetTime
+     */
     double GetCurrentHypoxiaOnsetTime();
 
     /** 

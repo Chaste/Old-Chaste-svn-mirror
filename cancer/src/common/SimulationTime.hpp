@@ -45,56 +45,161 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class SimulationTime
 {
 public:
+
+    /**
+     * Return a pointer to the simulation time object.
+     * The first time this is called the simulation time object is created.
+     */
     static SimulationTime* Instance();
-    void SetEndTimeAndNumberOfTimeSteps(double, unsigned);
-    void ResetEndTimeAndNumberOfTimeSteps(const double&, const unsigned&);
+
+    /**
+     * Sets the end time and the number of time steps.
+     * This must be called after SetStartTime() but before using any other methods.
+     *
+     * @param endTime  Time at which to end this run of the simulation
+     * @param totalTimeStepsInSimulation  the number of time steps into which the above will be dvided
+     */
+    void SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation);
+
+    /**
+     * Reset method for the end time and the number of time steps, to run the simulation
+     * further after a first initial run.
+     *
+     * @param rEndTime The new end time for this simulation (now extended)
+     * note that the simulation will run from the current time to this new end time
+     * NOT from 0 to this end time.
+     * @param rNumberOfTimeStepsInThisRun the number of time steps to
+     * split the next run into.
+     */
+    void ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, const unsigned& rNumberOfTimeStepsInThisRun);
+
+    /**
+     * Get the simulation time step, set in earlier calls.
+     * Warning: Use of this method may result in round errors
+     *  -- generally use GetTime() instead.
+     * 
+     * @return time step for this run of the simulation
+     */
     double GetTimeStep() const;
+
+    /**
+     * Increment the simulation time by one time step.
+     *
+     * GetTime() will return an updated current time after this call.
+     */
     void IncrementTimeOneStep();
+
+    /**
+     * Get the number of time steps that have elapsed.
+     *
+     * @return number of time steps which have been taken
+     */
     unsigned GetTimeStepsElapsed() const;
+
+    /**
+     * Get the simulation time (in hours), should not have rounding errors.
+     *
+     * @return simulation time
+     */
     double GetTime() const;
+
+    /**
+     * Destroy the current SimulationTime instance.  The next call to
+     * Instance will create a new instance, on which
+     * SetEndTimeAndNumberOfTimeSteps must be called again to reset time.
+     *
+     * This method *must* be called before program exit, to avoid a memory
+     * leak.
+     */
     static void Destroy();
+
+    /**
+     * Allows lower classes to check whether the simulation time class has been set up before using it
+     *
+     * @return whether the start time of the simulation has been set.
+     */
     bool IsStartTimeSetUp() const;
+
+    /**
+     * @return whether the simulation has finished.
+     */
     bool IsFinished() const;
+
+    /**
+     * @return the total number of time steps to be taken in this run.
+     */
     unsigned GetTotalNumberOfTimeSteps() const;
-    void SetStartTime(double currentTime);
+
+    /**
+     * Set the start time of the simulation
+     *
+     * @param startTime  the time at which the simulation begins (usually 0.0 hours)
+     */
+    void SetStartTime(double startTime);
+
 protected:
+
+    /**
+     * Default simulation time constructor
+     *
+     * Sets up time, you must set the start time,
+     * end time and number of time steps before using the object.
+     */
     SimulationTime();
+
+    /**
+     * Copy constructor.
+     */
     SimulationTime(const SimulationTime&);
+
+    /**
+     * Overloaded assignement operator.
+     */
     SimulationTime& operator= (const SimulationTime&);
+
 private:
+
     /**
      * A pointer to the singleton instance of this class.
      */
     static SimulationTime* mpInstance;
+
     /**
      * The duration of the simulation (cancer time units are in hours).
      */
     double mDurationOfSimulation;
+
     /**
      * The total number of steps for this simualation.
      */
     unsigned mTotalTimeStepsInSimulation;
+
     /**
      * The number of time steps which have been taken to date.
      */
     unsigned mTimeStepsElapsed;
+
     /**
      * A flag allowing us to determine whether the simulation time is ready to
      * be used.
      */
     bool mEndTimeAndNumberOfTimeStepsSet;
+
     /**
      * The current time (in hours)
      */
     double mCurrentTime;
+
     /**
      * The time at which the simulation should stop
      */
     double mEndTime;
+
     /**
      * Stores the time at which the simulation started
      */
     double mStartTime;
+
     /**
      * A flag allowing us to determine whether the start time of the simulation
      * has been set.

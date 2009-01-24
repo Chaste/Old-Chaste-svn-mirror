@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class CancerParameters
 {
 public:
+
     /**
      * Call this method to access the global parameters holder.
      *

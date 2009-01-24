@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 
+/**
+ * Mini-class to help archiving of mesh-based tissues. The mesh pathname is 
+ * required since we cannot serialize meshes directly.
+ */
 class MeshArchiveInfo
 {
 public:

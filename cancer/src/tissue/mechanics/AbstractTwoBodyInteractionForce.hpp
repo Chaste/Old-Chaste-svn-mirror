@@ -66,6 +66,8 @@ public :
     /**
      * Use a cutoff point, ie specify zero force if two cells are greater
      * than the cutoff distance apart
+     * 
+     * @param cutoffPoint the cutoff to use
      */
     void UseCutoffPoint(double cutoffPoint);
 

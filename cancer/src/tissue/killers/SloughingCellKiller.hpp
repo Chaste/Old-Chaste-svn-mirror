@@ -65,11 +65,14 @@ public:
 
     /**
      * Default constructor.
+     * 
+     * @param pCrypt pointer to a tissue
+     * @param sloughSides whether to slough cells at the side of the crypt
      */
     SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false);
 
     /**
-     * Get method for mSloughSides.
+     * @return mSloughSides.
      */
     bool GetSloughSides() const;
 

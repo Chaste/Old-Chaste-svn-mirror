@@ -84,7 +84,7 @@ private:
      * 
      * @return the force contribution.
      */
-     c_vector<double, DIM> GetDeformationForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
+    c_vector<double, DIM> GetDeformationForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
 
     /** 
      * Compute the force contribution on given node from the 
@@ -95,7 +95,7 @@ private:
      * 
      * @return the force contribution.
      */
-     c_vector<double, DIM> GetMembraneForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
+    c_vector<double, DIM> GetMembraneForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
 
     /** 
      * Compute the force contribution on given node from the 
@@ -106,7 +106,7 @@ private:
      * 
      * @return the force contribution.
      */
-     c_vector<double, DIM> GetAdhesionForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
+    c_vector<double, DIM> GetAdhesionForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
 
 public:
 

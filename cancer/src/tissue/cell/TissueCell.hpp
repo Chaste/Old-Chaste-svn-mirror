@@ -141,12 +141,15 @@ public:
 
     /**
      * Set the birth time of the cell - can be negative so that your cells have an age when a simulation begins
+     * 
      * @param birthTime  The time the cell was born (in hours)
      */
     void SetBirthTime(double birthTime);
 
     /**
      * Change the cell cycle model used. This takes effect immediately.
+     * 
+     * @param pCellCycleModel pointer to the cell cycle model to use
      */
     void SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel);
     
@@ -177,6 +180,8 @@ public:
 
     /**
      * Set method for mCellType.
+     * 
+     * @param cellType
      */    
     void SetCellType(CellType cellType);
     
@@ -187,6 +192,8 @@ public:
 
     /**
      * Set method for mMutationState.
+     * 
+     * @param mutationState
      */  
     void SetMutationState(CellMutationState mutationState);
 

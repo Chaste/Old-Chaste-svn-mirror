@@ -408,7 +408,7 @@ public:
 
         TS_ASSERT_DELTA(norm_2(meineke_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.50, 1e-10);
 
-        meineke_force.SetBCatSprings(true);
+        meineke_force.SetBetaCateninSprings(true);
         crypt.CreateVoronoiTessellation();  // this method is normally called in a simulation loop
 
         /// \todo this is currently a rather poor test - it just checks that
@@ -633,7 +633,7 @@ public:
             p_meineke_force->UseCutoffPoint(1.1);
             p_meineke_force->SetEdgeBasedSpringConstant(true);
             p_meineke_force->SetMutantSprings(true, 0.2, 0.3);
-            p_meineke_force->SetBCatSprings(true);
+            p_meineke_force->SetBetaCateninSprings(true);
             p_meineke_force->SetApoptoticSprings(true);
 
             output_arch << p_meineke_force;

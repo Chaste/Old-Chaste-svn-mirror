@@ -230,14 +230,14 @@ public:
     /** 
      * Set method for mWriteTissueAreas. 
      * 
-     * @param   whether to output tissue area data
+     * @param writeTissueAreas  whether to output tissue area data
      */
     void SetWriteTissueAreas(bool writeTissueAreas);
 
     /** 
      * Set method for mUseAreaBasedDampingConstant. 
      * 
-     * @param   whether to use a viscosity that is linear in the cell area, rather than constant
+     * @param useAreaBasedDampingConstant  whether to use a viscosity that is linear in the cell area, rather than constant
      */
     void SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant);
 
@@ -263,7 +263,8 @@ public:
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
-     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
+     * 
+     * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
     TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
 

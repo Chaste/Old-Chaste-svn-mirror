@@ -140,7 +140,7 @@ public:
      *  Get the Wnt level at a given height in the crypt. Note the
      *  CancerParameters::CryptLength() is used for this.
      *
-     *  @param height The height of the cell at which we want the Wnt concentration
+     *  @param height the height of the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this height in the crypt (dimensionless)
      */
     double GetWntLevel(double height);
@@ -156,8 +156,10 @@ public:
     double GetWntLevel(TissueCell* pCell);
 
     /**
-     *  Get the Wnt gradient at a given height in the crypt. Note the
+     *  Get the Wnt gradient at a given location in the crypt. Note the
      *  CancerParameters::CryptLength() is used for this.
+     * 
+     *  @param location  the location at which we want the Wnt gradient
      */
     c_vector<double,2> GetWntGradient(c_vector<double,2> location);
 
@@ -165,12 +167,16 @@ public:
      *  Get the Wnt gradient at a given cell in the crypt. The crypt
      *  must be set for this. Note the CancerParameters::CryptLength()
      *  is used for this.
+     * 
+     *  @param pCell pointer to the cell at which we want the Wnt gradient
      */
     c_vector<double,2> GetWntGradient(TissueCell* pCell);
 
     /**
      *  Set the crypt. Must be called before GetWntLevel().
      *
+     *  @param rTissue reference to the tissue
+     * 
      *  \todo Figure out how to generalise this to AbstractTissue so it works with vertex models (#878)
      */
     void SetTissue(AbstractCellCentreBasedTissue<2>& rTissue);
@@ -182,12 +188,16 @@ public:
 
     /**
      *  Set the type of Wnt concentration. Must be called before GetWntLevel().
+     * 
+     *  @param type the type of Wnt concentration
      */
     void SetType(WntConcentrationType type);
 
     /**
      *  Force the Wnt concentration to return a given value for all cells.
      *  Only for testing.
+     *  
+     *  @value the constant value to set the Wnt concentration to be
      */
     void SetConstantWntValueForTesting(double value);
 

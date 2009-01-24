@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleMeinekeCellCycleModel.hpp"
 
 /**
- *  Fixed cell cycle model
+ *  Fixed cell cycle model.
  *
  *  Cell cycle time is deterministic for stem and transit cells (with values
  *  CancerParameters::StemCellG1Duration + SG2MDuration
@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class FixedCellCycleModel : public AbstractSimpleMeinekeCellCycleModel
 {
 private:
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -53,8 +54,7 @@ private:
      * @param g1Duration 
      * @param generation
      */
-    FixedCellCycleModel(double g1Duration, unsigned generation):
-        AbstractSimpleMeinekeCellCycleModel(g1Duration, generation){};
+    FixedCellCycleModel(double g1Duration, unsigned generation);
 
 public:
 

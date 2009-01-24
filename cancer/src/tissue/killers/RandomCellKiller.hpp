@@ -69,18 +69,23 @@ public:
 
     /**
      * Default constructor.
+     * 
+     * @param pTissue pointer to the tissue
+     * @param probabilityOfDeath probability that a cell is labelled for apoptosis
      */
     RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath);
 
     /**
-     * Get method for mProbabilityOfDeath.
+     * @return mProbabilityOfDeath.
      */
     double GetDeathProbability() const;
 
     /**
      * Overridden method to test a given cell for apoptosis. 
+     * 
+     * @param rCell the cell to test for apoptosis
      */
-    void TestAndLabelSingleCellForApoptosis(TissueCell& cell);
+    void TestAndLabelSingleCellForApoptosis(TissueCell& rCell);
 
     /**
      *  Loop over cells and start apoptosis randomly, based on the user-set

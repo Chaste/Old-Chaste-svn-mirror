@@ -74,7 +74,7 @@ public:
     void SetHypoxicConcentration(double hypoxicConcentration);
 
     /**
-     * Get method for mHypoxicConcentration.
+     * @return mHypoxicConcentration.
      */
     double GetHypoxicConcentration() const;
 

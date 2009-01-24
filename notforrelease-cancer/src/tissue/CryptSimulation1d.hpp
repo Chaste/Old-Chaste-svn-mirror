@@ -103,6 +103,7 @@ public:
      */
     CryptSimulation1d(MutableMesh<1,1> &rMesh,
                       std::vector<TissueCell> cells = std::vector<TissueCell>());
+
     /**
      * Destructor, frees any memory allocated by the constructor.
      */
@@ -138,11 +139,13 @@ public:
 
     /**
      * Set method for mMaxCells.
+     * 
+     * @param maxCells
      */    
     void SetMaxCells(unsigned maxCells);
     
     /**
-     * Get method for mCells.
+     * @return mCells.
      */
     std::vector<TissueCell> GetCells();
 

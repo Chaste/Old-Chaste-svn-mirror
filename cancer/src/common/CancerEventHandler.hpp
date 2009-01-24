@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GenericEventHandler.hpp"
 
+/**
+ * A cancer event class that can be used to calculate the time taken to 
+ * execute various parts of a tissue simulation. 
+ */ 
 typedef enum CancerEventType_
 {
     SETUP=0,

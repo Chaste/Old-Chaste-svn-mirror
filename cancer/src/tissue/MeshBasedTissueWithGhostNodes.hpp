@@ -98,7 +98,7 @@ public:
      * to integrate the equations of motion.
      * 
      * @param rNodeForces  forces on nodes
-     * @param dt time step
+     * @param dt  time step
      */
     void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt);
 
@@ -133,25 +133,33 @@ public:
     std::set<unsigned> GetGhostNodeIndices();
 
     /**
-     *  Set the ghost nodes, by taking in a vector of bools saying whether each
-     *  node is a ghost or not. Won't generally be needed to be called, see
-     *  alternate version of SetGhostNodes which takes in the ghost node indices
+     * Set the ghost nodes, by taking in a vector of bools saying whether each
+     * node is a ghost or not. Won't generally be needed to be called, see
+     * alternate version of SetGhostNodes which takes in the ghost node indices
+     * 
+     * @param isGhostNode
      */
     void SetGhostNodes(const std::vector<bool>& isGhostNode);
 
     /**
-     *  Set the ghost nodes by taking in a set of which nodes are ghosts.
+     * Set the ghost nodes by taking in a set of which nodes are ghosts.
+     * 
+     * @param ghostNodeIndices
      */
     void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
 
 	/**
      * Update the GhostNode positions using the spring force model with rest length=1.
      * Forces are applied to ghost nodes from connected ghost and normal nodes.
+     * 
+     * @param dt
      */
     void UpdateGhostPositions(double dt);
 
     /**
      * Update mIsGhostNode if required by a remesh.
+     * 
+     * @param rMap
      */
     void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
 
@@ -164,11 +172,6 @@ public:
      * @return The force exerted on Node A by Node B.
      */
     c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
-
-    /**
-     * Update mIsGhostNode if required as a result of remeshing.
-     */
-    void UpdateGhostNodesDuringReMesh(NodeMap map);
 
     /**
      * Overridden AddCell() method.

@@ -61,6 +61,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double thresholdDistance)
     Clear();
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp, double thresholdDistance)
     : mThresholdDistance(thresholdDistance),
@@ -495,7 +496,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
         #define COVERAGE_IGNORE
         EXCEPTION("Remeshing has not been implemented in 3D (see #827 and #860)\n");
         #undef COVERAGE_IGNORE
-        /// \todo put code for remeshing in 3D here (see also the paper doi:10.1016/j.jtbi.2003.10.001)
+        /// \todo put code for remeshing in 3D here - see #866 and the paper doi:10.1016/j.jtbi.2003.10.001
     }    
 }
 
@@ -542,7 +543,7 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndice
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAlsoInElement(unsigned nodeIndex, unsigned elemIndex)
 {
-    /// \todo We should probably assert here that the node is in fact contained in the element (see #827)
+    /// \todo We should probably assert here that the node is in fact contained in the element
 
     // Create a set of neighbouring node indices
     std::set<unsigned> neighbouring_node_indices_not_in_this_element;
@@ -868,6 +869,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
     }
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
@@ -921,8 +923,10 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
         intersecting_nodes.push_back(num_nodes-1);
     }
     
-    /// \todo remove assert and make an if statement returning an error if needed (see #880)
-    assert(intersecting_nodes.size()==2); // only divide if 2 intersections 
+    if (intersecting_nodes.size()!=2)
+    {
+        EXCEPTION("Cannot proceed with cell division algorithm - the number of intersecting nodes is not equal to 2");        
+    }
     
     std::vector<unsigned> new_node_global_indices;  
     

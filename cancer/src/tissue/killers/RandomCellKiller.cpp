@@ -48,12 +48,12 @@ double RandomCellKiller<SPACE_DIM>::GetDeathProbability() const
 
 
 template <unsigned SPACE_DIM>
-void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& cell)
+void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
 {
-    if (!cell.HasApoptosisBegun() &&
+    if (!rCell.HasApoptosisBegun() &&
         RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
     {
-        cell.StartApoptosis();
+        rCell.StartApoptosis();
     }
 }
 

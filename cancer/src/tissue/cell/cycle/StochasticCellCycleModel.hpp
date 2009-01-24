@@ -63,6 +63,9 @@ private:
 
     /**
      * Private constructor for identical cells.
+     * 
+     * @param g1Duration
+     * @param generation
      */
     StochasticCellCycleModel(double g1Duration, unsigned generation);
 

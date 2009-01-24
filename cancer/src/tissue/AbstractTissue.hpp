@@ -148,20 +148,20 @@ public:
     bool HasMesh();
 
     /**
-     * @return the number of nodes in the tissue.
-     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
+     * 
+     * @return the number of nodes in the tissue.
      */
     virtual unsigned GetNumNodes()=0;
 
     /**
-     * @return a pointer to the node with a given index.
-     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
      * @param index  global index of the specified node
+     * 
+     * @return a pointer to the node with a given index.
      */
     virtual Node<DIM>* GetNode(unsigned index)=0;
 
@@ -172,7 +172,8 @@ public:
      * in subclasses.
      *
      * @param pNewNode pointer to the new node
-     * @return global index of new node in tissue
+     * 
+     * @return global index of new node in tissue.
      */
     virtual unsigned AddNode(Node<DIM> *pNewNode)=0;
 
@@ -191,6 +192,7 @@ public:
      * Helper method for establishing if a cell is real.
      *
      * @param rCell the cell
+     * 
      * @return whether a given cell is associated with a ghost node.
      */
     virtual bool IsCellAssociatedWithAGhostNode(TissueCell& rCell);
@@ -202,9 +204,8 @@ public:
      * in subclasses.
      *
      * @param rCell the cell
+     * 
      * @return whether a given cell is associated with a deleted node.
-     *
-     * As this method is pure virtual, it must be overridden
      */
     virtual bool IsCellAssociatedWithADeletedNode(TissueCell& rCell)=0;
 
@@ -228,7 +229,8 @@ public:
      * in subclasses.
      *
      * @param nodeIndex the global index of this node
-     * @return the damping constant at the node
+     * 
+     * @return the damping constant at the node.
      */
     virtual double GetDampingConstant(unsigned nodeIndex)=0;
 
@@ -241,7 +243,8 @@ public:
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
-     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
+     * 
+     * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way).
      */
     virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL)=0;
 
@@ -333,10 +336,14 @@ public:
     std::set<unsigned> GetCellAncestors();
 
     /**
-     *  Get the cell corresponding to a given node.
+     * Get the cell corresponding to a given node.
      *
-     *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors.
-     *  An assertion fails if not.
+     * Currently assumes there is one cell for each node, and they are ordered identically in their vectors.
+     * An assertion fails if not.
+     * 
+     * @param index index of the node
+     * 
+     * @return reference to the cell.
      */
     TissueCell& rGetCellUsingLocationIndex(unsigned index);
 
@@ -369,6 +376,15 @@ public:
                                    bool outputCellCyclePhases,
                                    bool outputCellAncestors);
 
+    /**
+     * Write results from the current tissue state to output files.
+     *
+     * @param outputCellMutationStates  whether to output cell mutation state results
+     * @param outputCellTypes  whether to output cell type results
+     * @param outputCellVariables  whether to output cell-cycle variable results
+     * @param outputCellCyclePhases  whether to output cell-cycle phase results
+     * @param outputCellAncestors  whether to output cell ancestor results
+     */
     virtual void WriteResultsToFiles(bool outputCellMutationStates,
                                      bool outputCellTypes,
                                      bool outputCellVariables,

@@ -64,7 +64,7 @@ private:
     }
 
     /**
-     * The duration of the G2 phase, set stochastically
+     * The duration of the G2 phase, set stochastically.
      */
     double mG2Duration;
 
@@ -82,7 +82,6 @@ private:
      * The time when the current period of hypoxia began.
      */
     double mCurrentHypoxiaOnsetTime;
-
 
     /**
      * Stochastically set the G2 duration.  Called on cell creation at
@@ -122,7 +121,9 @@ public:
      */
     void ResetForDivision();
 
-    /** Get method for mG2Duration. */
+    /** 
+     * @return mG2Duration.
+     */
     double GetG2Duration();
 
     /**

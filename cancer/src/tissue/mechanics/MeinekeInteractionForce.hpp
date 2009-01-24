@@ -72,6 +72,13 @@ public :
      * returns a default value of 1.
      * 
      * This method is overridden in a subclass. 
+     * 
+     * @param nodeAGlobalIndex index of one neighbouring node
+     * @param nodeAGlobalIndex index of the other neighbouring node
+     * @param rTissue the tissue
+     * @param isCloserThanRestLength whether the neighbouring nodes lie closer than the rest length of their connecting spring
+     * 
+     * @return the multiplication factor.
      */
     virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
                                                               unsigned nodeBGlobalIndex,
@@ -96,6 +103,9 @@ public :
                                                      AbstractTissue<DIM>& rTissue);  
     /**
      * Overridden AddForceContribution() method.
+     * 
+     * @param rForces reference to vector of forces on nodes
+     * @param rTissue reference to the tissue
      */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);

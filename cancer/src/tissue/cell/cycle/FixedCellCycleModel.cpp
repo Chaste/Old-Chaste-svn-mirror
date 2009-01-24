@@ -32,6 +32,13 @@ FixedCellCycleModel::FixedCellCycleModel()
 {
 }
 
+
+FixedCellCycleModel::FixedCellCycleModel(double g1Duration, unsigned generation)
+    : AbstractSimpleMeinekeCellCycleModel(g1Duration, generation)
+{
+}
+    
+    
 AbstractCellCycleModel* FixedCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new FixedCellCycleModel(mG1Duration, mGeneration);

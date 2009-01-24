@@ -70,12 +70,12 @@ public:
                               double radius);
 
     /**
-     * Get method for mCentre.
+     * @return mCentre.
      */
     c_vector<double,2> GetCentre() const;
 
     /**
-     * Get method for mRadius.
+     * @return mRadius.
      */
     double GetRadius() const;
 

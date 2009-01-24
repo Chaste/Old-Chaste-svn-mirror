@@ -39,27 +39,31 @@ class CellwiseDataGradient
 private:
 
     /**
-     *  The final gradients at the nodes
+     * The final gradients at the nodes
      */
     std::vector<c_vector<double, DIM> > mGradients;
 
 public:
 
     /**
-     *  Compute the gradients at the nodes
-     *  This is done by averaging the gradients at all the containing (non-ghost)
-     *  elements for that node. Note that the gradients are piecewise constant-
-     *  constant in each element
+     * Compute the gradients at the nodes.
+     * 
+     * This is done by averaging the gradients at all the containing (non-ghost)
+     * elements for that node. Note that the gradients are piecewise constant-
+     * constant in each element
      */
     void SetupGradients();
 
     /**
-     *  Get the gradient at each node. Not set up for ghost nodes
+     * Get the gradient at a given node. Not set up for ghost nodes.
+     * 
+     * @param nodeIndex 
+     * 
+     * @return the gradient at the node.
      */
     c_vector<double, DIM>& rGetGradient(unsigned nodeIndex);
 
 };
-
 
 
 #endif /*CELLWISEDATAGRADIENT_HPP_*/
