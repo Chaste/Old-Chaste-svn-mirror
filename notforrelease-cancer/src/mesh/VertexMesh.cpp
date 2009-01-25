@@ -395,9 +395,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
 
         // Add new node to this element
         GetElement(*iter)->AddNode(index, p_new_node);
-        
-        // Add this element to new node
-        p_new_node->AddElement(*iter);
     }
 }
 
@@ -969,33 +966,54 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
         new_node_global_indices.push_back(node_global_index);
     }
 
-//    for (unsigned i=0; i<intersecting_nodes.size(); i++)
-//    {
-//        // Find the indices of the elements owned by each node on the edge into which one new node will be inserted
-//        std::set<unsigned> elems_containing_node1 = GetNode(GetNodeGlobalIndex(intersecting_nodes[i]+i))->rGetContainingElementIndices();
-//        std::set<unsigned> elems_containing_node2 = GetNode(GetNodeGlobalIndex((intersecting_nodes[i]+i+1)%num_nodes))->rGetContainingElementIndices();
-//    
-//        // Find common elements
-//        std::set<unsigned> shared_elements;
-//        std::set_intersection(elems_containing_node1.begin(),
-//                              elems_containing_node1.end(),
-//                              elems_containing_node2.begin(),
-//                              elems_containing_node2.end(),
-//                              std::inserter(shared_elements, shared_elements.begin()));
-//
-//        // \todo (#880) Add each new node to each element - note that we will need to be careful about 
-//        // which local node index we want to add each new node after.
-//    }
+    for (unsigned i=0; i<intersecting_nodes.size(); i++)
+    {
+        // Get pointers to the nodes forming the edge into which one new node will be inserted
+        
+        /* 
+         * Note that when we use the first entry of intersecting_nodes to add a node,
+         * we change the local index of the second entry of intersecting_nodes in 
+         * pElement, so must account for this by moving one entry further on.
+         */
 
-    /*
-     * Add new node to pElement (note that AddNode() also adds this element to the node).
-     * 
-     * Note that when we use the first entry of intersecting_nodes to add a node,
-     * we change the local index of the second entry of intersecting_nodes in 
-     * pElement, so must account for this by moving one entry further on.
-     */
-    pElement->AddNode(intersecting_nodes[0], GetNode(new_node_global_indices[0]));
-    pElement->AddNode(intersecting_nodes[1]+1, GetNode(new_node_global_indices[1]));
+        Node<SPACE_DIM>* p_node_A = pElement->GetNode((intersecting_nodes[i]+i)%pElement->GetNumNodes());         
+        Node<SPACE_DIM>* p_node_B = pElement->GetNode((intersecting_nodes[i]+i+1)%pElement->GetNumNodes());
+
+        // Find the indices of the elements owned by each node on the edge into which one new node will be inserted
+        std::set<unsigned> elems_containing_node1 = p_node_A->rGetContainingElementIndices();
+        std::set<unsigned> elems_containing_node2 = p_node_B->rGetContainingElementIndices();
+    
+        // Find common elements
+        std::set<unsigned> shared_elements;
+        std::set_intersection(elems_containing_node1.begin(),
+                              elems_containing_node1.end(),
+                              elems_containing_node2.begin(),
+                              elems_containing_node2.end(),
+                              std::inserter(shared_elements, shared_elements.begin()));
+
+        // Iterate over common elements    
+        for (std::set<unsigned>::iterator iter=shared_elements.begin();
+             iter!=shared_elements.end();
+             ++iter)
+        {
+            // Find which node has the lower local index in this element
+            unsigned local_indexA = GetElement(*iter)->GetNodeLocalIndex(p_node_A->GetIndex());
+            unsigned local_indexB = GetElement(*iter)->GetNodeLocalIndex(p_node_B->GetIndex());
+            
+            unsigned index = local_indexB;
+            if ( (local_indexA == 0) || (local_indexB == 0) || (local_indexB > local_indexA) )
+            {
+                index = local_indexA;                 
+            }
+            if ( (local_indexA == 0) && (local_indexB == GetElement(*iter)->GetNumNodes()-1))
+            {
+                index = local_indexB;
+            }
+    
+            // Add new node to this element
+            GetElement(*iter)->AddNode(index, GetNode(new_node_global_indices[i]));
+        }
+    }
 
     // Now call DivideElement() to divide the element using the new nodes
     DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]), pElement->GetNodeLocalIndex(new_node_global_indices[1]));
