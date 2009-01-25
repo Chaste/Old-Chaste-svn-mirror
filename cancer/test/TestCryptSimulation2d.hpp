@@ -968,6 +968,7 @@ public:
         TS_ASSERT_EQUALS(num_deaths, 11u);
     }
 
+
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
     {
         // Set up cancer parameters

@@ -161,7 +161,7 @@ public:
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        simulator.SetOutputDirectory("Crypt2DSprings")
+        simulator.SetOutputDirectory("Crypt2DSprings");
         simulator.SetEndTime(1.0);
         simulator.SetUpdateTissueRule(false);
         simulator.SetNoBirth(true);
@@ -215,9 +215,16 @@ public:
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
+
+        /// \todo sort out cell generator - see #430
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);
+        }
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -273,9 +280,16 @@ public:
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true,-1.0);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, -1.0);
+
+        /// \todo sort out cell generator - see #430
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -337,7 +351,7 @@ public:
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = p_mesh->GetNumAllNodes();
+        unsigned num_cells = location_indices.size();
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
@@ -345,7 +359,7 @@ public:
             unsigned generation;
             double birth_time;
 
-            if (i==27) // middle of bottom row of cells
+            if (location_indices[i]==27) // middle of bottom row of cells
             {
                 cell_type = STEM;
                 generation = 0;
@@ -437,9 +451,16 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
+
+        /// \todo sort out cell generator - see #430
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -481,9 +502,16 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
+
+        /// \todo sort out cell generator - see #430
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -618,6 +646,9 @@ public:
         WntConcentration::Destroy();
     }
 
+    /// \todo changed test below because once ghost nodes are not 
+    /// associated with cells, we will never be able to get to 
+    /// a situation where there are no real cells    
     void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;
@@ -630,9 +661,16 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
+
+        /// \todo sort out cell generator - see #430
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -645,7 +683,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
-        simulator.SetEndTime(4.6);
+        simulator.SetEndTime(4.0);
 
         // Create cell killer and pass in to crypt simulation
         RandomCellKiller<2> random_cell_killer(&crypt, 0.01);
@@ -655,7 +693,7 @@ public:
         simulator.Solve();
 
         // There should be no cells left after this amount of time
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 1u);
     }
 
     /**
@@ -710,9 +748,16 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCell> temp_cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
+
+        /// \todo sort out cell generator - see #430
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            cells.push_back(temp_cells[location_indices[i]]);       
+        }
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -734,9 +779,9 @@ public:
         // Run simulation
         simulator.Solve();
 
-        std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
-        unsigned num_ghosts=0;
-        for (unsigned i=0; i < ghost_node_indices_after.size(); i++)
+        std::vector<bool> ghost_node_indices_after = (static_cast<MeshBasedTissueWithGhostNodes<2>* >(&(simulator.rGetTissue())))->rGetGhostNodes();
+        unsigned num_ghosts = 0;
+        for (unsigned i=0; i<ghost_node_indices_after.size(); i++)
         {
             if (ghost_node_indices_after[i])
             {
@@ -745,13 +790,16 @@ public:
         }
 
         // Check no new ghost nodes have been created
-        TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes() - location_indices.size());
+        TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes() - crypt.GetNumRealCells());
 
         // There should be this number of cells left after this amount of time
         // (we have lost two rows of 7 but had a bit of birth too)
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 85u);
     }
 
+    /// \todo changed test below because once ghost nodes are not 
+    /// associated with cells, we will never be able to get to 
+    /// a situation where there are no real cells    
     void TestWithMultipleCellKillers() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
@@ -784,8 +832,8 @@ public:
         // Create cell killer and pass in to crypt simulation.
         // These killers are defined in this test. They kill 
         // the first and second available cell, respectively.
-        SingleCellCellKiller cell_killer1(&crypt,0);
-        SingleCellCellKiller cell_killer2(&crypt,1);
+        SingleCellCellKiller cell_killer1(&crypt, 0);
+        SingleCellCellKiller cell_killer2(&crypt, 1);
 
         simulator.AddCellKiller(&cell_killer1);
         simulator.AddCellKiller(&cell_killer2);
@@ -795,7 +843,7 @@ public:
         unsigned num_cells = crypt.GetNumRealCells();
 
         simulator.SetDt(dt);
-        simulator.SetEndTime(0.5*dt*num_cells);
+        simulator.SetEndTime(0.5*dt*(num_cells-2));
 
         // Run simulation
         simulator.Solve();
@@ -811,10 +859,10 @@ public:
         }
 
         // Check no new ghost nodes have been created
-        TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes() - location_indices.size());
+        TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes() - crypt.GetNumRealCells());
 
         // All cells should have been removed in this time
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 2u);
     }
 
     void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
