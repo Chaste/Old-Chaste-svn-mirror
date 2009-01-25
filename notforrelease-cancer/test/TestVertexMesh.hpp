@@ -736,27 +736,27 @@ public:
     }
     
     
-    // \todo this test is too simple need to use a non regular element
-    void TestDivideVertexElement() throw(Exception)
-    {   
+    // \todo this test is too simple need to use a non regular element (see #880)
+    void TestDivideVertexElementGivenNodes() throw(Exception)
+    {
         // Make four nodes
         std::vector<Node<2>*> basic_nodes;
         basic_nodes.push_back(new Node<2>(0, false, 2.0, -1.0));
         basic_nodes.push_back(new Node<2>(1, false, 2.0, 1.0));
         basic_nodes.push_back(new Node<2>(2, false, -2.0, 1.0));
         basic_nodes.push_back(new Node<2>(3, false, -2.0, -1.0));
-        
+
         std::vector<Node<2>*> nodes_elem;
-        
+
         // Make one rectangular element out of these nodes
         nodes_elem.push_back(basic_nodes[0]);
         nodes_elem.push_back(basic_nodes[1]);
         nodes_elem.push_back(basic_nodes[2]);
         nodes_elem.push_back(basic_nodes[3]);
-        
+
         std::vector<VertexElement<2,2>*> basic_vertex_elements;
         basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem));
-        
+
         // Make a vertex mesh
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
 
@@ -765,7 +765,7 @@ public:
 
         // Divide element using 2 nodes
         unsigned new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(0), 2, 0);
-       
+
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
 
@@ -774,48 +774,94 @@ public:
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 2u);
-        
+
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u); 
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
+    }
 
+
+    // \todo this test is too simple need to use a non regular element (see #880)
+    void TestDivideVertexElementAlongShortAxis() throw(Exception)
+    {
         // Make four nodes
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 2.0, -1.0));
         nodes.push_back(new Node<2>(1, false, 2.0, 1.0));
         nodes.push_back(new Node<2>(2, false, -2.0, 1.0));
         nodes.push_back(new Node<2>(3, false, -2.0, -1.0));
-        
+        nodes.push_back(new Node<2>(4, false, 0.0, 2.0));
+
+        // Make a rectangular element out of nodes 0,1,2,3
         std::vector<Node<2>*> nodes_elem_1;
-        
-        // Make one rectangular element out of these nodes
         nodes_elem_1.push_back(nodes[0]);
         nodes_elem_1.push_back(nodes[1]);
         nodes_elem_1.push_back(nodes[2]);
         nodes_elem_1.push_back(nodes[3]);
-        
+
+        // Make a triangular element out of nodes 1,4,2
+        std::vector<Node<2>*> nodes_elem_2;
+        nodes_elem_2.push_back(nodes[1]);
+        nodes_elem_2.push_back(nodes[4]);
+        nodes_elem_2.push_back(nodes[2]);
+
         std::vector<VertexElement<2,2>*> vertex_elements;
         vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_1));
-        
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_2));
+
         // Make a vertex mesh
         VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
-        
-//        // Dvide element along short axis 
-//        vertex_mesh.DivideElement(vertex_mesh.GetElement(0));
-//        
-//        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-//
-//        //Now test the position of new nodes.
-//        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.0, 1e-8);
-//        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 1.0, 1e-8);
-//               
-//        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[0], 0.0, 1e-8);
-//        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1], -1.0, 1e-8);
-//        
-//        //Now test the nodes in each element. 
 
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
+        
+        // Dvide element 0 along short axis 
+        vertex_mesh.DivideElement(vertex_mesh.GetElement(0));
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 7u);
+
+        // Now test the position of new nodes
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[0], 0.0, 1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1], 1.0, 1e-8);
+
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[0], 0.0, 1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[1], -1.0, 1e-8);
+
+        // Now test the nodes in each element
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
+//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(0), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(1), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(2), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(3), 6u);
+
+//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(0), 1u);
+//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(1), 4u);
+//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(2), 2u);
+//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(3), 5u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(2), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(3), 6u);
+        
+        // Test ownership of the new nodes
+//        std::set<unsigned> expected_elements_containing_node_5;
+//        expected_elements_containing_node_5.insert(0);
+//        expected_elements_containing_node_5.insert(1);
+//        expected_elements_containing_node_5.insert(2);
+//        
+//        TS_ASSERT_EQUALS(vertex_mesh.GetNode(5)->rGetContainingElementIndices(), expected_elements_containing_node_5);
+        
+        std::set<unsigned> expected_elements_containing_node_6;
+        expected_elements_containing_node_6.insert(0);
+        expected_elements_containing_node_6.insert(2);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
     }
 
 };    

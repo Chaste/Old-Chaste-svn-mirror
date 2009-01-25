@@ -106,13 +106,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
 {
     assert(rIndex < this->mNodes.size());
-    
-    // Add pNode to rIndex+1 element of mNodes pushing the others up.
+
+    // Add pNode to rIndex+1 element of mNodes pushing the others up
     this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
 
     // Add element to this node
     this->mNodes[rIndex+1]->AddElement(this->mIndex);
-    
+
     // Flag that element has changed and we need to recalculate area and perimeter
     mElementModified = true;
 }

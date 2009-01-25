@@ -887,9 +887,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
     c_vector<double, SPACE_DIM> long_axis; // this is perpendicular to the short axis
     long_axis(0) = -short_axis(1);
     long_axis(1) = short_axis(0);
-    
+
     /// \todo Remove this temporary bool (see #880)
-    
+
     unsigned num_nodes = pElement->GetNumNodes();
 
     // Store if the node is on the side of the short axis which the long axis points to 
@@ -897,7 +897,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
     
     for (unsigned i=0; i<num_nodes; i++)
     {
-        c_vector<double, SPACE_DIM> node_location_from_centroid = pElement->GetNodeLocation(i)- centroid; 
+        c_vector<double, SPACE_DIM> node_location_from_centroid = pElement->GetNodeLocation(i) - centroid; 
         
         if (inner_prod(node_location_from_centroid, long_axis) >= 0)
         {
@@ -908,7 +908,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
             is_on_left[i] = false;
         }
     }
-    
+
     std::vector<unsigned> intersecting_nodes;
         
     for (unsigned i=0; i<num_nodes-1; i++)
@@ -922,14 +922,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
     {
         intersecting_nodes.push_back(num_nodes-1);
     }
-    
+
     if (intersecting_nodes.size()!=2)
     {
         EXCEPTION("Cannot proceed with cell division algorithm - the number of intersecting nodes is not equal to 2");        
     }
-    
+
     std::vector<unsigned> new_node_global_indices;  
-    
+
     for (unsigned i=0; i<intersecting_nodes.size(); i++)
     {
         // Find intersections between edges and short_axis
@@ -952,14 +952,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
          *  
          * position_a + alpha * a_to_b 
          * and
-         * centroid + beta * short_axis 
-         * 
+         * centroid + beta * short_axis   \todo fix this comment (see #880)
          */
 
         double determinant = a_to_b[0]*short_axis[1] - a_to_b[1]*short_axis[0];
          
-        double alpha = (centroid[0]*a_to_b[1]-position_a[0]*a_to_b[1]
-                        -centroid[1]*a_to_b[0]+position_a[1]*a_to_b[0])/determinant;
+        double alpha = (centroid[0]*a_to_b[1] - position_a[0]*a_to_b[1]
+                        -centroid[1]*a_to_b[0] + position_a[1]*a_to_b[0])/determinant;
 
         c_vector<double, SPACE_DIM> intersection = centroid + alpha*short_axis;
 
@@ -969,18 +968,37 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
         // Store index of new node
         new_node_global_indices.push_back(node_global_index);
     }
-    
-    /*
-     * \todo (#880)
-     * 
-     * At this point the mesh contains the new nodes, whose indices
-     * are contained in the vector new_node_global_indices, but we
-     * have not yet created a new element or updated the correspondence
-     * between nodes and elements.
-     */
 
-//    // Now call DivideElement() to divide the element using the new nodes 
-//    DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]),pElement->GetNodeLocalIndex(new_node_global_indices[1]));
+//    for (unsigned i=0; i<intersecting_nodes.size(); i++)
+//    {
+//        // Find the indices of the elements owned by each node on the edge into which one new node will be inserted
+//        std::set<unsigned> elems_containing_node1 = GetNode(GetNodeGlobalIndex(intersecting_nodes[i]+i))->rGetContainingElementIndices();
+//        std::set<unsigned> elems_containing_node2 = GetNode(GetNodeGlobalIndex((intersecting_nodes[i]+i+1)%num_nodes))->rGetContainingElementIndices();
+//    
+//        // Find common elements
+//        std::set<unsigned> shared_elements;
+//        std::set_intersection(elems_containing_node1.begin(),
+//                              elems_containing_node1.end(),
+//                              elems_containing_node2.begin(),
+//                              elems_containing_node2.end(),
+//                              std::inserter(shared_elements, shared_elements.begin()));
+//
+//        // \todo (#880) Add each new node to each element - note that we will need to be careful about 
+//        // which local node index we want to add each new node after.
+//    }
+
+    /*
+     * Add new node to pElement (note that AddNode() also adds this element to the node).
+     * 
+     * Note that when we use the first entry of intersecting_nodes to add a node,
+     * we change the local index of the second entry of intersecting_nodes in 
+     * pElement, so must account for this by moving one entry further on.
+     */
+    pElement->AddNode(intersecting_nodes[0], GetNode(new_node_global_indices[0]));
+    pElement->AddNode(intersecting_nodes[1]+1, GetNode(new_node_global_indices[1]));
+
+    // Now call DivideElement() to divide the element using the new nodes
+    DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]), pElement->GetNodeLocalIndex(new_node_global_indices[1]));
 }
 
 
@@ -995,8 +1013,11 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
     // Sort nodeA and nodeB such that nodeBIndex>nodeAindex
     assert(nodeBIndex!=nodeAIndex);
-    unsigned node1Index, node2Index;
-    if (nodeAIndex<nodeBIndex)
+    
+    unsigned node1Index;
+    unsigned node2Index;
+    
+    if (nodeAIndex < nodeBIndex)
     {
         node1Index = nodeAIndex;
         node2Index = nodeBIndex;
@@ -1006,10 +1027,10 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         node1Index = nodeBIndex;
         node2Index = nodeAIndex;
     }
-    
+
     // Copy element  
     std::vector<Node<SPACE_DIM>*> nodes_elem;
-    unsigned num_nodes = pElement->GetNumNodes(); //Store this as it changes when you delete nodes from element
+    unsigned num_nodes = pElement->GetNumNodes(); // store this as it changes when you delete nodes from element
     
     for (unsigned i=0; i<num_nodes; i++)
     {
@@ -1020,15 +1041,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     // Remove nodes  # < node1 and # > node2 from pElement  
     // Remove nodes node1 < # < node2 from new_element
     
-//    std::cout << "\n "<<  mElements[new_element_index]->GetNumNodes() << "\n\n" << std::flush;
-//    for(unsigned i=0; i<mElements[new_element_index]->GetNumNodes(); i++)
-//    {   
-//        std::cout << "\n containing elements of node " <<  mElements[new_element_index]->GetNodeGlobalIndex(i) << "\t ("<<  mElements[new_element_index]->GetNode(i)->GetNumContainingElements() << ")" <<std::flush;
-//    }
-    
     for (unsigned i=num_nodes; i>0; i--)
     {
-        
         if (i-1<node1Index || i-1>node2Index)
         {
             pElement->DeleteNode(i-1);

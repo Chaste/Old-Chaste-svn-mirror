@@ -82,10 +82,10 @@ public:
         // Add new node
         Node<2>* p_new_node = new Node<2>(4, false, 0.0, 0.0);
         vertex_element.AddNode(3, p_new_node); // Add node at (0,0) between nodes 3 and 0
-        
+
         // Test node is added
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 5u);
-               
+
         // Test other nodes are updated
         TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
