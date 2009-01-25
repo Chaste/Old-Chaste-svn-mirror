@@ -66,19 +66,23 @@ public:
 
     void TestGetSection() throw (Exception)
     {
+        // Create mesh
         unsigned cells_across = 3;
         unsigned cells_up = 3;
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.InitialiseCells(); // must be called explicitly as there is no simulation
 
@@ -153,6 +157,7 @@ public:
 
         std::string output_directory = "MakeMeinekeGraphs";
 
+        // Create mesh
         unsigned cells_across = 13;
         unsigned cells_up = 25;
         double crypt_width = 12.1;
@@ -160,12 +165,14 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> temp_cells;
         StochasticCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true, 0.3, 2.0, 3.0, 4.0, true);
+        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
         /// \todo (sort out cell generator - see #430)
         std::vector<TissueCell> cells;
@@ -174,6 +181,7 @@ public:
             cells.push_back(temp_cells[location_indices[i]]);       
         }
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         MeinekeInteractionForce<2> meineke_force;
@@ -334,6 +342,7 @@ public:
     {
         std::string output_directory = "MakeMoreMeinekeGraphs";
 
+        // Create mesh
         unsigned cells_across = 13;
         unsigned cells_up = 25;
         double crypt_width = 12.1;
@@ -363,9 +372,11 @@ public:
         std::vector<bool> labelled;
 
         CryptStatistics* p_crypt_statistics;
+
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2>* p_crypt;
 
-        HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         std::vector<unsigned> location_indices;
 
         Cylindrical2dMesh* p_mesh;
@@ -376,6 +387,7 @@ public:
         {
             // Create new structures for each simulation
             p_mesh = generator.GetCylindricalMesh();
+            location_indices = generator.GetCellLocationIndices();
 
             // Reset start time
             SimulationTime::Destroy();
@@ -385,9 +397,7 @@ public:
             // Set up cells
             std::vector<TissueCell> temp_cells;
             StochasticCellCycleModelCellsGenerator<2> cells_generator;
-            cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true, 0.3, 2.0, 3.0, 4.0, true);
-
-            location_indices = generator.GetCellLocationIndices();
+            cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
             /// \todo (sort out cell generator - see #430)
             std::vector<TissueCell> cells;

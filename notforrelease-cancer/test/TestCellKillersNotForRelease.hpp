@@ -74,7 +74,7 @@ public:
         // Create cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -131,7 +131,7 @@ public:
         // Create cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);

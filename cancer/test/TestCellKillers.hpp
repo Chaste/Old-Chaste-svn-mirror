@@ -50,7 +50,7 @@ public:
 
     void TestRandomCellKiller(void) throw(Exception)
     {
-        // Set up
+        // Set up singleton classes
         CancerParameters *p_params = CancerParameters::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
@@ -62,7 +62,7 @@ public:
         // Create cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -145,7 +145,7 @@ public:
 
     void TestSloughingCellKillerTopAndSides(void) throw(Exception)
     {
-        // Set up
+        // Set up singleton classes
         CancerParameters *p_params = CancerParameters::Instance();
 
         // Create mesh
@@ -157,7 +157,7 @@ public:
         // Create cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -204,7 +204,7 @@ public:
 
     void TestSloughingCellKillerTopOnly(void) throw(Exception)
     {
-        // Set up
+        // Set up singleton classes
         CancerParameters *p_params = CancerParameters::Instance();
 
         // Create mesh
@@ -262,7 +262,7 @@ public:
 
     void TestArchivingOfRandomCellKiller() throw (Exception)
     {
-        // Set up
+        // Set up singleton classes
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "random_killer.arch";
@@ -301,7 +301,7 @@ public:
 
     void TestArchivingOfSloughingCellKiller() throw (Exception)
     {
-        // Set up
+        // Set up singleton classes
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";

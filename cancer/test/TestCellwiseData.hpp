@@ -59,7 +59,7 @@ public:
         // so the age = node_index
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue
         MeshBasedTissue<2> tissue(mesh,cells);
@@ -146,7 +146,7 @@ public:
         // Set up cells, one for each node. Get each a birth time of -node_index, so the age = node_index
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue
         MeshBasedTissue<2> tissue(mesh,cells);

@@ -61,7 +61,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<location_indices.size(); i++)
         {
             CellMutationState mutation_state = HEALTHY;
             if (i==60)
@@ -74,14 +74,7 @@ public:
             cells.push_back(cell);
         }
 
-        /// \todo (sort out cell generator - see #430)
-        std::vector<TissueCell> real_cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            real_cells.push_back(cells[location_indices[i]]);       
-        }
-
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, real_cells, location_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
         MeinekeInteractionForce<2> meineke_force;
 
         /*
@@ -203,16 +196,9 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true); // true = mature cells
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true); // true = mature cells
 
-        /// \todo (sort out cell generator - see #430)
-        std::vector<TissueCell> real_cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            real_cells.push_back(cells[location_indices[i]]);       
-        }
-
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, real_cells, location_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
         MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
 
         // Check that the force between nodes is correctly calculated when the 'spring constant' is constant
@@ -247,10 +233,6 @@ public:
 
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 4.34027778, 1e-3);
         }
-
-        /// \todo Had to change this test because the nodes were nodes 20 and 21, which 
-        /// are ghost nodes, and as of #430 do not correspond to cells (hence are not called
-        /// by the force class).
 
         // Choose two interior neighbour nodes
         c_vector<double, 2> force = meineke_force.CalculateForceBetweenNodes(41u, 42u, tissue);
@@ -291,16 +273,9 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);// true = mature cells
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
 
-        /// \todo (sort out cell generator - see #430)
-        std::vector<TissueCell> real_cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            real_cells.push_back(cells[location_indices[i]]);       
-        }
-
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, real_cells, location_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
         MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
 
         // Check that the force between nodes is correctly calculated when the spring constant is constant (!)
@@ -350,7 +325,7 @@ public:
 
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         MeshBasedTissue<2> tissue(mesh, cells);
 
@@ -394,7 +369,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(2u);
-        cells_generator.GenerateForCrypt(cells, *p_mesh, false);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
@@ -432,7 +407,7 @@ public:
 
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         MeshBasedTissueWithGhostNodes<2> stretched_tissue(*p_mesh, cells, location_indices);
 
@@ -461,7 +436,7 @@ public:
 
         std::vector<TissueCell> cells2;
         FixedCellCycleModelCellsGenerator<2> cells_generator2;
-        cells_generator2.GenerateBasic(cells2, *p_mesh2);
+        cells_generator2.GenerateGivenLocationIndices(cells2, location_indices2);
 
         MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, location_indices2);
         squashed_tissue.InitialiseCells();

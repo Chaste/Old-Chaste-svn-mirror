@@ -60,16 +60,38 @@ bool FixedCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
 
 template<unsigned DIM>
 void FixedCellCycleModelCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
-                                                           TetrahedralMesh<DIM,DIM>& rMesh)
+                                                           const unsigned numCells)
 {
     rCells.clear();
-    rCells.reserve(rMesh.GetNumNodes());
-    
-    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    rCells.reserve(numCells);
+
+    for (unsigned i=0; i<numCells; i++)
     {
         AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
-        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);        
+        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
         double birth_time = 0.0 - i;
+        cell.SetBirthTime(birth_time);
+        rCells.push_back(cell);
+    }
+}
+
+
+template<unsigned DIM>
+void FixedCellCycleModelCellsGenerator<DIM>::GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
+                                                                          const std::vector<unsigned> locationIndices)
+{
+    assert(!locationIndices.empty());
+
+    unsigned num_cells = locationIndices.size();
+
+    rCells.clear();
+    rCells.reserve(num_cells);
+
+    for (unsigned i=0; i<num_cells; i++)
+    {
+        AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
+        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+        double birth_time = 0.0 - locationIndices[i];
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);
     }

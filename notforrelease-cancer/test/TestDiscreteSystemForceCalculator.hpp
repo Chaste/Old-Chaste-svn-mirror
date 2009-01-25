@@ -54,7 +54,7 @@ public:
 
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
@@ -143,7 +143,7 @@ public:
 
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
@@ -212,7 +212,7 @@ public:
 
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 

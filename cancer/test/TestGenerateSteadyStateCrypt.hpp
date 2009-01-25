@@ -62,6 +62,7 @@ public:
         double end_of_simulation = 150.0; // hours
         double time_of_each_run = 10.0; // for each run - the more saves and loads the better for testing this
 
+        // Create mesh
         unsigned cells_across = 13;
         unsigned cells_up = 25;
         double crypt_width = 12.1;
@@ -69,6 +70,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -77,7 +80,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         StochasticWntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 

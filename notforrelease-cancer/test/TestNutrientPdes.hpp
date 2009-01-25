@@ -67,7 +67,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Make one cell apoptotic
         cells[0].SetCellType(APOPTOTIC);
@@ -103,7 +103,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, *p_mesh);
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a coarse mesh - element 1 contains all the cells,

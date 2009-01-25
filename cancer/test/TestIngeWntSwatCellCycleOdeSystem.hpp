@@ -616,20 +616,13 @@ public:
         p_simulation_time->SetStartTime(0.0);
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, true);
-
-        for (unsigned i=0; i<temp_cells.size(); i++)
-        {
-            temp_cells[i].SetBirthTime(-1.1); // just to make the test run a bit quicker
-        }
-
-        /// \todo (sort out cell generator - see #430)
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
+        IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            cells.push_back(temp_cells[location_indices[i]]);       
+            cells[i].SetBirthTime(-1.1); // just to make the test run a bit quicker
         }
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);

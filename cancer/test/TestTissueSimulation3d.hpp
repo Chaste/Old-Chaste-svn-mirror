@@ -207,28 +207,25 @@ public:
         unsigned height = 3;
         unsigned depth = 3;
 
-        MutableMesh<3,3> mesh = Make3dMesh(width,height,depth);
-        TrianglesMeshWriter<3,3> mesh_writer("TestGhostNodesSpheroidSimulation3D","StartMesh");
+        MutableMesh<3,3> mesh = Make3dMesh(width, height, depth);
+        TrianglesMeshWriter<3,3> mesh_writer("TestGhostNodesSpheroidSimulation3D", "StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
-
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<TissueCell> cells;
 
         c_vector<double, 3> spheroid_centre;
         spheroid_centre[0] = 0.5*((double) width);
         spheroid_centre[1] = 0.5*((double) height);
         spheroid_centre[2] = 0.5*((double) depth);
 
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_nodes = mesh.GetNumAllNodes();
+        std::vector<TissueCell> cells;
+        std::vector<TissueCell> cells2;
         std::vector<unsigned> location_indices;
 
-        for (unsigned i=0; i<num_cells; i++)
+        for (unsigned i=0; i<num_nodes; i++)
         {
-            CellType cell_type;
-            unsigned generation;
-
             c_vector<double, 3> node_location = mesh.GetNode(i)->rGetLocation();
-
+            
             unsigned min_spatial_dimension;
             if (width <= height && width <= depth)
             {
@@ -245,34 +242,27 @@ public:
                     min_spatial_dimension = depth;
                 }
             }
-            if ( norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
-            {
-                location_indices.push_back(i);
-            }
-
-            cell_type = STEM;
-            generation = 0;
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
-            cell.GetCellCycleModel()->SetGeneration(generation);
+            
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            cell.GetCellCycleModel()->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                 (  CancerParameters::Instance()->GetStemCellG1Duration() +
                                    CancerParameters::Instance()->GetSG2MDuration()  ));
-            cells.push_back(cell);
+            cells2.push_back(cell);
+
+            if ( norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
+            {
+                location_indices.push_back(i);
+                cells.push_back(cell);                
+            }
         }
 
-        TS_ASSERT(location_indices.size() <= num_cells);
-        TS_ASSERT(location_indices.size() < mesh.GetNumNodes());
+        TS_ASSERT(location_indices.size() == cells.size());
+        TS_ASSERT(location_indices.size() <= num_nodes);
         TS_ASSERT_EQUALS(location_indices.size(), 8u);
 
-        /// \todo (sort out cell generator - see #430)
-        std::vector<TissueCell> real_cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            real_cells.push_back(cells[location_indices[i]]);       
-        }
-
         // Test Save with a MeshBasedTissueWithGhostNodes
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh, real_cells, location_indices);        
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);        
                 
         MeinekeInteractionForce<3> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
@@ -291,8 +281,9 @@ public:
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        // Test Save with a MeshBasedTissue - one cell born during this.
-        MeshBasedTissue<3> tissue2(mesh, cells);
+        // Test Save with a MeshBasedTissue - one cell born during this
+
+        MeshBasedTissueWithGhostNodes<3> tissue2(mesh, cells2);
 
         TissueSimulation<3> simulator2(tissue2, force_collection);
         simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");
@@ -323,7 +314,7 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
 
         {
-            // Without ghost nodes - all 65 are real cells.
+            // Without ghost nodes - all 65 are real cells
             TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 

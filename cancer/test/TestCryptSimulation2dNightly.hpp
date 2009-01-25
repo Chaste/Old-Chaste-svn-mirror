@@ -124,6 +124,7 @@ public:
 
     void Test2DSpringSystem() throw (Exception)
     {
+        // Create mesh
         double crypt_length = 10;
         double crypt_width = 10;
         CancerParameters::Instance()->SetCryptLength(crypt_length);
@@ -136,30 +137,32 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, mesh, false, 0.0, 3.0, 6.5, 8.0);
+        cells_generator.GenerateForCrypt(cells, mesh, std::vector<unsigned>(), false, 0.0, 3.0, 6.5, 8.0);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
+        // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
 
         // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
         simulator.SetEndTime(1.0);
+
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
 
         // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        simulator.SetOutputDirectory("Crypt2DSprings");
-
+        simulator.SetOutputDirectory("Crypt2DSprings")
         simulator.SetEndTime(1.0);
-
         simulator.SetUpdateTissueRule(false);
         simulator.SetNoBirth(true);
 
@@ -187,11 +190,15 @@ public:
 
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
+        /*
+         * Note that this test is extrememly fragile.
+         * 
+         * The output data was produced with IntelProduction Version 10.0.025.
+         * Intel10, Intel9 and Gcc builds may currently produce similar but 
+         * quantitatively different results.
+         */
 
-        // Note that this test is extrememly fragile.
-        // The output data was produced with IntelProduction Version 10.0.025.
-        // Intel10, Intel9 and Gcc builds may currently produce similar but quantitatively different results.
-
+        // Create mesh
         int num_cells_depth = 11;
         int num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
@@ -199,30 +206,37 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
+        // Set crypt dimensions
         CancerParameters::Instance()->SetCryptLength(crypt_length);
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
 
+        // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Run simulation
         simulator.Solve();
 
         // Work out where the previous test wrote its files
@@ -243,6 +257,7 @@ public:
 
     void TestMonolayer() throw (Exception)
     {
+        // Create mesh
         int num_cells_depth = 11;
         int num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
@@ -250,6 +265,8 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         CancerParameters::Instance()->SetCryptLength(crypt_length);
@@ -258,26 +275,29 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true,-1.0);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true,-1.0);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.SetWriteVoronoiData(true,true);
 
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Monolayer");
         simulator.SetEndTime(1);
 
+        // Run simulation
         simulator.Solve();
 
-        //Check writing of voronoi data
+        // Check writing of voronoi data
         OutputFileHandler handler("Monolayer", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/results.vizvoronoi").c_str()), 0);
@@ -290,6 +310,7 @@ public:
      */
     void Test2DCorrectCellNumbers() throw (Exception)
     {
+        // Set up singleton class
         CancerParameters* p_params = CancerParameters::Instance();
 
         // Check the stem cell cycle time is still 24 hrs, otherwise
@@ -298,16 +319,20 @@ public:
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10, 1e-12);
 
+        // Create mesh
         int num_cells_width = 7;
         int num_cells_depth = 5;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         double crypt_width = num_cells_width - 1.0;
         double crypt_length = num_cells_depth - 1.0;
 
+        // Set crypt dimensions
         CancerParameters::Instance()->SetCryptLength(crypt_length);
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
@@ -339,20 +364,24 @@ public:
             cells.push_back(cell);
         }
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); // hours
 
+        // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Run simulation
         simulator.Solve();
 
         // Now count the number of each type of cell
@@ -392,38 +421,44 @@ public:
         TS_ASSERT_LESS_THAN(15u, num_differentiated);
     }
 
-
 ///////// PERIODIC TESTS - These test the system as a whole /////////
 
     void Test2DPeriodicNightly() throw (Exception)
     {
+        // Create mesh
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
         
+        // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
-
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
         simulator.SetEndTime(12.0);
 
+        // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Run simulation
         simulator.Solve();
 
         // Test we have the same number of cells and nodes at the end of each time
@@ -448,26 +483,30 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create an instance of a Wnt concentration
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
+
+        // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
-
         simulator.SetOutputDirectory("Crypt2DPeriodicWntNightly");
-
         simulator.SetEndTime(24.0);
 
+        // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Run simulation
         simulator.Solve();
 
         // Test we have the same number of cells and nodes at the end of each time
@@ -483,6 +522,7 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, 142u);
 #endif //CHASTE_CVODE
 
+        // Tidy up
         WntConcentration::Destroy();
 
         CancerEventHandler::Headings();
@@ -508,7 +548,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -530,23 +570,28 @@ public:
             cells[i].SetMutationState(mutation_state);
         }
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create an instance of a Wnt concentration
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");
         simulator.SetEndTime(12.0);
 
+        // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Run simulation
         simulator.Solve();
 
         // Test we have the same number of cells and nodes at the end of each time
@@ -569,6 +614,7 @@ public:
             }
         }
 
+        // Tidy up
         WntConcentration::Destroy();
     }
 
@@ -586,22 +632,26 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
         simulator.SetEndTime(4.6);
 
+        // Create cell killer and pass in to crypt simulation
         RandomCellKiller<2> random_cell_killer(&crypt, 0.01);
         simulator.AddCellKiller(&random_cell_killer);
 
+        // Run simulation
         simulator.Solve();
 
         // There should be no cells left after this amount of time
@@ -625,22 +675,26 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
         simulator.SetEndTime(4.0);
 
+        // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Run simulation
         simulator.Solve();
     }
 
@@ -658,22 +712,26 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
         simulator.SetEndTime(4.0);
 
+        // Create cell killer and pass in to crypt simulation
         SloughingCellKiller cell_killer(&crypt);
         simulator.AddCellKiller(&cell_killer);
 
+        // Run simulation
         simulator.Solve();
 
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
@@ -709,20 +767,23 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
 
-        // These killers are defined in this test. They kill the first and second
-        // available cell, respectively.
+        // Create cell killer and pass in to crypt simulation.
+        // These killers are defined in this test. They kill 
+        // the first and second available cell, respectively.
         SingleCellCellKiller cell_killer1(&crypt,0);
         SingleCellCellKiller cell_killer2(&crypt,1);
 
@@ -735,6 +796,8 @@ public:
 
         simulator.SetDt(dt);
         simulator.SetEndTime(0.5*dt*num_cells);
+
+        // Run simulation
         simulator.Solve();
 
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
@@ -771,21 +834,23 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true,-1.0);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true, -1.0);
 
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Set up crypt simulation
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
-        
-        CryptSimulation2d simulator(crypt, force_collection);
 
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
         simulator.SetEndTime(12.0);
 
+        // Run simulation
         simulator.Solve();
     }
 };

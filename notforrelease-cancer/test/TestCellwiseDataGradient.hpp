@@ -58,7 +58,7 @@ public:
         // Create a tissue
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         MeshBasedTissue<2> tissue(mesh,cells);
 
         // Set up data: C(x,y) = x^2
@@ -97,7 +97,7 @@ public:
         // Create a tissue
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         MeshBasedTissue<2> tissue(mesh,cells);
 
         //////////////////////////////////
@@ -180,7 +180,7 @@ public:
         // Create a tissue
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh);
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         MeshBasedTissueWithGhostNodes<2> tissue(mesh,cells);
 

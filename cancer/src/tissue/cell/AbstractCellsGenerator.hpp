@@ -96,13 +96,14 @@ public:
      *
      */
     virtual void GenerateForCrypt(std::vector<TissueCell>& rCells,
-                                 TetrahedralMesh<2,2>& rMesh,
-                                 bool randomBirthTimes,
-                                 double y0 = 0.3,
-                                 double y1 = 2.0,
-                                 double y2 = 3.0,
-                                 double y3 = 4.0,
-                                 bool initialiseCells = false);
+                                  TetrahedralMesh<2,2>& rMesh,
+                                  const std::vector<unsigned> locationIndices,
+                                  bool randomBirthTimes,
+                                  double y0 = 0.3,
+                                  double y1 = 2.0,
+                                  double y2 = 3.0,
+                                  double y3 = 4.0,
+                                  bool initialiseCells = false);
 };
 
 
@@ -115,6 +116,7 @@ bool AbstractCellsGenerator<DIM>::CellsCanDifferentiate()
 template<unsigned DIM>
 void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells,
                                  TetrahedralMesh<2,2>& rMesh,
+                                 const std::vector<unsigned> locationIndices,
                                  bool randomBirthTimes,
                                  double y0,
                                  double y1,
@@ -127,7 +129,12 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
     #undef COVERAGE_IGNORE
     
     RandomNumberGenerator *p_random_num_gen = RandomNumberGenerator::Instance();
-    unsigned num_cells = rMesh.GetNumNodes();
+
+    unsigned num_cells = rMesh.GetNumNodes();    
+    if (!locationIndices.empty())
+    {
+        num_cells = locationIndices.size();
+    }
 
     AbstractCellCycleModel* p_cell_cycle_model = NULL;
     double typical_transit_cycle_time;
@@ -142,6 +149,10 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
         unsigned generation;
 
         double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
+        if (!locationIndices.empty())
+        {
+            y = rMesh.GetNode(locationIndices[i])->GetPoint().rGetLocation()[1];
+        }
 
         p_cell_cycle_model = CreateCellCycleModel();
         typical_transit_cycle_time = this->GetTypicalTransitCellCycleTime();

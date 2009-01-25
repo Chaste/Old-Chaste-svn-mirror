@@ -47,14 +47,24 @@ public:
     
     /**
      * Fills a vector of cells with a specified cell cycle model, to match
-     * a given mesh. Gives them birth times of 0 for node 0,
+     * a given number of cells. Gives them birth times of 0 for node 0,
      * -1 for node 1, -2 for node 2 etc...
      *
      * @param rCells  An empty vector of cells to fill up.
-     * @param rMesh  The mesh the cells should be associated with.
+     * @param numCells  The number of cells to generate.
      */
     void GenerateBasic(std::vector<TissueCell>& rCells,
-                       TetrahedralMesh<DIM,DIM>& rMesh);
+                       const unsigned numCells);
+
+    /**
+     * Fills a vector of cells with a specified cell cycle model, to match
+     * a given vector of location indices.
+     * 
+     * @param rCells  An empty vector of cells to fill up.
+     * @param locationIndices  The indices of the tissue to assign real cells to.
+     */
+    void GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
+                                      const std::vector<unsigned> locationIndices);
 
     /**
      * @return default cell cycle time for a transit cell.

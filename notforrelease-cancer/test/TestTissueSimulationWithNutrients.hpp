@@ -894,7 +894,7 @@ public:
 //        // Set up cells
 //        std::vector<TissueCell> cells;
 //        FixedCellCycleModelCellsGenerator<3> generator;
-//        generator.GenerateBasic(cells, mesh);
+//        generator.GenerateBasic(cells, mesh.GetNumNodes());
 //
 //        // Set up tissue
 //        MeshBasedTissue<3> tissue(mesh, cells);

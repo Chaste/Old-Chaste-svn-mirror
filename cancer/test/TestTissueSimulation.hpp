@@ -99,11 +99,12 @@ public:
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
         std::vector<TissueCell> cells;
         StochasticWntCellCycleModelCellsGenerator<2> cell_generator;
-        cell_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cell_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
@@ -134,6 +135,8 @@ public:
 
         NumericFileComparison comp_bcat(results_file,"cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat");
         TS_ASSERT(comp_bcat.CompareFiles(1e-2));
+
+        // Tidy up
         WntConcentration::Destroy();
     }
 
@@ -170,7 +173,7 @@ public:
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
-        // Create a mechanics system
+        // Create a force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
@@ -201,16 +204,17 @@ public:
     {
         HoneycombMeshGenerator generator(2, 2, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
-        // Create a mechanics system
+        // Create a force law
         MeinekeInteractionForce<2> meineke_force;
         meineke_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
@@ -249,31 +253,26 @@ public:
         p_params->SetCryptWidth(crypt_width);
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetBirthTime(birth_time);
-            temp_cells.push_back(cell);
+            cells.push_back(cell);
         }
 
-        /// \todo (sort out cell generator - see #430)
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
-
+        // Create tissue
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
+        // Create force law
         MeinekeInteractionForce<2> meineke_force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&meineke_force);
 
+        // Create crypt simulation from tissue and force law
         TissueSimulation<2> simulator(tissue, force_collection);
-
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
 
@@ -282,6 +281,7 @@ public:
         tissue.rGetCellUsingLocationIndex(15).StartApoptosis();
         simulator.SetNoBirth(true);
 
+        // Run tissue simulation
         simulator.Solve();
 
         /* We track the locations of two dying cells (a and b) and two
@@ -309,6 +309,7 @@ public:
         TS_ASSERT_DELTA(a_c_separation, 0.75, 1e-1);
         TS_ASSERT_DELTA(c_d_separation, 1.0, 1e-1);
 
+        // Reset end time and run tissue simulation
         simulator.SetEndTime(1.99);
         simulator.Solve();
 
@@ -328,6 +329,7 @@ public:
         TS_ASSERT_DELTA(a_c_separation, 0.5, 1e-1);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 4u);
 
+        // Reset end time and run tissue simulation
         simulator.SetEndTime(2.01);
         simulator.Solve();
 
