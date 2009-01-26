@@ -39,7 +39,12 @@ VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
       mDeleteMesh(deleteMesh)
 {
     // This must always be true
-    assert( this->mCells.size() == mrMesh.GetNumElements() );
+    if (this->mCells.size() != mrMesh.GetNumElements())
+    {
+        std::stringstream ss;
+        ss << "The number of cells does not match the number of elements in the mesh";
+        EXCEPTION(ss.str());
+    }
 
     this->mTissueContainsMesh = true;
 
@@ -143,53 +148,23 @@ unsigned VertexBasedTissue<DIM>::GetNumElements()
 template<unsigned DIM>
 TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
-//    // Get the element associated with this cell
-//    unsigned element_index = GetElementCorrespondingToCell(rNewCell);
-//    VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(element_index);
-//
-//    // Get the node indices owned by this element
-//    std::set<unsigned> node_indices;
-//    for (unsigned local_index=0; local_index<p_element->GetNumNodes(); local_index++)
-//    {
-//        node_indices.insert(p_element->GetNodeGlobalIndex(local_index));
-//    }
-//
-//    // Using this element's centroid and short axis, compute
-//    // the locations of two new nodes
-//    std::vector<c_vector<double, DIM> > new_node_locations;
-//    /// \todo Add method for computing new node locations here
-//    c_vector<double, DIM> newLocation1 = new_node_locations[0];
-//    c_vector<double, DIM> newLocation2 = new_node_locations[1];
-//
-//    // Create the two new nodes
-//    Node<DIM>* p_new_node1 = new Node<DIM>(this->GetNumNodes(), newLocation1, false);
-//    unsigned new_node1_index = AddNode(p_new_node1);
-//
-//    Node<DIM>* p_new_node2 = new Node<DIM>(this->GetNumNodes(), newLocation2, false);
-//    unsigned new_node1_index = AddNode(p_new_node1);
-//
-//    /// \todo might the new nodes be on the boundary?
-//
-//    // Update the nodes owned by the existing element
-//
-//    // Add a new element to the mesh, which shared these two nodes
-//    std::vector<Node<SPACE_DIM>*> nodes_in_new_element;
-//
-//    /// \todo Write code to put nodes belonging to new element into the above vector
-//
-//    VertexElement<DIM, DIM>* p_element = new VertexElement<DIM, DIM>(GetNumElements(), nodes_in_new_element);
-//
-//    // Associate the new cell with the element
-//    this->mCells.push_back(rNewCell);
-//
-//    // Update location cell map
-//    TissueCell *p_created_cell = &(this->mCells.back());
-//    this->mLocationCellMap[new_element_index] = p_created_cell;
-//    this->mCellLocationMap[p_created_cell] = new_element_index;
-//
-//    return p_created_cell;
-//
-    return NULL; /// \todo put code for adding a cell here (see #852)
+    /// \todo rNewCell and newLocation are redundant for vertex-based tissues (#852)
+
+    // Get the element associated with this cell
+    VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pParentCell);
+
+    // Divde this element along the short axis
+    unsigned new_element_index = mrMesh.DivideElement(p_element);
+
+    // Associate the new cell with the element
+    this->mCells.push_back(rNewCell);
+
+    // Update location cell map
+    TissueCell *p_created_cell = &(this->mCells.back());
+    this->mLocationCellMap[new_element_index] = p_created_cell;
+    this->mCellLocationMap[p_created_cell] = new_element_index;
+
+    return p_created_cell;
 }
 
 

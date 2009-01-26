@@ -100,19 +100,10 @@ private:
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
      * @param rNodeA one of the nodes to perform the swap with 
-     * @param rNodeB the other node to perform the swap
+     * @param rNodeB the other node to perform the swap 
      */  
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, 
                        std::set<unsigned> ElementsContainingNodes);
-    
-    /**
-     * Method to divide an element in half 
-     * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     * 
-     * @param pElement the element to divide
-     */  
-    void DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
     
     /**
      * Method to divide an element given 2 nodes in which to divide the element with 
@@ -213,14 +204,22 @@ public:
      * @return the global index of the new node in the mesh.
      */
     unsigned AddNode(Node<SPACE_DIM> *pNewNode);
-
+    
+    /**
+     * Method to divide an element in half 
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     * 
+     * @param pElement the element to divide
+     * 
+     * @return the index of the new element
+     */  
+    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      * Add an element to the mesh.
-     *
      */
     unsigned AddElement(VertexElement<ELEMENT_DIM, SPACE_DIM> *pNewElement);
-
 
     /**
      *  Move the node with a particular index to a new point in space.

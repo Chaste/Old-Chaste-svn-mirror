@@ -868,7 +868,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1016,7 +1016,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM
     }
 
     // Now call DivideElement() to divide the element using the new nodes
-    DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]), pElement->GetNodeLocalIndex(new_node_global_indices[1]));
+    unsigned new_element_index = DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]), pElement->GetNodeLocalIndex(new_node_global_indices[1]));
+    return new_element_index;
 }
 
 

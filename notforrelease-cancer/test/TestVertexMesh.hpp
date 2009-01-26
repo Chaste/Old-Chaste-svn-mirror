@@ -817,7 +817,9 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
         
         // Divide element 0 along short axis 
-        vertex_mesh.DivideElement(vertex_mesh.GetElement(0));
+        unsigned new_element_index = vertex_mesh.DivideElement(vertex_mesh.GetElement(0));
+
+        TS_ASSERT_EQUALS(new_element_index, vertex_mesh.GetNumElements()-1);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 7u);
