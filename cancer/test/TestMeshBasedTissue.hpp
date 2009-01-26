@@ -216,11 +216,8 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
-        // so the age = node_index
         // Set up cells, one for each node apart from one.
-        // Get each a birth time of -node_index,
-        // so the age = node_index
+        // Get each a birth time of -node_index, so the age = node_index
         std::vector<TissueCell> cells;
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)

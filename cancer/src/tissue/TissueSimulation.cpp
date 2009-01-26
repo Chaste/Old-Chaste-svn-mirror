@@ -122,8 +122,6 @@ TissueSimulation<DIM>::~TissueSimulation()
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
-    /// \todo DoCellBirth() has not yet been tested with a vertex-based tissue - see #852
-
     if (mNoBirth)
     {
         return 0;
@@ -145,6 +143,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 TissueCell new_cell = cell_iter->Divide();
 
                 // Add a new node to the mesh
+                /// \todo this is redundant for vertex-based tissues (#852)
                 c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(&(*cell_iter));
 
                 // Add a new cell to the tissue
