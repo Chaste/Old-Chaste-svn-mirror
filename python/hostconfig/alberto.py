@@ -34,17 +34,18 @@ petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = None
 metis_path = None
-intel_path = '/opt/intel/cc/9.1.039/lib'
-icpc='icpc'
+intel_path = '../../../intel'
+icpc = 'icpc -gcc-version=430 -I /usr/include/c++/4.3.0/x86_64-redhat-linux -I/usr/include/c++/4.3.0/'
+
 
 other_includepaths = ['../../../include',
                       '../../../xsd-2.3.1-i686-linux-gnu/libxsd',
-                      '../../../include/boost-1_36',
-                      '../../../hdf5/include',
+                      '../../../hdf5/include'
                       ]
 other_libpaths = ['../../../lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
-                  '../../../hdf5/lib']
+                  '../../../hdf5/lib',
+                  '../../../intel/lib']
 blas_lapack = ['f2clapack', 'f2cblas']
 other_libraries = ['boost_serialization-gcc43-mt', 'xerces-c', 'z', 'hdf5']
 
