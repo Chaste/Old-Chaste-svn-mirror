@@ -1,6 +1,6 @@
 # Configuration for Joe's machines
 
-"""Copyright (C) University of Oxford, 2008
+"""Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -35,13 +35,13 @@ petsc_build_name_optimized = 'linux-gnu-opt'
 petsc_build_name_production = 'linux-intel-opt-mkl'
 dealii_path = None
 metis_path = None
-intel_path = '/opt/intel/cc/10.0.025/'
-icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/i486-linux-gnu/ -I/usr/include/c++/4.1.3/'
+intel_path = '' #opt/intel/Compiler/11.0/074/bin/ia32/iccvars_ia32.sh 
+icpc = 'icpc'
 
 
 other_includepaths = ['/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd', '/home/jmpf/hdf5/include']
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),  
-                   '/opt/intel/mkl/9.1.023/lib/em64t', '/home/jmpf/hdf5/lib']
+                    '/home/jmpf/hdf5/lib'] #/opt/intel/Compiler/11.0/074/mkl/tools/environment/mklvars32.sh
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']

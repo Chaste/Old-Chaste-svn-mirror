@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Copyright (C) University of Oxford, 2008
+"""Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -41,8 +41,9 @@ if '-dir' in sys.argv:
     i = sys.argv.index('-dir')
     chaste_dir = os.path.realpath(sys.argv[i+1])
 
-
-depricated_notice="""Copyright (C) University of Oxford, 2008
+#This next variable is unused -- it shows the previous depricated notice
+#as a mechanism for rolling the notice forward
+previous_depricated_notice="""Copyright (C) University of Oxford, 2005-2009
 
 This file is part of Chaste.
 
@@ -60,7 +61,32 @@ You should have received a copy of the Lesser GNU General Public License
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>."""
 
 
-current_notice="""Copyright (C) University of Oxford, 2008
+depricated_notice="""Copyright (C) University of Oxford, 2005-2009
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+current_notice="""Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -94,7 +120,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 py_current_notice='\"\"\"'+current_notice+'\"\"\"\n'
 cpp_current_notice='/*\n\n'+current_notice+'\n*/'
-cpp_depricated_notice='/*\n'+depricated_notice+'\n*/'
+cpp_depricated_notice='/*\n\n'+depricated_notice+'\n*/'
 
 
 pycml_notice="// Processed by pycml - CellML Tools in Python"

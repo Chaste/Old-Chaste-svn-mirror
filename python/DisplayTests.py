@@ -1,5 +1,5 @@
 
-"""Copyright (C) University of Oxford, 2008
+"""Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -676,7 +676,7 @@ def _testResultsDir(type, revision, machine, buildType):
   """
   Return the directory in which test results are stored for this
   test type, code revision, build machine and build type.
-  """"""Copyright (C) Oxford University 2008
+  """"""Copyright (C) Oxford University 2005-2009
 
 This file is part of CHASTE.
 
