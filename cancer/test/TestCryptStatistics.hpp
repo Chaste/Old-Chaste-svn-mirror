@@ -335,7 +335,7 @@ public:
 
 
     /**
-     * This test runs multipe crypt simulations and records whether
+     * This test runs multiple crypt simulations and records whether
      * or not labelled cells are in a randomly chosen crypt section.
      */
     void TestMultipleCryptSimulations() throw (Exception)
