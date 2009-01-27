@@ -148,12 +148,12 @@ unsigned VertexBasedTissue<DIM>::GetNumElements()
 template<unsigned DIM>
 TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
-    /// \todo rNewCell and newLocation are redundant for vertex-based tissues (#852)
+    /// \todo newLocation is redundant for vertex-based tissues (#852)
 
     // Get the element associated with this cell
     VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pParentCell);
 
-    // Divde this element along the short axis
+    // Divide this element along the short axis
     unsigned new_element_index = mrMesh.DivideElement(p_element);
 
     // Associate the new cell with the element

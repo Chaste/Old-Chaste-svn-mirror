@@ -247,6 +247,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
     mDeletedNodeIndices.clear();
+    mDeletedElementIndices.clear();
     mAddedNodes = false;
     
     for (unsigned i=0; i<mElements.size(); i++)
@@ -266,14 +267,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
-    return mNodes.size();
+    return mNodes.size() - mDeletedNodeIndices.size();
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
-    return mElements.size();
+    return mElements.size() - mDeletedElementIndices.size();
 }
 
 
@@ -317,20 +318,16 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DIM,SPACE_DIM> *pNewElement)
 {
-    if (mDeletedElementIndices.empty())
+    unsigned new_element_index = pNewElement->GetIndex();
+    
+    if (new_element_index == mElements.size())
     {
-        pNewElement->SetIndex(mElements.size());
         mElements.push_back(pNewElement);
     }
     else
     {
-        unsigned index = mDeletedElementIndices.back();
-        pNewElement->SetIndex(index);
-        mDeletedElementIndices.pop_back();
-        delete mElements[index];
-        mElements[index] = pNewElement;
+        mElements[new_element_index] = pNewElement;
     }
-    
     mAddedElements = true;
     pNewElement->RegisterWithNodes();
     
@@ -486,7 +483,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
         }        
         // ... end of element rearrangement code
         
-        // areas and perimeters of elements are sorted in T1Swap Method.
+        // areas and perimeters of elements are sorted in T1Swap method.
     }
     else // 3D
     {
@@ -1017,6 +1014,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
     // Now call DivideElement() to divide the element using the new nodes
     unsigned new_element_index = DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]), pElement->GetNodeLocalIndex(new_node_global_indices[1]));
+    
     return new_element_index;
 }
 
@@ -1055,8 +1053,22 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     {
         nodes_elem.push_back(pElement->GetNode(i));
     }
-    unsigned new_element_index = AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(0, nodes_elem));
-    
+
+    unsigned new_element_index;
+    if (mDeletedElementIndices.empty())
+    {
+        new_element_index = mElements.size();
+    }
+    else
+    {
+        new_element_index = mDeletedElementIndices.back();
+        mDeletedElementIndices.pop_back();
+        delete mElements[new_element_index];        
+    }
+//mElements.push_back(pNewElement);
+
+    AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
+
     // Remove nodes  # < node1 and # > node2 from pElement  
     // Remove nodes node1 < # < node2 from new_element
     

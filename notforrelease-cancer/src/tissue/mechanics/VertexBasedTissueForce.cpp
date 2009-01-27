@@ -103,7 +103,7 @@ template<unsigned DIM>
 c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetAdhesionForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
 {
     /// \todo code up this method (see #861)
-    return zero_vector<double>(DIM);    
+    return zero_vector<double>(DIM);
 }
 
 

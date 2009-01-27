@@ -108,7 +108,7 @@ public:
     void TestValidateVertexBasedTissue()
     {
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4,6); // columns then rows
+        VertexMesh<2,2> mesh(3,3); // columns then rows
 
         // Set up cells, one for each element.
         // Get each a birth time of -element_index, so the age = element_index.
@@ -125,6 +125,8 @@ public:
             cell_location_indices.push_back(i);
         }
 
+        // This should throw an exception as the number of cells 
+        // does not equal the number of elements
         TS_ASSERT_THROWS_ANYTHING(VertexBasedTissue<2> tissue(mesh, cells));
 
         AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
@@ -134,7 +136,36 @@ public:
         cells.push_back(cell);        
         cell_location_indices.push_back(mesh.GetNumElements()-1);
 
+        // This should pass as the number of cells equals the number of elements
         TS_ASSERT_THROWS_NOTHING(VertexBasedTissue<2> tissue(mesh, cells));
+        
+        // Create a tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+
+        // Check correspondence between elements and cells
+        
+        for (unsigned elem_index=0; elem_index<tissue.GetNumElements(); elem_index++)
+        {
+            std::set<unsigned> expected_node_indices;
+            VertexElement<2,2>* p_expected_element = tissue.GetElement(elem_index);
+            unsigned expected_index = p_expected_element->GetIndex();
+            for (unsigned i=0; i<p_expected_element->GetNumNodes(); i++)
+            {
+                expected_node_indices.insert(p_expected_element->GetNodeGlobalIndex(i));
+            }           
+            
+            std::set<unsigned> actual_node_indices;
+            TissueCell& r_cell = tissue.rGetCellUsingLocationIndex(elem_index);
+            VertexElement<2,2>* p_actual_element = tissue.GetElementCorrespondingToCell(&r_cell);
+            unsigned actual_index = p_actual_element->GetIndex();
+            for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
+            {
+                actual_node_indices.insert(p_actual_element->GetNodeGlobalIndex(i));
+            }
+            
+            TS_ASSERT_EQUALS(actual_index, expected_index);
+            TS_ASSERT_EQUALS(actual_node_indices, expected_node_indices);
+        }
     }
 
     void TestUpdateWithoutBirthOrDeath()
@@ -267,8 +298,8 @@ public:
         TS_ASSERT_EQUALS(tissue.GetElementCorrespondingToCell(p_new_cell)->GetIndex(), old_num_elements);
     }
 
-	/// \todo Get this test working (see #852)
-    void DONTTestAddCellWithHoneycombMesh()
+
+    void TestAddCellWithHoneycombMesh()
     {
         // Create a mesh with 9 elements
         VertexMesh<2,2> vertex_mesh(3,3);
@@ -281,7 +312,7 @@ public:
             CellType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
 
-            // Cell 8 should divide immediately
+            // Cell 4 should divide immediately
             if (elem_index==4)
             {
                 cell_type = STEM;
@@ -296,14 +327,19 @@ public:
         // Create tissue
         VertexBasedTissue<2> tissue(vertex_mesh, cells);
 
+        // Initialise cells (usually called in tissue simulation constructor)
+        tissue.InitialiseCells();
+
         unsigned old_num_nodes = vertex_mesh.GetNumNodes();
         unsigned old_num_elements = vertex_mesh.GetNumElements();
         unsigned old_num_cells = tissue.rGetCells().size();
 
         // Add a new cell by dividing cell 4
-        
-        TissueCell cell4 = tissue.rGetCellUsingLocationIndex(4);
-        TissueCell new_cell = cell4.Divide();
+
+        tissue.rGetCellUsingLocationIndex(4).ReadyToDivide();
+        TissueCell& cell4 = tissue.rGetCellUsingLocationIndex(4);
+
+        TissueCell new_cell = tissue.rGetCellUsingLocationIndex(4).Divide();
 
         /// \todo tidy up dummy argument for AddCell() - see #852
         c_vector<double, 2> new_location = zero_vector<double>(2);
@@ -318,48 +354,75 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), old_num_elements+1);
 
         // Check the location of the new nodes
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[1], 1.0, 1e-12);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[0], 1.8509, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[1], 1.7058, 1e-4);
 
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[1], -1.0, 1e-12);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[0], 1.0358, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[1], 2.2941, 1e-4);
 
         // Now test the nodes in each element
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNumNodes(), 4u);
+        for (unsigned i=0; i<tissue.GetNumElements(); i++)
+        {
+            if (i==4 || i==9)
+            {
+                // Elements 4 and 9 should each have one less node
+                TS_ASSERT_EQUALS(tissue.GetElement(i)->GetNumNodes(), 5u);
+            }
+            else if (i==5 || i==6)
+            {
+                // Elements 5 and 6 should each have one extra node
+                TS_ASSERT_EQUALS(tissue.GetElement(i)->GetNumNodes(), 7u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(tissue.GetElement(i)->GetNumNodes(), 6u);
+            }
+        }
 
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(0), 5u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(1), 2u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(2), 3u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(3), 6u);
+        // Check node ownership for a few elements
 
-        TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNodeGlobalIndex(0), 1u);
-        TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNodeGlobalIndex(1), 4u);
-        TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNodeGlobalIndex(2), 2u);
-        TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNodeGlobalIndex(3), 5u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(2), 5u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(3), 9u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(4), 8u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(5), 4u);
 
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(0), 0u);
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(1), 1u);
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(2), 5u);
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(3), 6u);
-        
-        // Test ownership of the new nodes
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(0), 30u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(1), 18u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(2), 22u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(3), 21u);        
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(4), 31u);
+
+        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(0), 10u);
+        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(1), 11u);
+        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(2), 15u);
+        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(3), 19u);
+        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(4), 18u);
+        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(5), 30u);
+        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(6), 14u);
+
+        // Test element ownership for a few nodes
+
         std::set<unsigned> expected_elements_containing_node_5;
         expected_elements_containing_node_5.insert(0);
         expected_elements_containing_node_5.insert(1);
-        expected_elements_containing_node_5.insert(2);
-        
-        TS_ASSERT_EQUALS(tissue.GetNode(5)->rGetContainingElementIndices(), expected_elements_containing_node_5);
-        
-        std::set<unsigned> expected_elements_containing_node_6;
-        expected_elements_containing_node_6.insert(0);
-        expected_elements_containing_node_6.insert(2);
-        
-        TS_ASSERT_EQUALS(tissue.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
 
-        // Check the index of the new cell
-        TS_ASSERT_EQUALS(tissue.GetElementCorrespondingToCell(&new_cell)->GetIndex(), old_num_elements);
+        TS_ASSERT_EQUALS(tissue.GetNode(5)->rGetContainingElementIndices(), expected_elements_containing_node_5);
+
+        std::set<unsigned> expected_elements_containing_node_13;
+        expected_elements_containing_node_13.insert(1);
+        expected_elements_containing_node_13.insert(3);
+        expected_elements_containing_node_13.insert(9);
+
+        TS_ASSERT_EQUALS(tissue.GetNode(13)->rGetContainingElementIndices(), expected_elements_containing_node_13);
+
+        std::set<unsigned> expected_elements_containing_node_30;
+        expected_elements_containing_node_30.insert(5);
+        expected_elements_containing_node_30.insert(4);
+        expected_elements_containing_node_30.insert(9);
+
+        TS_ASSERT_EQUALS(tissue.GetNode(30)->rGetContainingElementIndices(), expected_elements_containing_node_30);
     }
 
 

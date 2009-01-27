@@ -93,8 +93,8 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
 
-    /// \todo Uncomment this test once cell birth is working correctly (#852)
-    void DONTTestMonolayerWithCellBirth() throw (Exception)
+
+    void TestMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(3,3); // columns then rows
@@ -145,8 +145,8 @@ public:
         unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
 
         TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+2);
-        TS_ASSERT_EQUALS(new_num_elements, old_num_elements+2);
-        TS_ASSERT_EQUALS(new_num_cells, old_num_cells+2);
+        TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
+        TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
     }
 
     /**
