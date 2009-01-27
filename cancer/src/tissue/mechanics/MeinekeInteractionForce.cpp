@@ -39,7 +39,7 @@ template<unsigned DIM>
 double MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
                                                                                 unsigned nodeBGlobalIndex, 
                                                                                 AbstractTissue<DIM>& rTissue, 
-                                                                                bool isCloserThanRestLenth)
+                                                                                bool isCloserThanRestLength)
 {
     return 1.0;
 }
