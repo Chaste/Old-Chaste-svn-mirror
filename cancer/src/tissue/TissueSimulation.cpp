@@ -139,14 +139,19 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
         {
             if (cell_iter->ReadyToDivide())
             {
-                // Create new cell
+                // Create a new cell
                 TissueCell new_cell = cell_iter->Divide();
 
-                // Add a new node to the mesh
-                /// \todo this is redundant for vertex-based tissues (#852)
-                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(&(*cell_iter));
+                /// \todo tidy this next bit up (#852)
+                
+                c_vector<double, DIM> new_location = zero_vector<double>(DIM);
+                
+                if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
+                {
+                    new_location = CalculateDividingCellCentreLocations(&(*cell_iter));
+                }
 
-                // Add a new cell to the tissue
+                // Add new cell to the tissue
                 mrTissue.AddCell(new_cell, new_location, &(*cell_iter));
 
                 // Update counter
@@ -560,7 +565,7 @@ void TissueSimulation<DIM>::Solve()
         // (note this should be done after the above zeroing)
         if (mrTissue.GetNumNodes()!=forces.size())
         {
-            forces.resize(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
+            forces.resize(mrTissue.GetNumNodes(), zero_vector<double>(DIM));
         }
 
         // Now add force contributions from each AbstractForce
