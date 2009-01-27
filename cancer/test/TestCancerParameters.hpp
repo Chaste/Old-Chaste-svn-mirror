@@ -82,6 +82,9 @@ private:
         TS_ASSERT_DELTA(inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetAreaBasedDampingConstantParameter(), 0.1, 1e-12);
+        TS_ASSERT_DELTA(inst->GetDeformationEnergyParameter(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetMembraneSurfaceEnergyParameter(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCellCellAdhesionEnergyParameter(), 1.0, 1e-12);
     }
 
 public:
@@ -120,6 +123,10 @@ public:
         inst->SetWntChemotaxisStrength(1.9);
         inst->SetSymmetricDivisionProbability(0.1);
         inst->SetAreaBasedDampingConstantParameter(75.4);
+        inst->SetMatureCellTargetArea(2.3);
+        inst->SetDeformationEnergyParameter(5.8);
+        inst->SetMembraneSurfaceEnergyParameter(17.9);
+        inst->SetCellCellAdhesionEnergyParameter(0.5);
         inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -157,6 +164,10 @@ public:
         inst1->SetWntChemotaxisStrength(1.9);
         inst1->SetSymmetricDivisionProbability(0.1);
         inst1->SetAreaBasedDampingConstantParameter(75.4);
+        inst1->SetMatureCellTargetArea(2.3);
+        inst1->SetDeformationEnergyParameter(5.8);
+        inst1->SetMembraneSurfaceEnergyParameter(17.9);
+        inst1->SetCellCellAdhesionEnergyParameter(0.5);
 
         CancerParameters *inst2 = CancerParameters::Instance();
 
@@ -188,6 +199,9 @@ public:
         TS_ASSERT_DELTA(inst2->GetWntChemotaxisStrength(), 1.9, 1e-12);
         TS_ASSERT_DELTA(inst2->GetSymmetricDivisionProbability(), 0.1, 1e-12);
         TS_ASSERT_DELTA(inst2->GetAreaBasedDampingConstantParameter(), 75.4, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetDeformationEnergyParameter(), 5.8, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
     }
 
     void TestArchiveCancerParameters()
@@ -228,6 +242,10 @@ public:
             inst1->SetWntChemotaxisStrength(1.9);
             inst1->SetSymmetricDivisionProbability(0.1);
             inst1->SetAreaBasedDampingConstantParameter(75.4);
+            inst1->SetMatureCellTargetArea(2.3);
+            inst1->SetDeformationEnergyParameter(5.8);
+            inst1->SetMembraneSurfaceEnergyParameter(17.9);
+            inst1->SetCellCellAdhesionEnergyParameter(0.5);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -268,6 +286,10 @@ public:
             inst1->SetWntChemotaxisStrength(0.0);
             inst1->SetSymmetricDivisionProbability(0.0);
             inst1->SetAreaBasedDampingConstantParameter(0.1);
+            inst1->SetMatureCellTargetArea(1.0);
+            inst1->SetDeformationEnergyParameter(1.0);
+            inst1->SetMembraneSurfaceEnergyParameter(1.0);
+            inst1->SetCellCellAdhesionEnergyParameter(1.0);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -305,9 +327,11 @@ public:
             TS_ASSERT_DELTA(inst1->GetWntChemotaxisStrength(), 1.9, 1e-12);
             TS_ASSERT_DELTA(inst1->GetSymmetricDivisionProbability(), 0.1, 1e-12);
             TS_ASSERT_DELTA(inst1->GetAreaBasedDampingConstantParameter(), 75.4, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetDeformationEnergyParameter(), 5.8, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
         }
     }
-
 };
 
 #endif /*TESTCANCERPARAMETERS_HPP_*/

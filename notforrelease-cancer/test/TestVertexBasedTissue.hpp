@@ -236,8 +236,7 @@ public:
         unsigned old_num_cells = tissue.rGetCells().size();
 
         // Add new cell by dividing element 0 along short axis
-
-        /// \todo tidy up dummy argument for AddCell() - see #852       
+    
         c_vector<double,2> new_cell_location = zero_vector<double>(2);
 
         TissueCell cell0 = tissue.rGetCellUsingLocationIndex(0);
@@ -341,7 +340,6 @@ public:
 
         TissueCell new_cell = tissue.rGetCellUsingLocationIndex(4).Divide();
 
-        /// \todo tidy up dummy argument for AddCell() - see #852
         c_vector<double, 2> new_location = zero_vector<double>(2);
 
         // Add new cell to the tissue

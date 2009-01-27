@@ -142,10 +142,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 // Create a new cell
                 TissueCell new_cell = cell_iter->Divide();
 
-                /// \todo tidy this next bit up (#852)
-                
                 c_vector<double, DIM> new_location = zero_vector<double>(DIM);
-                
                 if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
                 {
                     new_location = CalculateDividingCellCentreLocations(&(*cell_iter));
@@ -195,8 +192,6 @@ const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollectio
 template<unsigned DIM>
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
-    /// \todo CalculateDividingCellCentreLocations() has not yet been tested with a vertex-based tissue - see #852
-
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
     c_vector<double, DIM> parent_coords = dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->GetLocationOfCell(pParentCell);
     c_vector<double, DIM> daughter_coords;

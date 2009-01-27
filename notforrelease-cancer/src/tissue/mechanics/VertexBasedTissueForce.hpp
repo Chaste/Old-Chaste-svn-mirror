@@ -46,33 +46,13 @@ friend class TestForcesNotForRelease;
 
 private:
 
-    /// \todo Should probably put default values for these variables into CancerParameters,
-    ///       and generalize mCellCellAdhesionEnergyParameter to be cell-type dependent
-    ///       (see #861)    
-     
-    /** The target area of a 'fully-grown' cell in the tissue. */
-    double mTissueCellTargetArea;
-    
-    /** The deformation energy parameter (denoted by lambda in my notes - see #861). */
-    double mDeformationEnergyParameter;
-    
-    /** The membrane surface energy parameter (denoted by beta in my notes - see #861). */
-    double mMembraneSurfaceEnergyParameter;
-    
-    /** The cell-cell adhesion energy parameter (denoted by gamma in my notes - see #861). */
-    double mCellCellAdhesionEnergyParameter;
-    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
-        archive & mTissueCellTargetArea;
-        archive & mDeformationEnergyParameter;
-        archive & mMembraneSurfaceEnergyParameter;
-        archive & mCellCellAdhesionEnergyParameter;               
+        archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);          
     }
 
     /** 
@@ -112,11 +92,8 @@ public:
 
     /**
      * Constructor.
-     * 
-     * @param tissueCellTargetArea the cell target area (defaults to 1)
-     *                             \todo should probably make this a CancerParameter (see #861) 
      */
-    VertexBasedTissueForce(double tissueCellTargetArea=1.0);
+    VertexBasedTissueForce();
 
     /**
      * Destructor.
@@ -134,26 +111,6 @@ public:
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);
 
-    /**
-     * Set method for mDeformationEnergyParameter.
-     * 
-     * @param deformationEnergyParameter the value for mDeformationEnergyParameter
-     */
-    void SetDeformationEnergyParameter(double deformationEnergyParameter);
-    
-    /**
-     * Set method for mMembraneSurfaceEnergyParameter.
-     * 
-     * @param membraneSurfaceEnergyParameter the value for mMembraneSurfaceEnergyParameter
-     */
-    void SetMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter);
-
-    /**
-     * Set method for mCellCellAdhesionEnergyParameter.
-     * 
-     * @param cellCellAdhesionEnergyParameter the value for mCellCellAdhesionEnergyParameter
-     */
-    void SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter);
 };
 
                               

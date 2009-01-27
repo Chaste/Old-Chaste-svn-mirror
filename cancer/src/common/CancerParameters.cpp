@@ -77,6 +77,10 @@ CancerParameters::CancerParameters()
  * mWntChemotaxisStrength has no units
  * mSymmetricDivisionProbability has no units
  * mAreaBasedDampingConstantParameter has no units
+ * mMatureCellTargetArea has no units
+ * mDeformationEnergyParameter has ? units
+ * mMembraneSurfaceEnergyParameter has ? units
+ * mCellCellAdhesionEnergyParameter has ? units
  */
 void CancerParameters::Reset()
 {
@@ -115,6 +119,11 @@ void CancerParameters::Reset()
     mSymmetricDivisionProbability = 0.0;
     
     mAreaBasedDampingConstantParameter = 0.1;
+
+    mMatureCellTargetArea = 1.0;
+    mDeformationEnergyParameter = 1.0;
+    mMembraneSurfaceEnergyParameter = 1.0;
+    mCellCellAdhesionEnergyParameter = 1.0;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -245,6 +254,23 @@ double CancerParameters::GetAreaBasedDampingConstantParameter()
 {
     return mAreaBasedDampingConstantParameter;
 }
+double CancerParameters::GetMatureCellTargetArea()
+{
+    return mMatureCellTargetArea;
+}
+double CancerParameters::GetDeformationEnergyParameter()
+{
+    return mDeformationEnergyParameter;
+}
+double CancerParameters::GetMembraneSurfaceEnergyParameter()
+{
+    return mMembraneSurfaceEnergyParameter;
+}
+double CancerParameters::GetCellCellAdhesionEnergyParameter()
+{
+    return mCellCellAdhesionEnergyParameter;
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -411,4 +437,21 @@ void CancerParameters::SetAreaBasedDampingConstantParameter(double areaBasedDamp
 {
     assert(areaBasedDampingConstantParameter>=0.0);
     mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
+}
+void CancerParameters::SetMatureCellTargetArea(double matureCellTargetArea)
+{
+    assert(matureCellTargetArea>=0.0);
+    mMatureCellTargetArea = matureCellTargetArea;
+}
+void CancerParameters::SetDeformationEnergyParameter(double deformationEnergyParameter)
+{
+    mDeformationEnergyParameter = deformationEnergyParameter;
+}
+void CancerParameters::SetMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter)
+{
+    mMembraneSurfaceEnergyParameter = membraneSurfaceEnergyParameter;
+}
+void CancerParameters::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
+{
+    mCellCellAdhesionEnergyParameter = cellCellAdhesionEnergyParameter;
 }

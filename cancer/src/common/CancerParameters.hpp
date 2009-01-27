@@ -86,6 +86,10 @@ public:
     double GetWntChemotaxisStrength();
     double GetSymmetricDivisionProbability();
     double GetAreaBasedDampingConstantParameter();
+    double GetMatureCellTargetArea();
+    double GetDeformationEnergyParameter();
+    double GetMembraneSurfaceEnergyParameter();
+    double GetCellCellAdhesionEnergyParameter();
 
     /**
      * Set methods
@@ -121,6 +125,10 @@ public:
     void SetWntChemotaxisStrength(double);
     void SetSymmetricDivisionProbability(double);
     void SetAreaBasedDampingConstantParameter(double);
+    void SetMatureCellTargetArea(double);
+    void SetDeformationEnergyParameter(double);
+    void SetMembraneSurfaceEnergyParameter(double);
+    void SetCellCellAdhesionEnergyParameter(double);
 
     /**
      *  Reset all parameters to their defaults
@@ -307,6 +315,31 @@ private:
      */
     double mAreaBasedDampingConstantParameter;
 
+    /**
+     * Non-dimensional target area of a mature (fully-grown) TissueCell.
+     * For use in vertex-based models.
+     */
+    double mMatureCellTargetArea;
+
+    /**
+     * Cell deformation energy parameter.
+     * For use in vertex-based models.
+     */
+    double mDeformationEnergyParameter;
+    
+    /**
+     * Cell membrane energy parameter.
+     * For use in vertex-based models.
+     */
+    double mMembraneSurfaceEnergyParameter;
+        
+    /**
+     * Cell-cell adhesion energy parameter.
+     * For use in vertex-based models.
+     */
+    double mCellCellAdhesionEnergyParameter;
+
+
     friend class boost::serialization::access;
     /**
      * As with other singleton classes, ensure the instance of this
@@ -344,6 +377,10 @@ private:
         archive & mWntChemotaxisStrength;
         archive & mSymmetricDivisionProbability;
         archive & mAreaBasedDampingConstantParameter;
+        archive & mMatureCellTargetArea;
+        archive & mDeformationEnergyParameter;
+        archive & mMembraneSurfaceEnergyParameter;
+        archive & mCellCellAdhesionEnergyParameter;
     }
 };
 
