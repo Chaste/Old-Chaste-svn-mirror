@@ -348,6 +348,8 @@ if ARGUMENTS.get('exe', 0):
     assert use_chaste_libs
     if static_libs:
         libpath = '#lib'
+        env = env.Copy()
+        env.Append(LINKFLAGS=' -static -pthread ')
     else:
         libpath = '#linklib'
     exes = []

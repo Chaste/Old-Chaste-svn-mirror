@@ -38,13 +38,15 @@ metis_path = '../../../metis-4.0/'
 intel_path = '/opt/intel/cc/10.0.025'
 icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/i486-linux-gnu/ -I/usr/include/c++/4.1.3/'
 
-other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include']
+other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include',
+                      '../../../xerces/include']
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),
                   '/opt/intel/mkl/9.1.023/lib/32',
-                  '../../../hdf5/lib']
+                  '../../../hdf5/lib',
+                  '../../../xerces/lib']
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
-other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
+other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z']
 
 use_cvode = True
 if use_cvode:

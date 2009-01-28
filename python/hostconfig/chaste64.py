@@ -44,7 +44,7 @@ other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/l
                    '../../../hdf5/lib']
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
-other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
+other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z']
 
 use_cvode = True
 if use_cvode:
