@@ -69,6 +69,9 @@ public:
             double x_val = mesh.GetNode(grounded_nodes[i])->rGetLocation()[0];
             TS_ASSERT_DELTA(x_val, 10.0, 1e-12);
         }
+        
+        TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration));
+        TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,duration));
     }
 
 
