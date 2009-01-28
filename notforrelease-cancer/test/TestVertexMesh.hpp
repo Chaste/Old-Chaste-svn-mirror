@@ -734,9 +734,8 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[0], 1.0, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[1], 1.5, 1e-9);
     }
-    
-    
-    // \todo this test is too simple need to use a non regular element (see #880)
+
+
     void TestDivideVertexElementGivenNodes() throw(Exception)
     {
         // Make four nodes
@@ -782,7 +781,6 @@ public:
     }
 
 
-    // \todo this test is too simple need to use a non regular element (see #880)
     void TestDivideVertexElementAlongShortAxis() throw(Exception)
     {
         // Make four nodes
@@ -864,6 +862,62 @@ public:
         expected_elements_containing_node_6.insert(2);
         
         TS_ASSERT_EQUALS(vertex_mesh.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
+    }
+
+    void TestDivideVertexElementWithNonRegularElement() throw(Exception)
+    {
+        // Make six nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(1, false, 2.0, 1.0));
+        nodes.push_back(new Node<2>(2, false, 3.0, 2.0));
+        nodes.push_back(new Node<2>(3, false, 3.0, 3.0));
+        nodes.push_back(new Node<2>(4, false, 1.0, 2.0));
+
+        std::vector<Node<2>*> nodes_elem;
+
+        // Make one rectangular element out of these nodes
+        nodes_elem.push_back(nodes[0]);
+        nodes_elem.push_back(nodes[1]);
+        nodes_elem.push_back(nodes[2]);
+        nodes_elem.push_back(nodes[3]);
+        nodes_elem.push_back(nodes[4]);
+
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes_elem));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> mesh(nodes, elements);
+
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
+
+        // Divide element using two given nodes
+        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(0));
+
+        TS_ASSERT_EQUALS(new_element_index, 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 6u);
+
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(3)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(4)->GetIndex(), 4u);
+        
+        // Test locations of new nodes
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[0], 2.4166, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[1], 1.4166, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 1.5992, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 2.2996, 1e-4);
     }
 
 };    

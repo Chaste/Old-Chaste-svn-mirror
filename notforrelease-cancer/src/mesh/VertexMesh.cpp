@@ -882,7 +882,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     long_axis(0) = -short_axis(1);
     long_axis(1) = short_axis(0);
 
-    /// \todo Remove this temporary bool (see #880)
+    /// \todo Remove this temporary vector of bools?
 
     unsigned num_nodes = pElement->GetNumNodes();
 
@@ -942,11 +942,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         
         /*
          * Let the first one on edge be a and the second one be b, 
-         * then we are interested in the intersection of
-         *  
-         * position_a + alpha * a_to_b 
-         * and
-         * centroid + beta * short_axis   \todo fix this comment (see #880)
+         * then we are interested in position_a + alpha * a_to_b 
          */
 
         double determinant = a_to_b[0]*short_axis[1] - a_to_b[1]*short_axis[0];
