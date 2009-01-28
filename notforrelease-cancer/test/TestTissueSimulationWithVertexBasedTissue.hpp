@@ -63,7 +63,7 @@ public:
     void TestSolveThrowsNothing() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(6,6); // columns then rows
+        VertexMesh<2,2> mesh(6, 6, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index
@@ -97,7 +97,7 @@ public:
     void TestMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(3,3); // columns then rows
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index
@@ -155,7 +155,7 @@ public:
     void TestArchiving() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(6,6); // columns then rows
+        VertexMesh<2,2> mesh(6, 6, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index

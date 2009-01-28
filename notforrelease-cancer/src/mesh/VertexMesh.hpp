@@ -57,8 +57,11 @@ private:
     std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> mElements;
    
     /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangment. */
-    double mThresholdDistance;
-    
+    double mCellRearrangementThreshold;
+
+    /** The maximum distance apart that neighbouring nodes in the mesh can be without the edge being divided. */ 
+    double mEdgeDivisionThreshold;
+
     /** Indices of nodes that have been deleted. These indices can be reused when adding new elements/nodes. */
     std::vector<unsigned> mDeletedNodeIndices;
     
@@ -122,7 +125,8 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mThresholdDistance;      
+        archive & mCellRearrangementThreshold;
+        archive & mEdgeDivisionThreshold;
     }
     
 public:
@@ -132,18 +136,21 @@ public:
      * 
      * @param nodes vector of pointers to nodes
      * @param vertexElements vector of pointers to VertexElements
-     * @param thresholdDistance the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
      */
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
                std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements,
-               double thresholdDistance=0.01);
+               double cellRearrangementThreshold=0.01,
+               double edgeDivisionThreshold=1.5);
 
     /**
      * Constructor for use by serializer.
      *
-     * @param thresholdDistance the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
      */
-    VertexMesh(double thresholdDistance=0.01);
+    VertexMesh(double cellRearrangementThreshold=0.01, double edgeDivisionThreshold=1.5);
     
     /**
      * Destructor.
@@ -151,25 +158,38 @@ public:
     ~VertexMesh();
     
     /**
-     * @return mThresholdDistance
+     * @return mCellRearrangementThreshold
      */
-    double GetThresholdDistance() const;
+    double GetCellRearrangementThreshold() const;
     
     /**
-     * Set method for mThresholdDistance.
-     * 
-     * @param thresholdDistance
+     * @return mEdgeDivisionThreshold
      */
-    void SetThresholdDistance(double thresholdDistance);
+    double GetEdgeDivisionThreshold() const;
+
+    /**
+     * Set method for mCellRearrangementThreshold.
+     * 
+     * @param cellRearrangementThreshold
+     */
+    void SetCellRearrangementThreshold(double cellRearrangementThreshold);
+
+    /**
+     * Set method for mEdgeDivisionThreshold.
+     * 
+     * @param edgeDivisionThreshold
+     */
+    void SetEdgeDivisionThreshold(double edgeDivisionThreshold);
 
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.
      * 
      * @param numAcross number of VertexElements across
      * @param numUp number of VertexElements up
-     * @param thresholdDistance the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
+     * @param edgeDivisionThreshold the maximum threshold distance for edge division
      */
-    VertexMesh(unsigned numAcross, unsigned numUp, double thresholdDistance=0.01);
+    VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold);
 
     /**
      * @return the number of Nodes in the mesh.
@@ -300,8 +320,11 @@ inline void save_construct_data(
     Archive & ar, const VertexMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const double threshold_distance = t->GetThresholdDistance();
-    ar << threshold_distance;
+    const double cell_rearrangement_threshold = t->GetCellRearrangementThreshold();
+    ar << cell_rearrangement_threshold;
+
+    const double edge_division_threshold = t->GetEdgeDivisionThreshold();
+    ar << edge_division_threshold;
 }
 
 /**
@@ -312,11 +335,14 @@ inline void load_construct_data(
     Archive & ar, VertexMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    double threshold_distance;
-    ar >> threshold_distance;
+    double cell_rearrangement_threshold;
+    ar >> cell_rearrangement_threshold;
+
+    double edge_division_threshold;
+    ar >> edge_division_threshold;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)VertexMesh<ELEMENT_DIM, SPACE_DIM>(threshold_distance);
+    ::new(t)VertexMesh<ELEMENT_DIM, SPACE_DIM>(cell_rearrangement_threshold, edge_division_threshold);
 }
 }
 } // namespace ...

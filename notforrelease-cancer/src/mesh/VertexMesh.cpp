@@ -31,10 +31,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
-                                               double thresholdDistance)
-    : mThresholdDistance(thresholdDistance),
+                                               double cellRearrangementThreshold,
+                                               double edgeDivisionThreshold)
+    : mCellRearrangementThreshold(cellRearrangementThreshold),
+      mEdgeDivisionThreshold(edgeDivisionThreshold),
       mAddedNodes(true)
 {
+    assert(cellRearrangementThreshold > 0.0);
+    assert(edgeDivisionThreshold > 0.0);
+
     Clear();
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
     {
@@ -53,20 +58,29 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double thresholdDistance)
-    : mThresholdDistance(thresholdDistance),
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double cellRearrangementThreshold, double edgeDivisionThreshold)
+    : mCellRearrangementThreshold(cellRearrangementThreshold),
+      mEdgeDivisionThreshold(edgeDivisionThreshold),
       mAddedNodes(false)
 {
-    assert(thresholdDistance > 0.0);
+    assert(cellRearrangementThreshold > 0.0);
+    assert(edgeDivisionThreshold > 0.0);
     Clear();
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numUp, double thresholdDistance)
-    : mThresholdDistance(thresholdDistance),
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
+                                               unsigned numUp,
+                                               double cellRearrangementThreshold,
+                                               double edgeDivisionThreshold)
+    : mCellRearrangementThreshold(cellRearrangementThreshold),
+      mEdgeDivisionThreshold(edgeDivisionThreshold),
       mAddedNodes(true)
 {
+    assert(cellRearrangementThreshold > 0.0);
+    assert(edgeDivisionThreshold > 0.0);
+
     if (SPACE_DIM==2)
     {    
         assert(numAcross > 1);
@@ -83,7 +97,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross, unsigned numU
                     {
                         if (i%3 != 2)
                         {
-                            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)),j/2.0);
+                            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
                             mNodes.push_back(p_node);
                             node_index++;
                         }
@@ -215,16 +229,31 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetThresholdDistance() const
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCellRearrangementThreshold() const
 {
-    return mThresholdDistance;
+    return mCellRearrangementThreshold;
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetThresholdDistance(double thresholdDistance)
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeDivisionThreshold() const
 {
-    mThresholdDistance = thresholdDistance;
+    return mEdgeDivisionThreshold;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementThreshold(double cellRearrangementThreshold)
+{
+    mCellRearrangementThreshold = cellRearrangementThreshold;
+}
+
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetEdgeDivisionThreshold(double edgeDivisionThreshold)
+{
+    mEdgeDivisionThreshold = edgeDivisionThreshold;
 }
 
 
@@ -448,39 +477,51 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
 
             // Loop over elements
             for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
-            {
+            {                
                 if (!recheck_mesh)
                 {
                     unsigned num_nodes = mElements[elem_index]->GetNumNodes();
-                    assert(num_nodes>0); // if not element should be deleted
+                    assert(num_nodes > 0); // if not element should be deleted
+                    
+                    unsigned new_num_nodes = num_nodes;
                     
                     // Loop over element vertices
                     for (unsigned local_index=0; local_index<num_nodes; local_index++)
                     {
                         // Find locations of current node and anticlockwise node
                         Node<SPACE_DIM>* p_current_node = mElements[elem_index]->GetNode(local_index);
-                        unsigned local_index_plus_one = (local_index+1)%num_nodes; //TODO Should use iterators to tidy this up
+                        unsigned local_index_plus_one = (local_index+1)%new_num_nodes; /// \todo Should use iterators to tidy this up
                         Node<SPACE_DIM>* p_anticlockwise_node = mElements[elem_index]->GetNode(local_index_plus_one);
                         
                         // Find distance between nodes
                         double distance_between_nodes = norm_2(p_current_node->rGetLocation() - p_anticlockwise_node->rGetLocation());
-        
-                        if (distance_between_nodes < mThresholdDistance)
+
+                        // If the nodes are too close together, perform a swap
+                        if (distance_between_nodes < mCellRearrangementThreshold)
                         {
                             // Identify the type of node swap/merge needed then call method to perform swap/merge
                             IdentifySwapType(p_current_node, p_anticlockwise_node);
                             
                             recheck_mesh = true;
                             break;
+                        }
+
+                        if (distance_between_nodes > mEdgeDivisionThreshold)
+                        {
+                            // If the nodes are too far apart, divide the edge
+                            DivideEdge(p_current_node, p_anticlockwise_node);
+                            new_num_nodes++;
                         } 
+                        
                     }
                 }
                 else
                 {
                     break;
                 }
-            } 
-        }        
+            }
+        }
+               
         // ... end of element rearrangement code
         
         // areas and perimeters of elements are sorted in T1Swap method.
@@ -762,7 +803,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();  
 
-    double distance_between_nodes_CD = 2*mThresholdDistance; /// \todo Decide what this should really be (see #860)
+    double distance_between_nodes_CD = 2*mCellRearrangementThreshold;
 
     c_vector<double, SPACE_DIM> nodeA_location = pNodeA->rGetLocation();
     c_vector<double, SPACE_DIM> nodeB_location = pNodeB->rGetLocation();
@@ -1061,7 +1102,6 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         mDeletedElementIndices.pop_back();
         delete mElements[new_element_index];        
     }
-//mElements.push_back(pNewElement);
 
     AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
 

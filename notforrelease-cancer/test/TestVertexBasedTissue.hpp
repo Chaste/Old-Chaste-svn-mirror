@@ -68,7 +68,7 @@ public:
     void TestCreateSmallVertexBasedTissue() throw(Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5,3); // columns then rows
+        VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -108,7 +108,7 @@ public:
     void TestValidateVertexBasedTissue()
     {
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(3,3); // columns then rows
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
 
         // Set up cells, one for each element.
         // Get each a birth time of -element_index, so the age = element_index.
@@ -174,7 +174,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4,6); // columns then rows
+        VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -301,7 +301,7 @@ public:
     void TestAddCellWithHoneycombMesh()
     {
         // Create a mesh with 9 elements
-        VertexMesh<2,2> vertex_mesh(3,3);
+        VertexMesh<2,2> vertex_mesh(3, 3, 0.01, 2.0);
         
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index
@@ -432,7 +432,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4,6); // columns then rows
+        VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -493,7 +493,7 @@ public:
     void TestVertexBasedTissueOutputWriters()
     {
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4,6); // columns then rows
+        VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -546,7 +546,7 @@ public:
         // Archive tissue
         {
             // Need to set up time
-            unsigned num_steps=10;
+            unsigned num_steps = 10;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
@@ -630,7 +630,7 @@ public:
     void TestUpdateNodeLocations()
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5,3); // columns then rows
+        VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);

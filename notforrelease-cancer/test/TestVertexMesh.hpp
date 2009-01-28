@@ -70,7 +70,7 @@ public:
         basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
         
         // Make a vertex mesh
-        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
+        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements, 0.15, 1.76);
 
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 7u);
@@ -94,13 +94,23 @@ public:
         std::set<unsigned> temp_list2;
         temp_list2.insert(1u);
         TS_ASSERT_EQUALS(basic_nodes[5]->rGetContainingElementIndices(), temp_list2);
+        
+        // Test Set and Get methods
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.15, 1e-4);
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), 1.76, 1e-4);
+        
+        basic_vertex_mesh.SetCellRearrangementThreshold(0.03);
+        basic_vertex_mesh.SetEdgeDivisionThreshold(3.0);
+
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.03, 1e-4);
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), 3.0, 1e-4);
     }
 
 
     void TestVertexMeshGenerator() throw(Exception)
     {
         // Create mesh
-        VertexMesh<2,2> mesh(5,3); // columns then rows
+        VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);
             
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 15u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46u);
@@ -221,7 +231,7 @@ public:
         std::string mesh_filename = "vertex_mesh";
         std::string mesh_pathname = handler.GetOutputDirectoryFullPath() + mesh_filename;
       
-        VertexMesh<2,2>* const p_mesh = new VertexMesh<2,2>(5,3);
+        VertexMesh<2,2>* const p_mesh = new VertexMesh<2,2>(5, 3, 0.01, 2.0);
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
          * This is because the serialization library only allows you to save tracked
@@ -298,6 +308,10 @@ public:
                                      p_mesh2->GetElement(elem_index)->GetNodeGlobalIndex(local_index));
                 }
             }
+            
+            
+            TS_ASSERT_DELTA(p_mesh2->GetCellRearrangementThreshold(), 0.01, 1e-4);
+            TS_ASSERT_DELTA(p_mesh2->GetEdgeDivisionThreshold(), 2.0, 1e-4);
 
             // Tidy up
             delete p_mesh;
@@ -506,7 +520,8 @@ public:
         VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/test_remesh_mesh");
         VertexMesh<2,2> vertex_mesh;
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetThresholdDistance(0.1);
+        vertex_mesh.SetCellRearrangementThreshold(0.1);
+        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
                
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 12u); 
@@ -563,12 +578,49 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 9u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(3)->GetIndex(), 1u);
     }
-    
-    
+
+
+    void TestDivideEdgeIfTooBig() throw(Exception)
+    {
+        // Create nodes
+        Node<2>* p_node0 = new Node<2>(0, false, 1.0, 1.0);
+        Node<2>* p_node1 = new Node<2>(1, false, 2.0, 1.0);
+        Node<2>* p_node2 = new Node<2>(2, false, 2.0, 3.0);
+        Node<2>* p_node3 = new Node<2>(3, false, 1.0, 2.0);
+
+        std::vector<Node<2>*> nodes;        
+        nodes.push_back(p_node0);
+        nodes.push_back(p_node1);
+        nodes.push_back(p_node2);
+        nodes.push_back(p_node3);
+
+        // Create element
+        VertexElement<2,2>* p_element = new VertexElement<2,2>(0, nodes);
+        std::vector<VertexElement<2,2>* > elements;
+        elements.push_back(p_element);
+
+        // Create mesh
+        VertexMesh<2,2> mesh(nodes, elements);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        
+        // Call remesh 
+        mesh.ReMesh();
+
+        // Check that the edge between nodes 1 and 2 has divided
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        
+        TS_ASSERT_DELTA(mesh.GetNode(4)->rGetLocation()[0], 2.0, 1e-8);
+        TS_ASSERT_DELTA(mesh.GetNode(4)->rGetLocation()[1], 2.0, 1e-8);
+    }
+
+
     void TestNeighbouringNodeMethods() throw(Exception)
     {
         // Create mesh
-        VertexMesh<2,2> mesh(2,2); // columns then rows
+        VertexMesh<2,2> mesh(2, 2, 0.01, 2.0);
             
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 16u);
@@ -594,7 +646,6 @@ public:
     void TestDivideEdge()
     {
         // Create nodes
-
         Node<2>* p_node0 = new Node<2>(0, false, 1.0, 1.0);
         Node<2>* p_node1 = new Node<2>(1, false, 2.0, 1.0);
         Node<2>* p_node2 = new Node<2>(2, false, 2.0, 2.0);

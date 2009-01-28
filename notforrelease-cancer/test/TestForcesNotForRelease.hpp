@@ -599,7 +599,7 @@ public:
     void TestVertexBasedTissueForceMethods() throw (Exception)
     {
         // Create a vertex mesh
-        VertexMesh<2,2> mesh(5,5); // columns then rows
+        VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
 
         // Set up cells
         std::vector<TissueCell> cells;
