@@ -38,15 +38,18 @@ template<unsigned DIM>
 class Electrodes
 {
 private:
+    bool mGroundSecondElectrode;
     BoundaryConditionsContainer<DIM,DIM,2>* mpBoundaryConditionsContainer;
+    std::vector<unsigned> mGroundedNodes;
 
 public:
     Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
+               bool groundSecondElectrode,
                unsigned index, double lowerValue, double upperValue, 
                double magnitude, double duration)
-    {
-        
+    {        
         assert(index < DIM);
+        mGroundSecondElectrode = groundSecondElectrode;
         
         // check min x_i = a and max x_i = b, where i = index
         double min = DBL_MAX;
@@ -91,18 +94,39 @@ public:
                 mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
                 mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_in,  1);
             }
-
-            if ( fabs((*iter)->CalculateCentroid()[index] - upperValue) < 1e-6 )
+            
+            if(!mGroundSecondElectrode)
             {
-                mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
-                mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_out, 1);
+                if ( fabs((*iter)->CalculateCentroid()[index] - upperValue) < 1e-6 )
+                {
+                    mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
+                    mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_out, 1);
+                }
             }
-        }            
+        }
+        
+        if(mGroundSecondElectrode)
+        {
+            for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
+            {
+                if(fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
+                {
+                    mGroundedNodes.push_back(i);
+                }
+            }
+            assert(mGroundedNodes.size()>0);
+        }
     }
     
     BoundaryConditionsContainer<DIM,DIM,2>* GetBoundaryConditionsContainer()
     {
         return mpBoundaryConditionsContainer;
+    }
+
+    std::vector<unsigned> GetGroundedNodes()
+    {
+        assert(mGroundSecondElectrode);
+        return mGroundedNodes;
     }
 };
 
