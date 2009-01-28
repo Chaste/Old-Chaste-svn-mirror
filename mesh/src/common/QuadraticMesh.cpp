@@ -200,10 +200,10 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     
     // delete the temporary files
     command = "rm -f " + outputDir + "/" + fileStem + ".node";
-//    system(command.c_str());
-//    system( ("rm -f " + fileStem + ".1.node").c_str() );
-//    system( ("rm -f " + fileStem + ".1.ele" ).c_str() );
-//    system( ("rm -f " + fileStem + ".1.edge").c_str() );
+    system(command.c_str());
+    system( ("rm -f " + fileStem + ".1.node").c_str() );
+    system( ("rm -f " + fileStem + ".1.ele" ).c_str() );
+    system( ("rm -f " + fileStem + ".1.edge").c_str() );
 }
 
 
