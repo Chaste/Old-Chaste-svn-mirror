@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "TissueSimulationWithNutrients.hpp"
-
+#include "MeshBasedTissueWithGhostNodes.hpp"
 #include "SimpleDataWriter.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
@@ -56,6 +56,11 @@ TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue
       mNumRadialIntervals(0), // 'unset' value
       mpCoarseNutrientMesh(NULL)
 {
+    // We must be using a mesh-based tissue   
+    assert(dynamic_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue)) != NULL);
+
+    // We must not have any ghost nodes
+    assert(dynamic_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&(this->mrTissue)) == NULL);
 }
 
 template<unsigned DIM>
@@ -255,9 +260,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
-    // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
-    /// \todo add an assertion (see #430)
-
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
@@ -321,9 +323,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 
     TetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarseNutrientMesh;
     CellwiseData<DIM>::Instance()->ReallocateMemory();
-
-    // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
-    /// \todo add an assertion (see #430)
 
     // Loop over cells and calculate centre of distribution
     c_vector<double, DIM> centre = zero_vector<double>(DIM);

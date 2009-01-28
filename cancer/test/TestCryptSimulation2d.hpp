@@ -528,16 +528,9 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> temp_cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo (sort out cell generator - see #430)
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -608,16 +601,9 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> temp_cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo (sort out cell generator - see #430)
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -846,16 +832,9 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> temp_cells;
-        TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo (sort out cell generator - see #430)
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        TysonNovakCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);

@@ -143,15 +143,22 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
     rCells.clear();
     rCells.reserve(num_cells);
 
-    for (unsigned i=0; i<num_cells; i++)
+    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
         CellType cell_type;
         unsigned generation;
 
-        double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
+        double y = 0.0;
         if (!locationIndices.empty())
         {
-            y = rMesh.GetNode(locationIndices[i])->GetPoint().rGetLocation()[1];
+            if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
+            {
+                y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
+            }
+        }
+        else
+        {
+            y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
         }
 
         p_cell_cycle_model = CreateCellCycleModel();
@@ -209,7 +216,18 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
         }
 
         cell.SetBirthTime(birth_time);
-        rCells.push_back(cell);
+        
+        if (!locationIndices.empty())
+        {
+            if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
+            {
+                rCells.push_back(cell);
+            }
+        }
+        else
+        {
+            rCells.push_back(cell);
+        }
     }
 }
 

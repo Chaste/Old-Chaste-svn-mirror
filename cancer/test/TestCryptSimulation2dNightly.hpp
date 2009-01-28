@@ -215,16 +215,9 @@ public:
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo sort out cell generator - see #430
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);
-        }
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -280,16 +273,9 @@ public:
         CancerParameters::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, -1.0);
-
-        /// \todo sort out cell generator - see #430
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true, -1.0);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -451,16 +437,9 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo sort out cell generator - see #430
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -502,16 +481,9 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo sort out cell generator - see #430
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        WntCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -661,16 +633,9 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo sort out cell generator - see #430
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -748,16 +713,9 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true);
-
-        /// \todo sort out cell generator - see #430
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            cells.push_back(temp_cells[location_indices[i]]);       
-        }
+        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -862,7 +820,7 @@ public:
         TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes() - crypt.GetNumRealCells());
 
         // All cells should have been removed in this time
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 2u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 1u);
     }
 
     void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
