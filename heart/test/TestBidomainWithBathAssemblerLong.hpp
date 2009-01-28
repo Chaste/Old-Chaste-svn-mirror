@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainWithBathAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "FakeBathCell.hpp"
 
 template<unsigned DIM>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>
@@ -75,7 +76,11 @@ public:
                           && (fabs(this->mpMesh->GetNode(node)->GetPoint()[2]-mStimulatedPoint(2)) < 1e-6) );
         }
         
-        if (is_centre)
+        if (this->mpMesh->GetNode(node)->GetRegion() == BidomainWithBathAssembler<DIM,DIM>::BATH)
+        {
+            return new FakeBathCell(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
+        }
+        else if (is_centre)
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus, this->mpZeroStimulus);
         }
