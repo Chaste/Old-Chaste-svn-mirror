@@ -356,7 +356,7 @@ public:
 
 
     
-    void dontTest2dBathExtracellularStimuOneEdgeGroundedOnOppositeEdge() throw (Exception)
+    void dontTest2dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
     {
 
         HeartConfig::Instance()->SetSimulationDuration(40.0);  //ms

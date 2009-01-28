@@ -9,6 +9,7 @@ TestCellularMechanicsOdeSystems.hpp
 TestConductivityTensors.hpp
 TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
+TestElectrodes.hpp
 TestFaberRudyAgainstLimpet.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
@@ -30,3 +31,4 @@ TestChasteParametersReader.hpp
 TestStimulus.hpp
 TestStimulusBoundaryCondition.hpp
 TestStreeterFibreGenerator.hpp
+
