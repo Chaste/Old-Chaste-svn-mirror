@@ -128,6 +128,12 @@ public:
         assert(mGroundSecondElectrode);
         return mGroundedNodes;
     }
+    
+    bool IsSecondElectrodeGrounded()
+    {
+        return mGroundSecondElectrode;
+    }
+        
 };
 
 #endif /*ELECTRODES_HPP_*/

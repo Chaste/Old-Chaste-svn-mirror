@@ -46,6 +46,7 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;        
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
+        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), true);
         
         BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         
@@ -80,6 +81,7 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,duration);
+        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), false);
         
         BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         
@@ -112,6 +114,7 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,true,1,0,10,magnitude,duration);
+        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), true);
         
         BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         
@@ -145,6 +148,7 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,false,1,0,10,magnitude,duration);
+        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), false);
         
         BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         

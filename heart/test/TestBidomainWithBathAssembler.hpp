@@ -349,123 +349,19 @@ public:
             }
         }
         
-        // a couple of hardcoded values
+        // a couple of hardcoded value
         TS_ASSERT_DELTA(sol_repl[2*50], 28.3912, 1e-3);
         TS_ASSERT_DELTA(sol_repl[2*70], 28.3912, 1e-3);
     }
 
-
-    
-    void dontTest2dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
-    {
-
-        HeartConfig::Instance()->SetSimulationDuration(40.0);  //ms
-        HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dExtraStimGrounded");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d");
-        
-        
-        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms                        
-        // need to create a cell factory but don't want any intra stim, so magnitude
-        // of stim is zero.                        
-        c_vector<double,2> centre;
-        centre(0) = 0.05;                        
-        centre(1) = 0.05;
-        BathCellFactory<2> cell_factory( 0.0, centre);  
-
-        BidomainProblem<2> bidomain_problem( &cell_factory, true );
-
-        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
-        
-        // Set everything outside a central circle (radius 0.4) to be bath
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            double x = mesh.GetElement(i)->CalculateCentroid()[0];
-            double y = mesh.GetElement(i)->CalculateCentroid()[1];
-            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
-            {
-                mesh.GetElement(i)->SetRegion(1);
-            }
-        }
-
-        //boundary value for Phi_e
-        //-4e3 is enough to trigger an action potential, -3e3 is below threshold, -5e3 crashes the cell model.
-        double boundary_val = -4e3;
-        
-        // create boundary conditions container
-        BoundaryConditionsContainer<2,2,2> bcc;
-        ConstBoundaryCondition<2>* p_bc_stim = new ConstBoundaryCondition<2>(boundary_val);
-        ConstBoundaryCondition<2>* p_zero_stim = new ConstBoundaryCondition<2>(0.0);
-
-        // loop over boundary elements and a non-zero phi_e boundary condition (ie extracellular
-        // stimulus) if x=0 (where x is the x-value of the centroid)
-        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter 
-              = mesh.GetBoundaryElementIteratorBegin();
-           iter != mesh.GetBoundaryElementIteratorEnd();
-           iter++)
-        {
-            if ( (*iter)->CalculateCentroid()[0]==0.0)
-            {
-                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim,   1);
-            }
-        }
-
-        bidomain_problem.SetBoundaryConditionsContainer(&bcc);
-
-        // fix phi=0 on RHS edge (x=0.1cm edge)
-        std::vector<unsigned> grounded_nodes;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if(fabs(mesh.GetNode(i)->rGetLocation()[0]-0.1)<1e-6)
-            {
-                grounded_nodes.push_back(i);
-            }
-
-        }
-        assert(grounded_nodes.size()>0);
-        
-        bidomain_problem.SetFixedExtracellularPotentialNodes(grounded_nodes);
-
-        bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.Initialise();
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
-        bidomain_problem.Solve();
-        
-        Vec sol = bidomain_problem.GetSolution();
-        ReplicatableVector sol_repl(sol);
-
-        bool ap_triggered = false;
-        
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
-        {
-            // test V = 0 for all bath nodes            
-            if(mesh.GetNode(i)->GetRegion()==1) // bath
-            {
-                TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
-            }
-            
-            if (sol_repl[2*i] > -20.0)
-            {
-                ap_triggered = true;
-            }
-        }
-        
-        TS_ASSERT(ap_triggered); 
-    }
-
     void Test2dBathInputFluxEqualsOutputFlux() throw (Exception)
     {
-
-        HeartConfig::Instance()->SetSimulationDuration(60.0);  //ms
+        HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dFluxCompare");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_fluxes");
-        
-        
+
         HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms                        
+
         // need to create a cell factory but don't want any intra stim, so magnitude
         // of stim is zero.                        
         c_vector<double,2> centre;
@@ -493,35 +389,9 @@ public:
         //boundary flux for Phi_e
         double boundary_flux = -4e2;
         
-        // create boundary conditions container
-        BoundaryConditionsContainer<2,2,2> bcc;
-        ConstBoundaryCondition<2>* p_bc_flux_in = new ConstBoundaryCondition<2>(boundary_flux);
-        ConstBoundaryCondition<2>* p_bc_flux_out = new ConstBoundaryCondition<2>(-boundary_flux);
-        ConstBoundaryCondition<2>* p_bc_zero = new ConstBoundaryCondition<2>(0.0);
-
-        // loop over boundary elements and a non-zero phi_e boundary condition (ie extracellular
-        // stimulus) if x=0 (where x is the x-value of the centroid)
-        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter 
-              = mesh.GetBoundaryElementIteratorBegin();
-           iter != mesh.GetBoundaryElementIteratorEnd();
-           iter++)
-        {
-            if ( (*iter)->CalculateCentroid()[0]==0.0)
-            {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_flux_in,   1);
-            }
-
-            if ( (*iter)->CalculateCentroid()[0]==0.1)
-            {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_flux_out,   1);
-            }
-
-        }
-
-        bidomain_problem.SetBoundaryConditionsContainer(&bcc);
-
+        Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, 5.0);
+        bidomain_problem.SetElectrodes(electrodes);
+        
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 
@@ -548,6 +418,7 @@ public:
             }
         }
         
+        TS_ASSERT_DELTA(sol_repl[120], -83.8458, 1e-3);
         //TS_ASSERT(ap_triggered); 
     }
 

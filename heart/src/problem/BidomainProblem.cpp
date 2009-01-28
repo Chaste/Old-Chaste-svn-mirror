@@ -235,6 +235,22 @@ void BidomainProblem<SPACE_DIM>::PreSolveChecks()
     }
 }
 
+template<unsigned SPACE_DIM>
+void BidomainProblem<SPACE_DIM>::SetElectrodes(Electrodes<SPACE_DIM>& rElectrodes)
+{
+    if(!mHasBath)
+    {
+        EXCEPTION("Cannot set electrodes when problem has been defined to not have a bath");
+    }
+
+    SetBoundaryConditionsContainer(rElectrodes.GetBoundaryConditionsContainer());
+    if (rElectrodes.IsSecondElectrodeGrounded())
+    {
+        SetFixedExtracellularPotentialNodes(rElectrodes.GetGroundedNodes());
+    }
+}
+
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

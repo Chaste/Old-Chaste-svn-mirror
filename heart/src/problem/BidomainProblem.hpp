@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-
+#include "Electrodes.hpp"
 #include "BidomainPde.hpp"
 
 /**
@@ -115,6 +115,8 @@ public:
     virtual void WriteOneStep(double time, Vec voltageVec);
     
     void PreSolveChecks();
+    
+    void SetElectrodes(Electrodes<SPACE_DIM>& rElectrodes);
 };
 
 
