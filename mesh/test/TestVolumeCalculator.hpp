@@ -118,13 +118,16 @@ public:
             mesh.GetBoundaryElementIteratorBegin();
 
         double area=0.0;
+        c_vector<double,3> weighted_direction;
+        double jacobian_det;
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             // There are 16 regular triangles on each face of the cube
             // since determinant is double the area we are expecting (1/8).
             unsigned element_index = (*boundary_iter)->GetIndex();
-            TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(element_index), 1/8.0, 1e-6);
-            area+=mesh.GetJacobianDeterminantForBoundaryElement(element_index)/2.0;
+            mesh.GetWeightedDirectionForBoundaryElement(element_index, weighted_direction, jacobian_det);
+            TS_ASSERT_DELTA(jacobian_det, 1/8.0, 1e-6);
+            area+=jacobian_det/2.0;
             boundary_iter++;
 
         }
@@ -146,9 +149,12 @@ public:
             mesh.GetBoundaryElementIteratorBegin();
 
         double area=0.0;
+        c_vector<double,3> weighted_direction;
+        double jacobian_det;
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
         {
-            area+= mesh.GetJacobianDeterminantForBoundaryElement((*boundary_iter)->GetIndex())/2.0;
+            mesh.GetWeightedDirectionForBoundaryElement((*boundary_iter)->GetIndex(), weighted_direction, jacobian_det);
+            area+= jacobian_det/2.0;
             boundary_iter++;
 
         }
@@ -167,9 +173,12 @@ public:
             mesh.GetBoundaryElementIteratorBegin();
 
         double perimeter=0.0;
+        c_vector<double,2> weighted_direction;
+        double jacobian_det;        
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
         {
-            perimeter+= mesh.GetJacobianDeterminantForBoundaryElement((*boundary_iter)->GetIndex());
+            mesh.GetWeightedDirectionForBoundaryElement((*boundary_iter)->GetIndex(), weighted_direction, jacobian_det);
+            perimeter+= jacobian_det;
             boundary_iter++;
 
         }

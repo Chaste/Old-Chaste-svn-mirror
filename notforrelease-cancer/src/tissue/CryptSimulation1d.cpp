@@ -269,7 +269,7 @@ void CryptSimulation1d::Solve()
             if (!sloughed_node) break;
         }
         // Check nodes haven't crossed
-        mrMesh.RefreshMesh();
+        // mrMesh.RefreshMesh();    // Causes trouble because this now refreshes jacobians but there are deleted elements...
 
         // Increment simulation time here, so results files look sensible
         SimulationTime::Instance()->IncrementTimeOneStep();

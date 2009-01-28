@@ -137,9 +137,9 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     assert(mNextTime != DBL_MAX);
     assert(mOdeTimestep != DBL_MAX);
     
-    c_matrix<double, DIM, DIM> inverse_jacobian;
-    this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
-    double jacobian_determinant = this->mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
+    c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
+    double jacobian_determinant;
+    this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     if (assembleJacobian)
     {

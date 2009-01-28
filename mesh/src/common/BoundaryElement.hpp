@@ -57,10 +57,10 @@ public:
         // Store Node pointer
         this->mNodes.push_back(node);
 
-        this->mJacobian(0,0) = 1.0;
-        this->mInverseJacobian(0,0) = 1.0;
-        this->mWeightedDirection(0) = 1.0;
-        this->mJacobianDeterminant = 1.0;
+//        this->mJacobian(0,0) = 1.0;
+//        this->mInverseJacobian(0,0) = 1.0;
+//        this->mWeightedDirection(0) = 1.0;
+//        this->mJacobianDeterminant = 1.0;
 
         RegisterWithNodes();
     }
@@ -86,7 +86,7 @@ public:
     void MarkAsDeleted()
     {
         this->mIsDeleted = true;
-        this->mJacobianDeterminant = 0.0;
+//        this->mJacobianDeterminant = 0.0;
         // Update nodes in this element so they know they are not contained by us
         for (unsigned i=0; i<this->GetNumNodes(); i++)
         {

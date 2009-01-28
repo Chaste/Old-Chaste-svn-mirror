@@ -244,7 +244,8 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
             BoundaryElement<1,2>* p_boundary_element = new BoundaryElement<1,2>(0, nodes);
             p_boundary_element->RegisterWithNodes();
             mBoundaryElements.push_back(p_boundary_element);
-
+            this->mBoundaryElementWeightedDirections.push_back(zero_vector<double>(2));
+            this->mBoundaryElementJacobianDeterminants.push_back(0.0);            
         }
         elem_index++;
     }
@@ -681,6 +682,9 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         // Make a new element.
         Element<2,2>* p_new_element = new Element<2,2>(GetNumAllElements(), nodes);
         this->mElements.push_back(p_new_element);
+        this->mElementJacobians.push_back(zero_matrix<double>(2,2));
+        this->mElementInverseJacobians.push_back(zero_matrix<double>(2,2));
+        this->mElementJacobianDeterminants.push_back(0.0);                    
     }
 
     // Reindex to get rid of extra elements indices

@@ -59,8 +59,9 @@ void CellwiseDataGradient<DIM>::SetupGradients()
         Element<DIM,DIM>& r_elem = *(r_mesh.GetElement(elem_index));
 
         // Calculate the basis functions at any point (eg zero) in the element
-        c_matrix<double, DIM, DIM> inverse_jacobian;
-        r_mesh.GetInverseJacobianForElement(elem_index, inverse_jacobian);
+        c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
+        double jacobian_det;
+        r_mesh.GetInverseJacobianForElement(elem_index, jacobian, jacobian_det, inverse_jacobian);
         const ChastePoint<DIM> zero_point;
         c_matrix<double, DIM, DIM+1> grad_phi;
         LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(zero_point, inverse_jacobian, grad_phi);

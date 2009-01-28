@@ -416,8 +416,9 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
         basis_functions(1,0) = basis_functions(2,1) = basis_functions(3,2) =  1.0;
 
         c_matrix<double, SPACE_DIM+1, SPACE_DIM> temp;
-        c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
-        mrMesh.GetInverseJacobianForElement(element_index, inverse_jacobian);
+        c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian, inverse_jacobian;
+        double jacobian_det;               
+        mrMesh.GetInverseJacobianForElement(element_index, jacobian, jacobian_det, inverse_jacobian);
         noalias(temp) = prod (basis_functions, inverse_jacobian);
         noalias(grad_ave_wall_thickness) = prod(elem_nodes_ave_thickness, temp);
         

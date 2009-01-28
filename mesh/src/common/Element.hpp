@@ -66,6 +66,16 @@ public:
      */
     c_vector<double,SPACE_DIM+1> CalculateCircumsphere();
     
+    /**
+     * Calculate the circumsphere/circumcircle of this element. 
+     * 
+     * After reconstructing a cylindrical 2d mesh, the jacobian data of the periodic elements is not valid anymore.
+     * We want to use the jacobians computed before swapping the nodes.
+
+     * @returns a vector containing x_centre, y_centre,...,radius^2
+     */
+    c_vector<double,SPACE_DIM+1> CalculateCircumsphere(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian);     
+    
     double CalculateCircumsphereVolume();
 
     /**

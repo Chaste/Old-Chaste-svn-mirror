@@ -72,15 +72,11 @@ private:
          * This is true for linear basis functions, but not for any other type of
          * basis function. <--- not true, as we don't have curvilinear elements!
          */
-        c_matrix<double, DIM, DIM> inverse_jacobian;
-        double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
+        c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
+        double jacobian_determinant;
+        mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
         // Initialise element contributions to zero
-        if ( assembleMatrix )
-        {
-            mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
-        }
-
         if (assembleMatrix)
         {
             rAElem.clear();

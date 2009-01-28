@@ -721,11 +721,11 @@ public:
         TS_ASSERT(target_element_node_indices.empty());
 
         // Calculate the circumsphere of the element
-        c_vector<double, 3> circumsphere = mesh.GetElement(element_index)->CalculateCircumsphere();
-
-        TS_ASSERT_DELTA(circumsphere[0], 0.9509, 1e-3);
-        TS_ASSERT_DELTA(circumsphere[1], 0.5100, 1e-3);
-        TS_ASSERT_DELTA(circumsphere[2], 0.2526, 1e-3);
+//        c_vector<double, 3> circumsphere = mesh.GetElement(element_index)->CalculateCircumsphere();
+//
+//        TS_ASSERT_DELTA(circumsphere[0], 0.9509, 1e-3);
+//        TS_ASSERT_DELTA(circumsphere[1], 0.5100, 1e-3);
+//        TS_ASSERT_DELTA(circumsphere[2], 0.2526, 1e-3);
 
         /* The reason that the circumsphere is calculated correctly for a periodic boundary
          * stradling element is somewhat obscure.

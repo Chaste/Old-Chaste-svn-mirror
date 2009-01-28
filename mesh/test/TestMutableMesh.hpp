@@ -135,27 +135,35 @@ public:
         Element<1,1> *p_element;
         Node<1>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
         p_element = mesh.GetElement(*elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.1, 1e-6);
+        c_matrix<double,1,1> jacobian;
+        double jacobian_det;
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.1, 1e-6);
         p_element = mesh.GetElement(*++elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.1, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.1, 1e-6);
 
         // Move node 3 from 0.3 (between node 2 at 0.2 and node 4 at 0.4
         point.SetCoordinate(0,0.25);
         mesh.SetNode(node_index, point);
         elt_iter = p_node->ContainingElementsBegin();
         p_element = mesh.GetElement(*elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.05, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.05, 1e-6);
         p_element = mesh.GetElement(*++elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.15, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.15, 1e-6);
 
         // Move node 3 from 0.3 (between node 2 at 0.2 and node 4 at 0.4
         point.SetCoordinate(0,0.201);
         mesh.SetNode(node_index, point);
         elt_iter = p_node->ContainingElementsBegin();
         p_element = mesh.GetElement(*elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.001, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 0.001, 1e-6);
         p_element = mesh.GetElement(*++elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.199, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 0.199, 1e-6);
 
         // Move node 3 so that one element is empty
         point.SetCoordinate(0,0.200);
@@ -170,9 +178,11 @@ public:
         mesh.SetNode(node_index, point);
         elt_iter = p_node->ContainingElementsBegin();
         p_element = mesh.GetElement(*elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.1, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 0.1, 1e-6);
         p_element = mesh.GetElement(*++elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.1, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 0.1, 1e-6);
     }
 
 
@@ -193,22 +203,29 @@ public:
         ChastePoint<2> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.063497248392600097, 1e-6);
         TS_ASSERT_DELTA(point[1], -0.45483180039309123, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.00907521, 1e-6);
+        
+        c_matrix<double,2,2> jacobian;
+        double jacobian_det;
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.00907521, 1e-6);
 
         //Nudge
         point.SetCoordinate(0,0.06);
         mesh.SetNode(node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.00861908, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.00861908, 1e-6);
 
         //Nudge
         point.SetCoordinate(0,0.02);
         mesh.SetNode(node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.00340215, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 0.00340215, 1e-6);
 
         //Nudge
         point.SetCoordinate(0,-0.006);
         mesh.SetNode(node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 1.11485e-05, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 1.11485e-05, 1e-6);
 
         //Nudge too far
         point.SetCoordinate(0,-0.0065);
@@ -217,7 +234,8 @@ public:
         //Put it back
         point.SetCoordinate(0,0.063497248392600097);
         mesh.SetNode(node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.00907521, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 0.00907521, 1e-6);
 
         //Now try to move a boundary node
         p_node=mesh.GetNode(boundary_node_index);
@@ -227,10 +245,15 @@ public:
 
         Node<2>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
         const BoundaryElement<1,2>* p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0628215, 1e-6);
+        
+        c_vector<double,2> weighted_dir;
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);        
+        TS_ASSERT_DELTA(jacobian_det, 0.0628215, 1e-6);
+
         boundary_point.SetCoordinate(0, 1.0);
         mesh.SetNode(boundary_node_index, boundary_point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0645268, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0645268, 1e-6);
     }
 
 
@@ -252,8 +275,15 @@ public:
         TS_ASSERT_DELTA(point[0], 1, 1e-6);
         TS_ASSERT_DELTA(point[1], 0.75, 1e-6);
         TS_ASSERT_DELTA(point[2], 0.75, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.03125, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.125, 1e-6);
+        
+        c_matrix<double,3,3> jacobian;
+        c_vector<double,3> weighted_dir;
+        double jacobian_det;
+
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.03125, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.125, 1e-6);
 
         // Check the mesh volume hasn't changed
         TS_ASSERT_DELTA(mesh.CalculateVolume(), reference_volume, 1e-6);
@@ -261,20 +291,26 @@ public:
         //Nudge
         point.SetCoordinate(2,0.9);
         mesh.SetNode(interior_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0125, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.05, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0125, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.05, 1e-6);
 
         //Nudge
         point.SetCoordinate(2, 0.999);
         mesh.SetNode(interior_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.000125, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0005, 1e-6);
-
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.000125, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0005, 1e-6);
+        
         //Nudge
         point.SetCoordinate(2,0.99999);
         mesh.SetNode(interior_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 1.25e-06, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 5.0e-06, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 1.25e-06, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 5.0e-06, 1e-6);
 
         //Nudge too far
         point.SetCoordinate(2,1.0);
@@ -283,9 +319,11 @@ public:
         //Put it back
         point.SetCoordinate(2,0.75);
         mesh.SetNode(interior_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.03125, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.125, 1e-6);
-
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.03125, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.125, 1e-6);
+        
         // Find exterior node
         const int exterior_node_index=0;
         p_node=mesh.GetNode(exterior_node_index); // this exterior node is at (0,0,0)
@@ -319,14 +357,21 @@ public:
         TS_ASSERT_DELTA(point[0], -1.0, 1e-6);
         TS_ASSERT_DELTA(point[1], 0.0, 1e-6);
 
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0628215, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 1.0, 1e-6);
+        c_vector<double,2> weighted_dir;
+        double jacobian_det;
+
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0628215, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 1.0, 1e-6);
 
         //Nudge left
         point.SetCoordinate(0,-1.5);
         mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.505885, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 1.0, 1e-6);
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.505885, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 1.0, 1e-6);
 
         //Can't nudge right since an element flips chirality
         point.SetCoordinate(0,-0.5);
@@ -335,8 +380,10 @@ public:
         //Put it back
         point.SetCoordinate(0, -1.0);
         mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0628215, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 1.0, 1e-6);
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0628215, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 1.0, 1e-6);
     }
 
 
@@ -357,32 +404,49 @@ public:
         TS_ASSERT_DELTA(point[1], -0.12533323360000001, 1e-6);
         TS_ASSERT_DELTA(point[2], 0.0, 1e-6);
 
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0163772, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0628215, 1e-6);
+        c_vector<double,3> weighted_dir;
+        double jacobian_det;
+
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0163772, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0628215, 1e-6);
 
         //Nudge above the plane
         point.SetCoordinate(2,1e-2);
         mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0164274 , 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0636124, 1e-6);
+
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0164274, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0636124, 1e-6);
 
         //Nudge it back
         point.SetCoordinate(2,0.0);
         mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0163772, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0628215, 1e-6);
+
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0163772, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0628215, 1e-6);
 
         //Nudge below the plane
         point.SetCoordinate(2,-1e-2);
         mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0164274, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0636124, 1e-6);
 
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0164274, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0636124, 1e-6);
+                        
         //Put it back
         point.SetCoordinate(2,0.0);
         mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0163772, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForBoundaryElement(p_boundary_element->GetIndex()), 0.0628215, 1e-6);
+
+        mesh.GetWeightedDirectionForElement(p_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0163772, 1e-6);
+        mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0628215, 1e-6);
 
         //Can't nudge to the other side of the circle without changing handedness
         point.SetCoordinate(0,-1.0);
@@ -539,9 +603,14 @@ public:
 
         Element<1,1> *p_element;
         p_element = mesh.GetElement(2);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.2, 1e-6);
+        
+        c_matrix<double,1,1> jacobian;
+        double jacobian_det;
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.2, 1e-6);
         p_element = mesh.GetElement(3);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()), 0.0, 1e-6);
+        mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0, 1e-6);
 
         TS_ASSERT_DELTA(length, mesh.CalculateVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 1);
@@ -567,9 +636,14 @@ public:
         //the non-feasible node (172) - it will vanish
         //Element 762 is shared by the moving node (432), some other node (205)
         //the non-feasible node (172) - it will increase in size
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(309),
+        c_matrix<double,2,2> jacobian;
+        double jacobian_det;
+        mesh.GetJacobianForElement(309, jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det,
                         0.00753493, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(762),
+
+        mesh.GetJacobianForElement(762, jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det,
                         0.00825652, 1e-6);
         //Cannot merge since they are not neighbours
         TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_neighbour_index));
@@ -582,12 +656,12 @@ public:
 
         mesh.MoveMergeNode(node_index, target_index);
 
-
         TS_ASSERT_DELTA(area, mesh.CalculateVolume(), 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(309),
-                        0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetJacobianDeterminantForElement(762),
-                        0.0126728, 1e-6);
+        mesh.GetJacobianForElement(309, jacobian, jacobian_det);
+        TS_ASSERT_DELTA(jacobian_det, 0.0, 1e-6);
+
+        mesh.GetJacobianForElement(762, jacobian, jacobian_det);                                
+        TS_ASSERT_DELTA(jacobian_det, 0.0126728, 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
     }
 
@@ -799,7 +873,7 @@ public:
         // moving a deleted node should throw an exception
         TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(2,1));
     }
-
+    
 
     void TestDeleteNodeFails() throw (Exception)
     {

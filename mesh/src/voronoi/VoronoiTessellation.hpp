@@ -150,9 +150,13 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
     // loop over elements, for each element calculate circumcentre (=vertex), set that as a
     // vertex for each node(=face in 2d) of that element. Also loop over mesh-edges of the element
     // and add the vertex as a vertex for that vertex-edge
+    c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
+    double jacobian_det;
     for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
-    {
-        c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
+    {        
+        mrMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);                                                                                          
+        
+        c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
 
         c_vector<double,DIM>*  p_circumcentre = new c_vector<double, DIM>;
         for(unsigned j=0; j<DIM; j++)
@@ -319,9 +323,14 @@ VoronoiTessellation<DIM>::~VoronoiTessellation()
 template<unsigned DIM>
 void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 {
+
+    c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
+    double jacobian_det;
     for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
     {
-        c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
+        mrMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);                                                                                          
+        
+        c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
 
         c_vector<double,DIM>*  p_circumcentre = new c_vector<double, DIM>;
         for(unsigned j=0; j<DIM; j++)

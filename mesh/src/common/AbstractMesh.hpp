@@ -123,27 +123,23 @@ public:
     BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const;
 
     /// \todo: move implementation
-    virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const
+    virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant) const
     {
-        mElements[SolveElementMapping(elementIndex)]->CalculateJacobian(rJacobian);
+        mElements[SolveElementMapping(elementIndex)]->CalculateJacobian(rJacobian, rJacobianDeterminant);
     }
-    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
+    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
     {
-        mElements[SolveElementMapping(elementIndex)]->CalculateInverseJacobian(rInverseJacobian);
+        mElements[SolveElementMapping(elementIndex)]->CalculateInverseJacobian(rJacobian, rJacobianDeterminant, rInverseJacobian);
     }
-    virtual double GetJacobianDeterminantForElement(unsigned elementIndex) const
+    virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const
     {
-        return mElements[SolveElementMapping(elementIndex)]->CalculateJacobianDeterminant();
-    }
-    
-    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const
-    {
-        mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection);
+        mElements[SolveElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection, rJacobianDeterminant );
     }    
-    virtual double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const
+     
+    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const
     {
-        return mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateJacobianDeterminant();
-    }
+        mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection, rJacobianDeterminant );
+    }    
     
 };
 

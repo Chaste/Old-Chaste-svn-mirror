@@ -163,14 +163,18 @@ protected:
          * This is true for linear basis functions, but not for any other type of
          * basis function.
          */
+        c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
         c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
-        double jacobian_determinant = mpMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
+        double jacobian_determinant;
+        
+        mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
-        // Initialise element contributions to zero
-        if ( assembleMatrix || this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
-        {
-            this->mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
-        }
+// With the new signature of GetInverseJacobianForElement, inverse and jacobian are returned at the same time
+//        // Initialise element contributions to zero
+//        if ( assembleMatrix || this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
+//        {
+//            this->mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
+//        }
 
         if (assembleMatrix)
         {
@@ -294,7 +298,9 @@ protected:
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
             *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>::mpSurfaceQuadRule);
 
-        double jacobian_determinant = mpMesh->GetJacobianDeterminantForBoundaryElement(rSurfaceElement.GetIndex());
+        c_vector<double, SPACE_DIM> weighted_direction;
+        double jacobian_determinant;
+        mpMesh->GetWeightedDirectionForBoundaryElement(rSurfaceElement.GetIndex(), weighted_direction, jacobian_determinant);
 
         rBSurfElem.clear();
 

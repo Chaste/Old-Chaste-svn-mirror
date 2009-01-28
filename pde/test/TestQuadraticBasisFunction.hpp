@@ -195,8 +195,9 @@ public:
         Element<1,1> element(INDEX_IS_NOT_USED, nodes);
         QuadraticBasisFunction<1> basis_function;
         
-        c_matrix<double,1,1> inverse_jacobian;
-        element.CalculateInverseJacobian(inverse_jacobian);
+        c_matrix<double,1,1> jacobian, inverse_jacobian;
+        double determinant;
+        element.CalculateInverseJacobian(jacobian, determinant, inverse_jacobian);
         ChastePoint<1> evaluation_point(0.2); 
         c_matrix<double, 1, 3> trans_deriv;
         basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
@@ -226,8 +227,9 @@ public:
         Element<2,2> element(INDEX_IS_NOT_USED, nodes);
         QuadraticBasisFunction<2> basis_function;
         
-        c_matrix<double,2,2> inverse_jacobian;
-        element.CalculateInverseJacobian(inverse_jacobian);
+        c_matrix<double,2,2> jacobian, inverse_jacobian;
+        double determinant;
+        element.CalculateInverseJacobian(jacobian, determinant, inverse_jacobian);
         ChastePoint<2> evaluation_point(0.3, 0.6); 
         c_matrix<double,2,6> trans_deriv;
         basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
@@ -270,8 +272,9 @@ public:
         Element<3,3> element(INDEX_IS_NOT_USED, nodes);
         QuadraticBasisFunction<3> basis_function;
         
-        c_matrix<double,3,3> inverse_jacobian;
-        element.CalculateInverseJacobian(inverse_jacobian);
+        c_matrix<double,3,3> jacobian, inverse_jacobian;
+        double determinant;
+        element.CalculateInverseJacobian(jacobian, determinant, inverse_jacobian);
         ChastePoint<3> evaluation_point(0.3, 0.1, 0.2); 
         c_matrix<double,3,10> trans_deriv;
         basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,

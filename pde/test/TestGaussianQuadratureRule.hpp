@@ -131,7 +131,9 @@ public :
                 Element<1,1> element(INDEX_IS_NOT_USED, nodes2);
 
                 double integral=0;
-                double jacobian_determinant = element.CalculateJacobianDeterminant();
+                double jacobian_determinant;
+                c_matrix<double, 1, 1> jacobian; 
+                element.CalculateJacobian(jacobian, jacobian_determinant);
 
                 // This assumes linear basis functions in 1d
                 double x1 = element.GetNodeLocation(0,0);

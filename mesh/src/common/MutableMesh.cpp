@@ -141,7 +141,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         ChastePoint<SPACE_DIM> point,
         bool concreteMove)
-{
+{    
     this->mNodes[index]->SetPoint(point);
     
     if (concreteMove)
@@ -150,25 +150,31 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
              it != this->mNodes[index]->ContainingElementsEnd();
              ++it)
         {
-            try
+            if (ELEMENT_DIM == SPACE_DIM)
             {
-                GetElement(*it)->RefreshJacobianDeterminant(); // to be removed
-                this->mElementJacobianDeterminants[ (*it) ] = GetElement(*it)->CalculateJacobianDeterminant();
-                if (ELEMENT_DIM == SPACE_DIM)
+                try
                 {
-                    GetElement(*it)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*it) ]);
+                    GetElement(*it)->CalculateInverseJacobian(this->mElementJacobians[ (*it) ],
+                                                              this->mElementJacobianDeterminants[ (*it) ],
+                                                              this->mElementInverseJacobians[ (*it) ]);
+                }
+                catch (Exception e)
+                {
+                        EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
                 }
             }
-            catch (Exception e)
+            else
             {
-                if (ELEMENT_DIM == SPACE_DIM)
-                {
-                    EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
-                }
-                else
+                c_vector<double,SPACE_DIM> previous_direction = this->mElementWeightedDirections[ (*it) ];
+                
+                GetElement(*it)->CalculateWeightedDirection(this->mElementWeightedDirections[ (*it) ],
+                                                            this->mElementJacobianDeterminants[ (*it) ]);
+                
+                if ( inner_prod(previous_direction, this->mElementWeightedDirections[ (*it) ]) < 0)
                 {
                     EXCEPTION("Moving node caused an subspace element to change direction");
                 }
+                                                                                  
             }
         }
         for (typename Node<SPACE_DIM>::ContainingBoundaryElementIterator it = this->mNodes[index]->ContainingBoundaryElementsBegin();
@@ -177,8 +183,8 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         {
             try
             {
-                GetBoundaryElement(*it)->RefreshJacobianDeterminant(); // to be removed
-                this->mBoundaryElementJacobianDeterminants[ (*it) ] = GetBoundaryElement(*it)->CalculateJacobianDeterminant();                    
+                GetBoundaryElement(*it)->CalculateWeightedDirection(this->mBoundaryElementWeightedDirections[ (*it) ],
+                                                                    this->mBoundaryElementJacobianDeterminants[ (*it) ]);                    
             }
             catch (Exception e)
             {
@@ -320,9 +326,15 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         try
         {
 
-            this->GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed
-            this->mElementJacobianDeterminants[ (*element_iter) ] = this->GetElement(*element_iter)->CalculateJacobianDeterminant();
-            this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*element_iter) ]);
+//            this->GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed 767
+// remove 767            
+//            this->mElementJacobianDeterminants[ (*element_iter) ] = this->GetElement(*element_iter)->CalculateJacobianDeterminant();
+//            this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*element_iter) ]);
+            
+            this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementJacobians[(*element_iter)], 
+                                                                      this->mElementJacobianDeterminants[(*element_iter)], 
+                                                                      this->mElementInverseJacobians[ (*element_iter) ]);
+            
             if (concreteMove)
             {
                 this->GetElement(*element_iter)->ReplaceNode(this->mNodes[index], this->mNodes[targetIndex]);
@@ -341,8 +353,13 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
              boundary_element_iter++)
     {
 
-        this->GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed
-        this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = this->GetBoundaryElement(*boundary_element_iter)->CalculateJacobianDeterminant();
+// remove 767
+//        this->GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed
+//        this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = this->GetBoundaryElement(*boundary_element_iter)->CalculateJacobianDeterminant();
+
+        this->GetBoundaryElement(*boundary_element_iter)->CalculateWeightedDirection(this->mBoundaryElementWeightedDirections[(*boundary_element_iter)],
+                                                                                     this->mBoundaryElementJacobianDeterminants[(*boundary_element_iter)]);
+
         if (concreteMove)
         {
             this->GetBoundaryElement(*boundary_element_iter)->ReplaceNode(this->mNodes[index], this->mNodes[targetIndex]);
@@ -368,7 +385,8 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         }
         else
         {
-            this->GetElement(*element_iter)->ZeroJacobianDeterminant();  // to be removed
+// remove 767            
+//            this->GetElement(*element_iter)->ZeroJacobianDeterminant();  // to be removed
             this->mElementJacobianDeterminants[ (*element_iter) ] = 0.0;
         }
     }
@@ -393,9 +411,12 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         }
         else
         {
-            this->GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();  // to be removed
+// remove 767            
+//            this->GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();  // to be removed
             this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = 0.0;
-            this->GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
+// remove 767
+//            this->GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
+            this->mBoundaryElementWeightedDirections[ (*boundary_element_iter) ] = zero_vector<double>(SPACE_DIM);
         }
     }
 
@@ -446,7 +467,8 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
         // Second, update the node in the element with the new one
         p_new_element->UpdateNode(ELEMENT_DIM-1-i, this->mNodes[new_node_index]);
 
-        p_new_element->RefreshJacobianDeterminant();
+// remove 767
+//        p_new_element->RefreshJacobianDeterminant();
 
         // Third, add the new element to the set
         if ((unsigned) new_elt_index == this->mElements.size())
@@ -463,7 +485,8 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
 
     // Lastly, update the last node in the element to be refined
     pElement->UpdateNode(ELEMENT_DIM, this->mNodes[new_node_index]);
-    pElement->RefreshJacobianDeterminant();
+// remove 767
+//    pElement->RefreshJacobianDeterminant();
 
     return new_node_index;
 }
@@ -523,8 +546,10 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     map.Resize(this->GetNumAllNodes());
 
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> live_elements;
+    
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
+        assert(i==this->mElements[i]->GetIndex()); // We need this to be true to be able to reindex the jacobian cache
         if (this->mElements[i]->IsDeleted())
         {
             delete this->mElements[i];
@@ -532,12 +557,35 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         else
         {
             live_elements.push_back(this->mElements[i]);
+            
+            if (SPACE_DIM == ELEMENT_DIM)
+            {            
+                this->mElementJacobians[live_elements.size()-1] = this->mElementJacobians[this->mElements[i]->GetIndex()];    
+                this->mElementInverseJacobians[live_elements.size()-1] = this->mElementInverseJacobians[this->mElements[i]->GetIndex()];
+            }
+            else
+            {        
+                this->mElementWeightedDirections[live_elements.size()-1] = this->mElementWeightedDirections[this->mElements[i]->GetIndex()]; 
+            }
+            this->mElementJacobianDeterminants[live_elements.size()-1] = this->mElementJacobianDeterminants[this->mElements[i]->GetIndex()];            
         }
     }
 
     assert (mDeletedElementIndices.size() == this->mElements.size()-live_elements.size());
     mDeletedElementIndices.clear();
     this->mElements = live_elements;
+    unsigned num_elements = this->mElements.size();
+
+    if (SPACE_DIM == ELEMENT_DIM)
+    {            
+        this->mElementJacobians.resize(num_elements);    
+        this->mElementInverseJacobians.resize(num_elements);
+    }
+    else
+    {        
+        this->mElementWeightedDirections.resize(num_elements); 
+    }
+    this->mElementJacobianDeterminants.resize(num_elements);    
 
     std::vector<Node<SPACE_DIM> *> live_nodes;
     for (unsigned i=0; i<this->mNodes.size(); i++)
@@ -570,6 +618,9 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         else
         {
             live_boundary_elements.push_back(this->mBoundaryElements[i]);
+            
+            this->mBoundaryElementWeightedDirections[live_boundary_elements.size()-1] = this->mBoundaryElementWeightedDirections[this->mBoundaryElements[i]->GetIndex()];
+            this->mBoundaryElementJacobianDeterminants[live_boundary_elements.size()-1] = this->mBoundaryElementJacobianDeterminants[this->mBoundaryElements[i]->GetIndex()];
         }
     }
 
@@ -577,12 +628,19 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     this->mBoundaryElements = live_boundary_elements;
     mDeletedBoundaryElementIndices.clear();
 
+    unsigned num_boundary_elements = this->mBoundaryElements.size();
+
+    this->mBoundaryElementWeightedDirections.resize(num_boundary_elements); 
+    this->mBoundaryElementJacobianDeterminants.resize(num_boundary_elements);    
+
+
     for (unsigned i=0; i<this->mNodes.size();i++)
     {
         this->mNodes[i]->SetIndex(i);
     }
     for (unsigned i=0; i<this->mElements.size();i++)
     {
+        
         this->mElements[i]->ResetIndex(i);
     }
     for (unsigned i=0; i<this->mBoundaryElements.size();i++)
@@ -608,7 +666,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     }
 
 // I think the following dramatically slows down the simulations, as with a 
-// decent sized mesh we nearly always do need to remesh.
+// decent sized mesh we nearly always do need to remesh somewhere.
 
 //    // If there are no nodes waiting to be deleted,
 //    // and the current mesh is Voronoi, then we don't
@@ -861,7 +919,8 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPAC
 
     //Get the circumsphere information
     c_vector <double, ELEMENT_DIM+1> this_circum_centre;
-    this_circum_centre = pElement->CalculateCircumsphere();
+    
+    this_circum_centre = pElement->CalculateCircumsphere(this->mElementJacobians[pElement->GetIndex()], this->mElementInverseJacobians[pElement->GetIndex()]);
 
     //Copy the actualy circumcentre into a smaller vector
     c_vector <double, ELEMENT_DIM> circum_centre;

@@ -247,13 +247,17 @@ public:
         Element<1,1>* p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
-        TS_ASSERT_DELTA(p_element->CalculateJacobianDeterminant(), 0.1, 1e-6);
+
+        c_matrix<double, 1, 1> jacobian;
+        double det;
+        p_element->CalculateJacobian(jacobian, det);
+        TS_ASSERT_DELTA(det, 0.1, 1e-6);
         
-        TS_ASSERT_EQUALS(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()),
-                         p_element->CalculateJacobianDeterminant());
-        c_matrix<double, 1, 1> cached_jacobian, jacobian;
-        p_element->CalculateJacobian(jacobian);
-        mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian);
+        c_matrix<double, 1, 1> cached_jacobian;
+        double cached_det;
+        mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian, cached_det);
+                            
+        TS_ASSERT_EQUALS(cached_det, det);
         TS_ASSERT_EQUALS(jacobian(0,0), cached_jacobian(0,0));
 
         Node<1>* p_node2 = mesh.GetNode(1);
@@ -268,12 +272,14 @@ public:
         p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2U);
-        TS_ASSERT_DELTA(p_element->CalculateJacobianDeterminant(), 0.1, 1e-6);
         
-        TS_ASSERT_EQUALS(mesh.GetJacobianDeterminantForElement(p_element->GetIndex()),
-                         p_element->CalculateJacobianDeterminant());
-        p_element->CalculateJacobian(jacobian);
-        mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian);
+        p_element->CalculateJacobian(jacobian, det);
+        
+        TS_ASSERT_DELTA(det, 0.1, 1e-6);        
+
+        mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian, cached_det);
+
+        TS_ASSERT_EQUALS(cached_det, det);
         TS_ASSERT_EQUALS(jacobian(0,0), cached_jacobian(0,0));
 
         // There should be no more containing elements
@@ -524,7 +530,8 @@ public:
         {
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal;
-            b_element->CalculateWeightedDirection(normal);
+            double det;
+            b_element->CalculateWeightedDirection(normal, det);
             c_vector<double, 3> centroid=b_element->CalculateCentroid();
             ChastePoint<3> out(centroid+normal);
             ChastePoint<3> in(centroid-normal);
@@ -561,7 +568,8 @@ public:
         {
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal;
-            b_element->CalculateWeightedDirection(normal);
+            double det;
+            b_element->CalculateWeightedDirection(normal, det);
             c_vector<double, 3> centroid=b_element->CalculateCentroid();
             ChastePoint<3> out(centroid+normal);
             ChastePoint<3> in(centroid-normal);

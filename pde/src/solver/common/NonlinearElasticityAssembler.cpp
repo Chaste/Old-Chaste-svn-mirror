@@ -205,9 +205,10 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
             bool assembleResidual,
             bool assembleJacobian)
 {
-    c_matrix<double, DIM, DIM> inverse_jacobian;
-    mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
-    double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForElement(rElement.GetIndex());
+    c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
+    double jacobian_determinant;
+    
+    mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     if (assembleJacobian)
     {
@@ -516,11 +517,14 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnBoundaryElement(
         return;
     }
 
+    c_vector<double, DIM> weighted_direction;
+    double jacobian_determinant;
+    mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
+
     c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
 
     for (unsigned quad_index=0; quad_index<this->mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
     {
-        double jacobian_determinant = mpQuadMesh->GetJacobianDeterminantForBoundaryElement(rBoundaryElement.GetIndex());
         double wJ = jacobian_determinant * this->mpBoundaryQuadratureRule->GetWeight(quad_index);
 
         const ChastePoint<DIM-1>& quad_point = this->mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);

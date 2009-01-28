@@ -39,12 +39,21 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralElement : public AbstractElement<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
-    c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
     
-    /*< Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM */
-    c_vector<double, SPACE_DIM> mWeightedDirection; 
-    double mJacobianDeterminant;
+    void RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian)
+    {
+        if (this->mIsDeleted)
+        {
+            EXCEPTION("Attempting to Refresh a deleted element");
+        }
+        for (unsigned i=0; i<SPACE_DIM; i++)
+        {
+            for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0U (#186: pointless comparison of unsigned integer with zero)
+            {
+                rJacobian(i,j) = this->GetNodeLocation(j+1,i) - this->GetNodeLocation(0,i);
+            }
+        } 
+    } 
 
 public:
     ///Main constructor
@@ -55,14 +64,12 @@ public:
      * The nodes must be added later.
      */
     AbstractTetrahedralElement(unsigned index=INDEX_IS_NOT_USED)
-        : AbstractElement<ELEMENT_DIM,SPACE_DIM>(index),
-          mJacobianDeterminant(DOUBLE_UNSET)
+        : AbstractElement<ELEMENT_DIM,SPACE_DIM>(index)
     {}
 
     virtual ~AbstractTetrahedralElement()
     {}
 
-    void RefreshJacobianDeterminant(bool concreteMove=true);
     void ZeroJacobianDeterminant(void);
     void ZeroWeightedDirection(void);
 
@@ -78,39 +85,37 @@ public:
     }
 
 ///////////////////////////////////
-    void CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const
-    {
-        assert(ELEMENT_DIM==SPACE_DIM);
-        //return &mJacobian;
-        rJacobian = mJacobian;
-    }
-    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
+    void CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove=true);
+    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove=true);
+
+
+    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) //const
     {
         assert(ELEMENT_DIM==SPACE_DIM);        
-        //return &mInverseJacobian;
-        rInverseJacobian = mInverseJacobian;
+        CalculateJacobian(rJacobian, rJacobianDeterminant);
+        //CalculateJacobian should make sure that the determinant is not close to zero (or, in fact, negative)
+        assert(rJacobianDeterminant > 0.0);
+        rInverseJacobian = Inverse(rJacobian);
     }
-    double CalculateJacobianDeterminant(void) const
-    {
-        return mJacobianDeterminant;
-    }
+    
 
-    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection)
-    {
-        if (ELEMENT_DIM >= SPACE_DIM)
-        {
-            assert(ELEMENT_DIM == SPACE_DIM);
-            EXCEPTION("WeightedDirection undefined for fully dimensional element");
-
-        }
-        rWeightedDirection = mWeightedDirection;
-    }           
-///////////////////////////////////
-
+//\todo Re-implement
     /** Get the volume of an element (or area in 2d, or length in 1d) */
-    double GetVolume(void) const
+    double GetVolume(void) //const?
     {
         assert(SPACE_DIM == ELEMENT_DIM);
+        
+        if (this->mIsDeleted)
+        {
+            return 0.0;
+        }
+        
+        // Create Jacobian
+        ///\todo We don't want to create new data, calculation and throw the answer away
+        c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+        double determinant;
+        
+        CalculateJacobian(jacobian, determinant);
         double scale_factor = 1.0;
 
         if (ELEMENT_DIM == 2)
@@ -121,7 +126,7 @@ public:
         {
             scale_factor= 6.0; // both the volume of the canonical triangle is 1/6
         }
-        return mJacobianDeterminant/scale_factor;
+        return determinant/scale_factor;
     }
 
     /**
@@ -159,11 +164,21 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     assert(this->mNodes.size() == total_nodes);
 
     // This is so we know it's the first time of asking
-    mJacobianDeterminant=0.0;
     // Create Jacobian
+    ///\todo We don't want to create new data, calculation and throw the answer away
+    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+    c_vector<double, SPACE_DIM> weighted_direction;
+    double det;
     try
     {
-        RefreshJacobianDeterminant();
+        if (SPACE_DIM == ELEMENT_DIM)
+        {
+            CalculateJacobian(jacobian, det);
+        }
+        else
+        {
+            CalculateWeightedDirection(weighted_direction, det);            
+        }
     }
     catch (Exception)
     {
@@ -172,65 +187,69 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
 
         this->mNodes[total_nodes-1] = rNodes[total_nodes-2];
         this->mNodes[total_nodes-2] = rNodes[total_nodes-1];
-        RefreshJacobianDeterminant();
+
+        if (SPACE_DIM == ELEMENT_DIM)
+        {
+            CalculateJacobian(jacobian, det);
+        }
+        else
+        {
+            CalculateWeightedDirection(weighted_direction, det);            
+        }
     }
 
     // If determinant < 0 then element nodes are listed clockwise.
     // We want them anticlockwise.
-    assert(mJacobianDeterminant > 0.0);
+    assert(det > 0.0);
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::ZeroJacobianDeterminant(void)
-{
-    mJacobianDeterminant=0.0;
-}
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
-{
-    mWeightedDirection=zero_vector<double>(SPACE_DIM);
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool concreteMove)
-{
-    if (this->mIsDeleted)
-    {
-        EXCEPTION("Attempting to Refresh a deleted element");
-    }
-    for (unsigned i=0; i<SPACE_DIM; i++)
-    {
-        for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0U (#186: pointless comparison of unsigned integer with zero)
-        {
-            mJacobian(i,j) = this->GetNodeLocation(j+1,i) - this->GetNodeLocation(0,i);
-        }
-    }
 
 
-    if (ELEMENT_DIM == SPACE_DIM)
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)
+{
+    
+    assert(ELEMENT_DIM == SPACE_DIM);
+    RefreshJacobian(rJacobian);
+
     {
-        mJacobianDeterminant = Determinant(mJacobian);
-        if (mJacobianDeterminant <= DBL_EPSILON)
+        rJacobianDeterminant = Determinant(rJacobian);
+        if (rJacobianDeterminant <= DBL_EPSILON)
         {
             std::stringstream string_stream;
             string_stream << "Jacobian determinant is non-positive: "
-                          << "determinant = " << mJacobianDeterminant
+                          << "determinant = " << rJacobianDeterminant
                           << " for element " << this->mIndex;
             EXCEPTION(string_stream.str());
         }
-        mInverseJacobian   = Inverse(mJacobian);
-        return;
     }
+}
 
-
-    bool refresh=false;
-    c_vector<double, SPACE_DIM> weighted_direction;
-
-    if (mJacobianDeterminant > 0)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove)
+{
+    if(ELEMENT_DIM >= SPACE_DIM)
     {
-        refresh=true;
+        assert(ELEMENT_DIM == SPACE_DIM);
+        EXCEPTION("WeightedDirection undefined for fully dimensional element");
     }
+    
+    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+    RefreshJacobian(jacobian);
+    
+    //At this point we're only dealing with subspace (ELEMENT_DIM < SPACE_DIM) elem
+    //We assume that the rWeightedDirection vector and rJacobianDeterminant (length of vector)
+    //are the values from a previous call.  
+    //rJacobianDeterminant=0.0 signifies that this is the first calculation on this element.
+    c_vector<double, SPACE_DIM> weighted_direction;
+//    bool refresh=false;
+//
+//    if (rJacobianDeterminant > 0) // 767 Checking against the reference we are getting?
+//    {
+//        refresh=true;
+//    }
 
 
     //This code is only used when ELEMENT_DIM<SPACE_DIM
@@ -247,14 +266,14 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDetermin
         case 1:
             // Linear edge in a 2D plane or in 3D
 
-            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(mJacobian,0);
+            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(jacobian,0);
             break;
         case 2:
             // Surface triangle in a 3d mesh
             assert(SPACE_DIM == 3);
-            weighted_direction(0)=-SubDeterminant(mJacobian,0,2);
-            weighted_direction(1)= SubDeterminant(mJacobian,1,2);
-            weighted_direction(2)=-SubDeterminant(mJacobian,2,2);
+            weighted_direction(0)=-SubDeterminant(jacobian,0,2);
+            weighted_direction(1)= SubDeterminant(jacobian,1,2);
+            weighted_direction(2)=-SubDeterminant(jacobian,2,2);
             break;
         default:
            ; // Not going to happen
@@ -264,19 +283,18 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDetermin
     {
         EXCEPTION("Jacobian determinant is zero");
     }
-    if (refresh == true)
-    {
-        if ( inner_prod(mWeightedDirection,weighted_direction) < 0)
-        {
-            EXCEPTION("Subspace element has changed direction");
-        }
-    }
-    if (concreteMove)
-    {
-        assert(ELEMENT_DIM < SPACE_DIM);
-        mJacobianDeterminant = jacobian_determinant;
-        mWeightedDirection = weighted_direction;
-    }
+//    if (refresh == true)
+//    {
+//        if ( inner_prod(rWeightedDirection, weighted_direction) < 0)
+//        {
+//            EXCEPTION("Subspace element has changed direction");
+//        }
+//    }
+//    if (concreteMove)
+//    {
+        rJacobianDeterminant = jacobian_determinant;
+        rWeightedDirection = weighted_direction;
+//    }
 }
 
 #endif //_ABSTRACTTETRAHEDRALELEMENT_HPP_
