@@ -121,7 +121,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
             {
                 double x = xEnd*i/numElemX;
                 double y = yEnd*j/numElemY;
-                double z = yEnd*k/numElemZ;
+                double z = zEnd*k/numElemZ; //Not yEnd!
                 
                 //bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemY) || (k==0) || (k==numElemZ) );
                 *p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
@@ -160,8 +160,23 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
                                               std::string fileStem)
 {
     // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
-    std::string command =  binary + " -Qeo2 " + outputDir
+    std::string args = "-Qeo2";
+    
+    // In 2D we need an edge file. In 3D we need a face file (which is written automatically in Tetgen)
+    if (DIM == 3)
+    {
+        args = "-Qo2";   
+    }
+        
+    std::string command =  binary + " " + args + " " + outputDir
                            + "/" + fileStem + ".node";
+                           
+    if (DIM == 3)
+    {
+        // Tetgen's quiet mode isn't as quiet as Triangle's
+        command += " > /dev/null";
+    }
+                 
     int return_value = system(command.c_str());
  
     if(return_value != 0)
@@ -185,10 +200,10 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     
     // delete the temporary files
     command = "rm -f " + outputDir + "/" + fileStem + ".node";
-    system(command.c_str());
-    system( ("rm -f " + fileStem + ".1.node").c_str() );
-    system( ("rm -f " + fileStem + ".1.ele" ).c_str() );
-    system( ("rm -f " + fileStem + ".1.edge").c_str() );
+//    system(command.c_str());
+//    system( ("rm -f " + fileStem + ".1.node").c_str() );
+//    system( ("rm -f " + fileStem + ".1.ele" ).c_str() );
+//    system( ("rm -f " + fileStem + ".1.edge").c_str() );
 }
 
 

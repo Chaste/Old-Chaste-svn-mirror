@@ -233,30 +233,24 @@ public:
         TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[1], 2.71828183, 1e-5);
     }
 
-    void dontTestAutomaticallyGenerated3dMesh() throw(Exception)
+    void TestAutomaticallyGenerated3dMesh() throw(Exception)
     {
-        // this currently fails on 64-bit machines: tetgen_64 seg faults. If tetgen (for
-        // 32-bit machines) is used on 64-bit machines it creates a node file, but
-        // all the new nodes are at zero 
         QuadraticMesh<3> mesh(3.14159, 2.71828183, 2.99792 /* c! */, 5, 5, 5);
 
-///////////// These tests are expected to fail is it runs!
-///////////// Most of these numbers need to be filled in with the correct values.... 
-//////
-//////        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21*21u);
-//////        TS_ASSERT_EQUALS(mesh.GetNumElements(), 200u);
-//////
-//////        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 121u);
-//////
-//////        // each element should have 10 nodes
-//////        for(unsigned i=0; i<mesh.GetNumElements(); i++)
-//////        {
-//////            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
-//////        }
-//////
-//////        TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[0], 3.14159, 1e-4);
-//////        TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[1], 2.71828183, 1e-5);
-//////        TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[2], 2.99792, 1e-4);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1331u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 750u);  // 5 cubes in each direction = 125 cubes => 125 x 6 tetrahedra per cube = 750
+
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 216u);  // 6^3 = 216
+
+       // each element should have 10 nodes
+       for(unsigned i=0; i<mesh.GetNumElements(); i++)
+      {
+          TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
+        }
+
+        TS_ASSERT_DELTA( mesh.GetNode(215)->rGetLocation()[0], 3.14159, 1e-4);
+        TS_ASSERT_DELTA( mesh.GetNode(215)->rGetLocation()[1], 2.71828183, 1e-5);
+        TS_ASSERT_DELTA( mesh.GetNode(215)->rGetLocation()[2], 2.99792, 1e-4);
     }
     
     void TestExceptions() throw(Exception)
