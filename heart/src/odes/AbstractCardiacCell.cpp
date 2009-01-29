@@ -35,13 +35,14 @@ AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                                          unsigned voltageIndex,	
                                          AbstractStimulusFunction* intracellularStimulus,
                                          AbstractStimulusFunction* extracellularStimulus)
-        : AbstractOdeSystem(numberOfStateVariables),
-        mVoltageIndex(voltageIndex)
+    : AbstractOdeSystem(numberOfStateVariables),
+      mVoltageIndex(voltageIndex)
 {
     mpOdeSolver = pOdeSolver;
 
-    assert(voltageIndex < mNumberOfStateVariables);
-    mDt=HeartConfig::Instance()->GetOdeTimeStep();
+    // The second clause is to allow for FakeBathCell.
+    assert(voltageIndex < mNumberOfStateVariables || mNumberOfStateVariables == 0);
+    mDt = HeartConfig::Instance()->GetOdeTimeStep();
 
     mpIntracellularStimulus = intracellularStimulus;
     mpExtracellularStimulus = extracellularStimulus;

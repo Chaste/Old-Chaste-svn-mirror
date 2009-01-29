@@ -55,6 +55,8 @@ private:
     // define a new stimulus
     SimpleStimulus* mpStimulus;
     c_vector<double,DIM> mStimulatedPoint;
+    
+    AbstractCardiacCell* mpFakeCell;
 
 public:
     BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint) : AbstractCardiacCellFactory<DIM>()
@@ -62,6 +64,7 @@ public:
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
         mStimulatedPoint = stimulatedPoint;
+        mpFakeCell = new FakeBathCell(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
     }
 
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -87,7 +90,7 @@ public:
         
         if (this->mpMesh->GetNode(node)->GetRegion() == BidomainWithBathAssembler<DIM,DIM>::BATH)
         {
-            return new FakeBathCell(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
+            return mpFakeCell;
         }
         else if (is_centre)
         {
@@ -102,6 +105,7 @@ public:
     ~BathCellFactory(void)
     {
         delete mpStimulus;
+        delete mpFakeCell;
     }
 };
 
