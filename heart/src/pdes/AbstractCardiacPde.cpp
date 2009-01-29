@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteCuboid.hpp"
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
+#include "FakeBathCell.hpp"
 
 
 template <unsigned SPACE_DIM>
@@ -165,7 +166,12 @@ AbstractCardiacPde<SPACE_DIM>::~AbstractCardiacPde()
          index != DistributedVector::End();
          ++index)
     {
-        delete mCellsDistributed[index.Local];
+        // Only delete real cells
+        FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(mCellsDistributed[index.Local]);
+        if (p_fake == NULL)
+        {
+            delete mCellsDistributed[index.Local];
+        }
     }
 
     delete mpIntracellularConductivityTensors;

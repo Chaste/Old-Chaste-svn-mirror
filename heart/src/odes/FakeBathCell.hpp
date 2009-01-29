@@ -33,7 +33,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 /**
- * This class represents a fake cell for use within the bath of a bidomain simulation
+ * This class represents a fake cell for use within the bath of a bidomain simulation.
+ * 
+ * Note that only a portion of the normal functionality of a cardiac cell is
+ * actually redefined in this class.  If further calls to cardiac cells are later
+ * added to the simulation process, additional overrides may need to be added here.
  */
 
 class FakeBathCell : public AbstractCardiacCell

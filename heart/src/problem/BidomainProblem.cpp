@@ -38,11 +38,54 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
 
+template <unsigned SPACE_DIM>
+void BidomainProblem<SPACE_DIM>::AnalyseMeshForBath()
+{
+    // Annotate bath notes with correct region code
+    if (mHasBath)
+    {
+        typedef BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM> Assembler;
+
+        // Initialize all nodes to be bath nodes
+        for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
+        {
+            this->mpMesh->GetNode(i)->SetRegion(Assembler::BATH);
+        }
+    
+        bool any_bath_element_found = false;
+    
+        // Set nodes that are part of a heart element to be heart nodes
+        for (unsigned i=0; i<this->mpMesh->GetNumElements(); i++)
+        {
+            Element<SPACE_DIM, SPACE_DIM>& r_element = *(this->mpMesh->GetElement(i));
+        
+            if (r_element.GetRegion() == Assembler::CARDIAC_TISSUE)
+            {
+                for (unsigned j=0; j<r_element.GetNumNodes(); j++)
+                {
+                    r_element.GetNode(j)->SetRegion(Assembler::CARDIAC_TISSUE);
+                }
+            }
+            else
+            {
+                assert(r_element.GetRegion() == Assembler::BATH);
+                any_bath_element_found = true;
+            }
+        }
+        
+        if (!any_bath_element_found)
+        {
+            EXCEPTION("No bath element found");
+        }
+    }
+}
+
+
 template<unsigned SPACE_DIM>
 Vec BidomainProblem<SPACE_DIM>::CreateInitialCondition()
 {
     Vec init_cond = AbstractCardiacProblem<SPACE_DIM,2>::CreateInitialCondition();
-    if(mHasBath)
+    if (mHasBath)
     {
         // get the voltage stripe
         DistributedVector ic(init_cond);
@@ -63,20 +106,24 @@ Vec BidomainProblem<SPACE_DIM>::CreateInitialCondition()
     return init_cond;
 }
 
+
 template<unsigned SPACE_DIM>
 AbstractCardiacPde<SPACE_DIM> * BidomainProblem<SPACE_DIM>::CreateCardiacPde()
 {
+    AnalyseMeshForBath();
+    
     mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
 
     return mpBidomainPde;
 }
+
 
 template<unsigned SPACE_DIM>
 AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* BidomainProblem<SPACE_DIM>::CreateAssembler()
 {
     BidomainDg0Assembler<SPACE_DIM, SPACE_DIM>* p_bidomain_assembler;
     
-    if(mHasBath)
+    if (mHasBath)
     {
         p_bidomain_assembler
             = new BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
@@ -86,7 +133,7 @@ AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* BidomainProblem<SPACE_DI
     }
     else
     {
-        if(!this->mUseMatrixBasedRhsAssembly)
+        if (!this->mUseMatrixBasedRhsAssembly)
         {
             p_bidomain_assembler
                 = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
@@ -118,6 +165,7 @@ AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* BidomainProblem<SPACE_DI
     return p_bidomain_assembler;
 }
 
+
 template<unsigned SPACE_DIM>
 BidomainProblem<SPACE_DIM>::BidomainProblem(
             AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool hasBath)
@@ -128,6 +176,7 @@ BidomainProblem<SPACE_DIM>::BidomainProblem(
 {
     mFixedExtracellularPotentialNodes.resize(0); 
 }
+
 
 template<unsigned SPACE_DIM>
 void BidomainProblem<SPACE_DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
@@ -141,6 +190,7 @@ void BidomainProblem<SPACE_DIM>::SetFixedExtracellularPotentialNodes(std::vector
     }
 }
 
+
 template<unsigned SPACE_DIM>
 void BidomainProblem<SPACE_DIM>::SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
 {
@@ -153,12 +203,14 @@ void BidomainProblem<SPACE_DIM>::SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZer
     mRowMeanPhiEZero = rowMeanPhiEZero;
 }
 
+
 template<unsigned SPACE_DIM>
 BidomainPde<SPACE_DIM>* BidomainProblem<SPACE_DIM>::GetBidomainPde()
 {
     assert(mpBidomainPde!=NULL);
     return mpBidomainPde;
 }
+
 
 template<unsigned SPACE_DIM>
 void BidomainProblem<SPACE_DIM>::WriteInfo(double time)

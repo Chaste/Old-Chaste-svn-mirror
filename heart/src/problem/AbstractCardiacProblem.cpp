@@ -74,7 +74,7 @@ AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
         VecDestroy(mSolution);
     }
 
-    if(mAllocatedMemoryForMesh)
+    if (mAllocatedMemoryForMesh)
     {
         delete mpMesh;
     }
@@ -155,9 +155,9 @@ Vec AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CreateInitialCondition()
     //{
     //    DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
     //}
-    Vec initial_condition=DistributedVector::CreateVec(PROBLEM_DIM);
+    Vec initial_condition = DistributedVector::CreateVec(PROBLEM_DIM);
     DistributedVector ic(initial_condition);
-    std::vector< DistributedVector::Stripe > stripe;
+    std::vector<DistributedVector::Stripe> stripe;
     stripe.reserve(PROBLEM_DIM);
 
     for (unsigned i=0; i<PROBLEM_DIM; i++)
@@ -166,7 +166,7 @@ Vec AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CreateInitialCondition()
     }
 
     for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index!= DistributedVector::End();
+         index != DistributedVector::End();
          ++index)
     {
         stripe[0][index] = mpCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
@@ -193,8 +193,8 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::SetMesh(AbstractMesh<SPACE_D
     // If this fails the mesh has already been set. We assert rather throw an exception
     // to avoid a memory leak when checking it throws correctly
     assert(mpMesh==NULL);
-    mAllocatedMemoryForMesh = false;
     assert(pMesh!=NULL);
+    mAllocatedMemoryForMesh = false;
     mpMesh = pMesh;
 }
 

@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "FakeBathCell.hpp"
+#include "EventHandler.hpp"
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 
@@ -125,12 +126,12 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
                 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
+        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
         bidomain_problem.Initialise();
         
-        AbstractMesh<1,1>* p_mesh = bidomain_problem.mpMesh;
-        BidomainPde<1>* p_pde = bidomain_problem.mpBidomainPde;
-        BoundaryConditionsContainer<1,1,2>  bcc;
+        AbstractMesh<1,1>* p_mesh = &(bidomain_problem.rGetMesh());
+        BidomainPde<1>* p_pde = bidomain_problem.GetBidomainPde();
+        BoundaryConditionsContainer<1,1,2> bcc;
         
         // Create the bidomain with bath assembler.
         BidomainWithBathAssembler<1,1> assembler(p_mesh, p_pde, &bcc);
@@ -164,19 +165,12 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
               
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
-        bidomain_problem.Initialise();
+        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
+        // Fails because no bath
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         
-        AbstractMesh<1,1>* p_mesh = bidomain_problem.mpMesh;
-        BidomainPde<1>* p_pde = bidomain_problem.mpBidomainPde;
-        BoundaryConditionsContainer<1,1,2>  bcc;
-        
-        // Create the bidomain with bath assembler.
-        // Fails because this mesh has no bath elements               
-        TS_ASSERT_THROWS_ANYTHING(  ASSEMBLER_1D assembler(p_mesh, p_pde, &bcc) );
-        
-        // we need to call solve as otherwise an EventHandling exception is thrown
-        bidomain_problem.Solve();
+        // Prevent an EventHandling exception in later tests
+        EventHandler::EndEvent(EVERYTHING);
     }
  
     
@@ -211,7 +205,7 @@ public:
 
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
-         bidomain_problem.Solve();
+        bidomain_problem.Solve();
         
         Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);

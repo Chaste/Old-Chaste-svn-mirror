@@ -43,7 +43,7 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    if (pElement->GetRegion()==0) // ie if a tissue element
+    if (pElement->GetRegion() == CARDIAC_TISSUE) // ie if a tissue element
     {
         return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
     }
@@ -95,7 +95,7 @@ c_vector<double,2*(ELEMENT_DIM+1)>
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    if (pElement->GetRegion()==0) // ie if a tissue element
+    if (pElement->GetRegion() == CARDIAC_TISSUE) // ie if a tissue element
     {
         return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
     }
@@ -123,7 +123,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
 {
     for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
     {
-        if(this->mpMesh->GetNode(i)->GetRegion()==1) // ie is a bath node
+        if(this->mpMesh->GetNode(i)->GetRegion() == BATH) // ie is a bath node
         {
             PetscInt index[1];
             index[0] = 2*i;
@@ -158,37 +158,6 @@ BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathAssembler(
             unsigned numQuadPoints)
     : BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
 {        
-    // Initialize all nodes to be bath nodes
-    for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-    {
-        this->mpMesh->GetNode(i)->SetRegion(BATH);
-    }
-    
-    bool any_bath_element_found = false;
-    
-    // Set nodes that are part of a heart element to be heart nodes
-    for (unsigned i=0; i<this->mpMesh->GetNumElements(); i++)
-    {
-        Element<ELEMENT_DIM, SPACE_DIM>& r_element = *(this->mpMesh->GetElement(i));
-        
-        if (r_element.GetRegion() == CARDIAC_TISSUE)
-        {
-            for (unsigned j=0; j<r_element.GetNumNodes(); j++)
-            {
-                r_element.GetNode(j)->SetRegion(CARDIAC_TISSUE);
-            }
-        }
-        else
-        {
-            assert(r_element.GetRegion()==BATH);
-            any_bath_element_found = true;
-        }
-    }
-    
-    if (!any_bath_element_found)
-    {
-        EXCEPTION("No bath element found");
-    }
 }
 
 /////////////////////////////////////////////////////////////////////

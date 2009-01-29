@@ -27,13 +27,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FakeBathCell.hpp"
+#include "OdeSystemInformation.hpp"
 
 FakeBathCell::FakeBathCell(AbstractIvpOdeSolver *pSolver,
                            AbstractStimulusFunction *pIntracellularStimulus,
                            AbstractStimulusFunction *pExtracellularStimulus)
     : AbstractCardiacCell(pSolver, 0, 0, pIntracellularStimulus, pExtracellularStimulus)
 {
-    // nothing to do
+    // Make GetVoltage() return something sensible.
+    rGetStateVariables().push_back(0.0);
 }
 
 FakeBathCell::~FakeBathCell()
@@ -51,4 +53,17 @@ double FakeBathCell::GetIIonic()
 
 void FakeBathCell::ComputeExceptVoltage(double tStart, double tEnd)
 {
+}
+
+
+
+template<>
+void OdeSystemInformation<FakeBathCell>::Initialise(void)
+{
+    // State variables
+    //this->mVariableNames.push_back("Fake voltage");
+    //this->mVariableUnits.push_back("mV");
+    //this->mInitialConditions.push_back(0.0);
+    
+    this->mInitialised = true;
 }

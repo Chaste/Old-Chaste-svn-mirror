@@ -67,6 +67,12 @@ private:
      *  there are any.
      */
     Vec CreateInitialCondition();
+    
+    /**
+     * Annotate bath nodes with the correct region code, if a bath is present.
+     * Will throw if mHasBath is set but no bath is present in the mesh.
+     */
+    void AnalyseMeshForBath();
 
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde();
@@ -99,7 +105,7 @@ public:
      * condition will not be used.
      */
     void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero);
-
+    
     /**
      *  Get the pde. Can only be called after Initialise()
      */
