@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "VertexMeshWriter.hpp"
-
+#include "VertexMesh.hpp"
 class TestVertexMesh : public CxxTest::TestSuite
 {
 public:

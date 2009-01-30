@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTVERTEXMESHWRITER2D_HPP_
-#define TESTVERTEXMESHWRITER2D_HPP_
+#ifndef TESTVERTEXMESHWRITER_HPP_
+#define TESTVERTEXMESHWRITER_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -87,4 +87,4 @@ public:
     
 
 
-#endif /*TESTVERTEXMESHWRITER2D_HPP_*/
+#endif /*TESTVERTEXMESHWRITER_HPP_*/
