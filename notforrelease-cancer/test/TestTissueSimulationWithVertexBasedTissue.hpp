@@ -93,6 +93,45 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
 
+//	void TestForces() throw (Exception)
+//    {
+//        // Create a simple 2D VertexMesh
+//        VertexMesh<2,2> mesh(1, 1, 0.01, 2.0);
+//
+//        // Set up cells, one for each VertexElement. Give each cell
+//        // a birth time of 0
+//        std::vector<TissueCell> cells;
+//        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+//        {
+//            CellType cell_type = DIFFERENTIATED;
+//            double birth_time = 0.0;
+//
+//            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+//            cell.SetBirthTime(birth_time);
+//            cells.push_back(cell);
+//        }
+//
+//        // Create tissue
+//        VertexBasedTissue<2> tissue(mesh, cells);
+//
+//        unsigned old_num_nodes = tissue.GetNumNodes();
+//        unsigned old_num_elements = tissue.GetNumElements();
+//        unsigned old_num_cells = tissue.GetNumRealCells();
+//
+//        // Create a force system
+//        VertexBasedTissueForce<2> force;
+//        std::vector<AbstractForce<2>* > force_collection;
+//        force_collection.push_back(&force);
+//
+//        // Set up tissue simulation
+//        TissueSimulation<2> simulator(tissue, force_collection);
+//        simulator.SetOutputDirectory("TestVertexForces");
+//        simulator.SetEndTime(1.5);
+//
+//        // Run simulation
+//        simulator.Solve();
+//    }
+
 
     void TestMonolayerWithCellBirth() throw (Exception)
     {
@@ -133,8 +172,8 @@ public:
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
-        simulator.SetOutputDirectory("TestMonolayerWithCellBirth");
-        simulator.SetEndTime(1.0);
+        simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
+        simulator.SetEndTime(1.5);
 
         // Run simulation
         simulator.Solve();

@@ -122,8 +122,8 @@ void CancerParameters::Reset()
 
     mMatureCellTargetArea = 1.0;
     mDeformationEnergyParameter = 1.0;
-    mMembraneSurfaceEnergyParameter = 1.0;
-    mCellCellAdhesionEnergyParameter = 1.0;
+    mMembraneSurfaceEnergyParameter = 0.1;
+    mCellCellAdhesionEnergyParameter = 0.01;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -119,6 +119,14 @@ public:
      */
     c_vector<double, SPACE_DIM> GetAreaGradientAtNode(unsigned localIndex);
 
+	/**
+     * @param localIndex local index of a node owned by the element
+     * 
+     * @return the gradient of the perimeter, evaluated at the node with a given local index
+     */
+    c_vector<double, SPACE_DIM> GetPerimeterGradientAtNode(unsigned localIndex);
+
+
     /**
      * @return mVertexElementPerimeter.
      */        

@@ -83,8 +83,8 @@ private:
         TS_ASSERT_DELTA(inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetAreaBasedDampingConstantParameter(), 0.1, 1e-12);
         TS_ASSERT_DELTA(inst->GetDeformationEnergyParameter(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(inst->GetMembraneSurfaceEnergyParameter(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(inst->GetCellCellAdhesionEnergyParameter(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetMembraneSurfaceEnergyParameter(), 0.1, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCellCellAdhesionEnergyParameter(), 0.01, 1e-12);
     }
 
 public:

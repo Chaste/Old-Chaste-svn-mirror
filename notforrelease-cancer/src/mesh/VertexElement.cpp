@@ -178,10 +178,68 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
     c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
 
     area_gradient[0] = 0.5*(next_node_location[1] - previous_node_location[1]);
-    area_gradient[1] = 0.5*(next_node_location[0] - previous_node_location[0]);
+    area_gradient[1] = 0.5*(previous_node_location[0] - next_node_location[0]);
 
     return area_gradient;
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGradientAtNode(unsigned localIndex)
+{
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+    #undef COVERAGE_IGNORE
+
+    c_vector<double, SPACE_DIM> perimeter_gradient;
+    
+    unsigned next_index = (localIndex+1)%(this->GetNumNodes());
+    unsigned previous_index = (localIndex-1)%(this->GetNumNodes());
+    
+    c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();  
+    c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
+    c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
+
+    /*
+     * edge1 contains the previous node and the current node
+     * edge2 contains the current node and the next node
+     */
+
+	double length_edge1 = norm_2(current_node_location - previous_node_location);
+	double length_edge2 = norm_2(next_node_location - current_node_location);
+	
+	c_vector<double, SPACE_DIM> length_edge1_gradient, length_edge2_gradient; 
+	
+	
+	if(length_edge1 < 1e-12)
+	{	
+		length_edge1_gradient[0]= 0.0;
+		length_edge1_gradient[1]= 0.0;
+	}
+	else
+	{	
+		length_edge1_gradient[0]= (current_node_location[0] - previous_node_location[0])/length_edge1;
+		length_edge1_gradient[1]= (current_node_location[1] - previous_node_location[1])/length_edge1;
+	}
+	
+	if(length_edge2 < 1e-12)
+	{	
+		length_edge2_gradient[0]= 0.0;
+		length_edge2_gradient[1]= 0.0;
+	}	
+    {
+    	length_edge2_gradient[0]= (current_node_location[0] - next_node_location[0])/length_edge2;
+		length_edge2_gradient[1]= (current_node_location[1] - next_node_location[1])/length_edge2;
+    }
+    perimeter_gradient[0] = length_edge1_gradient[0]+length_edge2_gradient[0];
+    perimeter_gradient[1] = length_edge1_gradient[1]+length_edge2_gradient[1];
+
+
+	//std::cout << "\nperimeter gradient = " <<  perimeter_gradient[0] << "\t" << perimeter_gradient[1] << std::flush;
+	
+	
+    return perimeter_gradient;
+}
+
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
