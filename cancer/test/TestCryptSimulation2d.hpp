@@ -48,6 +48,45 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CancerEventHandler.hpp"
 #include "LogFile.hpp"
 
+/**
+ * Simple cell killer which just kills a single cell.
+ * The constructor takes in a number n, and the killer
+ * will kill the n-th cell reached using the iterator
+ * (or the last cell, if n>num_cells).
+ *
+ * For testing purposes.
+ */
+class SingleCellCellKiller : public AbstractCellKiller<2>
+{
+private :
+    unsigned mNumber;
+
+public :
+    SingleCellCellKiller(AbstractTissue<2>* pTissue, unsigned number)
+        : AbstractCellKiller<2>(pTissue),
+          mNumber(number)
+    {
+    }
+
+    virtual void TestAndLabelCellsForApoptosisOrDeath()
+    {
+        if (mpTissue->GetNumRealCells()==0)
+        {
+            return;
+        }
+
+        AbstractTissue<2>::Iterator cell_iter = mpTissue->Begin();
+
+        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
+        {
+            ++cell_iter;
+        }
+
+        cell_iter->Kill();
+    }
+};
+
+
 class TestCryptSimulation2d : public AbstractCancerTestSuite
 {
 private:
@@ -113,6 +152,70 @@ private:
 
 public:
 
+    void TestWithMultipleCellKillers() throw (Exception)
+    {
+       unsigned cells_across = 7;
+       unsigned cells_up = 11;
+       unsigned thickness_of_ghost_layer = 4;
+
+       HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+       MutableMesh<2,2>* p_mesh = generator.GetMesh();
+       std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+       // Set up cells
+       std::vector<TissueCell> cells;
+       FixedCellCycleModelCellsGenerator<2> cells_generator;
+       cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+
+       // Create tissue
+       MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+
+       // Create force law
+       MeinekeInteractionForce<2> meineke_force;
+       std::vector<AbstractForce<2>*> force_collection;
+       force_collection.push_back(&meineke_force);
+
+       // Create crypt simulation from tissue and force law
+       CryptSimulation2d simulator(crypt, force_collection);
+       simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
+
+       // Create cell killer and pass in to crypt simulation.
+       // These killers are defined in this test. They kill
+       // the first and second available cell, respectively.
+       SingleCellCellKiller cell_killer1(&crypt, 0);
+       SingleCellCellKiller cell_killer2(&crypt, 1);
+
+       simulator.AddCellKiller(&cell_killer1);
+       simulator.AddCellKiller(&cell_killer2);
+
+       // Just enough time to kill off all the cells (and watch ghost mesh use force laws),
+       // as two cells are killed per timestep.
+       double dt = 0.01;
+       unsigned num_cells = crypt.GetNumRealCells();
+
+       simulator.SetDt(dt);
+       simulator.SetEndTime(0.5*dt*(num_cells+6));
+
+       // Run simulation
+       simulator.Solve();
+
+       std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
+       unsigned num_ghosts = 0;
+       for (unsigned i=0; i<ghost_node_indices_after.size(); i++)
+       {
+           if (ghost_node_indices_after[i])
+           {
+               num_ghosts++;
+           }
+       }
+
+       // Check no new ghost nodes have been created
+       TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes());
+
+       // All cells should have been removed in this time
+       TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
+    }
+
     void TestUpdatePositions() throw (Exception)
     {
         // Create mesh
@@ -158,7 +261,7 @@ public:
         std::set<unsigned> node_indices;
         std::set<unsigned> location_indices_set;
         std::set<unsigned> ghost_node_indices;
-        
+
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             node_indices.insert(p_mesh->GetNode(i)->GetIndex());
@@ -167,7 +270,7 @@ public:
         {
             location_indices_set.insert(location_indices[i]);
         }
-    
+
         std::set_difference(node_indices.begin(), node_indices.end(),
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
@@ -306,7 +409,7 @@ public:
 
         // Find the height of the current crypt
         double height_after_division = p_mesh->GetWidth(1);
-        
+
         // Reset end time and run simulation
         simulator.SetEndTime(0.8);
         simulator.Solve();
@@ -315,7 +418,7 @@ public:
         double height_after_relaxation = p_mesh->GetWidth(1);
 
         TS_ASSERT_LESS_THAN(height_after_division, height_after_relaxation);
-        
+
         // Reset end time and run simulation
         simulator.SetEndTime(2.0);
         simulator.Solve();
@@ -1176,10 +1279,10 @@ public:
     }
 
 
-    /// \todo changed test below because once ghost nodes are not 
-    /// associated with cells, we will never be able to get to 
+    /// \todo changed test below because once ghost nodes are not
+    /// associated with cells, we will never be able to get to
     /// a situation where there are no real cells
-    
+
     // Test death on a non-periodic mesh. Note that birth does occur too.
     void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {
@@ -1354,7 +1457,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            cells.push_back(temp_cells[location_indices[i]]);       
+            cells.push_back(temp_cells[location_indices[i]]);
         }
 
         // Set up crypt
@@ -1409,6 +1512,8 @@ public:
         delete p_crypt;
         delete p_params;
     }
+
+
 
 };
 

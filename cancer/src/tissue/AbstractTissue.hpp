@@ -107,7 +107,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param rCells a vector of cells
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
@@ -150,7 +150,7 @@ public:
     /**
      * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @return the number of nodes in the tissue.
      */
     virtual unsigned GetNumNodes()=0;
@@ -160,7 +160,7 @@ public:
      * in subclasses.
      *
      * @param index  global index of the specified node
-     * 
+     *
      * @return a pointer to the node with a given index.
      */
     virtual Node<DIM>* GetNode(unsigned index)=0;
@@ -172,7 +172,7 @@ public:
      * in subclasses.
      *
      * @param pNewNode pointer to the new node
-     * 
+     *
      * @return global index of new node in tissue.
      */
     virtual unsigned AddNode(Node<DIM> *pNewNode)=0;
@@ -192,7 +192,7 @@ public:
      * Helper method for establishing if a cell is real.
      *
      * @param rCell the cell
-     * 
+     *
      * @return whether a given cell is associated with a ghost node.
      */
     virtual bool IsCellAssociatedWithAGhostNode(TissueCell& rCell);
@@ -204,7 +204,7 @@ public:
      * in subclasses.
      *
      * @param rCell the cell
-     * 
+     *
      * @return whether a given cell is associated with a deleted node.
      */
     virtual bool IsCellAssociatedWithADeletedNode(TissueCell& rCell)=0;
@@ -229,7 +229,7 @@ public:
      * in subclasses.
      *
      * @param nodeIndex the global index of this node
-     * 
+     *
      * @return the damping constant at the node.
      */
     virtual double GetDampingConstant(unsigned nodeIndex)=0;
@@ -243,7 +243,7 @@ public:
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
-     * 
+     *
      * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way).
      */
     virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL)=0;
@@ -340,9 +340,9 @@ public:
      *
      * Currently assumes there is one cell for each node, and they are ordered identically in their vectors.
      * An assertion fails if not.
-     * 
+     *
      * @param index index of the node
-     * 
+     *
      * @return reference to the cell.
      */
     TissueCell& rGetCellUsingLocationIndex(unsigned index);
@@ -625,18 +625,18 @@ AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<Tissu
     : mrTissue(rTissue),
       mCellIter(cellIter)
 {
-    // The tissue should not be empty
+    // The tissue can now return empty if it only has ghost nodes.
     if (mrTissue.rGetCells().size() == 0)
     {
-        std::stringstream ss;
-        ss << "There are no real cells in the tissue";
-        EXCEPTION(ss.str());
+        mCellIter = mrTissue.rGetCells().end();
     }
-
-    // Make sure we start at a real cell
-    if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())
+    else
     {
-        ++(*this);
+        // Make sure we start at a real cell
+        if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())
+        {
+            ++(*this);
+        }
     }
 }
 
