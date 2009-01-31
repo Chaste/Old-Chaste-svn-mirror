@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 #include "VertexMeshWriter.hpp"
-#include "OutputFileHandler.hpp"
 
 
 class TestVertexMeshWriter : public CxxTest::TestSuite
@@ -76,7 +75,7 @@ public:
         VertexMeshWriter<2,2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
         vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
         
-        OutputFileHandler handler("TestVertexMeshWriter",false);
+        OutputFileHandler handler("TestVertexMeshWriter", false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.cell";
 

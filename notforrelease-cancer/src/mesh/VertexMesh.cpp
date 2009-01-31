@@ -468,7 +468,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
          */
 
         // Start of element rearrangement code...
-                
+
         // Restart check after each T1Swap as it changes elements
         bool recheck_mesh = true;
         while (recheck_mesh == true)

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexBasedTissue.hpp"
 #include "VertexBasedTissueForce.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+#include "VertexMeshWriter.hpp"
 
 class TestTissueSimulationWithVertexBasedTissue : public AbstractCancerTestSuite
 {
@@ -93,45 +93,54 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
 
-//	void TestForces() throw (Exception)
-//    {
-//        // Create a simple 2D VertexMesh
-//        VertexMesh<2,2> mesh(1, 1, 0.01, 2.0);
-//
-//        // Set up cells, one for each VertexElement. Give each cell
-//        // a birth time of 0
-//        std::vector<TissueCell> cells;
-//        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-//        {
-//            CellType cell_type = DIFFERENTIATED;
-//            double birth_time = 0.0;
-//
-//            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
-//            cell.SetBirthTime(birth_time);
-//            cells.push_back(cell);
-//        }
-//
-//        // Create tissue
-//        VertexBasedTissue<2> tissue(mesh, cells);
-//
-//        unsigned old_num_nodes = tissue.GetNumNodes();
-//        unsigned old_num_elements = tissue.GetNumElements();
-//        unsigned old_num_cells = tissue.GetNumRealCells();
-//
-//        // Create a force system
-//        VertexBasedTissueForce<2> force;
-//        std::vector<AbstractForce<2>* > force_collection;
-//        force_collection.push_back(&force);
-//
-//        // Set up tissue simulation
-//        TissueSimulation<2> simulator(tissue, force_collection);
-//        simulator.SetOutputDirectory("TestVertexForces");
-//        simulator.SetEndTime(1.5);
-//
-//        // Run simulation
-//        simulator.Solve();
-//    }
 
+    void TestSingleCellRelaxation() throw (Exception)
+    {
+        // Construct a 2D vertex mesh consisting of a single hexagonal element
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.288675, 0.0));
+        nodes.push_back(new Node<2>(1, false, 0.866025, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.1547,   0.5));
+        nodes.push_back(new Node<2>(3, false, 0.866025, 1.0));
+        nodes.push_back(new Node<2>(4, false, 0.288675, 1.0));
+        nodes.push_back(new Node<2>(5, false, 0.0,      0.5));
+
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        double cell_swap_threshold = 0.01;
+        double edge_division_threshold = 2.0;
+        VertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
+
+        // Set up cells, one for each VertexElement. Give each cell
+        // a birth time of 0
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            CellType cell_type = DIFFERENTIATED;
+            double birth_time = -1.0;
+
+            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+
+        // Create a force system
+        VertexBasedTissueForce<2> force;
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&force);
+
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(tissue, force_collection);
+        simulator.SetOutputDirectory("TestSingleCellRelaxation");
+        simulator.SetEndTime(5.0);
+
+        // Run simulation
+        simulator.Solve();
+    }
 
     void TestMonolayerWithCellBirth() throw (Exception)
     {
@@ -173,7 +182,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
-        simulator.SetEndTime(1.5);
+        simulator.SetEndTime(1.0);
 
         // Run simulation
         simulator.Solve();

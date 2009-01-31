@@ -59,8 +59,7 @@ c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetDeformationForceContributi
     
     double cell_target_area = CancerParameters::Instance()->GetMatureCellTargetArea();
 
-
-//////// This is to have cells grow once they have divided i think we want to have cells grow before //    
+//////// This is to have cells grow once they have divided i think we want to have cells grow before - see #852 //    
 //    double cell_age = p_tissue->rGetCellUsingLocationIndex(pElement->GetIndex())->GetAge();
 //    double cell_type = p_tissue->rGetCellUsingLocationIndex(pElement->GetIndex())->GetCellType();
 //    double g1_duration = p_tissue->rGetCellUsingLocationIndex(pElement->GetIndex())->GetCellCycleModel->GetG1Duration();
@@ -71,22 +70,16 @@ c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetDeformationForceContributi
 //    }
 //    
     return 2*CancerParameters::Instance()->GetDeformationEnergyParameter()*(element_area - cell_target_area)*area_gradient;
-
-    /// \todo code up this method (see #861)
-    return zero_vector<double>(DIM);
 }
 
 
 template<unsigned DIM>
 c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetMembraneForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
 {
-    /// \todo code up this method (see #861)
-    
-    // Compute contribution from membrane surface tension energy
     // Compute the perimeter of the element and its gradient at this node
     double element_perimeter = pElement->GetPerimeter();
     
-    // \todo this need to vary like the area in GetDeformationForceContributionAtNode().
+    // \todo this needs to vary like the area in GetDeformationForceContributionAtNode() - see #852
     double target_perimeter = 2*sqrt(M_PI*CancerParameters::Instance()->GetMatureCellTargetArea());
             
     c_vector<double, DIM> perimeter_gradient = pElement->GetPerimeterGradientAtNode(localIndex);
@@ -152,8 +145,8 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
             // membrane surface tension energy and a cell-cell adhesion energy
             
             //\todo ticket861 need to uncomment these
-            //deformation_contribution += GetDeformationForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
-            //membrane_surface_tension_contribution += GetMembraneForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
+            deformation_contribution += GetDeformationForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
+            membrane_surface_tension_contribution += GetMembraneForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
             //cell_cell_adhesion_contribution += GetAdhesionForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
         }
          

@@ -116,8 +116,8 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<EL
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class VertexMeshWriter<1,2>;
 template class VertexMeshWriter<1,1>;
+template class VertexMeshWriter<1,2>;
 template class VertexMeshWriter<2,2>;
+template class VertexMeshWriter<2,3>;
 template class VertexMeshWriter<3,3>;
-

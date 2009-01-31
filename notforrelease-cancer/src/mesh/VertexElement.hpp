@@ -126,7 +126,6 @@ public:
      */
     c_vector<double, SPACE_DIM> GetPerimeterGradientAtNode(unsigned localIndex);
 
-
     /**
      * @return mVertexElementPerimeter.
      */        

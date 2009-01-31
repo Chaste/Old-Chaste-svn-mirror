@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexMeshWriter.hpp"
 #include "VertexMesh.hpp"
+
+
 class TestVertexMesh : public CxxTest::TestSuite
 {
 public:
@@ -445,7 +447,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u); 
         
-        // Test Areas and Perimeters of elements 
+        // Test areas and perimeters of elements 
         TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(), 0.2, 1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(), 1.0+0.2*sqrt(41.0), 1e-6);
                 
@@ -467,6 +469,7 @@ public:
         containing_element_indices.insert(1);
         containing_element_indices.insert(2);
         containing_element_indices.insert(3);
+
         vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
         
         // Test moved nodes are in the correct place
@@ -499,7 +502,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 3u);       
         
-        // Test Areas and Perimeters of elements 
+        // Test areas and perimeters of elements 
         TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(), 0.3, 1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
         
@@ -544,7 +547,6 @@ public:
                
         TS_ASSERT_DELTA(vertex_mesh.GetNode(11)->rGetLocation()[0], -0.1, 1e-8);
         TS_ASSERT_DELTA(vertex_mesh.GetNode(11)->rGetLocation()[1], 0.0, 1e-8);
-
 
         // Test elements have correct nodes
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);

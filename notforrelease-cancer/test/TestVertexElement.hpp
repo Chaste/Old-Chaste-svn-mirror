@@ -163,19 +163,57 @@ public:
 
         c_vector<double, 2> element_area_gradient = vertex_element.GetAreaGradientAtNode(0);        
         TS_ASSERT_DELTA(element_area_gradient[0], -0.5, 1e-6);
-        TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
         
         element_area_gradient = vertex_element.GetAreaGradientAtNode(1);        
         TS_ASSERT_DELTA(element_area_gradient[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
         
         element_area_gradient = vertex_element.GetAreaGradientAtNode(2);        
         TS_ASSERT_DELTA(element_area_gradient[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
         
         element_area_gradient = vertex_element.GetAreaGradientAtNode(3);        
         TS_ASSERT_DELTA(element_area_gradient[0], -0.5, 1e-6);
-        TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
+        
+        // Tidy up
+        for (unsigned i=0; i<corner_nodes.size(); ++i)
+        {
+            delete corner_nodes[i];
+        }
+    }
+
+
+    void TestGetPerimeterGradientAtNode()
+    {
+        // Create nodes
+        std::vector<Node<2>*> corner_nodes;
+        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        // Create element
+        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
+        
+        // Test gradient of area evaluated at each node
+
+        c_vector<double, 2> element_perimeter_gradient = vertex_element.GetPerimeterGradientAtNode(0);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], -1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], -1.0, 1e-6);
+        
+        element_perimeter_gradient = vertex_element.GetPerimeterGradientAtNode(1);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], -1.0, 1e-6);
+        
+        element_perimeter_gradient = vertex_element.GetPerimeterGradientAtNode(2);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], 1.0, 1e-6);
+        
+        element_perimeter_gradient = vertex_element.GetPerimeterGradientAtNode(3);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], -1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], 1.0, 1e-6);
         
         // Tidy up
         for (unsigned i=0; i<corner_nodes.size(); ++i)
@@ -399,7 +437,8 @@ public:
     {
         // Create nodes
         std::vector<Node<2>*> nodes;
-        // This is a square,                   
+
+        // This is a square
         nodes.push_back(new Node<2>(3, false, 0.0, 0.0));
         nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
         nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
@@ -423,7 +462,6 @@ public:
             delete nodes[i];
         }
     }
-    
- 
+
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/

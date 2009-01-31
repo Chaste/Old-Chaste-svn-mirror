@@ -42,7 +42,7 @@ private:
 
     /** Output file handler member. */
     OutputFileHandler *mpOutputFileHandler;
-    
+
     /** Base name for results files. */
     std::string mBaseName;
 

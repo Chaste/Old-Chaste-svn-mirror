@@ -183,6 +183,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
     return area_gradient;
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGradientAtNode(unsigned localIndex)
 {
@@ -210,33 +211,31 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 	c_vector<double, SPACE_DIM> length_edge1_gradient, length_edge2_gradient; 
 	
 	
-	if(length_edge1 < 1e-12)
+	if (length_edge1 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
 	{	
-		length_edge1_gradient[0]= 0.0;
-		length_edge1_gradient[1]= 0.0;
+		length_edge1_gradient[0] = 0.0;
+		length_edge1_gradient[1] = 0.0;
 	}
 	else
 	{	
-		length_edge1_gradient[0]= (current_node_location[0] - previous_node_location[0])/length_edge1;
-		length_edge1_gradient[1]= (current_node_location[1] - previous_node_location[1])/length_edge1;
+		length_edge1_gradient[0] = (current_node_location[0] - previous_node_location[0])/length_edge1;
+		length_edge1_gradient[1] = (current_node_location[1] - previous_node_location[1])/length_edge1;
 	}
 	
-	if(length_edge2 < 1e-12)
+	if (length_edge2 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
 	{	
-		length_edge2_gradient[0]= 0.0;
-		length_edge2_gradient[1]= 0.0;
+		length_edge2_gradient[0] = 0.0;
+		length_edge2_gradient[1] = 0.0;
 	}	
     {
-    	length_edge2_gradient[0]= (current_node_location[0] - next_node_location[0])/length_edge2;
-		length_edge2_gradient[1]= (current_node_location[1] - next_node_location[1])/length_edge2;
+    	length_edge2_gradient[0] = (current_node_location[0] - next_node_location[0])/length_edge2;
+		length_edge2_gradient[1] = (current_node_location[1] - next_node_location[1])/length_edge2;
     }
     perimeter_gradient[0] = length_edge1_gradient[0]+length_edge2_gradient[0];
     perimeter_gradient[1] = length_edge1_gradient[1]+length_edge2_gradient[1];
 
-
 	//std::cout << "\nperimeter gradient = " <<  perimeter_gradient[0] << "\t" << perimeter_gradient[1] << std::flush;
-	
-	
+
     return perimeter_gradient;
 }
 
