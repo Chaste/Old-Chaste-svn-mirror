@@ -136,11 +136,14 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
-        simulator.SetEndTime(5.0);
+        simulator.SetEndTime(10.0);
 
         // Run simulation
         simulator.Solve();
+        
+        /// \todo add some tests!
     }
+
 
     void TestMonolayerWithCellBirth() throw (Exception)
     {
@@ -182,7 +185,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(1.5);
 
         // Run simulation
         simulator.Solve();
@@ -196,6 +199,7 @@ public:
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
     }
+
 
     /**
      * Test archiving of a TissueSimulation that uses a VertexBasedTissue.
@@ -242,7 +246,7 @@ public:
 
         /// \todo add further tests (see #821 and #862)
         
-        // Tidy up 
+        // Tidy up
         delete p_simulator;
     }
 };

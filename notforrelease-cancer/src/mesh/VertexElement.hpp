@@ -42,7 +42,7 @@ private:
     /** Perimeter of the element. */
     double mVertexElementPerimeter;
      
-     /** Element change need to recalculate stored area and perimeter*/
+     /** Element change need to recalculate stored area and perimeter. */
     bool mElementModified;
     
 public:

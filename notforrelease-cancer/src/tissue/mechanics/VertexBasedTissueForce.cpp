@@ -69,7 +69,7 @@ c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetDeformationForceContributi
 //        cell_target_area *= 0.5*(1 + cell_age/g1_duration);
 //    }
 //    
-    return 2*CancerParameters::Instance()->GetDeformationEnergyParameter()*(element_area - cell_target_area)*area_gradient;
+    return -2*CancerParameters::Instance()->GetDeformationEnergyParameter()*(element_area - cell_target_area)*area_gradient;
 }
 
 
@@ -78,13 +78,12 @@ c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetMembraneForceContributionA
 {
     // Compute the perimeter of the element and its gradient at this node
     double element_perimeter = pElement->GetPerimeter();
-    
-    // \todo this needs to vary like the area in GetDeformationForceContributionAtNode() - see #852
-    double target_perimeter = 2*sqrt(M_PI*CancerParameters::Instance()->GetMatureCellTargetArea());
-            
     c_vector<double, DIM> perimeter_gradient = pElement->GetPerimeterGradientAtNode(localIndex);
-            
-    return 2*CancerParameters::Instance()->GetMembraneSurfaceEnergyParameter()*(element_perimeter - target_perimeter)*perimeter_gradient;      
+
+    // \todo this needs to vary with cell age like the area in GetDeformationForceContributionAtNode() - see #852
+    double target_perimeter = 2*sqrt(M_PI*CancerParameters::Instance()->GetMatureCellTargetArea());
+
+    return -2*CancerParameters::Instance()->GetMembraneSurfaceEnergyParameter()*(element_perimeter - target_perimeter)*perimeter_gradient;      
 }
 
 
@@ -140,7 +139,7 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
             {
                 local_index++;
             }
-            
+
             // Compute force contributions from cell deformation energy, 
             // membrane surface tension energy and a cell-cell adhesion energy
             

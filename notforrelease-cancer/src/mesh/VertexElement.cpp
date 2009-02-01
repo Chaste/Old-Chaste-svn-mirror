@@ -152,12 +152,14 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateVertexElementAreaAndPerimet
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
 double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetArea()
 {
-    if ((mVertexElementArea == DOUBLE_UNSET)||(mElementModified==true))
-    {
-        this->CalculateVertexElementAreaAndPerimeter();
-        mElementModified = false;
-    }
-    
+//    if ((mVertexElementArea == DOUBLE_UNSET)||(mElementModified==true))
+//    {
+//        this->CalculateVertexElementAreaAndPerimeter();
+//        mElementModified = false;
+//    }
+/// \todo the above code was commented as this method must recalculate the element area
+///       whenever it is called by the force law (see #861)
+    this->CalculateVertexElementAreaAndPerimeter();
     return mVertexElementArea;
 }
 
@@ -244,12 +246,14 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeter()
 {
-    if ((mVertexElementArea == DOUBLE_UNSET)||(mElementModified==true))
-    {
-        this->CalculateVertexElementAreaAndPerimeter();
-        mElementModified = false;
-    }
-    
+//    if ((mVertexElementArea == DOUBLE_UNSET)||(mElementModified==true))
+//    {
+//        this->CalculateVertexElementAreaAndPerimeter();
+//        mElementModified = false;
+//    }
+/// \todo the above code was commented as this method must recalculate the element perimeter
+///       whenever it is called by the force law (see #861)
+    this->CalculateVertexElementAreaAndPerimeter();
     return mVertexElementPerimeter;
 }
 
