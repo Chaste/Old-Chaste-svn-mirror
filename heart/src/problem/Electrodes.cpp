@@ -80,7 +80,7 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
     {
         if ( fabs((*iter)->CalculateCentroid()[index] - lowerValue) < 1e-6 )
         {
-            mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
+            mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are going to provide one for unknown#2? (todo)
             mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_in,  1);
         }
         
@@ -88,7 +88,7 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
         {
             if ( fabs((*iter)->CalculateCentroid()[index] - upperValue) < 1e-6 )
             {
-                mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
+                mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_zero, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are going to provide one for unknown#2? (todo)
                 mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_out, 1);
             }
         }
@@ -104,6 +104,9 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
             }
         }
         assert(mGroundedNodes.size()>0);
+        
+        //Unused boundary conditions will not be deleted by the b.c. container
+        delete p_bc_flux_out;
     }
 }
 
