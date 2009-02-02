@@ -58,6 +58,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mSize = lhsVectorSize;
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
+    
+    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna 
+    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...        
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
 }
@@ -83,6 +86,9 @@ LinearSystem::LinearSystem(Vec templateVector)
     PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
 
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, (MatType) MATMPIAIJ, local_size, local_size);
+
+    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna 
+    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...    
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
     
@@ -123,6 +129,9 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
         MatGetOwnershipRange(mLhsMatrix, &mOwnershipRangeLo, &mOwnershipRangeHi);
     }
     assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
+
+    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna 
+    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...        
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
     
