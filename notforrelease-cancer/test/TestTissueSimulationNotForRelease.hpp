@@ -150,22 +150,6 @@ public:
         // Run the simulation
         TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
 
-        /// \todo No idea what happened to these results - the index ordering has
-        /// changed due to #430
-
-//        std::vector<double> node_302_location = crypt_projection_simulator.GetNodeLocation(302);
-//        std::vector<double> node_506_location = crypt_projection_simulator.GetNodeLocation(506);
-//        c_vector<double, 2> distance_between;
-//        distance_between(0) = node_506_location[0]-node_302_location[0];
-//        distance_between(1) = node_506_location[1]-node_302_location[1];
-//        TS_ASSERT_DELTA(norm_2(distance_between), 0.7029, 1e-3);
-//
-//        // Test the Wnt gradient result
-//        TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(302));
-//        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.999, 1e-3);
-//        p_cell = &(crypt.rGetCellUsingLocationIndex(506));
-//        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.989, 1e-3);
-        
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25.
         std::vector<double> node_329_location = crypt_projection_simulator.GetNodeLocation(329);

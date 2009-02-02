@@ -174,7 +174,7 @@ public:
         StochasticCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
-        /// \todo (sort out cell generator - see #430)
+        // This awkward way of setting up the cells is a result of #430
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
@@ -399,7 +399,7 @@ public:
             StochasticCellCycleModelCellsGenerator<2> cells_generator;
             cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
-            /// \todo (sort out cell generator - see #430)
+            // This awkward way of setting up the cells is a result of #430
             std::vector<TissueCell> cells;
             for (unsigned i=0; i<location_indices.size(); i++)
             {

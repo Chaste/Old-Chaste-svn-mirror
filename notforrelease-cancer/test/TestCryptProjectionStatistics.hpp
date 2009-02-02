@@ -139,23 +139,6 @@ public:
 
         TS_ASSERT_EQUALS(test_section2.size(), labelled_cells.size());
 
-        /// \todo No idea what happened to these results - the index ordering has
-        /// changed due to #430
-        
-//        // Three of these cells are labelled - at node 376, 399 and 400.
-//        for (unsigned i=0; i<test_section2.size(); i++)
-//        {
-//            unsigned node_index = crypt.GetNodeCorrespondingToCell(test_section2[i])->GetIndex();
-//            if (node_index == 376u || node_index == 399u || node_index == 400u)
-//            {
-//                TS_ASSERT_EQUALS(labelled_cells[i], true);
-//            }
-//            else
-//            {
-//                TS_ASSERT_EQUALS(labelled_cells[i], false);
-//            }
-//        }
-        
         // Five of these cells are labelled - at nodes 207, 208, 232, 254 and 255
         for (unsigned i=0; i<test_section2.size(); i++)
         { 
