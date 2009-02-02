@@ -56,7 +56,7 @@ public:
                                                      &cell_factory,
                                                      125,  /* end time */
                                                      100,  /* 100*0.01ms mech dt */
-                                                     0.01, /* NHS ode dt */
+                                                     1.0,  /* NHS ode dt */
                                                      "TestCardiacElectroMechImplicit");
 
         problem.SetNoElectricsOutput();
@@ -74,15 +74,14 @@ public:
     {
         EXIT_IF_PARALLEL;
         
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-100*1000);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-1000*1000);
      
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
         electrics_mesh.ConstructCuboid(10,10,10);
-        electrics_mesh.Scale(0.1, 0.1, 0.1);
+        electrics_mesh.Scale(0.01, 0.01, 0.01);
                
-        QuadraticMesh<3> mechanics_mesh("mesh/test/data/cube_136_elements_quadratic");
-        mechanics_mesh.Scale(0.1, 0.1, 0.1);
+        QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 1, 1, 1);
         
         // fix the nodes on x=0        
         std::vector<unsigned> fixed_nodes 
@@ -92,13 +91,17 @@ public:
                                                   &mechanics_mesh,
                                                   fixed_nodes,
                                                   &cell_factory,
-                                                  1,   /* end time */
+                                                  50,   /* end time */
                                                   100,  /* 100*0.01ms mech dt */
-                                                  0.01, /* NHS ode dt */
+                                                  1.0,  /* NHS ode dt */
                                                   "TestCardiacElectroMech3d");
 
         problem.SetNoElectricsOutput();
         problem.Solve();
+
+        // test by checking the length of the tissue against hardcoded value
+        std::vector<c_vector<double,3> >& r_deformed_position = problem.rGetDeformedPosition();
+        TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0879, 1e-3);
         
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
