@@ -74,12 +74,13 @@ public:
             TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
         }
 
+
+        TS_ASSERT_DELTA(element.GetVolume(), 1.0/6.0,1e-5);
+
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {
             delete corner_nodes[i];
         }
-
-        TS_ASSERT_DELTA(element.GetVolume(), 1.0/6.0,1e-5);
     }
 
 
