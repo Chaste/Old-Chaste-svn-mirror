@@ -49,6 +49,7 @@ AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
       mOutputFilenamePrefix(""),       // i.e. undefined
       mUseMatrixBasedRhsAssembly(true),
       mpBoundaryConditionsContainer(NULL),
+      mpDefaultBoundaryConditionsContainer(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
       mpWriter(NULL)
@@ -68,6 +69,11 @@ AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
 {
+    if(mpDefaultBoundaryConditionsContainer!=NULL)
+    {
+        delete mpDefaultBoundaryConditionsContainer;
+    }
+    
     delete mpCardiacPde;
     if (mSolution)
     {
@@ -234,15 +240,15 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
 {
     PreSolveChecks();
 
-    // set default bcc if required
-    BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> default_bcc;
     if(mpBoundaryConditionsContainer == NULL) // the user didnt supply a bcc
     {
+        // set up the default bcc
+        mpDefaultBoundaryConditionsContainer = new BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>;
         for (unsigned problem_index=0; problem_index<PROBLEM_DIM; problem_index++)
         {
-            default_bcc.DefineZeroNeumannOnMeshBoundary(mpMesh, problem_index);
+            mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(mpMesh, problem_index);
         }
-        mpBoundaryConditionsContainer = &default_bcc;
+        mpBoundaryConditionsContainer = mpDefaultBoundaryConditionsContainer;
     }
 
     mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
@@ -329,6 +335,8 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
         }
         
         progress_reporter.Update(stepper.GetTime());
+        
+        OnEndOfTimestep(stepper.GetTime());
     }
 
     // Free assembler

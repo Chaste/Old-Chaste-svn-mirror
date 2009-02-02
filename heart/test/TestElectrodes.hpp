@@ -38,13 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestElectrodes : public CxxTest::TestSuite
 {
 public: 
-    void TestElectrodeGrounded2d() throw (Exception)
+    void TestElectrodeGrounded2dAndSwitchOff() throw (Exception)
     {
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(10,10);
         
         double magnitude = 543.324;
-        double duration = 2.0;        
+        double duration = 2.0; //ms        
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
         TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), true);
         
@@ -72,6 +72,14 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration));
         TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,duration));
+
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(0.0), false); // t<end time
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(1.0), false); // t<end time
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(1.9), false); // t<end time
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(1.99),false); // t<end time
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(2.0+1e-12), true); // true as t>end_time
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(2.1), false); // false as electrodes has been switched off
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(4.0), false); // false as electrodes has been switched off
     }
 
 

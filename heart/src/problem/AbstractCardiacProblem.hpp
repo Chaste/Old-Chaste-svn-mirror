@@ -74,6 +74,7 @@ protected:
     AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
 
     BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
+    BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpDefaultBoundaryConditionsContainer;
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
@@ -187,6 +188,14 @@ public:
      *  Whether to use matrix-based RHS assembly or not
      */    
     void UseMatrixBasedRhsAssembly(bool usematrix=true);
+    
+    /**
+     *  Called at end of each time step in the main time-loop in 
+     *  Solve(). Empty implementation but can be overloaded by child 
+     *  classes
+     */
+    virtual void OnEndOfTimestep(double time)
+    {}
     
 };
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

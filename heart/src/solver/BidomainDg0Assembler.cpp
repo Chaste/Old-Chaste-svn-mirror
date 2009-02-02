@@ -355,7 +355,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotential
     for (unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
     {
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition
-        = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+         = new ConstBoundaryCondition<SPACE_DIM>(0.0);
 
         Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(mFixedExtracellularPotentialNodes[i]);
 

@@ -35,10 +35,13 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
                        double lowerValue, 
                        double upperValue, 
                        double magnitude, 
-                       double duration)
+                       double duration)                        
 {        
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
+    assert(duration > 0);
+    mEndTime = 0.0 + duration; // currently start time = 0 is hardcoded here
+    mAreActive = true; // switch electrodes on!
     
     // check min x_i = a and max x_i = b, where i = index
     double min = DBL_MAX;
@@ -72,7 +75,7 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
     ConstBoundaryCondition<DIM>* p_bc_zero = new ConstBoundaryCondition<DIM>(0.0);
 
     // loop over boundary elements and add a non-zero phi_e boundary condition (ie extracellular
-    // stimulus) if x=lowerValue (where x is the x-value of the centroid) (assuming index=0, etc)
+    // stimulus) if (assuming index=0, etc) x=lowerValue (where x is the x-value of the centroid)
     for(typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter 
             = rMesh.GetBoundaryElementIteratorBegin();
        iter != rMesh.GetBoundaryElementIteratorEnd();
@@ -94,6 +97,8 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
         }
     }
     
+    // set up mGroundedNodes using opposite surface is second electrode is 
+    // grounded
     if(mGroundSecondElectrode)
     {
         for(unsigned i=0; i<rMesh.GetNumNodes(); i++)

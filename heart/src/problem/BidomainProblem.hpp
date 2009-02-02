@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "Electrodes.hpp"
 #include "BidomainPde.hpp"
+#include "BidomainDg0Assembler.hpp"
 
 /**
  * Class which specifies and solves a bidomain problem.
@@ -47,20 +48,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * where V_j is the voltage at node j and phi_j is the
  * extracellular potential at node j.
  */
-template<unsigned SPACE_DIM>
-class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
+template<unsigned DIM>
+class BidomainProblem : public AbstractCardiacProblem<DIM, 2>
 {
 
 friend class TestBidomainWithBathAssembler;    
     
 protected:
-    BidomainPde<SPACE_DIM>* mpBidomainPde;
+    BidomainPde<DIM>* mpBidomainPde;
 
 private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     unsigned mExtracelluarColumnId;
     unsigned mRowMeanPhiEZero;
+
+    /** Whether the mesh has a bath, ie whether this is a bath simulation */
     bool mHasBath;
+
+    /*< Electrodes used to provide a shock */
+    Electrodes<DIM>* mpElectrodes;
 
     /**
      *  Create normal initial condition but overwrite V to zero for bath nodes, if 
@@ -74,18 +80,28 @@ private:
      */
     void AnalyseMeshForBath();
 
-protected:
-    AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde();
+    /** 
+     *  We need to save the assembler that is being used to switch off the
+     *  electrodes (by adding default boundary conditions to the assembler)
+     */
+    BidomainDg0Assembler<DIM,DIM>* mpAssembler;
 
-    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler();
+protected:
+    AbstractCardiacPde<DIM> *CreateCardiacPde();
+
+    AbstractDynamicAssemblerMixin<DIM, DIM, 2>* CreateAssembler();
 
 public:
     /**
      * Constructor 
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
+     * @hasBath Whether the simulation has a bath (if this is true, all elements with
+     * attribute = 1 will be set to be bath elements (the rest should have 
+     * attribute = 0)).
+     * 
      */
-    BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool hasBath=false);
+    BidomainProblem(AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath=false);
 
     /**
      *  Set the nodes at which phi_e (the extracellular potential) is fixed to
@@ -109,7 +125,7 @@ public:
     /**
      *  Get the pde. Can only be called after Initialise()
      */
-    BidomainPde<SPACE_DIM>* GetBidomainPde();
+    BidomainPde<DIM>* GetBidomainPde();
 
     /**
      *  Print out time and max/min voltage/phi_e values at current time.
@@ -122,7 +138,18 @@ public:
     
     void PreSolveChecks();
     
-    void SetElectrodes(Electrodes<SPACE_DIM>& rElectrodes);
+    /** 
+     *  Set an electrode class (which provides boundary conditions). Only
+     *  valid if there is a bath
+     */
+    void SetElectrodes(Electrodes<DIM>& rElectrodes);
+    
+    /**
+     *  Called at end of each time step in the main time-loop in 
+     *  AbstractCardiacProblem::Solve(). Overloaded here to switch off 
+     *  the electrodes (if there are any).
+     */
+    void OnEndOfTimestep(double time);
 };
 
 

@@ -391,8 +391,9 @@ public:
 
         //boundary flux for Phi_e
         double boundary_flux = -4e2;
+        double duration = 0.2; //ms
         
-        Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, 5.0);
+        Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
         
         bidomain_problem.SetMesh(&mesh);
@@ -420,8 +421,10 @@ public:
                 ap_triggered = true;
             }
         }
-        
-        TS_ASSERT_DELTA(sol_repl[120], -83.8458, 1e-3);
+
+// NEEDS VISUALISING        
+        TS_ASSERT_DELTA(sol_repl[120], -83.8585, 1e-3); 
+        TS_ASSERT_EQUALS(electrodes.mAreActive, false); // should be switched of by now..
         //TS_ASSERT(ap_triggered); 
     }
 

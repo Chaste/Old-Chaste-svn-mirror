@@ -34,59 +34,59 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainMatrixBasedAssembler.hpp"
 
 
-template<unsigned SPACE_DIM>
-AbstractCardiacPde<SPACE_DIM>* MonodomainProblem<SPACE_DIM>::CreateCardiacPde()
+template<unsigned DIM>
+AbstractCardiacPde<DIM>* MonodomainProblem<DIM>::CreateCardiacPde()
 {
-    mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
+    mpMonodomainPde = new MonodomainPde<DIM>(this->mpCellFactory);
     return mpMonodomainPde;
 }
 
-template<unsigned SPACE_DIM>
-AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* MonodomainProblem<SPACE_DIM>::CreateAssembler()
+template<unsigned DIM>
+AbstractDynamicAssemblerMixin<DIM, DIM, 1>* MonodomainProblem<DIM>::CreateAssembler()
 {
     assert(mpMonodomainPde);
 
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                            mpMonodomainPde,
-                                                            this->mpBoundaryConditionsContainer,
-                                                            2);
+        MonodomainDg0Assembler<DIM,DIM>* p_assembler
+          = new MonodomainDg0Assembler<DIM,DIM>(this->mpMesh,
+                                                mpMonodomainPde,
+                                                this->mpBoundaryConditionsContainer,
+                                                2);
         return p_assembler;
     }
     else
     {
-        MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                    mpMonodomainPde,
-                                                                    this->mpBoundaryConditionsContainer,
-                                                                    2);
+        MonodomainMatrixBasedAssembler<DIM,DIM>* p_assembler
+          = new MonodomainMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
+                                                        mpMonodomainPde,
+                                                        this->mpBoundaryConditionsContainer,
+                                                        2);
         return p_assembler;
     }            
 }
 
-template<unsigned SPACE_DIM>
-MonodomainProblem<SPACE_DIM>::MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-        : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
+template<unsigned DIM>
+MonodomainProblem<DIM>::MonodomainProblem(AbstractCardiacCellFactory<DIM>* pCellFactory)
+        : AbstractCardiacProblem<DIM, 1>(pCellFactory),
           mpMonodomainPde(NULL)
 {
 }
 
-template<unsigned SPACE_DIM>
-MonodomainProblem<SPACE_DIM>::~MonodomainProblem()
+template<unsigned DIM>
+MonodomainProblem<DIM>::~MonodomainProblem()
 {
 }
 
-template<unsigned SPACE_DIM>
-MonodomainPde<SPACE_DIM> * MonodomainProblem<SPACE_DIM>::GetMonodomainPde()
+template<unsigned DIM>
+MonodomainPde<DIM> * MonodomainProblem<DIM>::GetMonodomainPde()
 {
     assert(mpMonodomainPde != NULL);
     return mpMonodomainPde;
 }
 
-template<unsigned SPACE_DIM>
-void MonodomainProblem<SPACE_DIM>::WriteInfo(double time)
+template<unsigned DIM>
+void MonodomainProblem<DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
     ReplicatableVector voltage_replicated;

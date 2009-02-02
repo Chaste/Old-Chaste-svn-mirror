@@ -40,16 +40,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Class which specifies and solves a monodomain problem.
  */
-template<unsigned SPACE_DIM>
-class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
+template<unsigned DIM>
+class MonodomainProblem : public AbstractCardiacProblem<DIM, 1>
 {
 protected:
-    MonodomainPde<SPACE_DIM>* mpMonodomainPde;
+    MonodomainPde<DIM>* mpMonodomainPde;
 
 public:
-    AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde();
+    AbstractCardiacPde<DIM>* CreateCardiacPde();
 
-    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler();
+    AbstractDynamicAssemblerMixin<DIM, DIM, 1>* CreateAssembler();
 
 public:
 
@@ -58,14 +58,14 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
+    MonodomainProblem(AbstractCardiacCellFactory<DIM>* pCellFactory);
 
     /**
      * Destructor
      */
     ~MonodomainProblem();
 
-    MonodomainPde<SPACE_DIM> * GetMonodomainPde();
+    MonodomainPde<DIM> * GetMonodomainPde();
 
     /**
      *  Print out time and max/min voltage values at current time.

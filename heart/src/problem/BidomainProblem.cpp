@@ -38,13 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
 
-template <unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::AnalyseMeshForBath()
+template <unsigned DIM>
+void BidomainProblem<DIM>::AnalyseMeshForBath()
 {
     // Annotate bath notes with correct region code
     if (mHasBath)
     {
-        typedef BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM> Assembler;
+        typedef BidomainWithBathAssembler<DIM,DIM> Assembler;
 
         // Initialize all nodes to be bath nodes
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
@@ -57,7 +57,7 @@ void BidomainProblem<SPACE_DIM>::AnalyseMeshForBath()
         // Set nodes that are part of a heart element to be heart nodes
         for (unsigned i=0; i<this->mpMesh->GetNumElements(); i++)
         {
-            Element<SPACE_DIM, SPACE_DIM>& r_element = *(this->mpMesh->GetElement(i));
+            Element<DIM, DIM>& r_element = *(this->mpMesh->GetElement(i));
         
             if (r_element.GetRegion() == Assembler::CARDIAC_TISSUE)
             {
@@ -81,10 +81,10 @@ void BidomainProblem<SPACE_DIM>::AnalyseMeshForBath()
 }
 
 
-template<unsigned SPACE_DIM>
-Vec BidomainProblem<SPACE_DIM>::CreateInitialCondition()
+template<unsigned DIM>
+Vec BidomainProblem<DIM>::CreateInitialCondition()
 {
-    Vec init_cond = AbstractCardiacProblem<SPACE_DIM,2>::CreateInitialCondition();
+    Vec init_cond = AbstractCardiacProblem<DIM,2>::CreateInitialCondition();
     if (mHasBath)
     {
         // get the voltage stripe
@@ -95,7 +95,7 @@ Vec BidomainProblem<SPACE_DIM>::CreateInitialCondition()
              index!= DistributedVector::End();
              ++index)
         {
-            if(this->mpMesh->GetNode( index.Global )->GetRegion()==BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM>::BATH)
+            if(this->mpMesh->GetNode( index.Global )->GetRegion()==BidomainWithBathAssembler<DIM,DIM>::BATH)
             {
                 voltage_stripe[index] = 0.0;
             }
@@ -106,80 +106,76 @@ Vec BidomainProblem<SPACE_DIM>::CreateInitialCondition()
     return init_cond;
 }
 
-
-template<unsigned SPACE_DIM>
-AbstractCardiacPde<SPACE_DIM> * BidomainProblem<SPACE_DIM>::CreateCardiacPde()
+template<unsigned DIM>
+AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
 {
+    mpBidomainPde = new BidomainPde<DIM>(this->mpCellFactory);
     AnalyseMeshForBath();
-    
-    mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
 
     return mpBidomainPde;
 }
 
-
-template<unsigned SPACE_DIM>
-AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* BidomainProblem<SPACE_DIM>::CreateAssembler()
+template<unsigned DIM>
+AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssembler()
 {
-    BidomainDg0Assembler<SPACE_DIM, SPACE_DIM>* p_bidomain_assembler;
+    //BidomainDg0Assembler<DIM, DIM>* p_bidomain_assembler;
     
     if (mHasBath)
     {
-        p_bidomain_assembler
-            = new BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                 mpBidomainPde,
-                                                                 this->mpBoundaryConditionsContainer,
-                                                                 2);
+        mpAssembler
+            = new BidomainWithBathAssembler<DIM,DIM>(this->mpMesh,
+                                                     mpBidomainPde,
+                                                     this->mpBoundaryConditionsContainer,
+                                                     2);
     }
     else
     {
         if (!this->mUseMatrixBasedRhsAssembly)
         {
-            p_bidomain_assembler
-                = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                mpBidomainPde,
-                                                                this->mpBoundaryConditionsContainer,
-                                                                2);
+            mpAssembler
+                = new BidomainDg0Assembler<DIM,DIM>(this->mpMesh,
+                                                    mpBidomainPde,
+                                                    this->mpBoundaryConditionsContainer,
+                                                    2);
         }
         else 
         {
-            p_bidomain_assembler
-                = new BidomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
-                                                                        mpBidomainPde,
-                                                                        this->mpBoundaryConditionsContainer,
-                                                                        2);
+            mpAssembler
+                = new BidomainMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
+                                                            mpBidomainPde,
+                                                            this->mpBoundaryConditionsContainer,
+                                                            2);
         }
     }
 
     try
     {
-        p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
-        p_bidomain_assembler->SetRowForMeanPhiEToZero(mRowMeanPhiEZero);
+        mpAssembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
+        mpAssembler->SetRowForMeanPhiEToZero(mRowMeanPhiEZero);
     }
     catch (const Exception& e)
     {
-        delete p_bidomain_assembler;
+        delete mpAssembler;
         throw e;
     }
 
-    return p_bidomain_assembler;
+    return mpAssembler;
 }
 
-
-template<unsigned SPACE_DIM>
-BidomainProblem<SPACE_DIM>::BidomainProblem(
-            AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool hasBath)
-    : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory),
+template<unsigned DIM>
+BidomainProblem<DIM>::BidomainProblem(
+            AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath)
+    : AbstractCardiacProblem<DIM, 2>(pCellFactory),
       mpBidomainPde(NULL), 
       mRowMeanPhiEZero(INT_MAX),
-      mHasBath(hasBath)
+      mHasBath(hasBath),
+      mpElectrodes(NULL)    
 {
     mFixedExtracellularPotentialNodes.resize(0); 
 }
 
-
-template<unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
+template<unsigned DIM>
+void BidomainProblem<DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
 {
     mFixedExtracellularPotentialNodes.resize(nodes.size());
     for (unsigned i=0; i<nodes.size(); i++)
@@ -190,9 +186,8 @@ void BidomainProblem<SPACE_DIM>::SetFixedExtracellularPotentialNodes(std::vector
     }
 }
 
-
-template<unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
+template<unsigned DIM>
+void BidomainProblem<DIM>::SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
 {
     // Row should be odd in C++-like indexing
     if (rowMeanPhiEZero % 2 == 0)
@@ -203,17 +198,15 @@ void BidomainProblem<SPACE_DIM>::SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZer
     mRowMeanPhiEZero = rowMeanPhiEZero;
 }
 
-
-template<unsigned SPACE_DIM>
-BidomainPde<SPACE_DIM>* BidomainProblem<SPACE_DIM>::GetBidomainPde()
+template<unsigned DIM>
+BidomainPde<DIM>* BidomainProblem<DIM>::GetBidomainPde()
 {
     assert(mpBidomainPde!=NULL);
     return mpBidomainPde;
 }
 
-
-template<unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::WriteInfo(double time)
+template<unsigned DIM>
+void BidomainProblem<DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
     ReplicatableVector voltage_replicated;
@@ -253,24 +246,24 @@ void BidomainProblem<SPACE_DIM>::WriteInfo(double time)
               << std::flush;
 }
 
-template<unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::DefineWriterColumns()
+template<unsigned DIM>
+void BidomainProblem<DIM>::DefineWriterColumns()
 {
-    AbstractCardiacProblem<SPACE_DIM,2>::DefineWriterColumns();
+    AbstractCardiacProblem<DIM,2>::DefineWriterColumns();
     mExtracelluarColumnId = this->mpWriter->DefineVariable("Phi_e","mV");
 }
 
-template<unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::WriteOneStep(double time, Vec voltageVec)
+template<unsigned DIM>
+void BidomainProblem<DIM>::WriteOneStep(double time, Vec voltageVec)
 {
     this->mpWriter->PutUnlimitedVariable(time);
     this->mpWriter->PutStripedVector(this->mVoltageColumnId, mExtracelluarColumnId, voltageVec);
 }
 
-template<unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::PreSolveChecks()
+template<unsigned DIM>
+void BidomainProblem<DIM>::PreSolveChecks()
 {
-    AbstractCardiacProblem<SPACE_DIM, 2>::PreSolveChecks();
+    AbstractCardiacProblem<DIM, 2>::PreSolveChecks();
     if (mFixedExtracellularPotentialNodes.empty())
     {
         // We're not pinning any nodes.
@@ -287,21 +280,57 @@ void BidomainProblem<SPACE_DIM>::PreSolveChecks()
     }
 }
 
-template<unsigned SPACE_DIM>
-void BidomainProblem<SPACE_DIM>::SetElectrodes(Electrodes<SPACE_DIM>& rElectrodes)
+template<unsigned DIM>
+void BidomainProblem<DIM>::SetElectrodes(Electrodes<DIM>& rElectrodes)
 {
     if(!mHasBath)
     {
         EXCEPTION("Cannot set electrodes when problem has been defined to not have a bath");
     }
 
-    SetBoundaryConditionsContainer(rElectrodes.GetBoundaryConditionsContainer());
-    if (rElectrodes.IsSecondElectrodeGrounded())
+    mpElectrodes = &rElectrodes;
+
+    SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer());
+    if (mpElectrodes->IsSecondElectrodeGrounded())
     {
-        SetFixedExtracellularPotentialNodes(rElectrodes.GetGroundedNodes());
+        SetFixedExtracellularPotentialNodes(mpElectrodes->GetGroundedNodes());
     }
 }
 
+
+template<unsigned DIM>
+void BidomainProblem<DIM>::OnEndOfTimestep(double time)
+{
+    if( (mpElectrodes!=NULL) && (mpElectrodes->SwitchOff(time)) )
+    {        
+        // at the moment mpBcc should exist and therefore
+        // mpDefaultBcc should be null
+        assert(this->mpBoundaryConditionsContainer!=NULL);
+        assert(this->mpDefaultBoundaryConditionsContainer==NULL);
+
+        //// Note we don't have to call delete this->mpBoundaryConditionsContainer
+        //// as the Electrodes class deletes the original bcc (which is natural
+        //// because normally bccs are set up in tests
+        
+        // set up default boundary conditions container - no Neumann fluxes
+        // or Dirichlet fixed nodes
+        if(this->mpDefaultBoundaryConditionsContainer==NULL)
+        {
+            this->mpDefaultBoundaryConditionsContainer = new BoundaryConditionsContainer<DIM,DIM,2>;
+            for (unsigned problem_index=0; problem_index<2; problem_index++)
+            {
+                this->mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(this->mpMesh, problem_index);
+            }
+        }
+        // Note, no point calling SetBoundaryConditionsContainer() as the
+        // assembler has already been created..        
+        mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer);             
+        // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
+        // the same as the one being used in the assembler (and so the deletion
+        // works later) 
+        this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;
+    }
+}
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
