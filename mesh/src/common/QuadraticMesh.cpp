@@ -170,7 +170,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
         
     std::string command =  binary + " " + args + " " + outputDir
                            + "/" + fileStem + ".node";
-                           
+    
     if (DIM == 3)
     {
         // Tetgen's quiet mode isn't as quiet as Triangle's
@@ -203,7 +203,15 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     system(command.c_str());
     system( ("rm -f " + fileStem + ".1.node").c_str() );
     system( ("rm -f " + fileStem + ".1.ele" ).c_str() );
-    system( ("rm -f " + fileStem + ".1.edge").c_str() );
+    
+    if (DIM==2) 
+    {
+      system( ("rm -f " + fileStem + ".1.edge").c_str() );
+    }
+    if (DIM==3) 
+    {
+      system( ("rm -f " + fileStem + ".1.face").c_str() );
+    }
 }
 
 

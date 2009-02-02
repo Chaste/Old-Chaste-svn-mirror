@@ -246,10 +246,10 @@ public:
         {
             c_vector<double,3> x = mesh.GetNode(i)->rGetLocation();
             // the extra nodes shouldn't be all zero!
-            std::cout << x[0] << " " << x[1] << " " << x[2] << "\n";
+            //std::cout << x[0] << " " << x[1] << " " << x[2] << "\n";
 
-//// fails on userpc60 (32bit), passes on userpc44 (64bit)
-//            TS_ASSERT_LESS_THAN(1e-12, norm_2(x)); // assert x not equal to 0
+	    //// fails with 32bit outdated binary
+	    TS_ASSERT_LESS_THAN(1e-12, norm_2(x)); // assert x not equal to 0
         }
     }
 
