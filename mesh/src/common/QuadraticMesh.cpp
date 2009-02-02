@@ -206,11 +206,11 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     
     if (DIM==2) 
     {
-      system( ("rm -f " + fileStem + ".1.edge").c_str() );
+        system( ("rm -f " + fileStem + ".1.edge").c_str() );
     }
     if (DIM==3) 
     {
-      system( ("rm -f " + fileStem + ".1.face").c_str() );
+        system( ("rm -f " + fileStem + ".1.face").c_str() );
     }
 }
 
