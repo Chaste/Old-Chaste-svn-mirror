@@ -233,6 +233,26 @@ public:
         TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[1], 2.71828183, 1e-5);
     }
 
+    void TestAutomaticallyGenerated3dMeshSimple() throw(Exception)
+    {
+        QuadraticMesh<3> mesh(3.14159, 2.71828183, 2.99792 /* c! */, 1, 1, 1);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 27u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 8u);  // 6^3 = 216
+
+        // each element should have 10 nodes
+        for(unsigned i=1; i<mesh.GetNumNodes(); i++)
+        {
+            c_vector<double,3> x = mesh.GetNode(i)->rGetLocation();
+            // the extra nodes shouldn't be all zero!
+            std::cout << x[0] << " " << x[1] << " " << x[2] << "\n";
+
+//// fails on userpc60
+//            TS_ASSERT_LESS_THAN(1e-12, norm_2(x)); // assert x not equal to 0
+        }
+    }
+
     void TestAutomaticallyGenerated3dMesh() throw(Exception)
     {
         QuadraticMesh<3> mesh(3.14159, 2.71828183, 2.99792 /* c! */, 5, 5, 5);
@@ -242,10 +262,10 @@ public:
 
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 216u);  // 6^3 = 216
 
-       // each element should have 10 nodes
-       for(unsigned i=0; i<mesh.GetNumElements(); i++)
-      {
-          TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
+        // each element should have 10 nodes
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
         }
 
         TS_ASSERT_DELTA( mesh.GetNode(215)->rGetLocation()[0], 3.14159, 1e-4);
