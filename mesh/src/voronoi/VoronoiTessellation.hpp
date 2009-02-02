@@ -86,7 +86,7 @@ private:
 public:
 
     /***
-     * Constructor. Create a tesselation of the given mesh which must be Delauny
+     * Constructor. Create a tesselation of the given mesh which must be Delaunay
      * (see TetrahedralMesh::CheckVoronoi).
      */
     VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh);
@@ -96,11 +96,12 @@ public:
     /***
      * Get a VoronoiCell.
      *
-     * @param index The index of the cell is the index of the corresponding node in the orginal mesh.
+     * @param index The index of the cell is the index of the corresponding node in the original mesh.
      * If the corresponding node was on the boundary, this will return a cell with no faces.
      */
     const VoronoiCell& rGetCell(unsigned index) const;
     const Face<DIM>* GetFace(unsigned index) const;
+    unsigned GetNumFaces();
 
     double GetFaceArea(unsigned index) const;
     double GetFacePerimeter(unsigned index) const;
@@ -109,7 +110,7 @@ public:
 
     unsigned GetNumVertices();
     c_vector<double,DIM>* GetVertex(unsigned index);
-    
+
     unsigned GetNumCells();
 
 };
@@ -153,9 +154,9 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_det;
     for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
-    {        
-        mrMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);                                                                                          
-        
+    {
+        mrMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);
+
         c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
 
         c_vector<double,DIM>*  p_circumcentre = new c_vector<double, DIM>;
@@ -282,6 +283,7 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
             // add face to list of faces
             mFaces.push_back(p_face);
             // .. and appropriate elements
+
             if (!p_node_a->IsBoundaryNode())
             {
                 mVoronoiCells[p_node_a->GetIndex()].mFaces.push_back(p_face);
@@ -328,8 +330,8 @@ void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
     double jacobian_det;
     for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
     {
-        mrMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);                                                                                          
-        
+        mrMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);
+
         c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
 
         c_vector<double,DIM>*  p_circumcentre = new c_vector<double, DIM>;
@@ -490,13 +492,26 @@ double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
     normalised_face.OrderVerticesAntiClockwise();
 
     return normalised_face.GetPerimeter();
-       
+
 };
 
 template<unsigned DIM>
 unsigned VoronoiTessellation<DIM>::GetNumVertices()
 {
     return mVertices.size();
+}
+
+template<unsigned DIM>
+unsigned VoronoiTessellation<DIM>::GetNumFaces()
+{
+    return mFaces.size();
+}
+
+template<unsigned DIM>
+unsigned VoronoiTessellation<DIM>::GetNumCells()
+{
+    assert(DIM==3);
+    return mVoronoiCells.size();
 }
 
 template<unsigned DIM>

@@ -92,6 +92,8 @@ public:
         angle = tessellation.ReturnPolarAngle(0.0,-1.0);
         TS_ASSERT_DELTA(angle, -M_PI/2.0, 1e-7);
 
+        TS_ASSERT_EQUALS(tessellation.GetNumCells(), 5u);
+
         TS_ASSERT_THROWS_ANYTHING(tessellation.ReturnPolarAngle(0.0, 0.0));
     }
 
@@ -113,14 +115,14 @@ public:
         tessellation.GenerateVerticesFromElementCircumcentres();
 
         TS_ASSERT_EQUALS(tessellation.GetNumVertices(),8u);
-        
+
         c_vector<double,3> this_vertex = *(tessellation.GetVertex(0));
-        
+
         TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
-        
-        
+
+
         this_vertex = *(tessellation.mVertices[0]);
 
         TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
@@ -278,6 +280,8 @@ public:
         //  Calculate length of voronoi edge between nodes 4 and 2
 
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
+
+        TS_ASSERT_EQUALS(tessellation.GetNumFaces(), 5u);
     }
 
     void TestTessellation2dComplex() throw (Exception)

@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "CancerEventHandler.hpp"
+#include "VoronoiTessellation.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
 
 
@@ -150,16 +151,11 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);
     }
 
+    /**
+     * Provides a reasonable test for the ghost node system...
+     */
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
-        /*
-         * Note that this test is extrememly fragile.
-         *
-         * The output data was produced with IntelProduction Version 10.0.025.
-         * Intel10, Intel9 and Gcc builds may currently produce similar but
-         * quantitatively different results.
-         */
-
         // Create mesh
         int num_cells_depth = 11;
         int num_cells_width = 6;
@@ -181,6 +177,10 @@ public:
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
+        TS_ASSERT_EQUALS(cells.size(), location_indices.size());
+        unsigned original_number_of_ghosts = p_mesh->GetNumNodes() - cells.size();
+        TS_ASSERT_EQUALS(original_number_of_ghosts, 84u);
+
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
@@ -192,6 +192,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
+        simulator.SetOutputCellTypes(true);
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
@@ -204,17 +205,19 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DHoneycombMesh", false);
 
-        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
-        NumericFileComparison comp_node(node_results_file, "cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes");
-        TS_ASSERT(comp_node.CompareFiles());
+        unsigned number_of_cells = crypt.GetNumRealCells();
+        unsigned number_of_nodes = p_mesh->GetNumNodes();
+        TS_ASSERT_EQUALS(number_of_cells, 62u);
+        TS_ASSERT_EQUALS(number_of_nodes, 146u);
 
-        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
-        NumericFileComparison comp_cell_type(cell_type_results_file, "cancer/test/data/Crypt2DHoneycombMeshResults/results.vizcelltypes");
-        TS_ASSERT(comp_cell_type.CompareFiles());
+        std::set<unsigned> ghost_indices = crypt.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
 
-        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
-        NumericFileComparison comp_elem(elem_results_file, "cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements");
-        TS_ASSERT(comp_elem.CompareFiles());
+        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count[0], 6u);   // Stem
+        TS_ASSERT_EQUALS(cell_type_count[1], 21u);  // Transit
+        TS_ASSERT_EQUALS(cell_type_count[2], 35u);  // Differentiated
+        TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
     }
 
     void TestMonolayer() throw (Exception)
@@ -254,15 +257,31 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Monolayer");
+        simulator.SetOutputCellTypes(true);
         simulator.SetEndTime(1);
 
         // Run simulation
         simulator.Solve();
 
-        // Check writing of voronoi data
-        OutputFileHandler handler("Monolayer", false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/results.vizvoronoi").c_str()), 0);
+        unsigned number_of_cells = crypt.GetNumRealCells();
+        unsigned number_of_nodes = p_mesh->GetNumNodes();
+        TS_ASSERT_EQUALS(number_of_cells, 68u);
+        TS_ASSERT_EQUALS(number_of_nodes, 152u);
+
+        std::set<unsigned> ghost_indices = crypt.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
+
+        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count[0], 0u);   // Stem
+        TS_ASSERT_EQUALS(cell_type_count[1], 32u);  // Transit
+        TS_ASSERT_EQUALS(cell_type_count[2], 36u);  // Differentiated
+        TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
+
+        VoronoiTessellation<2u>& r_tessellation = crypt.rGetVoronoiTessellation();
+
+        /// \todo Voronoi is worked out for the ghost nodes too - is this necessary (probably not??)
+        TS_ASSERT_EQUALS(r_tessellation.GetNumFaces(), number_of_cells + ghost_indices.size());
+        TS_ASSERT_EQUALS(r_tessellation.GetNumVertices(), 273u);
     }
 
     /**

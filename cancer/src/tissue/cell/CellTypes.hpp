@@ -39,7 +39,7 @@ typedef enum CellType_
     APOPTOTIC // for use in tissue simulations with nutrients
 } CellType;
 
-const static unsigned NUM_CELL_TYPES=4;
+const static unsigned NUM_CELL_TYPES=4u;
 
 
 #endif /*CELLTYPES_HPP_*/
