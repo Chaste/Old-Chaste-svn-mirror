@@ -389,6 +389,7 @@ public:
             }
         }
 
+///\todo: change these values (and end time) and verify an AP can be induced..
         //boundary flux for Phi_e
         double boundary_flux = -4e2;
         double duration = 0.2; //ms
@@ -422,7 +423,8 @@ public:
             }
         }
 
-// NEEDS VISUALISING        
+        // have visualised phi_e, looks fine, decreases when shock switched off
+        // correctly, so test with a hardcoded value.
         TS_ASSERT_DELTA(sol_repl[120], -83.8585, 1e-3); 
         TS_ASSERT_EQUALS(electrodes.mAreActive, false); // should be switched of by now..
         //TS_ASSERT(ap_triggered); 
