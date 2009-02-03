@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) University of Oxford, 2008
+Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TENTUSSCHER2006ODESYSTEM_HPP_
 #define _TENTUSSCHER2006ODESYSTEM_HPP_
 
@@ -90,7 +91,7 @@ private:
    static const double sodium_potassium_pump_current_K_mk = 1.0;   // millimolar
    static const double sodium_potassium_pump_current_P_NaK = 2.724;   // picoA_per_picoF
    static const double transient_outward_current_g_to = 0.294;   // nanoS_per_picoF
-   
+
    ///////////////////////////////////////////////////////////////////////
    //variables that need to be computed
    //////////////////////////////////////////////////////////////////////
@@ -163,24 +164,24 @@ private:
       double transient_outward_current_r_gate_tau_r;   // millisecond
       double transient_outward_current_s_gate_s_inf;   // dimensionless
       double transient_outward_current_s_gate_tau_s;   // dimensionless
-      
+
     // This private method will check that gates are within 0 and 1 and concentrations are positive
     void VerifyStateVariables();
-    
+
 public:
     // Constructor
     TenTusscher2006OdeSystem(AbstractIvpOdeSolver *pSolver,
                                AbstractStimulusFunction *pIntracellularStimulus,
                                AbstractStimulusFunction *pExtracellularStimulus = NULL);
-                               
+
     // Destructor
     ~TenTusscher2006OdeSystem();
-        
+
     // This method will compute the RHS of the TenTusscher model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
     double GetIIonic();
-    
+
 };
 
 #endif // _TENTUSSCHER2006_HPP_

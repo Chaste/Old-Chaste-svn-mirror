@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) University of Oxford, 2008
+Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -38,14 +38,14 @@ TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(AbstractIvpOdeSolver *pSolver
                                                        AbstractStimulusFunction *pExtracellularStimulus)
         : AbstractCardiacCell(pSolver, 19, 11, pIntracellularStimulus, pExtracellularStimulus)
 {
-    
+
     mpSystemInfo = OdeSystemInformation<TenTusscher2006OdeSystem>::Instance();
     AbstractCardiacCell::Init();
 }
 
 //Destructor
 TenTusscher2006OdeSystem::~TenTusscher2006OdeSystem(void)
-{    
+{
 }
 
 /**
@@ -60,14 +60,14 @@ TenTusscher2006OdeSystem::~TenTusscher2006OdeSystem(void)
 void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
                                                     const std::vector<double> &rY,
                                                     std::vector<double> &rDY)
-{    
+{
    //---------------------------------------------------------------------------
    // State variables, initial value and names in comments beside
    //---------------------------------------------------------------------------
       //Vector for state variables//
       double Y[19];
       double dY[19];
-      
+
     Y[0] = rY[0];// 3.373e-5;   // L_t Ype_Ca_current_d_gate_d (dimensionless)
     Y[1] = rY[1];// 0.9755;   // L_t Ype_Ca_current_f2_gate_f2 (dimensionless)
     Y[2] = rY[2];// 0.9953;   // L_t Ype_Ca_current_fCass_gate_fCass (dimensionless)
@@ -87,9 +87,9 @@ void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
     Y[16] = rY[16];// 8.604;   // sodium_d Ynamics_Na_i (millimolar)
     Y[17] = rY[17];// 2.42e-8;   // transient_outward_current_r_gate_r (dimensionless)
     Y[18] = rY[18];// 0.999998;   // transient_outward_current_s_gate_s (dimensionless)
-    
-    VerifyStateVariables();  
-   
+
+    VerifyStateVariables();
+
    L_type_Ca_current_i_CaL = L_type_Ca_current_g_CaL*Y[0]*Y[3]*Y[1]*Y[2]*4.0*(Y[11]-15.0)*pow(membrane_F, 2.0)/(membrane_R*membrane_T)*(0.25*Y[6]*exp(2.0*(Y[11]-15.0)*membrane_F/(membrane_R*membrane_T))-calcium_dynamics_Ca_o)/(exp(2.0*(Y[11]-15.0)*membrane_F/(membrane_R*membrane_T))-1.0);
    L_type_Ca_current_d_gate_d_inf = 1.0/(1.0+exp((-8.0-Y[11])/7.5));
    L_type_Ca_current_d_gate_alpha_d = 1.4/(1.0+exp((-35.0-Y[11])/13.0))+0.25;
@@ -174,10 +174,10 @@ void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
    sodium_potassium_pump_current_i_NaK = sodium_potassium_pump_current_P_NaK*potassium_dynamics_K_o/(potassium_dynamics_K_o+sodium_potassium_pump_current_K_mk)*Y[16]/(Y[16]+sodium_potassium_pump_current_K_mNa)/(1.0+0.1245*exp(-0.1*Y[11]*membrane_F/(membrane_R*membrane_T))+0.0353*exp(-Y[11]*membrane_F/(membrane_R*membrane_T)));
    sodium_background_current_i_b_Na = sodium_background_current_g_bna*(Y[11]-reversal_potentials_E_Na);
    potassium_pump_current_i_p_K = potassium_pump_current_g_pK*(Y[11]-reversal_potentials_E_K)/(1.0+exp((25.0-Y[11])/5.98));
-   
+
    //stimulus current
     double i_stim = GetStimulus(time);
-    
+
    dY[11] = -1.0/1.0*(inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+L_type_Ca_current_i_CaL+sodium_potassium_pump_current_i_NaK+fast_sodium_current_i_Na+sodium_background_current_i_b_Na+sodium_calcium_exchanger_current_i_NaCa+calcium_background_current_i_b_Ca+potassium_pump_current_i_p_K+calcium_pump_current_i_p_Ca+i_stim);
    dY[12] = -(inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+potassium_pump_current_i_p_K+i_stim-2.0*sodium_potassium_pump_current_i_NaK)/(membrane_V_c*membrane_F)*membrane_Cm;
    rapid_time_dependent_potassium_current_Xr1_gate_xr1_inf = 1.0/(1.0+exp((-26.0-Y[11])/7.0));
@@ -202,14 +202,14 @@ void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
    transient_outward_current_s_gate_s_inf = 1.0/(1.0+exp((Y[11]+20.0)/5.0));
    transient_outward_current_s_gate_tau_s = 85.0*exp(-pow(Y[11]+45.0, 2.0)/320.0)+5.0/(1.0+exp((Y[11]-20.0)/5.0))+3.0;
    dY[18] = (transient_outward_current_s_gate_s_inf-Y[18])/transient_outward_current_s_gate_tau_s;
-     
-    
+
+
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
     if (mSetVoltageDerivativeToZero)
     {
         dY[11] = 0;
     }
-    
+
     rDY[0] = dY[0];
     rDY[1] = dY[1];
     rDY[2] = dY[2];
@@ -237,7 +237,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
       //Vector for state variables//
       double Y[19];
       double dY[19];
-      
+
     Y[0] =  mStateVariables[0];// L_t Ype_Ca_current_d_gate_d (dimensionless)
     Y[1] =  mStateVariables[1];// L_t Ype_Ca_current_f2_gate_f2 (dimensionless)
     Y[2] =  mStateVariables[2];// L_t Ype_Ca_current_fCass_gate_fCass (dimensionless)
@@ -257,7 +257,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
     Y[16] =  mStateVariables[16];// sodium_d Ynamics_Na_i (millimolar)
     Y[17] =  mStateVariables[17];// transient_outward_current_r_gate_r (dimensionless)
     Y[18] =  mStateVariables[18];// transient_outward_current_s_gate_s (dimensionless)
-   
+
    L_type_Ca_current_i_CaL = L_type_Ca_current_g_CaL*Y[0]*Y[3]*Y[1]*Y[2]*4.0*(Y[11]-15.0)*pow(membrane_F, 2.0)/(membrane_R*membrane_T)*(0.25*Y[6]*exp(2.0*(Y[11]-15.0)*membrane_F/(membrane_R*membrane_T))-calcium_dynamics_Ca_o)/(exp(2.0*(Y[11]-15.0)*membrane_F/(membrane_R*membrane_T))-1.0);
    L_type_Ca_current_d_gate_d_inf = 1.0/(1.0+exp((-8.0-Y[11])/7.5));
    L_type_Ca_current_d_gate_alpha_d = 1.4/(1.0+exp((-35.0-Y[11])/13.0))+0.25;
@@ -342,7 +342,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
    sodium_potassium_pump_current_i_NaK = sodium_potassium_pump_current_P_NaK*potassium_dynamics_K_o/(potassium_dynamics_K_o+sodium_potassium_pump_current_K_mk)*Y[16]/(Y[16]+sodium_potassium_pump_current_K_mNa)/(1.0+0.1245*exp(-0.1*Y[11]*membrane_F/(membrane_R*membrane_T))+0.0353*exp(-Y[11]*membrane_F/(membrane_R*membrane_T)));
    sodium_background_current_i_b_Na = sodium_background_current_g_bna*(Y[11]-reversal_potentials_E_Na);
    potassium_pump_current_i_p_K = potassium_pump_current_g_pK*(Y[11]-reversal_potentials_E_K)/(1.0+exp((25.0-Y[11])/5.98));
-    
+
    dY[11] = -1.0/1.0*(inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+L_type_Ca_current_i_CaL+sodium_potassium_pump_current_i_NaK+fast_sodium_current_i_Na+sodium_background_current_i_b_Na+sodium_calcium_exchanger_current_i_NaCa+calcium_background_current_i_b_Ca+potassium_pump_current_i_p_K+calcium_pump_current_i_p_Ca);
    dY[12] = -(inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+potassium_pump_current_i_p_K/*+i_stim*/-2.0*sodium_potassium_pump_current_i_NaK)/(membrane_V_c*membrane_F)*membrane_Cm;
    rapid_time_dependent_potassium_current_Xr1_gate_xr1_inf = 1.0/(1.0+exp((-26.0-Y[11])/7.0));
@@ -366,31 +366,31 @@ double TenTusscher2006OdeSystem::GetIIonic()
    dY[17] = (transient_outward_current_r_gate_r_inf-Y[17])/transient_outward_current_r_gate_tau_r;
    transient_outward_current_s_gate_s_inf = 1.0/(1.0+exp((Y[11]+20.0)/5.0));
    transient_outward_current_s_gate_tau_s = 85.0*exp(-pow(Y[11]+45.0, 2.0)/320.0)+5.0/(1.0+exp((Y[11]-20.0)/5.0))+3.0;
-   dY[18] = (transient_outward_current_s_gate_s_inf-Y[18])/transient_outward_current_s_gate_tau_s; 
-    
-    
+   dY[18] = (transient_outward_current_s_gate_s_inf-Y[18])/transient_outward_current_s_gate_tau_s;
+
+
     double i_ionic = inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+L_type_Ca_current_i_CaL+sodium_potassium_pump_current_i_NaK+fast_sodium_current_i_Na+sodium_background_current_i_b_Na+sodium_calcium_exchanger_current_i_NaCa+calcium_background_current_i_b_Ca+potassium_pump_current_i_p_K+calcium_pump_current_i_p_Ca; /*this is in nA*/
-    
+
     assert(!isnan(i_ionic));
 
     double i_ionic_in_microA_per_cm2=i_ionic*membrane_Cm;
     return i_ionic_in_microA_per_cm2;
-    
-     /*   i_ionic for this model is in pA/pF. 
+
+     /*   i_ionic for this model is in pA/pF.
      *    Please note that in the mono/bidomain formulation, i_ionic needs to be in microA/cm2.
      *    The cell capacitance is, from the tenTusscher paper (code, actually), Cm = 0.185 microF/cm2.
-     *    i_ion*pow(10,-6) will be in microA/pF. 
+     *    i_ion*pow(10,-6) will be in microA/pF.
      *    Cm*pow(10,6) will be in pF/cm2.
      *    i_ion*pow(10,-6)*Cm*pow(10,6) = i_ion*Cm is in microA/cm2, i.e. the correct units
-     */  
+     */
 }
 
 void TenTusscher2006OdeSystem::VerifyStateVariables()
 {
     const std::vector<double>& rY = rGetStateVariables();
-    
+
       double Y[19];
-      
+
     Y[0] = rY[0];//  L_t Ype_Ca_current_d_gate_d (dimensionless)
     Y[1] = rY[1];//  L_t Ype_Ca_current_f2_gate_f2 (dimensionless)
     Y[2] = rY[2];//  L_t Ype_Ca_current_fCass_gate_fCass (dimensionless)
@@ -410,12 +410,12 @@ void TenTusscher2006OdeSystem::VerifyStateVariables()
     Y[16] = rY[16];//sodium_d Ynamics_Na_i (millimolar)
     Y[17] = rY[17];//transient_outward_current_r_gate_r (dimensionless)
     Y[18] = rY[18];//transient_outward_current_s_gate_s (dimensionless)
- 
+
     #define COVERAGE_IGNORE
     if (!(0<=Y[0] && Y[0]<=1))
     {
         EXCEPTION(DumpState("d gate of L type calcium channel is out of range!"));
-    } 
+    }
     if (!(0<=Y[1] && Y[1]<=1))
     {
         EXCEPTION(DumpState("f2 gate of L type calcium channel is out of range!"));
@@ -423,47 +423,47 @@ void TenTusscher2006OdeSystem::VerifyStateVariables()
     if (!(0<=Y[2] && Y[2]<=1))
     {
         EXCEPTION(DumpState("fCa gate of L type calcium channel is out of range!"));
-    } 
+    }
     if (!(0<=Y[3] && Y[3]<=1))
     {
         EXCEPTION(DumpState("f gate of L type calcium channel is out of range!"));
-    } 
+    }
     if (!(0<=Y[4]))
     {
         EXCEPTION(DumpState("CaSR is negative!"));
-    } 
+    }
     if (!(0<=Y[5]))
     {
         EXCEPTION(DumpState("Cai is negative!"));
-    } 
+    }
     if (!(0<=Y[6]))
     {
         EXCEPTION(DumpState("CaSS is negative!"));
-    } 
+    }
     if (!(0<=Y[7] && Y[7]<=1))
     {
         EXCEPTION(DumpState("R gate is out of range!"));
-    } 
+    }
     if (!(0<=Y[8] && Y[8]<=1))
     {
         EXCEPTION(DumpState("h gate of Na channel is out of range!"));
-    } 
+    }
     if (!(0<=Y[9] && Y[9]<=1))
     {
         EXCEPTION(DumpState("j gate of Na channel is out of range!"));
-    } 
+    }
     if (!(0<=Y[10] && Y[10]<=1))
     {
         EXCEPTION(DumpState("m gate of Na channel is out of range!"));
-    }  
+    }
     if (!(-200<=Y[11] && Y[11]<=200))
     {
         EXCEPTION(DumpState("Vm is REALLY out of range!"));
-    }  
+    }
     if (!(0<=Y[12]))
     {
         EXCEPTION(DumpState("Ki is negative!"));
-    }      
+    }
     if (!(0<=Y[13] && Y[13]<=1))
     {
         EXCEPTION(DumpState("xr1 gate of IKR channel is out of range!"));
@@ -471,24 +471,24 @@ void TenTusscher2006OdeSystem::VerifyStateVariables()
     if (!(0<=Y[14] && Y[14]<=1))
     {
         EXCEPTION(DumpState("xr2 gate of IKR channel is out of range!"));
-    }  
+    }
     if (!(0<=Y[15] && Y[15]<=1))
     {
         EXCEPTION(DumpState("xs1 gate of IKS channel is out of range!"));
-    }  
+    }
     if (!(0<=Y[16]))
     {
         EXCEPTION(DumpState("Nai is negative!"));
-    }  
+    }
     if (!(0<=Y[17] && Y[17]<=1))
     {
         EXCEPTION(DumpState("r gate of Ito channel is out of range!"));
-    }  
+    }
     if (!(0<=Y[18] && Y[18]<=1))
     {
         EXCEPTION(DumpState("s gate of Ito channel is out of range!"));
-    }  
-      
+    }
+
     #undef COVERAGE_IGNORE
 }
 
@@ -499,27 +499,27 @@ void OdeSystemInformation<TenTusscher2006OdeSystem>::Initialise(void)
    this->mVariableNames.push_back("d_gate_L");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.00003373);
-    
+
    this->mVariableNames.push_back("f2_gate_L");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.9755);
-    
+
    this->mVariableNames.push_back("fca_gate_L");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.9953);
-    
+
    this->mVariableNames.push_back("f_gate_L");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.7888);
-    
+
    this->mVariableNames.push_back("CaSR");
    this->mVariableUnits.push_back("mM");
    this->mInitialConditions.push_back(3.64);
-    
+
    this->mVariableNames.push_back("Cai");
    this->mVariableUnits.push_back("mM");
    this->mInitialConditions.push_back(0.000126);
-    
+
    this->mVariableNames.push_back("CaSS");
    this->mVariableUnits.push_back("mM");
    this->mInitialConditions.push_back(0.00036);
@@ -531,15 +531,15 @@ void OdeSystemInformation<TenTusscher2006OdeSystem>::Initialise(void)
    this->mVariableNames.push_back("h_gate_Na");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.7444);
-    
+
    this->mVariableNames.push_back("j_gate_Na");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.7045);
-   
+
    this->mVariableNames.push_back("m_gate_Na");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.00172);
-    
+
    this->mVariableNames.push_back("V");
    this->mVariableUnits.push_back("mV");
    this->mInitialConditions.push_back(-85.23);
@@ -547,31 +547,31 @@ void OdeSystemInformation<TenTusscher2006OdeSystem>::Initialise(void)
    this->mVariableNames.push_back("Ki");
    this->mVariableUnits.push_back("mM");
    this->mInitialConditions.push_back(136.89);
-    
+
    this->mVariableNames.push_back("xr1_gate");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.00621);
-    
+
    this->mVariableNames.push_back("xr2_gate");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.4712);
-    
+
    this->mVariableNames.push_back("xS_gate");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.0095);
-    
+
    this->mVariableNames.push_back("Nai");
    this->mVariableUnits.push_back("mM");
    this->mInitialConditions.push_back(8.604);
-    
+
    this->mVariableNames.push_back("r_gate_Ito");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.0000000242);
-    
+
    this->mVariableNames.push_back("s_gate_Ito");
    this->mVariableUnits.push_back("");
    this->mInitialConditions.push_back(0.999998);
-    
+
     this->mInitialised = true;
 }
 
