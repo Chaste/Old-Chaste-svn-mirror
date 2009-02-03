@@ -63,6 +63,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NobleVargheseKohlNoble1998Optimised.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 
+#include "TenTusscher2006OdeSystem.hpp"
+
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
 
@@ -589,6 +591,33 @@ public:
         TS_ASSERT_DELTA( n98_backward_system.GetIIonic(), 0.2462, 1e-3);
         
     }
+    
+    void TestOdeSolveForTT06WithSimpleStimulus(void)
+    {   
+        
+        double simulation_end=350;/*end time, in milliseconds for this model*/ 
+          
+        // Set the stimulus, the following values are appropriate for single cell simulations of this model.
+        double magnitude = -38.0;   // pA/pF
+        double duration = 1.0;  // ms
+        double start = 100;   // ms
+        SimpleStimulus stimulus(magnitude,
+                                duration,
+                                start);
+
+        EulerIvpOdeSolver solver; //define the solver
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001. 
+        TenTusscher2006OdeSystem TT_model(&solver, &stimulus);
+        
+        // Solve and write to file
+        RunOdeSolverWithIonicModel(&TT_model,
+                                 simulation_end,
+                                 "TenTusscher",
+                                 1000,
+                                 true);
+        //Check against validated data (checked against CellML code of the model for an epicardial cell)
+        CheckCellModelResults("TenTusscher");
+     }
 
 
 //    Uncomment the includes for the models too
