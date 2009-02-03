@@ -109,9 +109,8 @@ Vec BidomainProblem<DIM>::CreateInitialCondition()
 template<unsigned DIM>
 AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
 {
-    mpBidomainPde = new BidomainPde<DIM>(this->mpCellFactory);
     AnalyseMeshForBath();
-
+    mpBidomainPde = new BidomainPde<DIM>(this->mpCellFactory);
     return mpBidomainPde;
 }
 
