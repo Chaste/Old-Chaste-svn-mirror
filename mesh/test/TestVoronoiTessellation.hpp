@@ -108,40 +108,54 @@ public:
         nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
 
         MutableMesh<3,3> mesh(nodes);
-
-        // Create Voronoi Tesselation
+        
+        //Note that the Voronois tessellation is not unique for this 
+        //mesh since 4 points are co-spherical.  We need to check
+        //how the mesher is breaking ties.
+        Element<3,3> *p_element=mesh.GetElement(0);
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 3U);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 0U);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 2U);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 4U);//Older tetgen
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 4U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 1U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2U);
+        
+         
+        // Create Voronoi Tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
         tessellation.GenerateVerticesFromElementCircumcentres();
 
         TS_ASSERT_EQUALS(tessellation.GetNumVertices(),8u);
 
-        c_vector<double,3> this_vertex = *(tessellation.GetVertex(0));
+        c_vector<double,3> this_vertex = *(tessellation.GetVertex(2));
 
         TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
 
 
-        this_vertex = *(tessellation.mVertices[0]);
+        this_vertex = *(tessellation.mVertices[2]);
 
         TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
 
-        this_vertex = *(tessellation.mVertices[1]);
+        this_vertex = *(tessellation.mVertices[3]);
 
         TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
 
-        this_vertex = *(tessellation.mVertices[2]);
+        this_vertex = *(tessellation.mVertices[0]);
 
         TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
 
-        this_vertex = *(tessellation.mVertices[3]);
+        this_vertex = *(tessellation.mVertices[1]);
 
         TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);

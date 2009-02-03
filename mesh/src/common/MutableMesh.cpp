@@ -828,8 +828,20 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                 node_file->close();
             }
     
-            std::string binary_name = "tetgen";
-            std::string command = "./bin/tetgen -Qe " + full_name + "node";
+            std::string binary_name;
+            if(sizeof(long)==4)
+            {
+                // 32-bit machine
+                binary_name = "./bin/tetgen";
+            }
+            else
+            {
+                //64-bit machine
+                binary_name = "./bin/tetgen_64";
+                
+            }
+            
+            std::string command = binary_name + " -Q " + full_name + "node";
     
             // Tetgen's quiet mode isn't as quiet as Triangle's
             command += " > /dev/null";
@@ -865,7 +877,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         if (handler.IsMaster())
         {
             std::string remove_command = "rm " + full_name + "*";
-            system(remove_command.c_str());
+            //system(remove_command.c_str());
         }
     }    
 }

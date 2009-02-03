@@ -148,9 +148,10 @@ public:
         }
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
-        std::string command = "./bin/tetgen -Qe " + full_name + "node" + " > /dev/null";
-        system(command.c_str());
-
+        std::string command = "./bin/tetgen -Q " + full_name + "node" + " > /dev/null";
+        int return_value=system(command.c_str());
+        TS_ASSERT(return_value == 0);
+        
         TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
         TetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);

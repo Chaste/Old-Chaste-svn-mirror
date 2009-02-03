@@ -59,7 +59,15 @@ public:
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
         MutableMesh<3,3> mesh(nodes);
-
+        Element<3,3> *p_element=mesh.GetElement(0);
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 0U);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 3U);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 2U);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 4U);//Older tetgen
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 1U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 4U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2U);
         // Create Voronoi Tesselation
         VoronoiTessellation<3> tessellation(mesh);
 
