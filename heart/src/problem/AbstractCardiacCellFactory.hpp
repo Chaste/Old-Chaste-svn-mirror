@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * For use with MonodomainPde and BidomainPdes.
  *
  * The user should implement their own concrete class, in particular implementing
- * CreateCardiacCellForNode(unsigned), which should return the cell corresponding to a
+ * CreateCardiacCellForTissueNode(unsigned), which should return the cell corresponding to a
  * given node. The user should also implement GetNumberOfCells() if this isn't equal
  * to the number of nodes. FinaliseCellCreation() can be used to (eg) add stimuli to
  * certain cells after they have been created.
@@ -59,9 +59,25 @@ protected:
 
     /** the mesh is automatically set in MonodomainProblem and BidomainProblem */
     AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    AbstractCardiacCell* mpFakeCell;
 
 public:
-    virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned)=0;
+    /**
+     * Create a cell object for the given node.
+     * 
+     * The default implementation checks whether the node is in the bath (in which
+     * case a pointer to a (unique) fake cell is returned) and if not, calls
+     * CreateCardiacCellForTissueNode (which must be defined by subclasses).
+     */
+    virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned);
+    /**
+     * Must be overridden by subclasses to return a cell object for the given node.
+     */
+    virtual AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned)=0;
+    /**
+     * May be overridden by subclasses to perform any necessary work after all cells
+     * have been created.
+     */
     virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed,
                                       unsigned lo, unsigned hi);
 
@@ -73,6 +89,7 @@ public:
     void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     AbstractMesh<SPACE_DIM,SPACE_DIM>* GetMesh();
+    
 };
 
 #endif /*ABSTRACTCARDIACCELLFACTORY_HPP_*/

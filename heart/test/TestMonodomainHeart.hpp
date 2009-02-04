@@ -51,7 +51,7 @@ public:
         mpStimulus = new SimpleStimulus(-1000*1000, 0.5);
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
     }

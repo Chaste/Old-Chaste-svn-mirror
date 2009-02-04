@@ -57,7 +57,7 @@ public:
         mpExtraStimulus = new SimpleStimulus( -6000000, 0.5, 10.0); // switches on at 10ms
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         AbstractStimulusFunction* intra_stim;
         AbstractStimulusFunction* extra_stim;
@@ -96,7 +96,7 @@ public:
     }
 
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         AbstractStimulusFunction* intra_stim;
         AbstractStimulusFunction* extra_stim;
@@ -129,7 +129,7 @@ public:
         mpExtraStimulus = new SimpleStimulus(-1000*1000, 0.5, 5); // switches on at 5ms
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         AbstractStimulusFunction* intra_stim;
         AbstractStimulusFunction* extra_stim;

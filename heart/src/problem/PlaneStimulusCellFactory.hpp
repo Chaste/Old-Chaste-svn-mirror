@@ -55,7 +55,7 @@ public:
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {

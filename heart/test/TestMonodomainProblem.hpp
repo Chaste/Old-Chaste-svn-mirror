@@ -57,7 +57,7 @@ public:
         mNodeNum = nodeNum;
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         if (node == mNodeNum)
         {

@@ -53,7 +53,7 @@ public:
         LOG(2, "Using RegularStimulus(-600, 0.5, 100000, 0.0)\n");
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {

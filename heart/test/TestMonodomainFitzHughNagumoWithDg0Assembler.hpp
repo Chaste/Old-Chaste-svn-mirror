@@ -54,7 +54,7 @@ public:
         mpStimulus = new SimpleStimulus(-10.0, 0.5);
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {

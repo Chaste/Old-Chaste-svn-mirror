@@ -72,7 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * All mono/bidomain simulations need a ''cell factory'' as input. This is a class
  * which tells the problem class what type of cardiac cells to create. The cell-factory
  * class has to inherit from {{{AbstractCardiacCellFactory<DIM>}}}, which means it must
- * implement the method {{{CreateCardiacCellForNode(unsigned nodeNum)}}}, which returns
+ * implement the method {{{CreateCardiacCellForTissueNode(unsigned nodeNum)}}}, which returns
  * a pointer to an {{{AbstractCardiacCell}}}. Note, some concrete cell factories have
  * been defined, such as the {{{PlaneStimulusCellFactory}}}, which could be used in the
  * simulation, but for completeness we create our own cell factory in this test. For
@@ -89,7 +89,7 @@ class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 /* Declare pointer to an {{{SimpleStimulus}}} for the cell which is stimulated.
  * Note that {{{AbstractCardiacCellFactory}}} also has as protected members: {{{mpZeroStimulus}}}
  * of type {{{ZeroStimulus}}}; {{{mpMesh}}}, a pointer to the mesh used (the problem
- * class will set this before it calls {{{CreateCardiacCellForNode}}}, so it can be used
+ * class will set this before it calls {{{CreateCardiacCellForTissueNode}}}, so it can be used
  * in that method); {{{mTimestep}}}, a double (see below); and {{{mpSolver}}} a forward
  * euler ode solver (see below). */
 private:
@@ -111,7 +111,7 @@ public:
      * {{{mTimestep}}}, {{{mpZeroStimulus}}} and {{{mpSolver}}} which are all
      * members of the base class. The timestep and solver being defined in the base
      * class are just so that the user doesn't have to create them here. */
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned nodeIndex)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
         double x = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[0];
         double y = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[1];

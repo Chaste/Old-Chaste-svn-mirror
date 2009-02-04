@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainWithBathAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "FakeBathCell.hpp"
 
 template<unsigned DIM>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>
@@ -46,8 +45,6 @@ private:
     // define a new stimulus
     SimpleStimulus* mpStimulus;
     c_vector<double,DIM> mStimulatedPoint;
-    
-    AbstractCardiacCell* mpFakeCell;
 
 public:
     BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint) : AbstractCardiacCellFactory<DIM>()
@@ -55,10 +52,9 @@ public:
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
         mStimulatedPoint = stimulatedPoint;
-        mpFakeCell = new FakeBathCell(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // stimulate centre node normally.. 
         bool is_centre;
@@ -81,7 +77,7 @@ public:
         
         if (this->mpMesh->GetNode(node)->GetRegion() == BidomainWithBathAssembler<DIM,DIM>::BATH)
         {
-            return mpFakeCell;
+            return this->mpFakeCell;
         }
         else if (is_centre)
         {
@@ -96,7 +92,6 @@ public:
     ~BathCellFactory(void)
     {
         delete mpStimulus;
-        delete mpFakeCell;
     }
 };
 

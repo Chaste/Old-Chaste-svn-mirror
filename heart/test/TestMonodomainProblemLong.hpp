@@ -60,7 +60,7 @@ public:
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         if (node == mNodeNum)
         {

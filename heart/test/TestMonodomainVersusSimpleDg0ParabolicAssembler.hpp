@@ -52,7 +52,7 @@ public:
     ZeroStimCellFactory() : AbstractCardiacCellFactory<SPACE_DIM>()
     {}
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus);
     }

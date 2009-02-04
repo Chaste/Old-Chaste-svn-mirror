@@ -137,7 +137,7 @@ public:
     }
 
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // Memory leak, this pointers should freed somewhere
         MultiStimulus* node_specific_stimulus = new MultiStimulus();

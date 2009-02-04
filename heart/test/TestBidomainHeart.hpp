@@ -55,7 +55,7 @@ public:
         mpStimulus = new SimpleStimulus(-1000.0*500, 0.5);
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // Stimulate the apex
         if (mpMesh->GetNode(node)->rGetLocation()[0] > 0.94)

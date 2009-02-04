@@ -60,7 +60,7 @@ public:
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         FaberRudy2000Version3 *cell;
 

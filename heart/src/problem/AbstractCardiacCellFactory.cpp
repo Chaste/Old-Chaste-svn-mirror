@@ -27,7 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCardiacCellFactory.hpp"
+#include "BidomainWithBathAssembler.hpp"
+#include "FakeBathCell.hpp"
 
+template<unsigned SPACE_DIM>
+AbstractCardiacCell*  AbstractCardiacCellFactory<SPACE_DIM>::CreateCardiacCellForNode(
+    unsigned nodeIndex)
+{
+    if (mpMesh->GetNode(nodeIndex)->GetRegion() == BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM>::BATH)
+    {
+        return mpFakeCell;
+    }
+    else
+    {
+        return CreateCardiacCellForTissueNode(nodeIndex);
+    }
+}
 
 template<unsigned SPACE_DIM>
 void AbstractCardiacCellFactory<SPACE_DIM>::FinaliseCellCreation(
@@ -50,6 +65,7 @@ AbstractCardiacCellFactory<SPACE_DIM>::AbstractCardiacCellFactory(AbstractIvpOde
     mpMesh = NULL;
     mpSolver = pSolver;
     mpZeroStimulus = new ZeroStimulus;
+    mpFakeCell = new FakeBathCell(mpSolver, mpZeroStimulus, mpZeroStimulus);
 }
 
 template<unsigned SPACE_DIM>
@@ -57,6 +73,7 @@ AbstractCardiacCellFactory<SPACE_DIM>::~AbstractCardiacCellFactory()
 {
     delete mpSolver;
     delete mpZeroStimulus;
+    delete mpFakeCell;
 }
 
 template<unsigned SPACE_DIM>

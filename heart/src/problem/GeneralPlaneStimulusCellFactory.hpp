@@ -84,7 +84,7 @@ public:
         }
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
         if (x*x<=1e-10)

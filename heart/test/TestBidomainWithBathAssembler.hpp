@@ -43,7 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "FakeBathCell.hpp"
 #include "EventHandler.hpp"
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
@@ -57,7 +56,6 @@ private:
     SimpleStimulus* mpStimulus;
     c_vector<double,DIM> mStimulatedPoint;
     
-    AbstractCardiacCell* mpFakeCell;
 
 public:
     BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint) : AbstractCardiacCellFactory<DIM>()
@@ -65,10 +63,9 @@ public:
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
         mStimulatedPoint = stimulatedPoint;
-        mpFakeCell = new FakeBathCell(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // stimulate centre node normally.. 
         bool is_centre;
@@ -89,11 +86,7 @@ public:
                           && (fabs(this->mpMesh->GetNode(node)->GetPoint()[2]-mStimulatedPoint(2)) < 1e-6) );
         }
         
-        if (this->mpMesh->GetNode(node)->GetRegion() == BidomainWithBathAssembler<DIM,DIM>::BATH)
-        {
-            return mpFakeCell;
-        }
-        else if (is_centre)
+        if (is_centre)
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus, this->mpZeroStimulus);
         }
@@ -106,7 +99,6 @@ public:
     ~BathCellFactory(void)
     {
         delete mpStimulus;
-        delete mpFakeCell;
     }
 };
 

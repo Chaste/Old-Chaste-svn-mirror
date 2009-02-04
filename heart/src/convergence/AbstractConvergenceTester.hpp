@@ -77,7 +77,7 @@ public:
         mMeshWidth=meshWidth;
     }
 
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
         if (x<=mMeshWidth*0.25+1e-10)
