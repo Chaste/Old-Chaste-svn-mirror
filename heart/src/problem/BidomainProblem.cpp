@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BidomainProblem.hpp"
+#include "HeartRegionCodes.hpp"
 
 #include "BidomainDg0Assembler.hpp"
 #include "BidomainMatrixBasedAssembler.hpp"
@@ -45,12 +46,10 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
     // Annotate bath notes with correct region code
     if (mHasBath)
     {
-        typedef BidomainWithBathAssembler<DIM,DIM> Assembler;
-
         // Initialize all nodes to be bath nodes
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
-            this->mpMesh->GetNode(i)->SetRegion(Assembler::BATH);
+            this->mpMesh->GetNode(i)->SetRegion(HeartRegionCode::BATH);
         }
     
         bool any_bath_element_found = false;
@@ -60,16 +59,16 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
         {
             Element<DIM, DIM>& r_element = *(this->mpMesh->GetElement(i));
         
-            if (r_element.GetRegion() == Assembler::CARDIAC_TISSUE)
+            if (r_element.GetRegion() == HeartRegionCode::TISSUE)
             {
                 for (unsigned j=0; j<r_element.GetNumNodes(); j++)
                 {
-                    r_element.GetNode(j)->SetRegion(Assembler::CARDIAC_TISSUE);
+                    r_element.GetNode(j)->SetRegion(HeartRegionCode::TISSUE);
                 }
             }
             else
             {
-                assert(r_element.GetRegion() == Assembler::BATH);
+                assert(r_element.GetRegion() == HeartRegionCode::BATH);
                 any_bath_element_found = true;
             }
         }
@@ -96,7 +95,7 @@ Vec BidomainProblem<DIM>::CreateInitialCondition()
              index!= DistributedVector::End();
              ++index)
         {
-            if(this->mpMesh->GetNode( index.Global )->GetRegion()==BidomainWithBathAssembler<DIM,DIM>::BATH)
+            if (this->mpMesh->GetNode( index.Global )->GetRegion() == HeartRegionCode::BATH)
             {
                 voltage_stripe[index] = 0.0;
             }
@@ -118,17 +117,15 @@ AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
 template<unsigned DIM>
 AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssembler()
 {
-    //BidomainDg0Assembler<DIM, DIM>* p_bidomain_assembler;
-    
     if (mHasBath)
     {
         if (!this->mUseMatrixBasedRhsAssembly)
         {
-        mpAssembler
-            = new BidomainWithBathAssembler<DIM,DIM>(this->mpMesh,
-                                                     mpBidomainPde,
-                                                     this->mpBoundaryConditionsContainer,
-                                                     2);
+            mpAssembler
+                = new BidomainWithBathAssembler<DIM,DIM>(this->mpMesh,
+                                                         mpBidomainPde,
+                                                         this->mpBoundaryConditionsContainer,
+                                                         2);
         }
         else
         {

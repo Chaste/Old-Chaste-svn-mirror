@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
 #include "ConstBoundaryCondition.hpp"
+#include "HeartRegionCodes.hpp"
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -43,7 +44,7 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    if (pElement->GetRegion() == CARDIAC_TISSUE) // ie if a tissue element
+    if (pElement->GetRegion() == HeartRegionCode::TISSUE) // ie if a tissue element
     {
         return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
     }
@@ -95,7 +96,7 @@ c_vector<double,2*(ELEMENT_DIM+1)>
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    if (pElement->GetRegion() == CARDIAC_TISSUE) // ie if a tissue element
+    if (pElement->GetRegion() == HeartRegionCode::TISSUE) // ie if a tissue element
     {
         return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
     }
@@ -123,7 +124,7 @@ void BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinear
 {
     for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
     {
-        if(this->mpMesh->GetNode(i)->GetRegion() == BATH) // ie is a bath node
+        if(this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // ie is a bath node
         {
             PetscInt index[1];
             index[0] = 2*i;

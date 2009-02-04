@@ -27,14 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCardiacCellFactory.hpp"
-#include "BidomainWithBathAssembler.hpp"
+#include "HeartRegionCodes.hpp"
 #include "FakeBathCell.hpp"
 
 template<unsigned SPACE_DIM>
 AbstractCardiacCell*  AbstractCardiacCellFactory<SPACE_DIM>::CreateCardiacCellForNode(
     unsigned nodeIndex)
 {
-    if (mpMesh->GetNode(nodeIndex)->GetRegion() == BidomainWithBathAssembler<SPACE_DIM,SPACE_DIM>::BATH)
+    if (mpMesh->GetNode(nodeIndex)->GetRegion() == HeartRegionCode::BATH)
     {
         return mpFakeCell;
     }

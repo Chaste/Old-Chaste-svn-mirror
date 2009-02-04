@@ -39,10 +39,6 @@ class BidomainWithBathMatrixBasedAssembler
     : public BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
 {
 public:
-    static const unsigned CARDIAC_TISSUE = 0; 
-    static const unsigned BATH = 1;
-
-public:
 
     /**
      *  ComputeMatrixTerm()

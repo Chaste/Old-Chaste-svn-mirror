@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "EventHandler.hpp"
+#include "HeartRegionCodes.hpp"
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 
@@ -56,7 +57,6 @@ private:
     SimpleStimulus* mpStimulus;
     c_vector<double,DIM> mStimulatedPoint;
     
-
 public:
     BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint) : AbstractCardiacCellFactory<DIM>()
     {
@@ -68,7 +68,7 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // paranoia - check this is really a tissue node
-        assert(this->mpMesh->GetNode(node)->GetRegion() == 0u);
+        assert(this->mpMesh->GetNode(node)->GetRegion() == HeartRegionCode::TISSUE);
         
         // stimulate centre node normally.. 
         bool is_centre;
@@ -133,17 +133,17 @@ public:
         
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
-        TS_ASSERT_EQUALS(p_mesh->GetNode(0)->GetRegion(), 1u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(1)->GetRegion(), 1u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(2)->GetRegion(), 1u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(3)->GetRegion(), 0u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(4)->GetRegion(), 0u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(5)->GetRegion(), 0u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(6)->GetRegion(), 0u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(7)->GetRegion(), 0u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(8)->GetRegion(), 1u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(9)->GetRegion(), 1u);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(10)->GetRegion(), 1u);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(0)->GetRegion(), HeartRegionCode::BATH);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(1)->GetRegion(), HeartRegionCode::BATH);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(2)->GetRegion(), HeartRegionCode::BATH);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(3)->GetRegion(), HeartRegionCode::TISSUE);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(4)->GetRegion(), HeartRegionCode::TISSUE);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(5)->GetRegion(), HeartRegionCode::TISSUE);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(6)->GetRegion(), HeartRegionCode::TISSUE);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(7)->GetRegion(), HeartRegionCode::TISSUE);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(8)->GetRegion(), HeartRegionCode::BATH);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(9)->GetRegion(), HeartRegionCode::BATH);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(10)->GetRegion(), HeartRegionCode::BATH);
 
         // we need to call solve as other an EventHandling exception is thrown
         bidomain_problem.Solve();
@@ -191,7 +191,7 @@ public:
             double x = mesh.GetElement(i)->CalculateCentroid()[0];
             if( (x<0.25) || (x>0.75) )
             {
-                mesh.GetElement(i)->SetRegion(1);
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
             }
         }
 
@@ -208,7 +208,7 @@ public:
         // test V = 0 for all bath nodes
         for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
-            if(mesh.GetNode(i)->GetRegion()==1) // bath
+            if(mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
@@ -250,7 +250,7 @@ public:
         
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
-            mesh.GetElement(i)->SetRegion(1);
+            mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
         }
 
         // create boundary conditions container
@@ -324,7 +324,7 @@ public:
             double y = mesh.GetElement(i)->CalculateCentroid()[1];
             if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
             {
-                mesh.GetElement(i)->SetRegion(1);
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
             }
         }
 
@@ -341,7 +341,7 @@ public:
         // test V = 0 for all bath nodes
         for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
-            if(mesh.GetNode(i)->GetRegion()==1) // bath
+            if(mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
@@ -380,7 +380,7 @@ public:
             double y = mesh.GetElement(i)->CalculateCentroid()[1];
             if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
             {
-                mesh.GetElement(i)->SetRegion(1);
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
             }
         }
 
@@ -407,7 +407,7 @@ public:
         for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
             // test V = 0 for all bath nodes            
-            if(mesh.GetNode(i)->GetRegion()==1) // bath
+            if(mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
@@ -460,7 +460,7 @@ public:
                 double y = mesh.GetElement(i)->CalculateCentroid()[1];
                 if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
                 {
-                    mesh.GetElement(i)->SetRegion(1);                
+                    mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);                
                 }
             }
         
@@ -492,7 +492,7 @@ public:
                 double y = mesh.GetElement(i)->CalculateCentroid()[1];
                 if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
                 {
-                    mesh.GetElement(i)->SetRegion(1);                
+                    mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);                
                 }
             }
         
