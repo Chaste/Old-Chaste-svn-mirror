@@ -188,6 +188,28 @@
    fun:main
 }
 
+{
+   get--user-name-4
+   Memcheck:Leak
+   fun:malloc
+   fun:nss_parse_service_list
+   fun:__nss_database_lookup
+   obj:*
+   obj:*
+   fun:getpwuid_r@@GLIBC_2.2.5
+   fun:getpwuid
+   fun:_Z16PetscGetUserNamePcm
+   fun:_Z26PetscErrorPrintfInitializev
+   fun:_Z15PetscInitializePiPPPcPKcS4_
+   fun:_ZN10PetSCSetup10setUpWorldEv
+   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
+
+
 #
 # HDF5 free lists (see http://hdf.ncsa.uiuc.edu/HDF5/faq/valgrind.html )
 #

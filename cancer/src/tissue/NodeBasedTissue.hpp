@@ -90,6 +90,8 @@ public:
     /**
      * Deafult constructor.
      * 
+     * Note that the tissue will take responsibility for freeing the memory used by the nodes.
+     * 
      * @param nodes a vector of Nodes
      * @param rCells a vector of TissueCells
      * @param locationIndices an optional vector of location indices that correspond to real cells
@@ -101,6 +103,8 @@ public:
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
      * dealt with by the serialize method of our base class.
+     * 
+     * Note that the tissue will take responsibility for freeing the memory used by the nodes.
      * 
      * @param nodes a vector of Nodes
      */
@@ -122,6 +126,8 @@ public:
 
     /**
      * Destructor.
+     * 
+     * Frees all our node memory.
      */
     ~NodeBasedTissue();
 

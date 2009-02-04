@@ -74,7 +74,7 @@ AbstractCardiacPde<SPACE_DIM>::AbstractCardiacPde(
          index != DistributedVector::End();
          ++index)
     {
-        mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForTissueNode(index.Global);
+        mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
     }
     pCellFactory->FinaliseCellCreation(&mCellsDistributed,
                                        DistributedVector::Begin().Global,

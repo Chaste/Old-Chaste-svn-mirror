@@ -67,6 +67,9 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
+        // paranoia - check this is really a tissue node
+        assert(this->mpMesh->GetNode(node)->GetRegion() == 0u);
+        
         // stimulate centre node normally.. 
         bool is_centre;
         

@@ -50,7 +50,7 @@ private:
     /* The single instance of the singleton object */
     static CellwiseData* mpInstance;
 
-    /* A reference to a Tissue so a cell's node can be found */
+    /* A pointer to a Tissue so a cell's node can be found */
     MeshBasedTissue<DIM>* mpTissue;
 
     /* Allocated memory for mData object */

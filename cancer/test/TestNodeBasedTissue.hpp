@@ -121,7 +121,8 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            nodes.push_back(mesh.GetNode(i));
+            Node<2>* p_node = new Node<2>(*(mesh.GetNode(i)));
+            nodes.push_back(p_node);
         }
 
         // Create the tissue
@@ -148,7 +149,7 @@ public:
 //        TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(mesh, cells));
 //    }
 
-    void TestAddCellMemoryLeak()
+    void TestAddCell()
     {
         // Create two nodes
         ChastePoint<2> point0;
@@ -188,13 +189,6 @@ public:
         cell2_location[1] = 2.0;
 
         node_based_tissue.AddCell(cell2, cell2_location);
-
-        // Tidy up
-        delete p_node0;
-        delete p_node1;
-
-        /// \todo (see #844) the line below fixes the memory leak - how do we do this in the destructor?
-        delete node_based_tissue.mNodes[2];
     }
 
     void TestSetNodeAndAddCell()
@@ -238,7 +232,9 @@ public:
         TS_ASSERT_DELTA(node_based_tissue.GetNode(num_nodes)->rGetLocation()[0], 1.71, 1e-12);
         TS_ASSERT_DELTA(node_based_tissue.GetNode(num_nodes)->rGetLocation()[1], 1.72, 1e-12);
 
+        // Tidy up
         node_based_tissue.mNodes.pop_back();
+        delete p_node;
 
         // Test AddCell
 
@@ -267,9 +263,6 @@ public:
         // Check the index of the new cell
         TissueCell& new_cell = node_based_tissue.rGetCells().back();
         TS_ASSERT_EQUALS(node_based_tissue.GetNodeCorrespondingToCell(&new_cell)->GetIndex(), old_num_nodes);
-
-        // Tidy up
-        delete p_node;
     }
 
     void TestRemoveDeadCellsAndUpdate()

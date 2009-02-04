@@ -200,8 +200,9 @@ public:
             TS_ASSERT(p_data->IsSetUp());
             TS_ASSERT(!p_data->mUseConstantDataForTesting);
 
-            // We will have constructed a new Tissue on load so set it again for this test
-            p_data->SetTissue(tissue);
+            // We will have constructed a new tissue on load, so use the new tissue
+            MeshBasedTissue<2>& tissue = p_data->rGetTissue();
+            //p_data->SetTissue(tissue);
 
             for (AbstractTissue<2>::Iterator iter = tissue.Begin();
                  iter != tissue.End();
@@ -212,6 +213,7 @@ public:
 
             // Tidy up
             CellwiseData<2>::Destroy();
+            delete (&tissue);
         }
     }
 
