@@ -350,6 +350,13 @@ if ARGUMENTS.get('exe', 0):
         libpath = '#lib'
         env = env.Copy()
         env.Append(LINKFLAGS=' -static -pthread ')
+        
+        #Build information to supply to the executable
+        pipe=os.popen("svn info | awk '/Revision:/ {print $2}'")
+        svn_rev=pipe.read()
+        pipe.close()
+        uname=' '.join(os.uname())
+        env.Append(CCFLAGS=' -DSVN_REV='+svn_rev+' -DUNAME=\'"'+uname+'"\' -DBUILD_TYPE=\'"'+build_type+'"\' ')
     else:
         libpath = '#linklib'
     exes = []

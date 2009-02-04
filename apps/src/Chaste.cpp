@@ -251,7 +251,7 @@ void WriteSlab(TetrahedralMesh<3,3>* pMesh)
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Copyright (C) University of Oxford, 2008 \n\n\
+    std::cout << "Copyright (C) University of Oxford, 2005-2009 \n\n\
 \
 Chaste is free software: you can redistribute it and/or modify \n\
 it under the terms of the Lesser GNU General Public License as published by \n\
@@ -266,6 +266,11 @@ Lesser GNU General Public License for more details. \n\n\
 You should have received a copy of the Lesser GNU General Public License \n\
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
+    //Compilation information
+    std::cout<<"This version of Chaste was compiled on:\n";
+    std::cout<<UNAME<<"\n";
+    std::cout<<"from revision number "<<SVN_REV<<" with build type "<<BUILD_TYPE<<".\n\n";
+    
     try
     {
         PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
