@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainDg0Assembler.hpp"
 #include "BidomainMatrixBasedAssembler.hpp"
 #include "BidomainWithBathAssembler.hpp"
+#include "BidomainWithBathMatrixBasedAssembler.hpp"
 
 #include "HeartConfig.hpp"
 #include "Exception.hpp"
@@ -121,11 +122,23 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
     
     if (mHasBath)
     {
+        if (!this->mUseMatrixBasedRhsAssembly)
+        {
         mpAssembler
             = new BidomainWithBathAssembler<DIM,DIM>(this->mpMesh,
                                                      mpBidomainPde,
                                                      this->mpBoundaryConditionsContainer,
                                                      2);
+        }
+        else
+        {
+            mpAssembler
+                = new BidomainWithBathMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
+                                                            mpBidomainPde,
+                                                            this->mpBoundaryConditionsContainer,
+                                                            2);
+        }
+            
     }
     else
     {

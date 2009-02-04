@@ -421,7 +421,108 @@ public:
         TS_ASSERT_EQUALS(electrodes.mAreActive, false); // should be switched of by now..
         //TS_ASSERT(ap_triggered); 
     }
+    
+    void TestMatrixBasedAssembledBath(void)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+                
+        // need to create a cell factory but don't want any intra stim, so magnitude
+        // of stim is zero.                        
+        c_vector<double,2> centre;
+        centre(0) = 0.05;                        
+        centre(1) = 0.05;
+        BathCellFactory<2> cell_factory( 0.0, centre);  
 
+        //boundary flux for Phi_e
+        double boundary_flux = -4e2;
+        double duration = 0.2; //ms
+        
+        ///////////////////////////////////////////////////////////////////
+        // matrix based
+        ///////////////////////////////////////////////////////////////////
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBathMatrixBased");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("matrix_based");
+
+        BidomainProblem<2> matrix_based_bido( &cell_factory, true );
+
+        {
+            TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(reader);
+            
+            // Set everything outside a central circle (radius 0.4) to be bath
+            for(unsigned i=0; i<mesh.GetNumElements(); i++)
+            {
+                double x = mesh.GetElement(i)->CalculateCentroid()[0];
+                double y = mesh.GetElement(i)->CalculateCentroid()[1];
+                if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
+                {
+                    mesh.GetElement(i)->SetRegion(1);                
+                }
+            }
+        
+            Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);        
+            
+            matrix_based_bido.SetElectrodes(electrodes);
+            matrix_based_bido.SetMesh(&mesh);
+            matrix_based_bido.Initialise();
+            matrix_based_bido.Solve();
+        }
+        
+        ///////////////////////////////////////////////////////////////////
+        // non matrix based
+        ///////////////////////////////////////////////////////////////////
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBathNonMatrixBased");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("non_matrix_based");
+                
+        BidomainProblem<2> non_matrix_based_bido( &cell_factory, true);
+
+        {
+            TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(reader);
+            
+            // Set everything outside a central circle (radius 0.4) to be bath
+            for(unsigned i=0; i<mesh.GetNumElements(); i++)
+            {
+                double x = mesh.GetElement(i)->CalculateCentroid()[0];
+                double y = mesh.GetElement(i)->CalculateCentroid()[1];
+                if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
+                {
+                    mesh.GetElement(i)->SetRegion(1);                
+                }
+            }
+        
+            Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);        
+            
+            non_matrix_based_bido.SetElectrodes(electrodes);
+            non_matrix_based_bido.SetMesh(&mesh);
+            non_matrix_based_bido.UseMatrixBasedRhsAssembly(false);
+            non_matrix_based_bido.Initialise();
+            non_matrix_based_bido.Solve();
+        }
+
+        ///////////////////////////////////////////////////////////////////
+        // compare
+        ///////////////////////////////////////////////////////////////////
+        DistributedVector matrix_based_solution(matrix_based_bido.GetSolution());
+        DistributedVector non_matrix_based_solution(non_matrix_based_bido.GetSolution());
+
+        DistributedVector::Stripe matrix_based_voltage(matrix_based_solution, 0);
+        DistributedVector::Stripe non_matrix_based_voltage(non_matrix_based_solution, 0);
+
+        DistributedVector::Stripe matrix_based_ex_pot(matrix_based_solution, 1);
+        DistributedVector::Stripe non_matrix_based_ex_pot(non_matrix_based_solution, 1);
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
+        {
+            TS_ASSERT_DELTA(matrix_based_voltage[index], non_matrix_based_voltage[index], 1e-7);
+            //TS_ASSERT_DELTA(matrix_based_ex_pot[index], non_matrix_based_ex_pot[index], 1e-7);
+            //std::cout << matrix_based_voltage[index] << std::endl;
+        }
+    }
 
 };
     
