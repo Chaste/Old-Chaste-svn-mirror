@@ -30,4 +30,8 @@ default:$CHASTE_TEST_OUTPUT/texttest_reports
 
 [run_dependent_text]
 output:(seconds)
+#Filter out uname
+output:comlab.ox.ac.uk
+#Filter out revision and build details
+output:from revision number
 results_h5:HDF5
