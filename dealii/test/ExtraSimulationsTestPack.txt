@@ -1,4 +1,0 @@
-TestExperimentalGrowthSimulations.hpp
-TestCardiacElectroMechanicsProblemDealiiExperimental.hpp
-Test1dCardiacMechanicsAssemblers.hpp
-TestQuadHexFiniteElasticityExperiments.hpp

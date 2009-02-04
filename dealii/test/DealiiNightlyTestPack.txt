@@ -1,5 +1,0 @@
-TestCardiacMechanicsAssemblerLong.hpp
-TestCardiacElectroMechanicsProblemDealii.hpp
-TestFiniteElasticityAssemblerLong.hpp
-TestFiniteElasticityAssemblerWithGrowthLong.hpp
-TestDynamicFiniteElasticityAssemblerLong.hpp
