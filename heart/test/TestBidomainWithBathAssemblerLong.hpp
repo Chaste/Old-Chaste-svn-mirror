@@ -180,7 +180,7 @@ public:
         {
             double x = mesh.GetElement(i)->CalculateCentroid()[0];
             double y = mesh.GetElement(i)->CalculateCentroid()[1];
-            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
+            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
             {
                 mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
             }
@@ -188,10 +188,81 @@ public:
 
         //boundary flux for Phi_e
         //-4e3 is enough to trigger an action potential, -3e3 is below threshold, -5e3 crashes the cell model.
-        double boundary_flux = -4e3;
-        double duration = 5.0; //ms
+        double boundary_flux = -9e3;
+        double duration = 2.5; //ms
 
         Electrodes<2> electrodes(mesh,true,0,0.0,0.1,boundary_flux, duration);
+        bidomain_problem.SetElectrodes(electrodes);
+        
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        bidomain_problem.Solve();
+        
+        Vec sol = bidomain_problem.GetSolution();
+        ReplicatableVector sol_repl(sol);
+
+        bool ap_triggered = false;
+        /* 
+         * We are checking the last time step. This test will only make sure that an upstroke is triggered.
+         * We ran longer simulation for 350 ms and a nice AP was observed.
+         */
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        {
+            // test V = 0 for all bath nodes            
+            if(mesh.GetNode(i)->GetRegion()==1) // bath
+            {
+                TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+            }
+            else if (sol_repl[2*i] > 0.0)
+            {
+                ap_triggered = true;
+            }
+        }
+        TS_ASSERT(ap_triggered); 
+    }
+    
+    void Test3dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(6);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBath3dExtraStimGrounded");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_3d");
+        
+        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms                        
+ 
+        // need to create a cell factory but don't want any intra stim, so magnitude
+        // of stim is zero.                        
+        c_vector<double,3> centre;
+        centre(0) = 0.1;                        
+        centre(1) = 0.1;
+        centre(2) = 0.1;
+        BathCellFactory<3> cell_factory( 0.0, centre);  
+
+        BidomainProblem<3> bidomain_problem( &cell_factory, true );
+
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_1016_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        // Set everything outside a central sphere (radius 0.4) to be bath
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            double x = mesh.GetElement(i)->CalculateCentroid()[0];
+            double y = mesh.GetElement(i)->CalculateCentroid()[1];
+            double z = mesh.GetElement(i)->CalculateCentroid()[2];
+            if( sqrt((x-0.1)*(x-0.1) + (y-0.1)*(y-0.1) + (z-0.1)*(z-0.1)) > 0.03)
+            {
+                mesh.GetElement(i)->SetRegion(1);
+            }
+        }
+
+        //boundary flux for Phi_e
+        double boundary_flux = -4e3;
+        double duration = 2.5; //ms
+
+        Electrodes<3> electrodes(mesh,true,0,0.0,0.2,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
         
         bidomain_problem.SetMesh(&mesh);
@@ -213,14 +284,12 @@ public:
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
-            else if (sol_repl[2*i] > -20.0)
+            else if (sol_repl[2*i] > 0.0)
             {
                 ap_triggered = true;
             }
         }
-
-//
-//        TS_ASSERT(ap_triggered); 
+        TS_ASSERT(ap_triggered); 
     }
 };
 

@@ -354,17 +354,17 @@ public:
 
     void Test2dBathInputFluxEqualsOutputFlux() throw (Exception)
     {
-        HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms
+        HeartConfig::Instance()->SetSimulationDuration(3.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dFluxCompare");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_fluxes");
 
-        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms                        
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms                        
 
         // need to create a cell factory but don't want any intra stim, so magnitude
         // of stim is zero.                        
         c_vector<double,2> centre;
-        centre(0) = 0.05;                        
-        centre(1) = 0.05;
+        centre(0) = 0.05; // cm
+        centre(1) = 0.05; // cm
         BathCellFactory<2> cell_factory( 0.0, centre);  
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
@@ -373,21 +373,20 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
         
-        // Set everything outside a central circle (radius 0.4) to be bath
+        // Set everything outside a central circle (radius 0.04cm) to be bath
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             double x = mesh.GetElement(i)->CalculateCentroid()[0];
             double y = mesh.GetElement(i)->CalculateCentroid()[1];
-            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
+            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
             {
                 mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
             }
         }
 
-///\todo: change these values (and end time) and verify an AP can be induced..
-        //boundary flux for Phi_e
-        double boundary_flux = -4e2;
-        double duration = 0.2; //ms
+        //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+        double boundary_flux = -11.0e3;
+        double duration = 1.9; // of the stimulus, in ms
         
         Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
@@ -403,26 +402,26 @@ public:
         ReplicatableVector sol_repl(sol);
         
         bool ap_triggered = false;
+        /* 
+         * We are checking the last time step. This test will only make sure that an upstroke is triggered.
+         * We ran longer simulation for 350 ms and a nice AP was observed.
+         */
         
         for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
-            // test V = 0 for all bath nodes            
-            if(mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
+            // test V = 0 for all bath nodes and that an AP is triggered in the tissue            
+            if (mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
-            
-            if (sol_repl[2*i] > 0.0)
+            else if (sol_repl[2*i] > 0.0)//at the last time step
             {
                 ap_triggered = true;
             }
         }
 
-        // have visualised phi_e, looks fine, decreases when shock switched off
-        // correctly, so test with a hardcoded value.
-        TS_ASSERT_DELTA(sol_repl[120], -83.8585, 1e-3); 
-        TS_ASSERT_EQUALS(electrodes.mAreActive, false); // should be switched of by now..
-        //TS_ASSERT(ap_triggered); 
+        TS_ASSERT_EQUALS(electrodes.mAreActive, false); // should be switched off by now..
+        TS_ASSERT(ap_triggered); 
     }
     
     void TestMatrixBasedAssembledBath(void)
