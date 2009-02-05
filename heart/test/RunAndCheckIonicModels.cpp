@@ -80,7 +80,7 @@ void CheckCellModelResults(std::string baseResultsFilename)
     
     //Rather Ugly, we can't currently guarantee what the name of the voltage column is,
     //hence we try to cover the most common possibilities
-    if(data_reader.HasValues("V")) 
+    if (data_reader.HasValues("V")) 
     {
         voltages = data_reader.GetValues("V");
     }
@@ -94,7 +94,7 @@ void CheckCellModelResults(std::string baseResultsFilename)
     std::vector<double> valid_times = valid_reader.GetValues("Time");
     std::vector<double> valid_voltages;
     
-    if(valid_reader.HasValues("V"))
+    if (valid_reader.HasValues("V"))
     {
         valid_voltages = valid_reader.GetValues("V");
     }
