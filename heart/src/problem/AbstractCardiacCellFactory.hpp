@@ -54,11 +54,13 @@ template<unsigned SPACE_DIM>
 class AbstractCardiacCellFactory
 {
 protected:
+    /** For use at unstimulated cells. */
     ZeroStimulus* mpZeroStimulus;
     AbstractIvpOdeSolver* mpSolver;
 
-    /** the mesh is automatically set in MonodomainProblem and BidomainProblem */
+    /** The mesh is automatically set in MonodomainProblem and BidomainProblem. */
     AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    /** A fake cell object to use at bath nodes. */
     AbstractCardiacCell* mpFakeCell;
 
 public:
@@ -83,7 +85,16 @@ public:
 
     virtual unsigned GetNumberOfCells();
 
+    /**
+     * Default constructor.
+     *
+     * NB: The ODE solver passed to this class *must* have been allocated with new,
+     * since this class deletes the solver in its destructor.
+     */
     AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver);
+    /**
+     * Destructor: free solver, zero stimulus and fake bath cell.
+     */
     virtual ~AbstractCardiacCellFactory();
     
     void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
