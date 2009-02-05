@@ -343,22 +343,23 @@ if test_summary and not compile_only:
 
 if ARGUMENTS.get('exe', 0):
     assert use_chaste_libs
+    env = env.Copy()
+    # Build information to supply to the executable
+    svn_rev = os.popen("svnversion").read()
+    uname = ' '.join(os.uname())
+    env.Append(CCFLAGS=' -DSVN_REV=\'"'+svn_rev+'"\' -DUNAME=\'"'+uname+'"\' -DBUILD_TYPE=\'"'+build_type+'"\' ')
+
     if static_libs:
         libpath = '#lib'
-        env = env.Copy()
         env.Append(LINKFLAGS=' -static -pthread ')
-        
-        # Build information to supply to the executable
-        svn_rev = os.popen("svnversion").read()
-        uname = ' '.join(os.uname())
-        env.Append(CCFLAGS=' -DSVN_REV='+svn_rev+' -DUNAME=\'"'+uname+'"\' -DBUILD_TYPE=\'"'+build_type+'"\' ')
     else:
         libpath = '#linklib'
+    env.Replace(LIBPATH=[libpath] + other_libpaths)
+
     exes = []
     for main_cpp in glob.glob('apps/src/*.cpp'):
         exes.append(env.Program(main_cpp,
-                                LIBS=['heart'] + comp_deps['heart'] + other_libs,
-                                LIBPATH=[libpath] + other_libpaths))
+                                LIBS=['heart'] + comp_deps['heart'] + other_libs))
 
     if not compile_only:
         import re
