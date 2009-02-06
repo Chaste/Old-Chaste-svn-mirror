@@ -27,6 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CancerEventHandler.hpp"
 
-const char* CancerEventNames::EVENT_NAME[] = { "Setup", "Death", "Birth",
-                                               "Update", "Tess", "Force",
-                                               "Pos", "Output", "Total" };
+const char* CancerEventHandler::EventName[] = { "Setup", "Death", "Birth",
+                                                "Update", "Tess", "Force",
+                                                "Pos", "Output", "Total" };

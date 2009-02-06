@@ -299,7 +299,7 @@ protected:
     void ApplyNeummanBoundaryConditions()
     {
         assert(mpBoundaryConditions!=NULL);
-        EventHandler::BeginEvent(NEUMANN_BCS);
+        EventHandler::BeginEvent(EventHandler::NEUMANN_BCS);
         if (mpBoundaryConditions->AnyNonZeroNeumannConditions())
         {
             typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
@@ -319,7 +319,7 @@ protected:
                 ++neumann_iterator;
             }
         }
-        EventHandler::EndEvent(NEUMANN_BCS);
+        EventHandler::EndEvent(EventHandler::NEUMANN_BCS);
     }
     
 public:

@@ -63,7 +63,7 @@ AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
     mAllocatedMemoryForMesh = false;
     assert(mNodesToOutput.empty());
 
-    EventHandler::BeginEvent(EVERYTHING);
+    EventHandler::BeginEvent(EventHandler::EVERYTHING);
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -102,9 +102,9 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
             mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
             mAllocatedMemoryForMesh = true;
     
-            EventHandler::BeginEvent(READ_MESH);
+            EventHandler::BeginEvent(EventHandler::READ_MESH);
             mpMesh->ConstructFromMeshReader(mesh_reader);
-            EventHandler::EndEvent(READ_MESH);              
+            EventHandler::EndEvent(EventHandler::READ_MESH);              
         }
         catch (Exception& e)
         {               
@@ -261,10 +261,10 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
 
     if (mPrintOutput)
     {
-        EventHandler::BeginEvent(WRITE_OUTPUT);
+        EventHandler::BeginEvent(EventHandler::WRITE_OUTPUT);
         InitialiseWriter();
         WriteOneStep(stepper.GetTime(), initial_condition);
-        EventHandler::EndEvent(WRITE_OUTPUT);
+        EventHandler::EndEvent(EventHandler::WRITE_OUTPUT);
         
         progress_reporter_dir = mOutputDirectory;
     }
@@ -303,7 +303,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
             
             PetscTools::ReplicateException(true);
             // Re-throw
-            EventHandler::Reset();//EndEvent(EVERYTHING);
+            EventHandler::Reset();//EndEvent(EventHandler::EVERYTHING);
             
             CloseFilesAndPostProcess();
             throw e;
@@ -328,10 +328,10 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
             }
 
             // Writing data out to the file <mOutputFilenamePrefix>.dat
-            EventHandler::BeginEvent(WRITE_OUTPUT);
+            EventHandler::BeginEvent(EventHandler::WRITE_OUTPUT);
             mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
             WriteOneStep(stepper.GetTime(), mSolution);
-            EventHandler::EndEvent(WRITE_OUTPUT);
+            EventHandler::EndEvent(EventHandler::WRITE_OUTPUT);
         }
         
         progress_reporter.Update(stepper.GetTime());
@@ -345,7 +345,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
     // close the file that stores voltage values
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
-    EventHandler::EndEvent(EVERYTHING);
+    EventHandler::EndEvent(EventHandler::EVERYTHING);
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -360,7 +360,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostProcess()
     mpWriter->Close();
     delete mpWriter;
 
-    EventHandler::BeginEvent(USER2); //Temporarily using USER2 to instrument post-processing
+    EventHandler::BeginEvent(EventHandler::USER2); //Temporarily using USER2 to instrument post-processing
     // Only if results files were written and we are outputting all nodes
     if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
     {
@@ -379,7 +379,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostProcess()
             HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
         }
     }
-    EventHandler::EndEvent(USER2); //Temporarily using USER2 to instrument post-processing
+    EventHandler::EndEvent(EventHandler::USER2); //Temporarily using USER2 to instrument post-processing
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>

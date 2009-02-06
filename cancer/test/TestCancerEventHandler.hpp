@@ -41,64 +41,64 @@ public:
 
     void TestEvents() throw(Exception)
     {
-        CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
+        CancerEventHandler::BeginEvent(CancerEventHandler::EVERYTHING);
         
-        CancerEventHandler::BeginEvent(SETUP);
+        CancerEventHandler::BeginEvent(CancerEventHandler::SETUP);
         for (unsigned i=0; i<1000000; i++)
         {
             // do nothing
         }
-        CancerEventHandler::EndEvent(SETUP);
+        CancerEventHandler::EndEvent(CancerEventHandler::SETUP);
 
-        CancerEventHandler::BeginEvent(DEATH);
+        CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
         }
-        CancerEventHandler::EndEvent(DEATH);
+        CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
 
-        CancerEventHandler::BeginEvent(BIRTH);
+        CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
         for (unsigned i=0; i<20000000; i++)
         {
             // do nothing
         }
-        CancerEventHandler::EndEvent(BIRTH);
-        CancerEventHandler::BeginEvent(UPDATE);
+        CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
+        CancerEventHandler::BeginEvent(CancerEventHandler::UPDATE);
         for (unsigned i=0; i<30000000; i++)
         {
             // do nothing
         }
-        CancerEventHandler::EndEvent(UPDATE);
+        CancerEventHandler::EndEvent(CancerEventHandler::UPDATE);
 
-        CancerEventHandler::BeginEvent(TESSELLATION);
+        CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
         }        
-        CancerEventHandler::EndEvent(TESSELLATION);
+        CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
 
-        CancerEventHandler::BeginEvent(FORCE);
+        CancerEventHandler::BeginEvent(CancerEventHandler::FORCE);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
         }        
-        CancerEventHandler::EndEvent(FORCE);
+        CancerEventHandler::EndEvent(CancerEventHandler::FORCE);
 
-        CancerEventHandler::BeginEvent(POSITION);
+        CancerEventHandler::BeginEvent(CancerEventHandler::POSITION);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
         }        
-        CancerEventHandler::EndEvent(POSITION);
+        CancerEventHandler::EndEvent(CancerEventHandler::POSITION);
 
-        CancerEventHandler::BeginEvent(OUTPUT);
+        CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
         }        
-        CancerEventHandler::EndEvent(OUTPUT);
+        CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
 
-        CancerEventHandler::EndEvent(CANCER_EVERYTHING);
+        CancerEventHandler::EndEvent(CancerEventHandler::EVERYTHING);
 
         CancerEventHandler::Headings();
 

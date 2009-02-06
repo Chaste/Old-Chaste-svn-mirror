@@ -40,24 +40,24 @@ public:
 
     void TestEvents() throw(Exception)
     {
-        EventHandler::BeginEvent(EVERYTHING);
-        EventHandler::BeginEvent(SOLVE_ODES);
+        EventHandler::BeginEvent(EventHandler::EVERYTHING);
+        EventHandler::BeginEvent(EventHandler::SOLVE_ODES);
         for (unsigned i=0; i<1000000; i++);
-        EventHandler::EndEvent(SOLVE_ODES);
+        EventHandler::EndEvent(EventHandler::SOLVE_ODES);
 
-        EventHandler::BeginEvent(READ_MESH);
+        EventHandler::BeginEvent(EventHandler::READ_MESH);
         for (unsigned i=0; i<10000000; i++);
-        EventHandler::EndEvent(READ_MESH);
+        EventHandler::EndEvent(EventHandler::READ_MESH);
 
-        EventHandler::BeginEvent(COMMUNICATION);
+        EventHandler::BeginEvent(EventHandler::COMMUNICATION);
         for (unsigned i=0; i<20000000; i++);
 
-        EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
+        EventHandler::BeginEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
         for (unsigned i=0; i<30000000; i++);
-        EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
+        EventHandler::EndEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
 
-        EventHandler::EndEvent(COMMUNICATION);
-        EventHandler::EndEvent(EVERYTHING);
+        EventHandler::EndEvent(EventHandler::COMMUNICATION);
+        EventHandler::EndEvent(EventHandler::EVERYTHING);
 
         EventHandler::Headings();
 
@@ -75,16 +75,15 @@ public:
         std::cout.flush();
         std::cerr.flush();
         
-        EventHandler::BeginEvent(EVERYTHING);
-        EventHandler::BeginEvent(READ_MESH);
+        EventHandler::BeginEvent(EventHandler::EVERYTHING);
+        EventHandler::BeginEvent(EventHandler::READ_MESH);
         if (PetscTools::GetMyRank() != PetscTools::NumProcs()-1)
         {
             for (unsigned i=0; i<20000000; i++);
         }
-        EventHandler::EndEvent(READ_MESH);
+        EventHandler::EndEvent(EventHandler::READ_MESH);
 
-
-        EventHandler::EndEvent(EVERYTHING);
+        EventHandler::EndEvent(EventHandler::EVERYTHING);
 
         EventHandler::Headings();
 
@@ -95,12 +94,12 @@ public:
     void TestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EVERYTHING));
+        TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EventHandler::EVERYTHING));
 
-        EventHandler::BeginEvent(EVERYTHING);
+        EventHandler::BeginEvent(EventHandler::EVERYTHING);
 
         // should not be able to begin that has already begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EVERYTHING));
+        TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EventHandler::EVERYTHING));
     }
     
  };

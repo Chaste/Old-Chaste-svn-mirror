@@ -32,28 +32,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GenericEventHandler.hpp"
 
-typedef enum EventType_
+class EventHandler : public GenericEventHandler<11, EventHandler>
 {
-    READ_MESH=0,
-    ASSEMBLE_SYSTEM,
-    SOLVE_ODES,
-    COMMUNICATION,
-    ASSEMBLE_RHS,
-    NEUMANN_BCS,
-    SOLVE_LINEAR_SYSTEM,
-    WRITE_OUTPUT,
-    USER1,
-    USER2,
-    EVERYTHING
-} EventType;
-
-
-class EventNames
-{
-    public:
-    const static char* EVENT_NAME[11];
+public:
+    const static char* EventName[11];
+    
+    typedef enum
+    {
+        READ_MESH=0,
+        ASSEMBLE_SYSTEM,
+        SOLVE_ODES,
+        COMMUNICATION,
+        ASSEMBLE_RHS,
+        NEUMANN_BCS,
+        SOLVE_LINEAR_SYSTEM,
+        WRITE_OUTPUT,
+        USER1,
+        USER2,
+        EVERYTHING
+    } EventType;
 };
-
-typedef GenericEventHandler<11, EventNames::EVENT_NAME> EventHandler;
 
 #endif /*EVENTHANDLER_HPP_*/

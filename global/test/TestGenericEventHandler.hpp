@@ -32,16 +32,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GenericEventHandler.hpp"
 
-typedef enum EventType_
+class AnEventHandler : public GenericEventHandler<3, AnEventHandler>
 {
-    TEST1=0,
-    TEST2,
-    TEST3,
-} EventType;
+public:
+    static const char* EventName[3];
+    
+    typedef enum
+    {
+        TEST1=0,
+        TEST2,
+        TEST3,
+    } EventType;
+};
 
-const char* EVENT_NAME[] = { "Test1", "Test2", "Test3"};
-
-typedef GenericEventHandler<3, EVENT_NAME> AnEventHandler;
+const char* AnEventHandler::EventName[] = { "Test1", "Test2", "Test3"};
 
 
 class TestGenericEventHandler : public CxxTest::TestSuite
@@ -50,16 +54,16 @@ public:
 
     void TestEvents() throw(Exception)
     {
-        AnEventHandler::BeginEvent(TEST1);
-        AnEventHandler::BeginEvent(TEST2);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         for (unsigned i=0; i<1000000; i++);
-        AnEventHandler::EndEvent(TEST2);
+        AnEventHandler::EndEvent(AnEventHandler::TEST2);
 
-        AnEventHandler::BeginEvent(TEST3);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST3);
         for (unsigned i=0; i<1000000; i++);
-        AnEventHandler::EndEvent(TEST3);
+        AnEventHandler::EndEvent(AnEventHandler::TEST3);
 
-        AnEventHandler::EndEvent(TEST1);
+        AnEventHandler::EndEvent(AnEventHandler::TEST1);
 
         AnEventHandler::Headings();
 
@@ -71,54 +75,53 @@ public:
 
     void TestEventExceptions() throw(Exception)
     {
-        // should not be able to end and event that has not yet begun
-        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::EndEvent(TEST1));
+        // should not be able to end an event that has not yet begun
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::EndEvent(AnEventHandler::TEST1));
 
-        AnEventHandler::BeginEvent(TEST1);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
 
         // should not be able to begin that has already begun
-        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::BeginEvent(TEST1));
-
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::BeginEvent(AnEventHandler::TEST1));
     }
 
     void TestReset()
     {
-        AnEventHandler::Reset();
         // clear up from previous test
-        AnEventHandler::BeginEvent(TEST1);
-        AnEventHandler::BeginEvent(TEST2);
+        AnEventHandler::Reset();
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         AnEventHandler::Reset();
         // one can now being these events again because the state of the event handler was reset.
-        AnEventHandler::BeginEvent(TEST1);
-        AnEventHandler::BeginEvent(TEST2);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST2);
     }
 
     void TestDisable()
     {
         AnEventHandler::Reset();
         AnEventHandler::Disable();
-        AnEventHandler::BeginEvent(TEST1);
-        AnEventHandler::BeginEvent(TEST1); // OK because event handling is disabled
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1); // OK because event handling is disabled
         AnEventHandler::Enable();
     }
 
     void TestElapsedTime()
     {
         AnEventHandler::Reset();
-        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(TEST1), 0.0);
-        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(TEST2), 0.0);
-        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(TEST3), 0.0);
+        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST1), 0.0);
+        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 0.0);
+        TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST3), 0.0);
         
-        AnEventHandler::BeginEvent(TEST1);
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         long dummy = 1;
         for (unsigned i=0; i<1e9; i++)
         {
             dummy += 2;
         }
         TS_ASSERT_LESS_THAN(0l, dummy); // try to avoid the loop being optimised away
-        TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));
-        AnEventHandler::EndEvent(TEST1);
-        TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(TEST1));
+        TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
+        AnEventHandler::EndEvent(AnEventHandler::TEST1);
+        TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
     }
 };
 

@@ -30,24 +30,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GenericEventHandler.hpp"
 
-typedef enum MechanicsEventType_
+class MechanicsEventHandler : public GenericEventHandler<7,MechanicsEventHandler>
 {
-    ASSEMBLE=0,
-    SOLVE,
-    UPDATE,
-    ALL_MECH,
-    NON_MECH,
-    OUTPUT,
-    ALL
-} MechanicsEventType;
+public:
+    typedef enum
+    {
+        ASSEMBLE=0,
+        SOLVE,
+        UPDATE,
+        ALL_MECH,
+        NON_MECH,
+        OUTPUT,
+        ALL
+    } MechanicsEventType;
 
-
-class MechanicsEventNames
-{
-    public:
-    const static char* EVENT_NAME[9];
+    const static char* EventName[7];
 };
-
-typedef GenericEventHandler<7,MechanicsEventNames::EVENT_NAME> MechanicsEventHandler;
 
 #endif /*MECHANICSEVENTHANDLER_HPP_*/

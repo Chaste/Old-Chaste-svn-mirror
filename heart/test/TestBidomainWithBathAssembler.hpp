@@ -165,7 +165,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         
         // Prevent an EventHandling exception in later tests
-        EventHandler::EndEvent(EVERYTHING);
+        EventHandler::EndEvent(EventHandler::EVERYTHING);
     }
  
     

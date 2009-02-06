@@ -262,7 +262,7 @@ protected:
                 static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
             }
             
-            //EventHandler::BeginEvent(USER1); //Temporarily using USER1 to instrument the Compute.. terms
+            //EventHandler::BeginEvent(EventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
 
             ////////////////////////////////////////////////////////////
@@ -277,7 +277,7 @@ protected:
             {
                 noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             }
-            //EventHandler::EndEvent(USER1); //Temporarily using USER1 to instrument the Compute.. terms
+            //EventHandler::EndEvent(EventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
         }
     }
 
@@ -378,14 +378,14 @@ protected:
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
-        EventType assemble_event;
+        EventHandler::EventType assemble_event;
         if(assembleMatrix)
         {
-            assemble_event = ASSEMBLE_SYSTEM;
+            assemble_event = EventHandler::ASSEMBLE_SYSTEM;
         }
         else
         {
-            assemble_event = ASSEMBLE_RHS;
+            assemble_event = EventHandler::ASSEMBLE_RHS;
         }
 
         // Check we've actually been asked to do something!
@@ -407,9 +407,9 @@ protected:
         // AssembleOnElement
         if (currentSolutionOrGuess != NULL)
         {
-            EventHandler::BeginEvent(COMMUNICATION);
+            EventHandler::BeginEvent(EventHandler::COMMUNICATION);
             this->mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolutionOrGuess);
-            EventHandler::EndEvent(COMMUNICATION);
+            EventHandler::EndEvent(EventHandler::COMMUNICATION);
         }
 
 

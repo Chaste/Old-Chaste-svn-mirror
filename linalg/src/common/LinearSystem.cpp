@@ -603,9 +603,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     
     try
     {
-        EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
+        EventHandler::BeginEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
-        EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
+        EventHandler::EndEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
 
         // Check that solver converged and throw if not
         KSPConvergedReason reason;

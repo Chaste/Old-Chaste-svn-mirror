@@ -74,7 +74,7 @@ protected:
         // Prepare and Finalize
         this->PrepareForAssembleSystem(currentSolution, time);
 
-        EventHandler::BeginEvent(ASSEMBLE_RHS);
+        EventHandler::BeginEvent(EventHandler::ASSEMBLE_RHS);
 
         (*(this->GetLinearSystem()))->ZeroRhsVector();
 
@@ -92,7 +92,7 @@ protected:
         // Prepare and Finalise
         this->FinaliseAssembleSystem(currentSolution, time);
 
-        EventHandler::EndEvent(ASSEMBLE_RHS);
+        EventHandler::EndEvent(EventHandler::ASSEMBLE_RHS);
     }
 
 public:

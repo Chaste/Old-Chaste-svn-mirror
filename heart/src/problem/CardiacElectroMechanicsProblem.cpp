@@ -171,7 +171,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
 {
     // Start-up mechanics event handler..
     MechanicsEventHandler::Reset();
-    MechanicsEventHandler::BeginEvent(ALL);
+    MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ALL);
     // disable the electric event handler, because we use a problem class but
     // don't call Solve, so we would have to worry about starting and ending any
     // events in AbstractCardiacProblem::Solve() (esp. calling EndEvent(EVERYTHING))
@@ -383,7 +383,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         std::cout << "\n\n ** Current time = " << stepper.GetTime();
 
         LOG(2, "  Solving electrics");
-        MechanicsEventHandler::BeginEvent(NON_MECH);
+        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::NON_MECH);
         for(unsigned i=0; i<mNumElecTimestepsPerMechTimestep; i++)
         {
             double current_time = stepper.GetTime() + i*mElectricsTimeStep;
@@ -439,7 +439,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         
         // set [Ca]
         mpCardiacMechAssembler->SetIntracellularCalciumConcentrations(intracellular_Ca);
-        MechanicsEventHandler::EndEvent(NON_MECH);
+        MechanicsEventHandler::EndEvent(MechanicsEventHandler::NON_MECH);
 
 
         // solve the mechanics
@@ -447,9 +447,9 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
         mpCardiacMechAssembler->SetWriteOutput(false);
 
-        MechanicsEventHandler::BeginEvent(ALL_MECH);
+        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ALL_MECH);
         mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
-        MechanicsEventHandler::EndEvent(ALL_MECH);
+        MechanicsEventHandler::EndEvent(MechanicsEventHandler::ALL_MECH);
 
         LOG(2, "    Number of newton iterations = " << mpCardiacMechAssembler->GetNumNewtonIterations());
 
@@ -458,7 +458,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         counter++;
 
         // output the results
-        MechanicsEventHandler::BeginEvent(OUTPUT);
+        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::OUTPUT);
         if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
         {
             LOG(2, "  Writing output");
@@ -478,7 +478,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
                 WriteWatchedLocationData(stepper.GetTime(), voltage);
             }
         }
-        MechanicsEventHandler::EndEvent(OUTPUT);
+        MechanicsEventHandler::EndEvent(MechanicsEventHandler::OUTPUT);
 
 //// when using *Cinverse* in electrics
 //        // setup the Cinverse data;
@@ -521,7 +521,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     VecDestroy(voltage);
     delete p_electrics_assembler;
 
-    MechanicsEventHandler::EndEvent(ALL);
+    MechanicsEventHandler::EndEvent(MechanicsEventHandler::ALL);
 }
 
 

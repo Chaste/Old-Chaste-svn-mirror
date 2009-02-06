@@ -225,9 +225,9 @@ protected:
         /////////////////////////////////////////////////////////////
         // Assemble Jacobian (and preconditioner)
         ///////////////////////////////////////////////////////////// 
-        MechanicsEventHandler::BeginEvent(ASSEMBLE);
+        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ASSEMBLE);
         AssembleSystem(true, true);
-        MechanicsEventHandler::EndEvent(ASSEMBLE);
+        MechanicsEventHandler::EndEvent(MechanicsEventHandler::ASSEMBLE);
         //Timer::PrintAndReset("AssembleSystem");
 
 
@@ -237,7 +237,7 @@ protected:
         // don't call Solve on the linear_system as we want to
         // set Petsc options..
         ///////////////////////////////////////////////////////////// 
-        MechanicsEventHandler::BeginEvent(SOLVE);
+        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
         // solve using an umfpack (in dealii) direct solve..
@@ -275,7 +275,7 @@ protected:
 
         ReplicatableVector update(solution);
 #endif
-        MechanicsEventHandler::EndEvent(SOLVE);
+        MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
         ///////////////////////////////////////////////////////////////////////////
         // Update the solution
@@ -290,7 +290,7 @@ protected:
         // time, then s=0.9. If the norm of the residual increases, we assume
         // s=1 is the best. Otherwise, check s=0.8 to see if s=0.9 is a local min. 
         ///////////////////////////////////////////////////////////////////////////
-        MechanicsEventHandler::BeginEvent(UPDATE);
+        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::UPDATE);
         std::vector<double> old_solution(mNumDofs);
         for(unsigned i=0; i<mNumDofs; i++)
         {
@@ -427,7 +427,7 @@ protected:
 //            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
 //#endif
 //        }
-        MechanicsEventHandler::EndEvent(UPDATE);
+        MechanicsEventHandler::EndEvent(MechanicsEventHandler::UPDATE);
 
 
 #ifndef ___USE_DEALII_LINEAR_SYSTEM___

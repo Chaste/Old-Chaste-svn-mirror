@@ -33,27 +33,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A cancer event class that can be used to calculate the time taken to 
  * execute various parts of a tissue simulation. 
- */ 
-typedef enum CancerEventType_
+ */
+class CancerEventHandler : public GenericEventHandler<9, CancerEventHandler>
 {
-    SETUP=0,
-    DEATH,
-    BIRTH,
-    UPDATE,
-    TESSELLATION,
-    FORCE,
-    POSITION,
-    OUTPUT,
-    CANCER_EVERYTHING
-} CancerEventType;
-
-
-class CancerEventNames
-{
-    public:
-    const static char* EVENT_NAME[9];
+public:
+    const static char* EventName[9];
+ 
+    typedef enum
+    {
+        SETUP=0,
+        DEATH,
+        BIRTH,
+        UPDATE,
+        TESSELLATION,
+        FORCE,
+        POSITION,
+        OUTPUT,
+        EVERYTHING
+    } CancerEventType;
 };
 
-typedef GenericEventHandler<9,CancerEventNames::EVENT_NAME> CancerEventHandler;
 
 #endif /*CANCEREVENTHANDLER_HPP_*/

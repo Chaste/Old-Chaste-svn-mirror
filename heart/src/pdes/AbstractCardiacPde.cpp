@@ -202,7 +202,7 @@ AbstractCardiacCell* AbstractCardiacPde<SPACE_DIM>::GetCardiacCell( unsigned glo
 template <unsigned SPACE_DIM>
 void AbstractCardiacPde<SPACE_DIM>::SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
 {
-    EventHandler::BeginEvent(SOLVE_ODES);
+    EventHandler::BeginEvent(EventHandler::SOLVE_ODES);
 
     DistributedVector dist_solution(currentSolution);
     DistributedVector::Stripe voltage(dist_solution, 0);
@@ -228,17 +228,17 @@ void AbstractCardiacPde<SPACE_DIM>::SolveCellSystems(Vec currentSolution, double
         // update the Iionic and stimulus caches
         UpdateCaches(index.Global, index.Local, nextTime);
     }
-    EventHandler::EndEvent(SOLVE_ODES);
+    EventHandler::EndEvent(EventHandler::SOLVE_ODES);
 
     PetscTools::ReplicateException(false);
 
-    EventHandler::BeginEvent(COMMUNICATION);
+    EventHandler::BeginEvent(EventHandler::COMMUNICATION);
     if ((mDoCacheReplication)||mDoOneCacheReplication)
     {
         ReplicateCaches();
         mDoOneCacheReplication=false;
     }
-    EventHandler::EndEvent(COMMUNICATION);
+    EventHandler::EndEvent(EventHandler::COMMUNICATION);
 }
 
 template <unsigned SPACE_DIM>

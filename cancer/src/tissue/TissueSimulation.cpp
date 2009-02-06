@@ -404,8 +404,8 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
 template<unsigned DIM>
 void TissueSimulation<DIM>::Solve()
 {
-    CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
-    CancerEventHandler::BeginEvent(SETUP);
+    CancerEventHandler::BeginEvent(CancerEventHandler::EVERYTHING);
+    CancerEventHandler::BeginEvent(CancerEventHandler::SETUP);
 
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -479,7 +479,7 @@ void TissueSimulation<DIM>::Solve()
                                  mOutputCellCyclePhases,
                                  mOutputCellAncestors);
 
-    CancerEventHandler::EndEvent(SETUP);
+    CancerEventHandler::EndEvent(CancerEventHandler::SETUP);
 
     // Initialise a vector of forces on node
     std::vector<c_vector<double, DIM> > forces(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
@@ -495,20 +495,20 @@ void TissueSimulation<DIM>::Solve()
         /////////////////////////
         // Remove dead cells
         /////////////////////////
-        CancerEventHandler::BeginEvent(DEATH);
+        CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
         unsigned deaths_this_step = DoCellRemoval();
         mNumDeaths += deaths_this_step;
         LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
-        CancerEventHandler::EndEvent(DEATH);
+        CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
 
         /////////////////////////
         // Divide cells
         /////////////////////////
-        CancerEventHandler::BeginEvent(BIRTH);
+        CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
         unsigned births_this_step = DoCellBirth();
         mNumBirths += births_this_step;
         LOG(1, "\tNum births = " << mNumBirths << "\n");
-        CancerEventHandler::EndEvent(BIRTH);
+        CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
 
         ////////////////////////////
         // Update topology of tissue
@@ -536,19 +536,19 @@ void TissueSimulation<DIM>::Solve()
         }
 
         // Update the topology of the tissue (and tessellate if needed)
-        CancerEventHandler::BeginEvent(UPDATE);
+        CancerEventHandler::BeginEvent(CancerEventHandler::UPDATE);
         if (mUpdateTissue)
         {
             LOG(1, "\tUpdating tissue...");
             mrTissue.Update();
             LOG(1, "\tdone.\n");
         }
-        CancerEventHandler::EndEvent(UPDATE);
+        CancerEventHandler::EndEvent(CancerEventHandler::UPDATE);
 
         /////////////////////////
         // Calculate Forces
         /////////////////////////
-        CancerEventHandler::BeginEvent(FORCE);
+        CancerEventHandler::BeginEvent(CancerEventHandler::FORCE);
 
         // First set all the forces to zero
         for (unsigned i=0; i<forces.size(); i++)
@@ -570,14 +570,14 @@ void TissueSimulation<DIM>::Solve()
         {
             (*iter)->AddForceContribution(forces, mrTissue);
         }
-        CancerEventHandler::EndEvent(FORCE);
+        CancerEventHandler::EndEvent(CancerEventHandler::FORCE);
 
         ////////////////////////////
         // Update node positions
         ////////////////////////////
-        CancerEventHandler::BeginEvent(POSITION);
+        CancerEventHandler::BeginEvent(CancerEventHandler::POSITION);
         UpdateNodePositions(forces);
-        CancerEventHandler::EndEvent(POSITION);
+        CancerEventHandler::EndEvent(CancerEventHandler::POSITION);
 
         //////////////////////////////////////////
         // PostSolve, which may be implemented by
@@ -592,7 +592,7 @@ void TissueSimulation<DIM>::Solve()
         ////////////////////////////
         // Output current results
         ////////////////////////////
-        CancerEventHandler::BeginEvent(OUTPUT);
+        CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
 
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
@@ -604,13 +604,13 @@ void TissueSimulation<DIM>::Solve()
                                          mOutputCellAncestors);
         }
 
-        CancerEventHandler::EndEvent(OUTPUT);
+        CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
 
     }
 
     AfterSolve();
 
-    CancerEventHandler::BeginEvent(OUTPUT);
+    CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
     mrTissue.CloseOutputFiles(mOutputCellMutationStates,
                               mOutputCellTypes,
                               mOutputCellVariables,
@@ -620,9 +620,9 @@ void TissueSimulation<DIM>::Solve()
     *mpSetupFile << "Complete\n";
     mpSetupFile->close();
 
-    CancerEventHandler::EndEvent(OUTPUT);
+    CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
 
-    CancerEventHandler::EndEvent(CANCER_EVERYTHING);
+    CancerEventHandler::EndEvent(CancerEventHandler::EVERYTHING);
 }
 
 
@@ -632,15 +632,15 @@ void TissueSimulation<DIM>::AfterSolve()
     LOG(1, "--TIME = " << SimulationTime::Instance()->GetTime() << "\n");
 
     // Remove dead cells then implement cell birth
-    CancerEventHandler::BeginEvent(DEATH);
+    CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
     mNumDeaths += DoCellRemoval();
     LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
-    CancerEventHandler::EndEvent(DEATH);
+    CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
 
-    CancerEventHandler::BeginEvent(BIRTH);
+    CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
     mNumBirths += DoCellBirth();
     LOG(1, "\tNum births = " << mNumBirths << "\n");
-    CancerEventHandler::EndEvent(BIRTH);
+    CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
 
     // Carry out a final tissue update if necessary
     if (mrTissue.HasMesh())

@@ -319,7 +319,7 @@ void MeshBasedTissue<DIM>::Update()
 
     // Tessellate if needed
 
-    CancerEventHandler::BeginEvent(TESSELLATION);
+    CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
 
     if (   GetWriteVoronoiData()
         || UseAreaBasedDampingConstant()
@@ -327,7 +327,7 @@ void MeshBasedTissue<DIM>::Update()
     {
         CreateVoronoiTessellation();
     }
-    CancerEventHandler::EndEvent(TESSELLATION);
+    CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
 }
 
 template<unsigned DIM>
