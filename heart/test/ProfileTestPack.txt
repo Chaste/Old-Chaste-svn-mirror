@@ -4,4 +4,4 @@ Test3dBidomainProblemForEfficiency.hpp
 Test3dBidomainProblemForEfficiencyWithFasterOdes.hpp
 Test3dBidomainProblemWithMetisForEfficiency.hpp
 Test3dBidomainProblemWithPermForEfficiency.hpp
-TestConvergenceEfficiency.hpp
+convergence/TestConvergenceEfficiency.hpp

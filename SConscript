@@ -45,7 +45,9 @@ files, _ = SConsTools.FindSourceFiles('src')
 # Look for source files that tests depend on under test/.
 # We also need to add any subfolders to the CPPPATH, so they are searched
 # for #includes.
-testsource, test_cpppath = SConsTools.FindSourceFiles('test', ignoreDirs=['data'])
+testsource, test_cpppath = SConsTools.FindSourceFiles('test',
+                                                      ignoreDirs=['data'],
+                                                      includeRoot=True)
 
 os.chdir(curdir)
 

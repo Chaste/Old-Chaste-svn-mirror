@@ -169,7 +169,7 @@ def FindTestsToRun(build, BUILD_TARGETS,
     checking BUILD_TARGETS) then search for all tests listed in the test packs
     specified by build.TestPacks().
 
-    Returns an iterable of header file leaf names.
+    Returns an iterable of header file leaf paths (relative to the test folder).
     """
     testfiles = set()
     # Check arguments
