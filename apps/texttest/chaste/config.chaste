@@ -29,9 +29,12 @@ default:$CHASTE_TEST_OUTPUT/texttest_output
 default:$CHASTE_TEST_OUTPUT/texttest_reports
 
 [run_dependent_text]
+#Filter out lines with timing information
 output:(seconds)
 #Filter out uname
 output:comlab.ox.ac.uk
+#Filter out uname on server -- it doesn't give back a FQDN
+output:chaste-bob
 #Filter out revision and build details
 output:from revision number
 results_h5:HDF5
