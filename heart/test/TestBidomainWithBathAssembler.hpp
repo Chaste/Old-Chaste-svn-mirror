@@ -428,7 +428,6 @@ public:
     void TestMatrixBasedAssembledBath(void)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms
                 
         // need to create a cell factory but don't want any intra stim, so magnitude
         // of stim is zero.                        
@@ -473,7 +472,7 @@ public:
             matrix_based_bido.Initialise();
             matrix_based_bido.Solve();
             
-            Timer::PrintAndReset("Matrix based");
+            Timer::PrintAndReset("2D Matrix based");
         }
         
         ///////////////////////////////////////////////////////////////////
@@ -508,7 +507,7 @@ public:
             non_matrix_based_bido.Initialise();
             non_matrix_based_bido.Solve();
             
-            Timer::Print("Non matrix based");
+            Timer::Print("2D non matrix based");
         }
 
         ///////////////////////////////////////////////////////////////////
