@@ -42,63 +42,12 @@ VertexBasedTissueForce<DIM>::~VertexBasedTissueForce()
 
 
 template<unsigned DIM>
-c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetDeformationForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
-{
-    // Compute the area of the element and its gradient at this node
-    double element_area = pElement->GetArea();
-    c_vector<double, DIM> area_gradient = pElement->GetAreaGradientAtNode(localIndex);
-    
-    /*
-     * Get the target area of the cell. This grows linearly from 0.5*A to A
-     * during the G1 phase of the cell cycle, then remains at A for the rest
-     * of the cell cycle, where A denotes the cancer parameter mMatureCellTargetArea.
-     */
-
-    // Helper variable that is a static cast of the tissue
-    //VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
-    
-    double cell_target_area = CancerParameters::Instance()->GetMatureCellTargetArea();
-
-//////// This is to have cells grow once they have divided i think we want to have cells grow before - see #852 //    
-//    double cell_age = p_tissue->rGetCellUsingLocationIndex(pElement->GetIndex())->GetAge();
-//    double cell_type = p_tissue->rGetCellUsingLocationIndex(pElement->GetIndex())->GetCellType();
-//    double g1_duration = p_tissue->rGetCellUsingLocationIndex(pElement->GetIndex())->GetCellCycleModel->GetG1Duration();
-//
-//    if ( (cell_type!=DIFFERENTIATED) && (cell_age<g1_duration) )
-//    {
-//        cell_target_area *= 0.5*(1 + cell_age/g1_duration);
-//    }
-//    
-    return -2*CancerParameters::Instance()->GetDeformationEnergyParameter()*(element_area - cell_target_area)*area_gradient;
-}
-
-
-template<unsigned DIM>
-c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetMembraneForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
-{
-    // Compute the perimeter of the element and its gradient at this node
-    double element_perimeter = pElement->GetPerimeter();
-    c_vector<double, DIM> perimeter_gradient = pElement->GetPerimeterGradientAtNode(localIndex);
-
-    // \todo this needs to vary with cell age like the area in GetDeformationForceContributionAtNode() - see #852
-    double target_perimeter = 2*sqrt(M_PI*CancerParameters::Instance()->GetMatureCellTargetArea());
-
-    return -2*CancerParameters::Instance()->GetMembraneSurfaceEnergyParameter()*(element_perimeter - target_perimeter)*perimeter_gradient;      
-}
-
-
-template<unsigned DIM>
-c_vector<double, DIM> VertexBasedTissueForce<DIM>::GetAdhesionForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement)
-{
-    /// \todo code up this method (see #861)
-    return zero_vector<double>(DIM);
-}
-
-
-template<unsigned DIM>
 void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                        AbstractTissue<DIM>& rTissue)
 {
+    // Helper instance of CancerParameters
+    CancerParameters *p_params = CancerParameters::Instance();
+
     // Helper variable that is a static cast of the tissue
     VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
     
@@ -133,20 +82,62 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
              iter != containing_elem_indices.end();
              ++iter)
         {
+            // Get this element and its index
+            VertexElement<DIM, DIM>* p_element = p_tissue->GetElement(*iter);
+            unsigned element_index = p_element->GetIndex();
+
             // Find the local index of this node in this element
             unsigned local_index = 0;
-            while (p_tissue->GetElement(*iter)->GetNodeGlobalIndex(local_index) != node_index)
+            while (p_element->GetNodeGlobalIndex(local_index) != node_index)
             {
                 local_index++;
             }
 
-            // Compute force contributions from cell deformation energy, 
-            // membrane surface tension energy and a cell-cell adhesion energy
-            
-            //\todo ticket861 need to uncomment these
-            deformation_contribution += GetDeformationForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
-            membrane_surface_tension_contribution += GetMembraneForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
-            //cell_cell_adhesion_contribution += GetAdhesionForceContributionAtNode(local_index, p_tissue->GetElement(*iter));
+
+            /******** Start of deformation force calculation ********/
+
+            // Compute the area of this element and its gradient at this node
+            double element_area = p_element->GetArea();
+            c_vector<double, DIM> element_area_gradient = p_element->GetAreaGradientAtNode(local_index);
+
+            /*
+             * Get the target area of the cell. This grows linearly from 0.5*A to A
+             * during the G1 phase of the cell cycle, then remains at A for the rest
+             * of the cell cycle, where A denotes the cancer parameter mMatureCellTargetArea.
+             */
+            double cell_target_area = p_params->GetMatureCellTargetArea();
+            double cell_age = p_tissue->rGetCellUsingLocationIndex(element_index).GetAge();
+            double cell_type = p_tissue->rGetCellUsingLocationIndex(element_index).GetCellType();
+            double g1_duration = p_tissue->rGetCellUsingLocationIndex(element_index).GetCellCycleModel()->GetG1Duration();
+
+            if ( (cell_type!=DIFFERENTIATED) && (cell_age<g1_duration) )
+            {
+                cell_target_area *= 0.5*(1 + cell_age/g1_duration);
+            }
+
+            // Add the force contribution from this cell's deformation energy (note the minus sign)
+            deformation_contribution += -2*p_params->GetDeformationEnergyParameter()*(element_area - cell_target_area)*element_area_gradient;
+
+            /******** End of membrane force calculation *************/
+
+
+            /******** Start of membrane force calculation ***********/
+
+            // Compute the perimeter of the element and its gradient at this node
+            double element_perimeter = p_element->GetPerimeter();
+            c_vector<double, DIM> element_perimeter_gradient = p_element->GetPerimeterGradientAtNode(local_index);
+
+            // Get the target perimeter of the cell
+            double cell_target_perimeter = 2*sqrt(M_PI*cell_target_area);
+
+            // Add the force contribution from this cell's membrane surface tension (note the minus sign)
+            membrane_surface_tension_contribution += -2*p_params->GetMembraneSurfaceEnergyParameter()*(element_perimeter - cell_target_perimeter)*element_perimeter_gradient;
+            /******** End of deformation force calculation **********/
+
+
+            /******** Start of adhesion force calculation ***********/
+            /// \todo code this up (#861)
+            /******** End of adhesion force calculation *************/
         }
          
         c_vector<double, DIM> force_on_node = deformation_contribution + 

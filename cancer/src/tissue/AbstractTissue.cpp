@@ -95,12 +95,6 @@ std::list<TissueCell>& AbstractTissue<DIM>::rGetCells()
 }
 
 template<unsigned DIM>
-const std::list<TissueCell>& AbstractTissue<DIM>::rGetCells() const
-{
-    return this->mCells;
-}
-
-template<unsigned DIM>
 bool AbstractTissue<DIM>::HasMesh()
 {
     return mTissueContainsMesh;

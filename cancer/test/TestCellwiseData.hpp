@@ -83,11 +83,11 @@ public:
 
         p_data->SetValue(1.23, mesh.GetNode(0));
         AbstractTissue<2>::Iterator iter = tissue.Begin();
-        TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 1.23, 1e-12);
+        TS_ASSERT_DELTA(p_data->GetValue(&(*iter)), 1.23, 1e-12);
 
         p_data->SetValue(2.23, mesh.GetNode(1));
         ++iter;
-        TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 2.23, 1e-12);
+        TS_ASSERT_DELTA(p_data->GetValue(&(*iter)), 2.23, 1e-12);
 
         // Test ReallocateMemory method
         TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
@@ -99,6 +99,18 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory());
         TS_ASSERT_EQUALS(p_data->mData.size(), tissue.rGetMesh().GetNumNodes());
+       
+        // Coverage
+        std::vector<double> constant_value;
+        constant_value.push_back(1.579);
+        p_data->SetConstantDataForTesting(constant_value);
+        
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {
+            TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), 1.579, 1e-12);
+        }
 
         p_data->Destroy();
 
@@ -117,16 +129,16 @@ public:
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
         AbstractTissue<2>::Iterator iter2 = tissue.Begin();
 
-        TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
+        TS_ASSERT_DELTA(p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
 
         p_data->SetValue(4.23, mesh.GetNode(1), 1);
         ++iter2;
 
-        TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 4.23, 1e-12);
+        TS_ASSERT_DELTA(p_data->GetValue(&(*iter2), 1), 4.23, 1e-12);
 
         // Other values should have been initialised to zero
         ++iter2;
-        TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_data->GetValue(&(*iter2), 0), 0.0, 1e-12);
 
         // Tidy up
         CellwiseData<2>::Destroy();

@@ -62,7 +62,7 @@ private:
         MeshBasedTissue<DIM> tissue(mesh, cells);
 
         TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(),cells.size());
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), cells.size());
 
         unsigned counter = 0;
         for (typename AbstractTissue<DIM>::Iterator cell_iter = tissue.Begin();
@@ -92,7 +92,6 @@ public:
         TestSmallMeshBasedTissue<3>("mesh/test/data/cube_136_elements");
     }
 
-
     void TestValidateMeshBasedTissue()
     {
         // Create a simple mesh
@@ -113,7 +112,7 @@ public:
             cells.push_back(cell);
         }
 
-        // Fails as no cell or ghost corresponding to node 0
+        // Fails as no cell corresponding to node 0
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
 
         // Add another cell
@@ -234,11 +233,11 @@ public:
         // Fails as the tissue constructor is not given the location indices
         // corresponding to real cells, so cannot work out which nodes are
         // ghost nodes
-        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells));
+        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells));
         
         // Passes as the tissue constructor automatically works out which 
         // cells are ghost nodes using the mesh and cell_location_indices
-        TS_ASSERT_THROWS_NOTHING(MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells, cell_location_indices));
+        TS_ASSERT_THROWS_NOTHING(MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells, cell_location_indices));
     }
 
     // Test with ghost nodes, checking that the Iterator doesn't loop over ghost nodes
@@ -409,7 +408,8 @@ public:
              ++cell_iter)
         {
             unsigned node_index = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
-            double area = tissue.rGetVoronoiTessellation().GetFaceArea(node_index);
+            VoronoiTessellation<2>& tess = tissue.rGetVoronoiTessellation();
+            double area = tess.GetFaceArea(node_index);
             TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
         }
     }
@@ -722,7 +722,6 @@ public:
         }
     }
 
-    // Test update ghost node positions
     void TestOutputWriters()
     {
         // Create a simple mesh
@@ -730,11 +729,15 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-
+        cells[0].SetCellType(APOPTOTIC); // coverage
         MeshBasedTissue<2> tissue(mesh,cells);
+        
+        // Create tissue
+        tissue.SetWriteTissueAreas(true); // coverage
 
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
@@ -748,9 +751,10 @@ public:
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cancer/test/data/TestTissueWriters/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cancer/test/data/TestTissueWriters/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cancer/test/data/TestTissueWriters/tissueareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
         c_vector<unsigned,5> cell_mutation_states = tissue.GetCellMutationStateCount();
@@ -760,12 +764,12 @@ public:
             TS_ASSERT_EQUALS(cell_mutation_states[i], 0u);
         }
 
-        // Test the GetCellTypeCount function - we should just have stem cells
+        // Test the GetCellTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
         c_vector<unsigned,5> cell_types = tissue.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cell_types[0], 5u);
+        TS_ASSERT_EQUALS(cell_types[0], 4u);
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);
-        TS_ASSERT_EQUALS(cell_types[3], 0u);
+        TS_ASSERT_EQUALS(cell_types[3], 1u);
     }
 
     void TestSpringIterator2d() throw(Exception)

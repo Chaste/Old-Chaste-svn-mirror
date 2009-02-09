@@ -55,39 +55,6 @@ private:
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);          
     }
 
-    /** 
-     * Compute the force contribution on given node from the 
-     * deformation energy of a given vertex element.
-     * 
-     * @param localIndex local index of the node within the vertex element
-     * @param pElement pointer to the vertex element
-     * 
-     * @return the force contribution.
-     */
-    c_vector<double, DIM> GetDeformationForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
-
-    /** 
-     * Compute the force contribution on given node from the 
-     * membrane surface tension of a given vertex element.
-     * 
-     * @param localIndex local index of the node within the vertex element
-     * @param pElement pointer to the vertex element
-     * 
-     * @return the force contribution.
-     */
-    c_vector<double, DIM> GetMembraneForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
-
-    /** 
-     * Compute the force contribution on given node from the 
-     * cell-cell adhesion energy of a given vertex element.
-     * 
-     * @param localIndex local index of the node within the vertex element
-     * @param pElement pointer to the vertex element
-     * 
-     * @return the force contribution.
-     */
-    c_vector<double, DIM> GetAdhesionForceContributionAtNode(unsigned localIndex, VertexElement<DIM, DIM>* pElement);
-
 public:
 
     /**

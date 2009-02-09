@@ -104,7 +104,6 @@ public:
         TestSimpleNodeBasedTissue<3>("mesh/test/data/cube_136_elements");
     }
 
-
     void TestOtherNodeBasedTissueConstructor()
     {
         // Create a simple mesh
@@ -131,23 +130,57 @@ public:
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), nodes.size());
         TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), cells.size());
+        
+        // For coverage, test that tissue constructor with 3rd argument locationIndices throws
+        // an exception when the size of locationIndices does not equal the number of cells
+        std::vector<unsigned> location_indices;
+        location_indices.push_back(0);
+        location_indices.push_back(1);
+        location_indices.push_back(2);
+        
+        TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(nodes, cells, location_indices));
     }
 
-//    void TestValidate()
-//    {
-//        // Create a simple mesh
-//        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-//        TetrahedralMesh<2,2> mesh;
-//        mesh.ConstructFromMeshReader(mesh_reader);
-//
-//        // Set up cells, one for each node. Get each a birth time of -node_index,
-//        // so the age = node_index
-//        std::vector<TissueCell> cells = SetUpCells(&mesh);
-//        cells[0].SetLocationIndex(1);
-//
-//        // Fails as no cell or ghost corresponding to node 0
-//        TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(mesh, cells));
-//    }
+    void TestValidateNodeBasedTissue()
+    {
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells, one for each node apart from one.
+        // Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
+        {
+            AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
+            TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+            double birth_time = 0.0 - i;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Get a std::vector of nodes from the mesh
+        std::vector<Node<2>* > nodes;
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            Node<2>* p_node = new Node<2>(*(mesh.GetNode(i)));
+            nodes.push_back(p_node);
+        }
+        // Fails as no cell corresponding to node 0
+        TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> tissue(nodes, cells));
+
+        // Add another cell
+        AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
+        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+        double birth_time = -4.0;
+        cell.SetBirthTime(birth_time);
+        cells.push_back(cell);
+
+        TS_ASSERT_THROWS_NOTHING(NodeBasedTissue<2> tissue(nodes, cells));
+    }
 
     void TestAddCell()
     {
@@ -236,6 +269,24 @@ public:
         node_based_tissue.mNodes.pop_back();
         delete p_node;
 
+        // Remove a cell so as to populate mDeletedNodeIndices (for coverage)
+        node_based_tissue.rGetCellUsingLocationIndex(0).Kill();
+        node_based_tissue.RemoveDeadCells();
+
+        // Test AddNode again
+
+        ChastePoint<2> new_point2;
+        new_point2.rGetLocation()[0] = 0.51;
+        new_point2.rGetLocation()[1] = 0.52;
+
+        num_nodes = node_based_tissue.GetNumNodes();
+        Node<2>* p_node2 = new Node<2>(num_nodes, new_point2, false);
+        new_node_index = node_based_tissue.AddNode(p_node2);
+
+        TS_ASSERT_EQUALS(new_node_index, 0u);
+        TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[0], 0.51, 1e-12);
+        TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[1], 0.52, 1e-12);
+
         // Test AddCell
 
         unsigned old_num_nodes = node_based_tissue.rGetNodes().size();
@@ -254,7 +305,7 @@ public:
         // Tissue should have updated nodes and cells
         TS_ASSERT_EQUALS(node_based_tissue.GetNumNodes(), old_num_nodes+1);
         TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), old_num_cells+1);
-        TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), old_num_nodes+1);
+        TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), old_num_nodes);
 
         // Check the location of the new node
         TS_ASSERT_DELTA(node_based_tissue.GetNode(old_num_nodes)->rGetLocation()[0], 2.0, 1e-12);

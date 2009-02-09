@@ -70,6 +70,7 @@ private:
     }
 
 public:
+
     void TestDoCellBirth() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");

@@ -138,11 +138,6 @@ public:
     std::list<TissueCell>& rGetCells();
 
     /**
-     * @return const reference to mCells (used in archiving).
-     */
-    const std::list<TissueCell>& rGetCells() const;
-
-    /**
      * @return whether the tissue contains a mesh.
      */
     bool HasMesh();
@@ -389,8 +384,7 @@ public:
                                      bool outputCellTypes,
                                      bool outputCellVariables,
                                      bool outputCellCyclePhases,
-                                     bool outputCellAncestors)
-    {}
+                                     bool outputCellAncestors)=0;
 
     /**
      * Write the current time and node results to output files.
@@ -625,7 +619,7 @@ AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<Tissu
     : mrTissue(rTissue),
       mCellIter(cellIter)
 {
-    // The tissue can now return empty if it only has ghost nodes.
+    // The tissue can now return empty if it only has ghost nodes
     if (mrTissue.rGetCells().size() == 0)
     {
         mCellIter = mrTissue.rGetCells().end();
