@@ -69,7 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // are defined in RunAndCheckIonicModels.hpp
 
 class TestIonicModels : public CxxTest::TestSuite
-{
+{     
 public:
     void TestOdeSolveForNoble98WithSimpleStimulus(void)
     {   
@@ -617,6 +617,9 @@ public:
                                  true);
         //Check against validated data (checked against CellML code of the model for an epicardial cell)
         CheckCellModelResults("TenTusscher");
+        
+         //Test the GetIIonic method against one hardcoded value.
+        TS_ASSERT_DELTA( TT_model.GetIIonic(), 0.0976, 1e-3);    
      }
 
 
