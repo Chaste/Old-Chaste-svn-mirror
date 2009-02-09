@@ -198,6 +198,7 @@ for src_file in src_files:
                             (src_line_stripped.startswith('return') and
                              src_line_stripped[6] in [';', ' ']) or
                             src_line_stripped.startswith('assert(DIM') or
+                            src_line_stripped.startswith('template class ') or #gcov bug
                             (src_line_stripped.startswith('catch ') and #Line is catch(...)
                              src_line_stripped[-1] == ')')
                              or (len(src_line_stripped)>0 and src_line_stripped[-1] == ')') ): #Method definition (possibly). Currently overlaps with previous 'catch' ignore

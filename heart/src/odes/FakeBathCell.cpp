@@ -34,6 +34,7 @@ FakeBathCell::FakeBathCell(AbstractIvpOdeSolver *pSolver,
                            AbstractStimulusFunction *pExtracellularStimulus)
     : AbstractCardiacCell(pSolver, 0, 0, pIntracellularStimulus, pExtracellularStimulus)
 {
+    mpSystemInfo = OdeSystemInformation<FakeBathCell>::Instance();
     // Make GetVoltage() return something sensible.
     rGetStateVariables().push_back(0.0);
 }
