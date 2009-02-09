@@ -85,12 +85,15 @@ protected:
         MatMult(*mpMatrixForMatrixBasedRhsAssembly, mVectorForMatrixBasedRhsAssembly, (*(this->GetLinearSystem()))->rGetRhsVector()); 
 
         // apply boundary conditions
-        this->ApplyNeummanBoundaryConditions();
+        this->ApplyNeummanBoundaryConditions();        
+        (*(this->GetLinearSystem()))->AssembleRhsVector();
+        
         this->ApplyDirichletConditions(currentSolution, false);
 
         // as bypassing AssembleSystem, need to make sure we call 
         // Prepare and Finalise
         this->FinaliseAssembleSystem(currentSolution, time);
+        (*(this->GetLinearSystem()))->AssembleRhsVector();
 
         EventHandler::EndEvent(EventHandler::ASSEMBLE_RHS);
     }

@@ -34,122 +34,102 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartRegionCodes.hpp"
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
-    BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
+/////////////////////////////////////////////////////////////////////
+// BidomainWithBathRhsMatrixAssembler
+/////////////////////////////////////////////////////////////////////
+
+template<unsigned DIM>
+c_matrix<double,2*(DIM+1),2*(DIM+1)> BidomainWithBathRhsMatrixAssembler<DIM>::ComputeMatrixTerm(
+            c_vector<double, DIM+1> &rPhi,
+            c_matrix<double, DIM, DIM+1> &rGradPhi,
+            ChastePoint<DIM> &rX,
             c_vector<double,2> &u,
-            c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+            c_matrix<double,2,DIM> &rGradU /* not used */,
+            Element<DIM,DIM>* pElement)
 {
-    if (pElement->GetRegion() == HeartRegionCode::TISSUE) // ie if a tissue element
-    {
-        return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
-    }
-    else // bath element
-    {
-         
-        ///\todo: the conductivity here is hardcoded to be 7!   also see hardcoded value in TS_ASSERT in Test1dProblemOnlyBathGroundedOneSide
-        double bath_cond=HeartConfig::Instance()->GetBathConductivity(); 
-        const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = bath_cond*identity_matrix<double>(SPACE_DIM);
+    c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1), 2*(DIM+1));
 
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_b_grad_phi =
-            prod(trans(rGradPhi), temp);
-
-        c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ret = zero_matrix<double>(2*(ELEMENT_DIM+1));
-
+    if (pElement->GetRegion() == HeartRegionCode::TISSUE)
+    {          
+        c_matrix<double, DIM+1, DIM+1> basis_outer_prod = outer_prod(rPhi, rPhi);
+ 
         // even rows, even columns
-        //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-        //slice00(ret, slice (0, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
-        //slice00 = 0;
+        matrix_slice<c_matrix<double, 2*DIM+2, 2*DIM+2> >
+        slice00(ret, slice (0, 2, DIM+1), slice (0, 2, DIM+1));
+        slice00 =  basis_outer_prod;
 
-        // odd rows, even columns
-        //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-        //slice10(ret, slice (1, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
-        //slice10 = 0
-
-        // even rows, odd columns
-        //matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-        //slice01(ret, slice (0, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
-        //slice01 = 0;
-
-        // odd rows, odd columns
-        matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
-        slice11(ret, slice (1, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
-        slice11 = grad_phi_sigma_b_grad_phi;
-
-        return ret;
+        // odd rows, even columns: are zero
+        // even rows, odd columns: are zero
+        // odd rows, odd columns: are zero
     }
+
+    return ret;
 }
 
+template<unsigned DIM>
+c_vector<double,2*(DIM+1)> BidomainWithBathRhsMatrixAssembler<DIM>::ComputeVectorTerm(
+    c_vector<double, DIM+1> &rPhi,
+    c_matrix<double, DIM, DIM+1> &rGradPhi,
+    ChastePoint<DIM> &rX,
+    c_vector<double,2> &u,
+    c_matrix<double, 2, DIM> &rGradU /* not used */,
+    Element<DIM,DIM>* pElement)
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2*(ELEMENT_DIM+1)>
-    BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,2> &u,
-            c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    if (pElement->GetRegion() == HeartRegionCode::TISSUE) // ie if a tissue element
-    {
-        return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
-    }
-    else // bath element
-    {
-        c_vector<double,2*(ELEMENT_DIM+1)> ret = zero_vector<double>(2*(ELEMENT_DIM+1));
-
-        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
-        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
-
-        // u(0) = voltage
-       // noalias(slice_V)   =  0; 
-        noalias(slice_Phi) =  -this->mIExtracellularStimulus * rPhi;
-
-        return ret;
-    }
+    #define COVERAGE_IGNORE
+    NEVER_REACHED;
+    return zero_vector<double>(2*(DIM+1));
+    #undef COVERAGE_IGNORE
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
-            Vec currentSolutionOrGuess,
-            double currentTime,
-            bool assembleVector, bool assembleMatrix)
+template<unsigned DIM>
+c_vector<double, 2*DIM> BidomainWithBathRhsMatrixAssembler<DIM>::ComputeVectorSurfaceTerm(
+    const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
+    c_vector<double, DIM> &rPhi,
+    ChastePoint<DIM> &rX )
 {
-    for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-    {
-        if(this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // ie is a bath node
-        {
-            PetscInt index[1];
-            index[0] = 2*i;
-
-            if(assembleMatrix)
-            {
-                // zero the row corresponding to V for this bath node
-                (*(this->GetLinearSystem()))->ZeroMatrixRow(2*i);
-                // zero the column corresponding to V for this bath node.
-                (*(this->GetLinearSystem()))->ZeroMatrixColumn(2*i);
-
-                // put 1.0 on the diagonal
-                Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
-                MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
-            }
-            
-            if(assembleVector)
-            {
-                // zero rhs vector entry
-                VecSetValue((*(this->GetLinearSystem()))->rGetRhsVector(), index[0], 0.0, INSERT_VALUES);
-            }
-        }
-    }
+    #define COVERAGE_IGNORE
+    NEVER_REACHED;
+    return zero_vector<double>(2*DIM);
+    #undef COVERAGE_IGNORE
 }
 
+
+template<unsigned DIM>
+BidomainWithBathRhsMatrixAssembler<DIM>::BidomainWithBathRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh)
+    : AbstractLinearAssembler<DIM,DIM,2,false,BidomainWithBathRhsMatrixAssembler<DIM> >()
+{
+    this->mpMesh = pMesh;
+
+    // this needs to be set up, though no boundary condition values are used in the matrix
+    this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,2>;
+    this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
+
+    //DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes()); WOULD BE WRONG -- we need the maintain an uneven distribution, if given
+    Vec template_vec = DistributedVector::CreateVec(2);
+    this->mpLinearSystem = new LinearSystem(template_vec);
+    VecDestroy(template_vec);
+
+
+    this->AssembleSystem(false,true);
+}
+
+template<unsigned DIM>
+BidomainWithBathRhsMatrixAssembler<DIM>::~BidomainWithBathRhsMatrixAssembler()
+{
+    delete this->mpBoundaryConditions;
+}
+
+template<unsigned DIM>
+Mat* BidomainWithBathRhsMatrixAssembler<DIM>::GetMatrix()
+{
+    return &(this->mpLinearSystem->rGetLhsMatrix());
+}
+
+/////////////////////////////////////////////////////////////////////
+// BidomainMatrixBasedAssembler
+/////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathMatrixBasedAssembler(
@@ -157,9 +137,69 @@ BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathMat
             BidomainPde<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)
-    : BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
-{        
+    : BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints), 
+      BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints),
+      BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
+      
+    
+{
+    // construct matrix using the helper class
+    mpBidomainWithBathRhsMatrixAssembler = new BidomainWithBathRhsMatrixAssembler<SPACE_DIM>(pMesh);
+    this->mpMatrixForMatrixBasedRhsAssembly = mpBidomainWithBathRhsMatrixAssembler->GetMatrix();
+    
+    /// \todo: at this point we'll have a BidomainWithBathRhsMatrixAssembler object and a BidomainRhsMatrixAssembler 
+    /// object in memory. This is a waste of memory since both construct and store a matrix for RHS assembly.          
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::~BidomainWithBathMatrixBasedAssembler()
+{
+    delete mpBidomainWithBathRhsMatrixAssembler;    
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(
+        Vec currentSolution)
+{
+    // dist stripe for the current Voltage
+    DistributedVector distributed_current_solution(currentSolution);
+    DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0); 
+         
+    // dist stripe for z
+    DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);     
+    DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
+    DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
+
+    double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
+    double Cm  = HeartConfig::Instance()->GetCapacitance();
+    
+    for (DistributedVector::Iterator index = DistributedVector::Begin();
+         index!= DistributedVector::End();
+         ++index)
+    {
+        if(this->mpMesh->GetNode(index.Global)->GetRegion() == HeartRegionCode::TISSUE)
+        {
+            double V = distributed_current_solution_vm[index];
+            double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
+                       - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global]; 
+            
+            dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
+        }
+        else
+        {
+            dist_vec_matrix_based_vm[index] = 0.0;
+        } 
+
+        dist_vec_matrix_based_phie[index] = 0.0;
+    }
+
+    dist_vec_matrix_based.Restore();
+    
+    VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
+    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly); 
+}
+
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
@@ -168,3 +208,7 @@ BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathMat
 template class BidomainWithBathMatrixBasedAssembler<1,1>;
 template class BidomainWithBathMatrixBasedAssembler<2,2>;
 template class BidomainWithBathMatrixBasedAssembler<3,3>;
+
+template class BidomainWithBathRhsMatrixAssembler<1>;
+template class BidomainWithBathRhsMatrixAssembler<2>;
+template class BidomainWithBathRhsMatrixAssembler<3>;

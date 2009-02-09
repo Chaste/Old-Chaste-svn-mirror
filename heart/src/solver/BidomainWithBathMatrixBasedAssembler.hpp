@@ -32,53 +32,114 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define BIDOMAINWITHBATHMATRIXBASEDASSEMBLER_HPP_
 
 #include "BidomainDg0Assembler.hpp"
+#include "BidomainMatrixBasedAssembler.hpp"
+#include "BidomainWithBathAssembler.hpp" 
 #include "HeartConfig.hpp"
+
+/**
+ *  BidomainWithBathRhsMatrixAssembler
+ * 
+ *  This class only exists to construct a matrix, the matrix which is used
+ *  to assemble the RHS in monodomain problems. Therefore, although it inherits
+ *  from the assembler hierachy, it is not an assembler for any particular 
+ *  PDE problem, it is just used to assemble one matrix. Therefore only
+ *  ConstructMatrixTerm is properly implemented.
+ * 
+ *  The matrix that is constructed is in fact the mass matrix for a 2-unknown problem.
+ *  ie ***IF*** the unknowns were ordered [V1 V2 .. V_N phi_e1 ... phi_eN ], the matrix would
+ *  be 
+ *  [M 0]
+ *  [0 0]
+ *  where
+ *  M_ij = integral over TISSUE elements phi_i phi_j dV, where phi_k is the k-th basis function
+ */
+template<unsigned DIM>
+class BidomainWithBathRhsMatrixAssembler 
+    : public AbstractLinearAssembler<DIM, DIM, 2, false, BidomainWithBathRhsMatrixAssembler<DIM> >
+    /// \todo: make this class inherit from BidomainRhsMatrixAssembler
+    //    : public BidomainRhsMatrixAssembler<DIM>
+{
+public:
+    static const unsigned E_DIM = DIM;
+    static const unsigned S_DIM = DIM;
+    static const unsigned P_DIM = 2u;
+
+    /**
+     *  Integrand in matrix definition integral (see class documentation)
+     */
+    virtual c_matrix<double,2*(DIM+1),2*(DIM+1)> ComputeMatrixTerm(
+        c_vector<double, DIM+1> &rPhi,
+        c_matrix<double, DIM, DIM+1> &rGradPhi,
+        ChastePoint<DIM> &rX,
+        c_vector<double,2> &u,
+        c_matrix<double,2,DIM> &rGradU /* not used */,
+        Element<DIM,DIM>* pElement);
+
+    /**
+     *  The term to be added to the element stiffness vector - except this class
+     *  is only used for constructing a matrix so this is never called.
+     */
+    virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(
+        c_vector<double, DIM+1> &rPhi,
+        c_matrix<double, DIM, DIM+1> &rGradPhi,
+        ChastePoint<DIM> &rX,
+        c_vector<double,2> &u,
+        c_matrix<double, 2, DIM> &rGradU /* not used */,
+        Element<DIM,DIM>* pElement);
+
+    /**
+     *  The term arising from boundary conditions to be added to the element
+     *  stiffness vector - except this class is only used fpr constructing a matrix 
+     *  so this is never called.
+     */
+    virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(
+        const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
+        c_vector<double, DIM> &rPhi,
+        ChastePoint<DIM> &rX );
+        
+public:
+    /**
+     * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
+     */
+    BidomainWithBathRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
+
+    ~BidomainWithBathRhsMatrixAssembler();
+    
+    /** 
+     *  Allow access to the matrix
+     */
+    Mat* GetMatrix();
+};
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainWithBathMatrixBasedAssembler
-    : public BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
+    : public BidomainMatrixBasedAssembler<ELEMENT_DIM, SPACE_DIM>, 
+      public BidomainWithBathAssembler<ELEMENT_DIM, SPACE_DIM>
 {
+protected:
+    /// \todo: Once BidomainWithBathRhsMatrixAssembler inherits from BidomainRhsMatrixAssembler we'll be able to reuse the pointer in BidomainMatrixBasedAssembler
+    BidomainWithBathRhsMatrixAssembler<SPACE_DIM>* mpBidomainWithBathRhsMatrixAssembler;      
+    
 public:
 
-    /**
-     *  ComputeMatrixTerm()
-     *
-     *  This method is called by AssembleOnElement() and tells the assembler
-     *  the contribution to add to the element stiffness matrix.
-     */
-    virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeMatrixTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &u,
-        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-
-    virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &u,
-        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-    /**
-     *  This alters the linear system so that all rows and columns corresponding to 
-     *  bath nodes voltages are zero, except for the diagonal (set to 1). The
-     *  corresponding rhs vector entry is also set to 0, so the equation for the
-     *  bath node voltage is 1*V = 0.
-     */
-    void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix);
-
-public:
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
      */
     BidomainWithBathMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                              BidomainPde<SPACE_DIM>* pPde,
-                              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
-                              unsigned numQuadPoints = 2);
+                                 BidomainPde<SPACE_DIM>* pPde,
+                                 BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
+                                 unsigned numQuadPoints = 2);
+
+    ~BidomainWithBathMatrixBasedAssembler();
+    
+
+    /**
+     *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class 
+     *  documentation.
+     */
+    void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
+
 };
 
 #endif /*BIDOMAINWITHBATHMATRIXBASEDASSEMBLER_HPP_*/

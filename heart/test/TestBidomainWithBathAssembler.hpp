@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "EventHandler.hpp"
 #include "HeartRegionCodes.hpp"
+#include "Timer.hpp"
 
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
 
@@ -427,6 +428,7 @@ public:
     void TestMatrixBasedAssembledBath(void)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms
                 
         // need to create a cell factory but don't want any intra stim, so magnitude
         // of stim is zero.                        
@@ -448,6 +450,7 @@ public:
         BidomainProblem<2> matrix_based_bido( &cell_factory, true );
 
         {
+            Timer::Reset();
             TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
             TetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(reader);
@@ -469,6 +472,8 @@ public:
             matrix_based_bido.SetMesh(&mesh);
             matrix_based_bido.Initialise();
             matrix_based_bido.Solve();
+            
+            Timer::PrintAndReset("Matrix based");
         }
         
         ///////////////////////////////////////////////////////////////////
@@ -502,6 +507,8 @@ public:
             non_matrix_based_bido.UseMatrixBasedRhsAssembly(false);
             non_matrix_based_bido.Initialise();
             non_matrix_based_bido.Solve();
+            
+            Timer::Print("Non matrix based");
         }
 
         ///////////////////////////////////////////////////////////////////

@@ -144,9 +144,21 @@ struct AssemblerTraits<BidomainRhsMatrixAssembler<DIM> >
  *  nodewise vectors of ionic currents and stimulus currents (and C is the capacitance and
  *  A surface-area-to-volume ratio). 
  */
+ 
+// IMPORTANT NOTE: the inheritance of BidomainMatrixBasedAssembler has to be 'virtual'
+// because BidomainDg0Assembler will be the top class in a 'dreaded diamond':
+//      A
+//     / \     A = BidomainDg0Assembler, B = BidomainWithBathAssembler,
+//    B   C    C = BidomainMatrixBasedAssembler, D = BidomainWithBathMatrixBasedAssembler
+//     \ /
+//      D
+//
+// B and C must use virtual inheritence of A in order for D to only contain 1 instance
+// of the member variables in A
+ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainMatrixBasedAssembler
-    : public BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
+    : public virtual BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
     BidomainRhsMatrixAssembler<SPACE_DIM>* mpBidomainRhsMatrixAssembler;
@@ -167,7 +179,7 @@ public:
      *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class 
      *  documentation.
      */
-    void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
+    virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
 };
 
 /**
