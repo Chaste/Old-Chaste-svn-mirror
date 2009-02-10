@@ -620,6 +620,11 @@ public:
         
          //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA( TT_model.GetIIonic(), 0.0976, 1e-3);    
+        
+        //Test the GetIIonic method against one hardcoded value for initial values of voltage 
+        //(mainly for coverage of different if conditions in sodium channel gates for different voltages) 
+        TenTusscher2006OdeSystem TT_model_initial(&solver, &stimulus);
+        TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0002 , 1e-3);
      }
 
 
