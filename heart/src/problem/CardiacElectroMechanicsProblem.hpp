@@ -26,11 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-//// TODO: 
-//     more tests 
-//     use direct solver
-//     go through and tidy/refactor, perhaps make elements and weights safer
-
 
 #ifndef CARDIACELECTROMECHANICSPROBLEM_HPP_
 #define CARDIACELECTROMECHANICSPROBLEM_HPP_
@@ -49,9 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "NodewiseData.hpp"
 
 
-/* todos:
- *
- * think about architecture (of AbstractCardiacProblem) when this is done properly..
+/* Todos:
+ *  Go through and tidy/refactor, perhaps make elements and weights safer
+ *  Think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
 
 
