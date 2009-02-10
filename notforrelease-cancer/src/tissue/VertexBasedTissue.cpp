@@ -268,6 +268,22 @@ void VertexBasedTissue<DIM>::Validate()
 
 
 template<unsigned DIM>
+double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
+{
+    double cell_target_area = CancerParameters::Instance()->GetMatureCellTargetArea();
+    double cell_age = rCell.GetAge();
+    double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
+
+    if ( (rCell.GetCellType()!=DIFFERENTIATED) && (cell_age<g1_duration) )
+    {
+        cell_target_area *= 0.5*(1 + cell_age/g1_duration);
+    }
+    
+    return cell_target_area;
+}
+
+
+template<unsigned DIM>
 void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                                  bool outputCellTypes,
                                                  bool outputCellVariables,

@@ -236,6 +236,17 @@ public:
      */
     virtual void Validate();
 
+    /** 
+     * Get the target area of a given cell. This grows linearly from 
+     * 0.5*A to A during the G1 phase of the cell cycle, then remains 
+     * at A for the rest of the cell cycle, where A denotes the cancer 
+     * parameter mMatureCellTargetArea.
+     * 
+     * @param rCell the cell
+     * @return the cell's target area
+     */ 
+    double GetTargetAreaOfCell(const TissueCell& rCell);
+
     /**
      * Overridden WriteMeshToFile() method. For use by
      * the TissueSimulationArchiver.

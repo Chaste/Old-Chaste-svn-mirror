@@ -65,7 +65,7 @@ private:
 public:
 
     // Test construction, accessors and iterator
-    void TestCreateSmallVertexBasedTissue() throw(Exception)
+    void TestCreateSmallVertexBasedTissue() throw (Exception)
     {
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);
@@ -105,7 +105,8 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumNodes(), mesh.GetNumNodes());
     }
 
-    void TestValidateVertexBasedTissue()
+
+    void TestValidate() throw (Exception)
     {
         // Create a simple vertex-based mesh
         VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
@@ -116,12 +117,10 @@ public:
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumElements()-1; i++)
         {
-            AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
-            TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
-            
             cell_location_indices.push_back(i);
         }
 
@@ -129,8 +128,7 @@ public:
         // does not equal the number of elements
         TS_ASSERT_THROWS_ANYTHING(VertexBasedTissue<2> tissue(mesh, cells));
 
-        AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
-        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         double birth_time = 0.0 - mesh.GetNumElements()-1;
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);        
@@ -139,7 +137,7 @@ public:
         // This should pass as the number of cells equals the number of elements
         TS_ASSERT_THROWS_NOTHING(VertexBasedTissue<2> tissue(mesh, cells));
         
-        // Create a tissue
+        // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
 
         // Check correspondence between elements and cells
@@ -149,6 +147,7 @@ public:
             std::set<unsigned> expected_node_indices;
             VertexElement<2,2>* p_expected_element = tissue.GetElement(elem_index);
             unsigned expected_index = p_expected_element->GetIndex();
+
             for (unsigned i=0; i<p_expected_element->GetNumNodes(); i++)
             {
                 expected_node_indices.insert(p_expected_element->GetNodeGlobalIndex(i));
@@ -158,6 +157,7 @@ public:
             TissueCell& r_cell = tissue.rGetCellUsingLocationIndex(elem_index);
             VertexElement<2,2>* p_actual_element = tissue.GetElementCorrespondingToCell(&r_cell);
             unsigned actual_index = p_actual_element->GetIndex();
+
             for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
             {
                 actual_node_indices.insert(p_actual_element->GetNodeGlobalIndex(i));
@@ -168,7 +168,55 @@ public:
         }
     }
 
-    void TestUpdateWithoutBirthOrDeath()
+
+    void TestGetTargetAreaOfCell() throw (Exception)
+    {
+        // Create mesh
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        std::vector<unsigned> cell_location_indices;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            CellType cell_type = STEM;
+            
+            if (i==4)
+            {
+                cell_type = DIFFERENTIATED;
+            }
+
+            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            double birth_time = 0.0 - 2*i;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+            
+            cell_location_indices.push_back(i);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+        tissue.InitialiseCells(); // this method must be called explicitly as there is no simulation
+
+        // Check GetTargetAreaOfCell()
+        for (unsigned elem_index=0; elem_index<tissue.GetNumElements(); elem_index++)
+        {
+            TissueCell cell = tissue.rGetCellUsingLocationIndex(elem_index); 
+            double expected_area = CancerParameters::Instance()->GetMatureCellTargetArea();
+            
+            if (elem_index!=4 && elem_index<=7u)
+            {
+                expected_area *= 0.5*(1 + ((double)elem_index)/7.0);          
+            }            
+            
+            double actual_area = tissue.GetTargetAreaOfCell(cell);
+            
+            TS_ASSERT_DELTA(actual_area, expected_area, 1e-12);
+        }
+    }
+
+
+    void TestUpdateWithoutBirthOrDeath() throw (Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -192,7 +240,7 @@ public:
     }
 
  
-    void TestAddCellWithSimpleMesh()
+    void TestAddCellWithSimpleMesh() throw (Exception)
     {
         // Make some nodes
         std::vector<Node<2>*> nodes;
@@ -298,7 +346,7 @@ public:
     }
 
 
-    void TestAddCellWithHoneycombMesh()
+    void TestAddCellWithHoneycombMesh() throw (Exception)
     {
         // Create a mesh with 9 elements
         VertexMesh<2,2> vertex_mesh(3, 3, 0.01, 2.0);
@@ -426,7 +474,7 @@ public:
 
     /// \todo This test currently fails, since the method RemoveDeadCells() does not yet
     // delete the elements/nodes associated with dead cells (see #853)
-    void DONTTestRemoveDeadCellsAndUpdate()
+    void DONTTestRemoveDeadCellsAndUpdate() throw (Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -490,7 +538,8 @@ public:
         TS_ASSERT_EQUALS(element_indices, expected_elem_indices);
     }
 
-    void TestVertexBasedTissueOutputWriters()
+
+    void TestVertexBasedTissueOutputWriters() throw (Exception)
     {
         // Create a simple vertex-based mesh
         VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
@@ -534,6 +583,7 @@ public:
         // For coverage
         TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles(true, false, false, true, false));
     }
+
 
     // At the moment the tissue cannot be properly archived since the mesh cannot be. This test
     // just checks that the cells are correctly archived.
@@ -626,8 +676,9 @@ public:
             delete p_tissue;
         }
     }
-    
-    void TestUpdateNodeLocations()
+
+
+    void TestUpdateNodeLocations() throw (Exception)
     {
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);

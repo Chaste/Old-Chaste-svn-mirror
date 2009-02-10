@@ -100,20 +100,8 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
             double element_area = p_element->GetArea();
             c_vector<double, DIM> element_area_gradient = p_element->GetAreaGradientAtNode(local_index);
 
-            /*
-             * Get the target area of the cell. This grows linearly from 0.5*A to A
-             * during the G1 phase of the cell cycle, then remains at A for the rest
-             * of the cell cycle, where A denotes the cancer parameter mMatureCellTargetArea.
-             */
-            double cell_target_area = p_params->GetMatureCellTargetArea();
-            double cell_age = p_tissue->rGetCellUsingLocationIndex(element_index).GetAge();
-            double cell_type = p_tissue->rGetCellUsingLocationIndex(element_index).GetCellType();
-            double g1_duration = p_tissue->rGetCellUsingLocationIndex(element_index).GetCellCycleModel()->GetG1Duration();
-
-            if ( (cell_type!=DIFFERENTIATED) && (cell_age<g1_duration) )
-            {
-                cell_target_area *= 0.5*(1 + cell_age/g1_duration);
-            }
+            // Get the target area of the cell
+            double cell_target_area = p_tissue->GetTargetAreaOfCell(p_tissue->rGetCellUsingLocationIndex(element_index));
 
             // Add the force contribution from this cell's deformation energy (note the minus sign)
             deformation_contribution += -2*p_params->GetDeformationEnergyParameter()*(element_area - cell_target_area)*element_area_gradient;
