@@ -42,10 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "MutableMesh.hpp"
 #include "CmguiWriter.hpp"
-#include <cmath>
+#include "VtkWriter.hpp"
 
-typedef TrianglesMeshReader<3,3> TRI_READ_3;
-typedef TrianglesMeshReader<2,2> TRI_READ_2;
 
 class TestMeshWriters : public CxxTest::TestSuite
 {
@@ -57,8 +55,8 @@ public:
 
         mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
-        TRI_READ_3 *p_new_mesh_reader;
-        p_new_mesh_reader = new TRI_READ_3(output_dir + "MeshFromMemfem");
+        TrianglesMeshReader<3,3> *p_new_mesh_reader;
+        p_new_mesh_reader = new TrianglesMeshReader<3,3>(output_dir + "MeshFromMemfem");
 
         delete p_new_mesh_reader;
     }
@@ -76,8 +74,8 @@ public:
         mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
-        TRI_READ_2 *p_new_mesh_reader;
-        p_new_mesh_reader = new TRI_READ_2(output_dir + "MeshFromFemlab");
+        TrianglesMeshReader<2,2> *p_new_mesh_reader;
+        p_new_mesh_reader = new TrianglesMeshReader<2,2>(output_dir + "MeshFromFemlab");
 
         delete p_new_mesh_reader;
     }
@@ -137,8 +135,8 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
-        TRI_READ_2 *p_new_mesh_reader;
-        p_new_mesh_reader = new TRI_READ_2(output_dir + "MeshFromFemlabViaMesh");
+        TrianglesMeshReader<2,2> *p_new_mesh_reader;
+        p_new_mesh_reader = new TrianglesMeshReader<2,2>(output_dir + "MeshFromFemlabViaMesh");
 
         delete p_new_mesh_reader;
     }
@@ -308,6 +306,23 @@ public:
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exnode mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exelem").c_str()), 0);
+    }
+
+    void TestVtkWriter() throw(Exception)
+    {
+#ifdef CHASTE_VTK 
+//Requires  "sudo aptitude install libvtk5-dev" or similar 
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        VtkWriter writer("TestVtkWriter", "cube_2mm_12_elements");
+        
+        TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
+#endif //CHASTE_VTK 
     }
 };
 
