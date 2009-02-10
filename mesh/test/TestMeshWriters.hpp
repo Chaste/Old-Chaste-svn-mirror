@@ -324,6 +324,41 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK 
     }
+
+
+    void TestVtkWriterWithData() throw(Exception)
+    {
+#ifdef CHASTE_VTK 
+//Requires  "sudo aptitude install libvtk5-dev" or similar 
+        TrianglesMeshReader<3,3> reader("heart/test/data/HeartDecimation_173nodes");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        VtkWriter writer("TestVtkWriter", "heart_decimation", false);
+
+        
+        //Add element quality into the element "cell" data
+        std::vector<double> quality;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            quality.push_back(mesh.GetElement(i)->CalculateQuality());
+        }
+        writer.AddCellData("Quality", quality);
+        
+        //Add distance from origin into the node "point" data
+        std::vector<double> distance;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            distance.push_back(norm_2(mesh.GetNode(i)->rGetLocation()));
+        }
+        writer.AddPointData("Distance from origin", distance);
+        
+        TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
+#endif //CHASTE_VTK 
+    }
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_

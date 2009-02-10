@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
 #include <vtkDoubleArray.h>
 #include <vtkCellData.h>
+#include <vtkPointData.h>
 #include <vtkTetra.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridWriter.h>
@@ -65,6 +66,8 @@ public:
                 const std::string &rBaseName,
                 const bool &rCleanDirectory=true);
     void WriteFiles();
+    void AddCellData(std::string name, std::vector<double> data);
+    void AddPointData(std::string name, std::vector<double> data);
     virtual ~VtkWriter()
     {}
 };
@@ -76,7 +79,9 @@ VtkWriter::VtkWriter(const std::string &rDirectory,
         : AbstractMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero=true;
-    MakeVtkMesh();
+    
+    //Dubious, since we shouldn't yet know what any details of the mesh are.
+    mpVtkUnstructedMesh=vtkUnstructuredGrid::New();
 }
 
 
@@ -91,7 +96,6 @@ void VtkWriter::MakeVtkMesh()
         p_pts->InsertPoint(item_num, current_item.data());
     }
   
-    mpVtkUnstructedMesh=vtkUnstructuredGrid::New();
     //mpVtkUnstructedMesh->Allocate(rMesh.GetNumNodes(), rMesh.GetNumNodes());
     mpVtkUnstructedMesh->SetPoints(p_pts); 
         
@@ -111,11 +115,38 @@ void VtkWriter::MakeVtkMesh()
 
 void VtkWriter::WriteFiles()
 {
+    MakeVtkMesh();
     vtkXMLUnstructuredGridWriter *p_writer = vtkXMLUnstructuredGridWriter::New();
     p_writer->SetInput(mpVtkUnstructedMesh);
     std::string vtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName+".vtu";
     p_writer->SetFileName(vtk_file_name.c_str());
     p_writer->Write();
+}
+
+void VtkWriter::AddCellData(std::string dataName, std::vector<double> dataPayload)
+{    
+    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    p_scalars->SetName(dataName.c_str());    
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        p_scalars->InsertNextValue(dataPayload[i]);
+    }
+    
+    vtkCellData *p_cell_data = mpVtkUnstructedMesh->GetCellData();
+    p_cell_data->SetScalars(p_scalars);
+}
+
+void VtkWriter::AddPointData(std::string dataName, std::vector<double> dataPayload)
+{
+    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    p_scalars->SetName(dataName.c_str());    
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        p_scalars->InsertNextValue(dataPayload[i]);
+    }
+    
+    vtkPointData *p_point_data = mpVtkUnstructedMesh->GetPointData();
+    p_point_data->SetScalars(p_scalars);
 }
 #endif //CHASTE_VTK 
 
