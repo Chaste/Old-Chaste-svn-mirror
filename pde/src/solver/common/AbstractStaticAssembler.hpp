@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 #include <iostream>
 
 #include <boost/mpl/void.hpp>
@@ -262,7 +262,7 @@ protected:
                 static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
             }
             
-            //EventHandler::BeginEvent(EventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
+            //HeartEventHandler::BeginEvent(HeartEventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
 
             ////////////////////////////////////////////////////////////
@@ -277,7 +277,7 @@ protected:
             {
                 noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             }
-            //EventHandler::EndEvent(EventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
+            //HeartEventHandler::EndEvent(HeartEventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
         }
     }
 
@@ -378,14 +378,14 @@ protected:
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
-        EventHandler::EventType assemble_event;
+        HeartEventHandler::EventType assemble_event;
         if(assembleMatrix)
         {
-            assemble_event = EventHandler::ASSEMBLE_SYSTEM;
+            assemble_event = HeartEventHandler::ASSEMBLE_SYSTEM;
         }
         else
         {
-            assemble_event = EventHandler::ASSEMBLE_RHS;
+            assemble_event = HeartEventHandler::ASSEMBLE_RHS;
         }
 
         // Check we've actually been asked to do something!
@@ -407,9 +407,9 @@ protected:
         // AssembleOnElement
         if (currentSolutionOrGuess != NULL)
         {
-            EventHandler::BeginEvent(EventHandler::COMMUNICATION);
+            HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
             this->mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolutionOrGuess);
-            EventHandler::EndEvent(EventHandler::COMMUNICATION);
+            HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
         }
 
 
@@ -426,7 +426,7 @@ protected:
 
         // this has to be below PrepareForAssembleSystem as in that
         // method the odes are solved in cardiac problems
-        EventHandler::BeginEvent(assemble_event);
+        HeartEventHandler::BeginEvent(assemble_event);
 
         // Zero the matrix/vector if it is to be assembled
         if (assembleVector)
@@ -521,7 +521,7 @@ protected:
         // required (like setting up a null basis (see BidomainDg0Assembler))
         this->FinaliseAssembleSystem(currentSolutionOrGuess, currentTime);
 
-        EventHandler::EndEvent(assemble_event);
+        HeartEventHandler::EndEvent(assemble_event);
     }
 
 

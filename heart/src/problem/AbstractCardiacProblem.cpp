@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "Exception.hpp"
 #include "HeartConfig.hpp"
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 #include "TimeStepper.hpp"
 #include "PetscTools.hpp"
 #include "DistributedVector.hpp"
@@ -63,7 +63,7 @@ AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
     mAllocatedMemoryForMesh = false;
     assert(mNodesToOutput.empty());
 
-    EventHandler::BeginEvent(EventHandler::EVERYTHING);
+    HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -102,9 +102,9 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
             mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
             mAllocatedMemoryForMesh = true;
     
-            EventHandler::BeginEvent(EventHandler::READ_MESH);
+            HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
             mpMesh->ConstructFromMeshReader(mesh_reader);
-            EventHandler::EndEvent(EventHandler::READ_MESH);              
+            HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);              
         }
         catch (Exception& e)
         {               
@@ -261,10 +261,10 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
 
     if (mPrintOutput)
     {
-        EventHandler::BeginEvent(EventHandler::WRITE_OUTPUT);
+        HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
         InitialiseWriter();
         WriteOneStep(stepper.GetTime(), initial_condition);
-        EventHandler::EndEvent(EventHandler::WRITE_OUTPUT);
+        HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
         
         progress_reporter_dir = mOutputDirectory;
     }
@@ -303,7 +303,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
             
             PetscTools::ReplicateException(true);
             // Re-throw
-            EventHandler::Reset();//EndEvent(EventHandler::EVERYTHING);
+            HeartEventHandler::Reset();//EndEvent(HeartEventHandler::EVERYTHING);
             
             CloseFilesAndPostProcess();
             throw e;
@@ -328,10 +328,10 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
             }
 
             // Writing data out to the file <mOutputFilenamePrefix>.dat
-            EventHandler::BeginEvent(EventHandler::WRITE_OUTPUT);
+            HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
             mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
             WriteOneStep(stepper.GetTime(), mSolution);
-            EventHandler::EndEvent(EventHandler::WRITE_OUTPUT);
+            HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
         }
         
         progress_reporter.Update(stepper.GetTime());
@@ -345,7 +345,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Solve()
     // close the file that stores voltage values
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
-    EventHandler::EndEvent(EventHandler::EVERYTHING);
+    HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -360,7 +360,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostProcess()
     mpWriter->Close();
     delete mpWriter;
 
-    EventHandler::BeginEvent(EventHandler::USER2); //Temporarily using USER2 to instrument post-processing
+    HeartEventHandler::BeginEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
     // Only if results files were written and we are outputting all nodes
     if (mCallChaste2Meshalyzer && mNodesToOutput.empty()) 
     {
@@ -379,7 +379,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostProcess()
             HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
         }
     }
-    EventHandler::EndEvent(EventHandler::USER2); //Temporarily using USER2 to instrument post-processing
+    HeartEventHandler::EndEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>

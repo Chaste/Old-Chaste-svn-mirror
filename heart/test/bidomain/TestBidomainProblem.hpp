@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "Hdf5DataReader.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "BidomainDg0Assembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -174,7 +174,7 @@ public:
 
     void TestBidomainDg01DMeanPhiEOverDifferentRows()
     {
-        EventHandler::Disable();
+        HeartEventHandler::Disable();
         
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
@@ -297,7 +297,7 @@ public:
 
         delete p_container;
         delete p_bidomain_assembler;
-        EventHandler::Enable();
+        HeartEventHandler::Enable();
     }
 
     /*
@@ -396,7 +396,7 @@ public:
     ///////////////////////////////////////////////////////////////////
     void TestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
     {
-        EventHandler::Disable();
+        HeartEventHandler::Disable();
 
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
         HeartConfig::Instance()->SetPdeTimeStep(0.01);
@@ -471,7 +471,7 @@ public:
         TS_ASSERT_DELTA( times[3], 0.30,  1e-12);
 
         delete p_bidomain_problem;
-        EventHandler::Enable();
+        HeartEventHandler::Enable();
     }
     
     void TestBidomainFallsOverProducesOutput()
@@ -558,7 +558,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
 
         //Explicitly reset the counters so the next test in the test suite doesn't find on
-        EventHandler::Reset();
+        HeartEventHandler::Reset();
     }
 
 

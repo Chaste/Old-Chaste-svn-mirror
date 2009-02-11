@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OrthotropicConductivityTensors.hpp"
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "FakeBathCell.hpp"
 
@@ -202,7 +202,7 @@ AbstractCardiacCell* AbstractCardiacPde<SPACE_DIM>::GetCardiacCell( unsigned glo
 template <unsigned SPACE_DIM>
 void AbstractCardiacPde<SPACE_DIM>::SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
 {
-    EventHandler::BeginEvent(EventHandler::SOLVE_ODES);
+    HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
 
     DistributedVector dist_solution(currentSolution);
     DistributedVector::Stripe voltage(dist_solution, 0);
@@ -228,17 +228,17 @@ void AbstractCardiacPde<SPACE_DIM>::SolveCellSystems(Vec currentSolution, double
         // update the Iionic and stimulus caches
         UpdateCaches(index.Global, index.Local, nextTime);
     }
-    EventHandler::EndEvent(EventHandler::SOLVE_ODES);
+    HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
 
     PetscTools::ReplicateException(false);
 
-    EventHandler::BeginEvent(EventHandler::COMMUNICATION);
+    HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     if ((mDoCacheReplication)||mDoOneCacheReplication)
     {
         ReplicateCaches();
         mDoOneCacheReplication=false;
     }
-    EventHandler::EndEvent(EventHandler::COMMUNICATION);
+    HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 }
 
 template <unsigned SPACE_DIM>

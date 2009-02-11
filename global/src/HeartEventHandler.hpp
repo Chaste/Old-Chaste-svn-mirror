@@ -27,12 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef EVENTHANDLER_HPP_
-#define EVENTHANDLER_HPP_
+#ifndef HEARTEVENTHANDLER_HPP_
+#define HEARTEVENTHANDLER_HPP_
 
 #include "GenericEventHandler.hpp"
 
-class EventHandler : public GenericEventHandler<11, EventHandler>
+class HeartEventHandler : public GenericEventHandler<11, HeartEventHandler>
 {
 public:
     const static char* EventName[11];
@@ -53,4 +53,4 @@ public:
     } EventType;
 };
 
-#endif /*EVENTHANDLER_HPP_*/
+#endif /*HEARTEVENTHANDLER_HPP_*/

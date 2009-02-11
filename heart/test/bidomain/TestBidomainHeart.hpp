@@ -111,8 +111,8 @@ public:
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
-        EventHandler::Headings();
-        EventHandler::Report();
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
     }
 
     // Creates data for the following test
@@ -155,8 +155,8 @@ public:
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
-        EventHandler::Headings();
-        EventHandler::Report();
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
     }
 };
 

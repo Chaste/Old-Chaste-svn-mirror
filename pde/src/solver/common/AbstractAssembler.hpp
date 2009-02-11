@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GaussianQuadratureRule.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 
 /**
  *  AbstractAssembler
@@ -299,7 +299,7 @@ protected:
     void ApplyNeummanBoundaryConditions()
     {
         assert(mpBoundaryConditions!=NULL);
-        EventHandler::BeginEvent(EventHandler::NEUMANN_BCS);
+        HeartEventHandler::BeginEvent(HeartEventHandler::NEUMANN_BCS);
         if (mpBoundaryConditions->AnyNonZeroNeumannConditions())
         {
             typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
@@ -319,7 +319,7 @@ protected:
                 ++neumann_iterator;
             }
         }
-        EventHandler::EndEvent(EventHandler::NEUMANN_BCS);
+        HeartEventHandler::EndEvent(HeartEventHandler::NEUMANN_BCS);
     }
     
 public:

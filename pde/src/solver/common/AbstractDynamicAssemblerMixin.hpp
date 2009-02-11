@@ -74,7 +74,7 @@ protected:
         // Prepare and Finalize
         this->PrepareForAssembleSystem(currentSolution, time);
 
-        EventHandler::BeginEvent(EventHandler::ASSEMBLE_RHS);
+        HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);
 
         (*(this->GetLinearSystem()))->ZeroRhsVector();
 
@@ -95,7 +95,7 @@ protected:
         this->FinaliseAssembleSystem(currentSolution, time);
         (*(this->GetLinearSystem()))->AssembleRhsVector();
 
-        EventHandler::EndEvent(EventHandler::ASSEMBLE_RHS);
+        HeartEventHandler::EndEvent(HeartEventHandler::ASSEMBLE_RHS);
     }
 
 public:

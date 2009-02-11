@@ -176,7 +176,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     // don't call Solve, so we would have to worry about starting and ending any
     // events in AbstractCardiacProblem::Solve() (esp. calling EndEvent(EVERYTHING))
     // if we didn't disable it.
-    EventHandler::Disable();
+    HeartEventHandler::Disable();
     
     // create the monodomain problem. Note the we use this to set up the cells,
     // get an initial condition (voltage) vector, and get an assembler. We won't

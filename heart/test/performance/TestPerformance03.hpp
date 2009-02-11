@@ -52,7 +52,7 @@ public:
     {
         // write headings
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2>::DisplayHeadings();
-        EventHandler::Headings();
+        HeartEventHandler::Headings();
 
         // base line
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
@@ -60,7 +60,7 @@ public:
         tester.MeshNum=3;
         tester.Run();
 
-        EventHandler::Report();
+        HeartEventHandler::Report();
     }
 };
 

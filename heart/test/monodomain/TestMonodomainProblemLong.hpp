@@ -138,8 +138,8 @@ public:
             TS_ASSERT_DELTA(voltage_replicated[i], -84.5, 1);
         }
 
-        EventHandler::Headings();
-        EventHandler::Report();
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
     }
 };
 #endif //_TESTMONODOMAINPROBLEMLONG_HPP_

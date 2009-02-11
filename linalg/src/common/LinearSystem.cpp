@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 #include <cassert>
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 
 
 
@@ -603,9 +603,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     
     try
     {
-        EventHandler::BeginEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
+        HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
-        EventHandler::EndEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
+        HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
         // Check that solver converged and throw if not
         KSPConvergedReason reason;

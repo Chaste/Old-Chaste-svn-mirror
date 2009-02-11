@@ -45,7 +45,7 @@ public:
     {
         EXIT_IF_PARALLEL;
 
-        EventHandler::Disable();
+        HeartEventHandler::Disable();
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 

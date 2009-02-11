@@ -53,75 +53,75 @@ public:
         PetscOptionsSetValue("-log_summary", "");
         // write headings
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3>::DisplayHeadings();
-        EventHandler::Headings();
+        HeartEventHandler::Headings();
 
         // base line test
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.MeshNum=1;
         tester.SimTime=4.0;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         // vary simulation time
         tester.SimTime=0.0025;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.SimTime=8.0;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.SimTime=4.0;
 
         // vary pde time step
         tester.PdeTimeStep=0.005;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.PdeTimeStep=0.01;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.PdeTimeStep=0.0025;
         // vary ode time step
         tester.OdeTimeStep=0.0025/2;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.OdeTimeStep=0.0025/4;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.OdeTimeStep=0.0025;
 
         // vary printing time step
         tester.PrintingTimeStep = 0.02;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.PrintingTimeStep = 0.01;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.PrintingTimeStep = 0.04;
 
         // vary mesh size
         tester.MeshNum++;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.MeshNum++;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
         tester.MeshNum++;
         tester.Run();
-        EventHandler::Report();
+        HeartEventHandler::Report();
 ///\todo
 //        Can't run mesh 5 yet: runs out of memory.
 //        tester.MeshNum++;
 //        tester.Run();
-//        EventHandler::Report();
+//        HeartEventHandler::Report();
     }
 };
 

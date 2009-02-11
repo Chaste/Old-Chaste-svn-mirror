@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A generic base class providing the functionality for timing various events.
- * Subclasses provide the event codes and names; see EventHandler for an example.
+ * Subclasses provide the event codes and names; see HeartEventHandler for an example.
  * 
  * Note: this class assume that, for any given concrete class, the last event
  * represents the total time, and thus wraps all other events.

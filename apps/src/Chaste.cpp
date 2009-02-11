@@ -340,8 +340,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         return 1;
     }
 
-    EventHandler::Headings();
-    EventHandler::Report();
+    HeartEventHandler::Headings();
+    HeartEventHandler::Report();
 
     PetscFinalize();
 

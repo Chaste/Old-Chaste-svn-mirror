@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 #include "HeartConfig.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
@@ -109,7 +109,7 @@ public:
         else
         {
             TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
-            EventHandler::Reset();
+            HeartEventHandler::Reset();
         }
     }
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
@@ -153,7 +153,7 @@ public:
         else
         {
             TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
-            EventHandler::Reset();
+            HeartEventHandler::Reset();
         }
     }
 };

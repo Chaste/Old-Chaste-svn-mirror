@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 #include "HeartRegionCodes.hpp"
 #include "Timer.hpp"
 
@@ -166,7 +166,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         
         // Prevent an EventHandling exception in later tests
-        EventHandler::EndEvent(EventHandler::EVERYTHING);
+        HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
     }
  
     

@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 
-const char* EventHandler::EventName[] =  { "InMesh", "AssSys", "Ode",
+const char* HeartEventHandler::EventName[] =  { "InMesh", "AssSys", "Ode",
                                            "Comms", "AssRhs", "NeuBCs", "Ksp",
                                            "Output", "User1", "User2", "Total" };

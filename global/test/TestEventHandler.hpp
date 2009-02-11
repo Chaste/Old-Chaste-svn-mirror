@@ -30,40 +30,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTHEARTEVENTHANDLER_HPP_
 #define TESTHEARTEVENTHANDLER_HPP_
 
-#include "EventHandler.hpp"
+#include "HeartEventHandler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
 
-class TestEventHandler : public CxxTest::TestSuite
+class TestHeartEventHandler : public CxxTest::TestSuite
 {
 public:
 
     void TestEvents() throw(Exception)
     {
-        EventHandler::BeginEvent(EventHandler::EVERYTHING);
-        EventHandler::BeginEvent(EventHandler::SOLVE_ODES);
+        HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
+        HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
         for (unsigned i=0; i<1000000; i++);
-        EventHandler::EndEvent(EventHandler::SOLVE_ODES);
+        HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
 
-        EventHandler::BeginEvent(EventHandler::READ_MESH);
+        HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
         for (unsigned i=0; i<10000000; i++);
-        EventHandler::EndEvent(EventHandler::READ_MESH);
+        HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
-        EventHandler::BeginEvent(EventHandler::COMMUNICATION);
+        HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         for (unsigned i=0; i<20000000; i++);
 
-        EventHandler::BeginEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
+        HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
         for (unsigned i=0; i<30000000; i++);
-        EventHandler::EndEvent(EventHandler::SOLVE_LINEAR_SYSTEM);
+        HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
-        EventHandler::EndEvent(EventHandler::COMMUNICATION);
-        EventHandler::EndEvent(EventHandler::EVERYTHING);
+        HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
+        HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
 
-        EventHandler::Headings();
+        HeartEventHandler::Headings();
 
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
-        EventHandler::Report();
+        HeartEventHandler::Report();
 
     }
 
@@ -75,34 +75,34 @@ public:
         std::cout.flush();
         std::cerr.flush();
         
-        EventHandler::BeginEvent(EventHandler::EVERYTHING);
-        EventHandler::BeginEvent(EventHandler::READ_MESH);
+        HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
+        HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
         if (PetscTools::GetMyRank() != PetscTools::NumProcs()-1)
         {
             for (unsigned i=0; i<20000000; i++);
         }
-        EventHandler::EndEvent(EventHandler::READ_MESH);
+        HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
-        EventHandler::EndEvent(EventHandler::EVERYTHING);
+        HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
 
-        EventHandler::Headings();
+        HeartEventHandler::Headings();
 
-        EventHandler::Report();
+        HeartEventHandler::Report();
        
     }
  
     void TestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EventHandler::EVERYTHING));
+        TS_ASSERT_THROWS_ANYTHING(HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING));
 
-        EventHandler::BeginEvent(EventHandler::EVERYTHING);
+        HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 
         // should not be able to begin that has already begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EventHandler::EVERYTHING));
+        TS_ASSERT_THROWS_ANYTHING(HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING));
     }
     
  };
 
 
-#endif /*TESTEVENTHANDLER_HPP_*/
+#endif /*TESTHEARTEVENTHANDLER_HPP_*/
