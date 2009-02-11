@@ -158,6 +158,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
 
+        std::cout << "no partitioning " << mesh.GetNumLocalNodes() << "/"  << mesh.GetNumLocalElements() << std::endl;
+
         try
         {
             ChastePoint<3> coords = mesh.GetNode(0)->GetPoint();
@@ -181,6 +183,47 @@ public:
         {
             //I'm not the owner of node 19
         }
+    }
+    
+    void TestMetisPartitioning()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 136U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 96U);
+
+        ParallelTetrahedralMesh<3,3> mesh(true);        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
+
+        std::cout << "METIS partitioning " << mesh.GetNumLocalNodes() << "/" << mesh.GetNumLocalElements() << std::endl;
+
+        try
+        {
+            ChastePoint<3> coords = mesh.GetNode(0)->GetPoint();
+            TS_ASSERT_DELTA(coords[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(coords[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(coords[2], 0.0, 1e-6);
+        }
+        catch(Exception& e)
+        {
+            //I'm not the owner of node 0
+        }
+
+        try
+        {
+            ChastePoint<3> coords = mesh.GetNode(19)->GetPoint();            
+            TS_ASSERT_DELTA(coords[0], 0.75, 1e-6);
+            TS_ASSERT_DELTA(coords[1], 0.25, 1e-6);
+            TS_ASSERT_DELTA(coords[2], 0.0, 1e-6);
+        }
+        catch(Exception& e)
+        {
+            //I'm not the owner of node 19
+        }        
     }
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/
