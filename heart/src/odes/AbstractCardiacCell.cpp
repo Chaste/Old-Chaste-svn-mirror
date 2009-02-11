@@ -33,8 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                                          unsigned numberOfStateVariables,
                                          unsigned voltageIndex,	
-                                         AbstractStimulusFunction* intracellularStimulus,
-                                         AbstractStimulusFunction* extracellularStimulus)
+                                         AbstractStimulusFunction* intracellularStimulus)
     : AbstractOdeSystem(numberOfStateVariables),
       mVoltageIndex(voltageIndex)
 {
@@ -45,7 +44,6 @@ AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
     mDt = HeartConfig::Instance()->GetOdeTimeStep();
 
     mpIntracellularStimulus = intracellularStimulus;
-    mpExtracellularStimulus = extracellularStimulus;
 
     mSetVoltageDerivativeToZero = false;
 }
@@ -126,26 +124,12 @@ double AbstractCardiacCell::GetIntracellularStimulus(double time)
     return mpIntracellularStimulus->GetStimulus(time);
 }
 
-void AbstractCardiacCell::SetExtracellularStimulusFunction(AbstractStimulusFunction *stimulus)
-{
-    mpExtracellularStimulus = stimulus;
-}
-
-double AbstractCardiacCell::GetExtracellularStimulus(double time)
-{
-    assert (HasExtracellularStimulus());
-    return mpExtracellularStimulus->GetStimulus(time);
-}
-
-bool AbstractCardiacCell::HasExtracellularStimulus()
-{
-    return mpExtracellularStimulus != NULL;
-}
 
 double AbstractCardiacCell::GetIntracellularCalciumConcentration()
 {
     EXCEPTION("AbstractCardiacCell::GetIntracellularCalciumConcentration() called. Either model has no [Ca_i] or method has not been implemented yet");
 }
+
 
 /*
  *  METHODS NEEDED BY FAST CARDIAC CELLS

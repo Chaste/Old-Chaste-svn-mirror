@@ -47,8 +47,7 @@ public:
      * Constructor uses the same signature as normal cells, for convenience.
      */
     FakeBathCell(AbstractIvpOdeSolver *pSolver,
-                 AbstractStimulusFunction *pIntracellularStimulus,
-                 AbstractStimulusFunction *pExtracellularStimulus = NULL);
+                 AbstractStimulusFunction *pIntracellularStimulus);
 
     /**
      * Destructor; does nothing.

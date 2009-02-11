@@ -57,11 +57,11 @@ public:
     {
         if (node==19)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
 

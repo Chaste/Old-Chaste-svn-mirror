@@ -75,8 +75,7 @@ public:
     AbstractBackwardEulerCardiacCell(
         unsigned numberOfStateVariables,
         unsigned voltageIndex,
-        AbstractStimulusFunction* intracellularStimulus,
-        AbstractStimulusFunction* extracellularStimulus = NULL);
+        AbstractStimulusFunction* intracellularStimulus);
 
     virtual ~AbstractBackwardEulerCardiacCell();
 
@@ -147,13 +146,11 @@ template <unsigned SIZE>
 AbstractBackwardEulerCardiacCell<SIZE>::AbstractBackwardEulerCardiacCell(
     unsigned numberOfStateVariables,
     unsigned voltageIndex,
-    AbstractStimulusFunction* intracellularStimulus,
-    AbstractStimulusFunction* extracellularStimulus)
+    AbstractStimulusFunction* intracellularStimulus)
         : AbstractCardiacCell(NULL,
                               numberOfStateVariables,
                               voltageIndex,
-                              intracellularStimulus,
-                              extracellularStimulus)
+                              intracellularStimulus)
 {}
 
 template <unsigned SIZE>

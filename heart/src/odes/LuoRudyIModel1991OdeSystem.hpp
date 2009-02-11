@@ -67,8 +67,7 @@ private:
 public:
     // Constructor
     LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                               AbstractStimulusFunction *pIntracellularStimulus,
-                               AbstractStimulusFunction *pExtracellularStimulus = NULL);
+                               AbstractStimulusFunction *pIntracellularStimulus);
                                
     // Destructor
     ~LuoRudyIModel1991OdeSystem();

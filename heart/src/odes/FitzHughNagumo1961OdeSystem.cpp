@@ -32,11 +32,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Constructor
  */
-FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
-                                                         AbstractStimulusFunction *pIntracellularStimulus,
-                                                         AbstractStimulusFunction *pExtracellularStimulus
-                                                        )
-        : AbstractCardiacCell(pOdeSolver,2,0,pIntracellularStimulus,pExtracellularStimulus)
+FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(
+        AbstractIvpOdeSolver *pOdeSolver,
+        AbstractStimulusFunction *pIntracellularStimulus)
+    : AbstractCardiacCell(pOdeSolver, 2, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<FitzHughNagumo1961OdeSystem>::Instance();
     

@@ -33,10 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /*Constructor*/
-TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                                       AbstractStimulusFunction *pIntracellularStimulus,
-                                                       AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pSolver, 19, 11, pIntracellularStimulus, pExtracellularStimulus)
+TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(
+        AbstractIvpOdeSolver *pSolver,
+        AbstractStimulusFunction *pIntracellularStimulus)
+    : AbstractCardiacCell(pSolver, 19, 11, pIntracellularStimulus)
 {
 
     mpSystemInfo = OdeSystemInformation<TenTusscher2006OdeSystem>::Instance();

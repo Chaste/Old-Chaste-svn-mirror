@@ -81,11 +81,11 @@ public:
         
         if (is_centre)
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus, this->mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus);
         }
     }
 

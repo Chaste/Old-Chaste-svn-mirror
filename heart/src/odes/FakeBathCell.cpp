@@ -30,9 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 
 FakeBathCell::FakeBathCell(AbstractIvpOdeSolver *pSolver,
-                           AbstractStimulusFunction *pIntracellularStimulus,
-                           AbstractStimulusFunction *pExtracellularStimulus)
-    : AbstractCardiacCell(pSolver, 0, 0, pIntracellularStimulus, pExtracellularStimulus)
+                           AbstractStimulusFunction *pIntracellularStimulus)
+    : AbstractCardiacCell(pSolver, 0, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<FakeBathCell>::Instance();
     // Make GetVoltage() return something sensible.

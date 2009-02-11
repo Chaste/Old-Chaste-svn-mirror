@@ -1,6 +1,5 @@
 performance/Test1dBidomainProblemForEfficiency.hpp
 bidomain/TestBidomain3D.hpp
-bidomain/TestBidomainWithShocks.hpp
 bidomain/TestBidomainWithBathAssemblerLong.hpp
 mechanics/TestCardiacElectroMechanicsProblemLong.hpp
 convergence/TestConvergenceEfficiency.hpp

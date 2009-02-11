@@ -577,9 +577,8 @@ public:
     }
 
     CML_noble_varghese_kohl_noble_1998_basic_pe_lut(AbstractIvpOdeSolver *pSolver,
-                                                    AbstractStimulusFunction *pIntracellularStimulus,
-                                                    AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 22, 0, pIntracellularStimulus, pExtracellularStimulus)
+                                                    AbstractStimulusFunction *pIntracellularStimulus)
+        : AbstractCardiacCell(pSolver, 22, 0, pIntracellularStimulus)
     {
         mpSystemInfo = OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic_pe_lut>::Instance();
 

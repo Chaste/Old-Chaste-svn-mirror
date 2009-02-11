@@ -59,11 +59,11 @@ public:
     {
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            return new CELL(this->mpSolver, mpStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, mpStimulus);
         }
         else
         {
-            return new CELL(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpZeroStimulus);
         }
     }
 

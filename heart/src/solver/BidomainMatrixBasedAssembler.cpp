@@ -155,7 +155,6 @@ BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainMatrixBasedAssemble
 
     // Tell pde there's no need to replicate ionic caches
     pPde->SetCacheReplication(false);
-    
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -190,7 +189,7 @@ void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatr
         double V = distributed_current_solution_vm[index];
         double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
                    - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global]; 
-        double G = - this->mpBidomainPde->rGetExtracellularStimulusCacheReplicated()[index.Global]; 
+        double G = 0.0;
         
         dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
         dist_vec_matrix_based_phie[index] = G; 

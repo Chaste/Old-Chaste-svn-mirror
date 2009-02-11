@@ -82,11 +82,11 @@ public:
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
         if (x<=mMeshWidth*0.25+1e-10)
         {
-            return new CELL(this->mpSolver, this->mpStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpStimulus);
         }
         else
         {
-            return new CELL(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
+            return new CELL(this->mpSolver, this->mpZeroStimulus);
         }
     }
 

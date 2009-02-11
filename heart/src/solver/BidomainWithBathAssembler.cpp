@@ -109,7 +109,7 @@ c_vector<double,2*(ELEMENT_DIM+1)>
 
         // u(0) = voltage
        // noalias(slice_V)   =  0; 
-        noalias(slice_Phi) =  -this->mIExtracellularStimulus * rPhi;
+        noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
 
         return ret;
     }

@@ -171,8 +171,7 @@ private:
 public:
     // Constructor
     TenTusscher2006OdeSystem(AbstractIvpOdeSolver *pSolver,
-                               AbstractStimulusFunction *pIntracellularStimulus,
-                               AbstractStimulusFunction *pExtracellularStimulus = NULL);
+                               AbstractStimulusFunction *pIntracellularStimulus);
 
     // Destructor
     ~TenTusscher2006OdeSystem();

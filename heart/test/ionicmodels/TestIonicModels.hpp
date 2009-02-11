@@ -249,9 +249,6 @@ public:
         another_fhn61_ode_system.SetIntracellularStimulusFunction(&intra_stimulus);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -100, 1e-12);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetIntracellularStimulus(0.5), -100, 1e-12);
-
-        another_fhn61_ode_system.SetExtracellularStimulusFunction(&extra_stimulus);
-        TS_ASSERT_DELTA(another_fhn61_ode_system.GetExtracellularStimulus(0.5), -50, 1e-12);
     }
 
 

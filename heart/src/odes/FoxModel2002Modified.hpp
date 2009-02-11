@@ -20,9 +20,8 @@ class FoxModel2002Modified : public AbstractCardiacCell
 {
 public:
     FoxModel2002Modified(AbstractIvpOdeSolver *pSolver,
-                       AbstractStimulusFunction *pIntracellularStimulus,
-                       AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 13, 0, pIntracellularStimulus, pExtracellularStimulus)
+                       AbstractStimulusFunction *pIntracellularStimulus)
+        : AbstractCardiacCell(pSolver, 13, 0, pIntracellularStimulus)
     {
         mpSystemInfo = OdeSystemInformation<FoxModel2002Modified>::Instance();
 

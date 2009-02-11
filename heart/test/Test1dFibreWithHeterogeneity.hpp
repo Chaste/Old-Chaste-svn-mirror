@@ -67,14 +67,12 @@ public:
         if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             cell = new FaberRudy2000Version3(this->mpSolver,
-                                             mpStimulus,
-                                             this->mpZeroStimulus);
+                                             mpStimulus);
 
         }
         else
         {
             cell = new FaberRudy2000Version3(this->mpSolver,
-                                             this->mpZeroStimulus,
                                              this->mpZeroStimulus);
         }
 

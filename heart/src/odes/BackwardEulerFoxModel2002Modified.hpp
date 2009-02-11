@@ -20,9 +20,8 @@
 class BackwardEulerFoxModel2002Modified : public AbstractBackwardEulerCardiacCell<3>
 {
 public:
-    BackwardEulerFoxModel2002Modified( AbstractStimulusFunction *pIntracellularStimulus,
-                       				   AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractBackwardEulerCardiacCell<3>(13, 0, pIntracellularStimulus, pExtracellularStimulus)
+    BackwardEulerFoxModel2002Modified(AbstractStimulusFunction *pIntracellularStimulus)
+        : AbstractBackwardEulerCardiacCell<3>(13, 0, pIntracellularStimulus)
     {
         // Time units: millisecond
         mpSystemInfo = OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Instance();

@@ -61,32 +61,27 @@ public:
     MyCardiacCellFactory() : AbstractCardiacCellFactory<1>()
     {
         mpStimulus = new SimpleStimulus(-80.0, 0.5);
-        mpExtracellularStimulus1 = new SimpleStimulus(-150,0.5);
-        mpExtracellularStimulus2 = new SimpleStimulus(-250,0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         if (node==0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpExtracellularStimulus1);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
         else if (node==1)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpExtracellularStimulus2);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
         else
         {
-            assert(0);
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpExtracellularStimulus1);
+            NEVER_REACHED;
         }
     }
 
     ~MyCardiacCellFactory(void)
     {
         delete mpStimulus;
-        delete mpExtracellularStimulus1;
-        delete mpExtracellularStimulus2;
     }
 };
 
@@ -146,10 +141,6 @@ public:
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[0], -80);
         TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[1], 0);
-
-        // Check that the bidomain PDE has the right extracellular stimulus at node 0 and 1
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularStimulusCacheReplicated()[0], -150);
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularStimulusCacheReplicated()[1], -250);
 
         VecDestroy(monodomain_vec);
         VecDestroy(bidomain_vec);

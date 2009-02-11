@@ -64,11 +64,11 @@ public:
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
-            return new BackwardEulerLuoRudyIModel1991(mpRegStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mpRegStimulus);
         }
         else
         {
-            return new BackwardEulerLuoRudyIModel1991(mpZeroStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mpZeroStimulus);
         }
     }
 

@@ -150,17 +150,13 @@ public:
 
     /**
      *  Update the Iionic and intracellular stimulus caches.
-     *  The method is overridden in the BidomainPde to also update the
-     *  extracellular stimulus.
      */
-    virtual void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime);
+    void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime);
 
     /**
      *  Replicate the Iionic and intracellular stimulus caches.
-     *  The method is overridden in the BidomainPde to also replicate the
-     *  extracellular stimulus.
      */
-    virtual void ReplicateCaches();
+    void ReplicateCaches();
 };
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/

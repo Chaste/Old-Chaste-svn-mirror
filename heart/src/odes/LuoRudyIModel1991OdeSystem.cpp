@@ -36,9 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Constructor
  */
 LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                                       AbstractStimulusFunction *pIntracellularStimulus,
-                                                       AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pSolver, 8, 4, pIntracellularStimulus, pExtracellularStimulus)
+                                                       AbstractStimulusFunction *pIntracellularStimulus)
+        : AbstractCardiacCell(pSolver, 8, 4, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<LuoRudyIModel1991OdeSystem>::Instance();
     

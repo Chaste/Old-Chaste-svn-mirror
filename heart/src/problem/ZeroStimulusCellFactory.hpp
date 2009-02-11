@@ -43,7 +43,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        return new CELL(this->mpSolver, this->mpZeroStimulus, this->mpZeroStimulus);
+        return new CELL(this->mpSolver, this->mpZeroStimulus);
     }
 
     ~ZeroStimulusCellFactory(void)

@@ -65,7 +65,7 @@ AbstractCardiacCellFactory<SPACE_DIM>::AbstractCardiacCellFactory(AbstractIvpOde
     mpMesh = NULL;
     mpSolver = pSolver;
     mpZeroStimulus = new ZeroStimulus;
-    mpFakeCell = new FakeBathCell(mpSolver, mpZeroStimulus, mpZeroStimulus);
+    mpFakeCell = new FakeBathCell(mpSolver, mpZeroStimulus);
 }
 
 template<unsigned SPACE_DIM>

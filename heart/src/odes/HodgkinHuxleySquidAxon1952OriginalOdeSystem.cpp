@@ -36,9 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(
     AbstractIvpOdeSolver *pOdeSolver,
-    AbstractStimulusFunction *pIntracellularStimulus,
-    AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pOdeSolver,4,0,pIntracellularStimulus,pExtracellularStimulus)
+    AbstractStimulusFunction *pIntracellularStimulus)
+        : AbstractCardiacCell(pOdeSolver, 4, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<HodgkinHuxleySquidAxon1952OriginalOdeSystem>::Instance();
     

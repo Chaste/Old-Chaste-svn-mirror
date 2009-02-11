@@ -63,13 +63,11 @@ private:
     
 public:
     // Constructor
-    BackwardEulerLuoRudyIModel1991(AbstractStimulusFunction *pIntracellularStimulus,
-                                   AbstractStimulusFunction *pExtracellularStimulus = NULL);
+    BackwardEulerLuoRudyIModel1991(AbstractStimulusFunction *pIntracellularStimulus);
                                    
     // Constructor with the same signature as the forward cell models
     BackwardEulerLuoRudyIModel1991(AbstractIvpOdeSolver *pSolver,
-                                   AbstractStimulusFunction *pIntracellularStimulus,
-                                   AbstractStimulusFunction *pExtracellularStimulus = NULL);
+                                   AbstractStimulusFunction *pIntracellularStimulus);
                                    
     // Destructor
     ~BackwardEulerLuoRudyIModel1991();

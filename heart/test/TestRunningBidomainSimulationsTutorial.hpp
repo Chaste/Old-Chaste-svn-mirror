@@ -117,17 +117,16 @@ public:
         double y = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[1];
         if (fabs(x)+fabs(y)<1e-6) // ie if (x,y)==(0,0)
         {
-            /* '''Note:''' As this is going to be used in a bidomain simulation, two
-             * stimuli, the intra- and extra-cellular stimuli need to be given. We give the
-             * cell a non-zero intra and zero extra-cellular stimulus. */
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mpZeroStimulus);
-            /* For monodomain simulations we could have just done */
-            //return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
+            /* Even if running a bidomain simulation, only the intra-cellular stimulus
+             * should be given here.  There is a separate Electrodes class for applying
+             * extra-cellular stimuli.
+             */
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
         else
         {
-            /* The other cells have zero stimuli for both the intra and extra-cellular spaces. */
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpZeroStimulus);
+            /* The other cells have zero stimuli for both the intra-cellular spaces. */
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
 

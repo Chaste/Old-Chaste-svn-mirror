@@ -82,18 +82,6 @@ public:
 
 
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex);
-
-    /**
-     * The bidomain pde also updates the extracellular stimulus cache
-     */
-    void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime);
-
-    /**
-     * The bidomain Pde also replicates the extracellular stimulus cache
-     */
-    void ReplicateCaches();
-
-    ReplicatableVector& rGetExtracellularStimulusCacheReplicated();
 };
 
 

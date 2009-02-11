@@ -55,7 +55,6 @@ protected:
     AbstractIvpOdeSolver *mpOdeSolver;   /**< Pointer to the solver used to simulate currents for this cell. */
     double mDt;
     AbstractStimulusFunction* mpIntracellularStimulus;
-    AbstractStimulusFunction* mpExtracellularStimulus;
 
     // flag set to true if ComputeExceptVoltage is called
     bool mSetVoltageDerivativeToZero;
@@ -65,8 +64,7 @@ public:
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                         unsigned numberOfStateVariables,
                         unsigned voltageIndex,
-                        AbstractStimulusFunction* intracellularStimulus,
-                        AbstractStimulusFunction* extracellularStimulus = NULL);
+                        AbstractStimulusFunction* intracellularStimulus);
 
     virtual ~AbstractCardiacCell();
 
@@ -108,12 +106,6 @@ public:
     void SetIntracellularStimulusFunction(AbstractStimulusFunction *stimulus);
 
     double GetIntracellularStimulus(double time);
-
-    void SetExtracellularStimulusFunction(AbstractStimulusFunction *stimulus);
-
-    double GetExtracellularStimulus(double time);
-
-    bool HasExtracellularStimulus();
 
     /**
      *  [Ca_i] is needed for mechanics, so we explcitly have a Get method (rather than

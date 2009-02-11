@@ -111,7 +111,6 @@ BidomainPde<SPACE_DIM>::BidomainPde(
     }
     
     mpExtracellularConductivityTensors->Init();
-    
 }
 
 template <unsigned SPACE_DIM>
@@ -126,29 +125,6 @@ const c_matrix<double, SPACE_DIM, SPACE_DIM>& BidomainPde<SPACE_DIM>::rGetExtrac
 {
     assert(mpExtracellularConductivityTensors);
     return (*mpExtracellularConductivityTensors)[elementIndex];
-}
-
-template <unsigned SPACE_DIM>
-void BidomainPde<SPACE_DIM>::UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
-{
-    AbstractCardiacPde<SPACE_DIM>::UpdateCaches(globalIndex, localIndex, nextTime);
-    mExtracellularStimulusCacheReplicated[globalIndex] = this->mCellsDistributed[localIndex]->GetExtracellularStimulus(nextTime);
-}
-
-template <unsigned SPACE_DIM>
-void BidomainPde<SPACE_DIM>::ReplicateCaches()
-{
-    AbstractCardiacPde<SPACE_DIM>::ReplicateCaches();
-    unsigned lo=DistributedVector::Begin().Global;
-    unsigned hi=DistributedVector::End().Global;
-
-    mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
-}
-
-template <unsigned SPACE_DIM>
-ReplicatableVector& BidomainPde<SPACE_DIM>::rGetExtracellularStimulusCacheReplicated()
-{
-    return mExtracellularStimulusCacheReplicated;
 }
 
 

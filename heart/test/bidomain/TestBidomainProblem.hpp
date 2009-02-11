@@ -58,7 +58,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mpIntraStimulus, mpZeroStimulus);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mpIntraStimulus);
     }
 
     ~DelayedTotalStimCellFactory(void)

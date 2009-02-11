@@ -48,8 +48,7 @@ private:
 public:
     // Constructor
     FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
-                                AbstractStimulusFunction *pIntracelullarStimulus,
-                                AbstractStimulusFunction *pExtracelullarStimulus=NULL);
+                                AbstractStimulusFunction *pIntracelullarStimulus);
                                 
     // Destructor
     ~FitzHughNagumo1961OdeSystem();

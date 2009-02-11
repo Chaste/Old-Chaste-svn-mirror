@@ -38,7 +38,6 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ResetInterpolatedQuantities( v
 {
     mIionic=0;
     mIIntracellularStimulus=0;
-    mIExtracellularStimulus=0;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -69,7 +68,6 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantitie
 
     mIionic                 += phi_i * mpBidomainPde->rGetIionicCacheReplicated()[ node_global_index ];
     mIIntracellularStimulus += phi_i * mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
-    mIExtracellularStimulus += phi_i * mpBidomainPde->rGetExtracellularStimulusCacheReplicated()[ node_global_index ];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -148,8 +146,8 @@ c_vector<double,2*(ELEMENT_DIM+1)>
     vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
 
     // u(0) = voltage
-    noalias(slice_V)   =  (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
-    noalias(slice_Phi) =  -mIExtracellularStimulus * rPhi;
+    noalias(slice_V)   = (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
+    noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
 
 //    double factor = (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus);
 //

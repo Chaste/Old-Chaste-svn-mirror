@@ -53,11 +53,11 @@ public:
     {
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpRegStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpRegStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
 

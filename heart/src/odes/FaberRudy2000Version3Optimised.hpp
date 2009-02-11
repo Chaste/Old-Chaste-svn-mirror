@@ -556,9 +556,8 @@ class FaberRudy2000Version3Optimised : public AbstractCardiacCell
 {
 public:
     FaberRudy2000Version3Optimised(AbstractIvpOdeSolver *pSolver,
-                                     AbstractStimulusFunction *pIntracellularStimulus,
-                                     AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 25, 0, pIntracellularStimulus, pExtracellularStimulus)
+                                     AbstractStimulusFunction *pIntracellularStimulus)
+        : AbstractCardiacCell(pSolver, 25, 0, pIntracellularStimulus)
     {
         // Time units: second
         mpSystemInfo = OdeSystemInformation<FaberRudy2000Version3Optimised>::Instance();
