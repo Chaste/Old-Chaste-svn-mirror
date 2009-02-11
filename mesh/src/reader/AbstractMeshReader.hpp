@@ -119,13 +119,13 @@ public:
     /*< Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
     virtual ElementData GetNextElementData()=0; 
         
-    /*< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
-    virtual std::vector<unsigned> GetNextFace()=0;
+    /*< Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
+    virtual ElementData GetNextFaceData()=0;
     
-    /*< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
-    std::vector<unsigned> GetNextEdge()
+    /*< Returns a vector of the nodes of each edge in turn (synonym of GetNextFaceData()) */
+    ElementData GetNextEdge()
     {
-        return GetNextFace();
+        return GetNextFaceData();
     }     
 };
 

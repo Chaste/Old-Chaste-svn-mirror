@@ -67,7 +67,7 @@ private:
     unsigned mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
     unsigned mNumElementNodes; /** Is the number of nodes per element*/
     unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
-    unsigned mMaxFaceBdyMarker; /**< Is the maximum face (or edge) boundary marker */
+    unsigned mNumFaceAttributes; /**< Is the number of attributes stored for each face */
 
 	unsigned mOrderOfElements;
     unsigned mNodesPerElement;
@@ -83,6 +83,7 @@ public:
         mFacesRead(0),
 		mBoundaryFacesRead(0),
         mNumElementAttributes(0),
+        mNumFaceAttributes(0),
     	mOrderOfElements(orderOfElements)
     {
         // Only linear and quadratic elements
@@ -136,6 +137,12 @@ public:
     unsigned GetNumElementAttributes() const
     {
         return mNumElementAttributes;
+    }
+    
+    /**< Returns the number of attributes in the mesh */
+    unsigned GetNumFaceAttributes() const
+    {
+        return mNumFaceAttributes;
     }
     
     /**< Resets pointers to beginning*/
@@ -233,9 +240,10 @@ public:
 		return element_data;
     } 
         
-    /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
-    std::vector<unsigned> GetNextFace()
+    /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
+    ElementData GetNextFaceData()
     {
+        ElementData face_data;
 		std::vector<unsigned> ret_indices;		
 
         // In the first two cases there's no file, all the nodes are set as faces
@@ -251,7 +259,6 @@ public:
         {
             unsigned offset = mIndexFromZero ? 0 : 1;
             
-            unsigned is_boundary;
             unsigned element_dim=ELEMENT_DIM;//In case ELEMENT_DIM is erroneously instatiated to zero
             assert(element_dim != 0); //Covered in earlier exception, but needed in loop guard here.
             do
@@ -279,22 +286,34 @@ public:
 			        buffer_stream >> node_index;
 			        ret_indices.push_back(node_index-offset);
                 }
-
-                buffer_stream >> is_boundary;
+                       
+                if(mNumFaceAttributes>0)
+                {
+                    assert(mNumFaceAttributes==1);
+        
+                    unsigned attribute_value;
+                    buffer_stream >> attribute_value;
+                    face_data.AttributeValue = attribute_value;
+                }
+                else
+                {   
+                    face_data.AttributeValue = 0u;
+                }
                 
                 mFacesRead++; 
             }
-            while((mMaxFaceBdyMarker==1) && (is_boundary!=1));
+            while((mNumFaceAttributes==1) && (face_data.AttributeValue==0));
         }        
 	                
         mBoundaryFacesRead++;
-		return ret_indices;
+        face_data.NodeIndices = ret_indices;
+		return face_data;
     }
 
     /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
-    std::vector<unsigned> GetNextEdge()
+    ElementData GetNextEdgeData()
     {
-		return GetNextFace();
+        return GetNextFaceData();
     } 
 
 
@@ -428,7 +447,7 @@ private:
 		}
 		else
 		{
-	    	buffer_stream2 >> mNumElements >> mMaxFaceBdyMarker;
+	    	buffer_stream2 >> mNumElements >> mNumFaceAttributes;
 
         	mNodesPerElement = ELEMENT_DIM+1;			
 		}
@@ -447,12 +466,12 @@ private:
 			GetNextLineFromStream(mFacesFile, buffer);		
 			std::stringstream buffer_stream3(buffer);
 
-		    buffer_stream3 >> mNumFaces >> mMaxFaceBdyMarker;
-		    assert(mMaxFaceBdyMarker==0 || mMaxFaceBdyMarker==1);
-		    
-		    // if mMaxFaceBdyMarker=1 then loop over and set mNumFaces to be
+		    buffer_stream3 >> mNumFaces >> mNumFaceAttributes;
+		    assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
+            
+		    // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
 		    // the number of faces which are marked as boundary faces
-			if((mMaxFaceBdyMarker==1) && (SPACE_DIM!=1))
+			if((mNumFaceAttributes==1) && (SPACE_DIM!=1))
 			{
                 unsigned num_boundary_faces = 0;
                 bool end_of_file=false;
@@ -460,7 +479,7 @@ private:
                 {
                     try
                     {
-         				GetNextFace();
+         				GetNextFaceData();
                         num_boundary_faces++;
                     }
                     catch(Exception& e)

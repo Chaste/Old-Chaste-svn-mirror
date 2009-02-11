@@ -223,7 +223,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     }
     for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
     {
-        SetNextBoundaryFace(rMeshReader.GetNextFace());
+        this->SetNextBoundaryFace(rMeshReader.GetNextFaceData().NodeIndices);
     }
     WriteFiles();
 }

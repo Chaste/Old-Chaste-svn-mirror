@@ -97,7 +97,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
 
     /*Open edge file and store the lines as a vector of strings (minus the comments)
      * We store edges as "faces" but the superclass
-     * provides a GetNextEdge method which queries this data.
+     * provides a GetNextEdgeData method which queries this data.
      */
 
     edgeFileName = pathBaseName + edgeFileName;

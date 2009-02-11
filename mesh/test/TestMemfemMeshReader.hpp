@@ -63,7 +63,7 @@ public:
 
         std::vector<unsigned> NextFace;
 
-        NextFace = pMeshReader->GetNextFace();
+        NextFace = pMeshReader->GetNextFaceData().NodeIndices;
 
         TS_ASSERT( NextFace[0] == 338  );
         TS_ASSERT( NextFace[1] == 23 );

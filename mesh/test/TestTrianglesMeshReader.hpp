@@ -123,16 +123,42 @@ public:
 
         // TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 1526U); // when all faces were read
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100U); // just boundary faces are read
+        
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaceAttributes(), 1u);
+        for(unsigned i=1; i<mesh_reader.GetNumFaces(); i++)
+        {
+            ElementData data = mesh_reader.GetNextFaceData();
+            TS_ASSERT_EQUALS(data.AttributeValue, 1u);
+        }
 
         TrianglesMeshReader<2,2> mesh_reader2("mesh/test/data/baddata/bad_faces_disk_522_elements");
 
         // First boundary face is #20, on its way through the file there's a gap between face 1 and face 10
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextFace());
+        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextFaceData());
         /// \todo: the exception thrown here is thrown in the constructor as well. In that case, it's wrongly
         /// caught considering it an end of file exception and therefore setting an inconsistent number of faces.
     }
+    
+    /**
+     * Check that the faces are read correctly. Checks that the output vector
+     * for a given input file is the correct length and that if the input file
+     * is corrupted (missing faces) then an exception is thrown.
+     */
+    void TestFacesDataReadWithAttributes(void) throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_positive_flags");
 
-
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 92U); // just boundary faces are read
+        
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaceAttributes(), 1u);
+        for(unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
+        {
+            ElementData data = mesh_reader.GetNextFaceData();
+            //Attributes are 1, 2, 3 or 4.
+            TS_ASSERT_LESS_THAN(0U, data.AttributeValue);
+            TS_ASSERT_LESS_THAN(data.AttributeValue, 5u);
+        }
+    }
 
     /**
      * Checks that the reader can deal with (3-d) TetGen input files as well
@@ -229,25 +255,25 @@ public:
 
 
     /**
-     * Check that GetNextEdge() works. Checks that no errors are thrown for
+     * Check that GetNextEdgeData() works. Checks that no errors are thrown for
      * all of the edges and that an error is thrown if we try to call the
      * function too many times.
      */
-    void TestGetNextEdge(void) throw(Exception)
+    void TestGetNextEdgeData(void) throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
         std::vector<unsigned> next_edge;
 
-        TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextFace());
-        TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextFace());
+        TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextFaceData().NodeIndices);
+        TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextFaceData().NodeIndices);
 
         for (unsigned i = 2; i < mesh_reader.GetNumEdges(); i++)
         {
-            TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextEdge());
+            TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextEdgeData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_edge = mesh_reader.GetNextEdge());
+        TS_ASSERT_THROWS_ANYTHING(next_edge = mesh_reader.GetNextEdgeData().NodeIndices);
     }
 
 
@@ -380,6 +406,7 @@ public:
             TS_ASSERT_EQUALS(next_element[i], i);
         }
     }
+    
     void TestReadingElementAttributes() throw(Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
@@ -397,6 +424,7 @@ public:
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5+1);
         }        
     }
+    
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

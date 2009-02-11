@@ -120,8 +120,8 @@ public:
     std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */
     void Reset(); /**< Resets pointers to beginning*/
     ElementData GetNextElementData(); /**< Returns a vector of the nodes of each element in turn */
-    std::vector<unsigned> GetNextEdge(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
-    std::vector<unsigned> GetNextFace(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
+    ElementData GetNextEdgeData(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
+    ElementData GetNextFaceData(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
 };
 
 
@@ -305,7 +305,7 @@ void AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
  *  i.e. they use the same iterator.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
+ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 {
     // Checks that there are still some faces left to read. If not throws an
     // exception that must be caught by the user.
@@ -314,11 +314,13 @@ std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextF
         EXCEPTION("All faces (or edges) already got");
     }
 
-    std::vector<unsigned> next_face = *mpFaceIterator;
+    ElementData ret;
+    ret.NodeIndices = *mpFaceIterator;
+    ret.AttributeValue = 0;
 
     mpFaceIterator++;
 
-    return next_face;
+    return ret;
 }
 
 
@@ -331,9 +333,9 @@ std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextF
  *  i.e. they use the same iterator.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
+ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeData()
 {
-    return GetNextFace();
+    return GetNextFaceData();
 }
 
 

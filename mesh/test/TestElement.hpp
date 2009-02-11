@@ -465,6 +465,9 @@ public:
         {
             delete nodes[i];
         }
+        
+        element.SetRegion(3);
+        TS_ASSERT_EQUALS(element.GetRegion(),3U);
     }
 
     void TestCircum1d(void)

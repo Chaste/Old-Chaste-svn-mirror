@@ -258,7 +258,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     unsigned actual_face_index = 0; 
     for (unsigned face_index=0; face_index<mTotalNumBoundaryElements; face_index++)
     {
-        std::vector<unsigned> node_indices = rMeshReader.GetNextFace();
+        ElementData face_data = rMeshReader.GetNextFaceData();
+        std::vector<unsigned> node_indices = face_data.NodeIndices;
 
         bool own = false;
 

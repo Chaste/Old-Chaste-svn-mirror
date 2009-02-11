@@ -241,24 +241,24 @@ public:
 
         std::vector<unsigned> first_face;
 
-        first_face = mpFemlabMeshReader->GetNextFace();
+        first_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices;
 
         TS_ASSERT( first_face[0]==0);
         TS_ASSERT( first_face[1]==8);
 
         std::vector<unsigned> next_face;
 
-        next_face = mpFemlabMeshReader->GetNextFace();
+        next_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices;
 
         TS_ASSERT( next_face[0]==8);
         TS_ASSERT( next_face[1]==9);
 
         for (unsigned i = 2; i < mpFemlabMeshReader->GetNumFaces(); i++)
         {
-            TS_ASSERT_THROWS_NOTHING(next_face = mpFemlabMeshReader->GetNextFace());
+            TS_ASSERT_THROWS_NOTHING(next_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_face = mpFemlabMeshReader->GetNextFace());
+        TS_ASSERT_THROWS_ANYTHING(next_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices);
 
         delete mpFemlabMeshReader;
 
