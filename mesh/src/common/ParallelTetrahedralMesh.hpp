@@ -127,9 +127,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
 {
     ///\todo: add a timing event for the partitioning
     
-    if (mMetisPartitioning)
-    {
-        MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, offset);
+    if (mMetisPartitioning && PetscTools::NumProcs() > 1)
+    {        
+        MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, offset);                 
     }
     else
     {
@@ -389,6 +389,15 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     if (mMetisPartitioning)
     {
         ReorderNodes(offset);
+
+        // Loop over all processors but last one
+        for (unsigned num_proc=0; num_proc<PetscTools::NumProcs()-1; num_proc++)
+        {
+            this->mNodesPerProcessor.push_back( offset[num_proc+1]-offset[num_proc] );
+        }
+        
+        // Entry for the last processor
+        this->mNodesPerProcessor.push_back( mTotalNumNodes - offset[PetscTools::NumProcs()-1] );
     }
  
 //    std::cout << "After reordering: " << std::endl;
@@ -548,7 +557,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned, std::vector<unsigned>& offset) const
 {
-    EXIT_IF_SEQUENTIAL;
+    assert(PetscTools::NumProcs() > 1);
     
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
 
@@ -649,7 +658,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
         {
             offset[proc]++;
         }
-        
     }
     partition_stream.close();
 

@@ -41,7 +41,7 @@ class TestParallelTetrahedralMesh : public CxxTest::TestSuite
     
 public:
 
-    void TestConstructFromMeshReader1D()
+    void dontTestConstructFromMeshReader1D()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         
@@ -67,7 +67,7 @@ public:
         }
     }
 
-    void TestConstructFromMeshReader2D()
+    void dontTestConstructFromMeshReader2D()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         
@@ -134,17 +134,17 @@ public:
          
     }
 
-//    void TestAllNodesAssigned()
+//    void dontTestAllNodesAssigned()
 //    {
 //        
 //    }
 //    
-//    void TestAllElementsAssigned()
+//    void dontTestAllElementsAssigned()
 //    {
 //        
 //    }    
 
-    void TestConstructFromMeshReader3D()
+    void dontTestConstructFromMeshReader3D()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51U);
@@ -220,6 +220,10 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
+
+        std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
+
+        TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
 
         std::cout << "METIS partitioning " << mesh.GetNumLocalNodes() << "/" << mesh.GetNumLocalElements() << std::endl;
 

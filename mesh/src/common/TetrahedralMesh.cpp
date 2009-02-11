@@ -264,13 +264,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     }
 }
 
-
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//std::vector<unsigned>& TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
-//{
-//    return mNodesPerProcessor;
-//}
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateVolume()
 {

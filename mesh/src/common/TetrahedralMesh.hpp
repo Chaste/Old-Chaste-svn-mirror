@@ -104,8 +104,6 @@ public:
                                  bool cullInternalFaces=false);
 
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
-    //std::vector<unsigned>& rGetNodesPerProcessor();
-
 
     /**
      * Return the volume of a mesh, calculated by adding the determinant of each element
