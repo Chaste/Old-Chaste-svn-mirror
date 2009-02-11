@@ -180,6 +180,7 @@ def FindTestsToRun(build, BUILD_TARGETS,
         component = project
     # Check for a single test
     if singleTestSuite:
+        #print singleTestSuite, singleTestSuiteDir
         if singleTestSuiteDir == component:
             testfiles.add(singleTestSuite)
             # Remove any old test output file to force a re-run
