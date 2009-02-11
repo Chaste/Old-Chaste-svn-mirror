@@ -376,12 +376,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 //        std::cout << this->mNodes[index]->GetIndex() << " ";
 //    }
 //    std::cout << std::endl;
-//    
-//    if (mMetisPartitioning)
-//    {
-//        ReorderNodes(offset);
-//    }
-// 
+    
+    if (mMetisPartitioning)
+    {
+        ReorderNodes(offset);
+    }
+ 
 //    std::cout << "After reordering: " << std::endl;
 //    std::cout << PetscTools::GetMyRank() << ": ";   
 //    for (unsigned index=0; index<this->mNodes.size(); index++)
