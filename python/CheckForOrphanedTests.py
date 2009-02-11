@@ -124,7 +124,7 @@ for test_dir in test_dirs:
             filepath = relpath(filepath, test_dir)
             if IsTestFile(test_dir, filepath):
                 if not filepath in local_found_tests[test_dir]:
-                    orphans.append(os.path.join(test_dir, filepath))
+                    orphans.add(os.path.join(test_dir, filepath))
                 else:
                     local_found_tests[test_dir].remove(filepath)
 

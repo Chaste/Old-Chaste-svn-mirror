@@ -1,5 +1,5 @@
-TestMonodomainHeart.hpp
-TestBidomainHeart.hpp
-TestMonodomainSlabLong.hpp
+monodomain/TestMonodomainHeart.hpp
+bidomain/TestBidomainHeart.hpp
+monodomain/TestMonodomainSlabLong.hpp
 performance/Test3dPerformance.hpp
 convergence/TestConvergenceWeekly.hpp

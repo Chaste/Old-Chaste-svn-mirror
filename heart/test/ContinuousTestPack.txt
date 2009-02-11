@@ -1,7 +1,7 @@
-TestBidomainParallelMesh.hpp
-TestBidomainPde.hpp
-TestBidomainProblem.hpp
-TestBidomainWithBathAssembler.hpp
+bidomain/TestBidomainParallelMesh.hpp
+bidomain/TestBidomainPde.hpp
+bidomain/TestBidomainProblem.hpp
+bidomain/TestBidomainWithBathAssembler.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
 TestCardiacUneven.hpp
 TestCellProperties.hpp
@@ -17,11 +17,11 @@ TestHeterogeneousConductivities.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 mechanics/TestImplicitCardiacMechanicsAssembler.hpp
 ionicmodels/TestIonicModels.hpp
-TestMonodomainConductionVelocity.hpp
-TestMonodomainProblem.hpp
-TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
-TestMonodomainPde.hpp
-TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
+monodomain/TestMonodomainConductionVelocity.hpp
+monodomain/TestMonodomainProblem.hpp
+monodomain/TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
+monodomain/TestMonodomainPde.hpp
+monodomain/TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestNeumannStimulus.hpp
 mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestPapillaryFibreCalculator.hpp
@@ -31,4 +31,3 @@ TestChasteParametersReader.hpp
 TestStimulus.hpp
 TestStimulusBoundaryCondition.hpp
 TestStreeterFibreGenerator.hpp
-

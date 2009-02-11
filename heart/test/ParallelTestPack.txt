@@ -1,7 +1,7 @@
-TestBidomainParallelMesh.hpp
-TestBidomainProblem.hpp
+bidomain/TestBidomainParallelMesh.hpp
+bidomain/TestBidomainProblem.hpp
 TestCardiacUneven.hpp
-TestMonodomainConductionVelocity.hpp
-TestMonodomainProblem.hpp
-TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
-TestMonodomainPde.hpp
+monodomain/TestMonodomainConductionVelocity.hpp
+monodomain/TestMonodomainProblem.hpp
+monodomain/TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
+monodomain/TestMonodomainPde.hpp
