@@ -221,6 +221,126 @@ public:
     }
 
 
+    void TestAddNodeAndReMesh() throw (Exception)
+    {
+        // Create mesh
+        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+
+        // Choose a node
+        ChastePoint<2> point = mesh.GetNode(3)->GetPoint();
+        TS_ASSERT_DELTA(point[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(point[1], 2.0, 1e-6);
+
+        // Create a new node close to this node
+        point.SetCoordinate(0, 1.1);
+        point.SetCoordinate(1, 2.1);
+        Node<2>* p_node = new Node<2>(mesh.GetNumNodes(), point);
+
+        unsigned old_num_nodes = mesh.GetNumNodes();
+
+        // Add this new node to the mesh
+        unsigned new_index = mesh.AddNode(p_node);
+        TS_ASSERT_EQUALS(new_index, old_num_nodes);
+
+        // Remesh to update correspondences
+        mesh.SetEdgeDivisionThreshold(1000); // set high threshold to avoid more nodes appearing in the remesh
+        NodeMap map(mesh.GetNumElements());
+        mesh.ReMesh(map);
+
+        TS_ASSERT_EQUALS(map.Size(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
+
+        // Check that the mesh is updated
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+
+        TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[0], 1.1, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[1], 2.1, 1e-7);
+
+        // Now tet AddNode() when mDeletedNodeIndices is populated
+
+        // Label node 3 as deleted
+        mesh.mDeletedNodeIndices.push_back(3);
+
+        // Create a new node close to this node
+        ChastePoint<2> point2;
+        point2.SetCoordinate(0, 0.9);
+        point2.SetCoordinate(1, 1.9);
+        Node<2>* p_node2 = new Node<2>(mesh.GetNumNodes(), point);
+
+        // Add this new node to the mesh
+        new_index = mesh.AddNode(p_node2);
+        TS_ASSERT_EQUALS(new_index, 3u);
+    }
+
+
+    void TestAddElement() throw (Exception)
+    {
+        // Make four nodes to assign to two elements
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.5, 1.0));
+        nodes.push_back(new Node<2>(3, false, 1.0, 2.0));
+        nodes.push_back(new Node<2>(4, false, 0.0, 1.0));
+        nodes.push_back(new Node<2>(5, false, 2.0, 0.0));
+        nodes.push_back(new Node<2>(6, false, 2.0, 3.0));
+        
+        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
+        
+        // Make two triangular elements out of these nodes
+        nodes_elem_0.push_back(nodes[0]);
+        nodes_elem_0.push_back(nodes[1]);
+        nodes_elem_0.push_back(nodes[2]);
+        nodes_elem_0.push_back(nodes[3]);
+        nodes_elem_0.push_back(nodes[4]);
+        
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[5]);
+        nodes_elem_1.push_back(nodes[6]);
+        
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        
+        // Make a vertex mesh
+        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+
+        std::vector<Node<2>*> nodes_elem_2, nodes_elem_3;
+        
+        // Make two triangular elements out of these nodes
+        nodes_elem_2.push_back(nodes[6]);
+        nodes_elem_2.push_back(nodes[1]);
+        nodes_elem_2.push_back(nodes[2]);
+
+        nodes_elem_3.push_back(nodes[0]);
+        nodes_elem_3.push_back(nodes[1]);
+        nodes_elem_3.push_back(nodes[2]);
+        nodes_elem_3.push_back(nodes[3]);
+
+        // Add a new element to the mesh 
+        mesh.AddElement(new VertexElement<2,2>(2, nodes_elem_2));
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
+
+
+        // Add a new element to the mesh 
+        mesh.AddElement(new VertexElement<2,2>(0, nodes_elem_3));
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
+    }
+
+
     /*
      * This tests that a 'dummy' archive function does not throw any errors.
      */

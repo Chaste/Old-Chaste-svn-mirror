@@ -55,9 +55,14 @@ public:
         VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 7u);
-        
+
+        VertexMeshReader2d mesh_reader2("notforrelease-cancer/test/data/baddata/vertex_mesh_bad_nodes");
+
         // Reads node 0 from file
-        TS_ASSERT_THROWS_NOTHING(mesh_reader.GetNextNode());                            
+        TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
+
+        // Reads node 3 from file when expecting number 1
+        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextNode());
     }
 
 
@@ -98,6 +103,15 @@ public:
             VertexElementData data = mesh_reader.GetNextElementData();
             TS_ASSERT_EQUALS(data.AttributeValue, 0u);
         }
+
+        VertexMeshReader2d mesh_reader2("notforrelease-cancer/test/data/baddata/vertex_mesh_bad_elements");
+
+        // Reads element 0 from file
+        TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
+
+        // Reads element 2 from file when expecting number 1                            
+        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextElementData());
+
     }
     
 
@@ -162,6 +176,32 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(next_element = mesh_reader.GetNextElementData().NodeIndices);
     }
-    
+
+
+    void TestReadingElementAttributes() throw(Exception)
+    {
+        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+
+        VertexElementData next_element_info = mesh_reader.GetNextElementData();
+        std::vector<unsigned> nodes = next_element_info.NodeIndices;
+        TS_ASSERT_EQUALS(nodes.size(), 5u);
+        TS_ASSERT_EQUALS(next_element_info.AttributeValue, 97u);
+
+        next_element_info = mesh_reader.GetNextElementData();
+        nodes = next_element_info.NodeIndices;
+        TS_ASSERT_EQUALS(nodes.size(), 3u);
+        TS_ASSERT_EQUALS(next_element_info.AttributeValue, 152u)
+    }
+
+    void TestOtherExceptions() throw(Exception)
+    {
+        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/nonexistent_file"));
+        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/baddata/vertex_mesh_without_element_file"));
+    }
+
 };
 #endif /*TESTVERTEXMESHREADER2D_HPP_*/

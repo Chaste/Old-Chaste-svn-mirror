@@ -239,6 +239,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(tissue.Update());
     }
 
+    /// \todo Fix coverage of VertexBasedTissue.cpp by testing Update() with cell birth
  
     void TestAddCellWithSimpleMesh() throw (Exception)
     {

@@ -234,7 +234,7 @@ public:
      * Check the consistency of internal data structures.
      * Each VertexElement must have a TissueCell associated with it.
      */
-    virtual void Validate();
+    void Validate();
 
     /** 
      * Get the target area of a given cell. This grows linearly from 

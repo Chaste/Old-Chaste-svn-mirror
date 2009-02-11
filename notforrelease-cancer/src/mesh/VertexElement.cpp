@@ -90,12 +90,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
 {
     assert(rIndex < this->mNodes.size());
-    
+
     // Remove element from the node at this location
     this->mNodes[rIndex]->RemoveElement(this->mIndex);
-    
+
     // Remove the node at rIndex (removes node from element)
-    this->mNodes.erase( this->mNodes.begin( ) + rIndex );
+    this->mNodes.erase(this->mNodes.begin( ) + rIndex);
 
     // Flag that element has changed and we need to recalculate area and perimeter
     mElementModified = true;
@@ -127,25 +127,25 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateVertexElementAreaAndPerimet
 
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node; 
-    
+
     double temp_vertex_element_area = 0;
     double temp_vertex_element_perimeter = 0;
     unsigned number_of_nodes = this->GetNumNodes();
-           
+
     for (unsigned i=0; i<number_of_nodes; i++)
     {
         // Find locations of current node and anticlockwise node
         current_node = this->GetNodeLocation(i);
         anticlockwise_node = this->GetNodeLocation((i+1)%number_of_nodes);
-        
+
         /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
-        
+
         temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1] 
                                           - anticlockwise_node[0]*current_node[1]);
-            
+
         temp_vertex_element_perimeter += norm_2(current_node-anticlockwise_node);
     }
-    
+
     mVertexElementArea = temp_vertex_element_area;
     mVertexElementPerimeter = temp_vertex_element_perimeter;
 }
@@ -174,7 +174,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
 #undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> area_gradient;
-    
+
     unsigned next_index = (localIndex+1)%(this->GetNumNodes());
 	unsigned previous_index = (this->GetNumNodes()+localIndex-1)%(this->GetNumNodes()); // As localIndex-1 can be -ve which breaks %      
     
@@ -196,10 +196,10 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 #undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> perimeter_gradient;
-       
+
     unsigned next_index = (localIndex+1)%(this->GetNumNodes());
     unsigned previous_index = (this->GetNumNodes()+localIndex-1)%(this->GetNumNodes()); // As localIndex-1 can be -ve which breaks % 
-    
+
     c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();  
     c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
     c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
@@ -211,7 +211,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 
 	double length_edge1 = norm_2(current_node_location - previous_node_location);
 	double length_edge2 = norm_2(next_node_location - current_node_location);
-	
+
 	c_vector<double, SPACE_DIM> length_edge1_gradient, length_edge2_gradient; 
 
 	if (length_edge1 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
@@ -225,7 +225,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 		length_edge1_gradient[0] = (current_node_location[0] - previous_node_location[0])/length_edge1;
 		length_edge1_gradient[1] = (current_node_location[1] - previous_node_location[1])/length_edge1;
 	}
-	
+
 	if (length_edge2 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
 	{	
 		std::cout << "\n Should Not Reach "<< std::flush;
@@ -239,11 +239,8 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
     perimeter_gradient[0] = length_edge1_gradient[0] + length_edge2_gradient[0];
     perimeter_gradient[1] = length_edge1_gradient[1] + length_edge2_gradient[1];
 
-	//std::cout << "\nperimeter gradient = " <<  perimeter_gradient[0] << "\t" << perimeter_gradient[1] << std::flush;
-
     return perimeter_gradient;
 }
-
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -267,9 +264,9 @@ c_vector<double, 3> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateMoments()
 #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
 #undef COVERAGE_IGNORE
-    
+
     c_vector<double, 3> moments = zero_vector<double>(3);
-    
+
     unsigned node_1;
     unsigned node_2;
     unsigned num_nodes = this->GetNumNodes();
@@ -314,34 +311,34 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCent
 #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
 #undef COVERAGE_IGNORE
-    
+
     c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node; 
-    
+
     double temp_centroid_x = 0;
     double temp_centroid_y = 0;
-     
+
     unsigned num_nodes = this->GetNumNodes();
-           
+
     for (unsigned i=0; i<num_nodes; i++)
     {
         // Find locations of current node and anticlockwise node
         current_node = this->GetNodeLocation(i);
         anticlockwise_node = this->GetNodeLocation((i+1)%num_nodes);
-        
+
         /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
-        
+
         temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
         temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               
     }
 
     double vertex_area = GetArea();
     double centroid_coefficient = 1.0/6.0/vertex_area;
-    
+
     centroid(0) = centroid_coefficient*temp_centroid_x;
     centroid(1) = centroid_coefficient*temp_centroid_y;
-    
+
     return centroid;        
 }
 
@@ -352,15 +349,14 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
 #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
 #undef COVERAGE_IGNORE
-    
+
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
-    
     c_vector<double, 3> moments = CalculateMoments();
-    
+
     double largest_eigenvalue, discriminant;            
-    
+
     discriminant = sqrt((moments(0) - moments(1))*(moments(0) - moments(1)) + 4.0*moments(2)*moments(2));
-    
+
     // This is always the largest eigenvalue as both eigenvalues are real as it is a 
     // symmetric matrix
     largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;       
@@ -371,7 +367,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
         short_axis(0) = RandomNumberGenerator::Instance()->ranf();
         short_axis(1) = sqrt(1.0-short_axis(0)*short_axis(0));
     }
-    
+
     else
     {                      
         if (moments(2) == 0.0)
@@ -383,9 +379,9 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
         {
             short_axis(0) = 1.0;
             short_axis(1) = (moments(0) - largest_eigenvalue)/moments(2);
-            
+
             double length_short_axis = norm_2(short_axis);
-            
+
             short_axis /= length_short_axis;
         }     
     }

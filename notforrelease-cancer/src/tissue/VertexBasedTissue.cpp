@@ -38,14 +38,6 @@ VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
       mrMesh(rMesh),
       mDeleteMesh(deleteMesh)
 {
-    // This must always be true
-    if (this->mCells.size() != mrMesh.GetNumElements())
-    {
-        std::stringstream ss;
-        ss << "The number of cells does not match the number of elements in the mesh";
-        EXCEPTION(ss.str());
-    }
-
     this->mTissueContainsMesh = true;
 
     if (validate)
