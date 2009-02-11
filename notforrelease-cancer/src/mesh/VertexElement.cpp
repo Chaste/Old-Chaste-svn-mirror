@@ -121,8 +121,10 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddNode(const unsigned& rIndex, Node
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateVertexElementAreaAndPerimeter()
 {
+#define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-    
+#undef COVERAGE_IGNORE
+
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node; 
     
@@ -167,9 +169,9 @@ double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetArea()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientAtNode(unsigned localIndex)
 {
-    #define COVERAGE_IGNORE
+#define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-    #undef COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> area_gradient;
     
@@ -189,9 +191,9 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGradientAtNode(unsigned localIndex)
 {
-    #define COVERAGE_IGNORE
+#define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-    #undef COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> perimeter_gradient;
     
@@ -260,7 +262,9 @@ double VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>  
 c_vector<double, 3> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateMoments()
 {
+#define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
     
     c_vector<double, 3> moments = zero_vector<double>(3);
     
@@ -305,7 +309,9 @@ c_vector<double, 3> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateMoments()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCentroid()
 {
+#define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
     
     c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
     c_vector<double, SPACE_DIM> current_node;
@@ -341,7 +347,9 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCent
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShortAxis()
 {
+#define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
     
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
     

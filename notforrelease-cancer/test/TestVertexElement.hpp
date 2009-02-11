@@ -50,7 +50,7 @@ public:
         }
 
         // Create element        
-        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
+        VertexElement<2,2> vertex_element(0, nodes);
         
         TS_ASSERT_DELTA(vertex_element.GetArea(), 3*sqrt(3)/2.0, 1e-4);
         TS_ASSERT_DELTA(vertex_element.GetPerimeter(), 6.0, 1e-4);
@@ -112,6 +112,57 @@ public:
             delete nodes[i];
         }
         delete p_new_node;
+    }
+    
+    
+    void TestMarkAsDeleted()
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        // Create element
+        VertexElement<2,2> vertex_element(0, nodes);
+        vertex_element.RegisterWithNodes();
+
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            TS_ASSERT_EQUALS(vertex_element.GetNode(i)->GetNumContainingElements(), 1u);
+        }
+
+        vertex_element.MarkAsDeleted();
+
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            TS_ASSERT_EQUALS(vertex_element.GetNode(i)->GetNumContainingElements(), 0u);
+        }        
+    }
+    
+    
+    void TestUpdateNode()
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        // Create element
+        VertexElement<2,2> vertex_element(0, nodes);
+        vertex_element.RegisterWithNodes();
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.0, 1e-12);
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.0, 1e-12);
+        
+        // Update location of node 2        
+        vertex_element.UpdateNode(2, new Node<2>(4, false, 1.2, 1.3));
+        
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.2, 1e-12);
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[1], 1.3, 1e-12);
     }
 
 
