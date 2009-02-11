@@ -1303,7 +1303,8 @@ public:
         }
     }
     
-    void TestReadingMeshesWithRegionsElementsAndFaces() throw (Exception)
+
+    void TestReadingMeshesWithRegionsElementsAndFaces3D() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_positive_flags");
         TetrahedralMesh<3,3> mesh;
@@ -1324,5 +1325,38 @@ public:
             TS_ASSERT_LESS_THAN(mesh.GetBoundaryElement(i)->GetRegion(), 5u);
         }
     }
+
+    void TestReadingMeshesWithRegionsElementsAndFaces2D() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0U);
+
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetRegion(), 0u);
+        }
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1U);
+
+        //In the edge file for this test 
+        // * All internal edges are marked with 0
+        // * All external edges were marked as 1 by triangle
+        // * The final edge marker has been edited from 1 to 2
+        for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
+        {
+            if (i==99)
+            {
+                TS_ASSERT_EQUALS(mesh.GetBoundaryElement(i)->GetRegion(), 2u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(mesh.GetBoundaryElement(i)->GetRegion(), 1u);
+            }
+        }
+    }
+
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_

@@ -53,7 +53,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10U);
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1U);
-        for (unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             try
             {
@@ -77,6 +77,7 @@ public:
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100U);
 
         unsigned num_local_nodes = mesh.GetNumLocalNodes();
 
@@ -195,15 +196,32 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
-            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetRegion(), (i+1)%3+1);
+            try
+            {
+                unsigned region = mesh.GetElement(i)->GetRegion();
+                TS_ASSERT_EQUALS(region, (i+1)%3+1);
+            }
+            catch(Exception& e)
+            {
+                // I don't own this element do I?               
+            }
         }
 
        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1U);
 
         for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {
-            TS_ASSERT_LESS_THAN(0u, mesh.GetBoundaryElement(i)->GetRegion());
-            TS_ASSERT_LESS_THAN(mesh.GetBoundaryElement(i)->GetRegion(), 5u);
+            
+            try
+            {
+                unsigned region = mesh.GetBoundaryElement(i)->GetRegion();
+                TS_ASSERT_LESS_THAN(0u, region);
+                TS_ASSERT_LESS_THAN(region, 5u);
+            }
+            catch(Exception& e)
+            {
+                // I don't own this element do I?               
+            }
         }
     }
     
