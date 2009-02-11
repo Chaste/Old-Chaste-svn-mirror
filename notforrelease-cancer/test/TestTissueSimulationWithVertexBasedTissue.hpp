@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 #include "FixedCellCycleModel.hpp"
+#include "StochasticCellCycleModel.hpp"
 #include "VertexBasedTissue.hpp"
 #include "VertexBasedTissueForce.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -98,12 +99,12 @@ public:
     {
         // Construct a 2D vertex mesh consisting of a single hexagonal element
         std::vector<Node<2>*> nodes;
-        nodes.push_back(new Node<2>(0, false, 0.288675, 0.0));
-        nodes.push_back(new Node<2>(1, false, 0.866025, 0.0));
-        nodes.push_back(new Node<2>(2, false, 1.1547,   0.5));
-        nodes.push_back(new Node<2>(3, false, 0.866025, 1.0));
-        nodes.push_back(new Node<2>(4, false, 0.288675, 1.0));
-        nodes.push_back(new Node<2>(5, false, 0.0,      0.5));
+        unsigned num_nodes = 20;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double theta = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
 
         std::vector<VertexElement<2,2>*> elements;
         elements.push_back(new VertexElement<2,2>(0, nodes));
@@ -136,19 +137,20 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
-        simulator.SetEndTime(10.0);
-
+        simulator.SetEndTime(5.0);
         // Run simulation
         simulator.Solve();
-        
-        /// \todo add some tests!
-    }
 
+        //Test Relaxes to circle Can be more stringent with more nodes and more time. 
+        TS_ASSERT_DELTA(tissue.GetElement(0)->GetArea(),1.0, 1e-2)
+		TS_ASSERT_DELTA(tissue.GetElement(0)->GetPerimeter(),3.5449077, 1e-1)
+        
+    }
 
     void TestMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index
@@ -158,8 +160,8 @@ public:
             CellType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
 
-            // Cell 4 should divide at time t=0.5
-            if (elem_index==4)
+            // Cell 12 should divide at time t=0.5
+            if (elem_index==12)
             {
                 cell_type = STEM;
                 birth_time = -23.5;          
@@ -185,7 +187,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
-        simulator.SetEndTime(1.5);
+        simulator.SetEndTime(2.0);
 
         // Run simulation
         simulator.Solve();

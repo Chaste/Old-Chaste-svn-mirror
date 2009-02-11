@@ -87,12 +87,8 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
             unsigned element_index = p_element->GetIndex();
 
             // Find the local index of this node in this element
-            unsigned local_index = 0;
-            while (p_element->GetNodeGlobalIndex(local_index) != node_index)
-            {
-                local_index++;
-            }
-
+            unsigned local_index = p_element->GetNodeLocalIndex(node_index);
+          
 
             /******** Start of deformation force calculation ********/
 
@@ -131,7 +127,7 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
         c_vector<double, DIM> force_on_node = deformation_contribution + 
                                               membrane_surface_tension_contribution +
                                               cell_cell_adhesion_contribution;
-
+		//std::cout << "\n Node " << node_index << "\tForce " << norm_2(force_on_node) << std::flush;
         rForces[node_index] += force_on_node;
     }
 }

@@ -1025,17 +1025,22 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
                               elems_containing_node2.end(),
                               std::inserter(shared_elements, shared_elements.begin()));
 
-        // Iterate over common elements    
+        // Iterate over common elements  
+//        std::cout << "\n node " << i << std::flush;  
         for (std::set<unsigned>::iterator iter=shared_elements.begin();
              iter!=shared_elements.end();
              ++iter)
         {
+//            std::cout << "\n Common element " << *iter << std::flush;
+            
             // Find which node has the lower local index in this element
             unsigned local_indexA = GetElement(*iter)->GetNodeLocalIndex(p_node_A->GetIndex());
             unsigned local_indexB = GetElement(*iter)->GetNodeLocalIndex(p_node_B->GetIndex());
             
+//            std::cout << "\n IndexA " << local_indexA << "\t IndexB " << local_indexB << std::flush;
+            
             unsigned index = local_indexB;
-            if ( (local_indexA == 0) || (local_indexB == 0) || (local_indexB > local_indexA) )
+            if (local_indexB > local_indexA)
             {
                 index = local_indexA;                 
             }
@@ -1043,15 +1048,24 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
             {
                 index = local_indexB;
             }
-    
+    		if ( (local_indexB == 0) && (local_indexA == GetElement(*iter)->GetNumNodes()-1))
+            {
+                index = local_indexA;
+            }
+    		
+//    		std::cout<< "\n new node index " << index << "\t numNodes " << GetElement(*iter)->GetNumNodes() << std::flush;
+    		
             // Add new node to this element
             GetElement(*iter)->AddNode(index, GetNode(new_node_global_indices[i]));
+            
+            
+//            std::cout<< "\n new numNodes " << GetElement(*iter)->GetNumNodes() << std::flush;
+    		
         }
     }
 
     // Now call DivideElement() to divide the element using the new nodes
     unsigned new_element_index = DivideElement(pElement, pElement->GetNodeLocalIndex(new_node_global_indices[0]), pElement->GetNodeLocalIndex(new_node_global_indices[1]));
-    
     return new_element_index;
 }
 

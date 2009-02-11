@@ -176,8 +176,8 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
     c_vector<double, SPACE_DIM> area_gradient;
     
     unsigned next_index = (localIndex+1)%(this->GetNumNodes());
-    unsigned previous_index = (localIndex-1)%(this->GetNumNodes());
-      
+	unsigned previous_index = (this->GetNumNodes()+localIndex-1)%(this->GetNumNodes()); // As localIndex-1 can be -ve which breaks %      
+    
     c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
     c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
 
@@ -196,9 +196,9 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 #undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> perimeter_gradient;
-    
+       
     unsigned next_index = (localIndex+1)%(this->GetNumNodes());
-    unsigned previous_index = (localIndex-1)%(this->GetNumNodes());
+    unsigned previous_index = (this->GetNumNodes()+localIndex-1)%(this->GetNumNodes()); // As localIndex-1 can be -ve which breaks % 
     
     c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();  
     c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
@@ -216,6 +216,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 
 	if (length_edge1 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
 	{	
+		std::cout << "\n Should Not Reach "<< std::flush;
 		length_edge1_gradient[0] = 0.0;
 		length_edge1_gradient[1] = 0.0;
 	}
@@ -227,6 +228,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterG
 	
 	if (length_edge2 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
 	{	
+		std::cout << "\n Should Not Reach "<< std::flush;
 		length_edge2_gradient[0] = 0.0;
 		length_edge2_gradient[1] = 0.0;
 	}	
