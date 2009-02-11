@@ -177,7 +177,7 @@ void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatr
     // dist stripe for z
     DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);     
     DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
-    DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
+    //DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
 
     double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
     double Cm  = HeartConfig::Instance()->GetCapacitance();
@@ -189,10 +189,10 @@ void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatr
         double V = distributed_current_solution_vm[index];
         double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
                    - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global]; 
-        double G = 0.0;
+        //double G = 0.0;
         
         dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
-        dist_vec_matrix_based_phie[index] = G; 
+        //dist_vec_matrix_based_phie[index] = G; 
     }
 
     dist_vec_matrix_based.Restore();

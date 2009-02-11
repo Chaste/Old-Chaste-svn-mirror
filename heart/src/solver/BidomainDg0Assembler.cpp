@@ -149,15 +149,6 @@ c_vector<double,2*(ELEMENT_DIM+1)>
     noalias(slice_V)   = (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
     noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
 
-//    double factor = (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus);
-//
-//    for (unsigned index=0; index<ELEMENT_DIM+1; index++)
-//    {
-//        ret(2*index)=factor * rPhi(index);
-//        ret(2*index+1)=-mIExtracellularStimulus * rPhi(index);
-//    }
-
-
     return ret;
 }
 

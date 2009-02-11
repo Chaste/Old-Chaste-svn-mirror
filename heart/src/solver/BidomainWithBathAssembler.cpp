@@ -104,12 +104,12 @@ c_vector<double,2*(ELEMENT_DIM+1)>
     {
         c_vector<double,2*(ELEMENT_DIM+1)> ret = zero_vector<double>(2*(ELEMENT_DIM+1));
 
-        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
-        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
+        //vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
+        //vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
 
         // u(0) = voltage
-       // noalias(slice_V)   =  0; 
-        noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
+        //noalias(slice_V) = zero_vector<double>(ELEMENT_DIM+1); 
+        //noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
 
         return ret;
     }
