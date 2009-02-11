@@ -76,7 +76,7 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
 
     // loop over boundary elements and add a non-zero phi_e boundary condition (ie extracellular
     // stimulus) if (assuming index=0, etc) x=lowerValue (where x is the x-value of the centroid)
-    for(typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter 
+    for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter 
             = rMesh.GetBoundaryElementIteratorBegin();
        iter != rMesh.GetBoundaryElementIteratorEnd();
        iter++)
@@ -87,7 +87,7 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
             mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_in,  1);
         }
         
-        if(!mGroundSecondElectrode)
+        if (!mGroundSecondElectrode)
         {
             if ( fabs((*iter)->CalculateCentroid()[index] - upperValue) < 1e-6 )
             {
@@ -99,16 +99,15 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
     
     // set up mGroundedNodes using opposite surface is second electrode is 
     // grounded
-    if(mGroundSecondElectrode)
+    if (mGroundSecondElectrode)
     {
-        for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
         {
-            if(fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
+            if (fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
             {
-                mGroundedNodes.push_back(i);
+                mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(rMesh.GetNode(i), p_bc_zero, 1);
             }
         }
-        assert(mGroundedNodes.size()>0);
         
         //Unused boundary conditions will not be deleted by the b.c. container
         delete p_bc_flux_out;

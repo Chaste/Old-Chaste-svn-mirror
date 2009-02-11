@@ -55,8 +55,6 @@ private:
     bool mGroundSecondElectrode;
     /*< The created bcc, which BidomainProblem will use */
     BoundaryConditionsContainer<DIM,DIM,2>* mpBoundaryConditionsContainer;
-    /*< If the second electrode is grounded, the nodes on this surface */
-    std::vector<unsigned> mGroundedNodes;
     /*< The time the electrodes are switched off */
     double mEndTime;
     /*< Whether the electrodes are currently switched on */
@@ -97,26 +95,7 @@ public:
         assert(mAreActive);
         return mpBoundaryConditionsContainer;
     }
-
-    /**
-     *  Get the node indices of the grounded opposite surface. Can only
-     *  be called if IsSecondElectrodeGrounded returns true
-     */
-    std::vector<unsigned> GetGroundedNodes()
-    {
-        assert(mAreActive);
-        assert(mGroundSecondElectrode);
-        return mGroundedNodes;
-    }
-    
-    /** 
-     *  If this is true GetGroundedNodes can be called
-     */
-    bool IsSecondElectrodeGrounded()
-    {
-        return mGroundSecondElectrode;
-    }
-    
+  
     /**
      *  Whether it is time to switch off the electrodes yet. THIS ONLY RETURNS
      *  TRUE ONCE - the first appropriate time. After that the electrodes assume

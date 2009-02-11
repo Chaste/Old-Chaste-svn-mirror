@@ -300,10 +300,6 @@ void BidomainProblem<DIM>::SetElectrodes(Electrodes<DIM>& rElectrodes)
     mpElectrodes = &rElectrodes;
 
     SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer());
-    if (mpElectrodes->IsSecondElectrodeGrounded())
-    {
-        SetFixedExtracellularPotentialNodes(mpElectrodes->GetGroundedNodes());
-    }
 }
 
 

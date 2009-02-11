@@ -46,7 +46,6 @@ public:
         double magnitude = 543.324;
         double duration = 2.0; //ms        
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
-        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), true);
         
         BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         
@@ -62,13 +61,19 @@ public:
             }
         }
         
-        std::vector<unsigned> grounded_nodes = electrodes.GetGroundedNodes();
-        TS_ASSERT_EQUALS(grounded_nodes.size(), 11u);
-        for(unsigned i=0; i<grounded_nodes.size(); i++)
+        unsigned num_grounded_nodes = 0u;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x_val = mesh.GetNode(grounded_nodes[i])->rGetLocation()[0];
-            TS_ASSERT_DELTA(x_val, 10.0, 1e-12);
+            Node<2>* p_node = mesh.GetNode(i);
+            if (p_bcc->HasDirichletBoundaryCondition(p_node, 1))
+            {
+                double x_val = p_node->rGetLocation()[0];
+                TS_ASSERT_DELTA(x_val, 10.0, 1e-12);
+                num_grounded_nodes++;
+                TS_ASSERT_EQUALS(p_bcc->GetDirichletBCValue(p_node, 1), 0.0);
+            }
         }
+        TS_ASSERT_EQUALS(num_grounded_nodes, 11u);
         
         TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration));
         TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,duration));
@@ -92,7 +97,6 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,duration);
-        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), false);
         
         BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         
@@ -125,7 +129,6 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,true,1,0,10,magnitude,duration);
-        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), true);
         
         BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         
@@ -142,13 +145,19 @@ public:
             }
         }
 
-        std::vector<unsigned> grounded_nodes = electrodes.GetGroundedNodes();
-        TS_ASSERT_EQUALS(grounded_nodes.size(), 121u);
-        for(unsigned i=0; i<grounded_nodes.size(); i++)
+        unsigned num_grounded_nodes = 0u;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            double y_val = mesh.GetNode(grounded_nodes[i])->rGetLocation()[1];
-            TS_ASSERT_DELTA(y_val, 10.0, 1e-12);
+            Node<3>* p_node = mesh.GetNode(i);
+            if (p_bcc->HasDirichletBoundaryCondition(p_node, 1))
+            {
+                double y_val = p_node->rGetLocation()[1];
+                TS_ASSERT_DELTA(y_val, 10.0, 1e-12);
+                num_grounded_nodes++;
+                TS_ASSERT_EQUALS(p_bcc->GetDirichletBCValue(p_node, 1), 0.0);
+            }
         }
+        TS_ASSERT_EQUALS(num_grounded_nodes, 121u);
     }
     
     void TestElectrodeUngrounded3d() throw (Exception)
@@ -159,7 +168,6 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,false,1,0,10,magnitude,duration);
-        TS_ASSERT_EQUALS(electrodes.IsSecondElectrodeGrounded(), false);
         
         BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
         
