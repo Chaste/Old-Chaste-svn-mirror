@@ -77,6 +77,7 @@ test_summary = int(ARGUMENTS.get('test_summary', 1))
 
 # Used by the automated build system
 run_infrastructure_tests = int(ARGUMENTS.get('do_inf_tests', 1))
+check_failing_tests = int(ARGUMENTS.get('check_failing_tests', 0))
 
 # Specifying extra run-time flags
 run_time_flags = ARGUMENTS.get('run_time_flags', '')
@@ -263,6 +264,12 @@ if run_infrastructure_tests:
     os.system('python/TestRunner.py python/CheckForCopyrights.py ' +
               str(out) + ' ' + build_type + ' --no-stdout')
     test_log_files.append(out)
+if check_failing_tests:
+    out = File(build.GetTestReportDir() + 'FailingTests.log')
+    os.system('python/TestRunner.py python/CheckForFailingTests.py ' +
+              str(out) + ' ' + build_type + ' --no-stdout')
+    test_log_files.append(out)
+
 build_dir = build.build_dir
 for toplevel_dir in components:
     bld_dir = os.path.join(toplevel_dir, 'build', build_dir)
