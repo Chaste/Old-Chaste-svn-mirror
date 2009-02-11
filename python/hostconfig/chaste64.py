@@ -52,6 +52,12 @@ if use_cvode:
     other_libpaths.append('../../../cvode/lib')
     other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
 
+use_vtk = True
+if use_vtk:
+    other_includepaths.append('/usr/include/vtk-5.0')
+    other_libraries.extend(['vtkIO'])
+    
+
 tools = {'texttest': '/home/chaste/texttest-3.10/source/bin/texttest.py'}
     
 
