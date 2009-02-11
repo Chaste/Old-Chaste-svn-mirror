@@ -62,7 +62,7 @@ public:
             }
             catch(Exception& e)
             {
-                // I don't own this element                
+                // I don't own this element do I?               
             }
         }
     }
@@ -182,6 +182,28 @@ public:
         catch(Exception& e)
         {
             //I'm not the owner of node 19
+        }
+    }
+
+    void TestConstruct3DWithRegions() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_positive_flags");
+        ParallelTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1U);
+
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetRegion(), (i+1)%3+1);
+        }
+
+       TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1U);
+
+        for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
+        {
+            TS_ASSERT_LESS_THAN(0u, mesh.GetBoundaryElement(i)->GetRegion());
+            TS_ASSERT_LESS_THAN(mesh.GetBoundaryElement(i)->GetRegion(), 5u);
         }
     }
     

@@ -96,8 +96,16 @@ public:
     /*< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
     virtual unsigned GetNumFaces() const =0;
 
-    /*< Returns the number of attributes in the mesh */
+    /*< Returns the number of element attributes in the mesh */
     virtual unsigned GetNumElementAttributes() const
+    {
+        // By default returns 0.  If a concrete class does read attributes
+        // it needs to overload this method.          
+        return 0;
+    }
+
+    /*< Returns the number of face attributes in the mesh */
+    virtual unsigned GetNumFaceAttributes() const
     {
         // By default returns 0.  If a concrete class does read attributes
         // it needs to overload this method.          

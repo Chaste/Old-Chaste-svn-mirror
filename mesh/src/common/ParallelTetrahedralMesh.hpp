@@ -365,7 +365,15 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
 
             RegisterBoundaryElement(actual_face_index);
-            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
+            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
+            this->mBoundaryElements.push_back(p_boundary_element);
+            
+            if (rMeshReader.GetNumFaceAttributes() > 0)
+            {
+                assert(rMeshReader.GetNumFaceAttributes() == 1);
+                unsigned attribute_value = face_data.AttributeValue;
+                p_boundary_element->SetRegion(attribute_value);
+            }         
             actual_face_index++;
         }
     }
