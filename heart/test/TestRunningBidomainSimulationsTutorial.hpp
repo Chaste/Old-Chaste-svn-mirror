@@ -115,7 +115,7 @@ public:
     {
         double x = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[0];
         double y = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[1];
-        if (fabs(x)+fabs(y)<1e-6) // ie if (x,y)==(0,0), an alternative would be norm_2(this->mpMesh->GetNode(nodeIndex)->rGetLocation())
+        if (fabs(x)+fabs(y)<1e-6) // ie if (x,y)==(0,0). An alternative would be if(norm_2(this->mpMesh->GetNode(nodeIndex)->rGetLocation())<1e-6)
         {
             /* Even if running a bidomain simulation, only the intra-cellular stimulus
              * should be given here.  There is a separate Electrodes class for applying
@@ -155,11 +155,11 @@ public:
      * might not get printed out. */
     void TestSimpleSimulation() throw(Exception)
     {
-        /* The HeartConfig class is used to set various parameters. It gets the default values 
-         * from ChasteDefaults.xml (except the values in the 'Simulation' block of the XML file,
+        /* The {{{HeartConfig}}} class is used to set various parameters. It gets the default values 
+         * from !ChasteDefaults.xml (except the values in the 'Simulation' block of the XML file,
          * which is only used by the Chaste executable). Parameters in this file can be re-set 
-         * with HeartConfig if the user wishes, and other paramters such as end time must be set
-         * using HeartConfig. Let us begin by setting the end time (in ms), the mesh to use, and the
+         * with {{{HeartConfig}}} if the user wishes, and other paramters such as end time must be set
+         * using {{{HeartConfig}}}. Let us begin by setting the end time (in ms), the mesh to use, and the
          * output directory and filename-prefix.
          */ 
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
@@ -178,7 +178,7 @@ public:
         // bidomain_problem.Initialise();
         // bidomain_problem.Solve();
 
-        /* ..However, instead we show how to set a few parameters. To set the conductivity ''values''
+        /* ..However, instead we show how to set a few more parameters. To set the conductivity values
          *  in the principal fibre, sheet and normal directions do the following.
          * Note that {{{Create_c_vector}}} is just a helper method for creating a {{{c_vector<double,DIM>}}}
          * of the correct size (2, in this case). Make sure these methods are called before 
@@ -194,9 +194,9 @@ public:
         bidomain_problem.Initialise();
 
         /* The output will be written to /tmp/USER_NAME/testoutput/BidomainTutorial 
-         * in hdf5 format. If you want visualise the results afterwards, call this
-         * and the mesh and output will be converted to meshalyzer format at the 
-         * end of the simulation
+         * in hdf5 format. If you want visualise the results afterwards, call the
+         * following method now, and the mesh and output will be converted to meshalyzer 
+         * format at the end of the simulation.
          */
         bidomain_problem.ConvertOutputToMeshalyzerFormat(); 
 
@@ -215,9 +215,9 @@ public:
          * 
          * The easiest way to look at the resultant voltage values (for the last timestep - 
          * the data for the previous timesteps is written to file but not retained) is to
-         * use a {{{ReplicatableVector}}}. {{{bidomain_problem.GetSolution())}}} returns a PetSc vector
+         * use a {{{ReplicatableVector}}}. {{{bidomain_problem.GetSolution())}}} returns a !PetSc vector
          * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and we can create a 
-         * {{{ReplicatableVector}}} for easy access to this PetSc vector's data. (This won't be very
+         * {{{ReplicatableVector}}} for easy access to this !PetSc vector's data. (This won't be very
          * efficient with huge problems in parallel).
          */
         ReplicatableVector res_repl(bidomain_problem.GetSolution());
