@@ -98,7 +98,7 @@ private:
 
 public:
     /* Our contructor takes in nothing. It calls the constructor of {{{AbstractCardiacCellFactory}}}
-     * and we also initialise the stimulus to have magnitude -6000 '''TODO:units''' and duration 0.5ms.
+     * and we also initialise the stimulus to have magnitude -6000 (uA/cm^3) and duration 0.5 (ms).
      */
     PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>()
     {
@@ -187,8 +187,8 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2, 2.4));
         /* Let us also reset the surface-area-to-volume ratio and the capacitance */
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0); // TODO:units
-        HeartConfig::Instance()->SetCapacitance(1.0); // TODO:units
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0); // 1/cm
+        HeartConfig::Instance()->SetCapacitance(1.0); // uF/cm^2
 
         /* Now we call {{{Initialise()}}}... */
         bidomain_problem.Initialise();
@@ -321,7 +321,7 @@ public:
          * magnitudes that will work, perhaps because the electrodes are close to the tissue).
          */
         //-1e4 is under thershold, -1.4e4 too high - crashes the cell model
-        double magnitude = -1.1e4; //TODO:units
+        double magnitude = -1.1e4; // uA/cm^2
         double duration = 2; //ms
         
         /* Electrodes work in two ways: the first electrode applies an input flux, and
