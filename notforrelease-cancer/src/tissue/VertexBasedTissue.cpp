@@ -165,8 +165,19 @@ unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
 
-    /// \todo put code for removing dead cells here (see #853)
-
+    for (std::list<TissueCell>::iterator it = this->mCells.begin();
+         it != this->mCells.end();
+         ++it)
+    {
+        if (it->IsDead())
+        {
+            // Remove the element from the mesh
+            num_removed++;
+            mrMesh.DeleteElementPriorToReMesh(this->mCellLocationMap[&(*it)]);
+            it = this->mCells.erase(it);
+            --it;
+        }
+    }
     return num_removed;
 }
 
@@ -205,7 +216,8 @@ void VertexBasedTissue<DIM>::Update()
     /// \todo Thought about creating an ElementMap class, but it looks like
     //        we can just hijack NodeMap for our purposes... in fact, what *is*
     //        specific to Nodes in NodeMap?? (see #827)
-    NodeMap element_map(mrMesh.GetNumElements());
+    NodeMap element_map(mrMesh.GetNumAllElements());
+
     mrMesh.ReMesh(element_map);
 
     if (!element_map.IsIdentityMap())
@@ -220,6 +232,7 @@ void VertexBasedTissue<DIM>::Update()
              cell_iter != this->mCells.end();
              ++cell_iter)
         {
+            // This shouldn't ever happen, as the cell vector only contains living cells
             unsigned old_elem_index = old_map[&(*cell_iter)];
             assert(!element_map.IsDeleted(old_elem_index));
             unsigned new_elem_index = element_map.GetNewIndex(old_elem_index);
@@ -228,7 +241,6 @@ void VertexBasedTissue<DIM>::Update()
             this->mCellLocationMap[&(*cell_iter)] = new_elem_index;
         }
     }
-
     // Check that each VertexElement has a TissueCell associated with it in the updated tissue
     Validate();
 }

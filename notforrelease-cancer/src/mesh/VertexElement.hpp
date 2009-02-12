@@ -75,6 +75,13 @@ public:
      */
     void MarkAsDeleted();
 
+    /**
+     * Reset the global index of the element and update its nodes.
+     * 
+     * @param index the new global index
+     */
+    void ResetIndex(unsigned index);
+
     /** 
      * Update node at the given index.
      * 

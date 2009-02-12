@@ -70,6 +70,18 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
 }
 
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::ResetIndex(unsigned index)
+{
+    for (unsigned i=0; i<this->GetNumNodes(); i++)
+    {
+       this->mNodes[i]->RemoveElement(this->mIndex);
+    }
+    this->mIndex = index;
+    RegisterWithNodes();
+}
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
 {

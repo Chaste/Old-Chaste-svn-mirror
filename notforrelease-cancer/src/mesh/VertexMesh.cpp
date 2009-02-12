@@ -308,6 +308,12 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
+{
+    return mElements.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
 {
     assert(index < mNodes.size());
@@ -368,6 +374,18 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point)
 {
     mNodes[nodeIndex]->SetPoint(point);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsigned index)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
+
+    this->mElements[index]->MarkAsDeleted();
+    mDeletedElementIndices.push_back(index);
 }
 
 
@@ -435,22 +453,32 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
     #undef COVERAGE_IGNORE
 
     // Make sure the map is big enough
-    elementMap.Resize(GetNumElements());
+    elementMap.Resize(GetNumAllElements());
     
     if (SPACE_DIM==2)
-    {    
-        unsigned new_index = 0;
-        for (unsigned i=0; i<GetNumElements(); i++)
+    {
+        // Remove deleted elements
+        std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM> *> live_elements;
+        for (unsigned i=0; i<GetNumAllElements(); i++)
         {
             if (mElements[i]->IsDeleted())
             {
-                elementMap.SetDeleted(i);
+                delete this->mElements[i];
             }
             else
             {
-                elementMap.SetNewIndex(i, new_index);
-                new_index++;
+                live_elements.push_back(mElements[i]);
+                elementMap.SetNewIndex(i, (unsigned)(live_elements.size()-1));
             }
+        }
+
+        assert (mDeletedElementIndices.size() == mElements.size() - live_elements.size());
+        mDeletedElementIndices.clear();
+        mElements = live_elements;
+
+        for (unsigned i=0; i<mElements.size(); i++)
+        {
+            mElements[i]->ResetIndex(i);
         }
 
         /*
@@ -532,7 +560,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
         EXCEPTION("Remeshing has not been implemented in 3D (see #827 and #860)\n");
         #undef COVERAGE_IGNORE
         /// \todo put code for remeshing in 3D here - see #866 and the paper doi:10.1016/j.jtbi.2003.10.001
-    }    
+    }
 }
 
 
@@ -1025,20 +1053,15 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
                               elems_containing_node2.end(),
                               std::inserter(shared_elements, shared_elements.begin()));
 
-        // Iterate over common elements  
-//        std::cout << "\n node " << i << std::flush;  
+        // Iterate over common elements
         for (std::set<unsigned>::iterator iter=shared_elements.begin();
              iter!=shared_elements.end();
              ++iter)
         {
-//            std::cout << "\n Common element " << *iter << std::flush;
-            
             // Find which node has the lower local index in this element
             unsigned local_indexA = GetElement(*iter)->GetNodeLocalIndex(p_node_A->GetIndex());
             unsigned local_indexB = GetElement(*iter)->GetNodeLocalIndex(p_node_B->GetIndex());
-            
-//            std::cout << "\n IndexA " << local_indexA << "\t IndexB " << local_indexB << std::flush;
-            
+
             unsigned index = local_indexB;
             if (local_indexB > local_indexA)
             {
@@ -1052,15 +1075,9 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
             {
                 index = local_indexA;
             }
-    		
-//    		std::cout<< "\n new node index " << index << "\t numNodes " << GetElement(*iter)->GetNumNodes() << std::flush;
-    		
+
             // Add new node to this element
-            GetElement(*iter)->AddNode(index, GetNode(new_node_global_indices[i]));
-            
-            
-//            std::cout<< "\n new numNodes " << GetElement(*iter)->GetNumNodes() << std::flush;
-    		
+            GetElement(*iter)->AddNode(index, GetNode(new_node_global_indices[i]));    		
         }
     }
 

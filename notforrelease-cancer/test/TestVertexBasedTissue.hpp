@@ -230,7 +230,6 @@ public:
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
 
-        /// \todo Coverage (can be removed once test below is completed - see #853)
         unsigned num_cells_removed = tissue.RemoveDeadCells();
         TS_ASSERT_EQUALS(num_cells_removed, 0u);
 
@@ -239,8 +238,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(tissue.Update());
     }
 
-    /// \todo Fix coverage of VertexBasedTissue.cpp by testing Update() with cell birth
- 
+
     void TestAddCellWithSimpleMesh() throw (Exception)
     {
         // Make some nodes
@@ -473,9 +471,7 @@ public:
     }
 
 
-    /// \todo This test currently fails, since the method RemoveDeadCells() does not yet
-    // delete the elements/nodes associated with dead cells (see #853)
-    void DONTTestRemoveDeadCellsAndUpdate() throw (Exception)
+    void TestRemoveDeadCellsAndUpdate() throw (Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -500,9 +496,6 @@ public:
         // Remove dead cells
         unsigned num_cells_removed = tissue.RemoveDeadCells();
 
-        /// \todo Currently RemoveDeadCells() does nothing, and is only
-        //        in a test for coverage. Cell death will be implemented
-        //        in #853.
         TS_ASSERT_EQUALS(num_cells_removed, 1u);
 
         // We should now have one less real cell, since one cell has been
@@ -510,8 +503,6 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 23u);
 
         /// \todo Need some more tests here, on the new number of elements/nodes
-
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), cells.size()); // the tissue now copies cells
 
         tissue.Update();
 

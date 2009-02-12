@@ -202,6 +202,11 @@ public:
     unsigned GetNumElements() const;
 
     /**
+     * @return the number of VertexElements in the mesh, including those marked as deleted.
+     */
+    unsigned GetNumAllElements();
+
+    /**
      * @param index the global index of a specified node
      * 
      * @return a pointer to the node
@@ -224,7 +229,16 @@ public:
      * @return the global index of the new node in the mesh.
      */
     unsigned AddNode(Node<SPACE_DIM> *pNewNode);
-    
+
+    /**
+     * Mark an element as deleted. Note that it DOES NOT deal with the associated
+     * nodes and therefore should only be called immediately prior to a ReMesh()
+     * being called.
+     * 
+     * @param index  the global index of a specified vertex element
+     */
+    void DeleteElementPriorToReMesh(unsigned index);
+
     /**
      * Method to divide an element in half 
      * 

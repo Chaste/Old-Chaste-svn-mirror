@@ -38,8 +38,48 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticCellCycleModel.hpp"
 #include "VertexBasedTissue.hpp"
 #include "VertexBasedTissueForce.hpp"
+#include "AbstractCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "VertexMeshWriter.hpp"
+
+/**
+ * Simple cell killer which just kills a single cell.
+ * The constructor takes in a number n, and the killer
+ * will kill the n-th cell reached using the iterator
+ * (or the last cell, if n>num_cells).
+ *
+ * For testing purposes.
+ */
+class SingleCellCellKiller : public AbstractCellKiller<2>
+{
+private :
+    unsigned mNumber;
+
+public :
+    SingleCellCellKiller(AbstractTissue<2>* pTissue, unsigned number)
+        : AbstractCellKiller<2>(pTissue),
+          mNumber(number)
+    {
+    }
+
+    virtual void TestAndLabelCellsForApoptosisOrDeath()
+    {
+        if (mpTissue->GetNumRealCells()==0)
+        {
+            return;
+        }
+
+        AbstractTissue<2>::Iterator cell_iter = mpTissue->Begin();
+
+        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
+        {
+            ++cell_iter;
+        }
+
+        cell_iter->Kill();
+    }
+};
+
 
 class TestTissueSimulationWithVertexBasedTissue : public AbstractCancerTestSuite
 {
@@ -200,6 +240,59 @@ public:
         TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+2);
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
+    }
+
+    /// \todo make this test work - check cell killer (#853)
+    void DONTTestMonolayerWithCellDeath() throw (Exception)
+    {
+        // Create a simple 2D VertexMesh
+        VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
+
+        // Set up cells, one for each VertexElement. Give each cell
+        // a random birth time of -elem_index, so its age is elem_index
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            double birth_time = 0.0 - elem_index;
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+
+        unsigned old_num_nodes = tissue.GetNumNodes();
+        unsigned old_num_elements = tissue.GetNumElements();
+        unsigned old_num_cells = tissue.GetNumRealCells();
+
+        // Create a force system
+        VertexBasedTissueForce<2> force;
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&force);
+
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(tissue, force_collection);
+        simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
+        simulator.SetEndTime(0.01);
+
+        // Create a cell killer and pass in to simulation
+        SingleCellCellKiller cell_killer(&tissue, 8);
+        simulator.AddCellKiller(&cell_killer);
+
+        // Run simulation
+        simulator.Solve();
+
+        // Check that cell 8 has died
+        unsigned new_num_nodes = simulator.rGetTissue().GetNumNodes();
+        unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
+        unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
+
+        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes);
+        TS_ASSERT_EQUALS(new_num_elements, old_num_elements-1);
+        TS_ASSERT_EQUALS(new_num_cells, old_num_cells-1);
+
+        /// \todo add more tests (#853)
     }
 
 
