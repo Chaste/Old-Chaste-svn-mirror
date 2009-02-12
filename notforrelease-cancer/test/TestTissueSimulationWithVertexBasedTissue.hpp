@@ -43,40 +43,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMeshWriter.hpp"
 
 /**
- * Simple cell killer which just kills a single cell.
- * The constructor takes in a number n, and the killer
- * will kill the n-th cell reached using the iterator
- * (or the last cell, if n>num_cells).
+ * Simple cell killer which at the fisrt timestep kills any cell 
+ * whose corresponding location index is a given number.
  *
  * For testing purposes.
  */
-class SingleCellCellKiller : public AbstractCellKiller<2>
+class TargetedCellKiller : public AbstractCellKiller<2>
 {
 private :
-    unsigned mNumber;
+
+    unsigned mTargetIndex;
+    bool mBloodLust;
 
 public :
-    SingleCellCellKiller(AbstractTissue<2>* pTissue, unsigned number)
+    TargetedCellKiller(AbstractTissue<2>* pTissue, unsigned targetIndex)
         : AbstractCellKiller<2>(pTissue),
-          mNumber(number)
+          mTargetIndex(targetIndex),
+          mBloodLust(true)
     {
     }
 
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        if (mpTissue->GetNumRealCells()==0)
+        if ( !mBloodLust || mpTissue->GetNumRealCells()==0 || mpTissue->GetNumRealCells()<mTargetIndex+1)
         {
             return;
         }
-
-        AbstractTissue<2>::Iterator cell_iter = mpTissue->Begin();
-
-        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
-        {
-            ++cell_iter;
-        }
-
-        cell_iter->Kill();
+        mpTissue->rGetCellUsingLocationIndex(mTargetIndex).Kill();
+        mBloodLust = false;
     }
 };
 
@@ -187,7 +181,7 @@ public:
         
     }
 
-    void TestMonolayerWithCellBirth() throw (Exception)
+    void TestVertexMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
@@ -242,8 +236,8 @@ public:
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
     }
 
-    /// \todo make this test work - check cell killer (#853)
-    void DONTTestMonolayerWithCellDeath() throw (Exception)
+
+    void TestVertexMonolayerWithCellDeath() throw (Exception)
     {
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
@@ -273,12 +267,17 @@ public:
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
-        simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
-        simulator.SetEndTime(0.01);
+        simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
+        simulator.SetEndTime(1.0);
 
-        // Create a cell killer and pass in to simulation
-        SingleCellCellKiller cell_killer(&tissue, 8);
-        simulator.AddCellKiller(&cell_killer);
+        // Create a cell killer and pass in to simulation (note we must account for element index changes following each kill)
+        TargetedCellKiller cell0_killer(&tissue, 0);    // element on the bottom boundary
+        TargetedCellKiller cell2_killer(&tissue, 2);    // element in the interior
+        TargetedCellKiller cell12_killer(&tissue, 12);  // element on the corner boundary
+
+        simulator.AddCellKiller(&cell0_killer);
+        simulator.AddCellKiller(&cell2_killer);
+        simulator.AddCellKiller(&cell12_killer);
 
         // Run simulation
         simulator.Solve();
@@ -288,11 +287,10 @@ public:
         unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
         unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
 
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes);
-        TS_ASSERT_EQUALS(new_num_elements, old_num_elements-1);
-        TS_ASSERT_EQUALS(new_num_cells, old_num_cells-1);
-
-        /// \todo add more tests (#853)
+        // There should be 3 nodes removed when element 0 is removed and 2 nodes removed when element 2 is removed
+        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-5);
+        TS_ASSERT_EQUALS(new_num_elements, old_num_elements-3);
+        TS_ASSERT_EQUALS(new_num_cells, old_num_cells-3);
     }
 
 

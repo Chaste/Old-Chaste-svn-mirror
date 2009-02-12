@@ -384,6 +384,19 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsigned ind
     assert(SPACE_DIM == 2);
 #undef COVERAGE_IGNORE
 
+    // Mark any nodes that are contained only in this element as deleted
+    for (unsigned i=0; i<this->mElements[index]->GetNumNodes(); i++)
+    {
+        Node<SPACE_DIM>* p_node = this->mElements[index]->GetNode(i);
+        
+        if (p_node->rGetContainingElementIndices().size()==1)
+        {
+            p_node->MarkAsDeleted();
+            mDeletedNodeIndices.push_back(p_node->GetIndex());
+        }
+    }
+
+    // Mark this element as deleted
     this->mElements[index]->MarkAsDeleted();
     mDeletedElementIndices.push_back(index);
 }
@@ -458,8 +471,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
     if (SPACE_DIM==2)
     {
         // Remove deleted elements
-        std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM> *> live_elements;
-        for (unsigned i=0; i<GetNumAllElements(); i++)
+        std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> live_elements;
+        for (unsigned i=0; i<mElements.size(); i++)
         {
             if (mElements[i]->IsDeleted())
             {
@@ -472,13 +485,36 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
             }
         }
 
-        assert (mDeletedElementIndices.size() == mElements.size() - live_elements.size());
+        assert(mDeletedElementIndices.size() == mElements.size() - live_elements.size());
         mDeletedElementIndices.clear();
         mElements = live_elements;
+
+        // Remove deleted nodes
+        std::vector<Node<SPACE_DIM>*> live_nodes;
+        for (unsigned i=0; i<this->mNodes.size(); i++)
+        {
+            if (mNodes[i]->IsDeleted())
+            {
+                delete this->mNodes[i];
+            }
+            else
+            {
+                live_nodes.push_back(this->mNodes[i]);
+            }
+        }
+
+        assert(mDeletedNodeIndices.size() == mNodes.size()-live_nodes.size());
+        mNodes = live_nodes;
+        mDeletedNodeIndices.clear();
 
         for (unsigned i=0; i<mElements.size(); i++)
         {
             mElements[i]->ResetIndex(i);
+        }
+
+        for (unsigned i=0; i<mNodes.size();i++)
+        {
+            this->mNodes[i]->SetIndex(i);
         }
 
         /*

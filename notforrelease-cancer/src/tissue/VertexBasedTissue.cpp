@@ -177,7 +177,7 @@ unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
             it = this->mCells.erase(it);
             --it;
         }
-    }
+    } 
     return num_removed;
 }
 
