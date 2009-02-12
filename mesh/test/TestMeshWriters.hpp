@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestMeshWriters : public CxxTest::TestSuite
 {
 public:
-    void JoeTestMemfemtoTetgen(void)
+    void TestMemfemtoTetgen(void)
     {
         TrianglesMeshWriter<3,3> mesh_writer("", "MeshFromMemfem");
         MemfemMeshReader<3,3> import_mesh_reader("mesh/test/data/Memfem_slab");
@@ -61,7 +61,7 @@ public:
         delete p_new_mesh_reader;
     }
 
-    void JoeTestFemlabtoTriangles(void)
+    void TestFemlabtoTriangles(void)
     {
         TrianglesMeshWriter<2,2> mesh_writer("","MeshFromFemlab");
 
@@ -83,7 +83,7 @@ public:
 
 
 
-    void JoeTestTrianglesToMeshalyzer1d(void)
+    void TestTrianglesToMeshalyzer1d(void)
     {
         TrianglesMeshReader<1,1> import_mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         MeshalyzerMeshWriter<1,1> mesh_writer("", "MeshFromTetgen");
@@ -91,7 +91,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
 
-    void JoeTestTrianglesToMeshalyzer2d(void)
+    void TestTrianglesToMeshalyzer2d(void)
     {
         TrianglesMeshReader<2,2> import_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
         MeshalyzerMeshWriter<2,2> mesh_writer("", "MeshFromTetgen");
@@ -99,7 +99,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
 
-    void JoeTestTrianglesToMeshalyzer3d(void)
+    void TestTrianglesToMeshalyzer3d(void)
     {
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         MeshalyzerMeshWriter<3,3> mesh_writer("", "MeshFromTetgen");
@@ -107,7 +107,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
 
-    void JoeTestTrianglesToCoolGraphics(void)
+    void TestTrianglesToCoolGraphics(void)
     {
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         bool set_CG_format=true;
@@ -118,7 +118,7 @@ public:
     }
 
 
-    void JoeTestFemlabtoTrianglesViaMesh(void)
+    void TestFemlabtoTrianglesViaMesh(void)
     {
         TrianglesMeshWriter<2,2> mesh_writer("","MeshFromFemlabViaMesh");
 
@@ -142,7 +142,7 @@ public:
     }
 
 
-    void JoeTestTrianglesToMeshalyzerViaMesh1d(void)
+    void TestTrianglesToMeshalyzerViaMesh1d(void)
     {
         TrianglesMeshReader<1,1> import_mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         MeshalyzerMeshWriter<1,1> mesh_writer("", "MeshFromTetgenViaMesh");
@@ -153,7 +153,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
     }
 
-    void JoeTestTrianglesToMeshalyzerViaMesh2d(void)
+    void TestTrianglesToMeshalyzerViaMesh2d(void)
     {
         TrianglesMeshReader<2,2> import_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
         MeshalyzerMeshWriter<2,2> mesh_writer("", "MeshFromTetgenViaMesh");
@@ -164,7 +164,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
     }
 
-    void JoeTestTrianglesToMeshalyzerViaMesh3d(void)
+    void TestTrianglesToMeshalyzerViaMesh3d(void)
     {
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         MeshalyzerMeshWriter<3,3> mesh_writer("", "MeshFromTetgenViaMesh");
@@ -175,7 +175,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
     }
 
-    void JoeTestTrianglesToCoolGraphicsViaMesh(void)
+    void TestTrianglesToCoolGraphicsViaMesh(void)
     {
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         bool set_CG_format=true;
@@ -188,7 +188,7 @@ public:
     }
 
 
-    void JoeTestTriangles1DClosedMeshIn2DSpace()
+    void TestTriangles1DClosedMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");
         TetrahedralMesh<1,2> mesh;
@@ -211,7 +211,7 @@ public:
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U);
     }
 
-    void JoeTestTriangles1DMeshIn2DSpace()
+    void TestTriangles1DMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
         TetrahedralMesh<1,2> mesh;
@@ -230,7 +230,7 @@ public:
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 51U);
     }
 
-    void JoeTestTriangles1DMeshIn2DSpaceWithDeletedNode()
+    void TestTriangles1DMeshIn2DSpaceWithDeletedNode()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
         MutableMesh<1,2> mesh;
@@ -249,7 +249,7 @@ public:
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 50U);
     }
 
-    void JoeTest2DClosedMeshIn3DSpace()
+    void Test2DClosedMeshIn3DSpace()
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/slab_395_elements");
 
@@ -269,7 +269,7 @@ public:
     }
 
 
-    void JoeTest2DMeshIn3DSpace()
+    void Test2DMeshIn3DSpace()
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
 
@@ -293,7 +293,7 @@ public:
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U);
     }
 
-    void JoeTestCmguiWriter() throw(Exception)
+    void TestCmguiWriter() throw(Exception)
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
