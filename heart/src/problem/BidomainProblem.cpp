@@ -28,13 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BidomainProblem.hpp"
-#include "HeartRegionCodes.hpp"
-
 #include "BidomainDg0Assembler.hpp"
 #include "BidomainMatrixBasedAssembler.hpp"
 #include "BidomainWithBathAssembler.hpp"
 #include "BidomainWithBathMatrixBasedAssembler.hpp"
-
 #include "HeartConfig.hpp"
 #include "Exception.hpp"
 #include "DistributedVector.hpp"

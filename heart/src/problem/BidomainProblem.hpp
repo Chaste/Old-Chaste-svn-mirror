@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Electrodes.hpp"
 #include "BidomainPde.hpp"
 #include "BidomainDg0Assembler.hpp"
+#include "HeartRegionCodes.hpp"
 
 /**
  * Class which specifies and solves a bidomain problem.
