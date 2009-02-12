@@ -139,6 +139,11 @@ public:
         {
             TS_ASSERT_EQUALS(vertex_element.GetNode(i)->GetNumContainingElements(), 0u);
         }        
+        // Tidy up
+        for (unsigned i=0; i<nodes.size(); ++i)
+        {
+            delete nodes[i];
+        }
     }
     
     
@@ -158,11 +163,18 @@ public:
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.0, 1e-12);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.0, 1e-12);
         
-        // Update location of node 2        
-        vertex_element.UpdateNode(2, new Node<2>(4, false, 1.2, 1.3));
+        // Update location of node 2 
+        Node <2> *p_node=new Node<2>(4, false, 1.2, 1.3);   
+        vertex_element.UpdateNode(2, p_node);
         
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.2, 1e-12);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[1], 1.3, 1e-12);
+         // Tidy up
+        for (unsigned i=0; i<nodes.size(); ++i)
+        {
+            delete nodes[i];
+        }
+        delete p_node;
     }
 
 
