@@ -41,10 +41,10 @@ icpc = 'icpc'
 
 other_includepaths = ['/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd', '/home/jmpf/hdf5/include']
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),  
-                    '/home/jmpf/hdf5/lib'] #/opt/intel/Compiler/11.0/074/mkl/tools/environment/mklvars32.sh
+                    '/home/jmpf/hdf5/lib', '/home/jmpf/xerces/lib'] #/opt/intel/Compiler/11.0/074/mkl/tools/environment/mklvars32.sh
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
-other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
+other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z']
 
 tools = {'mpirun': '/home/jmpf/mpi/bin/mpirun',
          'mpicxx': '/home/jmpf/mpi/bin/mpicxx'}
