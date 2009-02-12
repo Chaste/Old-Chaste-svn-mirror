@@ -732,6 +732,7 @@ def _checkBuildFailure(test_set_dir, overall_status, colour):
     log = file(os.path.join(test_set_dir, 'build.log'), 'r')
     for line in log:
       if line.startswith('scons: building terminated because of errors.') or \
+         line.endswith('(errors occurred during build).') or \
          line.startswith('  File "SConstruct", line '):
         overall_status = 'Build failed.  ' + overall_status
         colour = 'red'
