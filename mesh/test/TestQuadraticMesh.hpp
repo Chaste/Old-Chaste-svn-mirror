@@ -52,6 +52,14 @@ public:
             bool is_boundary_node = mesh.GetNode(i)->IsBoundaryNode();
             TS_ASSERT_EQUALS(is_boundary_node, ((x==0)||(x==1)));
         }
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            /* Check internal nodes have corrent element associated with them */
+            std::set<unsigned> internal_node_elems;
+            internal_node_elems.insert(mesh.GetElement(i)->GetIndex());
+            TS_ASSERT_EQUALS(internal_node_elems,mesh.GetElement(i)->GetNode(2)->rGetContainingElementIndices());
+        }
+        
     }
     
     void TestQuadraticMesh2d() throw(Exception)
@@ -66,6 +74,16 @@ public:
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 6u);
+            for(unsigned j=0; j<2; j++)
+            {
+                /* Check internal nodes have corrent element associated with them */
+                TS_ASSERT(mesh.GetElement(i)->GetNode(j+3)->GetNumContainingElements() <= 2u);
+                TS_ASSERT(mesh.GetElement(i)->GetNode(j+3)->GetNumContainingElements() > 0u);
+                std::set<unsigned> current_node_indices = mesh.GetElement(i)->GetNode(j)->rGetContainingElementIndices();
+                TS_ASSERT_EQUALS(current_node_indices.count(mesh.GetElement(i)->GetIndex()),1u);
+                current_node_indices = mesh.GetElement(i)->GetNode(j+3)->rGetContainingElementIndices();
+                TS_ASSERT_EQUALS(current_node_indices.count(mesh.GetElement(i)->GetIndex()),1u);
+            }
         }
 
         // node 3 (ie fourth) of element 0 
@@ -133,6 +151,13 @@ public:
         for(unsigned i=0; i<mesh2.GetNumElements(); i++)
         {
             TS_ASSERT_EQUALS(mesh2.GetElement(i)->GetNumNodes(), 10u);
+            for(unsigned j=3; j<9; j++)
+            {
+                /* Check internal nodes have corrent element associated with them */
+                TS_ASSERT(mesh2.GetElement(i)->GetNode(j)->GetNumContainingElements() > 0u);
+                std::set<unsigned> current_node_indices = mesh2.GetElement(i)->GetNode(j)->rGetContainingElementIndices();
+                TS_ASSERT_EQUALS(current_node_indices.count(mesh2.GetElement(i)->GetIndex()),1u);
+            }
         }
         
         // each boundary element should have 6 nodes

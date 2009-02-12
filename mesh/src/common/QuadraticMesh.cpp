@@ -266,6 +266,7 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
         for(unsigned j=DIM+1; j<(DIM+1)*(DIM+2)/2; j++)
         {
             this->GetElement(i)->AddNode( this->GetNode(nodes[j]) );
+            this->GetNode(nodes[j])->AddElement(this->GetElement(i)->GetIndex());
         }
     }
     
