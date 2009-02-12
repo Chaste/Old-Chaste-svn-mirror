@@ -226,7 +226,7 @@ def configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
     if build.using_dealii:
         do_dealii(build)
-        do_metis()
+        #do_metis()
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
         do_petsc('2_3', build.is_optimised, build.is_profile, build.is_production)
