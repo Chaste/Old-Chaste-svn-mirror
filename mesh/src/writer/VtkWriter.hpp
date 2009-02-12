@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vtkUnstructuredGridWriter.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
+#include <vtkDataCompressor.h>
 #include "AbstractMeshWriter.hpp"
 
 
@@ -69,7 +70,9 @@ public:
     void AddCellData(std::string name, std::vector<double> data);
     void AddPointData(std::string name, std::vector<double> data);
     virtual ~VtkWriter()
-    {}
+    {
+        mpVtkUnstructedMesh->Delete(); //Reference counted
+    }
 };
 
 
@@ -98,7 +101,7 @@ void VtkWriter::MakeVtkMesh()
   
     //mpVtkUnstructedMesh->Allocate(rMesh.GetNumNodes(), rMesh.GetNumNodes());
     mpVtkUnstructedMesh->SetPoints(p_pts); 
-        
+    p_pts->Delete(); //Reference counted    
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
     {
         std::vector<unsigned> current_element = this->mElementData[item_num];
@@ -109,18 +112,27 @@ void VtkWriter::MakeVtkMesh()
             p_tetra_id_list->SetId(j, current_element[j]);
         }
         mpVtkUnstructedMesh->InsertNextCell(p_tetra->GetCellType(), p_tetra_id_list);
+        p_tetra->Delete(); //Reference counted
     }
+    
 }    
 
 
 void VtkWriter::WriteFiles()
 {
     MakeVtkMesh();
+    assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
     vtkXMLUnstructuredGridWriter *p_writer = vtkXMLUnstructuredGridWriter::New();
     p_writer->SetInput(mpVtkUnstructedMesh);
+    p_writer->SetDataMode(vtkXMLWriter::Appended); 
+    //Not sure how the uninitialised stuff arises, but you can remove 
+    //valgrind problems by removing compression:
+    //p_writer->SetCompressor(NULL);
     std::string vtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName+".vtu";
     p_writer->SetFileName(vtk_file_name.c_str());
+    //p_writer->PrintSelf(std::cout, vtkIndent());
     p_writer->Write();
+    p_writer->Delete(); //Reference counted
 }
 
 void VtkWriter::AddCellData(std::string dataName, std::vector<double> dataPayload)
@@ -134,6 +146,7 @@ void VtkWriter::AddCellData(std::string dataName, std::vector<double> dataPayloa
     
     vtkCellData *p_cell_data = mpVtkUnstructedMesh->GetCellData();
     p_cell_data->SetScalars(p_scalars);
+    p_scalars->Delete(); //Reference counted
 }
 
 void VtkWriter::AddPointData(std::string dataName, std::vector<double> dataPayload)
@@ -147,6 +160,8 @@ void VtkWriter::AddPointData(std::string dataName, std::vector<double> dataPaylo
     
     vtkPointData *p_point_data = mpVtkUnstructedMesh->GetPointData();
     p_point_data->SetScalars(p_scalars);
+    p_scalars->Delete(); //Reference counted
+    
 }
 #endif //CHASTE_VTK 
 
