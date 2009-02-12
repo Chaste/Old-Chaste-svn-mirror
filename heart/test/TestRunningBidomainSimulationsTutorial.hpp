@@ -156,7 +156,7 @@ public:
     void TestSimpleSimulation() throw(Exception)
     {
         /* The {{{HeartConfig}}} class is used to set various parameters. It gets the default values 
-         * from !ChasteDefaults.xml (except the values in the 'Simulation' block of the XML file,
+         * from !ChasteDefaults.xml (in the base Chaste directory) (except the values in the 'Simulation' block of the XML file,
          * which is only used by the Chaste executable). Parameters in this file can be re-set 
          * with {{{HeartConfig}}} if the user wishes, and other paramters such as end time must be set
          * using {{{HeartConfig}}}. Let us begin by setting the end time (in ms), the mesh to use, and the
