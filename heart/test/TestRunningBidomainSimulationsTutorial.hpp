@@ -98,7 +98,7 @@ private:
 public:
     /* Our contructor takes in nothing. It calls the constructor of
      * {{{AbstractCardiacCellFactory}}} with 0.01 - this is what {{{mTimestep}}} will be set
-     * to. We also initialise the stimulus to have magnitude -6000 and duration 0.5ms.
+     * to. We also initialise the stimulus to have magnitude -6000 '''TODO:units''' and duration 0.5ms.
      */
     PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>()
     {
@@ -109,13 +109,13 @@ public:
      * a LR91 cell for each node, with the node at (0,0) given the non-zero stimulus,
      * and all other nodes given the zero stimulus. Note that we use {{{mpMesh}}},
      * {{{mTimestep}}}, {{{mpZeroStimulus}}} and {{{mpSolver}}} which are all
-     * members of the base class. The timestep and solver being defined in the base
-     * class are just so that the user doesn't have to create them here. */
+     * members of the base class. The timestep and solver are defined in the base
+     * class just so that the user doesn't have to create them here. */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
         double x = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[0];
         double y = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[1];
-        if (fabs(x)+fabs(y)<1e-6) // ie if (x,y)==(0,0)
+        if (fabs(x)+fabs(y)<1e-6) // ie if (x,y)==(0,0), an alternative would be norm_2(this->mpMesh->GetNode(nodeIndex)->rGetLocation())
         {
             /* Even if running a bidomain simulation, only the intra-cellular stimulus
              * should be given here.  There is a separate Electrodes class for applying
@@ -125,7 +125,7 @@ public:
         }
         else
         {
-            /* The other cells have zero stimuli for both the intra-cellular spaces. */
+            /* The other cells have zero stimuli. */
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
@@ -155,58 +155,81 @@ public:
      * might not get printed out. */
     void TestSimpleSimulation() throw(Exception)
     {
-        /* '''TODO - fill in comments on using HeartConfig''' */
+        /* The HeartConfig class is used to set various parameters. It gets the default values 
+         * from ChasteDefaults.xml (except the values in the 'Simulation' block of the XML file,
+         * which is only used by the Chaste executable). Parameters in this file can be re-set 
+         * with HeartConfig if the user wishes, and other paramters such as end time must be set
+         * using HeartConfig. Let us begin by setting the end time (in ms), the mesh to use, and the
+         * output directory and filename-prefix.
+         */ 
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/square_128_elements");
+        HeartConfig::Instance()->SetOutputDirectory("BidomainTutorial");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
         
         /* Next, we have to create a cell factory of the type we defined above. */
         PointStimulus2dCellFactory cell_factory;
 
         /* Now we create a problem class using (a pointer to) the cell factory. */
         BidomainProblem<2> bidomain_problem( &cell_factory );
-
-        /* Next, some things which have to be set: the mesh filename, and the end time
-         * (in ms). */
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/square_128_elements");
  
-        /* If we want output to be written we need to set the output directory and output
-         * file prefix.
-         */
-        HeartConfig::Instance()->SetOutputDirectory("BidomainTutorial");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-
-        /* If this was enough setup, we could then call {{{Initialise()}}}
-         * and {{{Solve()}}} to run the simulation... */
+        /* This is enough setup to run a simulation: we could now call {{{Initialise()}}}
+         * and {{{Solve()}}} to run... */
         // bidomain_problem.Initialise();
         // bidomain_problem.Solve();
-        /* ..Instead we show how to set a few parameters. To
-         * set the conductivity ''values'' in the principal fibre, sheet and normal directions do the following.
+
+        /* ..However, instead we show how to set a few parameters. To set the conductivity ''values''
+         *  in the principal fibre, sheet and normal directions do the following.
          * Note that {{{Create_c_vector}}} is just a helper method for creating a {{{c_vector<double,DIM>}}}
-         * of the correct size (2, in this case). Note that these methods need to be called before
-         * {{{Initialise()}}} '''is this true?''' '''todo - fix this'''*/
-        //bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
-        //bidomain_problem.SetExtracellularConductivities(Create_c_vector(6.2, 2.4));
-        
-        
+         * of the correct size (2, in this case). Make sure these methods are called before 
+         * {{{Initialise()}}}.
+         */
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2, 2.4));
-        
+        /* Let us also reset the surface-area-to-volume ratio and the capacitance */
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0); // TODO:units
+        HeartConfig::Instance()->SetCapacitance(1.0); // TODO:units
+
         /* Now we call {{{Initialise()}}}... */
         bidomain_problem.Initialise();
-        /* .. and set the surface-area-to-volume ratio and capicitance. 
-         */
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        HeartConfig::Instance()->SetCapacitance(1.0);
 
-        /* Now we call Solve() to run the simulation. Output will be written
-         * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''todo: Comments on watching progress and visualising...'''*/
-         
+        /* The output will be written to /tmp/USER_NAME/testoutput/BidomainTutorial 
+         * in hdf5 format. If you want visualise the results afterwards, call this
+         * and the mesh and output will be converted to meshalyzer format at the 
+         * end of the simulation
+         */
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(); 
+
+        /* Now we call Solve() to run the simulation.  
+         * Note that if you want to view the progress of longer simulations
+         * go to the the output directory and look at the file 
+         * {{{progress_status.txt}}}, which will say the percentage of the 
+         * simulation run. A useful linux command is therefore {{{watch tail progress_status.txt}}}
+         * which will repeatedly display the last few lines of this file. */
         bidomain_problem.Solve();
 
-        /* Finally, we show how to access the voltage values (at the final timestep, the
-         * data for previous timesteps is not retained), using the {{{DistributedVector}}}
-         * class. The call {{{bidomain_problem.GetSolution())}}} returns a Petsc vector
-         * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and the {{{DistributedVector}}}
-         * class can be used to get the values. */
+        /* To now visualise the results, go to /tmp/USER_NAME/testoutput/BidomainTutorial/output,
+         * where you should find the mesh and output, and run meshalyzer.
+         * 
+         * EMPTYLINE
+         * 
+         * The easiest way to look at the resultant voltage values (for the last timestep - 
+         * the data for the previous timesteps is written to file but not retained) is to
+         * use a {{{ReplicatableVector}}}. {{{bidomain_problem.GetSolution())}}} returns a PetSc vector
+         * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and we can create a 
+         * {{{ReplicatableVector}}} for easy access to this PetSc vector's data. (This won't be very
+         * efficient with huge problems in parallel).
+         */
+        ReplicatableVector res_repl(bidomain_problem.GetSolution());
+        for(unsigned i=0; i<res_repl.size(); i++)
+        {
+        //    std::cout << res_repl[i] << "\n";
+        }
+
+        /* Alternatively, we show how to access the voltage values using the {{{DistributedVector}}}
+         * class, which can be used to only iterate over the values of the voltage owned
+         * by that process.
+         */
         DistributedVector dist_bidomain_voltage(bidomain_problem.GetSolution());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
@@ -222,13 +245,6 @@ public:
                 TS_ASSERT_LESS_THAN(0, bidomain_voltage[index]);
             }
         }
-
-        /* Recall that the {{{ReplicatableVector}}} class can also be used for easier access. */
-        //ReplicatableVector res_repl(bidomain_problem.GetSolution());
-        //for(unsigned i=0; i<res_repl.size(); i++)
-        //{
-        //    std::cout << res_repl[i] << "\n";
-        //}
     }
 };
 
