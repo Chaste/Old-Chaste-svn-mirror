@@ -50,8 +50,8 @@ tools = {'mpirun': '/home/jmpf/mpi/bin/mpirun',
          'mpicxx': '/home/jmpf/mpi/bin/mpicxx'}
 
 
-use_vtk = True
+use_vtk = False
 if use_vtk:
-    other_libraries.extend([ 'vtkCommon', 'vtkIO'])
+    other_libraries.extend([ 'vtkIO'])
     other_includepaths.extend(['/usr/include/vtk-5.0'])
     
