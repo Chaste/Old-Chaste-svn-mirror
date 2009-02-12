@@ -78,6 +78,11 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     ////////////////////////////////////////////////////////
     while (iter != mpQuadMesh->GetElementIteratorEnd())
     {
+        //if(assembleJacobian)
+        //{
+        //    LOG_AND_COUT(1, "Element " << (*iter)->GetIndex() << " of " << this->mpQuadMesh->GetNumElements());
+        //}
+        
         Element<DIM,DIM>& element = **iter;
 
         if (element.GetOwnership() == true)

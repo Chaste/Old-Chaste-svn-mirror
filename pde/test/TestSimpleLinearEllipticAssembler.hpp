@@ -240,7 +240,7 @@ public:
         // Instantiate PDE object
         SimplePoissonEquation<1> pde;
 
-        // Boundary conditions u(-1)=1 u'(-3)=1
+        // Boundary conditions u'(-3)=1, u(-1)=1 
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);

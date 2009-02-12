@@ -200,15 +200,15 @@ public:
         /* Now we create Neumann boundary conditions for the ''surface elements'' on x=1 and y=1. Note that
          * Dirichlet boundary conditions are defined on nodes, whereas Neumann boundary conditions are
          * defined on surface elements. Note also that the natural boundary condition statement for this
-         * PDE is (D grad u).n = g(x) (where n is the surface normal), and g(x) is a prescribed function,
-         * ''not'' something like du/dn=g(x). Hence the boundary condition we are specifying is
+         * PDE is (D grad u).n = g(x) (where n is the outward-facing surface normal), and g(x) is a prescribed 
+         * function, ''not'' something like du/dn=g(x). Hence the boundary condition we are specifying is
          * (D grad u).n = 0.
          *
          * EMPTYLINE
          *
          * '''Important note for 1D:''' This means that if we were solving 2u,,xx,,=f(x) in 1D, and
-         * wanted to specify du/dx=1 on the RHS boundary, the Neumann boundary value we have to specify is
-         * -2, as (D gradu).n = -2 when du/dx=1
+         * wanted to specify du/dx=1 on the LHS boundary, the Neumann boundary value we have to specify is
+         * -2, as n=-1 (outward facing normal) so (D gradu).n = -2 when du/dx=1.
          *
          * EMPTYLINE
          *
