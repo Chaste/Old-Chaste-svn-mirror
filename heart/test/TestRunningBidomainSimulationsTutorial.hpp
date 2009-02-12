@@ -141,7 +141,7 @@ public:
 /*
  * EMPTYLINE
  *
- * == Running the simulation ==
+ * == Running a bidomain simulation ==
  *
  * EMPTYLINE
  *
@@ -223,7 +223,7 @@ public:
         ReplicatableVector res_repl(bidomain_problem.GetSolution());
         for(unsigned i=0; i<res_repl.size(); i++)
         {
-        //    std::cout << res_repl[2*i] << "\n";
+        //    std::cout << res_repl[i] << "\n";
         }
 
         /* Alternatively, we show how to access the voltage values using the {{{DistributedVector}}}
@@ -248,7 +248,13 @@ public:
     }
 
     
-    /** 
+    /*
+     * EMPTYLINE
+     *
+     * == Running a bidomain simulation with an external bath, and electrodes ==
+     *
+     * EMPTYLINE
+     * 
      *  Now, we illustrate how to run a simulation with an external bath
      *  and electrodes applying a boundary extracellular stimulus. Note that 
      *  currently, bath problems can only be solved on rectangular/cuboid
@@ -256,48 +262,47 @@ public:
      */
     void TestWithBathAndElectrodes() throw (Exception)
     {
-        /* '''Important:''' we need to remember to reset the config
+        /* '''Important:''' we need to remember to reset the `HeartConfig`
          * class, since it had reset various parameters in the previous
-         * test
+         * test.
          */
         HeartConfig::Instance()->Reset();
 
-        /** First, set the end time and output info. In this simulation
-         *  we'll explicitly read the mesh here, alter it, then pass it
-         *  to the problem class, so we don't set the mesh file name
+        /* First, set the end time and output info. In this simulation
+         * we'll explicitly read the mesh, alter it, then pass it
+         * to the problem class, so we don't set the mesh file name.
          */
         HeartConfig::Instance()->SetSimulationDuration(3.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainTutorialWithBath");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
 
-        /** Bath problems seem to require decreased ODE timesteps.
+        /* Bath problems seem to require decreased ODE timesteps.
          */
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms                        
 
-        /** Next, use the {{{PlaneStimulusCellFactory}}} to define a set
+        /* Next, use the {{{PlaneStimulusCellFactory}}} to define a set
          * of Luo-Rudy cells. This factory normally sets the X=0 cells to be
          * stimulated, but we don't want any intracellular stimulus in this
-         * test, so we pass in 0.0 as the stimulus magnitude
+         * test, so we pass in 0.0 as the stimulus magnitude.
          */
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,2> cell_factory(0.0);
 
-        /** 
-         *  Now, we load up a rectangular mesh (in triangle/tetgen format), done as follows,
-         *  using {{{TrianglesMeshReader}}}
+        /* 
+         * Now, we load up a rectangular mesh (in triangle/tetgen format), done as follows,
+         * using {{{TrianglesMeshReader}}}.
          */
         TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
         
-        /**
-         *  In bath problems, each element has an attribute which must be set
-         *  to 0 (cardiac tissue) or 1 (bath). This can be done by having an 
-         *  extra column in the element file (see for example mesh/test/data/1D_0_to_1_10_elements_with_two_attributes.ele,
-         *  and note that the header in this file has 1 at the end to indicate that
-         *  the file defines an attribute for each element. We have read in a mesh
-         *  without this type of information set up, so we set it up manually,
-         *  by looping over elements and setting those more than 2mm from the centre
-         *  as both elements (by default, the others are cardiac elements.
+        /* In bath problems, each element has an attribute which must be set
+         * to 0 (cardiac tissue) or 1 (bath). This can be done by having an 
+         * extra column in the element file (see for example mesh/test/data/1D_0_to_1_10_elements_with_two_attributes.ele,
+         * and note that the header in this file has 1 at the end to indicate that
+         * the file defines an attribute for each element. We have read in a mesh
+         * without this type of information set up, so we set it up manually,
+         * by looping over elements and setting those more than 2mm from the centre
+         * as bath elements (by default, the others are cardiac elements).
          */
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
@@ -310,10 +315,10 @@ public:
         }
 
         /* Now we define the electrodes. First define the magnitude of the electrodes
-         * (ie the magnitude of the boundary extracellular stimulus, and the duration
+         * (ie the magnitude of the boundary extracellular stimulus), and the duration
          * it lasts for. Currently, electrodes switch on at time 0 and have constant magnitude
-         * until there are switched off. (Note this problem has a small range of 
-         * magnitudes that will work, perhaps because the electrodes are close to the tissue.
+         * until they are switched off. (Note that this test has a small range of 
+         * magnitudes that will work, perhaps because the electrodes are close to the tissue).
          */
         //-1e4 is under thershold, -1.4e4 too high - crashes the cell model
         double magnitude = -1.1e4; //TODO:units
@@ -321,11 +326,11 @@ public:
         
         /* Electrodes work in two ways: the first electrode applies an input flux, and
          * the opposite electrode can either be grounded or apply an equal and opposite
-         * flux (ie an output flux). The false here indicates the second electrode
+         * flux (ie an output flux). The `false` here indicates the second electrode
          * is not grounded, ie has an equal and opposite flux. The "0, 0.0, 0.1" indicates
          * that the electrodes should be applied to the surfaces X=0.0 and X=0.1 (which
-         * most match the mesh provided) (ie use "2, 0.0, 0.1" to apply electrodes to the 
-         * surfaces Z=0.0 and Z=0.1, etc).
+         * must match the mesh provided) (so, for example, you should use "2, 0.0, 0.1" to 
+         * apply electrodes to the surfaces Z=0.0 and Z=0.1, etc).
          */
         Electrodes<2> electrodes(mesh, false, 0, 0.0, 0.1, magnitude, duration);
 
@@ -339,7 +344,7 @@ public:
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.SetElectrodes(electrodes);
         
-        /* ..and solve as before */
+        /* ..and solve as before. */
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
@@ -352,8 +357,8 @@ public:
          * EMPTYLINE
          * 
          * Finally, we can check that an AP was induced in any of the cardiac
-         * cells. We use a `ReplicatableVector as before, and make sure we
-         * only check the voltage at cardiac cells 
+         * cells. We use a `ReplicatableVector` as before, and make sure we
+         * only check the voltage at cardiac cells. 
          */
         Vec solution = bidomain_problem.GetSolution(); // the Vs and phi_e's, as a PetSc vector
         ReplicatableVector solution_repl(solution); 
