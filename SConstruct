@@ -111,14 +111,20 @@ else:
     single_test_suite_dir = ''
 Export('single_test_suite', 'single_test_suite_dir')
 
+# Check for an easy mistake, where the user forgets the 'test_suite='.
+for target in BUILD_TARGETS:
+    if target.endswith('.hpp'):
+        raise ValueError('Unexpected target ' + target +
+                         '; did you forget "test_suite="?')
+
 # To run tests of only a single component, specify it with the
-# test_component=<component> argument.
+# test_component=<component> argument (deprecated).
 test_component = ARGUMENTS.get('test_component', '')
 Export('test_component')
 
 
 # Use a single file to store signatures.
-# Forwards-compatible with SCons 0.97.
+# Forwards-compatible with SCons 0.97, and nicer for svn ignore.
 SConsignFile('.sconsign')
 
 
@@ -270,6 +276,7 @@ if check_failing_tests:
               str(out) + ' ' + build_type + ' --no-stdout')
     test_log_files.append(out)
 
+# Build each component.
 build_dir = build.build_dir
 for toplevel_dir in components:
     bld_dir = os.path.join(toplevel_dir, 'build', build_dir)
@@ -279,6 +286,8 @@ for toplevel_dir in components:
     (test_logs, lib) = SConscript(script, src_dir=toplevel_dir, build_dir=bld_dir,
                                   duplicate=0)
     if not lib:
+        # This component hasn't created a library file, so don't try to link
+        # against it.  Happens if the component consists only of headers.
         for v in comp_deps.itervalues():
             try:
                 v.remove(toplevel_dir)
@@ -312,43 +321,43 @@ for lib in glob.glob('linklib/*'):
 
 # Test summary generation
 if test_summary and not compile_only:
-  # Copy the build env, since we change TargetSigs
-  senv = env.Copy()
-  # Get the directory to put results & summary in
-  output_dir = build.output_dir
-  # Remove old results. Note that this command gets run before anything is built.
-  #for oldfile in os.listdir(output_dir):
-  #  os.remove(os.path.join(output_dir, oldfile))
-  # Add a summary generator to the list of things for scons to do
-  if isinstance(build, BuildTypes.Coverage):
-    # Remove old .gcda files before running more tests
-    # First, find appropriate build directories
-    build_dirs = glob.glob('*/build/' + build.build_dir)
-    # Now find & remove .gcda files within there.
-    # Also remove .log files so tests are re-run
-    for build_dir in build_dirs:
-      for dirpath, dirnames, filenames in os.walk(build_dir):
-        for filename in filenames:
-          if filename[-5:] == '.gcda' or filename[-4:] == '.log':
-            os.remove(os.path.join(dirpath, filename))
-    # For a Coverage build, run gcov & summarise instead
-    summary_action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type
-  else:
-    summary_action = 'python python/DisplayTests.py '+output_dir+' '+build_type
+    # Copy the build env, since we change TargetSigs
+    senv = env.Copy()
+    # Get the directory to put results & summary in
+    output_dir = build.output_dir
+    # Remove old results. Note that this command gets run before anything is built.
+    #for oldfile in os.listdir(output_dir):
+    #  os.remove(os.path.join(output_dir, oldfile))
+    # Add a summary generator to the list of things for scons to do
+    if isinstance(build, BuildTypes.Coverage):
+        # Remove old .gcda files before running more tests
+        # First, find appropriate build directories
+        build_dirs = glob.glob('*/build/' + build.build_dir)
+        # Now find & remove .gcda files within there.
+        # Also remove .log files so tests are re-run
+        for build_dir in build_dirs:
+            for dirpath, dirnames, filenames in os.walk(build_dir):
+                for filename in filenames:
+                    if filename[-5:] == '.gcda' or filename[-4:] == '.log':
+                        os.remove(os.path.join(dirpath, filename))
+        # For a Coverage build, run gcov & summarise instead
+        summary_action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type
+    else:
+        summary_action = 'python python/DisplayTests.py '+output_dir+' '+build_type
   
-  summary_index = os.path.join(output_dir, 'index.html')
-  senv.AlwaysBuild(summary_index)
-  #senv.SourceSignatures('timestamp')
-  #senv.Command(summary_index, Dir(output_dir), summary_action)
-  senv.Command(summary_index, Flatten(test_log_files), summary_action)
-  # Avoid circular dependencies
-  senv.Ignore(summary_index, summary_index)
-  senv.Ignore(Dir(output_dir), summary_index)
-  # Make sure the summary is always required by the build targets requested
-  for targ in BUILD_TARGETS:
-      senv.Depends(targ, summary_index)
-  senv.Depends(summary_index, test_log_files)
-  senv.Default(summary_index)
+    summary_index = os.path.join(output_dir, 'index.html')
+    senv.AlwaysBuild(summary_index)
+    #senv.SourceSignatures('timestamp')
+    #senv.Command(summary_index, Dir(output_dir), summary_action)
+    senv.Command(summary_index, Flatten(test_log_files), summary_action)
+    # Avoid circular dependencies
+    senv.Ignore(summary_index, summary_index)
+    senv.Ignore(Dir(output_dir), summary_index)
+    # Make sure the summary is always required by the build targets requested
+    for targ in BUILD_TARGETS:
+        senv.Depends(targ, summary_index)
+    senv.Depends(summary_index, test_log_files)
+    senv.Default(summary_index)
 
 
 if ARGUMENTS.get('exe', 0):
@@ -412,12 +421,9 @@ if ARGUMENTS.get('exe', 0):
         print "Running acceptance tests", map(str, exes)
         checkout_dir = Dir('#').abspath
         texttest = build.tools['texttest'] + ' -d ' + checkout_dir + '/apps/texttest/chaste'
-        # Currently we don't parse texttest results, so the status is hardcoded to 'unknown'.
-        # To fix this, we need to change 'output' to point to texttest's output and remove the Copy
-        # command below, then add in an extra parse&copy step.
         texttest_output_dir = env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste'
-        time_eight_hours_ago =  time.time() - 8*60*60
-        canonical_test_date=time.strftime("%d%b%Y", time.localtime(time_eight_hours_ago))
+        time_eight_hours_ago = time.time() - 8*60*60
+        canonical_test_date = time.strftime("%d%b%Y", time.localtime(time_eight_hours_ago))
         todays_file = os.path.join(texttest_output_dir, 'test__' + canonical_test_date + '.html')
         # The next 2 lines make sure the acceptance tests will get run, and the right results stored
         env.Execute(Delete(todays_file))
