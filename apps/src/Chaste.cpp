@@ -95,20 +95,20 @@ public:
         switch(ionic_model)
         {
             case(ionic_model_type::LuoRudyIModel1991OdeSystem):
-                return new LuoRudyIModel1991OdeSystem(mpSolver, intracellularStimulus, mpZeroStimulus);
+                return new LuoRudyIModel1991OdeSystem(mpSolver, intracellularStimulus);
                 break;
 
             case(ionic_model_type::BackwardEulerLuoRudyIModel1991):
-                return new BackwardEulerLuoRudyIModel1991(intracellularStimulus, mpZeroStimulus);
+                return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
                 break;
 
             case(ionic_model_type::BackwardEulerFoxModel2002Modified):
-                return new BackwardEulerFoxModel2002Modified(intracellularStimulus, mpZeroStimulus);
+                return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
                 break;
 
             case(ionic_model_type::FaberRudy2000Version3):
                 {
-                    FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, intracellularStimulus, mpZeroStimulus);
+                    FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, intracellularStimulus);
 
                     for (unsigned ht_index = 0;
                          ht_index < cell_heterogeneity_areas.size();
@@ -126,7 +126,7 @@ public:
                 }
 
             case(ionic_model_type::FaberRudy2000Version3Optimised):
-                return new FaberRudy2000Version3Optimised(mpSolver, intracellularStimulus, mpZeroStimulus);
+                return new FaberRudy2000Version3Optimised(mpSolver, intracellularStimulus);
                 break;
 
             default:
