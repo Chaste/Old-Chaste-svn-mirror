@@ -42,7 +42,7 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
         std::set<unsigned> node_indices;
         std::set<unsigned> location_indices;
         std::set<unsigned> ghost_node_indices;
-        
+
         for (unsigned i=0; i<this->GetNumNodes(); i++)
         {
             node_indices.insert(this->GetNode(i)->GetIndex());
@@ -51,13 +51,13 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
         {
             location_indices.insert(locationIndices[i]);
         }
-    
+
         std::set_difference(node_indices.begin(), node_indices.end(),
                             location_indices.begin(), location_indices.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
         SetGhostNodes(ghost_node_indices);
-        
+
         for (std::set<unsigned>::iterator iter=ghost_node_indices.begin();
              iter!=ghost_node_indices.end();
              ++iter)
@@ -74,7 +74,7 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
             ss << "No vector of location indices of real cells is supplied, but the number of cells does not match the number of nodes";
             EXCEPTION(ss.str());
         }
-        
+
         this->mIsGhostNode = std::vector<bool>(this->GetNumNodes(), false);
     }
     Validate();
@@ -101,7 +101,9 @@ bool MeshBasedTissueWithGhostNodes<DIM>::IsGhostNode(unsigned index)
 template<unsigned DIM>
 bool MeshBasedTissueWithGhostNodes<DIM>::IsCellAssociatedWithAGhostNode(TissueCell& rCell)
 {
-    return this->mIsGhostNode[ this->mCellLocationMap[&rCell] ];
+    bool result = this->mIsGhostNode[ this->mCellLocationMap[&rCell] ];
+    assert(result==false);
+    return false;
 }
 
 template<unsigned DIM>
