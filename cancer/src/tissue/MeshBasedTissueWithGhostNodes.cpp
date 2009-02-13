@@ -101,9 +101,11 @@ bool MeshBasedTissueWithGhostNodes<DIM>::IsGhostNode(unsigned index)
 template<unsigned DIM>
 bool MeshBasedTissueWithGhostNodes<DIM>::IsCellAssociatedWithAGhostNode(TissueCell& rCell)
 {
-    bool result = this->mIsGhostNode[ this->mCellLocationMap[&rCell] ];
-    assert(result==false);
-    return false;
+    return this->mIsGhostNode[ this->mCellLocationMap[&rCell] ];
+    /// \todo #430 - this should pass all tests
+//    bool result = this->mIsGhostNode[ this->mCellLocationMap[&rCell] ];
+//    assert(result==false);
+//    return false;
 }
 
 template<unsigned DIM>
