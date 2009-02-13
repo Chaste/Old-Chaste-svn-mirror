@@ -201,57 +201,78 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPreviousEdgeGradientAtNode(unsigned localIndex)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+#undef COVERAGE_IGNORE
+
+    c_vector<double, SPACE_DIM> previous_edge_gradient;
+
+    unsigned previous_index = (this->GetNumNodes()+localIndex-1)%(this->GetNumNodes()); // As localIndex-1 can be -ve which breaks %
+
+    c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();
+    c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
+
+    double previous_edge_length = norm_2(current_node_location - previous_node_location);
+
+    if (previous_edge_length < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
+    {   
+        std::cout << "\n Should Not Reach "<< std::flush;
+        previous_edge_gradient[0] = 0.0;
+        previous_edge_gradient[1] = 0.0;
+    }
+    else
+    {   
+        previous_edge_gradient[0] = (current_node_location[0] - previous_node_location[0])/previous_edge_length;
+        previous_edge_gradient[1] = (current_node_location[1] - previous_node_location[1])/previous_edge_length;
+    }       
+    return previous_edge_gradient;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGradientAtNode(unsigned localIndex)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+#undef COVERAGE_IGNORE
+
+    c_vector<double, SPACE_DIM> next_edge_gradient;
+
+    unsigned next_index = (localIndex+1)%(this->GetNumNodes());
+
+    c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();
+    c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
+
+    double next_edge_length = norm_2(next_node_location - current_node_location);
+
+    if (next_edge_length < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
+    {   
+        std::cout << "\n Should Not Reach "<< std::flush;
+        next_edge_gradient[0] = 0.0;
+        next_edge_gradient[1] = 0.0;
+    }
+    else
+    {   
+        next_edge_gradient[0] = (current_node_location[0] - next_node_location[0])/next_edge_length;
+        next_edge_gradient[1] = (current_node_location[1] - next_node_location[1])/next_edge_length;
+    }
+    return next_edge_gradient;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGradientAtNode(unsigned localIndex)
 {
 #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
 #undef COVERAGE_IGNORE
 
-    c_vector<double, SPACE_DIM> perimeter_gradient;
+    c_vector<double, SPACE_DIM> previous_edge_gradient = GetPreviousEdgeGradientAtNode(localIndex);
+    c_vector<double, SPACE_DIM> next_edge_gradient = GetNextEdgeGradientAtNode(localIndex);
 
-    unsigned next_index = (localIndex+1)%(this->GetNumNodes());
-    unsigned previous_index = (this->GetNumNodes()+localIndex-1)%(this->GetNumNodes()); // As localIndex-1 can be -ve which breaks % 
-
-    c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();  
-    c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
-    c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
-
-    /*
-     * edge1 contains the previous node and the current node
-     * edge2 contains the current node and the next node
-     */
-
-	double length_edge1 = norm_2(current_node_location - previous_node_location);
-	double length_edge2 = norm_2(next_node_location - current_node_location);
-
-	c_vector<double, SPACE_DIM> length_edge1_gradient, length_edge2_gradient; 
-
-	if (length_edge1 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
-	{	
-		std::cout << "\n Should Not Reach "<< std::flush;
-		length_edge1_gradient[0] = 0.0;
-		length_edge1_gradient[1] = 0.0;
-	}
-	else
-	{	
-		length_edge1_gradient[0] = (current_node_location[0] - previous_node_location[0])/length_edge1;
-		length_edge1_gradient[1] = (current_node_location[1] - previous_node_location[1])/length_edge1;
-	}
-
-	if (length_edge2 < 1e-12) /// \todo magic number - replace with DBL_EPSILON?
-	{	
-		std::cout << "\n Should Not Reach "<< std::flush;
-		length_edge2_gradient[0] = 0.0;
-		length_edge2_gradient[1] = 0.0;
-	}	
-    {
-    	length_edge2_gradient[0] = (current_node_location[0] - next_node_location[0])/length_edge2;
-		length_edge2_gradient[1] = (current_node_location[1] - next_node_location[1])/length_edge2;
-    }
-    perimeter_gradient[0] = length_edge1_gradient[0] + length_edge2_gradient[0];
-    perimeter_gradient[1] = length_edge1_gradient[1] + length_edge2_gradient[1];
-
-    return perimeter_gradient;
+    return previous_edge_gradient + next_edge_gradient;
 }
 
 

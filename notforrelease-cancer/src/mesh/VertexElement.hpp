@@ -126,6 +126,12 @@ public:
      */
     c_vector<double, SPACE_DIM> GetAreaGradientAtNode(unsigned localIndex);
 
+    /// \todo document this method (#861)
+    c_vector<double, SPACE_DIM> GetPreviousEdgeGradientAtNode(unsigned localIndex);
+
+    /// \todo document this method (#861)
+    c_vector<double, SPACE_DIM> GetNextEdgeGradientAtNode(unsigned localIndex);
+
 	/**
      * @param localIndex local index of a node owned by the element
      * 
