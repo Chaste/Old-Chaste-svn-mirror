@@ -132,6 +132,11 @@ protected:
         // Validate();
     }
 
+    /**
+     * Update mIsGhostNode if required by a remesh.
+     */
+    virtual void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
+
 public:
 
     /**
@@ -376,11 +381,6 @@ public:
      * @return mpVoronoiTessellation.
      */
     VoronoiTessellation<DIM>& rGetVoronoiTessellation();
-
-    /**
-     * Update mIsGhostNode if required by a remesh.
-     */
-    virtual void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
 
     /**
      * Iterator over edges in the mesh, which correspond to springs between cells.

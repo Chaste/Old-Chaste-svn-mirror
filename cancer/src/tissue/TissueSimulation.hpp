@@ -72,7 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * least one layer of ghost nodes. These are nodes which do not correspond to a cell,
  * but are necessary for remeshing (because the remesher tries to create a convex hull
  * of the set of nodes) and visualization purposes. The MeshBasedTissueWithGhostNodes
- * class deals with ghost nodes. SetGhostNodes() should have been called on it.
+ * class deals with ghost nodes.
  *
  * Cells can divide (at a time governed by their cell cycle models).
  *

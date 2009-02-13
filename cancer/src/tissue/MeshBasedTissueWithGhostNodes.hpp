@@ -65,6 +65,22 @@ private:
         archive & mIsGhostNode;
     }
 
+    /**
+     * Set the ghost nodes, by taking in a vector of bools saying whether each
+     * node is a ghost or not. Won't generally be needed to be called, see
+     * alternate version of SetGhostNodes which takes in the ghost node indices
+     * 
+     * @param isGhostNode
+     */
+    void SetGhostNodes(const std::vector<bool>& isGhostNode);
+
+    /**
+     * Set the ghost nodes by taking in a set of which nodes are ghosts.
+     * 
+     * @param ghostNodeIndices
+     */
+    void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
+
 public:
 
     /**
@@ -120,33 +136,9 @@ public:
     bool IsGhostNode(unsigned index);
 
     /**
-     * Overridden IsCellAssociatedWithAGhostNode() method.
-     * 
-     * @param rCell the cell
-     * @return whether a given cell is associated with a ghost node.
-     */
-    virtual bool IsCellAssociatedWithAGhostNode(TissueCell& rCell);
-
-    /**
      * @return the indices of those nodes that are ghost nodes.
      */
     std::set<unsigned> GetGhostNodeIndices();
-
-    /**
-     * Set the ghost nodes, by taking in a vector of bools saying whether each
-     * node is a ghost or not. Won't generally be needed to be called, see
-     * alternate version of SetGhostNodes which takes in the ghost node indices
-     * 
-     * @param isGhostNode
-     */
-    void SetGhostNodes(const std::vector<bool>& isGhostNode);
-
-    /**
-     * Set the ghost nodes by taking in a set of which nodes are ghosts.
-     * 
-     * @param ghostNodeIndices
-     */
-    void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
 
 	/**
      * Update the GhostNode positions using the spring force model with rest length=1.

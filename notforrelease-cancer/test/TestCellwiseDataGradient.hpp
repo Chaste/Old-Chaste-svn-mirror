@@ -177,26 +177,25 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Create a tissue
+        // Set boundary nodes to be ghost nodes, interior nodes to be cells
+        std::vector<unsigned> cell_location_indices;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            if ( !(mesh.GetNode(i)->IsBoundaryNode()) )
+            {
+                cell_location_indices.push_back(i);
+            }            
+        }
+
+        // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        cells_generator.GenerateBasic(cells, cell_location_indices.size());
 
-        MeshBasedTissueWithGhostNodes<2> tissue(mesh,cells);
+        // Create a tissue
+        MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells, cell_location_indices);
 
-        // Set boundary nodes to be ghosts
-        std::set<unsigned> ghost_node_indices;
-        for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
-             cell_iter != tissue.End();
-             ++cell_iter)
-        {
-            if (tissue.GetNodeCorrespondingToCell(&(*cell_iter))->IsBoundaryNode())
-            {
-                ghost_node_indices.insert(tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex());
-            }
-        }
-        tissue.SetGhostNodes(ghost_node_indices);
-
+        // Create an instance of CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);

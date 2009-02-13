@@ -186,15 +186,6 @@ public:
     /**
      * Helper method for establishing if a cell is real.
      *
-     * @param rCell the cell
-     *
-     * @return whether a given cell is associated with a ghost node.
-     */
-    virtual bool IsCellAssociatedWithAGhostNode(TissueCell& rCell);
-
-    /**
-     * Helper method for establishing if a cell is real.
-     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -603,9 +594,7 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
-    return !(    mrTissue.IsCellAssociatedWithAGhostNode(*mCellIter)
-              || mrTissue.IsCellAssociatedWithADeletedNode(*mCellIter)
-              || (*this)->IsDead() );
+    return !( mrTissue.IsCellAssociatedWithADeletedNode(*mCellIter) || (*this)->IsDead() );
 }
 
 template<unsigned DIM>

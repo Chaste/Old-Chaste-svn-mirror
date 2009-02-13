@@ -161,11 +161,6 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
     return *(mLocationCellMap[index]);
 }
 
-template<unsigned DIM>
-bool AbstractTissue<DIM>::IsCellAssociatedWithAGhostNode(TissueCell& rCell)
-{
-    return false;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////

@@ -277,8 +277,6 @@ public:
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
-        // Set ghost nodes
-        tissue.SetGhostNodes(ghost_node_indices);
         std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(), false);
         for (std::set<unsigned>::iterator it=ghost_node_indices.begin();
              it!=ghost_node_indices.end();
@@ -497,28 +495,28 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        // Create vector of cell location indices
+        std::vector<unsigned> cell_location_indices;
+        for (unsigned i=10; i<mesh.GetNumNodes(); i++)
+        {
+            if (i!=80)
+            {
+                cell_location_indices.push_back(i);
+            }
+        }
+
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        cells_generator.GenerateBasic(cells, cell_location_indices.size());
         cells[27].StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
-        MeshBasedTissueWithGhostNodes<2> tissue_with_ghost_nodes(mesh, cells);
-
-        // Set ghost nodes (using alternative constructor)
-        std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
-        for (unsigned i=0; i<10; i++)
-        {
-            is_ghost_node[i] = true;
-        }
-        is_ghost_node[80] = true;
-        tissue_with_ghost_nodes.SetGhostNodes(is_ghost_node);
+        MeshBasedTissueWithGhostNodes<2> tissue_with_ghost_nodes(mesh, cells, cell_location_indices);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
 
         // Num real cells should be num_nodes (81) - num_ghosts (11) = 70
-        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetCells().size(), 81u);
         TS_ASSERT_EQUALS(tissue_with_ghost_nodes.GetNumRealCells(), 70u);
 
         p_simulation_time->IncrementTimeOneStep();
@@ -527,7 +525,6 @@ public:
 
         TS_ASSERT_EQUALS(num_removed_with_ghost_nodes, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 80u);
-        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetCells().size(), 80u);
         TS_ASSERT_DIFFERS(tissue_with_ghost_nodes.rGetCells().size(), cells.size()); // Tissue now copies cells
 
         // Num real cells should be num_nodes (81) - num_ghosts (11) - 1 deleted node = 69
@@ -589,25 +586,27 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        // Create vector of cell location indices
+        std::vector<unsigned> cell_location_indices;
+        for (unsigned i=10; i<mesh.GetNumNodes(); i++)
+        {
+            if (i!=80)
+            {
+                cell_location_indices.push_back(i);
+            }
+        }
+
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        cells_generator.GenerateBasic(cells, cell_location_indices.size());
         cells[27].StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
-        MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells, cell_location_indices);
 
-        std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
-        for (unsigned i=0; i<10; i++)
-        {
-            is_ghost_node[i] = true;
-        }
-        is_ghost_node[80] = true;
-
-        tissue.SetGhostNodes(is_ghost_node);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 70u);
 
         TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
         new_cell.SetBirthTime(0);
@@ -618,7 +617,6 @@ public:
         tissue.AddCell(new_cell, new_location);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 82u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
 
         p_simulation_time->IncrementTimeOneStep();
@@ -627,7 +625,6 @@ public:
         TS_ASSERT_EQUALS(num_removed, 1u);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
 
         TissueCell new_cell2(STEM, HEALTHY, new FixedCellCycleModel());
@@ -639,7 +636,6 @@ public:
         tissue.AddCell(new_cell2, new_location2);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 82u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
     }
 
@@ -810,27 +806,6 @@ public:
         // Create a tissue
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
-        // Create a set of node indices corresponding to ghost nodes
-        std::set<unsigned> node_indices;
-        std::set<unsigned> location_indices_set;
-        std::set<unsigned> ghost_node_indices;
-        
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
-        }
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            location_indices_set.insert(location_indices[i]);
-        }
-    
-        std::set_difference(node_indices.begin(), node_indices.end(),
-                            location_indices_set.begin(), location_indices_set.end(),
-                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
-
-        // Set ghost nodes
-        tissue.SetGhostNodes(ghost_node_indices);
-
         // Check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
 
@@ -863,23 +838,20 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        // Create vector of cell location indices
+        std::vector<unsigned> cell_location_indices;
+        for (unsigned i=10; i<mesh.GetNumNodes(); i++)
+        {
+            cell_location_indices.push_back(i);
+        }
+
         // Set up cells
         std::vector<TissueCell> cells;
         FixedCellCycleModelCellsGenerator<3> generator;
-        generator.GenerateBasic(cells, mesh.GetNumNodes());
+        generator.GenerateBasic(cells, cell_location_indices.size());
 
         // Create a tissue, with no ghost nodes at the moment
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells);
-
-        // Make nodes 0-10 ghost nodes
-        std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
-        for (unsigned i=0; i<10; i++)
-        {
-            is_ghost_node[i] = true;
-        }
-
-        // Set ghost nodes
-        tissue.SetGhostNodes(is_ghost_node);
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, cell_location_indices);
 
         // Check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
@@ -914,8 +886,7 @@ public:
                     unsigned node_A = p_element->GetNodeGlobalIndex(j);
                     unsigned node_B = p_element->GetNodeGlobalIndex(k);
 
-                    // If nodeA or node_B are <10 they will have been labelled a ghost node
-                    // above
+                    // If nodeA or node_B are <10 they will have been labelled a ghost node above
                     if (node_A != node_B && node_A>=10 && node_B>=10)
                     {
                         std::set<unsigned> node_pair;
