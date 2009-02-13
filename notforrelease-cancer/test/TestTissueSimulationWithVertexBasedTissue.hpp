@@ -131,7 +131,7 @@ public:
 
     void TestSingleCellRelaxation() throw (Exception)
     {
-        // Construct a 2D vertex mesh consisting of a single hexagonal element
+        // Construct a 2D vertex mesh consisting of a single element
         std::vector<Node<2>*> nodes;
         unsigned num_nodes = 20;
         for (unsigned i=0; i<num_nodes; i++)
@@ -172,14 +172,15 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
         simulator.SetEndTime(5.0);
+
         // Run simulation
         simulator.Solve();
 
-        //Test Relaxes to circle Can be more stringent with more nodes and more time. 
-        TS_ASSERT_DELTA(tissue.GetElement(0)->GetArea(),1.0, 1e-2)
-		TS_ASSERT_DELTA(tissue.GetElement(0)->GetPerimeter(),3.5449077, 1e-1)
-        
+        // Test relaxes to circle (can be more stringent with more nodes and more time) 
+        TS_ASSERT_DELTA(tissue.GetElement(0)->GetArea(), 1.0, 1e-2);
+		TS_ASSERT_DELTA(tissue.GetElement(0)->GetPerimeter(), 3.5449077, 1e-1);
     }
+
 
     void TestVertexMonolayerWithCellBirth() throw (Exception)
     {

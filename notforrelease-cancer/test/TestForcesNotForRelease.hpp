@@ -598,15 +598,33 @@ public:
     
     void TestVertexBasedTissueForceMethods() throw (Exception)
     {
-        // Create a vertex mesh
-        VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
+        // Construct a 2D vertex mesh consisting of a single element
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 20;
+        std::vector<double> angles = std::vector<double>(num_nodes);
 
-        // Set up cells
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (unsigned i=0; i<num_nodes; i++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
-            double birth_time = 0.0 - i;
+            angles[i] = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes);
+            nodes.push_back(new Node<2>(i, false, cos(angles[i]), sin(angles[i])));   
+        }
+
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        double cell_swap_threshold = 0.01;
+        double edge_division_threshold = 2.0;
+        VertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
+
+        // Set up cells, one for each VertexElement. Give each cell
+        // a birth time of 0
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            CellType cell_type = DIFFERENTIATED;
+            double birth_time = -1.0;
+
+            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -614,7 +632,7 @@ public:
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
 
-        // Create force law
+        // Create a force system
         VertexBasedTissueForce<2> force;
 
         // Initialise a vector of new node forces
@@ -628,7 +646,15 @@ public:
 
         force.AddForceContribution(node_forces, tissue);
 
-        /// \todo add tests! (see #861)
+        // The force on each node should be radially inward, with the same magnitude for all nodes
+        double expected_force_magnitude = 1.4646;
+
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            TS_ASSERT_DELTA(norm_2(node_forces[i]), expected_force_magnitude, 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][0], -expected_force_magnitude*cos(angles[i]), 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][1], -expected_force_magnitude*sin(angles[i]), 1e-4);
+        }
     }
 
 };
