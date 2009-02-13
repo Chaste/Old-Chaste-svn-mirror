@@ -66,6 +66,11 @@ private:
 public:
     
     /**
+     * As a convention, we consider processor 0 the master process
+     */
+    static const unsigned MASTER_RANK=0;
+    
+    /**
      * Reset our cached values: whether PETSc is initialised,
      * how many processors there are, and which one we are.
      */

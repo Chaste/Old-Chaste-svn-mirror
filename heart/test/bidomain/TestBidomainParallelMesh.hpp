@@ -44,17 +44,17 @@ class TestBidomainParallelMesh : public CxxTest::TestSuite
 {
 public:
 
-    void TestBidomainProblemWithDistributedMesh1D()
+    void TestBidomainProblemWithDistributedMesh2D()
     {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        HeartConfig::Instance()->SetOutputDirectory("DistributedMesh1d");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral1d");
+        HeartConfig::Instance()->SetOutputDirectory("DistributedMesh2d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral2d");
 
         Vec nondistributed_results;
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        // The default stimulus in PlaneStimulusCellFactory is not enough to generate propagation
+        // here, increasing it an order of magnitude 
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-6000);
 
         // To avoid an issue with the Event handler only one simulation should be
         // in existance at a time: therefore monodomain simulation is defined in a block
@@ -62,11 +62,11 @@ public:
             ///////////////////////////////////////////////////////////////////
             // ParallelTetrahedralMesh
             ///////////////////////////////////////////////////////////////////
-            TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-            TetrahedralMesh<1,1> mesh;
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+            TetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
 
-            BidomainProblem<1> nondistributed_problem( &cell_factory );
+            BidomainProblem<2> nondistributed_problem( &cell_factory );
             nondistributed_problem.SetMesh(&mesh);
             nondistributed_problem.Initialise();
 
@@ -86,11 +86,11 @@ public:
         ///////////////////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOutputFilenamePrefix("distributed1d");
 
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        ParallelTetrahedralMesh<1,1> mesh;
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        ParallelTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        BidomainProblem<1> distributed_problem( &cell_factory );
+        BidomainProblem<2> distributed_problem( &cell_factory );
 
         distributed_problem.SetMesh(&mesh);
 

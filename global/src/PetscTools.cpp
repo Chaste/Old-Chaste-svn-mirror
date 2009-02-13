@@ -100,7 +100,7 @@ bool PetscTools::AmMaster()
     {
         ResetCache();
     }
-    return (mRank == 0);
+    return (mRank == MASTER_RANK);
 }
 
 //

@@ -41,14 +41,7 @@ private:
     SimpleStimulus* mpStimulus;
 
 public:
-    PlaneStimulusCellFactory() : AbstractCardiacCellFactory<DIM>()
-    {
-        // set the new stimulus
-        mpStimulus = new SimpleStimulus(-600, 0.5);
-        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus(-600, 0.5)\n");
-    }
-
-    PlaneStimulusCellFactory(double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>()
+    PlaneStimulusCellFactory(double stimulusMagnitude=-600) : AbstractCardiacCellFactory<DIM>()
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
