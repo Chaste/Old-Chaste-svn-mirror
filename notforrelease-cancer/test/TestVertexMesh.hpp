@@ -305,7 +305,8 @@ public:
         nodes_elem_1.push_back(nodes[6]);
         
         std::vector<VertexElement<2,2>*> elements;
-        elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        VertexElement<2,2> *p_replaced_vertex_element=new VertexElement<2,2>(0, nodes_elem_0);
+        elements.push_back(p_replaced_vertex_element);
         elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
         
         // Make a vertex mesh
@@ -333,11 +334,14 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
 
 
-        // Add a new element to the mesh 
+        // Replace element 0 in the mesh 
         mesh.AddElement(new VertexElement<2,2>(0, nodes_elem_3));
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
+        
+        //Tidy up
+        delete p_replaced_vertex_element;
     }
 
 
