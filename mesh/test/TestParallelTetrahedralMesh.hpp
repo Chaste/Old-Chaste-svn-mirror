@@ -41,7 +41,7 @@ class TestParallelTetrahedralMesh : public CxxTest::TestSuite
     
 public:
 
-    /// \todo: 1D parallel meshes not supported (!). Since culling internal faces is mandatory here and there's not a parallel implementation of that yet
+    // ticket #922: 1D parallel meshes not supported (!). Since culling internal faces is mandatory here and there's not a parallel implementation of that yet
     void dontTestConstructFromMeshReader1D()
     {        
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");

@@ -177,7 +177,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         cullInternalFaces = true;
     }
     
-    /// \todo: Face culling is not supported in parallel yet
+    // ticket #922: Face culling is not supported in parallel yet
     assert(!cullInternalFaces);    
     
     mTotalNumElements = rMeshReader.GetNumElements();
@@ -277,8 +277,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         
         if (!own )
         {
-            /// \todo: If we are culling internal faces we need to check if this is an external one before incrementing the index. 
-            ///        This turned to be tricky in parallel... since you can't check it in faces you don't own.  
+            // ticket #922: If we are culling internal faces we need to check if this is an external one before incrementing the index. 
+            //              This turned to be tricky in parallel... since you can't check it in faces you don't own.  
             assert(!cullInternalFaces);
             actual_face_index++; 
             continue;
