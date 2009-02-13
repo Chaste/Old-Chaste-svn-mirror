@@ -59,7 +59,7 @@ private:
         
 public:
 
-    ParallelTetrahedralMesh(bool metisPartitioning=false);
+    ParallelTetrahedralMesh(bool metisPartitioning=true);
 
     virtual ~ParallelTetrahedralMesh();
 
@@ -677,7 +677,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<u
     //Update indices
     for (unsigned index=0; index<this->mNodes.size(); index++)
     {
+        unsigned old_index = this->mNodes[index]->GetIndex();
         this->mNodes[index]->SetIndex(counter);
+        
+        // Update global to local node mapping since indices have changed. 
+        mNodesMapping[counter] = mNodesMapping[old_index];
+        
         counter++;
     }
 }

@@ -68,25 +68,21 @@ public:
         }
     }
 
-    void TestConstructFromMeshReader2D()
+    void TestConstructFromMeshReader2DWithoutReordering()
     {
+        /*
+         * In this test we don't use reordering since we want to check that a TetrahedralMesh and
+         * a ParallelTetrahedralMesh create the same geometry from the same file.
+         */
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         
-        ParallelTetrahedralMesh<2,2> mesh;
+        ParallelTetrahedralMesh<2,2> mesh(false); // No reordering
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100U);
-
-        unsigned num_local_nodes = mesh.GetNumLocalNodes();
-
-        unsigned nodes_reduction;        
-
-        MPI_Allreduce(&num_local_nodes, &nodes_reduction, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);        
-
-        TS_ASSERT_EQUALS(nodes_reduction, mesh.GetNumNodes());        
     
         mesh_reader.Reset();        
         TetrahedralMesh<2,2> seq_mesh;
@@ -129,6 +125,73 @@ public:
 
                 TS_ASSERT_EQUALS(p_para_boundary_element->GetNode(node_local_index)->GetPoint()[0], 
                                  p_sequ_boundary_element->GetNode(node_local_index)->GetPoint()[0]);                                 
+            }
+            
+            
+        }
+         
+    }
+
+    void TestConstructFromMeshReader3D()
+    {
+        /*
+         * In this test we let METIS reorder the ParallelTetrahedralMesh. We want to check that although
+         * the indices of the nodes have changed, the location of the nodes is consistent with a 
+         * TetrahedralMesh representation of the same mesh.
+         */
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        
+        ParallelTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
+    
+        mesh_reader.Reset();        
+        TetrahedralMesh<3,3> seq_mesh;
+        seq_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        for (ParallelTetrahedralMesh<3,3>::ElementIterator it=mesh.GetElementIteratorBegin(); 
+             it!=mesh.GetElementIteratorEnd(); 
+             ++it)
+        {
+            Element<3,3>* p_para_element = *it;
+            unsigned element_index = p_para_element->GetIndex();
+            
+            Element<3,3>* p_sequ_element = seq_mesh.GetElement(element_index);            
+
+            // The elements have the same index and the nodes are located in the same position.
+            TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());            
+            for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
+            {
+                for (unsigned dim=0; dim<3; dim++)
+                {
+                    TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[dim], 
+                                     p_sequ_element->GetNode(node_local_index)->GetPoint()[dim]);
+                }                                 
+            }
+        }
+
+        for (ParallelTetrahedralMesh<3,3>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin(); 
+             it!=mesh.GetBoundaryElementIteratorEnd(); 
+             ++it)
+        {
+            BoundaryElement<2,3>* p_para_boundary_element = *it;
+            unsigned boundary_element_index = p_para_boundary_element->GetIndex();
+            
+            BoundaryElement<2,3>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);            
+
+            // The boundary elements have the same index and the nodes are located in the same position.
+            TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());            
+            for (unsigned node_local_index=0; node_local_index < p_para_boundary_element->GetNumNodes(); node_local_index++)
+            {
+                for (unsigned dim=0; dim<3; dim++)
+                {
+                    TS_ASSERT_EQUALS(p_para_boundary_element->GetNode(node_local_index)->GetPoint()[dim], 
+                                     p_sequ_boundary_element->GetNode(node_local_index)->GetPoint()[dim]);
+                }                                 
             }
             
             
@@ -232,50 +295,8 @@ public:
                     TS_ASSERT(b_elements_reduction[b_element_id] > 0);
                 }
             }
-        }
-        
-    }
-    
-    void TestConstructFromMeshReader3D()
-    {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51U);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 136U);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 96U);
-
-        ParallelTetrahedralMesh<3,3> mesh;        
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
-
-        std::cout << "no partitioning " << mesh.GetNumLocalNodes() << "/"  << mesh.GetNumLocalElements() << std::endl;
-
-        try
-        {
-            ChastePoint<3> coords = mesh.GetNode(0)->GetPoint();
-            TS_ASSERT_DELTA(coords[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(coords[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(coords[2], 0.0, 1e-6);
-        }
-        catch(Exception& e)
-        {
-            //I'm not the owner of node 0
-        }
-
-        try
-        {
-            ChastePoint<3> coords = mesh.GetNode(19)->GetPoint();            
-            TS_ASSERT_DELTA(coords[0], 0.75, 1e-6);
-            TS_ASSERT_DELTA(coords[1], 0.25, 1e-6);
-            TS_ASSERT_DELTA(coords[2], 0.0, 1e-6);
-        }
-        catch(Exception& e)
-        {
-            //I'm not the owner of node 19
-        }
-    }
+        }        
+    }    
 
     void TestConstruct3DWithRegions() throw (Exception)
     {
@@ -319,46 +340,20 @@ public:
     void TestMetisPartitioning()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51U);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 136U);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 96U);
-
-        ParallelTetrahedralMesh<3,3> mesh(true);        
+        ParallelTetrahedralMesh<3,3> mesh;        
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96U);
-
+        // Check that each processor owns the number of nodes corresponding to its METIS partition
         std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
-
         TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
 
-        std::cout << "METIS partitioning " << mesh.GetNumLocalNodes() << "/" << mesh.GetNumLocalElements() << std::endl;
+        ParallelTetrahedralMesh<3,3> no_metis_mesh(false);
+        mesh_reader.Reset();        
+        no_metis_mesh.ConstructFromMeshReader(mesh_reader);
 
-        try
-        {
-            ChastePoint<3> coords = mesh.GetNode(0)->GetPoint();
-            TS_ASSERT_DELTA(coords[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(coords[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(coords[2], 0.0, 1e-6);
-        }
-        catch(Exception& e)
-        {
-            //I'm not the owner of node 0
-        }
+        std::cout << "Proc: " << PetscTools::GetMyRank() << " METIS reordering " << mesh.GetNumLocalNodes() << "/" << mesh.GetNumLocalElements() << std::endl;
+        std::cout << "Proc: " << PetscTools::GetMyRank() << " no reordering " << no_metis_mesh.GetNumLocalNodes() << "/"  << no_metis_mesh.GetNumLocalElements() << std::endl;
 
-        try
-        {
-            ChastePoint<3> coords = mesh.GetNode(19)->GetPoint();            
-            TS_ASSERT_DELTA(coords[0], 0.75, 1e-6);
-            TS_ASSERT_DELTA(coords[1], 0.25, 1e-6);
-            TS_ASSERT_DELTA(coords[2], 0.0, 1e-6);
-        }
-        catch(Exception& e)
-        {
-            //I'm not the owner of node 19
-        }        
     }
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/
