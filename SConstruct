@@ -172,7 +172,8 @@ hostconfig.configure(build)
 other_libs = hostconfig.libraries
 other_libpaths = hostconfig.libpaths
 other_includepaths = hostconfig.incpaths
-
+if isinstance(build, BuildTypes.CovTool):
+    build.UseCovTool(other_includepaths, other_libs)
 
 Export("other_libpaths", "other_libs")
 

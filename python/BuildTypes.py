@@ -365,6 +365,35 @@ class Coverage(GccDebug):
         else:
             return 'red'
 
+class CovTool(Coverage):
+    """Coverage testing using the covtool software."""
+    def __init__(self, *args, **kwargs):
+        # Don't call Coverage.__init__ as it adds flags we don't want
+        GccDebug.__init__(self, *args, **kwargs)
+        self.build_dir = 'covtool'
+        self._num_processes = 2
+        self._cc_flags.append('-v')
+        # Note: the following can be overridden by hostconfig
+        self.tools['cov++'] = 'cov++'
+        self.tools['covannotate'] = 'covannotate.exe'
+        self.tools['covmerge'] = 'covmerge.exe'
+
+    def UseCovTool(self, other_includepaths, other_libs):
+        """Switch to using the covtool toolchain."""
+#        covcmd = self.tools['cov++'] + ' -EXT .cpp .c++ -DIAG -VER' + \
+#            ''.join(map(lambda p: ' -skip '+p,
+#                        other_includepaths + ['/usr'])) # Don't instrument other people's code
+#        self.tools['mpicxx'] += ' -CC="%s"' % covcmd
+        self.tools['mpicxx'] = ' '.join([self.tools['cov++'], '-CMD',
+                                         self.tools['mpicxx'], self.tools['mpicxx'],
+                                         '-EXT .cpp .c++'])
+        self.tools['mpicxx'] += ' -DIAG -VER' # for debugging
+        # Don't instrument other people's code
+        self.tools['mpicxx'] += ''.join(map(lambda p: ' -skip '+p,
+                                            other_includepaths + ['/usr']))
+        # Must be last
+        other_libs.append('covtoolhelper')
+
 
 class Profile(GccDebug):
     """
