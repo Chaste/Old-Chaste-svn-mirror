@@ -197,7 +197,7 @@ public:
         TissueCell cell2 = cell.Divide();
         cell.SetMutationState(LABELLED);
 
-        SimpleWntCellCycleModel *p_cycle_model2 = static_cast <SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());
+        SimpleWntCellCycleModel *p_cycle_model2 = static_cast<SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());
 
         // Now reduce the Wnt concentration
         wnt_level = 0.7;

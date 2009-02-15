@@ -81,7 +81,7 @@ public:
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
 
         // Divide a cell
-        Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast <Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
 
         TissueCell cell2(STEM, HEALTHY, p_cell_model2);
 

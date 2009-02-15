@@ -153,7 +153,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.75, 1e-9);
 
-            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
             TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.75, 1e-9);
 
             p_simulation_time->IncrementTimeOneStep();

@@ -52,9 +52,9 @@ void RadialSloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
          ++cell_iter)
     {
         // Get distance from centre of tissue
-        double r = norm_2((static_cast<AbstractCellCentreBasedTissue<2>*>(this->mpTissue))->GetLocationOfCell(&(*cell_iter)) - mCentre);
+        double r = norm_2(this->mpTissue->GetLocationOfCell(&(*cell_iter)) - mCentre);
 
-        if ( r > mRadius )
+        if (r > mRadius)
         {
             cell_iter->Kill();
         }

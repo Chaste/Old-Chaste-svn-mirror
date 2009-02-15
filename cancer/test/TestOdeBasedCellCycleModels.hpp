@@ -94,7 +94,7 @@ public:
 
         // For coverage, we also test TysonNovakCellCycleModel methods for a mutant cell
         p_cell_model->ResetForDivision();
-        TysonNovakCellCycleModel *p_cell_model2 = static_cast <TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        TysonNovakCellCycleModel *p_cell_model2 = static_cast<TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         TissueCell stem_cell_2(STEM, APC_ONE_HIT, p_cell_model2);
 
         // Test the cell is ready to divide at the right time

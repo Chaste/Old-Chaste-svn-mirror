@@ -277,7 +277,7 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            output_arch << static_cast<const WntConcentration&>(*WntConcentration::Instance());
+            output_arch << static_cast<const WntConcentration&> (*WntConcentration::Instance());
 
             WntConcentration::Destroy();
         }
