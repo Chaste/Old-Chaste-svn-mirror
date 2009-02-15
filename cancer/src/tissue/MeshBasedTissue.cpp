@@ -159,7 +159,7 @@ void MeshBasedTissue<DIM>::Validate()
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+        unsigned node_index = GetLocationIndexUsingCell(&(*cell_iter));
         validated_node[node_index] = true;
     }
 
@@ -321,9 +321,7 @@ void MeshBasedTissue<DIM>::Update()
 
     CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
 
-    if (   GetWriteVoronoiData()
-        || UseAreaBasedDampingConstant()
-        || GetWriteTissueAreas() )
+    if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() )
     {
         CreateVoronoiTessellation();
     }
@@ -491,7 +489,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         {
             for (unsigned i=0; i<DIM+1; i++)
             {
-                *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
+                *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i) << " ";
             }
         }
     }

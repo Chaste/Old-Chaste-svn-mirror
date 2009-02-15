@@ -75,6 +75,31 @@ double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 
 
 template<unsigned DIM>
+double VertexBasedTissue<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB)
+{
+    double adhesion_parameter = 0.01;
+
+    // Find the indices of the elements owned by each node
+    std::set<unsigned> elements_containing_nodeA = pNodeA->rGetContainingElementIndices();
+    std::set<unsigned> elements_containing_nodeB = pNodeB->rGetContainingElementIndices();
+    
+    // Find common elements
+    std::set<unsigned> shared_elements;
+    std::set_intersection(elements_containing_nodeA.begin(),
+                          elements_containing_nodeA.end(),
+                          elements_containing_nodeB.begin(),
+                          elements_containing_nodeB.end(),
+                          std::inserter(shared_elements, shared_elements.begin()));
+    
+    // Check that the nodes have a common edge
+    assert(shared_elements.size() > 0);
+
+    /// \todo Put code for differential adhesion here (#861)
+    return adhesion_parameter;
+}
+
+
+template<unsigned DIM>
 VertexMesh<DIM, DIM>& VertexBasedTissue<DIM>::rGetMesh()
 {
     return mrMesh;
@@ -99,6 +124,25 @@ template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::GetNumNodes()
 {
     return mrMesh.GetNumNodes();
+}
+
+
+template<unsigned DIM>
+c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCell(TissueCell* pCell)
+{
+    // Get element corresponding to this cell
+    VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pCell);
+
+    // Return the centre of mass of this element (assuming uniform density)
+    /// \todo Should this method be moved to the VertexElement class?
+    unsigned num_nodes = p_element->GetNumNodes();
+    c_vector<double, DIM> location = zero_vector<double>(DIM);
+
+    for (unsigned i=0; i<num_nodes; i++)
+    {
+        location += p_element->GetNode(i)->rGetLocation()/((double) num_nodes);
+    }
+    return location;
 }
 
 
@@ -255,7 +299,7 @@ void VertexBasedTissue<DIM>::Validate()
          cell_iter!=this->End();
          ++cell_iter)
     {
-        unsigned elem_index = GetElementCorrespondingToCell(&(*cell_iter))->GetIndex();
+        unsigned elem_index = GetLocationIndexUsingCell(&(*cell_iter));
         validated_element[elem_index] = true;
     }
 

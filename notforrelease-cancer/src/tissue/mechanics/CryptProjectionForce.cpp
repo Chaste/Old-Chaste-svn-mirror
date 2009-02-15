@@ -55,10 +55,10 @@ void CryptProjectionForce::UpdateNode3dLocationMap(AbstractTissue<2>& rTissue)
          ++cell_iter)
     {
         // Get node index
-        unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+        unsigned node_index = rTissue.GetLocationIndexUsingCell(&(*cell_iter));
 
         // Get 3D location
-        node_location_2d = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetLocationOfCell(&(*cell_iter));
+        node_location_2d = rTissue.GetLocationOfCell(&(*cell_iter));
 
         node_location_3d[0] = node_location_2d[0];
         node_location_3d[1] = node_location_2d[1];
@@ -258,7 +258,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
             if (cell_iter->GetCellType()==STEM)
             {
                 c_vector<double, 2>  wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
-                unsigned index = (static_cast<AbstractCellCentreBasedTissue<2>*>(&rTissue))->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+                unsigned index = rTissue.GetLocationIndexUsingCell(&(*cell_iter));
 
                 rForces[index] += wnt_chemotactic_force;
             }

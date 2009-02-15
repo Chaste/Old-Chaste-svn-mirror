@@ -90,7 +90,7 @@ double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
     assert(variableNumber < mNumberOfVariables);
     assert(pCell!=NULL);
 
-    unsigned node_index = mpTissue->GetNodeCorrespondingToCell(pCell)->GetIndex();
+    unsigned node_index = mpTissue->GetLocationIndexUsingCell(pCell);
     unsigned vector_index = node_index*mNumberOfVariables + variableNumber;
     return mData[vector_index];
 }

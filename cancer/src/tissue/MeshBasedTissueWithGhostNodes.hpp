@@ -66,20 +66,17 @@ private:
     }
 
     /**
-     * Set the ghost nodes, by taking in a vector of bools saying whether each
-     * node is a ghost or not. Won't generally be needed to be called, see
-     * alternate version of SetGhostNodes which takes in the ghost node indices
-     * 
-     * @param isGhostNode
-     */
-    void SetGhostNodes(const std::vector<bool>& isGhostNode);
-
-    /**
      * Set the ghost nodes by taking in a set of which nodes are ghosts.
      * 
      * @param ghostNodeIndices
      */
     void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
+
+    /**
+     * Check consistency of our internal data structures. Each node must
+     * have a cell associated with it or be a ghost node.
+     */
+    void Validate();
 
 public:
 
@@ -176,12 +173,6 @@ public:
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
     TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
-
-    /**
-     * Check consistency of our internal data structures. Each node must
-     * have a cell associated with it or be a ghost node.
-     */
-    void Validate();
 
 };
 

@@ -163,8 +163,6 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
 template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
-    /// \todo DoCellRemoval() has not yet been tested with a vertex-based tissue - see #853
-
     unsigned num_deaths_this_step = 0;
 
     // This labels cells as dead or apoptosing. It does not actually remove the cells,
@@ -193,7 +191,7 @@ template<unsigned DIM>
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, DIM> parent_coords = dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->GetLocationOfCell(pParentCell);
+    c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCell(pParentCell);
     c_vector<double, DIM> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that
@@ -231,7 +229,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 
     // Set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);
-    unsigned node_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))->GetNodeCorrespondingToCell(pParentCell)->GetIndex();
+    unsigned node_index = mrTissue.GetLocationIndexUsingCell(pParentCell);
     mrTissue.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;

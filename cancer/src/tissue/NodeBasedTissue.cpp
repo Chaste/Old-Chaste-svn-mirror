@@ -184,7 +184,7 @@ void NodeBasedTissue<DIM>::Update()
     // Remove current dead indices data
     Clear();
 
-    this->Validate();
+    Validate();
 }
 
 

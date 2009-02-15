@@ -220,7 +220,7 @@ public:
                  iter != tissue.End();
                  ++iter)
             {
-                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0u), (double) tissue.GetNodeCorrespondingToCell(&(*iter))->GetIndex(), 1e-12);
+                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0u), (double) tissue.GetLocationIndexUsingCell(&(*iter)), 1e-12);
             }
 
             // Tidy up

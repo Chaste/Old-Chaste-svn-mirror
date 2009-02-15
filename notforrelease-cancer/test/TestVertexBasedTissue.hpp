@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexBasedTissue.hpp"
 #include "FixedCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 
@@ -88,7 +89,7 @@ public:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS(tissue.GetElementCorrespondingToCell(&(*cell_iter))->GetIndex(), counter);
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&(*cell_iter)), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -278,6 +279,18 @@ public:
         // Create tissue
         VertexBasedTissue<2> tissue(vertex_mesh, cells);
 
+        // For coverage, test GetLocationOfCell()
+
+        // Cell 0 is a rectangle with centre of mass (0,0)
+        c_vector<double, 2> cell0_location = tissue.GetLocationOfCell(&(tissue.rGetCellUsingLocationIndex(0)));
+        TS_ASSERT_DELTA(cell0_location[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(cell0_location[1], 0.0, 1e-4);
+
+        // Cell 1 is a triangle with centre of mass (0,4/3)
+        c_vector<double, 2> cell1_location = tissue.GetLocationOfCell(&(tissue.rGetCellUsingLocationIndex(1)));
+        TS_ASSERT_DELTA(cell1_location[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(cell1_location[1], 4.0/3.0, 1e-4);
+
         unsigned old_num_nodes = vertex_mesh.GetNumNodes();
         unsigned old_num_elements = vertex_mesh.GetNumElements();
         unsigned old_num_cells = tissue.rGetCells().size();
@@ -341,7 +354,7 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
 
         // Check the index of the new cell
-        TS_ASSERT_EQUALS(tissue.GetElementCorrespondingToCell(p_new_cell)->GetIndex(), old_num_elements);
+        TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(p_new_cell), old_num_elements);
     }
 
 
@@ -523,7 +536,7 @@ public:
              ++cell_iter)
         {
             // Record element index corresponding to cell
-            unsigned element_index = tissue.GetElementCorrespondingToCell(&(*cell_iter))->GetIndex();
+            unsigned element_index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
             element_indices.insert(element_index);
         }
 
@@ -703,6 +716,96 @@ public:
             TS_ASSERT_DELTA(tissue.GetNode(i)->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
             TS_ASSERT_DELTA(tissue.GetNode(i)->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
         }
+    }
+
+
+    /**
+     * Test that post-#878, WntConcentration copes with a VertexBasedTissue.
+     * \todo When vertex-based tissue code is added to cancer folder, move this 
+     *       test to TestWntConcentration.hpp 
+     */
+    void TestWntConcentrationWithVertexBasedTissue() throw(Exception)
+    {
+        // Make some nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 2.0, -1.0));
+        nodes.push_back(new Node<2>(1, false, 2.0, 1.0));
+        nodes.push_back(new Node<2>(2, false, -2.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, -2.0, -1.0));
+        nodes.push_back(new Node<2>(4, false, 0.0, 2.0));
+
+        // Make a rectangular element out of nodes 0,1,2,3
+        std::vector<Node<2>*> nodes_elem_1;
+        nodes_elem_1.push_back(nodes[0]);
+        nodes_elem_1.push_back(nodes[1]);
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[3]);
+
+        // Make a triangular element out of nodes 1,4,2
+        std::vector<Node<2>*> nodes_elem_2;
+        nodes_elem_2.push_back(nodes[1]);
+        nodes_elem_2.push_back(nodes[4]);
+        nodes_elem_2.push_back(nodes[2]);
+
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_1));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_2));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<vertex_mesh.GetNumElements(); i++)
+        {
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new WntCellCycleModel());
+            double birth_time = 0.0 - i;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(vertex_mesh, cells);
+
+        // Set the top of this tissue, for the purposes of computing the WntConcentration
+        CancerParameters::Instance()->SetCryptLength(4.0);
+
+        // Set up an instance of the WntConcentration singleton object
+        WntConcentration* p_wnt = WntConcentration::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
+
+        // Check that the singleton can be set up
+        p_wnt->SetType(LINEAR);
+        p_wnt->SetTissue(tissue);
+
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
+
+        // Check that the singleton can be destroyed then recreated
+        WntConcentration::Destroy();
+        WntConcentration::Instance()->SetType(NONE);
+        WntConcentration::Instance()->SetTissue(tissue);
+        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(), false); // not fully set up now it is a NONE type
+
+        WntConcentration::Destroy();
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(tissue);
+
+        p_wnt = WntConcentration::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true); // set up again
+
+        double wnt_at_cell0 = p_wnt->GetWntLevel(&(tissue.rGetCellUsingLocationIndex(0)));
+        double wnt_at_cell1 = p_wnt->GetWntLevel(&(tissue.rGetCellUsingLocationIndex(1)));
+
+        // We have set the top of the tissue to be 4, so the WntConcentration should decrease linearly
+        // up the tissue, from one at height 0 to zero at height 4.
+
+        // Cell 0 has centre of mass (0,0)
+        TS_ASSERT_DELTA(wnt_at_cell0, 1.0, 1e-4);
+
+        // Cell 1 has centre of mass (0, 4/3)
+        TS_ASSERT_DELTA(wnt_at_cell1, 2.0/3.0, 1e-4);
+        
+
     }
 };
 

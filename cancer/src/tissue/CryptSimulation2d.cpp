@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetNodeCorrespondingToCell(pParentCell)->rGetLocation();
+    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetLocationOfCell(pParentCell);
     c_vector<double, 2> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that
@@ -81,7 +81,7 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Tiss
     // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
 
-    unsigned node_index = mpStaticCastTissue->GetNodeCorrespondingToCell(pParentCell)->GetIndex();
+    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(pParentCell);
     mrTissue.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
@@ -117,7 +117,7 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
-        global_index = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+        global_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
         x = mpStaticCastTissue->GetLocationOfCell(&(*cell_iter))[0];
         y = mpStaticCastTissue->GetLocationOfCell(&(*cell_iter))[1];
 
@@ -209,7 +209,7 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+        unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
 
         // Get pointer to this node
         Node<2>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));

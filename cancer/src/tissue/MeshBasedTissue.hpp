@@ -137,6 +137,12 @@ protected:
      */
     virtual void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
 
+    /**
+     * Check consistency of our internal data structures. Each node must
+     * have a cell associated with it.
+     */
+    virtual void Validate();
+
 public:
 
     /**
@@ -357,12 +363,6 @@ public:
      * can be used to trace clonal populations.
      */
     void SetBottomCellAncestors();
-
-    /**
-     * Check consistency of our internal data structures. Each node must
-     * have a cell associated with it.
-     */
-    virtual void Validate();
 
     /**
      * Write current results to mpVoronoiFile.

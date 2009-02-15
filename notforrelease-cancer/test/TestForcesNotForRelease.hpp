@@ -554,7 +554,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned node_index = tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+            unsigned node_index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
 
             TS_ASSERT_DELTA(node_forces[node_index][0], 0.0, 1e-4);
             TS_ASSERT_DELTA(node_forces[node_index][1], 0.0, 1e-4);
@@ -647,13 +647,13 @@ public:
         force.AddForceContribution(node_forces, tissue);
 
         // The force on each node should be radially inward, with the same magnitude for all nodes
-        double expected_force_magnitude = 1.4646;
+        double force_magnitude = norm_2(node_forces[0]);
 
         for (unsigned i=0; i<num_nodes; i++)
         {
-            TS_ASSERT_DELTA(norm_2(node_forces[i]), expected_force_magnitude, 1e-4);
-            TS_ASSERT_DELTA(node_forces[i][0], -expected_force_magnitude*cos(angles[i]), 1e-4);
-            TS_ASSERT_DELTA(node_forces[i][1], -expected_force_magnitude*sin(angles[i]), 1e-4);
+            TS_ASSERT_DELTA(norm_2(node_forces[i]), force_magnitude, 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][0], -force_magnitude*cos(angles[i]), 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][1], -force_magnitude*sin(angles[i]), 1e-4);
         }
     }
 

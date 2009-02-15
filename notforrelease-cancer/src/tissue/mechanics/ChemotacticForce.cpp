@@ -62,7 +62,7 @@ void ChemotacticForce<DIM>::AddForceContribution(std::vector<c_vector<double, DI
         // Only LABELLED cells move chemotactically
         if (cell_iter->GetMutationState() == LABELLED)
         {
-            unsigned node_global_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&rTissue))->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+            unsigned node_global_index = rTissue.GetLocationIndexUsingCell(&(*cell_iter));
 
             c_vector<double,DIM>& r_gradient = gradients.rGetGradient(node_global_index);
             double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter),0);

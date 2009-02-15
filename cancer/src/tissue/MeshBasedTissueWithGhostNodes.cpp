@@ -34,7 +34,7 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      const std::vector<TissueCell>& rCells,
      const std::vector<unsigned> locationIndices,
      bool deleteMesh)
-             : MeshBasedTissue<DIM>(rMesh, rCells, locationIndices, deleteMesh, false)   // Do not call the base class Validate().
+             : MeshBasedTissue<DIM>(rMesh, rCells, locationIndices, deleteMesh, false) // do not call the base class Validate()
 {
     if (!locationIndices.empty())
     {
@@ -68,13 +68,6 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
     }
     else
     {
-        if (rCells.size() != this->GetNumNodes())
-        {
-            std::stringstream ss;
-            ss << "No vector of location indices of real cells is supplied, but the number of cells does not match the number of nodes";
-            EXCEPTION(ss.str());
-        }
-
         this->mIsGhostNode = std::vector<bool>(this->GetNumNodes(), false);
     }
     Validate();
@@ -110,12 +103,6 @@ std::set<unsigned> MeshBasedTissueWithGhostNodes<DIM>::GetGhostNodeIndices()
         }
     }
     return ghost_node_indices;
-}
-
-template<unsigned DIM>
-void MeshBasedTissueWithGhostNodes<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
-{
-    this->mIsGhostNode = rGhostNodes;
 }
 
 template<unsigned DIM>

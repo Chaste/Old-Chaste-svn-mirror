@@ -79,6 +79,12 @@ private:
         archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
     }
 
+    /**
+     * Check the consistency of internal data structures.
+     * Each VertexElement must have a TissueCell associated with it.
+     */
+    void Validate();
+
 public:
 
     /**
@@ -115,9 +121,22 @@ public:
      * Overridden GetDampingConstant() method.
      *
      * @param nodeIndex the global index of this node
-     * @return the damping constant for the given nod.
+     * @return the damping constant for the given node.
      */
     double GetDampingConstant(unsigned nodeIndex);
+
+    /**
+     * Get the adhesion parameter for the edge between two given nodes.
+     * 
+     * \todo This method should be changed/overridden if we require differential adhesion
+     * \todo Check parameter value validity (#861)
+     * 
+     * @param pNodeA one node
+     * @param pNodeB the other node
+     * 
+     * @return the adhesion parameter for this edge.
+     */
+    double GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB);
 
     /**
      * @return reference to  mrMesh.
@@ -149,6 +168,20 @@ public:
      * @return the number of nodes in the tissue.
      */
     unsigned GetNumNodes();
+
+    /**
+     * Overridden GetLocationOfCell() method.
+     * Find where a given cell is in space.
+     * 
+     * \todo If required, we could come up with a more clever definition of cell location
+     *       for a VertexTissue (for example, there is no guarantee of convexity so the 
+     *       centre of mass may lie outside the element)
+     * 
+     * @param pCell pointer to the cell
+     * 
+     * @return the location of the centre of mass of the element corresponding to this cell.
+     */
+    c_vector<double, DIM> GetLocationOfCell(TissueCell* pCell);
 
     /**
      * Overridden GetNode() method.
@@ -229,12 +262,6 @@ public:
      * with TissueCells.
      */
     void Update();
-
-    /**
-     * Check the consistency of internal data structures.
-     * Each VertexElement must have a TissueCell associated with it.
-     */
-    void Validate();
 
     /** 
      * Get the target area of a given cell. This grows linearly from 

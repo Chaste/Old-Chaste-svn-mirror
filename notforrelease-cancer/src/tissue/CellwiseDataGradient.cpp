@@ -107,7 +107,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
          cell_iter != r_tissue.End();
          ++cell_iter)
     {
-        unsigned node_global_index = r_tissue.GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
+        unsigned node_global_index = r_tissue.GetLocationIndexUsingCell(&(*cell_iter));
 
         if  (!num_real_elems_for_node[node_global_index]>0)
         {

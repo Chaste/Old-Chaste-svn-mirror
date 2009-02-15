@@ -74,11 +74,9 @@ private:
     WntConcentrationType mWntType;
 
     /**
-     *  The Tissue in which the WntConcentration occurs.
-     *
-     *  \todo Figure out how to generalise this to an AbstractTissue and work out the Wnt Concentration for a vertex cell (#878)
+     *  The tissue in which the WntConcentration occurs.
      */
-    AbstractCellCentreBasedTissue<2>* mpTissue;
+    AbstractTissue<2>* mpTissue;
 
     /**
      *  Whether this WntConcentration object has had its type set.
@@ -176,10 +174,8 @@ public:
      *  Set the crypt. Must be called before GetWntLevel().
      *
      *  @param rTissue reference to the tissue
-     * 
-     *  \todo Figure out how to generalise this to AbstractTissue so it works with vertex models (#878)
      */
-    void SetTissue(AbstractCellCentreBasedTissue<2>& rTissue);
+    void SetTissue(AbstractTissue<2>& rTissue);
 
     /**
      *  Get the type of Wnt concentration.

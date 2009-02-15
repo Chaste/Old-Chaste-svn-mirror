@@ -213,7 +213,7 @@ void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
         ++cell_iter)
     {
         // Find the element of mpCoarseNutrientMesh that contains this cell
-        const ChastePoint<DIM>& r_position_of_cell = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation();
+        const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCell(&(*cell_iter));
         unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
         mCellNutrientElementMap[&(*cell_iter)] = elem_index;
     }
@@ -375,7 +375,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
             // ... and add its associated nodes to coarse_mesh_boundary_node_indices
             for (unsigned local_index=0; local_index<DIM+1; local_index++)
             {
-                unsigned node_index = p_element->GetNode(local_index)->GetIndex();
+                unsigned node_index = p_element->GetNodeGlobalIndex(local_index);
                 coarse_mesh_boundary_node_indices.insert(node_index);
             }
         }
@@ -544,8 +544,8 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
              ++cell_iter)
         {
             global_index = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(&(*cell_iter))->GetIndex();
-            x = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter))[0];
-            y = (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetLocationOfCell(&(*cell_iter))[1];
+            x = this->mrTissue.GetLocationOfCell(&(*cell_iter))[0];
+            y = this->mrTissue.GetLocationOfCell(&(*cell_iter))[1];
             nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
 
             (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";

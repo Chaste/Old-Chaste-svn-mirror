@@ -121,8 +121,19 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
 
 
             /******** Start of adhesion force calculation ***********/
-            
-            double adhesion_parameter = 0.01; ///\todo generalize this parameter to be cell type-dependent (#861)
+
+            // Get the current, previous and next nodes in this element
+            Node<DIM>* p_current_node = p_element->GetNode(local_index);
+
+            unsigned previous_node_local_index = (p_element->GetNumNodes()+local_index-1)%(p_element->GetNumNodes());
+            Node<DIM>* p_previous_node = p_element->GetNode(previous_node_local_index);
+
+            unsigned next_node_local_index = (local_index+1)%(p_element->GetNumNodes());
+            Node<DIM>* p_next_node = p_element->GetNode(next_node_local_index);
+
+            // Compute the adhesion parameter for each of these edges
+            double previous_edge_adhesion_parameter = p_tissue->GetAdhesionParameter(p_previous_node, p_current_node);
+            double next_edge_adhesion_parameter = p_tissue->GetAdhesionParameter(p_current_node, p_next_node);
 
             // Compute the gradient of the edge of the cell ending in this node
             c_vector<double, DIM> previous_edge_gradient = p_element->GetPreviousEdgeGradientAtNode(local_index);
@@ -131,7 +142,7 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
             c_vector<double, DIM> next_edge_gradient = p_element->GetNextEdgeGradientAtNode(local_index);
 
             // Add the force contribution from cell-cell and cell-boundary adhesion (note the minus sign)
-            adhesion_contribution -= adhesion_parameter*previous_edge_gradient + adhesion_parameter*next_edge_gradient;
+            adhesion_contribution -= previous_edge_adhesion_parameter*previous_edge_gradient + next_edge_adhesion_parameter*next_edge_gradient;
 
             /******** End of adhesion force calculation *************/
         }

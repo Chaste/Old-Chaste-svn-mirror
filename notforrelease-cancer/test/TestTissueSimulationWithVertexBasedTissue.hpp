@@ -171,7 +171,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
-        simulator.SetEndTime(5.0);
+        simulator.SetEndTime(100.0);
 
         // Run simulation
         simulator.Solve();

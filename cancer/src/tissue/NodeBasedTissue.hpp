@@ -84,6 +84,10 @@ private:
      */
     void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation);
 
+    /**
+     * Check consistency of our internal data structures.
+     */
+    void Validate();
 
 public:
 
@@ -162,11 +166,6 @@ public:
      * Remove nodes that have been marked as deleted and update the node cell map.
      */
     void Update();
-
-    /**
-     * Check consistency of our internal data structures.
-     */
-    void Validate();
 
     /**
      * Method for getting all nodes in the tissue.

@@ -161,6 +161,11 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
     return *(mLocationCellMap[index]);
 }
 
+template<unsigned DIM>
+unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCell* pCell)
+{
+    return mCellLocationMap[pCell];
+}
 
 
 //////////////////////////////////////////////////////////////////////////////

@@ -61,6 +61,7 @@ private:
     }
 
 public:
+
     void TestNoWnt() throw(Exception)
     {
         WntConcentration* p_wnt = WntConcentration::Instance();
@@ -83,6 +84,7 @@ public:
         TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[1], 0.0, 1e-12);
     }
+
 
     void TestLinearWntConcentration() throw(Exception)
     {
@@ -245,7 +247,7 @@ public:
             TS_ASSERT_DELTA(p_wnt->GetWntLevel(&(*cell_iter)), wnt_at_cell0, 1e-12);
 
             // Test GetWntGradient(TissueCell*) method
-            c_vector<double,2> cell_location = crypt.GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation();
+            c_vector<double,2> cell_location = crypt.GetLocationOfCell(&(*cell_iter));
             double r = norm_2(cell_location);
 
             c_vector<double,2> expected_wnt_gradient;
@@ -260,6 +262,7 @@ public:
 
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
     }
+
 
     void TestArchiveWntConcentration()
     {

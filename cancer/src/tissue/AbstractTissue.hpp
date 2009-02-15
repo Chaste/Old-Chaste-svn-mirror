@@ -103,6 +103,11 @@ protected:
         archive & mTissueContainsMesh;
     }
 
+    /**
+     * Check consistency of our internal data structures.
+     */
+    virtual void Validate()=0;
+
 public:
 
     /**
@@ -149,6 +154,15 @@ public:
      * @return the number of nodes in the tissue.
      */
     virtual unsigned GetNumNodes()=0;
+
+    /**
+     * Find where a given cell is in space.
+     * 
+     * @param pCell pointer to the cell
+     * 
+     * @return the location of the cell
+     */
+    virtual c_vector<double, DIM> GetLocationOfCell(TissueCell* pCell)=0;
 
     /**
      * As this method is pure virtual, it must be overridden
@@ -253,11 +267,6 @@ public:
     virtual void Update()=0;
 
     /**
-     * Check consistency of our internal data structures.
-     */
-    virtual void Validate()=0;
-
-    /**
      * Find out how many cells of each mutation state there are
      *
      * @return The number of cells of each mutation state (evaluated at each visualizer output)
@@ -322,16 +331,28 @@ public:
     std::set<unsigned> GetCellAncestors();
 
     /**
-     * Get the cell corresponding to a given node.
+     * Get the cell corresponding to a given location index.
      *
-     * Currently assumes there is one cell for each node, and they are ordered identically in their vectors.
+     * Currently assumes there is one cell for each location index, and they are ordered identically in their vectors.
      * An assertion fails if not.
      *
-     * @param index index of the node
+     * @param index the location index
      *
-     * @return reference to the cell.
+     * @return the cell.
      */
     TissueCell& rGetCellUsingLocationIndex(unsigned index);
+
+    /**
+     * Get the location index corresponding to a given cell.
+     *
+     * Currently assumes there is one cell for each location index, and they are ordered identically in their vectors.
+     * An assertion fails if not.
+     *
+     * @param pCell the cell
+     *
+     * @return the location index.
+     */
+    unsigned GetLocationIndexUsingCell(TissueCell* pCell);
 
     /**
      * If the tissue contains a mesh, write this to file. For use by
