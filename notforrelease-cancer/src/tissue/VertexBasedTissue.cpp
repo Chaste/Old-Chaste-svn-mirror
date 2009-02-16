@@ -128,7 +128,7 @@ unsigned VertexBasedTissue<DIM>::GetNumNodes()
 
 
 template<unsigned DIM>
-c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCell(TissueCell* pCell)
+c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell* pCell)
 {
     // Get element corresponding to this cell
     VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pCell);

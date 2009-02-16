@@ -86,11 +86,11 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     {
         double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
         double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
-        height = a*pow(norm_2(mpTissue->GetLocationOfCell(pCell)), b);
+        height = a*pow(norm_2(mpTissue->GetLocationOfCellCentre(pCell)), b);
     }
     else
     {
-        height = mpTissue->GetLocationOfCell(pCell)[1]; // y-coordinate
+        height = mpTissue->GetLocationOfCellCentre(pCell)[1]; // y-coordinate
     }
     return GetWntLevel(height);
 }
@@ -106,7 +106,7 @@ c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
     assert(mTypeSet);
     assert(pCell!=NULL);
 
-    c_vector<double,2> location_of_cell = mpTissue->GetLocationOfCell(pCell);
+    c_vector<double,2> location_of_cell = mpTissue->GetLocationOfCellCentre(pCell);
 
     return GetWntGradient(location_of_cell);
 }

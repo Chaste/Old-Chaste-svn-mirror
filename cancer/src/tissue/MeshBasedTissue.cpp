@@ -525,8 +525,8 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
         if ((!mFollowLoggedCell) || ((mFollowLoggedCell) && (cell_iter->IsLogged())))
         {
             unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-            double x = this->GetLocationOfCell(&(*cell_iter))[0];
-            double y = this->GetLocationOfCell(&(*cell_iter))[1];
+            double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
+            double y = this->GetLocationOfCellCentre(&(*cell_iter))[1];
 
             double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
             double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);

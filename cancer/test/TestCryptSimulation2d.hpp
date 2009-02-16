@@ -883,7 +883,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCell(&(*cell_iter))[1]);
+            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
         }
 
         c_vector<unsigned,5> cell_mutation_state_count = simulator.GetCellMutationStateCount();
@@ -1359,18 +1359,18 @@ public:
 
         //Move the first cell (which should be on y=0) down a bit
         AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
-        assert(crypt.GetLocationOfCell(&(*cell_iter))[1] == 0.0);
+        assert(crypt.GetLocationOfCellCentre(&(*cell_iter))[1] == 0.0);
 
         // Move the cell (can't use the iterator for this as it is const)
         crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[1] = -0.1;
-        assert(crypt.GetLocationOfCell(&(*cell_iter))[1] < 0.0);
+        assert(crypt.GetLocationOfCellCentre(&(*cell_iter))[1] < 0.0);
 
         // Run simulation
         simulator.Solve();
 
         //The cell should have been pulled up, but not above y=0. However it should
         // then been moved to above y=0 by the jiggling
-        TS_ASSERT_LESS_THAN(0.0, crypt.GetLocationOfCell(&(*cell_iter))[1]);
+        TS_ASSERT_LESS_THAN(0.0, crypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
     }
 
 

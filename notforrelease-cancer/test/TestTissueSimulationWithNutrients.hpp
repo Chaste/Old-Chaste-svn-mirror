@@ -166,7 +166,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            double radius = norm_2(tissue.GetLocationOfCell(&(*cell_iter)));
+            double radius = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)));
             double analytic_solution = 1 - 0.25*(1 - pow(radius,2.0));
 
             // Get cell model
@@ -589,7 +589,7 @@ public:
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetLocationOfCell(&(*cell_iter)));
+            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(&(*cell_iter)));
             Element<2,2>* p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
 
 

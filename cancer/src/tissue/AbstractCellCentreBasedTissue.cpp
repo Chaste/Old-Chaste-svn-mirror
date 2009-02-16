@@ -45,7 +45,7 @@ AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue()
 
 
 template<unsigned DIM>
-c_vector<double, DIM> AbstractCellCentreBasedTissue<DIM>::GetLocationOfCell(TissueCell* pCell)
+c_vector<double, DIM> AbstractCellCentreBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell* pCell)
 {
     return GetNodeCorrespondingToCell(pCell)->rGetLocation();
 }

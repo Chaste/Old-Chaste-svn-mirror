@@ -63,14 +63,14 @@ public:
     AbstractCellCentreBasedTissue();
 
     /**
-     * Overridden GetLocationOfCell() method.
+     * Overridden GetLocationOfCellCentre() method.
      * Find where a given cell is in space.
      * 
      * @param pCell pointer to the cell
      * 
      * @return the location of the node corresponding to this cell.
      */
-    c_vector<double, DIM> GetLocationOfCell(TissueCell* pCell);
+    c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell);
 
     /**
      * Get a pointer to the node corresponding to a given cell.

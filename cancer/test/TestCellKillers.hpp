@@ -174,8 +174,8 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double x = tissue.GetLocationOfCell(&(*iter))[0];
-            double y = tissue.GetLocationOfCell(&(*iter))[1];
+            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
+            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
 
             if ( (x<0) || (x>0.5) || (y>0.5))
             {
@@ -193,8 +193,8 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double x = tissue.GetLocationOfCell(&(*iter))[0];
-            double y = tissue.GetLocationOfCell(&(*iter))[1];
+            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
+            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
 
             TS_ASSERT_LESS_THAN_EQUALS(x, 0.5);
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
@@ -238,7 +238,7 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double y = tissue.GetLocationOfCell(&(*iter))[1];
+            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
             if (y>0.5)
             {
                 TS_ASSERT_EQUALS(iter->IsDead(), true);
@@ -255,7 +255,7 @@ public:
             iter!=tissue.End();
             ++iter)
         {
-            double y = tissue.GetLocationOfCell(&(*iter))[1];
+            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
     }

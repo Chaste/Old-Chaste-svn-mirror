@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetLocationOfCell(pParentCell);
+    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
     c_vector<double, 2> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that
@@ -118,8 +118,8 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
          ++cell_iter)
     {
         global_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
-        x = mpStaticCastTissue->GetLocationOfCell(&(*cell_iter))[0];
-        y = mpStaticCastTissue->GetLocationOfCell(&(*cell_iter))[1];
+        x = mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
+        y = mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
 
         // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());

@@ -162,7 +162,7 @@ public:
      * 
      * @return the location of the cell
      */
-    virtual c_vector<double, DIM> GetLocationOfCell(TissueCell* pCell)=0;
+    virtual c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell)=0;
 
     /**
      * As this method is pure virtual, it must be overridden

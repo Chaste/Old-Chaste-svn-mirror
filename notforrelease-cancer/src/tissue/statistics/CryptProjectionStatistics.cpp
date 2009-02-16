@@ -81,10 +81,10 @@ std::vector<TissueCell*> CryptProjectionStatistics::GetCryptSection(double angle
          ++cell_iter)
     {
 
-        if ( CellIsInSection(angle, mrCrypt.GetLocationOfCell(&(*cell_iter))) )
+        if ( CellIsInSection(angle, mrCrypt.GetLocationOfCellCentre(&(*cell_iter))) )
         {
             // Set up a pair, equal to (cell,r) and insert
-            std::pair<TissueCell*, double> pair(&(*cell_iter), norm_2(mrCrypt.GetLocationOfCell(&(*cell_iter))));
+            std::pair<TissueCell*, double> pair(&(*cell_iter), norm_2(mrCrypt.GetLocationOfCellCentre(&(*cell_iter))));
             cells_list.push_back(pair);
         }
     }

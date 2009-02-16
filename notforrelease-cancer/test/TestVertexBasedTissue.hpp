@@ -279,15 +279,15 @@ public:
         // Create tissue
         VertexBasedTissue<2> tissue(vertex_mesh, cells);
 
-        // For coverage, test GetLocationOfCell()
+        // For coverage, test GetLocationOfCellCentre()
 
         // Cell 0 is a rectangle with centre of mass (0,0)
-        c_vector<double, 2> cell0_location = tissue.GetLocationOfCell(&(tissue.rGetCellUsingLocationIndex(0)));
+        c_vector<double, 2> cell0_location = tissue.GetLocationOfCellCentre(&(tissue.rGetCellUsingLocationIndex(0)));
         TS_ASSERT_DELTA(cell0_location[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(cell0_location[1], 0.0, 1e-4);
 
         // Cell 1 is a triangle with centre of mass (0,4/3)
-        c_vector<double, 2> cell1_location = tissue.GetLocationOfCell(&(tissue.rGetCellUsingLocationIndex(1)));
+        c_vector<double, 2> cell1_location = tissue.GetLocationOfCellCentre(&(tissue.rGetCellUsingLocationIndex(1)));
         TS_ASSERT_DELTA(cell1_location[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(cell1_location[1], 4.0/3.0, 1e-4);
 

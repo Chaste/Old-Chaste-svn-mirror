@@ -58,7 +58,7 @@ void CryptProjectionForce::UpdateNode3dLocationMap(AbstractTissue<2>& rTissue)
         unsigned node_index = rTissue.GetLocationIndexUsingCell(&(*cell_iter));
 
         // Get 3D location
-        node_location_2d = rTissue.GetLocationOfCell(&(*cell_iter));
+        node_location_2d = rTissue.GetLocationOfCellCentre(&(*cell_iter));
 
         node_location_3d[0] = node_location_2d[0];
         node_location_3d[1] = node_location_2d[1];

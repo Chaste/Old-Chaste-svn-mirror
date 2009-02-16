@@ -88,7 +88,7 @@ public:
             cell_iter!=tissue.End();
             ++cell_iter)
         {
-            double r = norm_2(tissue.GetLocationOfCell(&(*cell_iter)) - centre);
+            double r = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)) - centre);
 
             if (r > radius)
             {
@@ -108,7 +108,7 @@ public:
             cell_iter!=tissue.End();
             ++cell_iter)
         {
-            double r = norm_2(tissue.GetLocationOfCell(&(*cell_iter)) - centre);
+            double r = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)) - centre);
             TS_ASSERT_LESS_THAN_EQUALS(r, radius);
         }
     }

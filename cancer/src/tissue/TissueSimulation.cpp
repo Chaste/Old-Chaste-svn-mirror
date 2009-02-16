@@ -191,7 +191,7 @@ template<unsigned DIM>
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
-    c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCell(pParentCell);
+    c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(pParentCell);
     c_vector<double, DIM> daughter_coords;
 
     // Pick a random direction and move the parent cell backwards by 0.5*sep in that

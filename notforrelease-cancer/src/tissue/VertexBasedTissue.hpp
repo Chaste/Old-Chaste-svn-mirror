@@ -170,7 +170,7 @@ public:
     unsigned GetNumNodes();
 
     /**
-     * Overridden GetLocationOfCell() method.
+     * Overridden GetLocationOfCellCentre() method.
      * Find where a given cell is in space.
      * 
      * \todo If required, we could come up with a more clever definition of cell location
@@ -181,7 +181,7 @@ public:
      * 
      * @return the location of the centre of mass of the element corresponding to this cell.
      */
-    c_vector<double, DIM> GetLocationOfCell(TissueCell* pCell);
+    c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell);
 
     /**
      * Overridden GetNode() method.

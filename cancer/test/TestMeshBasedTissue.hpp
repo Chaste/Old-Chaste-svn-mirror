@@ -330,7 +330,7 @@ public:
 
         // Move node 0 by a small amount
         AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-        c_vector<double,2> new_location = tissue.GetLocationOfCell(&(*cell_iter));
+        c_vector<double,2> new_location = tissue.GetLocationOfCellCentre(&(*cell_iter));
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
@@ -900,7 +900,7 @@ public:
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
     }
 
-    void TestGetLocationOfCellAndGetNodeCorrespondingToCell() throw (Exception)
+    void TestGetLocationOfCellCentreAndGetNodeCorrespondingToCell() throw (Exception)
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -922,11 +922,11 @@ public:
              ++cell_iter)
         {
             // Record node location
-            c_vector<double,2> node_location = tissue.GetLocationOfCell(&(*cell_iter));
+            c_vector<double,2> node_location = tissue.GetLocationOfCellCentre(&(*cell_iter));
 
-            // Test GetLocationOfCell()
-            TS_ASSERT_DELTA(node_location[0], tissue.GetLocationOfCell(&(*cell_iter))[0], 1e-9);
-            TS_ASSERT_DELTA(node_location[1], tissue.GetLocationOfCell(&(*cell_iter))[1], 1e-9);
+            // Test GetLocationOfCellCentre()
+            TS_ASSERT_DELTA(node_location[0], tissue.GetLocationOfCellCentre(&(*cell_iter))[0], 1e-9);
+            TS_ASSERT_DELTA(node_location[1], tissue.GetLocationOfCellCentre(&(*cell_iter))[1], 1e-9);
         }
     }
 
