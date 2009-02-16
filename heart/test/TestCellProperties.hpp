@@ -31,13 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTCELLPROPERTIES_HPP_
 
 #include <cxxtest/TestSuite.h>
-//#include <iostream>
-
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 #include "OdeSolution.hpp"
 #include "CellProperties.hpp"
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "PropagationPropertiesCalculator.hpp"
 
 class TestCellProperties : public CxxTest::TestSuite
 {
@@ -76,7 +79,7 @@ public:
 
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
 
-solution.WriteToFile("", __FUNCTION__, &lr91_ode_system, "ms");
+        solution.WriteToFile("", __FUNCTION__, &lr91_ode_system, "ms");
 
 
         // Now calculate the properties
@@ -102,6 +105,30 @@ solution.WriteToFile("", __FUNCTION__, &lr91_ode_system, "ms");
         TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(90), 361.544, 0.001); // Should use penultimate AP
         TS_ASSERT_DELTA(cell_props.GetTimeAtMaxUpstrokeVelocity(), 3100.7300, 0.001);
     }
+    
+    void TestTrickyActionPotential()
+    {
+        /* This test checks (and covers) the case when the AP crosses the threshold suddenly even before starting to depolarise at all.
+         * The hdf file was too big to be stored. The voltage values at one of the nodes in the mesh where the above behaviour happened
+         * were written in the file TrickyAPD.dat, from which this test reads.
+         */
+        std::ifstream APDfile;
+        APDfile.open("heart/test/data/TrickyAPD.dat");
+        TS_ASSERT(APDfile.is_open()==true);
+        
+        //Create the vectors to be passed to the CellProperties object
+        std::vector<double> voltages(15001);
+        std::vector<double> times(15001);
+        for (unsigned i=0; i <15001; i++)
+        {
+            APDfile >> voltages[i];
+            times[i]=i;
+        }
+        
+        APDfile.close();
+        CellProperties  cell_properties(voltages, times); // Use default threshold
+        TS_ASSERT_DELTA(cell_properties.GetActionPotentialDuration(90), 212.37, 0.1);   
+     }
 };
 
 #endif //_TESTCELLPROPERTIES_HPP_

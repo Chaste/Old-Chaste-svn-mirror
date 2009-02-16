@@ -112,10 +112,25 @@ void CellProperties::CalculateProperties()
 
                     ap_phase = UPSTROKE;
                 }
+                //If we suddenly cross the threshold from an 'UNDEFINED' status, 
+                //work out cycle length by comparing when we pass the threshold on successive upstrokes.
+                if (prev_v <= mThreshold && v > mThreshold)
+                {
+                    mPrevOnset = mOnset;
+                    // Linear interpolation between timesteps
+                    mOnset = prev_t + (t-prev_t)/(v-prev_v)*(mThreshold-prev_v);
+                    // Did we have an earlier upstroke?
+                    if (mPrevOnset >= 0)
+                    {
+                        mCycleLength = mOnset - mPrevOnset;
+                    }
+                }
                 break;
 
             case UPSTROKE:
-                if (prev_upstroke_vel >= 0 && upstroke_vel < 0)
+            //if the velocity changes sign, it is the end of the upstroke. 
+            //This is only if above threshold to avoid to switch to REPOLARISATION if there are humps below threshold.  
+                if (prev_upstroke_vel >= 0 && upstroke_vel < 0 && v>=mThreshold)
                 {
                     // Store maximum upstroke vel from this upstroke
                     mMaxUpstrokeVelocity = max_upstroke_vel;
@@ -178,7 +193,6 @@ double CellProperties::CalculateActionPotentialDuration(
     const double maxPotential)
 {
     double apd = 0.0;
-
     double target_v = 0.01*percentage*(maxPotential-minPotential);
 
     APPhases ap_phase = UNDEFINED;
