@@ -221,6 +221,31 @@ public:
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
 
     /**
+     * Returns distance between two nodes
+     *
+     * @param indexA a node index
+     * @param indexB a node index
+     *
+     * @return straight line distance between two nodes.
+     *
+     * N.B. This calls GetDistanceBetweenNodes(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     */
+    double GetDistanceBetweenNodes(unsigned indexA, unsigned indexB);
+
+    /**
+     * Returns a vector between two points in space
+     *
+     * @param rLocationA a c_vector of co-ordinates
+     * @param rLocationB a c_vector of co-ordinates
+     *
+     * @return vector from location A to location B.
+     *
+     * N.B. This can be overridden in daughter classes for non-Euclidean metrics.
+     */
+    virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
+
+    /**
      * Add a node to the mesh.
      *
      * Note: After calling this one or more times, you must then call ReMesh.

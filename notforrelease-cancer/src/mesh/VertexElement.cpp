@@ -107,7 +107,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
     this->mNodes[rIndex]->RemoveElement(this->mIndex);
 
     // Remove the node at rIndex (removes node from element)
-    this->mNodes.erase(this->mNodes.begin( ) + rIndex);
+    this->mNodes.erase(this->mNodes.begin() + rIndex);
 
     // Flag that element has changed and we need to recalculate area and perimeter
     mElementModified = true;
@@ -120,7 +120,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddNode(const unsigned& rIndex, Node
     assert(rIndex < this->mNodes.size());
 
     // Add pNode to rIndex+1 element of mNodes pushing the others up
-    this->mNodes.insert( this->mNodes.begin( ) + rIndex+1,  pNode);
+    this->mNodes.insert(this->mNodes.begin() + rIndex+1,  pNode);
 
     // Add element to this node
     this->mNodes[rIndex+1]->AddElement(this->mIndex);
@@ -150,10 +150,15 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateVertexElementAreaAndPerimet
         current_node = this->GetNodeLocation(i);
         anticlockwise_node = this->GetNodeLocation((i+1)%number_of_nodes);
 
-        /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
+        /*
+         * \todo 
+         * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+         * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+         * in the mesh class, we should probably move the area and perimeter computations to that class
+         * (see #825)
+         */
 
-        temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1] 
-                                          - anticlockwise_node[0]*current_node[1]);
+        temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1] - anticlockwise_node[0]*current_node[1]);
 
         temp_vertex_element_perimeter += norm_2(current_node-anticlockwise_node);
     }
@@ -193,6 +198,14 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
     c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
     c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
 
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #825)
+     */
+
     area_gradient[0] = 0.5*(next_node_location[1] - previous_node_location[1]);
     area_gradient[1] = 0.5*(previous_node_location[0] - next_node_location[0]);
 
@@ -213,6 +226,14 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPreviousEd
 
     c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();
     c_vector<double, SPACE_DIM> previous_node_location = this->GetNode(previous_index)->rGetLocation();
+
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #825)
+     */
 
     double previous_edge_length = norm_2(current_node_location - previous_node_location);
 
@@ -244,6 +265,14 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGr
 
     c_vector<double, SPACE_DIM> current_node_location = this->GetNode(localIndex)->rGetLocation();
     c_vector<double, SPACE_DIM> next_node_location = this->GetNode(next_index)->rGetLocation();
+
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #825)
+     */
 
     double next_edge_length = norm_2(next_node_location - current_node_location);
 
@@ -298,6 +327,14 @@ c_vector<double, 3> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateMoments()
     assert(SPACE_DIM == 2);
 #undef COVERAGE_IGNORE
 
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #825)
+     */
+
     c_vector<double, 3> moments = zero_vector<double>(3);
 
     unsigned node_1;
@@ -345,6 +382,14 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCent
     assert(SPACE_DIM == 2);
 #undef COVERAGE_IGNORE
 
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #825)
+     */
+
     c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node; 
@@ -382,6 +427,14 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
 #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
 #undef COVERAGE_IGNORE
+
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #825)
+     */
 
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
     c_vector<double, 3> moments = CalculateMoments();

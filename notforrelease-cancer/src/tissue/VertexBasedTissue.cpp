@@ -150,6 +150,14 @@ unsigned VertexBasedTissue<DIM>::GetNumNodes()
 template<unsigned DIM>
 c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell* pCell)
 {
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #825)
+     */
+
     // Get element corresponding to this cell
     VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pCell);
 
