@@ -155,7 +155,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateVertexElementAreaAndPerimet
          * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
          * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
          * in the mesh class, we should probably move the area and perimeter computations to that class
-         * (see #825)
+         * (see #918)
          */
 
         temp_vertex_element_area += 0.5*(current_node[0]*anticlockwise_node[1] - anticlockwise_node[0]*current_node[1]);
@@ -203,7 +203,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetAreaGradie
      * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
      * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
      * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #825)
+     * (see #918)
      */
 
     area_gradient[0] = 0.5*(next_node_location[1] - previous_node_location[1]);
@@ -232,7 +232,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetPreviousEd
      * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
      * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
      * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #825)
+     * (see #918)
      */
 
     double previous_edge_length = norm_2(current_node_location - previous_node_location);
@@ -271,7 +271,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGr
      * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
      * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
      * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #825)
+     * (see #918)
      */
 
     double next_edge_length = norm_2(next_node_location - current_node_location);
@@ -332,7 +332,7 @@ c_vector<double, 3> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateMoments()
      * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
      * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
      * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #825)
+     * (see #918)
      */
 
     c_vector<double, 3> moments = zero_vector<double>(3);
@@ -387,7 +387,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCent
      * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
      * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
      * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #825)
+     * (see #918)
      */
 
     c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
@@ -404,8 +404,6 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateCent
         // Find locations of current node and anticlockwise node
         current_node = this->GetNodeLocation(i);
         anticlockwise_node = this->GetNodeLocation((i+1)%num_nodes);
-
-        /// \todo will need to change length calculation to something like GetVectorFromAtoB (see #825)
 
         temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
         temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               
@@ -433,7 +431,7 @@ c_vector<double, SPACE_DIM> VertexElement<ELEMENT_DIM, SPACE_DIM>::CalculateShor
      * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
      * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
      * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #825)
+     * (see #918)
      */
 
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
