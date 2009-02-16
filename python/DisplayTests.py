@@ -209,6 +209,8 @@ def _recent(req, type=None, start=0):
       bgcol_index = 1 - bgcol_index
     if buildType == 'acceptance':
       build = buildTypesModule.GetBuildType('default')
+    elif buildType == 'failing':
+      build = buildTypesModule.GetBuildType('_onlytests_Failing')
     else:
       build = buildTypesModule.GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
