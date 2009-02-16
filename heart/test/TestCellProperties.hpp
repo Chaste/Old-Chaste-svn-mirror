@@ -123,7 +123,7 @@ public:
         std::vector<double> times(15001);
         for (unsigned i=0; i <15001; i++)
         {
-            apdfile >> voltages[i];
+            apd_file >> voltages[i];
             times[i] = i;
         }
         
