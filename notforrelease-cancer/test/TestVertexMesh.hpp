@@ -109,6 +109,172 @@ public:
     }
 
 
+    
+    void TestCalculateCentroidOfElement() throw(Exception)
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 6;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
+        }
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        // Create mesh
+        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+
+        // Test CalculateCentroidOfElement() method
+        c_vector<double, 2> centroid = mesh.CalculateCentroidOfElement(0);
+
+        TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6);
+    }
+
+
+    void TestGetAreaGradientOfElementAtNode()
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        // Create mesh
+        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+        
+        // Test GetAreaGradientOfElementAtNode() method at each node
+
+        VertexElement<2,2>* p_element = mesh.GetElement(0);
+
+        c_vector<double, 2> element_area_gradient = mesh.GetAreaGradientOfElementAtNode(p_element, 0);        
+        TS_ASSERT_DELTA(element_area_gradient[0], -0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
+        
+        element_area_gradient = mesh.GetAreaGradientOfElementAtNode(p_element, 1);        
+        TS_ASSERT_DELTA(element_area_gradient[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], -0.5, 1e-6);
+        
+        element_area_gradient = mesh.GetAreaGradientOfElementAtNode(p_element, 2);        
+        TS_ASSERT_DELTA(element_area_gradient[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
+        
+        element_area_gradient = mesh.GetAreaGradientOfElementAtNode(p_element, 3);        
+        TS_ASSERT_DELTA(element_area_gradient[0], -0.5, 1e-6);
+        TS_ASSERT_DELTA(element_area_gradient[1], 0.5, 1e-6);
+    }
+
+
+
+    void TestVertexElementAreaAndPerimeter()
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        // Create mesh
+        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
+
+        // Check nodes have correct indices
+        for (unsigned i=0; i<4; i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(i), i);
+        }
+        
+        // Test area and perimeter calculations
+        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
+    }
+
+
+    void TestGetPerimeterGradientAtNode()
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        // Create mesh
+        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+
+        // Test gradient of area evaluated at each node
+
+        VertexElement<2,2>* p_element = mesh.GetElement(0);
+
+        c_vector<double, 2> element_perimeter_gradient = mesh.GetPerimeterGradientOfElementAtNode(p_element, 0);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], -1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], -1.0, 1e-6);
+
+        element_perimeter_gradient = mesh.GetPerimeterGradientOfElementAtNode(p_element, 1);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], -1.0, 1e-6);
+
+        element_perimeter_gradient = mesh.GetPerimeterGradientOfElementAtNode(p_element, 2);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], 1.0, 1e-6);
+
+        element_perimeter_gradient = mesh.GetPerimeterGradientOfElementAtNode(p_element, 3);        
+        TS_ASSERT_DELTA(element_perimeter_gradient[0], -1.0, 1e-6);
+        TS_ASSERT_DELTA(element_perimeter_gradient[1], 1.0, 1e-6);
+    }
+
+
+    void TestVertexElementAreaAndPerimeterOnCircle()
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 1000;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        // Create mesh
+        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
+        
+        //  Check nodes have correct indices
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(i), i);
+        }
+
+        // Test area and perimeter calculations
+        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), M_PI, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 2.0*M_PI, 1e-4);
+    }
+
+
     void TestVertexMeshGenerator() throw(Exception)
     {
         // Create mesh
@@ -520,11 +686,11 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 3u);
         
         // Test Areas and Perimeters of elements 
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(), 0.5, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(), 2+sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(0), 0.5, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(0), 2+sqrt(2), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetArea(), 0.5,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetPerimeter(), 2.0+sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(1), 0.5,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 2.0+sqrt(2), 1e-6);
     }
 
     void TestPerformT1Swap() throw(Exception)
@@ -572,20 +738,20 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u); 
         
         // Test areas and perimeters of elements 
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(), 0.2, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(), 1.0+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(0), 0.2, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(0), 1.0+0.2*sqrt(41.0), 1e-6);
                 
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetArea(),0.3,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(1),0.3,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 1.2+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetArea(),0.2,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetPerimeter(), 1.0+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(2),0.2,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(2), 1.0+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(),0.3,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(3),0.3,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(3), 1.2+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(), 0.3, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(3), 0.3, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(3), 1.2+0.2*sqrt(41.0), 1e-6);
 
         // Perform a T1 swap on nodes 4 and 5
         std::set<unsigned> containing_element_indices;
@@ -627,17 +793,17 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 3u);       
         
         // Test areas and perimeters of elements 
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetArea(), 0.3, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(0)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(0), 0.3, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(0), 1.2+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetArea(), 0.2,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(1)->GetPerimeter(), 1.0+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(1), 0.2,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 1.0+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetArea(), 0.3, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(2)->GetPerimeter(), 1.2+0.2*sqrt(41.0), 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(2), 0.3, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(2), 1.2+0.2*sqrt(41.0), 1e-6);
         
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetArea(), 0.2, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetElement(3)->GetPerimeter(), 1.0+0.2*sqrt(41.0), 1e-6); 
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(3), 0.2, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(3), 1.0+0.2*sqrt(41.0), 1e-6); 
     }
 
 
@@ -824,8 +990,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetArea(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetPerimeter(), 4.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
         
         // Test other nodes are updated
 
@@ -869,8 +1035,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetArea(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetPerimeter(), 4.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
                  
         // Test other nodes are updated
 
@@ -1041,6 +1207,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
     }
 
+
     void TestDivideVertexElementWithNonRegularElement() throw(Exception)
     {
         // Make six nodes
@@ -1095,6 +1262,108 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[1], 1.4166, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 1.5992, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 2.2996, 1e-4);
+    }
+
+
+    /// \todo this should be for a non regular polygon so Ixy != 0 (see #825)
+    void TestCalculateMomentOfElement() throw(Exception)
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 6;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes); 
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        // Create mesh
+        VertexMesh<2,2> mesh(nodes, elements);
+
+        // Test CalculateMomentOfElement() method
+        c_vector<double, 3> moments = mesh.CalculateMomentsOfElement(0);
+
+        TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16, 1e-6);    // Ixx
+        TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16, 1e-6);    // Iyy
+        TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
+    }
+
+
+    void TestCalculateShortAxisOfElement() throw(Exception)
+    {
+        // First test
+        
+        // Create nodes
+        std::vector<Node<2>*> nodes1;
+       
+        // This is a rectangle, centre (0,0), width 2, length 2, parallel to x axis                       
+        nodes1.push_back(new Node<2>(0, false,  2.0,  1.0));
+        nodes1.push_back(new Node<2>(1, false, -2.0,  1.0));
+        nodes1.push_back(new Node<2>(2, false, -2.0, -1.0));
+        nodes1.push_back(new Node<2>(3, false,  2.0, -1.0));
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements1;
+        elements1.push_back(new VertexElement<2,2>(0, nodes1));
+
+        // Create mesh
+        VertexMesh<2,2> mesh1(nodes1, elements1);
+
+        // Test CalculateShortAxisOfElement() method
+        c_vector<double, 2> short_axis = mesh1.CalculateShortAxisOfElement(0);
+        TS_ASSERT_DELTA(short_axis(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(short_axis(1), 1.0, 1e-6);
+
+
+        // Second test
+        
+        // Create nodes
+        std::vector<Node<2>*> nodes2;
+
+        // This is a rectangle, centre (0,0), width 1, length sqrt(3), rotated by 30 degrees anticlockwise                      
+        nodes2.push_back(new Node<2>(0, false,  1.0, 0.0));
+        nodes2.push_back(new Node<2>(1, false,  0.5, sqrt(3.0)/2.0));
+        nodes2.push_back(new Node<2>(2, false, -1.0, 0.0));
+        nodes2.push_back(new Node<2>(3, false, -0.5, -sqrt(3.0)/2.0));
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements2;
+        elements2.push_back(new VertexElement<2,2>(0, nodes2));
+
+        // Create mesh
+        VertexMesh<2,2> mesh2(nodes2, elements2);
+
+        // Test CalculateShortAxisOfElement() method
+        short_axis = mesh2.CalculateShortAxisOfElement(0);
+        TS_ASSERT_DELTA(short_axis(0), 0.5, 1e-6);
+        TS_ASSERT_DELTA(short_axis(1), -sqrt(3.0)*0.5, 1e-6);
+
+
+        // Third test
+               
+        // Test on a regular polygon (generates a random vector)
+        std::vector<Node<2>*> nodes3;
+        unsigned num_nodes = 6;   // vertices
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes); 
+            nodes3.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+        }
+
+        // Create element
+        std::vector<VertexElement<2,2>*> elements3;
+        elements3.push_back(new VertexElement<2,2>(0, nodes3));
+
+        // Create mesh
+        VertexMesh<2,2> mesh3(nodes3, elements3);
+
+        // Test short axis calculation        
+        short_axis = mesh3.CalculateShortAxisOfElement(0);        
+        TS_ASSERT_DELTA(short_axis(0)*short_axis(0)+short_axis(1)*short_axis(1), 1.0, 1e-6);
     }
 
 };    

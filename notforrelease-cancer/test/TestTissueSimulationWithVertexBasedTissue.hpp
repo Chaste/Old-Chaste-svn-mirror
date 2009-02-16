@@ -177,8 +177,8 @@ public:
         simulator.Solve();
 
         // Test relaxes to circle (can be more stringent with more nodes and more time) 
-        TS_ASSERT_DELTA(tissue.GetElement(0)->GetArea(), 1.0, 1e-2);
-		TS_ASSERT_DELTA(tissue.GetElement(0)->GetPerimeter(), 3.5449077, 1e-1);
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 1.0, 1e-2);
+		TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 1e-1);
     }
 
 

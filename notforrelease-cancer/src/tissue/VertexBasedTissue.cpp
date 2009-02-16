@@ -150,27 +150,9 @@ unsigned VertexBasedTissue<DIM>::GetNumNodes()
 template<unsigned DIM>
 c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell* pCell)
 {
-    /*
-     * \todo 
-     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
-     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
-     * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #918)
-     */
-
-    // Get element corresponding to this cell
-    VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pCell);
-
-    // Return the centre of mass of this element (assuming uniform density)
-    /// \todo Should this method be moved to the VertexElement class?
-    unsigned num_nodes = p_element->GetNumNodes();
-    c_vector<double, DIM> location = zero_vector<double>(DIM);
-
-    for (unsigned i=0; i<num_nodes; i++)
-    {
-        location += p_element->GetNode(i)->rGetLocation()/((double) num_nodes);
-    }
-    return location;
+    // Get location index corresponding to this cell
+    unsigned location_index = this->GetLocationIndexUsingCell(pCell);
+    return mrMesh.CalculateCentroidOfElement(location_index);
 }
 
 

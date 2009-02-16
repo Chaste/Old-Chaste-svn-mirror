@@ -27,6 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VertexMesh.hpp"
+#include "RandomNumberGenerator.hpp"
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
@@ -329,6 +331,312 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
 }
 
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
+
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+
+    c_vector<double, SPACE_DIM> current_node;
+    c_vector<double, SPACE_DIM> anticlockwise_node;
+
+    unsigned num_nodes_in_element = p_element->GetNumNodes();
+
+    double element_area = 0;
+
+    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+    {
+        // Find locations of current node and anticlockwise node
+        current_node = p_element->GetNodeLocation(local_index);
+        anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
+
+        /*
+         * \todo 
+         * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+         * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+         * in the mesh class, we should probably move the area and perimeter computations to that class
+         * (see #918)
+         */
+
+        element_area += 0.5*(current_node[0]*anticlockwise_node[1] - anticlockwise_node[0]*current_node[1]);
+    }
+
+    return element_area;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
+
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+
+    unsigned current_node_index;
+    unsigned anticlockwise_node_index;
+    unsigned num_nodes_in_element = p_element->GetNumNodes();
+
+    double element_perimeter = 0;
+
+    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+    {
+        // Find locations of current node and anticlockwise node
+        current_node_index = p_element->GetNodeGlobalIndex(local_index);
+        anticlockwise_node_index = p_element->GetNodeGlobalIndex((local_index+1)%num_nodes_in_element);
+
+        element_perimeter += GetDistanceBetweenNodes(current_node_index, anticlockwise_node_index);
+    }
+
+    return element_perimeter;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateCentroidOfElement(unsigned index)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
+
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #918)
+     */
+
+    c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
+    c_vector<double, SPACE_DIM> current_node;
+    c_vector<double, SPACE_DIM> anticlockwise_node; 
+
+    double temp_centroid_x = 0;
+    double temp_centroid_y = 0;
+
+    unsigned num_nodes_in_element = p_element->GetNumNodes();
+
+    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+    {
+        // Find locations of current node and anticlockwise node
+        current_node = p_element->GetNodeLocation(local_index);
+        anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
+
+        temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
+        temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               
+    }
+
+    double vertex_area = GetAreaOfElement(index);
+    double centroid_coefficient = 1.0/(6.0*vertex_area);
+
+    centroid(0) = centroid_coefficient*temp_centroid_x;
+    centroid(1) = centroid_coefficient*temp_centroid_y;
+
+    return centroid;        
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+#undef COVERAGE_IGNORE
+
+    unsigned num_nodes_in_element = pElement->GetNumNodes();
+
+    c_vector<double, SPACE_DIM> area_gradient;
+
+    unsigned next_local_index = (localIndex+1)%num_nodes_in_element;
+
+    // We add an extra localIndex-1 in the line below as otherwise this term can be negative, which breaks the % operator    
+    unsigned previous_local_index = (num_nodes_in_element+localIndex-1)%num_nodes_in_element;       
+    
+    c_vector<double, SPACE_DIM> previous_node_location = pElement->GetNodeLocation(previous_local_index);
+    c_vector<double, SPACE_DIM> next_node_location = pElement->GetNodeLocation(next_local_index);
+
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #918)
+     */
+
+    area_gradient[0] = 0.5*(next_node_location[1] - previous_node_location[1]);
+    area_gradient[1] = 0.5*(previous_node_location[0] - next_node_location[0]);
+
+    return area_gradient;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPreviousEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+#undef COVERAGE_IGNORE
+
+    unsigned num_nodes_in_element = pElement->GetNumNodes();
+
+    // We add an extra localIndex-1 in the line below as otherwise this term can be negative, which breaks the % operator
+    unsigned previous_local_index = (num_nodes_in_element+localIndex-1)%num_nodes_in_element;
+
+    unsigned current_global_index = pElement->GetNodeGlobalIndex(localIndex);
+    unsigned previous_global_index = pElement->GetNodeGlobalIndex(previous_local_index);
+
+    double previous_edge_length = GetDistanceBetweenNodes(current_global_index, previous_global_index);
+    assert(previous_edge_length > DBL_EPSILON);
+
+    c_vector<double, SPACE_DIM> previous_edge_gradient = GetVectorFromAtoB(pElement->GetNodeLocation(previous_local_index), pElement->GetNodeLocation(localIndex))/previous_edge_length;
+
+    return previous_edge_gradient;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+#undef COVERAGE_IGNORE
+
+    unsigned num_nodes_in_element = pElement->GetNumNodes();
+
+    unsigned next_local_index = (localIndex+1)%num_nodes_in_element;
+
+    unsigned current_global_index = pElement->GetNodeGlobalIndex(localIndex);
+    unsigned next_global_index = pElement->GetNodeGlobalIndex(next_local_index);
+
+    double next_edge_length = GetDistanceBetweenNodes(current_global_index, next_global_index);
+    assert(next_edge_length > DBL_EPSILON);
+
+    c_vector<double, SPACE_DIM> next_edge_gradient = GetVectorFromAtoB(pElement->GetNodeLocation(next_local_index), pElement->GetNodeLocation(localIndex))/next_edge_length;
+
+    return next_edge_gradient;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+#undef COVERAGE_IGNORE
+
+    c_vector<double, SPACE_DIM> previous_edge_gradient = GetPreviousEdgeGradientOfElementAtNode(pElement, localIndex);
+    c_vector<double, SPACE_DIM> next_edge_gradient = GetNextEdgeGradientOfElementAtNode(pElement, localIndex);
+
+    return previous_edge_gradient + next_edge_gradient;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>  
+c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElement(unsigned index)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
+
+    /*
+     * \todo 
+     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
+     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
+     * in the mesh class, we should probably move the area and perimeter computations to that class
+     * (see #918)
+     */
+
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+    unsigned num_nodes_in_element = p_element->GetNumNodes();
+
+    c_vector<double, 3> moments = zero_vector<double>(3);
+    unsigned node_1;
+    unsigned node_2;
+
+    for (unsigned i=0; i<num_nodes_in_element; i++)
+    {
+        node_1 = i;
+        node_2 = (i+1)%num_nodes_in_element;
+
+        c_vector<double, 2> pos_1 = p_element->GetNodeLocation(node_1);
+        c_vector<double, 2> pos_2 = p_element->GetNodeLocation(node_2);
+
+        // Ixx
+        moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
+                                           + pos_1(1)*pos_1(1)*pos_2(1)
+                                           + pos_1(1)*pos_2(1)*pos_2(1)
+                                           + pos_2(1)*pos_2(1)*pos_2(1));
+
+        // Iyy
+        moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
+                                           + pos_1(0)*pos_1(0)*pos_2(0)
+                                           + pos_1(0)*pos_2(0)*pos_2(0)
+                                           + pos_2(0)*pos_2(0)*pos_2(0));
+
+        // Ixy
+        moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
+                      - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
+                      + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
+    }
+
+    moments(0) /= -12;
+    moments(1) /= 12;
+    moments(2) /= 24;
+
+    return moments;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateShortAxisOfElement(unsigned index)
+{
+#define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2);
+#undef COVERAGE_IGNORE
+
+    c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
+    c_vector<double, 3> moments = CalculateMomentsOfElement(index);
+
+    double largest_eigenvalue, discriminant;            
+
+    discriminant = sqrt((moments(0) - moments(1))*(moments(0) - moments(1)) + 4.0*moments(2)*moments(2));
+
+    // This is always the largest eigenvalue as both eigenvalues are real as it is a 
+    // symmetric matrix
+    largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;       
+
+    if (fabs(discriminant) < 1e-10)
+    {
+        // Return a random unit vector
+        short_axis(0) = RandomNumberGenerator::Instance()->ranf();
+        short_axis(1) = sqrt(1.0 - short_axis(0)*short_axis(0));
+    }
+    else
+    {                      
+        if (moments(2) == 0.0)
+        {
+             short_axis(0) = 0.0;
+             short_axis(1) = 1.0;                       
+        }
+        else
+        {
+            short_axis(0) = 1.0;
+            short_axis(1) = (moments(0) - largest_eigenvalue)/moments(2);
+
+            double length_short_axis = norm_2(short_axis);
+
+            short_axis /= length_short_axis;
+        }     
+    }
+    return short_axis;        
+}
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
@@ -368,7 +676,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DIM,SPACE_DIM> *pNewElement)
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pNewElement)
 {
     unsigned new_element_index = pNewElement->GetIndex();
     
@@ -993,8 +1301,9 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     #undef COVERAGE_IGNORE
 
     // Find short axis
-    c_vector<double, SPACE_DIM> centroid = pElement->CalculateCentroid();
-    c_vector<double, SPACE_DIM> short_axis = pElement->CalculateShortAxis();
+    unsigned element_index = pElement->GetIndex();
+    c_vector<double, SPACE_DIM> centroid = CalculateCentroidOfElement(element_index);
+    c_vector<double, SPACE_DIM> short_axis = CalculateShortAxisOfElement(element_index);
 
     // Find long axis
     c_vector<double, SPACE_DIM> long_axis; // this is perpendicular to the short axis

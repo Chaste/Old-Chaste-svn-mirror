@@ -220,6 +220,119 @@ public:
      */    
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
 
+    /*
+     * Compute the area of an element.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return the area of the element
+     */
+    double GetAreaOfElement(unsigned index);
+
+    /*
+     * Compute the perimeter of an element.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return the perimeter of the element
+     */
+    double GetPerimeterOfElement(unsigned index);
+
+    /**
+     * Compute the centroid of an element.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     * 
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return (centroid_x,centroid_y).
+     */
+    c_vector<double, SPACE_DIM> CalculateCentroidOfElement(unsigned index);
+
+    /**
+     * Compute the area gradient of an element at one of its nodes.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     * 
+     * @return the gradient of the area of the element, evaluated at this node.
+     */
+    c_vector<double, SPACE_DIM> GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the gradient of the edge of an element ending at its nodes.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     * 
+     * @return the gradient of the edge of the element that ends at this node.
+     */
+    c_vector<double, SPACE_DIM> GetPreviousEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the gradient of the edge of an element starting at its nodes.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     * 
+     * @return the gradient of the edge of the element that starts at this node.
+     */
+    c_vector<double, SPACE_DIM> GetNextEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the gradient of the perimeter of an element at its nodes.
+     * This returns the sum of GetPreviousEdgeGradientAtNode() and GetNextEdgeGradientAtNode().
+     * 
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     * 
+     * @return the gradient of the perimeter of the element, evaluated at this node.
+     */
+    c_vector<double, SPACE_DIM> GetPerimeterGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the second moments of area of a given (polygonal) element.
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     * 
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return (Ixx,Iyy,Ixy).
+     */
+    c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
+
+    /**
+     * Calculate the vector of the shortest axis of a given element. 
+     * This is the eigenvector associated with the largest eigenvalue 
+     * of the inertial tensor. If the polygon is regular then the 
+     * eigenvalues are the same, so we return a random unit vector.
+     *  
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     * 
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return (short_axis_x, short_axis_y).
+     */
+    c_vector<double, SPACE_DIM> CalculateShortAxisOfElement(unsigned index);
+
     /**
      * Returns distance between two nodes
      *
@@ -228,7 +341,7 @@ public:
      *
      * @return straight line distance between two nodes.
      *
-     * N.B. This calls GetDistanceBetweenNodes(), which can be overridden 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
      * in daughter classes for non-Euclidean metrics.
      */
     double GetDistanceBetweenNodes(unsigned indexA, unsigned indexB);

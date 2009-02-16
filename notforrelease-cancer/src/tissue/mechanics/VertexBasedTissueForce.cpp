@@ -88,13 +88,12 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
 
             // Find the local index of this node in this element
             unsigned local_index = p_element->GetNodeLocalIndex(node_index);
-          
 
             /******** Start of deformation force calculation ********/
 
             // Compute the area of this element and its gradient at this node
-            double element_area = p_element->GetArea();
-            c_vector<double, DIM> element_area_gradient = p_element->GetAreaGradientAtNode(local_index);
+            double element_area = p_tissue->rGetMesh().GetAreaOfElement(*iter);
+            c_vector<double, DIM> element_area_gradient = p_tissue->rGetMesh().GetAreaGradientOfElementAtNode(p_element, local_index);
 
             // Get the target area of the cell
             double cell_target_area = p_tissue->GetTargetAreaOfCell(p_tissue->rGetCellUsingLocationIndex(element_index));
@@ -104,12 +103,11 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
 
             /******** End of membrane force calculation *************/
 
-
             /******** Start of membrane force calculation ***********/
 
             // Compute the perimeter of the element and its gradient at this node
-            double element_perimeter = p_element->GetPerimeter();
-            c_vector<double, DIM> element_perimeter_gradient = p_element->GetPerimeterGradientAtNode(local_index);
+            double element_perimeter = p_tissue->rGetMesh().GetPerimeterOfElement(*iter);
+            c_vector<double, DIM> element_perimeter_gradient = p_tissue->rGetMesh().GetPerimeterGradientOfElementAtNode(p_element, local_index);
 
             // Get the target perimeter of the cell
             double cell_target_perimeter = 2*sqrt(M_PI*cell_target_area);
@@ -118,7 +116,6 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
             membrane_surface_tension_contribution -= 2*p_params->GetMembraneSurfaceEnergyParameter()*(element_perimeter - cell_target_perimeter)*element_perimeter_gradient;
 
             /******** End of deformation force calculation **********/
-
 
             /******** Start of adhesion force calculation ***********/
 
@@ -136,10 +133,10 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
             double next_edge_adhesion_parameter = p_tissue->GetAdhesionParameter(p_current_node, p_next_node);
 
             // Compute the gradient of the edge of the cell ending in this node
-            c_vector<double, DIM> previous_edge_gradient = p_element->GetPreviousEdgeGradientAtNode(local_index);
+            c_vector<double, DIM> previous_edge_gradient = p_tissue->rGetMesh().GetPreviousEdgeGradientOfElementAtNode(p_element, local_index);
 
             // Compute the gradient of the edge of the cell starting in this node
-            c_vector<double, DIM> next_edge_gradient = p_element->GetNextEdgeGradientAtNode(local_index);
+            c_vector<double, DIM> next_edge_gradient = p_tissue->rGetMesh().GetNextEdgeGradientOfElementAtNode(p_element, local_index);
 
             // Add the force contribution from cell-cell and cell-boundary adhesion (note the minus sign)
             adhesion_contribution -= previous_edge_adhesion_parameter*previous_edge_gradient + next_edge_adhesion_parameter*next_edge_gradient;
@@ -150,7 +147,7 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
         c_vector<double, DIM> force_on_node = deformation_contribution + 
                                               membrane_surface_tension_contribution +
                                               adhesion_contribution;
-		//std::cout << "\n Node " << node_index << "\tForce " << norm_2(force_on_node) << std::flush;
+
         rForces[node_index] += force_on_node;
     }
 }

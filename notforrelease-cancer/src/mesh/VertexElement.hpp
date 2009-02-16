@@ -35,15 +35,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-
-    /** Area of the element. */
-    double mVertexElementArea;
-     
-    /** Perimeter of the element. */
-    double mVertexElementPerimeter;
-     
-     /** Element change need to recalculate stored area and perimeter. */
-    bool mElementModified;
     
 public:
 
@@ -104,75 +95,6 @@ public:
      * @param pNode a pointer to the new node
      */
     void AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
-
-    /**
-     * Calculate the area and perimeter of the (polygonal) element, 
-     * and store as the member variables mVertexElementArea and 
-     * mVertexElementPerimeter.
-     * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #825)
-     */
-    void CalculateVertexElementAreaAndPerimeter();
-
-    /**
-     * @return mVertexElementArea.
-     */
-    double GetArea();
-    
-    /**
-     * @param localIndex local index of a node owned by the element
-     * 
-     * @return the gradient of the area, evaluated at the node with a given local index
-     */
-    c_vector<double, SPACE_DIM> GetAreaGradientAtNode(unsigned localIndex);
-
-    /// \todo document this method (#861)
-    c_vector<double, SPACE_DIM> GetPreviousEdgeGradientAtNode(unsigned localIndex);
-
-    /// \todo document this method (#861)
-    c_vector<double, SPACE_DIM> GetNextEdgeGradientAtNode(unsigned localIndex);
-
-	/**
-     * @param localIndex local index of a node owned by the element
-     * 
-     * @return the gradient of the perimeter, evaluated at the node with a given local index
-     */
-    c_vector<double, SPACE_DIM> GetPerimeterGradientAtNode(unsigned localIndex);
-
-    /**
-     * @return mVertexElementPerimeter.
-     */        
-    double GetPerimeter();
-
-    /**
-     * Compute the second moments of area of the (polygonal) element.
-     * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     * 
-     * @return (Ixx,Iyy,Ixy).
-     */
-    c_vector<double, 3> CalculateMoments();
-
-    /**
-     * Compute the centroid of the (polygonal) element.
-     * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     * 
-     * @return (centroid_x,centroid_y).
-     */
-    c_vector<double, SPACE_DIM> CalculateCentroid();
-
-    /**
-     * Calculate the vector of the shortest axis of the element. 
-     * This is the eigenvector associated with the largest eigenvalue 
-     * of the inertial tensor. If the polygon is regular then the 
-     * eigenvalues are the same, so we return a random unit vector.
-     *  
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     *
-     *  @return (short_axis_x, short_axis_y).
-     */
-    c_vector<double, SPACE_DIM> CalculateShortAxis();
     
     /**
      * Calculate the local index of a node given a global index
