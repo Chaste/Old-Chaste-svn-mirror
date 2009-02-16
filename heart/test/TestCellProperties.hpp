@@ -106,26 +106,28 @@ public:
         TS_ASSERT_DELTA(cell_props.GetTimeAtMaxUpstrokeVelocity(), 3100.7300, 0.001);
     }
     
+    /**
+     * This test checks (and covers) the case when the AP crosses the threshold suddenly
+     * even before starting to depolarise at all.
+     * The hdf file was too big to be stored. The voltage values at one of the nodes in
+     * the mesh where the above behaviour happened were written in the file TrickyAPD.dat,
+     * from which this test reads.
+     */
     void TestTrickyActionPotential()
     {
-        /* This test checks (and covers) the case when the AP crosses the threshold suddenly even before starting to depolarise at all.
-         * The hdf file was too big to be stored. The voltage values at one of the nodes in the mesh where the above behaviour happened
-         * were written in the file TrickyAPD.dat, from which this test reads.
-         */
-        std::ifstream APDfile;
-        APDfile.open("heart/test/data/TrickyAPD.dat");
-        TS_ASSERT(APDfile.is_open()==true);
+        std::ifstream apd_file("heart/test/data/TrickyAPD.dat");
+        TS_ASSERT(apd_file.is_open());
         
-        //Create the vectors to be passed to the CellProperties object
+        // Create the vectors to be passed to the CellProperties object
         std::vector<double> voltages(15001);
         std::vector<double> times(15001);
         for (unsigned i=0; i <15001; i++)
         {
-            APDfile >> voltages[i];
-            times[i]=i;
+            apdfile >> voltages[i];
+            times[i] = i;
         }
         
-        APDfile.close();
+        apd_file.close();
         CellProperties  cell_properties(voltages, times); // Use default threshold
         TS_ASSERT_DELTA(cell_properties.GetActionPotentialDuration(90), 212.37, 0.1);   
      }

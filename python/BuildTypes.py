@@ -880,6 +880,10 @@ def GetBuildType(buildType):
     if classname == '' or classname == 'default':
         # Default build type
         classname = 'GccDebug'
+    elif classname == 'failing':
+        # Check failing tests
+        classname = 'GccDebug'
+        extras = ['onlytests', 'Failing'] + extras
     exec "obj = %s('%s')" % (classname, buildType)
     
     for extra in extras:

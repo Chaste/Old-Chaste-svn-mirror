@@ -97,9 +97,10 @@ void CellProperties::CalculateProperties()
         switch (ap_phase)
         {
             case UNDEFINED:
-                // First AP: switch on if below threshold and there is a positive gradient
-                // Subsequent APs: switch on if below threshold and there is a gradient of at least 5% of the previously seen activation
-                // This avoids switching to UPSTROKE if there's a kink on the way down
+                // First AP: switch on if below threshold and there is a positive gradient.
+                // Subsequent APs: switch on if below threshold and there is a gradient of
+                // at least 5% of the previously seen activation.
+                // This avoids switching to UPSTROKE if there's a kink on the way down.
                 if (v <= mThreshold &&  upstroke_vel > 0.05*mMaxUpstrokeVelocity)
                 {   
                     
@@ -112,8 +113,9 @@ void CellProperties::CalculateProperties()
 
                     ap_phase = UPSTROKE;
                 }
-                //If we suddenly cross the threshold from an 'UNDEFINED' status, 
-                //work out cycle length by comparing when we pass the threshold on successive upstrokes.
+                // If we suddenly cross the threshold from an 'UNDEFINED' status, 
+                // work out cycle length by comparing when we pass the threshold on
+                // successive upstrokes.
                 if (prev_v <= mThreshold && v > mThreshold)
                 {
                     mPrevOnset = mOnset;
@@ -128,8 +130,9 @@ void CellProperties::CalculateProperties()
                 break;
 
             case UPSTROKE:
-            //if the velocity changes sign, it is the end of the upstroke. 
-            //This is only if above threshold to avoid to switch to REPOLARISATION if there are humps below threshold.  
+                // If the velocity changes sign, it is the end of the upstroke.
+                // This is only if above threshold to avoid to switch to REPOLARISATION
+                // if there are humps below threshold.
                 if (prev_upstroke_vel >= 0 && upstroke_vel < 0 && v>=mThreshold)
                 {
                     // Store maximum upstroke vel from this upstroke
@@ -170,7 +173,7 @@ void CellProperties::CalculateProperties()
                     ap_phase = UNDEFINED;
                 }
 
-                // avoid kinks in the upstroke: if the velocity starts increasing again,
+                // Avoid kinks in the upstroke: if the velocity starts increasing again,
                 // go back to upstroke state.
                 if(prev_upstroke_vel <=0 && upstroke_vel > 0)
                 {
