@@ -217,6 +217,50 @@ public:
     }
 
 
+    void TestDampingConstant()
+    {
+        // Create mesh
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        std::vector<unsigned> cell_location_indices;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            double birth_time = 0.0 - i;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);            
+            cell_location_indices.push_back(i);
+        }
+        cells[0].SetMutationState(APC_TWO_HIT);
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+        tissue.InitialiseCells(); // this method must be called explicitly as there is no simulation
+
+        // Test GetDampingConstant()
+        double normal_damping_constant = CancerParameters::Instance()->GetDampingConstantNormal();
+        double mutant_damping_constant = CancerParameters::Instance()->GetDampingConstantMutant();
+
+        // Node 3 is contained in cell 2 only, therefore should have normal damping constant
+        double damping_constant_at_node_3 = tissue.GetDampingConstant(3);
+        TS_ASSERT_DELTA(damping_constant_at_node_3, normal_damping_constant, 1e-6);
+
+        // Node 0 is contained in cell 0 only, therefore should have mutant damping constant
+        double damping_constant_at_node_0 = tissue.GetDampingConstant(0);
+        TS_ASSERT_DELTA(damping_constant_at_node_0, mutant_damping_constant, 1e-6);
+
+        // Node 5 is contained in cells 0 and 1, therefore should an averaged damping constant
+        double damping_constant_at_node_5 = tissue.GetDampingConstant(5);
+        TS_ASSERT_DELTA(damping_constant_at_node_5, (normal_damping_constant+mutant_damping_constant)/2.0, 1e-6);
+
+        // Node 9 is contained in cells 0, 1, 3, therefore should an averaged damping constant
+        double damping_constant_at_node_9 = tissue.GetDampingConstant(9);
+        TS_ASSERT_DELTA(damping_constant_at_node_9, (2*normal_damping_constant+mutant_damping_constant)/3.0, 1e-6);
+    }
+
+
     void TestUpdateWithoutBirthOrDeath() throw (Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();

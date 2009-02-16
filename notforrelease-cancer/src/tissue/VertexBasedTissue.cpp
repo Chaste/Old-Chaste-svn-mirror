@@ -69,8 +69,28 @@ VertexBasedTissue<DIM>::~VertexBasedTissue()
 template<unsigned DIM>
 double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
-    /// \todo Implement variable damping constants for a vertex-based tissue (see #865)
-    return CancerParameters::Instance()->GetDampingConstantNormal();
+    // Take the average of the cells containing this vertex
+    double average_damping_constant = 0.0;
+
+    std::set<unsigned> containing_elements = GetNode(nodeIndex)->rGetContainingElementIndices();
+    unsigned num_containing_elements = containing_elements.size();
+
+    for (std::set<unsigned>::iterator iter=containing_elements.begin();
+         iter!=containing_elements.end();
+         ++iter)
+    {
+        if (   (this->rGetCellUsingLocationIndex(*iter).GetMutationState() != HEALTHY)
+            && (this->rGetCellUsingLocationIndex(*iter).GetMutationState() != APC_ONE_HIT) )
+        {
+            average_damping_constant += CancerParameters::Instance()->GetDampingConstantMutant()/((double) num_containing_elements);
+        }
+        else
+        {
+            average_damping_constant += CancerParameters::Instance()->GetDampingConstantNormal()/((double) num_containing_elements);
+        }
+    }
+         
+    return average_damping_constant;
 }
 
 

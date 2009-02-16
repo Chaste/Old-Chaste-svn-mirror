@@ -121,7 +121,7 @@ public:
      * Overridden GetDampingConstant() method.
      *
      * @param nodeIndex the global index of this node
-     * @return the damping constant for the given node.
+     * @return the average damping constant of the cells surrounding the node.
      */
     double GetDampingConstant(unsigned nodeIndex);
 
