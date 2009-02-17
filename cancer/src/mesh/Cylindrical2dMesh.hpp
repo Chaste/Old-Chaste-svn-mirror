@@ -191,7 +191,7 @@ private:
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
 
     /**
-     * Archives the member variables of the CylindricalReMesh class which
+     * Archives the member variables of the Cylindrical2dMesh class which
      * have to be preserved during the lifetime of the mesh.
      *
      * The remaining member variables are re-initialised before being used

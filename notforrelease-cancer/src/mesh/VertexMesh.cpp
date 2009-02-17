@@ -295,6 +295,48 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 }
 
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension)
+{
+    assert(rDimension < SPACE_DIM);
+    c_vector<double,2> extremes = GetWidthExtremes(rDimension);
+    return extremes[1] - extremes[0];
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, 2> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension)
+{
+    assert(rDimension < SPACE_DIM);
+    assert(GetNumNodes() > 0);
+
+    double max = -1e200;
+    double min = 1e200;
+    
+    for (unsigned i=0; i<GetNumNodes(); i++)
+    {
+        if (!mNodes[i]->IsDeleted())
+        {
+            double this_node_value = mNodes[i]->rGetLocation()[rDimension];
+            if (this_node_value>max)
+            {
+                max = this_node_value;
+            }
+            if (this_node_value < min)
+            {
+                min = this_node_value;
+            }
+        }
+    }
+
+    c_vector<double,2> extremes;
+    extremes[0] = min;
+    extremes[1] = max;
+
+    return extremes;
+}
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
@@ -397,7 +439,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateCentroidOfElement(unsigned index)
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfElement(unsigned index)
 {
 #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
@@ -594,7 +636,7 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateShortAxisOfElement(unsigned index)
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfElement(unsigned index)
 {
 #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
@@ -828,7 +870,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
             }
         }
 
-        assert(mDeletedNodeIndices.size() == mNodes.size()-live_nodes.size());
+        assert(mDeletedNodeIndices.size() == mNodes.size() - live_nodes.size());
         mNodes = live_nodes;
         mDeletedNodeIndices.clear();
 
@@ -1302,8 +1344,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
     // Find short axis
     unsigned element_index = pElement->GetIndex();
-    c_vector<double, SPACE_DIM> centroid = CalculateCentroidOfElement(element_index);
-    c_vector<double, SPACE_DIM> short_axis = CalculateShortAxisOfElement(element_index);
+    c_vector<double, SPACE_DIM> centroid = GetCentroidOfElement(element_index);
+    c_vector<double, SPACE_DIM> short_axis = GetShortAxisOfElement(element_index);
 
     // Find long axis
     c_vector<double, SPACE_DIM> long_axis; // this is perpendicular to the short axis
@@ -1560,6 +1602,26 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
             unsigned attribute_value = element_data.AttributeValue;
             p_element->SetRegion(attribute_value);
         }        
+    }
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
+{
+    for (unsigned i=0; i<GetNumNodes(); i++)
+    {
+        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+
+        if (SPACE_DIM>=3)
+        {
+            r_location[2] *= zScale;
+        }
+        if (SPACE_DIM>=2)
+        {
+            r_location[1] *= yScale;
+        }
+        r_location[0] *= xScale;
     }
 }
 

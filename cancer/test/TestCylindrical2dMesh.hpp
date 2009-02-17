@@ -53,16 +53,16 @@ public:
         list_of_nodes.push_back(5u);
         list_of_nodes.push_back(7u);
 
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(0u,list_of_nodes), true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(2u,list_of_nodes), true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(5u,list_of_nodes), true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(7u,list_of_nodes), true);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(0u, list_of_nodes), true);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(2u, list_of_nodes), true);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(5u, list_of_nodes), true);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(7u, list_of_nodes), true);
 
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(1u,list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(3u,list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u,list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u,list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u,list_of_nodes), false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(1u, list_of_nodes), false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(3u, list_of_nodes), false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u, list_of_nodes), false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u, list_of_nodes), false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u, list_of_nodes), false);
     }
 
     void TestCreateMirrorCellsAndAlignmentTester() throw (Exception)
@@ -95,7 +95,7 @@ public:
             c_vector<double,2> original_location = p_mesh->GetNode(p_mesh->mLeftOriginals[i])->rGetLocation();
             c_vector<double,2> image_location = p_mesh->GetNode(p_mesh->mLeftImages[i])->rGetLocation();
 
-            TS_ASSERT_DELTA(original_location[0]+crypt_width, image_location[0], 1e-7);
+            TS_ASSERT_DELTA(original_location[0] + crypt_width, image_location[0], 1e-7);
             TS_ASSERT_DELTA(original_location[1], image_location[1], 1e-7);
         }
 
@@ -104,7 +104,7 @@ public:
             c_vector<double,2> original_location = p_mesh->GetNode(p_mesh->mRightOriginals[i])->rGetLocation();
             c_vector<double,2> image_location = p_mesh->GetNode(p_mesh->mRightImages[i])->rGetLocation();
 
-            TS_ASSERT_DELTA(original_location[0]-crypt_width, image_location[0], 1e-7);
+            TS_ASSERT_DELTA(original_location[0] - crypt_width, image_location[0], 1e-7);
             TS_ASSERT_DELTA(original_location[1], image_location[1], 1e-7);
         }
 
@@ -599,7 +599,7 @@ public:
         {
             // Serialize the mesh
             double width = p_mesh->GetWidth(0);
-            TS_ASSERT_DELTA(width,crypt_width,1e-7);
+            TS_ASSERT_DELTA(width, crypt_width, 1e-7);
 
             // Save the mesh data using mesh writers
             TrianglesMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
@@ -906,5 +906,3 @@ public:
 };
 
 #endif /*TESTCYLINDRICAL2DMESH_HPP_*/
-
-

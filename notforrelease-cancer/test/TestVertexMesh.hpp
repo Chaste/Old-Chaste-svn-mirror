@@ -109,8 +109,7 @@ public:
     }
 
 
-    
-    void TestCalculateCentroidOfElement() throw(Exception)
+    void TestGetCentroidOfElement() throw(Exception)
     {
         // Create nodes
         std::vector<Node<2>*> nodes;
@@ -128,8 +127,8 @@ public:
         // Create mesh
         VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
 
-        // Test CalculateCentroidOfElement() method
-        c_vector<double, 2> centroid = mesh.CalculateCentroidOfElement(0);
+        // Test GetCentroidOfElement() method
+        c_vector<double, 2> centroid = mesh.GetCentroidOfElement(0);
 
         TS_ASSERT_DELTA(centroid(0), 0.0, 1e-6);
         TS_ASSERT_DELTA(centroid(1), 0.0, 1e-6);
@@ -243,6 +242,30 @@ public:
     }
 
 
+    void TestMeshGetWidthAndWidthExtremes(void)
+    {
+        // Create mesh
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+
+        // Test GetWidthExtremes() method
+        c_vector<double,2> width_extremes = mesh.GetWidthExtremes(0u);
+        c_vector<double,2> height_extremes = mesh.GetWidthExtremes(1u);
+
+        TS_ASSERT_DELTA(width_extremes[0], 0.0000, 1e-4);
+        TS_ASSERT_DELTA(width_extremes[1], 2.8867, 1e-4);
+
+        TS_ASSERT_DELTA(height_extremes[0], 0.0000, 1e-4);
+        TS_ASSERT_DELTA(height_extremes[1], 3.5000, 1e-4);
+
+        // Test GetWidth() method
+        double width = mesh.GetWidth(0);
+        double height = mesh.GetWidth(1);
+
+        TS_ASSERT_DELTA(width, 2.8867, 1e-4);
+        TS_ASSERT_DELTA(height, 3.5000, 1e-4);
+    }
+
+
     void TestVertexElementAreaAndPerimeterOnCircle()
     {
         // Create nodes
@@ -312,6 +335,7 @@ public:
 
     void TestMeshConstructionFromMeshReader(void)
     {
+        // Create mesh
         VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -336,6 +360,7 @@ public:
 
     void TestMeshConstructionFromMeshReaderIndexedFromOne(void)
     {
+        // Create mesh
         VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -428,7 +453,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[0], 1.1, 1e-7);
         TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[1], 2.1, 1e-7);
 
-        // Now tet AddNode() when mDeletedNodeIndices is populated
+        // Now test AddNode() when mDeletedNodeIndices is populated
 
         // Label node 3 as deleted
         mesh.mDeletedNodeIndices.push_back(3);
@@ -1293,7 +1318,7 @@ public:
     }
 
 
-    void TestCalculateShortAxisOfElement() throw(Exception)
+    void TestGetShortAxisOfElement() throw(Exception)
     {
         // First test
         
@@ -1313,8 +1338,8 @@ public:
         // Create mesh
         VertexMesh<2,2> mesh1(nodes1, elements1);
 
-        // Test CalculateShortAxisOfElement() method
-        c_vector<double, 2> short_axis = mesh1.CalculateShortAxisOfElement(0);
+        // Test GetShortAxisOfElement() method
+        c_vector<double, 2> short_axis = mesh1.GetShortAxisOfElement(0);
         TS_ASSERT_DELTA(short_axis(0), 0.0, 1e-6);
         TS_ASSERT_DELTA(short_axis(1), 1.0, 1e-6);
 
@@ -1337,8 +1362,8 @@ public:
         // Create mesh
         VertexMesh<2,2> mesh2(nodes2, elements2);
 
-        // Test CalculateShortAxisOfElement() method
-        short_axis = mesh2.CalculateShortAxisOfElement(0);
+        // Test GetShortAxisOfElement() method
+        short_axis = mesh2.GetShortAxisOfElement(0);
         TS_ASSERT_DELTA(short_axis(0), 0.5, 1e-6);
         TS_ASSERT_DELTA(short_axis(1), -sqrt(3.0)*0.5, 1e-6);
 
@@ -1361,9 +1386,31 @@ public:
         // Create mesh
         VertexMesh<2,2> mesh3(nodes3, elements3);
 
-        // Test short axis calculation        
-        short_axis = mesh3.CalculateShortAxisOfElement(0);        
+        // Test GetShortAxisOfElement() method
+        short_axis = mesh3.GetShortAxisOfElement(0);        
         TS_ASSERT_DELTA(short_axis(0)*short_axis(0)+short_axis(1)*short_axis(1), 1.0, 1e-6);
+    }
+
+
+    void TestScale(void)
+    {
+        // Create mesh
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        
+        TS_ASSERT_DELTA(mesh.GetWidth(0), 2.8867, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(1), 3.5000, 1e-4);
+
+        // Squash in the x direction by a factor of 2
+        mesh.Scale(0.5);
+
+        TS_ASSERT_DELTA(mesh.GetWidth(0), 1.4433, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(1), 3.5000, 1e-4);
+
+        // Stretch in the x and y directions by a factor of 2
+        mesh.Scale(2.0, 2.0);
+
+        TS_ASSERT_DELTA(mesh.GetWidth(0), 2.8867, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(1), 7.0000, 1e-4);
     }
 
 };    

@@ -48,7 +48,7 @@ class VertexMesh
 {
     friend class TestVertexMesh;
     
-private:
+protected:
 
     /** Vector of pointers to nodes. */
     std::vector<Node<SPACE_DIM>*> mNodes;
@@ -151,17 +151,17 @@ public:
      * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
      */
     VertexMesh(double cellRearrangementThreshold=0.01, double edgeDivisionThreshold=1.5);
-    
+
     /**
      * Destructor.
      */
     virtual ~VertexMesh();
-    
+
     /**
      * @return mCellRearrangementThreshold
      */
     double GetCellRearrangementThreshold() const;
-    
+
     /**
      * @return mEdgeDivisionThreshold
      */
@@ -190,6 +190,24 @@ public:
      * @param edgeDivisionThreshold the maximum threshold distance for edge division
      */
     VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold);
+
+    /**
+     * Calculates the `width' of any dimension of the mesh.
+     *
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The maximum distance between any nodes in this dimension.
+     *
+     * N.B. Overwritten in Cylindrical2dVertexMesh.
+     */
+    virtual double GetWidth(const unsigned& rDimension);
+
+    /**
+     * Calculates the `width extremes' of any dimension of the mesh.
+     * 
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The minimum and maximum co-ordinates of any node in this dimension.
+     */
+    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension);
 
     /**
      * @return the number of Nodes in the mesh.
@@ -230,7 +248,7 @@ public:
      * 
      * @return the area of the element
      */
-    double GetAreaOfElement(unsigned index);
+    virtual double GetAreaOfElement(unsigned index);
 
     /*
      * Compute the perimeter of an element.
@@ -256,7 +274,7 @@ public:
      * 
      * @return (centroid_x,centroid_y).
      */
-    c_vector<double, SPACE_DIM> CalculateCentroidOfElement(unsigned index);
+    virtual c_vector<double, SPACE_DIM> GetCentroidOfElement(unsigned index);
 
     /**
      * Compute the area gradient of an element at one of its nodes.
@@ -269,7 +287,7 @@ public:
      * 
      * @return the gradient of the area of the element, evaluated at this node.
      */
-    c_vector<double, SPACE_DIM> GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+    virtual c_vector<double, SPACE_DIM> GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
 
     /**
      * Compute the gradient of the edge of an element ending at its nodes.
@@ -317,7 +335,7 @@ public:
      * 
      * @return (Ixx,Iyy,Ixy).
      */
-    c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
+    virtual c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
 
     /**
      * Calculate the vector of the shortest axis of a given element. 
@@ -331,7 +349,7 @@ public:
      * 
      * @return (short_axis_x, short_axis_y).
      */
-    c_vector<double, SPACE_DIM> CalculateShortAxisOfElement(unsigned index);
+    c_vector<double, SPACE_DIM> GetShortAxisOfElement(unsigned index);
 
     /**
      * Returns distance between two nodes
@@ -458,6 +476,13 @@ public:
      */
     void ConstructFromMeshReader(VertexMeshReader2d& rMeshReader);
 
+    /**
+     * Scale the mesh.
+     * @param xFactor is the scale in the x-direction,
+     * @param yFactor is the scale in the y-direction,
+     * @param zFactor is the scale in the z-direction
+     **/
+    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
 };
 
 namespace boost

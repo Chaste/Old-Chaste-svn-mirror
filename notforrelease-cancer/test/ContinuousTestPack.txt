@@ -4,6 +4,7 @@ TestCellKillersNotForRelease.hpp
 TestCellwiseDataGradient.hpp
 TestCryptProjectionStatistics.hpp
 TestCryptSimulation1d.hpp
+TestCylindrical2dVertexMesh.hpp
 TestDiscreteSystemForceCalculator.hpp
 TestForcesNotForRelease.hpp
 TestLee2003WntSignallingOdeSystem.hpp

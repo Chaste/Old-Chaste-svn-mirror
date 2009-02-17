@@ -152,7 +152,7 @@ c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell
 {
     // Get location index corresponding to this cell
     unsigned location_index = this->GetLocationIndexUsingCell(pCell);
-    return mrMesh.CalculateCentroidOfElement(location_index);
+    return mrMesh.GetCentroidOfElement(location_index);
 }
 
 

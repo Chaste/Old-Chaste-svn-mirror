@@ -65,7 +65,7 @@ void Cylindrical2dMesh::UpdateTopAndBottom()
 
 void Cylindrical2dMesh::CreateMirrorNodes()
 {
-    unsigned num_nodes=GetNumAllNodes();
+    unsigned num_nodes = GetNumAllNodes();
     double half_way = (mWidth)/2.0;
 
     mLeftOriginals.clear();
@@ -436,7 +436,7 @@ void Cylindrical2dMesh::DeleteHaloNodes()
 
 c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2)
 {
-    assert(mWidth>0.0);
+    assert(mWidth > 0.0);
 
     c_vector<double, 2> location1 = rLocation1;
     c_vector<double, 2> location2 = rLocation2;
@@ -495,7 +495,7 @@ bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std:
 
 double Cylindrical2dMesh::GetWidth(const unsigned& rDimension) const
 {
-    double width=0.0;
+    double width = 0.0;
     assert(rDimension==0 || rDimension==1);
     if (rDimension==0)
     {
