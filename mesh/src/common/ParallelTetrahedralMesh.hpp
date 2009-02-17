@@ -48,10 +48,10 @@ private:
     unsigned mTotalNumBoundaryElements; 
     unsigned mTotalNumNodes;
     
-    std::vector<Node<SPACE_DIM>* > mGhostNodes;
+    std::vector<Node<SPACE_DIM>* > mHaloNodes;
     
     std::map<unsigned, unsigned> mNodesMapping;
-    std::map<unsigned, unsigned> mGhostNodesMapping;    
+    std::map<unsigned, unsigned> mHaloNodesMapping;    
     std::map<unsigned, unsigned> mElementsMapping;
     std::map<unsigned, unsigned> mBoundaryElementsMapping;        
     
@@ -62,12 +62,6 @@ public:
     ParallelTetrahedralMesh(bool metisPartitioning=true);
 
     virtual ~ParallelTetrahedralMesh();
-
-    void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-                               std::set<unsigned>& rNodesOwned,
-                               std::set<unsigned>& rGhostNodesOwned,
-                               std::set<unsigned>& rElementsOwned,
-                               std::vector<unsigned>& offset ) const;    
 
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
@@ -84,21 +78,30 @@ public:
 private:
 
     void RegisterNode(unsigned index);
-    void RegisterGhostNode(unsigned index);
+    void RegisterHaloNode(unsigned index);
     void RegisterElement(unsigned index);
     void RegisterBoundaryElement(unsigned index);
 
     unsigned SolveNodeMapping(unsigned index) const;
-    unsigned SolveGhostNodeMapping(unsigned index);
+    unsigned SolveHaloNodeMapping(unsigned index);
     unsigned SolveElementMapping(unsigned index) const;            
     unsigned SolveBoundaryElementMapping(unsigned index) const;
+
+    void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+                               std::set<unsigned>& rNodesOwned,
+                               std::set<unsigned>& rHaloNodesOwned,
+                               std::set<unsigned>& rElementsOwned,
+                               std::vector<unsigned>& rProcessorsOffset,
+                               std::vector<unsigned>& rNodePermutation) const;    
     
     void DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                               std::set<unsigned>& rNodesOwned) const;
+
     void MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-                                     std::set<unsigned>& rNodesOwned, std::vector<unsigned>& offset) const;
+                                     std::set<unsigned>& rNodesOwned, std::vector<unsigned>& rProcessorsOffset,
+                                     std::vector<unsigned>& rNodePermutation) const;
                                      
-    void ReorderNodes(std::vector<unsigned>& offset);    
+    void ReorderNodes(std::vector<unsigned>& rNodePermutation);    
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -110,9 +113,9 @@ ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh(bool me
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
 {
-    for (unsigned i=0; i<this->mGhostNodes.size(); i++)
+    for (unsigned i=0; i<this->mHaloNodes.size(); i++)
     {
-        delete this->mGhostNodes[i];
+        delete this->mHaloNodes[i];
     }
 }
 
@@ -121,15 +124,16 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
     std::set<unsigned>& rNodesOwned,
-    std::set<unsigned>& rGhostNodesOwned,
+    std::set<unsigned>& rHaloNodesOwned,
     std::set<unsigned>& rElementsOwned,
-    std::vector<unsigned>& offset) const
+    std::vector<unsigned>& rProcessorsOffset,
+    std::vector<unsigned>& rNodePermutation) const
 {
     ///\todo: add a timing event for the partitioning
     
     if (mMetisPartitioning && PetscTools::NumProcs() > 1)
     {        
-        MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, offset);                 
+        MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);                 
     }
     else
     {
@@ -141,7 +145,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
         ElementData element_data = rMeshReader.GetNextElementData();
 
         bool element_owned = false;
-        std::set<unsigned> temp_ghost_nodes;
+        std::set<unsigned> temp_halo_nodes;
         
         for(unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
@@ -152,13 +156,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
             }
             else
             {
-                temp_ghost_nodes.insert(element_data.NodeIndices[i]);
+                temp_halo_nodes.insert(element_data.NodeIndices[i]);
             }
         }
         
         if (element_owned)
         {
-            rGhostNodesOwned.insert(temp_ghost_nodes.begin(), temp_ghost_nodes.end());
+            rHaloNodesOwned.insert(temp_halo_nodes.begin(), temp_halo_nodes.end());
         }                        
     }
     
@@ -185,11 +189,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     mTotalNumBoundaryElements = rMeshReader.GetNumFaces();   
         
     std::set<unsigned> nodes_owned;
-    std::set<unsigned> ghost_nodes_owned;
+    std::set<unsigned> halo_nodes_owned;
     std::set<unsigned> elements_owned;
-    std::vector<unsigned> offset(PetscTools::NumProcs(),0u);    
+    std::vector<unsigned> proc_offsets;//(PetscTools::NumProcs());
+    std::vector<unsigned> node_permutation;//(this->GetNumNodes());    
     
-    ComputeMeshPartitioning(rMeshReader, nodes_owned, ghost_nodes_owned, elements_owned, offset);
+    ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets, node_permutation);
     
     // Reserve memory
     this->mElements.reserve(elements_owned.size());
@@ -199,7 +204,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     std::vector<double> coords;
     for (unsigned node_index=0; node_index < mTotalNumNodes; node_index++)
     {
-        /// \todo: assert the node is not considered both owned and ghost-owned. Remove continue statement few lines below then.
+        /// \todo: assert the node is not considered both owned and halo-owned. Remove continue statement few lines below then.
         coords = rMeshReader.GetNextNode();
         
         // The node is owned by the processor
@@ -210,11 +215,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             continue;
         }
 
-        // The node is a ghost node in this processor
-        if (ghost_nodes_owned.find(node_index) != ghost_nodes_owned.end())
+        // The node is a halo node in this processor
+        if (halo_nodes_owned.find(node_index) != halo_nodes_owned.end())
         {
-            RegisterGhostNode(node_index);
-            mGhostNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
+            RegisterHaloNode(node_index);
+            mHaloNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
         }
 
     }
@@ -238,8 +243,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                 }
                 else
                 {
-                    node_local_index = SolveGhostNodeMapping(element_data.NodeIndices[j]);
-                    nodes.push_back(this->mGhostNodes[node_local_index]);
+                    node_local_index = SolveHaloNodeMapping(element_data.NodeIndices[j]);
+                    nodes.push_back(this->mHaloNodes[node_local_index]);
                 }                    
             }
             
@@ -301,12 +306,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                 nodes.push_back(this->mNodes[node_local_index]);
             }
 
-            // if I ghost-own this node
-            if(mGhostNodesMapping.find(node_indices[node_index]) != mGhostNodesMapping.end())
+            // if I halo-own this node
+            if(mHaloNodesMapping.find(node_indices[node_index]) != mHaloNodesMapping.end())
             {
                 // Add Node pointer to list for creating an element
-                unsigned node_local_index = SolveGhostNodeMapping(node_indices[node_index]);                
-                nodes.push_back(this->mGhostNodes[node_local_index]); 
+                unsigned node_local_index = SolveHaloNodeMapping(node_indices[node_index]);                
+                nodes.push_back(this->mHaloNodes[node_local_index]); 
             }
             
             if(cullInternalFaces)
@@ -384,43 +389,20 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             actual_face_index++;
         }
     }
-
-//    std::cout << "Before reordering: " << std::endl;
-//    std::cout << PetscTools::GetMyRank() << ": ";   
-//    for (unsigned index=0; index<this->mNodes.size(); index++)
-//    {
-//        std::cout << this->mNodes[index]->GetIndex() << " ";
-//    }
-//    std::cout << std::endl;
-    
-    if (mMetisPartitioning)
+   
+    if (mMetisPartitioning && PetscTools::NumProcs()>1)
     {
-        ReorderNodes(offset);
+        ReorderNodes(node_permutation);
 
-        // Loop over all processors but last one
+        // Compute nodes per processor based on offset information
         for (unsigned num_proc=0; num_proc<PetscTools::NumProcs()-1; num_proc++)
         {
-            this->mNodesPerProcessor.push_back( offset[num_proc+1]-offset[num_proc] );
+            this->mNodesPerProcessor.push_back( proc_offsets[num_proc+1]-proc_offsets[num_proc] );
         }
         
         // Entry for the last processor
-        this->mNodesPerProcessor.push_back( mTotalNumNodes - offset[PetscTools::NumProcs()-1] );
+        this->mNodesPerProcessor.push_back( mTotalNumNodes - proc_offsets[PetscTools::NumProcs()-1] );
     }
- 
-//    std::cout << "After reordering: " << std::endl;
-//    std::cout << PetscTools::GetMyRank() << ": ";   
-//    for (unsigned index=0; index<this->mNodes.size(); index++)
-//    {
-//        std::cout << this->mNodes[index]->GetIndex() << " ";
-//    }
-//    std::cout << std::endl;
-//    
-//    
-//    std::cout << "I am processor number " << PetscTools::GetMyRank() << ". METIS partitioning " << GetNumLocalNodes() << "/" << GetNumLocalElements() << " my offset " << offset[PetscTools::GetMyRank()] << "\n";
-//    for (unsigned i=0; i<offset.size(); i++)
-//    {
-//        std::cout << offset[i] << "\n";
-//    }        
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -453,17 +435,10 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements
     return mTotalNumBoundaryElements;
 }
 
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
-//{
-//    /// \todo: assert ownership
-//    return (this->mBoundaryElements[index]);
-//}
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
-    // all the local nodes are owned by the processor (obviously...)    
+    // all the local elements are owned by the processor (obviously...)    
     assert(hi>=lo);
     for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
     {
@@ -479,9 +454,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterNode(unsigned inde
 }    
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterGhostNode(unsigned index)
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterHaloNode(unsigned index)
 {
-    mGhostNodesMapping[index] = mGhostNodes.size();    
+    mHaloNodesMapping[index] = mHaloNodes.size();    
 }    
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -512,10 +487,10 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsig
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveGhostNodeMapping(unsigned index)
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveHaloNodeMapping(unsigned index)
 {
-    assert(mGhostNodesMapping.find(index) != mGhostNodesMapping.end());
-    return mGhostNodesMapping[index];    
+    assert(mHaloNodesMapping.find(index) != mHaloNodesMapping.end());
+    return mHaloNodesMapping[index];    
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -562,7 +537,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-                                                                                  std::set<unsigned>& rNodesOwned, std::vector<unsigned>& offset) const
+                                                                                  std::set<unsigned>& rNodesOwned, 
+                                                                                  std::vector<unsigned>& rProcessorsOffset,
+                                                                                  std::vector<unsigned>& rNodePermutation) const
 {
     assert(PetscTools::NumProcs() > 1);
     
@@ -582,8 +559,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     // Only the master process should do IO and call METIS
     if (handler.IsMaster())
     {
+        /*
+         *  Create input file for METIS
+         */
         out_stream metis_file=handler.OpenOutputFile(basename);
 
+        // File header
         (*metis_file)<<this->GetNumElements()<<"\t";
         if (ELEMENT_DIM==2)
         {
@@ -595,33 +576,20 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
         }
 
 
-////////////
-    for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
-    {
-        ElementData element_data = rMeshReader.GetNextElementData();
-
-        for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+        // Graph representation of the mesh
+        for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
         {
-                (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
+            ElementData element_data = rMeshReader.GetNextElementData();
+    
+            for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+            {
+                    (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
+            }
+            (*metis_file)<<"\n";
         }
-        (*metis_file)<<"\n";
-    }
-    metis_file->close();
-
-    rMeshReader.Reset();
-////////////
-//        for (unsigned i=0; i<this->GetNumElements(); i++)
-//        {
-//            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
-//            {
-//                //Note the +1 since Metis wants meshes indexed from 1
-//                (*metis_file)<<this->mElements[i]->GetNode(j)->GetIndex() + 1<<"\t";
-//            }
-//            (*metis_file)<<"\n";
-//        }
-//        metis_file->close();
-////////////
-
+        metis_file->close();
+    
+        rMeshReader.Reset();
 
         /*
          *  Call METIS binary to perform the partitioning.
@@ -637,11 +605,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
         system(permute_command.str().c_str());
     }
 
-    // Wait for the permutation to be available
+    /*
+     * Wait for the permutation to be available
+     */
     PetscTools::Barrier();
 
     /*
-     *  Read partition file back into a vector.
+     *  Read partition file and compute local node ownership and processors offset
      */
     std::ifstream partition_stream;
     std::string full_path = handler.GetOutputDirectoryFullPath("")
@@ -650,40 +620,80 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     partition_stream.open(full_path.c_str());
     assert(partition_stream.is_open());
 
+    rProcessorsOffset = std::vector<unsigned>(PetscTools::NumProcs(), 0);
+
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         unsigned part_read;
 
         partition_stream >> part_read;
-
+        
+        // METIS output says I own this node
         if (part_read == PetscTools::GetMyRank())
         {
             rNodesOwned.insert(node_index);
         }
         
+        // Offset is defined as the first node owned by a processor. We compute it incrementally.
+        // i.e. if node_index belongs to proc 3 (of 6) we have to shift the processors 4, 5, and 6 
+        // offset a position
         for (unsigned proc=part_read+1; proc<PetscTools::NumProcs(); proc++)
         {
-            offset[proc]++;
+            rProcessorsOffset[proc]++;
         }
     }
+
+    /*
+     *  Once we know the offsets we can compute the permutation vector
+     */
+    // Move stream pointer to the beginning of the file
+    partition_stream.seekg (0, std::ios::beg);
+    
+    std::vector<unsigned> local_index(this->GetNumNodes(), 0);    
+    
+    rNodePermutation.resize(this->GetNumNodes());
+    
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
+    {   
+        unsigned part_read;
+
+        partition_stream >> part_read;
+
+        rNodePermutation[node_index] = rProcessorsOffset[part_read] + local_index[part_read];
+        
+        local_index[part_read]++;
+    }
+
     partition_stream.close();
 
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<unsigned>& offset)
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<unsigned>& rNodePermutation)
 {
-    unsigned counter = offset[PetscTools::GetMyRank()];
+    assert(PetscTools::NumProcs() > 1);
+    
+    // Need to rebuild global-local maps
+    mNodesMapping.clear();
+    mHaloNodesMapping.clear();
+    
     //Update indices
     for (unsigned index=0; index<this->mNodes.size(); index++)
     {
         unsigned old_index = this->mNodes[index]->GetIndex();
-        this->mNodes[index]->SetIndex(counter);
+        unsigned new_index = rNodePermutation[old_index];
         
-        // Update global to local node mapping since indices have changed. 
-        mNodesMapping[counter] = mNodesMapping[old_index];
+        this->mNodes[index]->SetIndex(new_index);
+        mNodesMapping[new_index] = index;
+    }
+
+    for (unsigned index=0; index<mHaloNodes.size(); index++)
+    {
+        unsigned old_index = mHaloNodes[index]->GetIndex();
+        unsigned new_index = rNodePermutation[old_index];
         
-        counter++;
+        mHaloNodes[index]->SetIndex(new_index);
+        mHaloNodesMapping[new_index] = index;
     }
 }
 

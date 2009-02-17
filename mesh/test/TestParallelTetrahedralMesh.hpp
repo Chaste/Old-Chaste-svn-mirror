@@ -214,12 +214,36 @@ public:
          * All the nodes have been assigned
          */
         {
-            unsigned num_local_nodes = mesh.GetNumLocalNodes();
-            unsigned nodes_reduction;        
-            MPI_Reduce(&num_local_nodes, &nodes_reduction, 1, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+            unsigned num_global_nodes = mesh.GetNumNodes();
+            unsigned nodes_owned[num_global_nodes];
+    
+            // Create a local map of the nodes this processor owns
+            for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
+            {
+                try
+                {
+                    unsigned node_index = mesh.GetNode(node_id)->GetIndex();
+                    TS_ASSERT_EQUALS(node_id, node_index);
+    
+                    nodes_owned[node_index] = 1;
+                }
+                catch(Exception& e)
+                {
+                    nodes_owned[node_id] = 0;               
+                }
+            }
+                    
+            // Combine all the local maps by adding them up in the master process                
+            unsigned nodes_reduction[num_global_nodes];        
+            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+    
+            //Make sure every node is owned at least by one processor
             if (PetscTools::AmMaster())
             {
-                TS_ASSERT_EQUALS(nodes_reduction, mesh.GetNumNodes());
+                for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
+                {
+                    TS_ASSERT(nodes_reduction[node_id] > 0);
+                }
             }
         }        
         
@@ -339,6 +363,8 @@ public:
     
     void TestMetisPartitioning()
     {
+        EXIT_IF_SEQUENTIAL;
+        
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ParallelTetrahedralMesh<3,3> mesh;        
         mesh.ConstructFromMeshReader(mesh_reader);

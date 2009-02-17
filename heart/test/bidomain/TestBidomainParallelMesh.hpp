@@ -46,7 +46,7 @@ public:
 
     void TestBidomainProblemWithDistributedMesh2D()
     {
-        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        HeartConfig::Instance()->SetSimulationDuration(1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("DistributedMesh2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral2d");
 
@@ -100,7 +100,14 @@ public:
         HeartConfig::Instance()->SetCapacitance(1.0);
 
         // now solve
+        try
+        {
         distributed_problem.Solve();
+        }
+        catch(Exception& e)
+        {
+            std::cout << "mess: " << e.GetMessage() << std::endl;            
+        }
 
         ///////////////////////////////////////////////////////////////////
         // compare
@@ -114,6 +121,9 @@ public:
         DistributedVector::Stripe distributed_voltage(dist_distributed_voltage, 0);
         DistributedVector::Stripe distributed_potential(dist_distributed_voltage, 1);
 
+        double seq_local_ave_voltage = 0.0;
+        double para_local_ave_voltage = 0.0;
+
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
@@ -126,6 +136,23 @@ public:
 //            // the solutions should agree
 //            TS_ASSERT_DELTA(nondistributed_voltage[index], distributed_voltage[index], 1e-6);
 //            TS_ASSERT_DELTA(nondistributed_potential[index], distributed_potential[index], 1e-6);
+
+            seq_local_ave_voltage += nondistributed_voltage[index];
+            para_local_ave_voltage += distributed_voltage[index];
+        }
+
+        double seq_ave_voltage;
+        MPI_Reduce(&seq_local_ave_voltage, &seq_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+        seq_ave_voltage /= mesh.GetNumNodes();
+
+        double para_ave_voltage;
+        MPI_Reduce(&para_local_ave_voltage, &para_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+        para_ave_voltage /= mesh.GetNumNodes();
+
+        if (PetscTools::AmMaster())
+        {
+            std::cout << seq_ave_voltage << "  " << para_ave_voltage << std::endl;
+            TS_ASSERT_DELTA(seq_ave_voltage, para_ave_voltage, 1.0);
         }
 
         VecDestroy(nondistributed_results);
