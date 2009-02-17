@@ -390,6 +390,15 @@ public:
         double duration = 1.9; // of the stimulus, in ms
         
         Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
+        
+        // Cover an exception
+        {
+            // Avoid event handler exception
+            HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
+            BidomainProblem<2> no_bath_problem( &cell_factory, false );
+            TS_ASSERT_THROWS_ANYTHING(no_bath_problem.SetElectrodes(electrodes));
+        }
+        
         bidomain_problem.SetElectrodes(electrodes);
         
         bidomain_problem.SetMesh(&mesh);

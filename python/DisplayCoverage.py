@@ -133,6 +133,9 @@ def coverage_ignore(src_file):
     elif src_file['file'] == 'triangle.cpp':
         # We don't try to cover other people's code
         ignore = True
+    elif src_file['file'] == 'HeartRegionCodes.cpp':
+        # A strange special case
+        ignore = True
     elif src_file['file'][-4:] == '.hpp':
         ignore = True
         fp = open(os.path.join(src_file['dir'], src_file['file']))
@@ -201,7 +204,8 @@ for src_file in src_files:
                     if not (ignore or src_line_stripped in ['{', '}', 'NEVER_REACHED;'] or
                             (src_line_stripped.startswith('return') and
                              src_line_stripped[6] in [';', ' ']) or
-                            src_line_stripped.startswith('assert(DIM') or
+                            (src_line_stripped.startswith('assert(DIM') or
+                             src_line_stripped.startswith('assert(ELEM_DIM')) or
                             src_line_stripped.startswith('template class ') or #gcov bug
                             (src_line_stripped.startswith('catch ') and #Line is catch(...)
                              src_line_stripped[-1] == ')')
