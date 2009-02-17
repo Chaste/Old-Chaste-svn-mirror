@@ -155,7 +155,7 @@ public:
     /**
      * Destructor.
      */
-    ~VertexMesh();
+    virtual ~VertexMesh();
     
     /**
      * @return mCellRearrangementThreshold
