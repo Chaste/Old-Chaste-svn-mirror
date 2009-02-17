@@ -96,21 +96,19 @@ public:
         }
         chemotactic_force.AddForceContribution(node_forces, tissue);
 
-        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+        for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
+             cell_iter!=tissue.End();
+             ++cell_iter)
         {
-            bool is_a_ghost_node = tissue.rGetGhostNodes()[i];
+            unsigned index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
+            double x = tissue.GetLocationOfCellCentre(&(*cell_iter))[0];
+            double c = x/50;
+            double norm_grad_c = 1.0/50.0;
+            double force_magnitude = chemotactic_force.GetChemotacticForceMagnitude(c, norm_grad_c);
 
-            if (!is_a_ghost_node)
-            {
-                double x = p_mesh->GetNode(i)->rGetLocation()[0];
-                double c = x/50;
-                double norm_grad_c = 1.0/50.0;
-                double force_magnitude = chemotactic_force.GetChemotacticForceMagnitude(c, norm_grad_c);
-
-                // Fc = force_magnitude*(1,0), Fspring=0
-                TS_ASSERT_DELTA(node_forces[i][0], force_magnitude, 1e-4);
-                TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
-            }
+            // Fc = force_magnitude*(1,0), Fspring = 0
+            TS_ASSERT_DELTA(node_forces[index][0], force_magnitude, 1e-4);
+            TS_ASSERT_DELTA(node_forces[index][1], 0.0, 1e-4);
         }
     }
 

@@ -275,24 +275,23 @@ public:
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
-        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+        for (AbstractTissue<2>::Iterator cell_iter=simulator.rGetTissue().Begin();
+             cell_iter!=simulator.rGetTissue().End();
+             ++cell_iter)
         {
-            std::set<unsigned>::iterator iter = ghost_node_indices.find(i);
-            bool is_a_ghost_node = (iter!=ghost_node_indices.end());
-            Node<2>* p_node = p_mesh->GetNode(i);
-            if (!is_a_ghost_node)
+            unsigned index = simulator.rGetTissue().GetLocationIndexUsingCell(&(*cell_iter));
+            c_vector<double, 2> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(&(*cell_iter));
+
+            if (old_posns[index][1]==0) // stem
             {
-                if (old_posns[i][1]==0) // stem
-                {
-                    // No Wnt so shouldn't have been moved
-                    TS_ASSERT_DELTA(p_node->rGetLocation()[0], old_posns[i][0], 1e-9);
-                    TS_ASSERT_DELTA(p_node->rGetLocation()[1], old_posns[i][1], 1e-9);
-                }
-                else
-                {
-                    TS_ASSERT_DELTA(p_node->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
-                    TS_ASSERT_DELTA(p_node->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
-                }
+                // No Wnt so shouldn't have been moved
+                TS_ASSERT_DELTA(cell_location[0], old_posns[index][0], 1e-9);
+                TS_ASSERT_DELTA(cell_location[1], old_posns[index][1], 1e-9);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(cell_location[0], old_posns[index][0] +   index*0.01*0.01, 1e-9);
+                TS_ASSERT_DELTA(cell_location[1], old_posns[index][1] + 2*index*0.01*0.01, 1e-9);
             }
         }
     }
