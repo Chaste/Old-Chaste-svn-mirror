@@ -620,7 +620,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     partition_stream.open(full_path.c_str());
     assert(partition_stream.is_open());
 
-    rProcessorsOffset = std::vector<unsigned>(PetscTools::NumProcs(), 0);
+    assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
+    rProcessorsOffset.resize(PetscTools::NumProcs(), 0);
 
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
