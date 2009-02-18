@@ -34,23 +34,25 @@ petsc_build_name = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 petsc_build_name_production = 'linux-intel-opt-mkl'
 dealii_path = None
-metis_path = None
+metis_path = '/home/jmpf/metis-5.0pre2'
 intel_path = '' #opt/intel/Compiler/11.0/074/bin/ia32/iccvars_ia32.sh 
 icpc = 'icpc'
 
 
-other_includepaths = ['/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd', '/home/jmpf/hdf5/include']
+other_includepaths = ['/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd', '/home/jmpf/hdf5/include', 	os.path.join(metis_path,'include')]
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),  
-                    '/home/jmpf/hdf5/lib', '/home/jmpf/xerces/lib'] #/opt/intel/Compiler/11.0/074/mkl/tools/environment/mklvars32.sh
+	'/home/jmpf/hdf5/lib', '/home/jmpf/xerces/lib', 
+	os.path.join(metis_path,'build/Linux-i686')]
+#/opt/intel/Compiler/11.0/074/mkl/tools/environment/mklvars32.sh
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
-other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z']
+other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'metis']
 
 tools = {'mpirun': '/home/jmpf/mpi/bin/mpirun',
          'mpicxx': '/home/jmpf/mpi/bin/mpicxx'}
 
 
-use_vtk = False
+use_vtk = True
 if use_vtk:
     other_libraries.extend([ 'vtkIO'])
     other_includepaths.extend(['/usr/include/vtk-5.0'])
