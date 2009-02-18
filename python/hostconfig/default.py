@@ -43,10 +43,14 @@ intel_path = '/opt/intel/cc/9.1.039/lib'
 icpc='icpc'
 
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd',
-                      '../../../include/boost-1_33_1']
+                      '../../../include/boost-1_33_1',
+		      os.path.join(metis_path,'include')]
+
 other_libpaths = ['../../../lib',
-                  os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu')]
+                  os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
+                  os.path.join(metis_path,'build/Linux-x86_64')]
+
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization-gcc', 'xerces-c', 'z', 'hdf5']
+other_libraries = ['boost_serialization-gcc', 'xerces-c', 'z', 'hdf5', 'libmetis.a']
 
 tools = {}

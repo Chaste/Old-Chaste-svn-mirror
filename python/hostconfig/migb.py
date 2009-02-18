@@ -34,17 +34,19 @@ petsc_build_name_profile = 'linux-gnu-profile'
 petsc_build_name_optimized = 'linux-gnu-opt'
 petsc_build_name_production = 'linux-intel-opt-mkl'
 dealii_path = '../../../deal.II/'
-metis_path = '../../../metis-4.0/'
+metis_path = '../../../metis-5.0pre2/'
 intel_path = '/opt/intel/cce/10.0.025/'
 icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/x86_64-linux-gnu/ -I/usr/include/c++/4.1.3/'
 
-other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include']
+other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include',os.path.join(metis_path,'include')]
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),  
                    '/opt/intel/mkl/9.1.023/lib/em64t',
-                   '../../../hdf5/lib']
+                   '../../../hdf5/lib',
+                   os.path.join(metis_path,'build/Linux-x86_64')]
+
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
-other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
+other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5', 'metis']
 
 tools = {'texttest': '/home/miqueloscar/texttest-3.10/source/bin/texttest.py'}
 

@@ -37,10 +37,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
+#include "metis.h"
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
+    
+    friend class TestParallelTetrahedralMesh;
+
+public:
+
+    typedef enum
+    {
+        DUMB=0,
+        METIS_BINARY,
+        METIS_LIBRARY
+    } PartitionType;            
     
 private: 
 
@@ -55,11 +68,11 @@ private:
     std::map<unsigned, unsigned> mElementsMapping;
     std::map<unsigned, unsigned> mBoundaryElementsMapping;        
     
-    bool mMetisPartitioning;
+    PartitionType mMetisPartitioning;
         
-public:
+public:        
 
-    ParallelTetrahedralMesh(bool metisPartitioning=true);
+    ParallelTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
 
     virtual ~ParallelTetrahedralMesh();
 
@@ -100,12 +113,16 @@ private:
     void MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                      std::set<unsigned>& rNodesOwned, std::vector<unsigned>& rProcessorsOffset,
                                      std::vector<unsigned>& rNodePermutation) const;
+
+    void MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+                                     std::set<unsigned>& rNodesOwned, std::vector<unsigned>& rProcessorsOffset,
+                                     std::vector<unsigned>& rNodePermutation) const;
                                      
     void ReorderNodes(std::vector<unsigned>& rNodePermutation);    
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh(bool metisPartitioning)
+ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh(PartitionType metisPartitioning)
     : mMetisPartitioning(metisPartitioning)
 {
 }
@@ -131,11 +148,15 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
 {
     ///\todo: add a timing event for the partitioning
     
-    if (mMetisPartitioning && PetscTools::NumProcs() > 1)
+    if (mMetisPartitioning==METIS_BINARY && PetscTools::NumProcs() > 1)
     {        
         MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);                 
     }
-    else
+    else if (mMetisPartitioning==METIS_LIBRARY && PetscTools::NumProcs() > 1)
+    {
+        MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);
+    }
+    else    
     {
         DumbNodePartitioning(rMeshReader, rNodesOwned);
     }
@@ -390,7 +411,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
     }
    
-    if (mMetisPartitioning && PetscTools::NumProcs()>1)
+    if (mMetisPartitioning != DUMB && PetscTools::NumProcs()>1)
     {
         ReorderNodes(node_permutation);
 
@@ -667,6 +688,96 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
 
     partition_stream.close();
 
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+                                                                                  std::set<unsigned>& rNodesOwned, 
+                                                                                  std::vector<unsigned>& rProcessorsOffset,
+                                                                                  std::vector<unsigned>& rNodePermutation) const
+{
+    assert(PetscTools::NumProcs() > 1);
+    
+    assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
+
+
+    idxtype ne = rMeshReader.GetNumElements(); 
+    idxtype nn = rMeshReader.GetNumNodes(); 
+    idxtype elmnts[ne * (ELEMENT_DIM+1)];
+
+    unsigned counter=0;    
+    for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+    {
+        ElementData element_data = rMeshReader.GetNextElementData();
+
+        for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+        {
+            elmnts[counter++] = element_data.NodeIndices[i];
+        }
+    }
+    rMeshReader.Reset();    
+     
+    idxtype etype;
+    
+    switch (ELEMENT_DIM)
+    {
+        case 2:          
+            etype = 1; //1 is Metis speak for triangles
+            break;
+        case 3:
+            etype = 2; //2 is Metis speak for tetrahedra
+            break;
+        default:
+            NEVER_REACHED;
+    }    
+            
+    idxtype numflag = 0; //0 means C-style numbering is assumed 
+    idxtype nparts = PetscTools::NumProcs();
+    idxtype edgecut;
+    idxtype epart[ne]; 
+    idxtype npart[nn];
+    idxtype wgetflag = 0; // No weights considered in this problem
+    idxtype* vwgt = NULL;
+        
+    METIS_PartMeshDual(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart, wgetflag, vwgt);    
+
+    assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
+    rProcessorsOffset.resize(PetscTools::NumProcs(), 0);
+
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
+    {
+        unsigned part_read = npart[node_index];
+        
+        // METIS output says I own this node
+        if (part_read == PetscTools::GetMyRank())
+        {
+            rNodesOwned.insert(node_index);
+        }
+        
+        // Offset is defined as the first node owned by a processor. We compute it incrementally.
+        // i.e. if node_index belongs to proc 3 (of 6) we have to shift the processors 4, 5, and 6 
+        // offset a position.
+        for (unsigned proc=part_read+1; proc<PetscTools::NumProcs(); proc++)
+        {
+            rProcessorsOffset[proc]++;
+        }
+    }
+
+    /*
+     *  Once we know the offsets we can compute the permutation vector
+     */    
+    std::vector<unsigned> local_index(this->GetNumNodes(), 0);    
+    
+    rNodePermutation.resize(this->GetNumNodes());
+    
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
+    {   
+        unsigned part_read = npart[node_index];
+
+        rNodePermutation[node_index] = rProcessorsOffset[part_read] + local_index[part_read];
+        
+        local_index[part_read]++;
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
