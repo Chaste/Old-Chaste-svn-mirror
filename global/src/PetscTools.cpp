@@ -218,8 +218,14 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
 void PetscTools::DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+    PetscViewerFileType type = PETSC_FILE_WRONLY;
+#else
+    PetscFileMode type = FILE_MODE_WRITE;
+#endif
+
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          FILE_MODE_WRITE, &view);
+                          type , &view);
     MatView(rMat, view); 
     PetscViewerDestroy(view);
 }
@@ -227,8 +233,14 @@ void PetscTools::DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
 void PetscTools::DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+    PetscViewerFileType type = PETSC_FILE_WRONLY;
+#else
+    PetscFileMode type = FILE_MODE_WRITE;
+#endif
+
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          FILE_MODE_WRITE, &view);
+                          type , &view);
     VecView(rVec, view); 
     PetscViewerDestroy(view);
 }
@@ -236,8 +248,14 @@ void PetscTools::DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+    PetscViewerFileType type = PETSC_FILE_RDONLY;
+#else
+    PetscFileMode type = FILE_MODE_READ;
+#endif
+
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          FILE_MODE_READ, &view);
+                          type, &view);
     MatLoad(view, MATMPIAIJ, &rMat); 
     PetscViewerDestroy(view);
 }
@@ -245,8 +263,14 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
 void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+    PetscViewerFileType type = PETSC_FILE_RDONLY;
+#else
+    PetscFileMode type = FILE_MODE_READ;
+#endif
+
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          FILE_MODE_READ, &view);
+                          type, &view);
     VecLoad(view, VECMPI, &rVec); 
     PetscViewerDestroy(view);
 }
