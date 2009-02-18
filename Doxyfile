@@ -88,7 +88,9 @@ INPUT                  =    heart/src \
 							mesh/src \
 							ode/src \ 
 							pde/src \
-							cancer/src
+							cancer/src \
+							notforrelease/src \
+							notforrelease-cancer/src
 							                         
 FILE_PATTERNS          = *.c \
                          *.cc \
