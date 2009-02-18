@@ -1,3 +1,3 @@
-TestCryptSimulation2dNightly.hpp
-TestRunningCryptSimulationsTutorial.hpp
-TestTissueCellNightly.hpp
+cell/TestTissueCellNightly.hpp
+simulation/TestCryptSimulation2dNightly.hpp
+tutorial/TestRunningCryptSimulationsTutorial.hpp

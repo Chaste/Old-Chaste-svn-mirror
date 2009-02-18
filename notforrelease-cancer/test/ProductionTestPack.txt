@@ -1,5 +1,5 @@
-TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
-TestCellCycleModelsNotForRelease.hpp
-TestCellKillersNotForRelease.hpp
-TestCryptSimulation1d.hpp
-TestTissueSimulationWithNutrients.hpp
+cell/TestCellCycleModelsNotForRelease.hpp
+odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
+simulation/TestCryptSimulation1d.hpp
+simulation/TestTissueSimulationWithNutrients.hpp
+tissue/TestCellKillersNotForRelease.hpp
