@@ -1,0 +1,14 @@
+========= WELCOME TO CHASTE ===========
+
+The files you have downloaded contain the source code for all the Chaste functionalities.
+Chaste makes use of a variety of external libraries and packages that need to be installed on your machine.
+The file README_INSTALLATION provides a comprehensive guide on how to install these external tools.
+
+Chaste includes a complete test suite covering all the source code. The easiest way 
+to use existing source codes is to create a test file which can call upon any of the source files, scons will build this file for you and handle all of the dependencies and library calls:
+e.g.
+scons test_suite=projects/example/test/TestHello.hpp
+
+We suggest you use the projects directory in this manner to store your own source and test files if you do not wish to modify the chaste source code.
+
+For more information please refer to the chaste website at: http://web.comlab.ox.ac.uk/chaste/
