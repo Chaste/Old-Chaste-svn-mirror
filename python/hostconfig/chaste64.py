@@ -52,7 +52,7 @@ if use_cvode:
     other_libpaths.append('../../../cvode/lib')
     other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
 
-use_vtk = True
+use_vtk = False
 if use_vtk:
     other_includepaths.append('/usr/include/vtk-5.0')
     other_libraries.extend(['vtkIO'])
