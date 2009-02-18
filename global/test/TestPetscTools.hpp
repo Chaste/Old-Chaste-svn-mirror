@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscmat.h>
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "LinearSystem.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestPetscTools : public CxxTest::TestSuite
 {
@@ -122,6 +124,52 @@ public:
         {
             TS_ASSERT_THROWS_ANYTHING(PetscTools::ReplicateException(false));
         }
+    }
+    
+    void TestDumpPetscObjects()
+    {
+        LinearSystem ls(10);
+
+        for (int row=0; row<10; row++)
+        {
+            for (int col=0; col<10; col++)
+            {
+                ls.SetMatrixElement(row, col, (double) 10*row+col+1);
+            }
+            
+            ls.SetRhsVectorElement(row, (double)row);
+        }
+        
+        ls.AssembleFinalLinearSystem();
+
+        OutputFileHandler handler("DumpPetscObjects");
+        std::string output_dir = handler.GetOutputDirectoryFullPath();
+
+        PetscTools::DumpPetscObject(ls.rGetLhsMatrix(), output_dir+"ten_times_ten.mat");
+        PetscTools::DumpPetscObject(ls.rGetRhsVector(), output_dir+"ten_times_ten.vec");
+        
+        
+        LinearSystem ls_read(10);
+        
+        PetscTools::ReadPetscObject(ls_read.rGetLhsMatrix(), output_dir+"ten_times_ten.mat");
+        PetscTools::ReadPetscObject(ls_read.rGetRhsVector(), output_dir+"ten_times_ten.vec");
+        
+        PetscInt lo, hi;
+        ls.GetOwnershipRange(lo, hi);
+        
+        for (int row=0; row<10; row++)
+        {
+            if (lo<=row && row<hi)
+            {
+                for (int col=0; col<10; col++)
+                {
+                    TS_ASSERT_EQUALS(ls_read.GetMatrixElement(row, col), (double) 10*row+col+1);
+                }
+            
+            TS_ASSERT_EQUALS(ls_read.GetRhsVectorElement(row), (double)row);
+            }            
+        }
+        
     }
 };
 #endif /*TESTPETSCTOOLS_HPP_*/

@@ -215,4 +215,41 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     MatSetFromOptions(rMat);
 }
 
+void PetscTools::DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPath)
+{
+    PetscViewer view;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
+                          FILE_MODE_WRITE, &view);
+    MatView(rMat, view); 
+    PetscViewerDestroy(view);
+}
+
+void PetscTools::DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPath)
+{
+    PetscViewer view;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
+                          FILE_MODE_WRITE, &view);
+    VecView(rVec, view); 
+    PetscViewerDestroy(view);
+}
+
+void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath)
+{
+    PetscViewer view;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
+                          FILE_MODE_READ, &view);
+    MatLoad(view, MATMPIAIJ, &rMat); 
+    PetscViewerDestroy(view);
+}
+
+void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath)
+{
+    PetscViewer view;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
+                          FILE_MODE_READ, &view);
+    VecLoad(view, VECMPI, &rVec); 
+    PetscViewerDestroy(view);
+}
+
+
 #endif //SPECIAL_SERIAL

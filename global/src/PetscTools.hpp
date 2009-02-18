@@ -171,6 +171,19 @@ public:
 //        return ret;
 //    }
 
+    /*
+     *  Dumps a given Petsc object to disk.
+     */
+    static void DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPath);
+    static void DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
+
+    /*
+     *  Read a previously dumped Petsc object from disk.
+     */
+    static void ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath);
+    static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
+
+
 #endif //SPECIAL_SERIAL
 
 };
