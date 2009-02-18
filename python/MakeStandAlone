@@ -16,4 +16,4 @@ cat ChasteParameters.xml | sed s:heart/src/io/:: > $NAME/ChasteParameters.xml
 cp README_STANDALONE $NAME/README
 cp heart/src/io/ChasteParameters.xsd $NAME
 tar cvfz $NAME.tgz $NAME
-scp $NAME.tgz  root@chaste.ediamond.ox.ac.uk:/var/www/html/chaste/
+scp $NAME.tgz  root@chaste.ediamond.ox.ac.uk:/var/www/html/chaste/downloads/
