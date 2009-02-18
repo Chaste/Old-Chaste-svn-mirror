@@ -50,14 +50,13 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("DistributedMesh2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral2d");
 
-        Vec nondistributed_results;
-
         // The default stimulus in PlaneStimulusCellFactory is not enough to generate propagation
         // here, increasing it an order of magnitude 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-6000);
 
         // To avoid an issue with the Event handler only one simulation should be
         // in existance at a time: therefore monodomain simulation is defined in a block
+        double seq_ave_voltage;        
         {
             ///////////////////////////////////////////////////////////////////
             // TetrahedralMesh
@@ -73,11 +72,28 @@ public:
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
 
-            // now solve
             nondistributed_problem.Solve();
+    
+            DistributedVector dist_nondistributed_voltage(nondistributed_problem.GetSolution());
+            DistributedVector::Stripe nondistributed_voltage(dist_nondistributed_voltage, 0);
+            DistributedVector::Stripe nondistributed_potential(dist_nondistributed_voltage, 1);    
+            
+            double seq_local_ave_voltage = 0.0;
+                
+            for (DistributedVector::Iterator index = DistributedVector::Begin();
+                 index != DistributedVector::End();
+                 ++index)
+            {
+                if (index.Global==0)
+                {
+                    TS_ASSERT_LESS_THAN(0, nondistributed_voltage[index]);
+                }
+    
+                seq_local_ave_voltage += nondistributed_voltage[index];
+            }
 
-            VecDuplicate(nondistributed_problem.GetSolution(), &nondistributed_results);
-            VecCopy(nondistributed_problem.GetSolution(), nondistributed_results);
+            MPI_Reduce(&seq_local_ave_voltage, &seq_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+            seq_ave_voltage /= mesh.GetNumNodes();
         }
 
 
@@ -99,29 +115,12 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
 
-        // now solve
-        try
-        {
         distributed_problem.Solve();
-        }
-        catch(Exception& e)
-        {
-            std::cout << "mess: " << e.GetMessage() << std::endl;            
-        }
-
-        ///////////////////////////////////////////////////////////////////
-        // compare
-        ///////////////////////////////////////////////////////////////////
-        DistributedVector dist_nondistributed_voltage(nondistributed_results);
-        DistributedVector::Stripe nondistributed_voltage(dist_nondistributed_voltage, 0);
-        DistributedVector::Stripe nondistributed_potential(dist_nondistributed_voltage, 1);
-
 
         DistributedVector dist_distributed_voltage(distributed_problem.GetSolution());
         DistributedVector::Stripe distributed_voltage(dist_distributed_voltage, 0);
         DistributedVector::Stripe distributed_potential(dist_distributed_voltage, 1);
 
-        double seq_local_ave_voltage = 0.0;
         double para_local_ave_voltage = 0.0;
 
         for (DistributedVector::Iterator index = DistributedVector::Begin();
@@ -130,32 +129,26 @@ public:
         {
             if (index.Global==0)
             {
-                TS_ASSERT_LESS_THAN(0, nondistributed_voltage[index]);
+                TS_ASSERT_LESS_THAN(0, distributed_voltage[index]);
             }
-// \todo: We cannot check the outputs node by node since they come in different order.
-//            // the solutions should agree
-//            TS_ASSERT_DELTA(nondistributed_voltage[index], distributed_voltage[index], 1e-6);
-//            TS_ASSERT_DELTA(nondistributed_potential[index], distributed_potential[index], 1e-6);
 
-            seq_local_ave_voltage += nondistributed_voltage[index];
             para_local_ave_voltage += distributed_voltage[index];
         }
 
-        double seq_ave_voltage;
-        MPI_Reduce(&seq_local_ave_voltage, &seq_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-        seq_ave_voltage /= mesh.GetNumNodes();
 
         double para_ave_voltage;
         MPI_Reduce(&para_local_ave_voltage, &para_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
         para_ave_voltage /= mesh.GetNumNodes();
 
+        ///////////////////////////////////////////////////////////////////
+        // compare
+        ///////////////////////////////////////////////////////////////////
         if (PetscTools::AmMaster())
         {
             std::cout << seq_ave_voltage << "  " << para_ave_voltage << std::endl;
             TS_ASSERT_DELTA(seq_ave_voltage, para_ave_voltage, 1.0);
         }
 
-        VecDestroy(nondistributed_results);
     }
 };
 
