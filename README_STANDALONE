@@ -23,7 +23,7 @@ Please note that the output directory specified in the ChasteParameters.xml file
 
 export CHASTE_TEST_OUTPUT=Desired_Directory_Path
 
-If CHASTE_TEST_OUTPUT is not set, results will be found relative to the current directory.
+If CHASTE_TEST_OUTPUT is not set, results will be found relative to a 'testoutput' folder in the current directory.
 
 
 
