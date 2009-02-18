@@ -26,8 +26,20 @@ public:
         // Time units: millisecond
         mpSystemInfo = OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Instance();
         Init();
-
     }
+    
+    /**
+     * Alternative constructor with the same signature as forwards Euler models.
+     */
+    BackwardEulerFoxModel2002Modified(AbstractIvpOdeSolver* /* unused */,
+                                      AbstractStimulusFunction *pIntracellularStimulus)
+        : AbstractBackwardEulerCardiacCell<3>(13, 0, pIntracellularStimulus)
+    {
+        // Time units: millisecond
+        mpSystemInfo = OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Instance();
+        Init();
+    }
+
 
     ~BackwardEulerFoxModel2002Modified(void)
     {
