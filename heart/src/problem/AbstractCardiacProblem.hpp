@@ -119,9 +119,20 @@ public:
     void Initialise();
 
     void SetNodesPerProcessorFilename(const std::string& filename);
-
+    
+    /**
+     *  Set the boundary conditions container.
+     *  @param *pbcc is a pointer to a boundary conditions container
+     */
     void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc);
-
+    
+    /**
+     *  Performs a series of checks before solving.
+     *  It checks whether the cardiac pde has been defined, 
+     *  whether the simulation time is greater than zero and 
+     *  whether the output directory is specified (or the output is set not to be produced).
+     *  It throws exceptions if any of the above checks fails.
+     */
     virtual void PreSolveChecks();
 
     /**
@@ -166,9 +177,21 @@ public:
     AbstractMesh<SPACE_DIM,SPACE_DIM> & rGetMesh();
 
     AbstractCardiacPde<SPACE_DIM>* GetPde();
-
+    
+    /**
+     *  First performs some checks by calling  the PreSolveChecks method. 
+     *  It creates an assembler to which it passes the boundary conditions specified by the user
+     *  (otherwise it passes the defauls bcc). 
+     *   It then calls the Solve method in the assembler class.
+     *   It also handles the output, if necessary.
+     */
     void Solve();
-
+    
+    /**
+     * Closes the files where the solution is stored and,
+     * if specified so (as it is by default), converts the output to Meshalyzer format 
+     * by calling the WriteFilesUsingMesh method in the MeshalyzerWriter class.
+     */
     void CloseFilesAndPostProcess();
 
 
@@ -177,9 +200,20 @@ public:
     virtual void DefineWriterColumns();
 
     virtual void WriteOneStep(double time, Vec voltageVec);
-
+    
+    /**
+     * It creates and initialises the hdf writer from the Hdf5DataWriter class. 
+     * It passes the output directory (mOutputDirectory) and file name (mOutputFilenamePrefix) to it.
+     * It is called by Solve(), if the output needs to be generated.
+     */
     void InitialiseWriter();
-
+    
+    /**
+     * Specifies which nodes in the mesh to output.
+     * @param &nodesToOutput is a reference to a vector with the indexes of the nodes
+     * where the output is desired. 
+     * If empty, the output will be for all the nodes in the mesh.
+     */
     void SetOutputNodes(std::vector<unsigned> &nodesToOutput);
     
     Hdf5DataReader GetDataReader();
