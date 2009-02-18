@@ -70,6 +70,7 @@ class BuildType(object):
         self.tools = {'mpirun': 'mpirun', 'mpicxx': 'mpicxx',
                       'ar': 'ar', 'cxx': 'cxx',
                       'valgrind': 'valgrind',
+                      'xsd': 'xsd',
                       'gprof': 'gprof', 'pprof': 'pprof',
                       'rm': 'rm', 'cat': 'cat'}
 

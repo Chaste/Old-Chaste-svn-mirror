@@ -223,9 +223,7 @@ if not single_test_suite:
 
 
 # Create Builders for generating test .cpp files, and running test executables
-test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
-#runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
-#                   build_type + ' ' + run_time_flags)
+test = Builder(action='cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
 import TestRunner
 def test_description(target, source, env):
     return "running '%s'" % (source[0])
@@ -238,9 +236,28 @@ env['BUILDERS']['BuildTest'] = Builder(action=SConsTools.BuildTest)
 
 # Faster builds of shared libraries
 import fasterSharedLibrary
-fasterSharedLibrary.Copy = Copy
+fasterSharedLibrary.Copy = Copy # Bit of a hack this!
 env['BUILDERS']['OriginalSharedLibrary'] = env['BUILDERS']['SharedLibrary']
 env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
+
+# 'Builder' for running xsd to generate parser code from an XML schema.
+# Getting this to integrate with the build is non-trivial, so we cheat.
+def run_xsd(schema_file):
+    base = os.path.basename(schema_file)
+    output_dir = os.path.dirname(schema_file)
+    base = os.path.splitext(base)[0]
+    command=' '.join([build.tools['xsd'], 'cxx-tree', '--generate-serialization',
+                      '--output-dir', output_dir,
+                      '--hxx-suffix', '.hpp', '--cxx-suffix', '.cpp',
+                      '--cxx-prologue', '"#define COVERAGE_IGNORE"',
+                      '--cxx-epilogue', '"#undef COVERAGE_IGNORE"',
+                      '--hxx-prologue', '"#define COVERAGE_IGNORE"',
+                      '--hxx-epilogue', '"#undef COVERAGE_IGNORE"',
+                      '--root-element', base, schema_file])
+    print "Running xsd on", schema_file
+    os.system(command)
+if os.stat('heart/src/io/ChasteParameters.xsd').st_mtime > os.stat('heart/src/io/ChasteParameters.cpp').st_mtime:
+    run_xsd('heart/src/io/ChasteParameters.xsd')
 
 # Find full path to valgrind, as parallel memory testing needs it to be
 # given explicitly.
