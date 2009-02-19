@@ -205,20 +205,6 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 mElements.push_back(p_element);
             }
         }  
-    
-    //    HoneycombMeshGenerator generator(numAcross+1,numUp+1,0,false);
-    //    MutableMesh<2,2>* p_mesh = generator.GetMesh();
-    //    VoronoiTessellation<2> tessellation(*p_mesh);
-    //    
-    //    for (unsigned i = 0;i<tessellation.GetNumVertices();i++)
-    //    {
-    //        c_vector<double,2>* position = tessellation.GetVertex(i);
-    //        Node<2>* p_node = new Node<2>(0, false, (*position)(0), (*position)(1));
-    //        mNodes.push_back(p_node);
-    //    }    
-    
-        /// \todo: loop over the p_mesh's nodes, and if it is a non-boundary node create a VertexElement using
-        //         the corresponding cell. Then get rid of the nodes in mNodes that do not belong in any cell.
     }
 }
 

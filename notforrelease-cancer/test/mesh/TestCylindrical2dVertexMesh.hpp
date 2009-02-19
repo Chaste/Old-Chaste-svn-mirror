@@ -34,16 +34,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "Cylindrical2dVertexMesh.hpp"
-
+#include "VertexMeshWriter.hpp"
 
 class TestCylindrical2dVertexMesh : public CxxTest::TestSuite
 {
 public:
+    void TestMeshGenerator(void)
+    {
+        // Create mesh
+        Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4, 0.01, 2.0);
+		
+		//TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumElements(), 16u);
+        //TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumNodes(), 48u);
+		
+		// Create a vertex mesh writer
+        VertexMeshWriter<2,2> vertex_mesh_writer("TestCylindricalVertexMesh", "cylindrical_vertex_mesh");
+        vertex_mesh_writer.WriteFilesUsingMesh(cylindrical_vertex_mesh);
+		
+    }
 
     void TestMeshGetWidth(void)
     {
         // Create mesh
-        Cylindrical2dVertexMesh cylindrical_vertex_mesh(3, 3, 0.01, 2.0);
+        Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4, 0.01, 2.0);
 
         // Test GetWidthExtremes() method
         c_vector<double,2> width_extremes = cylindrical_vertex_mesh.GetWidthExtremes(0u);
@@ -53,64 +66,63 @@ public:
         TS_ASSERT_DELTA(width_extremes[1], 2.8867, 1e-4);
 
         TS_ASSERT_DELTA(height_extremes[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(height_extremes[1], 3.5000, 1e-4);
+        TS_ASSERT_DELTA(height_extremes[1], 4.5000, 1e-4);
 
         // Test GetWidth() method
         double width = cylindrical_vertex_mesh.GetWidth(0);
         double height = cylindrical_vertex_mesh.GetWidth(1);
 
-        TS_ASSERT_DELTA(width, 2.8867, 1e-4);
-        TS_ASSERT_DELTA(height, 3.5000, 1e-4);
+        TS_ASSERT_DELTA(width, 3.4641, 1e-4);
+        TS_ASSERT_DELTA(height, 4.5000, 1e-4);
     }
 
     void TestGetVectorFromAtoB() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
 
-        c_vector<double, 2> node36_location = mesh.GetNode(36)->rGetLocation();
-        c_vector<double, 2> node38_location = mesh.GetNode(38)->rGetLocation();
+        c_vector<double, 2> node18_location = mesh.GetNode(18)->rGetLocation();
+        c_vector<double, 2> node19_location = mesh.GetNode(19)->rGetLocation();
 
         // Test a normal vector and distance calculation
-        c_vector<double, 2> vector = mesh.GetVectorFromAtoB(node36_location, node38_location);
-        TS_ASSERT_DELTA(vector[0], 1.7320, 1e-4);
+        c_vector<double, 2> vector = mesh.GetVectorFromAtoB(node18_location, node19_location);
+        TS_ASSERT_DELTA(vector[0], 0.5773, 1e-4);
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(norm_2(vector), 1.7320, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetDistanceBetweenNodes(36, 38), 1.7320, 1e-4);
+        TS_ASSERT_DELTA(norm_2(vector), 0.5773, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetDistanceBetweenNodes(18, 19), 0.5773, 1e-4);
 
         // Test the opposite vector
-        vector = mesh.GetVectorFromAtoB(node38_location, node36_location);
-        TS_ASSERT_DELTA(vector[0], -1.7320, 1e-4);
+        vector = mesh.GetVectorFromAtoB(node19_location, node18_location);
+        TS_ASSERT_DELTA(vector[0], -0.5773, 1e-4);
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
 
         // Test a periodic calculation
 
-        c_vector<double, 2> node25_location = mesh.GetNode(25)->rGetLocation();
-        c_vector<double, 2> node28_location = mesh.GetNode(28)->rGetLocation();
+        c_vector<double, 2> node16_location = mesh.GetNode(16)->rGetLocation();
+        //c_vector<double, 2> node19_location = mesh.GetNode(19)->rGetLocation();
 
-        vector = mesh.GetVectorFromAtoB(node25_location, node28_location);
-        TS_ASSERT_DELTA(vector[0], 1.7320, 1e-4);
-        TS_ASSERT_DELTA(vector[1], 0.5000, 1e-4);
+        vector = mesh.GetVectorFromAtoB(node16_location, node19_location);
+        TS_ASSERT_DELTA(vector[0], -1.1547, 1e-4);
+        TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
 
         /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
     }
 
-
     void TestSetNodeLocationForCylindricalMesh() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
 
         // Move one of the nodes to near the periodic boundary
         c_vector<double, 2> new_point_location;
         new_point_location[0] = -0.01;
-        new_point_location[1] = 2.5;
+        new_point_location[1] = 1.5;
         ChastePoint<2> new_point(new_point_location);
 
         // This node was on left and is now near the right
-        mesh.SetNode(34u, new_point);
-        TS_ASSERT_DELTA(mesh.GetNode(34u)->rGetLocation()[0], 5.4748, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(34u)->rGetLocation()[1], 2.5, 1e-4);
+        mesh.SetNode(12u, new_point);
+        TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[0], 3.4541, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[1], 1.5, 1e-4);
 
         /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
     }
@@ -121,13 +133,13 @@ public:
         // Create mesh
         Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
 
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 96u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 84u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 36u);
 
         // Choose a node on the left boundary
-        ChastePoint<2> point = mesh.GetNode(62)->GetPoint();
+        ChastePoint<2> point = mesh.GetNode(18)->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(point[1], 4.5000, 1e-4);
+        TS_ASSERT_DELTA(point[1], 1.5000, 1e-4);
 
         // Create a new node close to this node
         point.SetCoordinate(0, -0.01);
@@ -149,10 +161,10 @@ public:
         TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
 
         // Check that the mesh is updated
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 97u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 85u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 36u);
 
-        TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[0], 5.4748, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[0], 5.18615, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[1], 4.5000, 1e-4);
 
         // Now tet AddNode() when mDeletedNodeIndices is populated

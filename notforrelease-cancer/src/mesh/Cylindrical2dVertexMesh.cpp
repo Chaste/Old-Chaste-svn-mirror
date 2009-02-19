@@ -42,11 +42,92 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                                                  unsigned numUp,
                                                  double cellRearrangementThreshold,
                                                  double edgeDivisionThreshold)
-    : VertexMesh<2,2>(numAcross, numUp, cellRearrangementThreshold, edgeDivisionThreshold)
-{
-    mWidth = VertexMesh<2,2>::GetWidth(0);
-
-    /// \todo Override this method so that nodes on the periodic boundaries are correctly identified with elements (#918)
+    : VertexMesh<2,2>(cellRearrangementThreshold, edgeDivisionThreshold)
+    {
+	mWidth = 3*0.5*numAcross/(sqrt(3));   // This accounts for numAcross Elements 
+    mAddedNodes = true;
+    assert(numAcross > 1);
+    assert(numAcross%2==0); // numAcross should be even.
+    
+    unsigned node_index = 0;
+    // Create the nodes
+    for (unsigned j=0; j<=2*numUp+1; j++)
+    {
+        if (j%2 == 0) // j even
+        {
+            for (unsigned i=1; i<=3*numAcross-1; i+=2)
+            {
+                if (j!=0 || i!= 3*numAcross-1)
+                {
+                    if (i%3 != 2)
+                    {
+                        Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                        mNodes.push_back(p_node);
+                        node_index++;
+                    }
+                }
+            }
+        }
+        else 
+        {
+            for (unsigned i=0; i<=3*numAcross-1; i+=2)
+            {
+                if (j!=2*numUp+1 || i!= 3*numAcross-1)
+                {
+                    if (i%3 != 2)
+                    {
+                        Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                        mNodes.push_back(p_node);
+                        node_index++;
+                    }
+                }
+            }
+        }
+    }  
+    
+    // Create the elements. The array node_indices contains the 
+    // global node indices from bottom left, going anticlockwise.
+    unsigned node_indices[6];
+    unsigned element_index;
+    
+    for (unsigned j=0; j<numUp; j++)
+    {
+        for (unsigned i=0; i<numAcross; i++)
+        {
+            element_index = j*numAcross + i;
+        
+            if (i%2 == 0) // even
+            {
+                node_indices[0] = 2*j*(numAcross)+i;
+            }
+            else // odd
+            {
+                node_indices[0] = (2*j+1)*(numAcross)+i;
+            }                        
+        
+            node_indices[1] = node_indices[0] + 1;
+	        node_indices[2] = node_indices[0] + numAcross + 1;
+	        node_indices[3] = node_indices[0] + 2*numAcross + 1;
+	        node_indices[4] = node_indices[0] + 2*numAcross;
+	        node_indices[5] = node_indices[0] + numAcross;
+            
+            if (i==numAcross-1) // on far right
+            {
+	            node_indices[1] = node_indices[0] - (numAcross-1);
+	            node_indices[2] = node_indices[0] + 1;
+	            node_indices[3] = node_indices[0] + (numAcross-1) + 2;
+	        }
+            
+            std::vector<Node<2>*> element_nodes;
+            
+            for (int i=0; i<6; i++)
+            {
+               element_nodes.push_back(mNodes[node_indices[i]]);
+            }
+            VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index, element_nodes);
+            mElements.push_back(p_element);
+        }
+    }
 }
 
 
@@ -103,8 +184,8 @@ void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
 double Cylindrical2dVertexMesh::GetWidth(const unsigned& rDimension)
 {
     double width = 0.0;
-    assert(rDimension==0 || rDimension==1);
-    if (rDimension==0)
+    assert(rDimension==0u || rDimension==1u);
+    if (rDimension==0u)
     {
         width = mWidth;
     }
