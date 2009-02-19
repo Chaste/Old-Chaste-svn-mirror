@@ -47,7 +47,7 @@ double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(unsigne
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
     CellProperties cell_props(voltages, times);
-    return cell_props.GetMaxUpstrokeVelocity();
+    return cell_props.GetLastMaxUpstrokeVelocity();
 }
 
 double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const double percentage,
@@ -56,7 +56,7 @@ double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const d
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
     CellProperties cell_props(voltages, times);
-    return cell_props.GetActionPotentialDuration(percentage);
+    return cell_props.GetLastActionPotentialDuration(percentage);
 }
 
 double PropagationPropertiesCalculator::CalculatePeakMembranePotential(unsigned globalNodeIndex)
@@ -84,8 +84,8 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
 
-    double t_near = near_cell_props.GetTimeAtMaxUpstrokeVelocity();
-    double t_far = far_cell_props.GetTimeAtMaxUpstrokeVelocity();
+    double t_near = near_cell_props.GetTimeAtLastMaxUpstrokeVelocity();
+    double t_far = far_cell_props.GetTimeAtLastMaxUpstrokeVelocity();
 
     if (t_near < 0)
     {

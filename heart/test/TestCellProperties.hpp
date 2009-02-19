@@ -40,7 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "PropagationPropertiesCalculator.hpp"
 
 class TestCellProperties : public CxxTest::TestSuite
 {
@@ -73,7 +72,7 @@ public:
          * Solve
          */
         double start_time = 0.0;   // ms
-        double end_time = 3450.0;  // ms
+        double end_time = 3450;  // ms
 
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
 
@@ -85,33 +84,21 @@ public:
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
         CellProperties  cell_props(voltage, solution.rGetTimes()); // Use default threshold
-
-//        std::cout << "Max upstroke vel: " << cell_props.GetMaxUpstrokeVelocity() << std::endl;
-//        std::cout << "Cycle length: " << cell_props.GetCycleLength() << std::endl;
-//        std::cout << "Max potential: " << cell_props.GetMaxPotential() << std::endl;
-//        std::cout << "Min potential: " << cell_props.GetMinPotential() << std::endl;
-//        std::cout << "AP amplitude: " << cell_props.GetActionPotentialAmplitude() << std::endl;
-//        std::cout << "APD20: " << cell_props.GetActionPotentialDuration(20) << std::endl;
-//        std::cout << "APD50: " << cell_props.GetActionPotentialDuration(50) << std::endl;
-//        std::cout << "APD90: " << cell_props.GetActionPotentialDuration(90) << std::endl;
-
-        TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocity(), 418.4795, 0.001);
-        TS_ASSERT_DELTA(cell_props.GetCycleLength(), 1000.00, 0.01);
-        TS_ASSERT_DELTA(cell_props.GetMaxPotential(), 43.1665, 0.0001);
-        TS_ASSERT_DELTA(cell_props.GetMinPotential(), -84.4395, 0.0001);
-        TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitude(), 127.606, 0.001);
-        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(20), 6.66416, 0.00001);
-        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(50), 271.184, 0.001);
-        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(90), 361.544, 0.001); // Should use penultimate AP
-        TS_ASSERT_DELTA(cell_props.GetTimeAtMaxUpstrokeVelocity(), 3100.7300, 0.001);
+        unsigned size = cell_props.GetMaxUpstrokeVelocities().size();
+        
+        TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocities()[size-1], 418.4795, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetCycleLengths()[size-2], 1000.00, 0.01);//last apd is not finished, get cycle lengths from before
+        TS_ASSERT_DELTA(cell_props.GetPeakPotentials()[size-1], 43.1665, 0.0001);
+        TS_ASSERT_DELTA(cell_props.GetRestingPotentials()[size-1], -84.4395, 0.0001);
+        TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitudes()[size-1], 127.606, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(20), 6.66416, 0.00001);
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(50), 271.184, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(90), 361.544, 0.001); // Should use penultimate AP
+        TS_ASSERT_DELTA(cell_props.GetTimesAtMaxUpstrokeVelocity()[size-1], 3100.7300, 0.001);
     }
     
     /**
-     * This test checks (and covers) the case when the AP crosses the threshold suddenly
-     * even before starting to depolarise at all.
-     * The hdf file was too big to be stored. The voltage values at one of the nodes in
-     * the mesh where the above behaviour happened were written in the file TrickyAPD.dat,
-     * from which this test reads.
+     * Further tests in a more tricky case.
      */
     void TestTrickyActionPotential()
     {
@@ -126,10 +113,20 @@ public:
             apd_file >> voltages[i];
             times[i] = i;
         }
-        
         apd_file.close();
+        
         CellProperties  cell_properties(voltages, times); // Use default threshold
-        TS_ASSERT_DELTA(cell_properties.GetActionPotentialDuration(90), 212.37, 0.1);   
+        std::vector<double> apds = cell_properties.GetAllActionPotentialDurations(90);   
+        unsigned size = apds.size();
+        
+        //First check that the last number in the vector of apds actually equals 
+        //the result of GetLastActionPotentialDuration
+        TS_ASSERT_EQUALS(apds[size-1],cell_properties.GetLastActionPotentialDuration(90));
+        // Then check against hardcoded value
+        TS_ASSERT_DELTA(apds[size-1], 212.37, 0.1);  
+        
+        TS_ASSERT_EQUALS(cell_properties.GetTimesAtMaxUpstrokeVelocity()[size-1], cell_properties.GetTimeAtLastMaxUpstrokeVelocity());
+        TS_ASSERT_EQUALS(cell_properties.GetMaxUpstrokeVelocities()[size-1], cell_properties.GetLastMaxUpstrokeVelocity() );
      }
 };
 

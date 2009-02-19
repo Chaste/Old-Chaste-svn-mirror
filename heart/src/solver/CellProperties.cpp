@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-enum APPhases { UNDEFINED, UPSTROKE, REPOLARISATION };
+enum APPhases { BELOWTHRESHOLD , ABOVETHRESHOLD };
 
 void CellProperties::CalculateProperties()
 {
@@ -43,45 +43,24 @@ void CellProperties::CalculateProperties()
         EXCEPTION("Insufficient time steps to calculate physiological properties.");
     }
 
-    // Reset cached properties
-    mMaxUpstrokeVelocity = 0.0;
-    mCycleLength = 0.0;
-    mMaxPotential = 0.0;
-    mMinPotential = 0.0;
-    mUpstrokeStartTime = 0.0;
-    mTimeAtMaxUpstrokeVelocity = -1.0;
-
     double prev_v = mrVoltage[0];
     double prev_t = mrTime[0];
-    double prev_upstroke_vel = 0.0;
-    double max_upstroke_vel = 0.0;
-    double time_at_max_upstroke_vel = -1.0;
-    mOnset = -1;
+    double current_upstroke_velocity = 0;
+    double current_time_of_upstroke_velocity = 0;
+    double current_resting_value=-DBL_MAX;
+    double current_peak=-DBL_MAX;
+    double current_minimum_velocity=DBL_MAX;
+    double prev_upstroke_vel=0;
+    unsigned ap_counter = 0;
 
-    mPrevOnset = -1.0;
-    APPhases ap_phase = UNDEFINED;
+    APPhases ap_phase = BELOWTHRESHOLD;
 
     unsigned time_steps = mrTime.size()-1; //The number of time steps is the number of intervals
 
-    double current_max_voltage = -DBL_MAX;
     for (unsigned i=1; i<=time_steps; i++)
     {
         double v = mrVoltage[i];
         double t = mrTime[i];
-
-        // calculate the max voltage for this action potential:
-        if(v > current_max_voltage)
-        {
-            current_max_voltage = v;
-        }
-        if( v<mThreshold && prev_v >= mThreshold )
-        {
-            // crossing threshold value, so assume ending action potential, so save values
-            mPrevMaxPotential = mMaxPotential;
-            mMaxPotential = current_max_voltage;
-            current_max_voltage = -DBL_MAX;
-        }
-
         double upstroke_vel;
 
         if (i==1)
@@ -93,91 +72,73 @@ void CellProperties::CalculateProperties()
         {
             upstroke_vel = (v - prev_v) / (t - prev_t);
         }
-
+        
+        //Look for the upstroke velocity and when it happens (could be below or above threshold).
+        if(upstroke_vel>=current_upstroke_velocity)
+        {
+            current_upstroke_velocity = upstroke_vel;
+            current_time_of_upstroke_velocity = t;
+        }
+        
         switch (ap_phase)
         {
-            case UNDEFINED:
-                // First AP: switch on if below threshold and there is a positive gradient.
-                // Subsequent APs: switch on if below threshold and there is a gradient of
-                // at least 5% of the previously seen activation.
-                // This avoids switching to UPSTROKE if there's a kink on the way down.
-                if (v <= mThreshold &&  upstroke_vel > 0.05*mMaxUpstrokeVelocity)
-                {   
+            case BELOWTHRESHOLD:
+                //while below threshold, find the resting value by checking where the velocity is minimal
+                //i.e. when it is flattest
+                if(fabs(upstroke_vel)<=current_minimum_velocity)
+                {
+                    current_minimum_velocity=fabs(upstroke_vel);
+                    current_resting_value = v;
+                }   
+                
+                // If we cross the threshold, this counts as an AP
+                if( v>mThreshold && prev_v <= mThreshold )
+                {
+                    //register the resting value and re-initialise the minimum velocity
+                    mRestingValues.push_back(current_resting_value); 
+                    current_minimum_velocity = DBL_MAX;
                     
-                    // Start of AP, so record minimum V
-                    mPrevMinPotential = mMinPotential;
-                    mMinPotential = prev_v;
-
-                    // Maximum velocity on this upstroke
-                    max_upstroke_vel = upstroke_vel;
-
-                    ap_phase = UPSTROKE;
-                }
-                // If we suddenly cross the threshold from an 'UNDEFINED' status, 
-                // work out cycle length by comparing when we pass the threshold on
-                // successive upstrokes.
-                if (prev_v <= mThreshold && v > mThreshold)
-                {
-                    mPrevOnset = mOnset;
-                    // Linear interpolation between timesteps
-                    mOnset = prev_t + (t-prev_t)/(v-prev_v)*(mThreshold-prev_v);
-                    // Did we have an earlier upstroke?
-                    if (mPrevOnset >= 0)
+                    //Register the onset time. 
+                    mOnsets.push_back(prev_t + (t-prev_t)/(v-prev_v)*(mThreshold-prev_v));
+                    
+                    //If it is not the first AP, calculate cycle length for the last two APs
+                    if (ap_counter>0)
                     {
-                        mCycleLength = mOnset - mPrevOnset;
+                        mCycleLengths.push_back( mOnsets[ap_counter]-mOnsets[ap_counter-1] );
                     }
+                    
+                    ap_phase = ABOVETHRESHOLD;
                 }
                 break;
 
-            case UPSTROKE:
-                // If the velocity changes sign, it is the end of the upstroke.
-                // This is only if above threshold to avoid to switch to REPOLARISATION
-                // if there are humps below threshold.
-                if (prev_upstroke_vel >= 0 && upstroke_vel < 0 && v>=mThreshold)
+            case ABOVETHRESHOLD:
+                //While above threshold, look for the peak potential for the current AP
+                if (v>current_peak)
                 {
-                    // Store maximum upstroke vel from this upstroke
-                    mMaxUpstrokeVelocity = max_upstroke_vel;
-                    mTimeAtMaxUpstrokeVelocity = time_at_max_upstroke_vel;
-
-                    ap_phase = REPOLARISATION;
+                   current_peak = v;
                 }
-                else
+                
+                // If we cross the threshold again, the AP is over.
+                if( v<mThreshold && prev_v >= mThreshold )
                 {
-                    // Update max. upstroke vel
-                    if (upstroke_vel > max_upstroke_vel)
-                    {
-                        max_upstroke_vel = upstroke_vel;
-                        time_at_max_upstroke_vel = t;
-                    }
-
-                    // Work out cycle length by comparing when we pass
-                    // the threshold on successive upstrokes.
-                    if (prev_v <= mThreshold && v > mThreshold)
-                    {
-                        mPrevOnset = mOnset;
-                        // Linear interpolation between timesteps
-                        mOnset = prev_t +
-                                 (t-prev_t)/(v-prev_v)*(mThreshold-prev_v);
-                        // Did we have an earlier upstroke?
-                        if (mPrevOnset >= 0)
-                        {
-                            mCycleLength = mOnset - mPrevOnset;
-                        }
-                    }
-                }
-                break;
-
-            case REPOLARISATION:
-                if (v < mThreshold)
-                {
-                    ap_phase = UNDEFINED;
-                }
-
-                // Avoid kinks in the upstroke: if the velocity starts increasing again,
-                // go back to upstroke state.
-                if(prev_upstroke_vel <=0 && upstroke_vel > 0)
-                {
-                    ap_phase = UPSTROKE;
+                    //register peak value for this AP
+                    mPeakValues.push_back(current_peak);
+                    //Re-initialise the current_peak.
+                    current_peak = mThreshold;
+                    
+                    //register maximum upstroke velocity for this AP
+                    mMaxUpstrokeVelocities.push_back(current_upstroke_velocity);
+                    //re-initialise current_upstroke_velocity
+                    current_upstroke_velocity = 0.0;
+                    
+                    //register time when maximum upstroke velocity occurred for this AP
+                    mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
+                    //re-initialise current_time_of_upstroke_velocity=t;
+                    current_time_of_upstroke_velocity = 0.0;
+                    
+                    //update the counter.
+                    ap_counter++;                
+                    ap_phase = BELOWTHRESHOLD;
                 }
                 break;
         }
@@ -186,51 +147,58 @@ void CellProperties::CalculateProperties()
         prev_t = t;
         prev_upstroke_vel = upstroke_vel;
     }
+    
+    // One last check. If the simulation has only one unfinished AP and the user is interested in
+    // upstroke and peak properties so far, we fill the relative vectors here, because we would normally wait 
+    // the end of the AP (which didn't happen) to write those info into the respective vectors
+    if (mMaxUpstrokeVelocities.size()==0)
+    {
+        mMaxUpstrokeVelocities.push_back(current_upstroke_velocity);
+    }
+    if (mPeakValues.size()==0)
+    {
+        mPeakValues.push_back(current_peak);
+    }
 }
 
 
-double CellProperties::CalculateActionPotentialDuration(
-    const double percentage,
-    const double onset,
-    const double minPotential,
-    const double maxPotential)
+std::vector<double> CellProperties::CalculateActionPotentialDurations(const double percentage,
+                                            std::vector<double>& rOnsets,
+                                            std::vector<double>& rRestingPotentials,
+                                            std::vector<double>& rPeakPotentials)
 {
-    double apd = 0.0;
-    double target_v = 0.01*percentage*(maxPotential-minPotential);
-
-    APPhases ap_phase = UNDEFINED;
-    unsigned time_steps = mrTime.size();
-    for (unsigned i=0; i<time_steps; i++)
+    double prev_v = -2000.0; 
+    unsigned counter=0;
+    bool apd_is_calculated=true;//this will ensure we hit the target only once per AP.
+    std::vector<double> apds;
+    
+    for (unsigned i=0; i<mrTime.size(); i++)
     {
         double t = mrTime[i];
-
-        if (ap_phase == UNDEFINED && t >= onset)
+        double v = mrVoltage[i];
+        double target= rRestingPotentials[counter]+0.01*(100-percentage)*(rPeakPotentials[counter]-rRestingPotentials[counter]);
+        
+        //if we reach the peak again, start a new apd calculation
+        if (fabs(v-rPeakPotentials[counter])<=1e-6)
         {
-            ap_phase = UPSTROKE;
+           apd_is_calculated=false;
         }
-        else
+        //if we hit the target while repolarising and we are told to calculate a new apd.
+        if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
         {
-            double v = mrVoltage[i];
-            if (ap_phase == UPSTROKE && fabs(v - maxPotential) < 1e-12)
-            {
-                ap_phase = REPOLARISATION;
-            }
-            else if (ap_phase == REPOLARISATION && maxPotential-v >= target_v)
-            {
-                // We've found the appropriate end time
-                apd = t - onset;
-                break;
-            }
+            apds.push_back (t - rOnsets[counter]);
+            counter++;
+            apd_is_calculated=true;
         }
+        prev_v = v;
     }
-
-    return apd;
+    return apds;
 }
 
 
-double CellProperties::GetActionPotentialDuration(const double percentage)
+std::vector<double> CellProperties::GetAllActionPotentialDurations(const double percentage)
 {
-    if (mOnset < 0)
+    if (mOnsets.size() == 0)
     {
         #define COVERAGE_IGNORE
         // possible false error here if the simulation started at time < 0
@@ -238,18 +206,68 @@ double CellProperties::GetActionPotentialDuration(const double percentage)
         #undef COVERAGE_IGNORE
     }
 
-    double apd = CalculateActionPotentialDuration(percentage, mOnset,
-                                           mMinPotential,
-                                           mMaxPotential);
+    std::vector<double> apds = CalculateActionPotentialDurations(percentage, 
+                                                        mOnsets,
+                                                        mRestingValues,
+                                                        mPeakValues);
 
-    if (apd == 0.0 && mPrevOnset >= 0.0)
+    return apds;
+}
+
+double CellProperties::GetLastActionPotentialDuration(const double percentage)
+{
+    if (mOnsets.size() == 0)
     {
-        // The last action potential is not complete, so try using
-        // the previous one (if it exists).
-        apd = CalculateActionPotentialDuration(percentage, mPrevOnset,
-                                               mPrevMinPotential,
-                                               mPrevMaxPotential);
+        #define COVERAGE_IGNORE
+        // possible false error here if the simulation started at time < 0
+        EXCEPTION("No action potential occured");
+        #undef COVERAGE_IGNORE
     }
 
-    return apd;
+    std::vector<double> apds = CalculateActionPotentialDurations(percentage, 
+                                                        mOnsets,
+                                                        mRestingValues,
+                                                        mPeakValues);
+    if (apds.size()==0)
+    {
+        #define COVERAGE_IGNORE
+        EXCEPTION("No action potential occured");
+        #undef COVERAGE_IGNORE
+    }
+                                                        
+    double last_apd=apds[apds.size()-1];
+
+    return last_apd;
 }
+
+std::vector<double> CellProperties::GetActionPotentialAmplitudes()
+{
+    unsigned size = mPeakValues.size();
+    std::vector<double> amplitudes(size);
+    for (unsigned i=0; i< size ;i++)
+    {
+        amplitudes[i] = (mPeakValues[i] - mRestingValues[i]);
+    }
+    return amplitudes; 
+}
+double CellProperties::GetLastMaxUpstrokeVelocity()
+{
+    unsigned size = mMaxUpstrokeVelocities.size();
+    // Note that this vector is always filled by at least one value
+    // by the constructor calling CellProperties().
+    return mMaxUpstrokeVelocities[size-1];
+    
+}
+double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
+{
+    unsigned size = mTimesAtMaxUpstrokeVelocity.size();
+    if (size==0)
+    {
+        return -1;
+    }
+    else
+    {
+        return mTimesAtMaxUpstrokeVelocity[size-1];
+    }
+}
+

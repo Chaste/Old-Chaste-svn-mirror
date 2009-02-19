@@ -65,18 +65,14 @@ private:
     double mThreshold;
 
     /**
-     * Cached values of the properties
+     * Cached vectors containing AP properties
      */
-    double mMaxUpstrokeVelocity;
-    double mTimeAtMaxUpstrokeVelocity;
-    double mCycleLength;
-    double mMaxPotential, mMinPotential;
-    double mUpstrokeStartTime;
-
-    /**
-     * Values needed for calculating APD.
-     */
-    double mOnset, mPrevOnset, mPrevMinPotential, mPrevMaxPotential;
+    std::vector<double> mOnsets;
+    std::vector<double> mRestingValues;
+    std::vector<double> mCycleLengths;
+    std::vector<double> mPeakValues;
+    std::vector<double> mMaxUpstrokeVelocities;
+    std::vector<double> mTimesAtMaxUpstrokeVelocity;
 
     /**
      * Calculate all the cacheable values.
@@ -94,10 +90,10 @@ private:
      * @param minPotential  The minimum potential of this AP.
      * @param maxPotential  The maximum potential of this AP.
      */
-    double CalculateActionPotentialDuration(const double percentage,
-                                            const double onset,
-                                            const double minPotential,
-                                            const double maxPotential);
+    std::vector<double> CalculateActionPotentialDurations(const double percentage,
+                                            std::vector<double>& rOnsets,
+                                            std::vector<double>& rRestingPotentials,
+                                            std::vector<double>& rPeakPotentials);
 
 public:
     /**
@@ -113,53 +109,75 @@ public:
 
 
     /**
-     * Return the maximum upstroke velocity.
+     * Return the maximum upstroke velocity for all APs.
      */
-    double GetMaxUpstrokeVelocity()
+    std::vector<double> GetMaxUpstrokeVelocities()
     {
-        return mMaxUpstrokeVelocity;
+        return mMaxUpstrokeVelocities;
     }
+    
+     /**
+     * Return the maximum upstroke velocity for the last AP.
+     */
+    double GetLastMaxUpstrokeVelocity();
+    
     /**
-    * Return the time at which the maximum upstroke velocity occured.
+    * Return the time at which the maximum upstroke velocity occured for all APs.
     */
-    double GetTimeAtMaxUpstrokeVelocity()
+    std::vector<double> GetTimesAtMaxUpstrokeVelocity()
     {
-        return mTimeAtMaxUpstrokeVelocity;
+        return mTimesAtMaxUpstrokeVelocity;
     }
     /**
-     * Return the cycle length.
+    * Return the time at which the maximum upstroke velocity for the last AP occurred.
+    * Returns -1 if no complete AP occurred
+    */
+    double GetTimeAtLastMaxUpstrokeVelocity();
+    
+    /**
+     * Return the cycle lengths for all APs.
      */
-    double GetCycleLength()
+    std::vector<double>  GetCycleLengths()
     {
-        return mCycleLength;
+        return mCycleLengths;
+    }
+    
+    /**
+     * Return the peak potentials for all APs.
+     */
+    std::vector<double>  GetPeakPotentials()
+    {
+        return mPeakValues;
     }
     /**
-     * Return the maximum potential.
+     * Return the resting potentials before each AP.
      */
-    double GetMaxPotential()
+    std::vector<double> GetRestingPotentials()
     {
-        return mMaxPotential;
+        return mRestingValues;
     }
+
     /**
-     * Return the minimum potential.
+     * Returns all the action potentials
+     * 
+     * @param percentage is the repolarisation percentage that 
+     * the APD will be calculated for. e.g. percentage = 90 for APD90.
      */
-    double GetMinPotential()
-    {
-        return mMinPotential;
-    }
-    /**
-     * Return the amplitude of the action potential.
+    std::vector<double> GetAllActionPotentialDurations(const double percentage);
+  
+     /**
+     * Return the amplitude of the last action potential generated.
+     * Throws an exception if no AP is generated.
+     * 
+     * @param percentage is the repolarisation percentage that 
+     * the APD will be calculated for. e.g. percentage = 90 for APD90.
+     */  
+    double GetLastActionPotentialDuration(const double percentage);
+    
+     /**
+     * Return the amplitude of all the action potentials calculated.
      */
-    double GetActionPotentialAmplitude()
-    {
-        return mMaxPotential - mMinPotential;
-    }
-    /**
-     * Return the duration of the action potential at a given percentage.
-     *
-     * @param percentage  The percentage of the amplitude to calculate for.
-     */
-    double GetActionPotentialDuration(const double percentage);
+    std::vector<double> GetActionPotentialAmplitudes();
 };
 
 #endif //_CELLPROPERTIES_HPP_
