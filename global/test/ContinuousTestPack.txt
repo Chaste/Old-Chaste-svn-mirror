@@ -1,9 +1,9 @@
 TestArchiving.hpp
 TestCwd.hpp
 TestDistributedVector.hpp
-TestEventHandler.hpp
 TestException.hpp
 TestGenericEventHandler.hpp
+TestHeartEventHandler.hpp
 TestLogFile.hpp
 TestOutputFileHandler.hpp
 TestPetscEvents.hpp

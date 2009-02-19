@@ -80,8 +80,12 @@ public:
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
 
-        // should not be able to begin that has already begun
-        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::BeginEvent(AnEventHandler::TEST1));
+        // beginning an event already begun should print an error message,
+        // and disable the handler
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
+        TS_ASSERT(!AnEventHandler::IsEnabled());
+        // Report should then throw
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::Report());
     }
 
     void TestReset()

@@ -98,8 +98,12 @@ public:
 
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 
-        // should not be able to begin that has already begun
-        TS_ASSERT_THROWS_ANYTHING(HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING));
+        // beginning an event already begun should print an error message,
+        // and disable the handler
+        HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
+        TS_ASSERT(!HeartEventHandler::IsEnabled());
+        // Report should then throw
+        TS_ASSERT_THROWS_ANYTHING(HeartEventHandler::Report());
     }
     
  };

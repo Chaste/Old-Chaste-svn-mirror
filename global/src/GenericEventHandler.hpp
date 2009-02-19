@@ -95,6 +95,7 @@ public:
             mCpuTime[event] = 0.0;
             mHasBegun[event] = false;
         }
+        Enable();
     }
 
     static void BeginEvent(unsigned event) throw (Exception)
@@ -111,7 +112,9 @@ public:
             msg += "The event associated with the counter for '";
             msg += CONCRETE::EventName[event];
             msg += "' had already begun when BeginEvent was called.";
-            EXCEPTION(msg);
+            std::cerr << msg << std::endl << std::flush;
+            Disable();
+            return;
         }
         mCpuTime[event] -= GetCpuTime();
         mHasBegun[event] = true;
@@ -129,7 +132,7 @@ public:
         if (!mHasBegun[event])
         {
             std::string msg;
-            msg += "The event associated with the counter for '";
+            msg += "Error: The event associated with the counter for '";
             msg += CONCRETE::EventName[event];
             msg += "' had not begun when EndEvent was called.";
             EXCEPTION(msg);
@@ -175,6 +178,12 @@ public:
     static void Report()
     {
         CheckVectorSizes();
+        
+        if (!mEnabled)
+        {
+            EXCEPTION("Asked to report on a disabled event handler.  Check for contributory errors above.");
+        }
+        
         const unsigned top_event = NUM_EVENTS-1;
         double total = ConvertTicksToSeconds(mCpuTime[top_event]);
         for (unsigned turn=0; turn<PetscTools::NumProcs(); turn++)
@@ -276,6 +285,11 @@ public:
     {
         CheckVectorSizes();
         mEnabled = false;
+    }
+    
+    static bool IsEnabled()
+    {
+        return mEnabled;
     }
 };
 
