@@ -33,21 +33,25 @@ petsc_build_name='linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 petsc_build_name_production = 'linux-intel-opt-mkl'
 dealii_path = None
-metis_path = None
+metis_path = '/home/pc-gary/wolf1768/metis-5.0pre2'
 intel_path = None
+
 icpc = 'icpc -gcc-version=431 -I /usr/include/c++/4.3/x86_64-suse-linux/ -I/usr/include/c++/4.3/'
 
 other_includepaths = ['/home/pc-gary/wolf1768/include',
-                      '/home/pc-gary/wolf1768/xsd-2.3.1-i686-linux-gnu/libxsd']
+                      '/home/pc-gary/wolf1768/xsd-2.3.1-i686-linux-gnu/libxsd',
+                      os.path.join(metis_path,'include')]
 
-other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),
-                  '/home/pc-gary/wolf1768/lib']
+other_libpaths = [os.path.join(petsc_2_3_path, 
+                  'externalpackages/f2cblaslapack/linux-gnu/'),
+                  '/home/pc-gary/wolf1768/lib',
+                  os.path.join(metis_path,'build/Linux-x86_64')]
 
 blas_lapack = ['f2clapack', 'f2cblas']  # For some reason they have to be in this order!
 
 blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
 
-other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
+other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5', 'metis']
 
 use_cvode = True
 if use_cvode:
