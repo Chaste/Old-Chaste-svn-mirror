@@ -65,13 +65,22 @@ public:
         TS_ASSERT_THROWS_ANYTHING(cell_properties.GetLastActionPotentialDuration(90));
         TS_ASSERT_THROWS_ANYTHING(cell_properties.GetAllActionPotentialDurations(90)[0]);
         
+        //Should throw exceptions because upstroke was never crossed
+        TS_ASSERT_THROWS_ANYTHING(cell_properties.GetTimeAtLastMaxUpstrokeVelocity());
+        TS_ASSERT_THROWS_ANYTHING(cell_properties.GetLastMaxUpstrokeVelocity());
+        
         //Now make it cross the threshold so the onset vector isn't empty any longer
         times.push_back(100);
         flat_v.push_back(20.0);
-       
+        
         CellProperties  new_cell_properties(flat_v, times);
-        //Now this should throw an exception because the vectors of APs is empty
+        
+        //Now this should throw an exception because the vectors of APs is empty...
         TS_ASSERT_THROWS_ANYTHING(new_cell_properties.GetLastActionPotentialDuration(90));
+        
+        //...but we can calculate peak properties for the last AP (though incomplete)
+        TS_ASSERT_EQUALS(new_cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 100);
+        TS_ASSERT_EQUALS(new_cell_properties.GetLastMaxUpstrokeVelocity(),105);
     }
 
     void TestCellPhysiologicalPropertiesForRegularLr91(void)

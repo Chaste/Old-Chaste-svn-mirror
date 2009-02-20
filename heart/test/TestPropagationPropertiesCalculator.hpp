@@ -48,18 +48,20 @@ public:
 
         PropagationPropertiesCalculator ppc(&simulation_data);
 
-        // Should not throw because the upstroke propagated far enough in simulation time
-        TS_ASSERT_THROWS_NOTHING(ppc.CalculateConductionVelocity(5,95,0.9));
-
-        // Should not throw because the upstroke propagated far enough in simulation time
-        TS_ASSERT_THROWS_NOTHING(ppc.CalculateConductionVelocity(90,100,0.1));
-
-        TS_ASSERT_DELTA(ppc.CalculateMaximumUpstrokeVelocity(1),343.9429,0.001);
-
-        TS_ASSERT_DELTA(ppc.CalculatePeakMembranePotential(5),23.6271,0.001);
+        // Should throw because node 95 never crosses the threshold
+        TS_ASSERT_THROWS_ANYTHING(ppc.CalculateConductionVelocity(5,95,0.9));
         
         // Should throw because AP is not complete here
         TS_ASSERT_THROWS_ANYTHING(ppc.CalculateActionPotentialDuration(50,5));
+
+        // Should not throw because the upstroke propagated far enough in simulation time
+        TS_ASSERT_THROWS_NOTHING(ppc.CalculateConductionVelocity(20,40,0.1));    
+        TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(20,40,0.2),0.0498,0.01);
+        
+        TS_ASSERT_DELTA(ppc.CalculateMaximumUpstrokeVelocity(1),343.9429,0.001);
+
+        TS_ASSERT_DELTA(ppc.CalculatePeakMembranePotential(5),23.6271,0.001);
+
     }
     
     void TestConductionBidomain3D() throw (Exception)
@@ -86,7 +88,9 @@ public:
         TS_ASSERT_DELTA(properties_fs.CalculateActionPotentialDuration(90, middle_index), 229.7, 0.25);
         TS_ASSERT_DELTA(properties_fs.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.057692, 0.001);
         TS_ASSERT_DELTA(properties_fs.CalculateMaximumUpstrokeVelocity(middle_index), 180.28, 0.01);
-    
+
+        //Testing the mtehod that returns all APs
+        TS_ASSERT_EQUALS(properties_fs.CalculateActionPotentialDuration(90, middle_index), properties_fs.CalculateAllActionPotentialDurations(90, middle_index)[0]); 
 
         Hdf5DataReader simulation_data_bw("heart/test/data/BidomainBackwardToCompareWithFastSlow3D",
                                        "res", false);
@@ -105,8 +109,8 @@ public:
         TS_ASSERT_DELTA(properties_bw.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.055556, 0.001);
         TS_ASSERT_DELTA(properties_bw.CalculateMaximumUpstrokeVelocity(middle_index), 173.02, 0.01);
         
-        
-        
+        //Testing the mtehod that returns all APs
+        TS_ASSERT_EQUALS(properties_bw.CalculateActionPotentialDuration(90, middle_index), properties_bw.CalculateAllActionPotentialDurations(90, middle_index)[0]);   
     }
     
     void TestUpstrokeBidomain3D()
@@ -119,6 +123,9 @@ public:
         
         TS_ASSERT_DELTA(ppc_fs.CalculateMaximumUpstrokeVelocity(14895U), 174.9, 4.0);
         TS_ASSERT_DELTA(ppc_fs.CalculateActionPotentialDuration(90, 14895U), 230.25, 1.0);
+        
+        //Testing the mtehod that returns all APs
+        TS_ASSERT_EQUALS(ppc_fs.CalculateActionPotentialDuration(90, 14895U), ppc_fs.CalculateAllActionPotentialDurations(90, 14895U)[0]);
         
         Hdf5DataReader mono_bw_reader("heart/test/data/MonodomainBackwardToCompareWithFastSlow3D", "res", false);
         //std::vector<double> voltage_fast_slow=mono_fs_reader.GetVariableOverTime("V", mMiddleIndex);

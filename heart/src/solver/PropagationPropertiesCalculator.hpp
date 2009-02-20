@@ -93,6 +93,15 @@ public:
      * @param globalNodeIndex  The cell at which to calculate.
      */
     double CalculatePeakMembranePotential(unsigned globalNodeIndex);
+    
+     /**
+     * Calculate all the action potentials duration at a single cell.
+     *
+     * @param percentage  The percentage of the amplitude to calculate for.
+     * @param globalNodeIndex  The cell at which to calculate.
+     */
+    std::vector<double> CalculateAllActionPotentialDurations(const double percentage,
+                                                             unsigned globalNodeIndex);
 
 };
 

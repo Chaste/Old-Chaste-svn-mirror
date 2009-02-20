@@ -116,6 +116,8 @@ public:
     
      /**
      * Returns the maximum upstroke velocity for the last AP.
+     * If only one incomplete AP is generated, it returns the maximal upstroke so far.
+     * If the threshold is never crossed, it throws an exception.
      */
     double GetLastMaxUpstrokeVelocity();
     
@@ -127,8 +129,9 @@ public:
         return mTimesAtMaxUpstrokeVelocity;
     }
     /**
-    * Returns the time at which the maximum upstroke velocity for the last AP occurred.
-    * Returns -1 if no complete AP occurred
+    * Returns the time at which the maximum upstroke velocity for the last complete AP occurred.
+    * If only one incomplete AP is generated, it returns the time of the maximal upstroke so far.
+    * If the threshold is never crossed, it throws an exception.
     */
     double GetTimeAtLastMaxUpstrokeVelocity();
     
@@ -159,7 +162,7 @@ public:
     }
 
     /**
-     * Returns all the action potentials
+     * Returns all the action potentials durations
      * 
      * @param percentage is the repolarisation percentage that 
      * the APD will be calculated for. e.g. percentage = 90 for APD90.

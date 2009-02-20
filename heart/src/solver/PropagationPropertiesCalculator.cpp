@@ -59,6 +59,15 @@ double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const d
     return cell_props.GetLastActionPotentialDuration(percentage);
 }
 
+std::vector<double> PropagationPropertiesCalculator::CalculateAllActionPotentialDurations(const double percentage,
+        unsigned globalNodeIndex)
+{
+    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
+    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
+    CellProperties cell_props(voltages, times);
+    return cell_props.GetAllActionPotentialDurations(percentage);
+}
+
 double PropagationPropertiesCalculator::CalculatePeakMembranePotential(unsigned globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
@@ -84,22 +93,9 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
 
+    //Exceptions will be thrown by the cell properties obcject if the thrshold was never crossed
     double t_near = near_cell_props.GetTimeAtLastMaxUpstrokeVelocity();
     double t_far = far_cell_props.GetTimeAtLastMaxUpstrokeVelocity();
 
-    if (t_near < 0)
-    {
-        std::stringstream error;
-        error << "Action potential did not reach near node (index= "
-              << globalNearNodeIndex << ") in conduction velocity calculation.";
-        EXCEPTION(error.str());
-    }
-    if (t_far < 0)
-    {
-        std::stringstream error;
-        error << "Action potential did not reach far node (index= "
-              << globalFarNodeIndex << ") in conduction velocity calculation.";
-        EXCEPTION(error.str());
-    }
     return euclideanDistance / (t_far - t_near);
 }

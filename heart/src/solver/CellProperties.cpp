@@ -52,7 +52,8 @@ void CellProperties::CalculateProperties()
     double current_minimum_velocity=DBL_MAX;
     double prev_upstroke_vel=0;
     unsigned ap_counter = 0;
-
+    bool threshold_crossed_once_at_least = false;
+    
     APPhases ap_phase = BELOWTHRESHOLD;
 
     unsigned time_steps = mrTime.size()-1; //The number of time steps is the number of intervals
@@ -98,7 +99,7 @@ void CellProperties::CalculateProperties()
                     mRestingValues.push_back(current_resting_value); 
                     current_minimum_velocity = DBL_MAX;
                     
-                    //Register the onset time. 
+                    //Register the onset time. Linear interpolation.
                     mOnsets.push_back(prev_t + (t-prev_t)/(v-prev_v)*(mThreshold-prev_v));
                     
                     //If it is not the first AP, calculate cycle length for the last two APs
@@ -106,6 +107,10 @@ void CellProperties::CalculateProperties()
                     {
                         mCycleLengths.push_back( mOnsets[ap_counter]-mOnsets[ap_counter-1] );
                     }
+                    
+                    //set the flag that the thershold has been crossed at least once.
+                    // once true, this won't be changed anymore 
+                    threshold_crossed_once_at_least = true;
                     
                     ap_phase = ABOVETHRESHOLD;
                 }
@@ -118,7 +123,8 @@ void CellProperties::CalculateProperties()
                    current_peak = v;
                 }
                 
-                // If we cross the threshold again, the AP is over.
+                // If we cross the threshold again, the AP is over
+                // and we register all the parameters.
                 if( v<mThreshold && prev_v >= mThreshold )
                 {
                     //register peak value for this AP
@@ -150,16 +156,17 @@ void CellProperties::CalculateProperties()
     
     // One last check. If the simulation has only one unfinished AP and the user is interested in
     // upstroke and peak properties so far, we fill the relative vectors here, because we would normally wait 
-    // the end of the AP (which didn't happen) to write those info into the respective vectors
-    if (mMaxUpstrokeVelocities.size()==0)
+    // the end of the AP (which didn't happen) to write those info into the respective vectors.
+    // We do this only if the threshold has been crossed at least once. 
+    if ((mMaxUpstrokeVelocities.size()==0) && threshold_crossed_once_at_least == true) 
     {
         mMaxUpstrokeVelocities.push_back(current_upstroke_velocity);
     }
-    if (mPeakValues.size()==0)
+    if ((mPeakValues.size()==0) && threshold_crossed_once_at_least == true) 
     {
         mPeakValues.push_back(current_peak);
     }
-    if (mTimesAtMaxUpstrokeVelocity.size()==0)
+    if ((mTimesAtMaxUpstrokeVelocity.size()==0) && threshold_crossed_once_at_least == true) 
     {
         mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
     }
@@ -171,7 +178,7 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
                                             std::vector<double>& rRestingPotentials,
                                             std::vector<double>& rPeakPotentials)
 {
-    double prev_v = -2000.0; 
+    double prev_v = -DBL_MAX; 
     unsigned counter=0;
     bool apd_is_calculated=true;//this will ensure we hit the target only once per AP.
     std::vector<double> apds;
@@ -187,7 +194,8 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
         {
            apd_is_calculated=false;
         }
-        //if we hit the target while repolarising and we are told to calculate a new apd.
+        //if we hit the target while repolarising 
+        //and we are told this apd is not calculated yet.
         if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
         {
             apds.push_back (t - rOnsets[counter]);
@@ -251,16 +259,20 @@ std::vector<double> CellProperties::GetActionPotentialAmplitudes()
 double CellProperties::GetLastMaxUpstrokeVelocity()
 {
     unsigned size = mMaxUpstrokeVelocities.size();
-    // Note that this vector is always filled by at least one value
-    // by the constructor calling CellProperties().
+    if (size==0)
+    {
+        EXCEPTION("Upstroke never occured");
+    }   
     return mMaxUpstrokeVelocities[size-1];
     
 }
 double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
 {
     unsigned size = mTimesAtMaxUpstrokeVelocity.size();
-    // Note that this vector is always filled by at least one value
-    // by the constructor calling CellProperties().
+    if (size==0)
+    {
+        EXCEPTION("Upstroke never occured");
+    }   
     return mTimesAtMaxUpstrokeVelocity[size-1];
 }
 
