@@ -200,10 +200,8 @@ std::vector<double> CellProperties::GetAllActionPotentialDurations(const double 
 {
     if (mOnsets.size() == 0)
     {
-        #define COVERAGE_IGNORE
         // possible false error here if the simulation started at time < 0
         EXCEPTION("No action potential occured");
-        #undef COVERAGE_IGNORE
     }
 
     std::vector<double> apds = CalculateActionPotentialDurations(percentage, 
@@ -218,10 +216,8 @@ double CellProperties::GetLastActionPotentialDuration(const double percentage)
 {
     if (mOnsets.size() == 0)
     {
-        #define COVERAGE_IGNORE
         // possible false error here if the simulation started at time < 0
         EXCEPTION("No action potential occured");
-        #undef COVERAGE_IGNORE
     }
 
     std::vector<double> apds = CalculateActionPotentialDurations(percentage, 
@@ -230,9 +226,7 @@ double CellProperties::GetLastActionPotentialDuration(const double percentage)
                                                         mPeakValues);
     if (apds.size()==0)
     {
-        #define COVERAGE_IGNORE
-        EXCEPTION("No action potential occured");
-        #undef COVERAGE_IGNORE
+        EXCEPTION("No complete action potential occured");
     }
                                                         
     double last_apd=apds[apds.size()-1];
