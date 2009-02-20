@@ -26,9 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 """Host-specific configuration.
 
-This module contains the logic to pick up the right configuration file
-for the machine it is run on, based on the machine's hostname.  If a machine
-doesn't have a specific file, default.py is used.
+This module contains the logic to set various build parameters based on a
+host configuration file.  Configuration files for developer machines may be
+stored in a 'machines' package.  If a machine doesn't have a specific file,
+default.py is used.
 
 Each configuration file should be a Python program providing certain variables
 specifying where to find libraries and tools.  In each case, if the library or
@@ -62,52 +63,15 @@ Any non-absolute paths will be considered relative to the root of the Chaste ins
 """
 
 import os
-import socket
 import sys
 
-machine_fqdn = socket.getfqdn()
-
-if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
-    import joe as conf
-elif machine_fqdn in [ "userpc60.comlab.ox.ac.uk", "userpc58.comlab.ox.ac.uk" ]:
-    import chaste32 as conf
-elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk"]:
-    import chaste64 as conf
-elif machine_fqdn == "chaste-bob.comlab.ox.ac.uk":
-    import chastebob as conf
-elif machine_fqdn in [ "clpc98.comlab.ox.ac.uk"]:
-    import alberto as conf
-elif machine_fqdn in [ "clpc129.comlab.ox.ac.uk"]:
-    import phil as conf
-elif machine_fqdn == "userpc36.comlab.ox.ac.uk":
-    import migb as conf
-elif machine_fqdn == "clpc287.comlab.ox.ac.uk":
-    import jonc as conf
-elif machine_fqdn == "pc-gary.physiol.ox.ac.uk":
-    import garym as conf
-elif machine_fqdn == "zuse.osc.ox.ac.uk":
-    import zuse as conf
-elif machine_fqdn == ('clpc402.comlab.ox.ac.uk'):
-    import sard as conf
-elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
-    import comlab as conf
-elif machine_fqdn.endswith(".dtc.ox.ac.uk"):
-    import dtc as conf
-elif machine_fqdn.lower().startswith('finarfin'):
-    import finarfin as conf
-elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
-    import nottingham as conf
-elif machine_fqdn.endswith(".maths.ox.ac.uk"):
-    import maths as conf
-elif machine_fqdn.endswith(".fle.fujitsu.com"):
-    import fle as conf
-elif machine_fqdn.startswith('alex-laptop'):
-    import alexf as conf
-elif machine_fqdn.startswith('clfh6829'):
-    import ozzy64 as conf
-
-else:
+# Do we have any machine-specific config?
+try:
+    import machines
+    conf = machines.config_module()
+except ImportError:
     import default as conf
+
 # For debugging
 #for name in dir(conf):
 #    if name[0] != '_':
