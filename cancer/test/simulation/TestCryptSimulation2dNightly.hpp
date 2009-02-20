@@ -453,6 +453,8 @@ public:
 
     void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {
+        CancerEventHandler::Enable();
+
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
