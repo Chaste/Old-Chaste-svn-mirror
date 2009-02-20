@@ -209,7 +209,8 @@ def configure(build):
 
     if build.CompilerType() == 'intel':
         # Switch to use Intel toolchain
-        if not machine_fqdn.endswith(".fle.fujitsu.com"):
+        import socket
+        if not socket.getfqdn().endswith(".fle.fujitsu.com"):
             build.tools['mpicxx'] += ' -CC="'+conf.icpc+'"'
         build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
         build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
