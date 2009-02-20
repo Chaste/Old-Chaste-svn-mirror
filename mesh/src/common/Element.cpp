@@ -149,16 +149,16 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
         rhs[j]=squared_location/2.0;
     }
 
-    c_vector <double, ELEMENT_DIM> centre;
+    c_vector <double, SPACE_DIM> centre;
     centre = prod(rhs, inverse_jacobian);
-    c_vector <double, ELEMENT_DIM+1> circum;
+    c_vector <double, SPACE_DIM+1> circum;
     double squared_radius=0.0;
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        circum[i]=centre[i] + this->GetNodeLocation(0,i);
+        circum[i] = centre[i] + this->GetNodeLocation(0,i);
         squared_radius += centre[i]*centre[i];
     }
-    circum[SPACE_DIM]=squared_radius;
+    circum[SPACE_DIM] = squared_radius;
 
     return circum;
 
@@ -190,16 +190,16 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
         rhs[j]=squared_location/2.0;
     }
 
-    c_vector <double, ELEMENT_DIM> centre;
+    c_vector <double, SPACE_DIM> centre;
     centre = prod(rhs, rInverseJacobian);
-    c_vector <double, ELEMENT_DIM+1> circum;
-    double squared_radius=0.0;
+    c_vector <double, SPACE_DIM+1> circum;
+    double squared_radius = 0.0;
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        circum[i]=centre[i] + this->GetNodeLocation(0,i);
+        circum[i] = centre[i] + this->GetNodeLocation(0,i);
         squared_radius += centre[i]*centre[i];
     }
-    circum[SPACE_DIM]=squared_radius;
+    circum[SPACE_DIM] = squared_radius;
 
     return circum;
 }

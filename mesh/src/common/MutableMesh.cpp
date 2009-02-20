@@ -208,7 +208,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
     {
         EXCEPTION("Trying to delete a deleted node");
     }
-    unsigned target_index;
+    unsigned target_index = (unsigned)(-1);
     bool found_target=false;
     for (typename Node<SPACE_DIM>::ContainingElementIterator it = this->mNodes[index]->ContainingElementsBegin();
          !found_target && it != this->mNodes[index]->ContainingElementsEnd();
