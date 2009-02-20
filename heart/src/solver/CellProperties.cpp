@@ -159,6 +159,10 @@ void CellProperties::CalculateProperties()
     {
         mPeakValues.push_back(current_peak);
     }
+    if (mTimesAtMaxUpstrokeVelocity.size()==0)
+    {
+        mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
+    }
 }
 
 
@@ -255,13 +259,8 @@ double CellProperties::GetLastMaxUpstrokeVelocity()
 double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
 {
     unsigned size = mTimesAtMaxUpstrokeVelocity.size();
-    if (size==0)
-    {
-        return -1;
-    }
-    else
-    {
-        return mTimesAtMaxUpstrokeVelocity[size-1];
-    }
+    // Note that this vector is always filled by at least one value
+    // by the constructor calling CellProperties().
+    return mTimesAtMaxUpstrokeVelocity[size-1];
 }
 

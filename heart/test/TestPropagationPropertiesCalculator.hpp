@@ -48,11 +48,11 @@ public:
 
         PropagationPropertiesCalculator ppc(&simulation_data);
 
-        // Should throw because AP does not propagate far enough in simulation time
-        TS_ASSERT_THROWS_ANYTHING(ppc.CalculateConductionVelocity(5,95,0.9));
+        // Should not throw because the upstroke propagated far enough in simulation time
+        TS_ASSERT_THROWS_NOTHING(ppc.CalculateConductionVelocity(5,95,0.9));
 
-        // Should throw because AP does not propagate far enough in simulation time
-        TS_ASSERT_THROWS_ANYTHING(ppc.CalculateConductionVelocity(90,100,0.1));
+        // Should not throw because the upstroke propagated far enough in simulation time
+        TS_ASSERT_THROWS_NOTHING(ppc.CalculateConductionVelocity(90,100,0.1));
 
         TS_ASSERT_DELTA(ppc.CalculateMaximumUpstrokeVelocity(1),343.9429,0.001);
 

@@ -149,6 +149,9 @@ public:
     }
     /**
      * Returns the resting potentials before each AP.
+     * These are calculated as the point where the derivative
+     * of the potential is lowest, i.e. when the profile
+     * is flattest in between two APs.
      */
     std::vector<double> GetRestingPotentials()
     {
