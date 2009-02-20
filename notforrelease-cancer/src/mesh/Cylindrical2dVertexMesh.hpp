@@ -134,16 +134,38 @@ public:
      * @return the global index of the new node
      */
     unsigned AddNode(Node<2> *pNewNode);
-
+    
+    /*
+     * Compute the area of an element.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return the area of the element
+     */
+     double GetAreaOfElement(unsigned index);
+     
+    /**
+     * Compute the centroid of an element.
+     * 
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * in daughter classes for non-Euclidean metrics.
+     * 
+     * @param index  the global index of a specified vertex element
+     * 
+     * @return (centroid_x,centroid_y).
+     */
+     c_vector<double, 2> GetCentroidOfElement(unsigned index);
+     
     /*
      * \todo code up overridden methods:
-     *      GetAreaOfElement()
      *      GetCentroidOfElement()
      *      GetAreaGradientOfElementAtNode()
      *      CalculateMomentsOfElement()
      * (#918)
      */
-
 };
 
 

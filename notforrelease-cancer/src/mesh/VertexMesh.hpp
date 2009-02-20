@@ -240,8 +240,8 @@ public:
 
     /*
      * Compute the area of an element.
-     * 
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     *
+     * This needs to be overridden 
      * in daughter classes for non-Euclidean metrics.
      * 
      * @param index  the global index of a specified vertex element
@@ -265,7 +265,7 @@ public:
     /**
      * Compute the centroid of an element.
      * 
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden 
+     * This needs to be overridden 
      * in daughter classes for non-Euclidean metrics.
      * 
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)

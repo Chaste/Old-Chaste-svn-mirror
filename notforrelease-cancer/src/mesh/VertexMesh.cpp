@@ -368,9 +368,12 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
+    c_vector<double, SPACE_DIM> first_node;
+        
+    
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node;
-
+  
     unsigned num_nodes_in_element = p_element->GetNumNodes();
 
     double element_area = 0;
@@ -380,16 +383,9 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
         // Find locations of current node and anticlockwise node
         current_node = p_element->GetNodeLocation(local_index);
         anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
-
-        /*
-         * \todo 
-         * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
-         * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
-         * in the mesh class, we should probably move the area and perimeter computations to that class
-         * (see #918)
-         */
-
-        element_area += 0.5*(current_node[0]*anticlockwise_node[1] - anticlockwise_node[0]*current_node[1]);
+  
+        element_area += 0.5*(current_node[0]*anticlockwise_node[1] 
+                           - anticlockwise_node[0]*current_node[1]);
     }
 
     return element_area;
@@ -432,14 +428,6 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
 #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-
-    /*
-     * \todo 
-     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
-     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
-     * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #918)
-     */
 
     c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
     c_vector<double, SPACE_DIM> current_node;

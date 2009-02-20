@@ -184,6 +184,34 @@ public:
 
         /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
     }
+    
+    
+    void TestElementAreaPerimeterAndCentroid()
+    {
+        // Create mesh
+        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40u);
+                
+        // Test area and perimeter calculations for  all  elements
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_DELTA(mesh.GetAreaOfElement(i), 0.8660, 1e-4);
+            TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(i), 3.4641, 1e-4);
+        }
+        
+        // Test centroid calculations for nonperiodic element
+        c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
+        TS_ASSERT_DELTA(centroid(0),1.4433 , 1e-4);
+        TS_ASSERT_DELTA(centroid(1),2.0 , 1e-4);
+        
+        // Test centroid calculations for periodic element
+        centroid = mesh.GetCentroidOfElement(7);
+        TS_ASSERT_DELTA(centroid(0),3.1754 , 1e-4);
+        TS_ASSERT_DELTA(centroid(1),2.0 , 1e-4);
+    }
+    
+    
 
     /// \todo add archiving test - see also TestCylindrical2dMesh.hpp (#918)
 
