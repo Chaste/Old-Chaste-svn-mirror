@@ -349,6 +349,9 @@ public :
 
         HeartConfig::Instance()->SetKSPPreconditioner("ilu");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
+
+        HeartConfig::Instance()->SetKSPPreconditioner("hypre");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "hypre")==0);
         
         HeartConfig::Instance()->SetKSPPreconditioner("none");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);

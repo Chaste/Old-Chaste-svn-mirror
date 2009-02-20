@@ -125,6 +125,7 @@
       <xs:enumeration value="ilu"/>
       <xs:enumeration value="jacobi"/>
       <xs:enumeration value="bjacobi"/>
+      <xs:enumeration value="hypre"/>
       <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>   

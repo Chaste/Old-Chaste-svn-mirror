@@ -124,7 +124,9 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="ilu"/>
       <xs:enumeration value="jacobi"/>
-      <xs:enumeration value="bjacobi"/>      
+      <xs:enumeration value="bjacobi"/>
+      <xs:enumeration value="hypre"/>
+      <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>   
       
@@ -168,6 +170,7 @@
     <xs:all>
       <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
+      <xs:element name="BathConductivity" type="xs:decimal" minOccurs="0"/>
       <xs:element name="SurfaceAreaToVolumeRatio" type="xs:decimal" minOccurs="0"/>
       <xs:element name="Capacitance" type="xs:decimal" minOccurs="0"/>
     </xs:all>      

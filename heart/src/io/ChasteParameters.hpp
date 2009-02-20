@@ -1546,6 +1546,7 @@ class ksp_preconditioner_type: public ::xml_schema::string
     ilu,
     jacobi,
     bjacobi,
+    hypre,
     none
   };
 
@@ -1588,8 +1589,8 @@ class ksp_preconditioner_type: public ::xml_schema::string
   _xsd_ksp_preconditioner_type_convert () const;
 
   public:
-  static const char* const _xsd_ksp_preconditioner_type_literals_[4];
-  static const _xsd_ksp_preconditioner_type _xsd_ksp_preconditioner_type_indexes_[4];
+  static const char* const _xsd_ksp_preconditioner_type_literals_[5];
+  static const _xsd_ksp_preconditioner_type _xsd_ksp_preconditioner_type_indexes_[5];
 };
 
 class simulation_type: public ::xml_schema::type

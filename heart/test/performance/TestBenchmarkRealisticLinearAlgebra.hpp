@@ -94,6 +94,11 @@ private:
         // you should talk to the KSP object directly. Uncomment and modify accordingly
 //        PetscOptionsSetValue("-ksp_type", "bicg");
 //        PetscOptionsSetValue("-pc_type", "asm");
+
+        // If extra parameters need to be passed to the solver/preconditioner (e.g. number of levels of 
+        // fill to use in ILU preconditioner), they can be added to parameters database in the following
+        // way
+//        PetscOptionsSetValue("-pc_factor_levels", "3");
                 
         // Traces KSP solution (# of iterations, residual, etc)
         PetscOptionsSetValue("-ksp_monitor", "");

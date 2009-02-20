@@ -605,6 +605,8 @@ const char* HeartConfig::GetKSPPreconditioner() const
             return "jacobi";
         case ksp_preconditioner_type::bjacobi :
             return "bjacobi";
+        case ksp_preconditioner_type::hypre :
+            return "hypre";
         case ksp_preconditioner_type::none :
             return "none";
         
@@ -881,6 +883,11 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     if ( strcmp(kspPreconditioner, "bjacobi") == 0)
     {
         mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::bjacobi);
+        return;
+    }
+    if ( strcmp(kspPreconditioner, "hypre") == 0)
+    {
+        mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::hypre);
         return;
     }
     if ( strcmp(kspPreconditioner, "none") == 0)
