@@ -178,7 +178,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            cells.push_back(temp_cells[location_indices[i]]);       
+            cells.push_back(temp_cells[location_indices[i]]);
         }
 
         // Create tissue
@@ -229,7 +229,7 @@ public:
         TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // ... and checking visualization of labelled cells against previous run
-        OutputFileHandler handler("MakeMeinekeGraphs", false);
+        OutputFileHandler handler(output_directory, false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMeinekeGraphs/results.viznodes").c_str()), 0);
 
@@ -403,7 +403,7 @@ public:
             std::vector<TissueCell> cells;
             for (unsigned i=0; i<location_indices.size(); i++)
             {
-                cells.push_back(temp_cells[location_indices[i]]);       
+                cells.push_back(temp_cells[location_indices[i]]);
             }
 
             // Set up crypt
@@ -478,7 +478,7 @@ public:
 
         // Test against previous run
         // ... and checking visualization of labelled cells against previous run
-        OutputFileHandler handler("MakeMoreMeinekeGraphs", false);
+        OutputFileHandler handler(output_directory, false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "percentage_of_labelled_cells.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
 
