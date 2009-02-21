@@ -51,14 +51,14 @@ template<unsigned DIM>
 class MeshBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
     friend class TestMeshBasedTissue;
-    
+
 protected:
 
     /** Reference to the mesh. */
     MutableMesh<DIM, DIM>& mrMesh;
 
-    /** 
-     * Pointer to a Voronoi tessellation object. 
+    /**
+     * Pointer to a Voronoi tessellation object.
      * Used to calculate cell area and perimeter information if required.
      */
     VoronoiTessellation<DIM>* mpVoronoiTessellation;
@@ -96,7 +96,7 @@ protected:
 
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
-    
+
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
 
@@ -194,27 +194,27 @@ public:
     bool UseAreaBasedDampingConstant();
 
     /** Get method for mWriteVoronoiData and mFollowLoggedCell.
-     * 
+     *
      * @param writeVoronoiData  whether to output cell area and perimeter information
      * @param followLoggedCell  whether to follow only the logged cell if writing Voronoi data
-     */   
+     */
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
-    
+
     /**
      * Overridden AddNode() method.
-     * 
+     *
      * Add a new node to the tissue.
-     * 
-     * @param pNewNode pointer to the new node 
+     *
+     * @param pNewNode pointer to the new node
      * @return global index of new node in tissue
      */
     unsigned AddNode(Node<DIM> *pNewNode);
 
     /**
      * Overridden SetNode() method.
-     * 
+     *
      * Move the node with a given index to a new point in space.
-     * 
+     *
      * @param nodeIndex the index of the node to be moved
      * @param rNewLocation the new target location of the node
      */
@@ -230,24 +230,24 @@ public:
     virtual bool IsGhostNode(unsigned index);
 
     /**
-     * Overridden GetDampingConstant() method that includes the 
+     * Overridden GetDampingConstant() method that includes the
      * case of a cell-area-based damping constant.
-     * 
+     *
      * @param nodeIndex the global index of this node
      * @return the damping constant for the given TissueCell.
-     */ 
+     */
     double GetDampingConstant(unsigned nodeIndex);
 
-    /** 
-     * Set method for mWriteTissueAreas. 
-     * 
+    /**
+     * Set method for mWriteTissueAreas.
+     *
      * @param writeTissueAreas  whether to output tissue area data
      */
     void SetWriteTissueAreas(bool writeTissueAreas);
 
-    /** 
-     * Set method for mUseAreaBasedDampingConstant. 
-     * 
+    /**
+     * Set method for mUseAreaBasedDampingConstant.
+     *
      * @param useAreaBasedDampingConstant  whether to use a viscosity that is linear in the cell area, rather than constant
      */
     void SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant);
@@ -255,42 +255,42 @@ public:
     /**
      * Remove all cells that are labelled as dead.
      *
-     * Note that this now calls MutableMesh::DeleteNodePriorToReMesh() 
-     * and therefore a ReMesh(map) must be called before any element 
+     * Note that this now calls MutableMesh::DeleteNodePriorToReMesh()
+     * and therefore a ReMesh(map) must be called before any element
      * information is used.
      *
-     * Note also that after calling this method the tissue will be in an inconsistent state until 
+     * Note also that after calling this method the tissue will be in an inconsistent state until
      * Update() is called! So don't try iterating over cells or anything like that.
      *
      * @return number of cells removed.
      */
-    unsigned RemoveDeadCells();
+    virtual unsigned RemoveDeadCells();
 
     /**
      * Overridden AddCell() method.
-     * 
+     *
      * Add a new cell to the tissue and update mIsGhostNode.
      *
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
-     * 
+     *
      * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
+    virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
 
     /**
-     * Overridden WriteMeshToFile() method. For use by 
+     * Overridden WriteMeshToFile() method. For use by
      * the TissueSimulationArchiver.
-     * 
+     *
      * @param rArchiveDirectory directory in which archive is stored
      * @param rMeshFileName base name for mesh files
      */
     void WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName);
-    
+
     /**
      * Overridden CreateOutputFiles() method.
-     * 
+     *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
      * @param rCleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
      * @param outputCellMutationStates  whether to create a cell mutation state results file
@@ -308,7 +308,7 @@ public:
                            bool outputCellAncestors);
     /**
      * Overridden CloseOutputFiles() method.
-     * 
+     *
      * @param outputCellMutationStates  whether a cell mutation state results file is open
      * @param outputCellTypes  whether a cell type results file is open
      * @param outputCellVariables  whether a cell-cycle variable results file is open
@@ -320,10 +320,10 @@ public:
                           bool outputCellVariables,
                           bool outputCellCyclePhases,
                           bool outputCellAncestors);
-                          
+
     /**
      * Overridden WriteResultsToFiles() method.
-     * 
+     *
      * @param outputCellMutationStates  whether to output cell mutation state results
      * @param outputCellTypes  whether to output cell type results
      * @param outputCellVariables  whether to output cell-cycle variable results
@@ -337,23 +337,23 @@ public:
                              bool outputCellAncestors);
 
     /**
-     * Overridden Update() method. 
+     * Overridden Update() method.
      * Fixes up the mappings between cells and nodes.
      */
     virtual void Update();
 
     /**
      * Overridden GetNode() method.
-     * 
+     *
      * @param index  global index of the specified Node
-     * 
+     *
      * @return pointer to the Node with given index.
      */
     Node<DIM>* GetNode(unsigned index);
-    
+
     /**
      * Overridden GetNumNodes() method.
-     * 
+     *
      * @return the number of nodes in the tissue.
      */
     unsigned GetNumNodes();

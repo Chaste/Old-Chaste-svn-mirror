@@ -22,4 +22,5 @@ tissue/TestCellKillers.hpp
 tissue/TestCellwiseData.hpp
 tissue/TestForces.hpp
 tissue/TestMeshBasedTissue.hpp
+tissue/TestMeshBasedTissueWithGhostNodes.hpp
 tissue/TestNodeBasedTissue.hpp

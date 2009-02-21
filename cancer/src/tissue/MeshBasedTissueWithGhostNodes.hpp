@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/set.hpp>
 #include <boost/serialization/vector.hpp>
 
 /**
@@ -45,6 +44,8 @@ template<unsigned DIM>
 class MeshBasedTissueWithGhostNodes : public MeshBasedTissue<DIM>
 {
 private:
+    /* Just so that the test can test the private functions */
+    friend class TestMeshBasedTissueWithGhostNodes;
 
     /** Records whether a node is a ghost node or not */
     std::vector<bool> mIsGhostNode;
@@ -66,15 +67,20 @@ private:
     }
 
     /**
-     * Set the ghost nodes by taking in a set of which nodes are ghosts.
-     * 
+     * Set the ghost nodes by taking in a set of which nodes indices are ghost nodes.
+     *
      * @param ghostNodeIndices
      */
     void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
 
     /**
-     * Check consistency of our internal data structures. Each node must
-     * have a cell associated with it or be a ghost node.
+     * This is called after a tissue has been constructed to check the
+     * user gave consistent instructions. Check consistency of our
+     * internal data structures:
+     * Each node must have a cell associated with it OR must be a ghost node.
+     *
+     * It is called after cells are added or removed from MeshBasedTissue
+     * as it is an overridden virtual method.
      */
     void Validate();
 
@@ -83,16 +89,13 @@ public:
     /**
      * Create a new tissue facade from a mesh and collection of cells.
      *
-     * At present there must be precisely 1 cell for each node of the mesh.
-     * (This will change in future so that you don't need cells for ghost nodes.)
-     *
      * @param rMesh a mutable tetrahedral mesh
      * @param rCells TissueCells corresponding to the nodes of the mesh
      * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-                                  const std::vector<TissueCell>& rCells,                                  
+                                  const std::vector<TissueCell>& rCells,
                                   const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                                   bool deleteMesh=false);
 
@@ -105,11 +108,11 @@ public:
 
     /**
      * Overridden UpdateNodeLocation() method.
-     * 
-     * Update the location of each node in the tissue given 
-     * a vector of forces on nodes and a time step over which 
+     *
+     * Update the location of each node in the tissue given
+     * a vector of forces on nodes and a time step over which
      * to integrate the equations of motion.
-     * 
+     *
      * @param rNodeForces  forces on nodes
      * @param dt  time step
      */
@@ -120,14 +123,14 @@ public:
      */
     std::vector<bool>& rGetGhostNodes();
 
-    /** 
+    /**
      * Overridden IsGhostNode() method.
-     * 
-     * Find if a given node is a ghost node. The abstract method always returns false 
+     *
+     * Find if a given node is a ghost node. The abstract method always returns false
      * but is overridden in subclasses.
-     * 
+     *
      * @param index the global index of a specified node
-     * 
+     *
      * @return whether the node is a ghost node
      */
     bool IsGhostNode(unsigned index);
@@ -140,14 +143,14 @@ public:
 	/**
      * Update the GhostNode positions using the spring force model with rest length=1.
      * Forces are applied to ghost nodes from connected ghost and normal nodes.
-     * 
+     *
      * @param dt
      */
     void UpdateGhostPositions(double dt);
 
     /**
      * Update mIsGhostNode if required by a remesh.
-     * 
+     *
      * @param rMap
      */
     void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
@@ -164,7 +167,7 @@ public:
 
     /**
      * Overridden AddCell() method.
-     * 
+     *
      * Add a new cell to the tissue and update mIsGhostNode.
      *
      * @param rNewCell  the cell to add

@@ -56,6 +56,7 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
                             location_indices.begin(), location_indices.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
+        // This method finishes and then calls Validate();...
         SetGhostNodes(ghost_node_indices);
 
         for (std::set<unsigned>::iterator iter=ghost_node_indices.begin();
@@ -69,8 +70,8 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
     else
     {
         this->mIsGhostNode = std::vector<bool>(this->GetNumNodes(), false);
+        Validate();
     }
-    Validate();
 }
 
 template<unsigned DIM>
@@ -118,6 +119,8 @@ void MeshBasedTissueWithGhostNodes<DIM>::SetGhostNodes(const std::set<unsigned>&
         this->mIsGhostNode[*iter] = true;
         iter++;
     }
+
+    Validate();
 }
 
 template<unsigned DIM>
@@ -209,11 +212,21 @@ TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell& rNewCell, c_
 template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::Validate()
 {
+    // Get a list of all the nodes that are ghosts
     std::vector<bool> validated_node = mIsGhostNode;
+    assert(mIsGhostNode.size()==this->GetNumNodes());
 
+    // Look through all of the cells and record what node they are associated with.
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+        // If the node attached to this cell is labelled as a ghost node throw an error
+        if (mIsGhostNode[node_index])
+        {
+            std::stringstream ss;
+            ss << "Node " << node_index << " is labelled as a ghost node and has a cell attached";
+            EXCEPTION(ss.str());
+        }
         validated_node[node_index] = true;
     }
 
