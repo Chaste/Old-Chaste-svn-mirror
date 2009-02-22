@@ -33,24 +33,23 @@ print >>sys.stderr, "Unrecognised machine; please edit python/hostconfig/default
 sys.exit(1)
 
 petsc_2_2_path = '../../../petsc-2.2.1/'
-petsc_2_3_path = '../../../petsc-2.3.2-p6/'
+petsc_2_3_path = '../../../petsc-2.3.3-p15/'
 petsc_build_name = 'linux-gnu'
 petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = '../../../deal.II/'
-metis_path = '../../../metis-4.0/'
+metis_path = '../../../metis-5.0pre2/'
 intel_path = '/opt/intel/cc/9.1.039/lib'
-icpc='icpc'
+icpc = 'icpc'
 
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd',
-                      '../../../include/boost-1_33_1',
-		      os.path.join(metis_path,'include')]
+		      os.path.join(metis_path, 'include')]
 
 other_libpaths = ['../../../lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
-                  os.path.join(metis_path,'build/Linux-x86_64')]
+                  os.path.join(metis_path, 'build/Linux-x86_64')]
 
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization-gcc', 'xerces-c', 'z', 'hdf5', 'libmetis.a']
+other_libraries = ['boost_serialization-gcc', 'xerces-c', 'hdf5', 'z', 'metis']
 
 tools = {}
