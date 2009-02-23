@@ -39,7 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "metis.h"
 
-
+/**
+ * \todo explicit instantiation
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
@@ -623,7 +625,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
                         <<  num_procs
                         <<  " > /dev/null";
 
-        system(permute_command.str().c_str());
+        EXPECT0(system, permute_command.str());
     }
 
     /*

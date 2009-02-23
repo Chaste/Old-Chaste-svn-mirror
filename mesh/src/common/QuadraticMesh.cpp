@@ -193,24 +193,24 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     // NOTE: we don't check whether the return value here is zero, because if CHASTE_TESTOUTPUT
     // is "." (ie if it hasn't been exported), then the mv will fail (source and destination files
     // are the same), but this isn't a problem.
-    system(command.c_str());
+    return_value = system(command.c_str());
     
     // load
     LoadFromFile( fileStem + ".1");
     
     // delete the temporary files
     command = "rm -f " + outputDir + "/" + fileStem + ".node";
-    system(command.c_str());
-    system( ("rm -f " + fileStem + ".1.node").c_str() );
-    system( ("rm -f " + fileStem + ".1.ele" ).c_str() );
+    EXPECT0(system, command);
+    EXPECT0(system, "rm -f " + fileStem + ".1.node");
+    EXPECT0(system, "rm -f " + fileStem + ".1.ele");
     
     if (DIM==2) 
     {
-        system( ("rm -f " + fileStem + ".1.edge").c_str() );
+        EXPECT0(system, "rm -f " + fileStem + ".1.edge");
     }
     if (DIM==3) 
     {
-        system( ("rm -f " + fileStem + ".1.face").c_str() );
+        EXPECT0(system, "rm -f " + fileStem + ".1.face");
     }
 }
 

@@ -65,7 +65,7 @@ public:
 
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
-#define NEVER_REACHED EXCEPTION("Should have been impossible to reach this line of code");
+#define NEVER_REACHED EXCEPTION("Should have been impossible to reach this line of code")
 
 // This is to cope with NDEBUG causing variables to not be used, since they are only
 // used in assert()s
@@ -74,5 +74,14 @@ public:
 #else
 #define UNUSED_OPT(var)
 #endif
+
+// This macro is handy for calling functions like system which return non-zero on error
+#define EXPECT0(cmd, arg) { \
+    std::string _arg = (arg); \
+    int ret = cmd(_arg.c_str()); \
+    if (ret != 0) { \
+        EXCEPTION("Failed to execute command: " #cmd "(" + _arg + ")"); \
+    } }
+
 
 #endif // _EXCEPTION_HPP_

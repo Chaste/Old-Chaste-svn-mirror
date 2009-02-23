@@ -613,7 +613,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
                         <<  numProcs
                         <<  " > /dev/null";
 
-        system(permute_command.str().c_str());
+        EXPECT0(system, permute_command.str());
 
         /*
          *  Create a file with the number of nodes per partition
@@ -624,7 +624,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
                       << handler.GetOutputDirectoryFullPath("")
                       << nodes_per_proc_file
                       << " > /dev/null";
-        system(clear_command.str().c_str());
+        EXPECT0(system, clear_command.str());
 
         // Loop over the partition number (i.e. processor number) and count how many nodes
         for (unsigned proc_index=0; proc_index<numProcs; proc_index++)
@@ -638,7 +638,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
                           << handler.GetOutputDirectoryFullPath("")
                           << nodes_per_proc_file;
 
-            system(count_command.str().c_str());
+            EXPECT0(system, count_command.str());
         }
 
     }

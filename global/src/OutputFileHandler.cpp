@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "Exception.hpp"
 
+#define CHECK_SYSTEM(cmd) EXPECT0(system, cmd)
+
 
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool rCleanOutputDirectory)
@@ -48,10 +50,10 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
         std::string directory_to_move_to = GetOutputDirectoryFullPath("last_cleaned_directory");
-        system(("rm -rf " + directory_to_move_to).c_str());
+        CHECK_SYSTEM("rm -rf " + directory_to_move_to);
         // Re-create the special directory
         mkdir(directory_to_move_to.c_str(), 0775);
-        system(("mv " + mDirectory + " " + directory_to_move_to).c_str());
+        CHECK_SYSTEM("mv " + mDirectory + " " + directory_to_move_to);
         //system(("rm -rf " + mDirectory).c_str());
         // Re-create the output directory
         mkdir(mDirectory.c_str(), 0775);
@@ -88,7 +90,7 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath(std::string directory)
     // Make sure it exists (ish)
     if (mAmMaster)
     {
-        system(("mkdir -p " + directory).c_str());
+        CHECK_SYSTEM("mkdir -p " + directory);
     }
 
     // Add a trailing slash if not already there

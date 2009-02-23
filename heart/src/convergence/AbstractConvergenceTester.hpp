@@ -529,7 +529,7 @@ public:
             p_conv_info_file->close();
 
             std::cout << "Results: " << std::endl;
-            system(("cat " + conv_info_handler.GetOutputDirectoryFullPath() + nameOfTest + "_info.csv").c_str());
+            EXPECT0(system, "cat " + conv_info_handler.GetOutputDirectoryFullPath() + nameOfTest + "_info.csv");
         }
 
     }
@@ -567,7 +567,7 @@ public:
             break;
 
         }
-        system("date");//To keep track of what Nightly things are doing
+        EXPECT0(system, "date");//To keep track of what Nightly things are doing
         ///\todo The UseAbsoluteStimulus is temporary, while we are sorting out
         ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
         if (this->UseAbsoluteStimulus)

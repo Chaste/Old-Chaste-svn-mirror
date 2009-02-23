@@ -753,7 +753,7 @@ class Intel(BuildType):
             if flag.startswith('-vec_report'):
                 del self._cc_flags[i]
                 break
-        self._cc_flags.append('-vec_report' + vec)
+        self._cc_flags.append('-vec_report' + str(vec))
 
 class Fle(BuildType):
   "Intel compiler tools on FLE cluster."
@@ -768,21 +768,6 @@ class Fle(BuildType):
     self.build_dir = 'fle'
     # Intel compiler uses optimisation by default
     self.is_optimised = True
-
-  def SetReporting(self, vec=1):
-    """
-    Set the reporting level.
-    vec controls the vectoriser report, and is the number to put after
-    -vec_report. Default is 1 to indicate vectorised loops; use 3 to
-    find out why loops aren't vectorised.
-    """
-    # Remove any current reporting
-    i = self._cc_flags.find('-vec_report')
-    if i > -1:
-      self._cc_flags = self._cc_flags[:i] + self._cc_flags[i+13:]
-    self._cc_flags = self._cc_flags + ' -vec_report' + vec
-
-    self._num_processes = 1
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a single processor environment"
@@ -889,7 +874,7 @@ def GetBuildType(buildType):
     
     for extra in extras:
         if extra == 'report':
-            if issubclass(obj, Intel):
+            if isinstance(obj, Intel):
                 obj.SetReporting(vec=3)
         elif extra == 'onlytests':
             obj.ClearTestPacks()

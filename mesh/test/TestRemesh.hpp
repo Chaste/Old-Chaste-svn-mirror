@@ -229,7 +229,7 @@ public:
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("") + "temp.";
         std::string command = "./bin/triangle -Qe " + full_name + "node" + " > /dev/null";
-        system(command.c_str());
+        EXPECT0(system, command);
 
         TrianglesMeshReader<2,2> mesh_reader2(full_name+"1");
         TetrahedralMesh<2,2> mesh2;

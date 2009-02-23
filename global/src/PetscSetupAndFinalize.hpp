@@ -40,11 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/GlobalFixture.h>
 #include <petsc.h>
-#include <stdlib.h>
-
+#include <cstdlib>
 #include <unistd.h>
 #include <iostream>
 
+#include "Exception.hpp"
 #include "PetscException.hpp"
 
 class PetSCSetup : public CxxTest::GlobalFixture
@@ -63,7 +63,7 @@ public:
         char buf[10000];
         std::cout << std::endl << "CWD: " << getcwd(buf, 10000) << std::endl;
         std::cout << "Root: " << CHASTE_ROOT << std::endl;
-        chdir(CHASTE_ROOT);
+        EXPECT0(chdir, CHASTE_ROOT);
         std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
 
         return true;
