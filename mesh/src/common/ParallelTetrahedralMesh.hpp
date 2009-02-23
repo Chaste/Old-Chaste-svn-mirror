@@ -705,7 +705,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
 
     idxtype ne = rMeshReader.GetNumElements(); 
     idxtype nn = rMeshReader.GetNumNodes(); 
-    idxtype elmnts[ne * (ELEMENT_DIM+1)];
+    idxtype* elmnts = new idxtype[ne * (ELEMENT_DIM+1)];
+    assert(elmnts != NULL);   
 
     unsigned counter=0;    
     for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
@@ -780,6 +781,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
         
         local_index[part_read]++;
     }
+    
+    delete[] elmnts;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

@@ -497,12 +497,5 @@ public:
         TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
     }
     
-    void TestHeartPartitioningFailsInParallel()
-    {
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
-        ParallelTetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader); 
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
-    }
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/
