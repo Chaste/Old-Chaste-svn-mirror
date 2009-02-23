@@ -582,53 +582,64 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     // Only the master process should do IO and call METIS
     if (handler.IsMaster())
     {
-        /*
-         *  Create input file for METIS
-         */
-        out_stream metis_file=handler.OpenOutputFile(basename);
-
-        // File header
-        (*metis_file)<<this->GetNumElements()<<"\t";
-        if (ELEMENT_DIM==2)
+        try
         {
-            (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
-        }
-        else
-        {
-            (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
-        }
-
-
-        // Graph representation of the mesh
-        for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
-        {
-            ElementData element_data = rMeshReader.GetNextElementData();
+        
+            /*
+             *  Create input file for METIS
+             */
+            out_stream metis_file=handler.OpenOutputFile(basename);
     
-            for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+            // File header
+            (*metis_file)<<this->GetNumElements()<<"\t";
+            if (ELEMENT_DIM==2)
             {
-                    (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
+                (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
             }
-            (*metis_file)<<"\n";
-        }
-        metis_file->close();
+            else
+            {
+                (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
+            }
     
-        rMeshReader.Reset();
-
-        /*
-         *  Call METIS binary to perform the partitioning.
-         *  It will output a file called metis.mesh.npart.numProcs
-         */
-        std::stringstream permute_command;
-        permute_command <<  "./bin/partdmesh "
-                        <<  handler.GetOutputDirectoryFullPath("")
-                        <<  basename << " "
-                        <<  num_procs
-                        <<  " > /dev/null";
-
-        EXPECT0(system, permute_command.str());
+    
+            // Graph representation of the mesh
+            for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+            {
+                ElementData element_data = rMeshReader.GetNextElementData();
+        
+                for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+                {
+                        (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
+                }
+                (*metis_file)<<"\n";
+            }
+            metis_file->close();
+        
+            rMeshReader.Reset();
+    
+            /*
+             *  Call METIS binary to perform the partitioning.
+             *  It will output a file called metis.mesh.npart.numProcs
+             */
+            std::stringstream permute_command;
+            permute_command <<  "./bin/partdmesh "
+                            <<  handler.GetOutputDirectoryFullPath("")
+                            <<  basename << " "
+                            <<  num_procs
+                            <<  " > /dev/null";
+    
+            EXPECT0(system, permute_command.str());
+        }
+        catch (Exception &e)
+        {
+            PetscTools::ReplicateException(true);
+            throw e;
+        }
     }
-
-    /*
+    //Other processes need to see the exception happening
+    PetscTools::ReplicateException(false);
+     
+     /*
      * Wait for the permutation to be available
      */
     PetscTools::Barrier();
@@ -707,7 +718,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     idxtype nn = rMeshReader.GetNumNodes(); 
     idxtype* elmnts = new idxtype[ne * (ELEMENT_DIM+1)];
     assert(elmnts != NULL);   
-
+    std::cout<<"Hello\n"<<std::flush;
     unsigned counter=0;    
     for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
     {
