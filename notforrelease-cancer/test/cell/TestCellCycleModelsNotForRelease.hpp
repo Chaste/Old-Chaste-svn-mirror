@@ -67,7 +67,7 @@ public:
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
         // Create cell cycle model and associated cell
-        Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
+        Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel(2);
         TissueCell cell(STEM, HEALTHY, p_cell_model);
 
         // Coverage of cell cycle model copying without an ODE system set up
@@ -110,7 +110,7 @@ public:
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
 
-        SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
+        SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel(2);
         TissueCell cell(STEM, HEALTHY, p_model);
         cell.InitialiseCellCycleModel();
 
@@ -159,11 +159,11 @@ public:
         oxygen_concentration.push_back(1.0);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model);
+        TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model(2));
 
         // Create cell cycle model
-        SimpleOxygenBasedCellCycleModel* p_hepa_one_model = new SimpleOxygenBasedCellCycleModel();
-        SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel();
+        SimpleOxygenBasedCellCycleModel* p_hepa_one_model = new SimpleOxygenBasedCellCycleModel(2);
+        SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel(2);
 
         // Create cell
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
@@ -207,7 +207,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
 
         // Create a cell with a simple oxygen-based cell cycle model
-        SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel();
+        SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel(2);
         TissueCell apoptotic_cell(STEM, HEALTHY, p_cell_model);
 
         // Set up constant oxygen_concentration
@@ -344,7 +344,7 @@ public:
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
 
-        StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel();
+        StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel(2);
         TissueCell cell(STEM, HEALTHY, p_model);
         cell.InitialiseCellCycleModel();
 
@@ -393,11 +393,11 @@ public:
         oxygen_concentration.push_back(1.0);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        TS_ASSERT_THROWS_NOTHING(StochasticOxygenBasedCellCycleModel model);
+        TS_ASSERT_THROWS_NOTHING(StochasticOxygenBasedCellCycleModel model(2));
 
         // Create cell cycle model
-        StochasticOxygenBasedCellCycleModel* p_hepa_one_model = new StochasticOxygenBasedCellCycleModel();
-        StochasticOxygenBasedCellCycleModel* p_diff_model = new StochasticOxygenBasedCellCycleModel();
+        StochasticOxygenBasedCellCycleModel* p_hepa_one_model = new StochasticOxygenBasedCellCycleModel(2);
+        StochasticOxygenBasedCellCycleModel* p_diff_model = new StochasticOxygenBasedCellCycleModel(2);
 
         // Create cell
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
@@ -443,7 +443,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
 
         // Create a cell with a simple oxygen-based cell cycle model
-        StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel();
+        StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel(2);
         TissueCell apoptotic_cell(STEM, HEALTHY, p_cell_model);
         apoptotic_cell.InitialiseCellCycleModel();
 
@@ -480,7 +480,7 @@ public:
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
         {
             // Set up simulation time
@@ -488,16 +488,17 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
 
             // Create cell cycle model and associated cell
-            Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
+            Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel(3);
             TissueCell cell(STEM, HEALTHY, p_cell_model);
             
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
 
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(),false);
+            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(), false);
+
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(),true);
+            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(), true);
 
             // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
@@ -529,19 +530,21 @@ public:
             // Restore from the archive
             input_arch >> p_cell;
 
-            // Test archiving
-            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
-            TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
+            // Check that archiving worked correctly
+            Alarcon2004OxygenBasedCellCycleModel* p_model = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell->GetCellCycleModel());
+;
+            TS_ASSERT_EQUALS(p_cell, p_model->GetCell());
+            TS_ASSERT_EQUALS(p_model->GetDimension(), 3u);
+            TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
 
-            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
-            TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-10.0,1e-12);
-            TS_ASSERT_DELTA(p_cell_model->GetAge(),20.0,1e-12);
-            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            TS_ASSERT_DELTA(p_model->GetBirthTime(), -10.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetAge(), 20.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 10.0, 1e-12);
+
+            // Tidy up
             delete p_cell;
+            CellwiseData<3>::Destroy();
         }
-        
-        // Tidy up
-        CellwiseData<2>::Destroy();
     }
 
 
@@ -553,14 +556,14 @@ public:
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            SimpleOxygenBasedCellCycleModel model;
+            SimpleOxygenBasedCellCycleModel model(1);
 
             p_simulation_time->IncrementTimeOneStep();
 
@@ -579,7 +582,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            SimpleOxygenBasedCellCycleModel model;
+            SimpleOxygenBasedCellCycleModel model(2);
             model.SetBirthTime(-2.0);
 
             // Create an input archive
@@ -590,9 +593,14 @@ public:
             input_arch >> model;
 
             // Check that archiving worked correctly
+            TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(), M_PHASE);
+            TS_ASSERT_EQUALS(model.GetDimension(), 1u);
+
             TS_ASSERT_DELTA(model.GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12);
-            TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(), M_PHASE);
+
+            // Tidy up
+            CellwiseData<1>::Destroy();
         }
     }
 
@@ -638,10 +646,11 @@ public:
             input_arch >> model;
 
             // Check that archiving worked correctly
-            TS_ASSERT_DELTA(model.GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12);
             TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(), M_PHASE);
             TS_ASSERT_EQUALS(model.DividedSymmetrically(), true);
+
+            TS_ASSERT_DELTA(model.GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12);
         }
     }
     
@@ -661,7 +670,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel();
+            StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel(3);
 
             TissueCell cell(STEM, HEALTHY, p_model);
             cell.InitialiseCellCycleModel();
@@ -683,7 +692,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            StochasticOxygenBasedCellCycleModel model;
+            StochasticOxygenBasedCellCycleModel model(2);
             model.SetBirthTime(-2.0);
 
             // Create an input archive
@@ -694,13 +703,14 @@ public:
             input_arch >> model;
 
             // Check that archiving worked correctly
-            TS_ASSERT_DELTA(model.GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12);
+            TS_ASSERT_EQUALS(model.GetDimension(), 3u);
             TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(), M_PHASE);
+
+            TS_ASSERT_DELTA(model.GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12)
             TS_ASSERT_DELTA(model.GetG2Duration(), 3.0676, 1e-4); // first random number generated
         }
     }
-
     
 };
 

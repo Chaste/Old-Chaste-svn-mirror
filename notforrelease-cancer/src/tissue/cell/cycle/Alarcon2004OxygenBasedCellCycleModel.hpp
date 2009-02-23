@@ -65,6 +65,11 @@ private:
      */
     static RungeKutta4IvpOdeSolver msSolver;
 
+    /**
+     * The spatial dimension (needed by the templated class CellwiseData).
+     */
+    unsigned mDimension;
+
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -74,14 +79,17 @@ private:
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
         archive & static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState();
+        archive & mDimension;
     }
 
 public:
 
     /**
      * Default constructor, variables are set by abstract classes.
+     * 
+     * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
-    Alarcon2004OxygenBasedCellCycleModel();
+    Alarcon2004OxygenBasedCellCycleModel(unsigned dimension);
 
     /**
      * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
@@ -95,6 +103,7 @@ public:
      * @param readyToDivide whether the cell is ready to divide
      * @param divideTime if in the future this is the time at which the cell is going to divide
      * @param generation the cell's generation
+     * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
     Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                          const CellMutationState& rMutationState,
@@ -103,7 +112,8 @@ public:
                                          bool inSG2MPhase,
                                          bool readyToDivide,
                                          double divideTime,
-                                         unsigned generation);
+                                         unsigned generation,
+                                         unsigned dimension);
 
     /**
      * A private constructor for archiving.
@@ -156,6 +166,13 @@ public:
      * @return the stopping event time
      */
     double GetOdeStopTime();
+
+    /**
+     * Get the spatial dimension.
+     * 
+     * @return mDimension
+     */
+    unsigned GetDimension();
 
 };
 

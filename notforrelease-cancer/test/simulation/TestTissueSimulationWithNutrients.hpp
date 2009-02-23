@@ -114,7 +114,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
@@ -200,7 +200,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -208,7 +208,7 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
@@ -266,7 +266,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -274,7 +274,7 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
@@ -370,14 +370,14 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             cell.SetBirthTime(-0.1);
 
             // Label three neighbouring cells as apoptotic
@@ -473,14 +473,14 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
@@ -631,7 +631,7 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
@@ -697,7 +697,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -705,7 +705,7 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                             (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                              +CancerParameters::Instance()->GetSG2MDuration());
@@ -802,7 +802,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -810,7 +810,7 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());

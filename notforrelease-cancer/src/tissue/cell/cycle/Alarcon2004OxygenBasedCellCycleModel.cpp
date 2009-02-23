@@ -31,7 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
 
 
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel()
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(unsigned dimension)
+    : AbstractOdeBasedCellCycleModel(),
+      mDimension(dimension)
 {
 }
 
@@ -43,8 +45,9 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
                                                                            bool inSG2MPhase,
                                                                            bool readyToDivide,
                                                                            double divideTime,
-                                                                           unsigned generation)
-    : AbstractOdeBasedCellCycleModel(lastTime)// these values are overwritten below
+                                                                           unsigned generation,
+                                                                           unsigned dimension)
+    : AbstractOdeBasedCellCycleModel(lastTime) // these values are overwritten below
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -65,16 +68,18 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
         EXCEPTION("Alarcon2004OxygenBasedCellCycleModel is being created but SimulationTime has not been set up");
         #undef COVERAGE_IGNORE
     }
+
     mBirthTime = birthTime;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
     mFinishedRunningOdes = inSG2MPhase;
     mGeneration = generation;
+    mDimension = dimension;
 }
 
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                              const CellMutationState& rMutationState)
+                                                                           const CellMutationState& rMutationState)
 {
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
 
@@ -91,7 +96,7 @@ void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
     // This model needs the protein concentrations and phase resetting to G0/G1.
     // Keep the oxygen concentration the same but reset everything else
     std::vector<double> init_conds = mpOdeSystem->GetInitialConditions();
-    for (unsigned i = 0; i<5; i++)
+    for (unsigned i=0; i<5; i++)
     {
         mpOdeSystem->rGetStateVariables()[i] = init_conds[i];
     }
@@ -107,8 +112,15 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateDaughterCell
      * cycle model the same as the old one - not a dividing copy at this time,
      * unless the parent cell has just divided.
      */
-    return new Alarcon2004OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(),
-                                         mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
+    return new Alarcon2004OxygenBasedCellCycleModel(mpOdeSystem,
+                                                    mpCell->GetMutationState(),
+                                                    mBirthTime,
+                                                    mLastTime,
+                                                    mFinishedRunningOdes,
+                                                    mReadyToDivide,
+                                                    mDivideTime,
+                                                    mGeneration,
+                                                    mDimension);
 }
 
 
@@ -117,19 +129,62 @@ void Alarcon2004OxygenBasedCellCycleModel::Initialise()
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
 
-    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<2>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
 
 bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
 {
-    double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
+    double dt = 0.0001; // the time step must be this small because the Runge-Kutter solver has poor stability
 
-    // Pass this time step's oxygen concentration into the solver 
-    // as a constant over this timestep.
-    ///\todo Remove hard-coding of dimension (see #737)
-    mpOdeSystem->rGetStateVariables()[5] = CellwiseData<2>::Instance()->GetValue(mpCell,0);
+    // Pass this time step's oxygen concentration into the solver as a constant over this timestep
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
 
     // Use the cell's current mutation status as another input
     static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
@@ -144,3 +199,9 @@ double Alarcon2004OxygenBasedCellCycleModel::GetOdeStopTime()
     assert(msSolver.StoppingEventOccurred());
     return msSolver.GetStoppingTime();
 }
+
+unsigned Alarcon2004OxygenBasedCellCycleModel::GetDimension()
+{
+    return mDimension;
+}
+

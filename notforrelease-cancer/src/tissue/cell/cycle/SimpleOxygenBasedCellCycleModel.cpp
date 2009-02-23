@@ -31,18 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(double g1Duration,
                                                                  unsigned generation,
                                                                  double currentHypoxicDuration,
-                                                                 double currentHypoxiaOnsetTime)
+                                                                 double currentHypoxiaOnsetTime,
+                                                                 unsigned dimension)
     : AbstractSimpleCellCycleModel(g1Duration, generation),
       mTimeSpentInG1Phase(0.0),
       mCurrentHypoxicDuration(currentHypoxicDuration),
-      mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime)
+      mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime),
+      mDimension(dimension)
 {
 }
 
 
-SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel() 
+SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(unsigned dimension) 
     : mTimeSpentInG1Phase(0.0),
-      mCurrentHypoxicDuration(0.0)
+      mCurrentHypoxicDuration(0.0),
+      mDimension(dimension)
 {
     mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetTime();
 }
@@ -64,12 +67,36 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
     // mG1Duration is set when the cell cycle model is given a cell
 
-    if (this->mpCell->GetCellType()!=APOPTOTIC)
+    if (mpCell->GetCellType()!=APOPTOTIC)
     {
         UpdateHypoxicDuration();
 
         // Get cell's oxygen concentration
-        double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
+        double oxygen_concentration;
+        switch (mDimension)
+        {
+            case 1:
+            {
+                const unsigned DIM = 1;
+                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+                break;
+            }
+            case 2:
+            {
+                const unsigned DIM = 2;
+                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+                break;
+            }
+            case 3:
+            {
+                const unsigned DIM = 3;
+                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+                break;
+            }
+    
+            default:
+                NEVER_REACHED;
+        }
 
         AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
 
@@ -91,19 +118,44 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new SimpleOxygenBasedCellCycleModel(mG1Duration, mGeneration, mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime);
+    return new SimpleOxygenBasedCellCycleModel(mG1Duration, mGeneration, mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime, mDimension);
 }
 
 
 void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
-    assert(this->mpCell->GetCellType()!=APOPTOTIC);
-    assert(!this->mpCell->HasApoptosisBegun());
+    assert(mpCell->GetCellType()!=APOPTOTIC);
+    assert(!mpCell->HasApoptosisBegun());
 
-    double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(this->mpCell);
+    // Get cell's oxygen concentration
+    double oxygen_concentration;
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+
     double hypoxic_concentration = CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration();
 
-    if ( oxygen_concentration < hypoxic_concentration)
+    if (oxygen_concentration < hypoxic_concentration)
     {
         // Update the duration of the current period of hypoxia
         mCurrentHypoxicDuration = (SimulationTime::Instance()->GetTime() - mCurrentHypoxiaOnsetTime);
@@ -112,7 +164,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
         if (mCurrentHypoxicDuration > CancerParameters::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
-            this->mpCell->SetCellType(APOPTOTIC);
+            mpCell->SetCellType(APOPTOTIC);
         }
     }
     else
@@ -122,3 +174,9 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetTime();
     }
 }
+
+unsigned SimpleOxygenBasedCellCycleModel::GetDimension()
+{
+    return mDimension;
+}
+

@@ -39,18 +39,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCylindrical2dVertexMesh : public CxxTest::TestSuite
 {
 public:
+
     void TestMeshGenerator(void)
     {
-        // Create mesh
+        // Create non-periodic mesh
+        VertexMesh<2,2> non_periodic_mesh(4, 4, 0.01, 2.0);
+
+        TS_ASSERT_EQUALS(non_periodic_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(non_periodic_mesh.GetNumNodes(), 48u);
+
+        // Create periodic mesh
         Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4, 0.01, 2.0);
-		
-		//TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumElements(), 16u);
-        //TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumNodes(), 48u);
+
+        // The periodic mesh should have the same number of elements but fewer nodes
+		TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumNodes(), 40u);
 		
 		// Create a vertex mesh writer
         VertexMeshWriter<2,2> vertex_mesh_writer("TestCylindricalVertexMesh", "cylindrical_vertex_mesh");
         vertex_mesh_writer.WriteFilesUsingMesh(cylindrical_vertex_mesh);
-		
+
+        /// \todo add more tests (#918)
     }
 
     void TestMeshGetWidth(void)
@@ -99,7 +108,6 @@ public:
         // Test a periodic calculation
 
         c_vector<double, 2> node16_location = mesh.GetNode(16)->rGetLocation();
-        //c_vector<double, 2> node19_location = mesh.GetNode(19)->rGetLocation();
 
         vector = mesh.GetVectorFromAtoB(node16_location, node19_location);
         TS_ASSERT_DELTA(vector[0], -1.1547, 1e-4);
@@ -126,7 +134,6 @@ public:
 
         /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
     }
-
 
     void TestAddNodeAndReMesh() throw (Exception)
     {
@@ -184,8 +191,7 @@ public:
 
         /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
     }
-    
-    
+
     void TestElementAreaPerimeterAndCentroid()
     {
         // Create mesh
@@ -210,8 +216,6 @@ public:
         TS_ASSERT_DELTA(centroid(0),3.1754 , 1e-4);
         TS_ASSERT_DELTA(centroid(1),2.0 , 1e-4);
     }
-    
-    
 
     /// \todo add archiving test - see also TestCylindrical2dMesh.hpp (#918)
 

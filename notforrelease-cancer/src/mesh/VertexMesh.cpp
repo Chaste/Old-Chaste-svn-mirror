@@ -362,9 +362,9 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
@@ -395,9 +395,9 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
@@ -423,9 +423,9 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfElement(unsigned index)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
@@ -461,14 +461,11 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     unsigned num_nodes_in_element = pElement->GetNumNodes();
-
-    c_vector<double, SPACE_DIM> area_gradient;
-
     unsigned next_local_index = (localIndex+1)%num_nodes_in_element;
 
     // We add an extra localIndex-1 in the line below as otherwise this term can be negative, which breaks the % operator    
@@ -476,17 +473,12 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientO
     
     c_vector<double, SPACE_DIM> previous_node_location = pElement->GetNodeLocation(previous_local_index);
     c_vector<double, SPACE_DIM> next_node_location = pElement->GetNodeLocation(next_local_index);
+    c_vector<double, SPACE_DIM> difference_vector = GetVectorFromAtoB(previous_node_location, next_node_location);
 
-    /*
-     * \todo 
-     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
-     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
-     * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #918)
-     */
+    c_vector<double, SPACE_DIM> area_gradient;
 
-    area_gradient[0] = 0.5*(next_node_location[1] - previous_node_location[1]);
-    area_gradient[1] = 0.5*(previous_node_location[0] - next_node_location[0]);
+    area_gradient[0] = 0.5*difference_vector[1];
+    area_gradient[1] = -0.5*difference_vector[0];
 
     return area_gradient;
 }
@@ -495,9 +487,9 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientO
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPreviousEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     unsigned num_nodes_in_element = pElement->GetNumNodes();
 
@@ -519,9 +511,9 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPreviousEdgeG
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     unsigned num_nodes_in_element = pElement->GetNumNodes();
 
@@ -542,9 +534,9 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGradi
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> previous_edge_gradient = GetPreviousEdgeGradientOfElementAtNode(pElement, localIndex);
     c_vector<double, SPACE_DIM> next_edge_gradient = GetNextEdgeGradientOfElementAtNode(pElement, localIndex);
@@ -556,17 +548,9 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGrad
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>  
 c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElement(unsigned index)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-#undef COVERAGE_IGNORE
-
-    /*
-     * \todo 
-     * We need to change the length calculation here to use GetVectorFromAtoB/GetDistanceFromAtoB
-     * to allow for non-Euclidean metrics, e.g. periodic boundary conditions. Since this method is
-     * in the mesh class, we should probably move the area and perimeter computations to that class
-     * (see #918)
-     */
+    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
     unsigned num_nodes_in_element = p_element->GetNumNodes();
@@ -612,9 +596,9 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfElement(unsigned index)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
     c_vector<double, 3> moments = CalculateMomentsOfElement(index);
@@ -721,9 +705,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned nodeIndex, ChastePoint
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsigned index)
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     // Mark any nodes that are contained only in this element as deleted
     for (unsigned i=0; i<this->mElements[index]->GetNumNodes(); i++)
@@ -802,8 +786,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
-    assert( SPACE_DIM==2 || SPACE_DIM==3 );
-    assert( ELEMENT_DIM == SPACE_DIM );
+    assert(SPACE_DIM==2 || SPACE_DIM==3);
+    assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
 
     // Make sure the map is big enough
@@ -1019,8 +1003,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
-    assert( SPACE_DIM==2 ); // only works in 2D at present
-    assert( ELEMENT_DIM == SPACE_DIM );
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
 
     // Find the sets of elements containing nodes A and B
@@ -1164,8 +1148,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
-    assert( SPACE_DIM==2 ); // only works in 2D at present
-    assert( ELEMENT_DIM == SPACE_DIM );
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
     
     /*
@@ -1312,8 +1296,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
-    assert( SPACE_DIM==2 ); // only works in 2D at present
-    assert( ELEMENT_DIM == SPACE_DIM );
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
 
     // Find short axis
@@ -1467,8 +1451,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
-    assert( SPACE_DIM==2 ); // only works in 2D at present
-    assert( ELEMENT_DIM == SPACE_DIM );
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
 
     // Sort nodeA and nodeB such that nodeBIndex>nodeAindex

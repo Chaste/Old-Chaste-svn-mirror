@@ -231,11 +231,11 @@ double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
 
         /*
          * In order to calculate the area we map the origin to (x[0],y[0]) 
-         * then use  GetVectorFromAtoB to get node cooordiantes
+         * then use GetVectorFromAtoB() to get node cooordiantes
          */
         
-        transformed_current_node = GetVectorFromAtoB(first_node,current_node);
-        transformed_anticlockwise_node = GetVectorFromAtoB(first_node,anticlockwise_node);
+        transformed_current_node = GetVectorFromAtoB(first_node, current_node);
+        transformed_anticlockwise_node = GetVectorFromAtoB(first_node, anticlockwise_node);
 
         element_area += 0.5*(transformed_current_node[0]*transformed_anticlockwise_node[1] 
                            - transformed_anticlockwise_node[0]*transformed_current_node[1]);
@@ -252,8 +252,8 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
     c_vector<double, 2> centroid;
     c_vector<double, 2> transformed_centroid = zero_vector<double>(2);
     c_vector<double, 2> first_node = p_element->GetNodeLocation(0);
-    c_vector<double, 2> current_node;
-    c_vector<double, 2> anticlockwise_node;
+    c_vector<double, 2> current_node_location;
+    c_vector<double, 2> next_node_location;
     c_vector<double, 2> transformed_current_node;
     c_vector<double, 2> transformed_anticlockwise_node;
 
@@ -265,17 +265,16 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
     for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
     {
         // Find locations of current node and anticlockwise node
-        current_node = p_element->GetNodeLocation(local_index);
-        anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
+        current_node_location = p_element->GetNodeLocation(local_index);
+        next_node_location = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
 
         /*
-         * In order to calculate the Centroid we map the origin to (x[0],y[0]) 
-         * then use  GetVectorFromAtoB to get node cooordiantes
+         * In order to calculate the centroid we map the origin to (x[0],y[0]) 
+         * then use  GetVectorFromAtoB() to get node cooordiantes
          */
 
-        transformed_current_node = GetVectorFromAtoB(first_node,current_node);
-        transformed_anticlockwise_node = GetVectorFromAtoB(first_node,anticlockwise_node);
-
+        transformed_current_node = GetVectorFromAtoB(first_node, current_node_location);
+        transformed_anticlockwise_node = GetVectorFromAtoB(first_node, next_node_location);
 
         temp_centroid_x += (transformed_current_node[0]+transformed_anticlockwise_node[0])*(transformed_current_node[0]*transformed_anticlockwise_node[1]-transformed_current_node[1]*transformed_anticlockwise_node[0]);
         temp_centroid_y += (transformed_current_node[1]+transformed_anticlockwise_node[1])*(transformed_current_node[0]*transformed_anticlockwise_node[1]-transformed_current_node[1]*transformed_anticlockwise_node[0]);               
@@ -292,3 +291,56 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
     return centroid;        
 }
 
+
+c_vector<double, 3> Cylindrical2dVertexMesh::CalculateMomentsOfElement(unsigned index)
+{
+    VertexElement<2, 2>* p_element = GetElement(index);
+
+    c_vector<double, 2> first_node_location = p_element->GetNodeLocation(0);
+    c_vector<double, 2> current_node_location;
+    c_vector<double, 2> next_node_location;
+    c_vector<double, 2> pos_1;
+    c_vector<double, 2> pos_2;
+
+    unsigned num_nodes_in_element = p_element->GetNumNodes();
+
+    c_vector<double, 3> moments = zero_vector<double>(3);
+
+    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+    {
+        // Find locations of current node and anticlockwise node
+        current_node_location = p_element->GetNodeLocation(local_index);
+        next_node_location = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
+
+        /*
+         * In order to calculate the moments we map the origin to (x[0],y[0]) 
+         * then use  GetVectorFromAtoB() to get node cooordiantes
+         */
+
+        pos_1 = GetVectorFromAtoB(first_node_location, current_node_location);
+        pos_2 = GetVectorFromAtoB(first_node_location, next_node_location);
+
+        // Ixx
+        moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
+                                           + pos_1(1)*pos_1(1)*pos_2(1)
+                                           + pos_1(1)*pos_2(1)*pos_2(1)
+                                           + pos_2(1)*pos_2(1)*pos_2(1));
+
+        // Iyy
+        moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
+                                           + pos_1(0)*pos_1(0)*pos_2(0)
+                                           + pos_1(0)*pos_2(0)*pos_2(0)
+                                           + pos_2(0)*pos_2(0)*pos_2(0));
+
+        // Ixy
+        moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
+                      - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
+                      + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
+    }
+
+    moments(0) /= -12;
+    moments(1) /= 12;
+    moments(2) /= 24;
+
+    return moments;
+}

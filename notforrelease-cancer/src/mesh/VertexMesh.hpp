@@ -287,7 +287,7 @@ public:
      * 
      * @return the gradient of the area of the element, evaluated at this node.
      */
-    virtual c_vector<double, SPACE_DIM> GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+    c_vector<double, SPACE_DIM> GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
 
     /**
      * Compute the gradient of the edge of an element ending at its nodes.
@@ -478,6 +478,7 @@ public:
 
     /**
      * Scale the mesh.
+     * 
      * @param xFactor is the scale in the x-direction,
      * @param yFactor is the scale in the y-direction,
      * @param zFactor is the scale in the z-direction
