@@ -135,12 +135,9 @@ public:
         VecCreate(PETSC_COMM_WORLD, &vector);
         VecSetSizes(vector, PETSC_DECIDE, 10);
         VecSetFromOptions(vector);
-        
-        //LinearSystem ls(10);
 
         PetscInt lo, hi;
         VecGetOwnershipRange(vector, &lo, &hi);
-        //ls.GetOwnershipRange(lo, hi);
 
         for (int row=0; row<10; row++)
         {
@@ -149,12 +146,10 @@ public:
                 for (int col=0; col<10; col++)
                 {
                     MatSetValue(matrix, row, col, (double) 10*row+col+1, INSERT_VALUES);
-                    //ls.SetMatrixElement(row, col, (double) 10*row+col+1);
                 }
                 
                 double value = row;
                 VecSetValues(vector, 1, &row, &value, INSERT_VALUES);
-                //ls.SetRhsVectorElement(row, (double)row);
             }
         }
         
@@ -162,7 +157,6 @@ public:
         MatAssemblyEnd(matrix, MAT_FINAL_ASSEMBLY);
         VecAssemblyBegin(vector);
         VecAssemblyEnd(vector);        
-        //ls.AssembleFinalLinearSystem();
 
         OutputFileHandler handler("DumpPetscObjects");
         std::string output_dir = handler.GetOutputDirectoryFullPath();
@@ -170,33 +164,39 @@ public:
         PetscTools::DumpPetscObject(matrix, output_dir+"ten_times_ten.mat");
         PetscTools::DumpPetscObject(vector, output_dir+"ten_times_ten.vec");
         
+        MatDestroy(matrix);
+        VecDestroy(vector);
+        
         Mat matrix_read;
         Vec vector_read;
-        
-        PetscTools::SetupMat(matrix_read, 10, 10, MATMPIAIJ);
-        
-        VecCreate(PETSC_COMM_WORLD, &vector_read);
-        VecSetSizes(vector_read, PETSC_DECIDE, 10);
-        VecSetFromOptions(vector_read);       
-        //LinearSystem ls_read(10);
-        
+                
         PetscTools::ReadPetscObject(matrix_read, output_dir+"ten_times_ten.mat");
         PetscTools::ReadPetscObject(vector_read, output_dir+"ten_times_ten.vec");
+
+        double *p_vector_read;
+        VecGetArray(vector_read, &p_vector_read);
         
-        
-        for (int row=0; row<10; row++)
+        for (PetscInt row=0; row<10; row++)
         {
             if (lo<=row && row<hi)
             {
-                for (int col=0; col<10; col++)
+                for (PetscInt col=0; col<10; col++)
                 {
-//                    TS_ASSERT_EQUALS(ls_read.GetMatrixElement(row, col), (double) 10*row+col+1);
+                    double value;
+                    MatGetValues(matrix_read, 1, &row, 1, &col, &value);                                        
+                    TS_ASSERT_EQUALS(value, (double) 10*row+col+1);
                 }
-            
-//            TS_ASSERT_EQUALS(ls_read.GetRhsVectorElement(row), (double)row);
+
+            unsigned local_index = row-lo;
+            TS_ASSERT_EQUALS(p_vector_read[local_index], (double)row);
             }            
         }
+
+        VecRestoreArray(vector_read, &p_vector_read);
         
+        MatDestroy(matrix_read);
+        VecDestroy(vector_read);
+                
     }
 };
 #endif /*TESTPETSCTOOLS_HPP_*/
