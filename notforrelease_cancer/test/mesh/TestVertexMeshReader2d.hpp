@@ -41,7 +41,7 @@ public:
      */
     void TestFilesOpen(void) throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
     }
     
     
@@ -52,11 +52,11 @@ public:
      */
     void TestNodesDataRead(void) throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 7u);
 
-        VertexMeshReader2d mesh_reader2("notforrelease-cancer/test/data/baddata/vertex_mesh_bad_nodes");
+        VertexMeshReader2d mesh_reader2("notforrelease_cancer/test/data/baddata/vertex_mesh_bad_nodes");
 
         // Reads node 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
@@ -73,7 +73,7 @@ public:
      */
     void TestElementsDataRead(void) throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
         
@@ -104,7 +104,7 @@ public:
             TS_ASSERT_EQUALS(data.AttributeValue, 0u);
         }
 
-        VertexMeshReader2d mesh_reader2("notforrelease-cancer/test/data/baddata/vertex_mesh_bad_elements");
+        VertexMeshReader2d mesh_reader2("notforrelease_cancer/test/data/baddata/vertex_mesh_bad_elements");
 
         // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
@@ -123,7 +123,7 @@ public:
      */
     void TestPermutedNodesFail(void) throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/baddata/vertex_mesh_permuted_nodes");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_permuted_nodes");
         TS_ASSERT_THROWS_ANYTHING(for(unsigned i=0;i<mesh_reader.GetNumNodes();i++){mesh_reader.GetNextNode();})
     }
 
@@ -136,7 +136,7 @@ public:
      */
     void TestGetNextNode(void) throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
         std::vector<double> first_node;
         first_node = mesh_reader.GetNextNode();
@@ -166,7 +166,7 @@ public:
      */
     void TestGetNextElementData(void) throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
         std::vector<unsigned> next_element;
         for (unsigned i=0; i<mesh_reader.GetNumElements(); i++)
@@ -180,7 +180,7 @@ public:
 
     void TestReadingElementAttributes() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
 
@@ -199,8 +199,8 @@ public:
 
     void TestOtherExceptions() throw(Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/nonexistent_file"));
-        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/baddata/vertex_mesh_without_element_file"));
+        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/nonexistent_file"));
+        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_without_element_file"));
     }
 
 };

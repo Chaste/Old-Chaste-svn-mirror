@@ -354,7 +354,7 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznutrient";
-        TS_ASSERT_EQUALS(system(("cmp " + results_file + " notforrelease-cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_file + " notforrelease_cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);
     }
 
     /**
@@ -452,10 +452,10 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics",false);
         std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/tissueareas.dat";
-        TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " notforrelease-cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " notforrelease_cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
 
         std::string dist_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/radial_dist.dat";
-        TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " notforrelease-cancer/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " notforrelease_cancer/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
 
         // Coverage
         TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetTime(),5));

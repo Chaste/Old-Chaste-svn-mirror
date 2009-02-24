@@ -134,7 +134,7 @@ SConsignFile('.sconsign')
 # in the order given here.
 comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'notforrelease': ['heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
-             'notforrelease-cancer': ['cancer', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+             'notforrelease_cancer': ['cancer', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'heart': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'pde': ['mesh', 'linalg', 'io', 'global'],
              'mesh': ['linalg', 'global'],
@@ -145,7 +145,7 @@ comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
 SConsTools.comp_deps = comp_deps
 components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde',
-              'heart', 'cancer', 'notforrelease', 'notforrelease-cancer']
+              'heart', 'cancer', 'notforrelease', 'notforrelease_cancer']
 # Ignore non-existent components
 # e.g. notforrelease wont appear in a release version
 for comp in components[:]:

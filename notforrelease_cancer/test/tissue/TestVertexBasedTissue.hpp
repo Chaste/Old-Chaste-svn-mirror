@@ -623,11 +623,11 @@ public:
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     notforrelease-cancer/test/data/TestVertexBasedTissueOutputWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements     notforrelease-cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     notforrelease-cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     notforrelease-cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizancestors").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     notforrelease-cancer/test/data/TestVertexBasedTissueOutputWriters/cellmutationstates.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizancestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/cellmutationstates.dat").c_str()), 0);
 
         // For coverage
         TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles(true, false, false, true, false));
@@ -650,7 +650,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
             // Create mesh
-            VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+            VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
             VertexMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -700,7 +700,7 @@ public:
 
             // The following line is required because the loading of a tissue
             // is usually called by the method TissueSimulation::Load()
-            MeshArchiveInfo::meshPathname = "notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh";
+            MeshArchiveInfo::meshPathname = "notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh";
 
             input_arch >> p_tissue;
 

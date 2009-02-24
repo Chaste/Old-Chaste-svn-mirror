@@ -336,7 +336,7 @@ public:
     void TestMeshConstructionFromMeshReader(void)
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -361,7 +361,7 @@ public:
     void TestMeshConstructionFromMeshReaderIndexedFromOne(void)
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -386,7 +386,7 @@ public:
     void TestSetNode()
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -415,7 +415,7 @@ public:
     void TestAddNodeAndReMesh() throw (Exception)
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -835,7 +835,7 @@ public:
     void TestReMesh() throw(Exception)
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease-cancer/test/data/TestVertexMesh/test_remesh_mesh");
+        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/test_remesh_mesh");
         VertexMesh<2,2> vertex_mesh;
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);

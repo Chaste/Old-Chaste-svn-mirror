@@ -90,7 +90,7 @@ INPUT                  =    heart/src \
 							pde/src \
 							cancer/src \
 							notforrelease/src \
-							notforrelease-cancer/src
+							notforrelease_cancer/src
 							                         
 FILE_PATTERNS          = *.c \
                          *.cc \
