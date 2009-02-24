@@ -613,9 +613,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
                         <<  numProcs
                         <<  " > /dev/null";
 
-        /// \todo: METIS doesn't return 0 after a successful execution
-        //EXPECT0(system, permute_command.str());
-        system (permute_command.str().c_str());        
+        // METIS doesn't return 0 after a successful execution
+        IGNORE_RET(system, permute_command.str());
 
         /*
          *  Create a file with the number of nodes per partition

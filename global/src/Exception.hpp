@@ -82,6 +82,11 @@ public:
     if (ret != 0) { \
         EXCEPTION("Failed to execute command: " #cmd "(" + _arg + ")"); \
     } }
-
+// Or if you don't care about errors for some reason...
+#define IGNORE_RET(cmd, arg) { \
+    std::string _arg = (arg); \
+    int ret = cmd(_arg.c_str()); \
+    ret = ret; \
+    }
 
 #endif // _EXCEPTION_HPP_
