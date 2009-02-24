@@ -124,9 +124,10 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /*.. then create a cell, and giving a particular cell cycle model
-             * - {{{SimpleOxygenBasedCellCycleModel}}}. The index of the node that
+             * - {{{SimpleOxygenBasedCellCycleModel}}}.  The cell cycle model is 
+             * parameterised by the dimension of the problem. The index of the node that
              * this cell is related to also needs to be given. */
-            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
 
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
