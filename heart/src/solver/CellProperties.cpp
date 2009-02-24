@@ -109,7 +109,7 @@ void CellProperties::CalculateProperties()
                     }
                     
                     //set the flag that the thershold has been crossed at least once.
-                    // once true, this won't be changed anymore 
+                    // once true, this won't be changed any more 
                     threshold_crossed_once_at_least = true;
                     
                     ap_phase = ABOVETHRESHOLD;
@@ -179,31 +179,39 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
                                             std::vector<double>& rPeakPotentials)
 {
     double prev_v = -DBL_MAX; 
-    unsigned counter=0;
+    unsigned APcounter=0;//will keep count of the APDs that we calculate
     bool apd_is_calculated=true;//this will ensure we hit the target only once per AP.
     std::vector<double> apds;
+    double target = DBL_MAX;
     
     for (unsigned i=0; i<mrTime.size(); i++)
     {
         double t = mrTime[i];
         double v = mrVoltage[i];
-        double target= rRestingPotentials[counter]+0.01*(100-percentage)*(rPeakPotentials[counter]-rRestingPotentials[counter]);
         
-        //if we reach the peak again, start a new apd calculation
-        if (fabs(v-rPeakPotentials[counter])<=1e-6)
+        //First we make sure we stop calculating after the last AP has been calculated
+        if (APcounter<rPeakPotentials.size())
         {
-           apd_is_calculated=false;
-        }
-        //if we hit the target while repolarising 
-        //and we are told this apd is not calculated yet.
-        if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
-        {
-            apds.push_back (t - rOnsets[counter]);
-            counter++;
-            apd_is_calculated=true;
+            //Set the target potential
+            target  = rRestingPotentials[APcounter]+0.01*(100-percentage)*(rPeakPotentials[APcounter]-rRestingPotentials[APcounter]);
+        
+            //if we reach the peak, we need to start to calculate an APD
+            if (fabs(v-rPeakPotentials[APcounter])<=1e-6)
+            {
+               apd_is_calculated=false;
+            }
+            //if we hit the target while repolarising 
+            //and we are told this apd is not calculated yet.
+            if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
+            {
+                apds.push_back (t - rOnsets[APcounter]);
+                APcounter++;
+                apd_is_calculated=true;
+            }
         }
         prev_v = v;
     }
+    
     return apds;
 }
 
@@ -213,7 +221,7 @@ std::vector<double> CellProperties::GetAllActionPotentialDurations(const double 
     if (mOnsets.size() == 0)
     {
         // possible false error here if the simulation started at time < 0
-        EXCEPTION("No action potential occured");
+        EXCEPTION("No action potential occurred");
     }
 
     std::vector<double> apds = CalculateActionPotentialDurations(percentage, 
@@ -229,7 +237,7 @@ double CellProperties::GetLastActionPotentialDuration(const double percentage)
     if (mOnsets.size() == 0)
     {
         // possible false error here if the simulation started at time < 0
-        EXCEPTION("No action potential occured");
+        EXCEPTION("No action potential occurred");
     }
 
     std::vector<double> apds = CalculateActionPotentialDurations(percentage, 
@@ -238,12 +246,11 @@ double CellProperties::GetLastActionPotentialDuration(const double percentage)
                                                         mPeakValues);
     if (apds.size()==0)
     {
-        EXCEPTION("No complete action potential occured");
+        EXCEPTION("No complete action potential occurred");
     }
-                                                        
-    double last_apd=apds[apds.size()-1];
-
-    return last_apd;
+    
+    //return the last apd                                                    
+    return apds[apds.size()-1];
 }
 
 std::vector<double> CellProperties::GetActionPotentialAmplitudes()
@@ -261,7 +268,7 @@ double CellProperties::GetLastMaxUpstrokeVelocity()
     unsigned size = mMaxUpstrokeVelocities.size();
     if (size==0)
     {
-        EXCEPTION("Upstroke never occured");
+        EXCEPTION("Upstroke never occurred");
     }   
     return mMaxUpstrokeVelocities[size-1];
     
@@ -271,7 +278,7 @@ double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
     unsigned size = mTimesAtMaxUpstrokeVelocity.size();
     if (size==0)
     {
-        EXCEPTION("Upstroke never occured");
+        EXCEPTION("Upstroke never occurred");
     }   
     return mTimesAtMaxUpstrokeVelocity[size-1];
 }
