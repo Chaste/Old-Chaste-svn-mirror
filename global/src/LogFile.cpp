@@ -75,6 +75,12 @@ void LogFile::Set(unsigned level, std::string directory, std::string fileName)
     }
     mLevel = level;
 
+//// force log files to be written to the desktop (eg for use on machines which tend to die
+//// and need rebooting (/tmp gets wiped on a reboot))
+//    std::string file = "/home/chaste/Desktop/" + fileName;
+//    out_stream p_file(new std::ofstream(file.c_str()));
+//    mpOutStream = p_file;
+
     OutputFileHandler handler(directory, false);
     mpOutStream = handler.OpenOutputFile(fileName);
     mFileSet = true;
