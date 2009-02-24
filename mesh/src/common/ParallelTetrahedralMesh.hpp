@@ -628,7 +628,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
                             <<  num_procs
                             <<  " > /dev/null";
     
-            EXPECT0(system, permute_command.str());
+            /// \todo: METIS doesn't return 0 after a successful execution
+            //EXPECT0(system, permute_command.str());
+            system (permute_command.str().c_str());
         }
         catch (Exception &e)
         {
