@@ -158,7 +158,14 @@ bool AbstractTissue<DIM>::IsGhostNode(unsigned index)
 template<unsigned DIM>
 TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
 {
-    return *(mLocationCellMap[index]);
+    if (mLocationCellMap[index])
+    {
+        return *(mLocationCellMap[index]);
+    }
+    else
+    {
+        EXCEPTION("Location index input argument does not correspond to a TissueCell");
+    } 
 }
 
 template<unsigned DIM>

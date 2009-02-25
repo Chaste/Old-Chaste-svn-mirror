@@ -85,11 +85,18 @@ public:
         std::set<unsigned> ghost_node_indices;
         ghost_node_indices.insert(mesh.GetNumNodes()-1u);
         tissue.SetGhostNodes(ghost_node_indices);
+
         // So validate passes at the moment
         tissue.Validate();
 
+        // Test rGetCellUsingLocationIndex()
+
+        TS_ASSERT_THROWS_NOTHING(tissue.rGetCellUsingLocationIndex(0)); // real cell
+        TS_ASSERT_THROWS_ANYTHING(tissue.rGetCellUsingLocationIndex(mesh.GetNumNodes()-1u)); // ghost node
+        
         // Now we label a real cell's node as a ghost
         ghost_node_indices.insert(1u);
+
         // Validate detects this inconsistency
         TS_ASSERT_THROWS_ANYTHING(tissue.SetGhostNodes(ghost_node_indices));
     }
