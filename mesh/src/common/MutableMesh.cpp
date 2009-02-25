@@ -829,18 +829,18 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             }
     
             std::string binary_name;
-            if(sizeof(long)==4)
-            {
-                // 32-bit machine
-                binary_name = "./bin/tetgen";
-            }
-            else
-            {
-                //64-bit machine
-                binary_name = "./bin/tetgen_64";
-                
-            }
-            
+//            if(sizeof(long)==4)
+//            {
+//                // 32-bit machine
+//                binary_name = "./bin/tetgen";
+//            }
+//            else
+//            {
+//                //64-bit machine
+//                binary_name = "./bin/tetgen_64";
+//                
+//            }
+            binary_name="tetgen"; //Assume it's in the path
             std::string command = binary_name + " -Q " + full_name + "node";
     
             // Tetgen's quiet mode isn't as quiet as Triangle's
@@ -849,8 +849,9 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             int return_value = system(command.c_str());
             if (return_value != 0)
             {
-                NEVER_REACHED;
-                //EXCEPTION("The tetgen mesher did not succeed in remeshing.");
+#define COVERAGE_IGNORE                    
+                EXCEPTION("The tetgen mesher did not succeed in remeshing.  This functionality relies on tetgen.  Do you have tetgen from http://tetgen.berlios.de/ in your path?");
+#undef COVERAGE_IGNORE
             }
         }
         // Wait for the new mesh to be available and communicate its name

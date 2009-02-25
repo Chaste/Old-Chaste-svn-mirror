@@ -148,28 +148,34 @@ public:
         }
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
-        std::string command = "./bin/tetgen -Q " + full_name + "node" + " > /dev/null";
+        std::string command = "tetgen -Q " + full_name + "node" + " > /dev/null";
         int return_value=system(command.c_str());
         TS_ASSERT(return_value == 0);
-        
-        TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
-        TetrahedralMesh<3,3> mesh2;
-        mesh2.ConstructFromMeshReader(mesh_reader2);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
-
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements()+1);
-
-        // Test to see whether triangle/tetgen is renumbering the nodes
-
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        if (return_value != 0)
         {
-            const c_vector<double, 3> node_loc1 = mesh.GetNode(i)->rGetLocation();
-            const c_vector<double, 3> node_loc2 = mesh2.GetNode(i)->rGetLocation();
-
-            for (int j=0; j<3; j++)
+            TS_TRACE("Do you have tetgen from http://tetgen.berlios.de/ installed in your path?");
+        }
+        else
+        {
+            TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
+            TetrahedralMesh<3,3> mesh2;
+            mesh2.ConstructFromMeshReader(mesh_reader2);
+            TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
+            TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
+    
+            TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements()+1);
+    
+            // Test to see whether triangle/tetgen is renumbering the nodes
+    
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
-                TS_ASSERT_DELTA(node_loc1[j], node_loc2[j], 1e-6);
+                const c_vector<double, 3> node_loc1 = mesh.GetNode(i)->rGetLocation();
+                const c_vector<double, 3> node_loc2 = mesh2.GetNode(i)->rGetLocation();
+    
+                for (int j=0; j<3; j++)
+                {
+                    TS_ASSERT_DELTA(node_loc1[j], node_loc2[j], 1e-6);
+                }
             }
         }
     }
@@ -177,6 +183,8 @@ public:
 
     void TestRemeshWithDeletions() throw (Exception)
     {
+        //#930 Consider removing this test when this is the only call to triangle binary.
+        //There are calls in QuadraticMesh, but they can be replaced by library calls.
         OutputFileHandler handler("");
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -228,9 +236,13 @@ public:
 
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("") + "temp.";
-        std::string command = "./bin/triangle -Qe " + full_name + "node" + " > /dev/null";
-        EXPECT0(system, command);
-
+        std::string command = "triangle -Qe " + full_name + "node" + " > /dev/null";
+        int return_value=system(command.c_str());
+        TS_ASSERT(return_value == 0);
+        if (return_value != 0)
+        {
+            TS_TRACE("Do you have triangle from http://www.cs.cmu.edu/~quake/triangle.html installed in your path?");
+        }
         TrianglesMeshReader<2,2> mesh_reader2(full_name+"1");
         TetrahedralMesh<2,2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);

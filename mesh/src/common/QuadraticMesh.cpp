@@ -70,23 +70,8 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     ////////////////////////////////////////////////////////////
     // create the quadratic mesh files using triangle and load
     ////////////////////////////////////////////////////////////
-    
-    std::string binary;
-
-    #define COVERAGE_IGNORE  // can't cover both of these cases on the same machine, obv.
-    if(sizeof(long)==4)
-    {
-        // 32-bit machine
-        binary = "./bin/triangle";
-    }
-    else
-    {
-        // 64-bit machine, sizeof(long)==8
-        binary = "./bin/triangle_64";
-    }
-    #undef COVERAGE_IGNORE
-
-    RunMesherAndReadMesh(binary, handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
+     
+    RunMesherAndReadMesh("triangle", handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
 }
 
 
@@ -134,22 +119,8 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
     // create the quadratic mesh files using triangle and load
     ////////////////////////////////////////////////////////////
     
-    std::string binary;
 
-    #define COVERAGE_IGNORE  // can't cover both of these cases on the same machine, obv.
-    if(sizeof(long)==4)
-    {
-        // 32-bit machine
-        binary = "./bin/tetgen";
-    }
-    else
-    {
-        // 64-bit machine, sizeof(long)==8
-        binary = "./bin/tetgen_64";
-    }
-    #undef COVERAGE_IGNORE
-
-    RunMesherAndReadMesh(binary, handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
+    RunMesherAndReadMesh("tetgen", handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
 }
 
 
@@ -182,7 +153,8 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     if(return_value != 0)
     {
         #define COVERAGE_IGNORE
-        EXCEPTION("Remeshing (by calling " + binary + ") failed");
+        EXCEPTION("Remeshing (by calling " + binary + ") failed.  Do you have it in your path?\n"+
+        "The quadratic mesh relies on functionality from triangle (http://www.cs.cmu.edu/~quake/triangle.html) and tetgen (http://tetgen.berlios.de/).");
         #undef COVERAGE_IGNORE 
     }
     
