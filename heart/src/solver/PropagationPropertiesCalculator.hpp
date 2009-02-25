@@ -59,14 +59,13 @@ public:
      * @param globalNodeIndex  The cell at which to calculate.
      */
     double CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex);
+    
     /**
      * Calculate the conduction velocity between two cells, i.e. the time
-     * taken for an AP to propagate from one to the other.
-     *
-     * This may (at present) be unreliable if repeated stimuli are applied,
-     * since it uses the time between the last AP at each cell, which may
-     * be different APs if there is a repeated stimulus.  This could lead
-     * to a negative or incorrect velocity.
+     * taken for an AP to propagate from one to the other. It returns
+     * the value of conduction velocity of the LAST action potential
+     * that reached both nodes. Throws exceptions if an AP never reached
+     * one of the nodes.
      *
      * @param globalNearNodeIndex  The cell to measure from.
      * @param globalFarNodeIndex  The cell to measure to.
@@ -76,6 +75,22 @@ public:
     double CalculateConductionVelocity(unsigned globalNearNodeIndex,
                                        unsigned globalFarNodeIndex,
                                        const double euclideanDistance);
+        
+     /**
+     * Calculate all the conduction velocities between two cells, i.e. the time
+     * taken for all APs to propagate from one to the other. It returns a vector
+     * containing all the conduction velocities for each of the APs that 
+     * reached the two nodes (only the APs that reached both nodes). 
+     * Throws exceptions if an AP never reached one of the nodes.
+     *
+     * @param globalNearNodeIndex  The cell to measure from.
+     * @param globalFarNodeIndex  The cell to measure to.
+     * @param euclideanDistance  The distance the AP travels between the cells,
+     *     along the tissue.
+     */                          
+     std::vector<double> CalculateAllConductionVelocities(unsigned globalNearNodeIndex,
+                                                          unsigned globalFarNodeIndex,
+                                                          const double euclideanDistance);
     /**
      * Calculate the action potential duration at a single cell.
      * We calculate for the last AP found in the simulation data.
