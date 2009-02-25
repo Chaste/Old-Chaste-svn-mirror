@@ -231,7 +231,7 @@ public:
                        MPI_MAX, 0, PETSC_COMM_WORLD);
             if (PetscTools::AmMaster())
             {
-                total = max_cpu_time[top_event];
+                total = ConvertTicksToSeconds(max_cpu_time[top_event]);
                 printf("max: "); //5 chars
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
