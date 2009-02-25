@@ -37,8 +37,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
+
+/*
+ *  The following definition fixes an odd incompatibility of METIS 4.0 and Chaste. Since 
+ * the library was compiled with a plain-C compiler, it fails to link using a C++ compiler.
+ * Note that METIS 4.0 fails to compile with g++ or icpc, so a C compiler should be used.
+ *  
+ * Somebody had this problem before: http://www-users.cs.umn.edu/~karypis/.discus/messages/15/113.html?1119486445 
+ *
+ * Note that it is necessary to define the function header before the #include statement. 
+ */
+extern "C" {
+extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, int*);
+};
+
 #include "metis.h"
 
+ 
 /**
  * \todo explicit instantiation
  */
@@ -718,8 +733,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     idxtype ne = rMeshReader.GetNumElements(); 
     idxtype nn = rMeshReader.GetNumNodes(); 
     idxtype* elmnts = new idxtype[ne * (ELEMENT_DIM+1)];
+    //idxtype* elmnts = (idxtype*) malloc(ne * (ELEMENT_DIM+1) * sizeof(idxtype));
     assert(elmnts != NULL);   
-    std::cout<<"Hello\n"<<std::flush;
+
     unsigned counter=0;    
     for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
     {
@@ -749,12 +765,16 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     idxtype numflag = 0; //0 means C-style numbering is assumed 
     idxtype nparts = PetscTools::NumProcs();
     idxtype edgecut;
-    idxtype epart[ne]; 
-    idxtype npart[nn];
-    idxtype wgetflag = 0; // No weights considered in this problem
-    idxtype* vwgt = NULL;
+    idxtype* epart = new idxtype[ne];
+    //idxtype* epart = (idxtype*) malloc(ne * sizeof(idxtype));
+    assert(epart != NULL); 
+    idxtype* npart = new idxtype[nn];
+    //idxtype* npart = (idxtype*) malloc(nn * sizeof(idxtype));
+    assert(epart != NULL);
+//    idxtype wgetflag = 0; // No weights considered in this problem
+//    idxtype* vwgt = NULL;
         
-    METIS_PartMeshDual(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart, wgetflag, vwgt);    
+    METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);    
 
     assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
     rProcessorsOffset.resize(PetscTools::NumProcs(), 0);
@@ -795,6 +815,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     }
     
     delete[] elmnts;
+    //free(elmnts);
+    delete[] epart;
+    //free(epart);
+    delete[] npart;
+    //free(npart);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
