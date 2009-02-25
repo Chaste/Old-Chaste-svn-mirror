@@ -900,8 +900,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                             // If the nodes are too far apart, divide the edge
                             DivideEdge(p_current_node, p_anticlockwise_node);
                             new_num_nodes++;
-                        } 
-                        
+                        }
                     }
                 }
                 else
@@ -912,8 +911,38 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
         }
                
         // ... end of element rearrangement code
-        
-        // areas and perimeters of elements are sorted in T1Swap method.
+
+        // areas and perimeters of elements are sorted in PerformT1Swap() method
+
+        // Check that no nodes have overlapped elements...
+
+        /// \todo Only need to check this next bit if the element/node is on the boundary (see #933 and #943)
+
+        // Loop over elements
+        for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
+        {
+            unsigned num_nodes = mElements[elem_index]->GetNumNodes();
+
+            // Loop over element vertices
+            for (unsigned local_index=0; local_index<num_nodes; local_index++)
+            {
+                // Find locations of current node and anticlockwise node
+                Node<SPACE_DIM>* p_current_node = mElements[elem_index]->GetNode(local_index);
+                for (unsigned other_elem_index=0; other_elem_index<mElements.size(); other_elem_index++)
+                {
+                    if (other_elem_index != elem_index)
+                    {
+                        if (ElementIncludesPoint(p_current_node->rGetLocation(), other_elem_index))
+                        {
+                            std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index << "\n" << std::flush;
+                            /// \todo Remesh appropriately if an overlap occurs (see #933)
+//                            EXCEPTION("A node has overlapped an element");
+                        }
+                    }
+                }
+            }
+        }
+
     }
     else // 3D
     {
@@ -1564,7 +1593,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
 }
 
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
 {
     for (unsigned i=0; i<GetNumNodes(); i++)
@@ -1581,6 +1610,71 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double
         }
         r_location[0] *= xScale;
     }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex)
+{
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
+    #undef COVERAGE_IGNORE
+
+    // Initialise boolean
+    bool element_includes_point = false;
+
+    // Get the element
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
+    unsigned num_nodes = p_element->GetNumNodes();
+
+    // Loop over edges of the element
+    for (unsigned local_index=0; local_index<num_nodes; local_index++)
+    {
+        // Get the end points of this edge
+        c_vector<double, SPACE_DIM> vertexA = p_element->GetNodeLocation(local_index);
+        c_vector<double, SPACE_DIM> vertexB = p_element->GetNodeLocation((local_index+1)%num_nodes);
+
+        // Check if this edge crosses the ray running out horizontally (increasing x, fixed y) from the test point
+
+        double x = testPoint[0];
+        double y = testPoint[1];
+
+        c_vector<double, SPACE_DIM> vector_a_to_point = GetVectorFromAtoB(vertexA, testPoint);
+        c_vector<double, SPACE_DIM> vector_b_to_point = GetVectorFromAtoB(vertexB, testPoint);
+        c_vector<double, SPACE_DIM> vector_a_to_b = GetVectorFromAtoB(vertexA, vertexB);
+
+        // Pathological case - test point coincides with vertexA or vertexB
+        if (    (norm_2(vector_a_to_point) < DBL_EPSILON) 
+             || (norm_2(vector_b_to_point) < DBL_EPSILON) )
+        {
+            return false;
+        }
+        
+        // Pathological case - ray coincides with horizontal edge
+        if ( (fabs(vector_a_to_b[1]) < DBL_EPSILON) &&
+             (fabs(vector_a_to_point[1]) < DBL_EPSILON) && 
+             (fabs(vector_b_to_point[1]) < DBL_EPSILON) )
+        {
+            if ( (vector_a_to_point[0]>0) != (vector_b_to_point[0]>0) )
+            {
+                return false;
+            }
+        }
+
+        /// \todo Need to carefully check all pathological cases (see #933)
+
+        // Non-pathological case        
+        if ( (vertexA[1]>y) != (vertexB[1]>y) )
+        {
+            if (x < vertexA[0] + vector_a_to_b[0]*vector_a_to_point[1]/vector_a_to_b[1])
+            {
+                element_includes_point = !element_includes_point;
+            }
+        }
+    }
+    return element_includes_point;
 }
 
 

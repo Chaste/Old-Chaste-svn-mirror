@@ -120,7 +120,25 @@ protected:
      * @return the index of the new element
      */  
     unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned nodeAIndex, unsigned nodeBIndex);
-    
+
+    /**
+     * Test whether a given point lies inside a given element.
+     * 
+     * We use a ray-casting algorithm, which relies on the following result:
+     * if the point in question is not on the boundary of the element, then 
+     * the number of intersections is an even number if the point is outside, 
+     * and it is odd if inside.
+     * 
+     * Currently the method is coded 'strictly', such that points lying on 
+     * an edge or at a vertex are considered to lie outside the element.
+     * 
+     * @param testPoint the point to test
+     * @param elementIndex global index of the element in the mesh
+     * 
+     * @return if the point is included in the element.
+     */
+    bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex);
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -145,6 +163,16 @@ public:
                double edgeDivisionThreshold=1.5);
 
     /**
+     * Helper constructor, creates a rectangular vertex-based mesh.
+     * 
+     * @param numAcross number of VertexElements across
+     * @param numUp number of VertexElements up
+     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
+     * @param edgeDivisionThreshold the maximum threshold distance for edge division
+     */
+    VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold);
+
+    /**
      * Constructor for use by serializer.
      *
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
@@ -156,16 +184,6 @@ public:
      * Destructor.
      */
     virtual ~VertexMesh();
-
-    /**
-     * @return mCellRearrangementThreshold
-     */
-    double GetCellRearrangementThreshold() const;
-
-    /**
-     * @return mEdgeDivisionThreshold
-     */
-    double GetEdgeDivisionThreshold() const;
 
     /**
      * Set method for mCellRearrangementThreshold.
@@ -182,14 +200,22 @@ public:
     void SetEdgeDivisionThreshold(double edgeDivisionThreshold);
 
     /**
-     * Helper constructor, creates a rectangular vertex-based mesh.
+     *  Move the node with a particular index to a new point in space.
      * 
-     * @param numAcross number of VertexElements across
-     * @param numUp number of VertexElements up
-     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
-     * @param edgeDivisionThreshold the maximum threshold distance for edge division
+      * @param nodeIndex the index of the node to be moved
+      * @param point the new target location of the node
+      */
+    void SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point);
+
+    /**
+     * @return mCellRearrangementThreshold
      */
-    VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold);
+    double GetCellRearrangementThreshold() const;
+
+    /**
+     * @return mEdgeDivisionThreshold
+     */
+    double GetEdgeDivisionThreshold() const;
 
     /**
      * Calculates the `width' of any dimension of the mesh.
@@ -377,77 +403,6 @@ public:
     virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
 
     /**
-     * Add a node to the mesh.
-     *
-     * Note: After calling this one or more times, you must then call ReMesh.
-     * 
-     * @param pNewNode pointer to the new node
-     * @return the global index of the new node in the mesh.
-     */
-    unsigned AddNode(Node<SPACE_DIM> *pNewNode);
-
-    /**
-     * Mark an element as deleted. Note that it DOES NOT deal with the associated
-     * nodes and therefore should only be called immediately prior to a ReMesh()
-     * being called.
-     * 
-     * @param index  the global index of a specified vertex element
-     */
-    void DeleteElementPriorToReMesh(unsigned index);
-
-    /**
-     * Method to divide an element in half 
-     * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     * 
-     * @param pElement the element to divide
-     * 
-     * @return the index of the new element
-     */  
-    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-    /**
-     * Add an element to the mesh.
-     */
-    unsigned AddElement(VertexElement<ELEMENT_DIM, SPACE_DIM> *pNewElement);
-
-    /**
-     *  Move the node with a particular index to a new point in space.
-     * 
-      * @param nodeIndex the index of the node to be moved
-      * @param point the new target location of the node
-      */
-    void SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point);
-
-    /**
-     * Delete mNodes and mElements.
-     */
-    void Clear();
-
-    /** 
-     * Add a node on the edge between two nodes.
-     * 
-     * @param pNodeA a pointer to one node
-     * @param pNodeB a pointer to the other nodes
-     */
-    void DivideEdge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
-        
-    /**
-     * Re-mesh the mesh.
-     * 
-     * @param elementMap a NodeMap which associates the indices of VertexElements in the old mesh
-     *                   with indices of VertexElements in the new mesh.  This should be created 
-     *                   with the correct size, GetNumElements()
-     */
-    void ReMesh(NodeMap& elementMap);
-
-    /**
-     * Alternative version of remesh which takes no parameters does not require a NodeMap. 
-     * Note: inherited classes should overload ReMesh(NodeMap&).
-     */
-    void ReMesh();
-
-    /**
      * Given a node, find a set containing the indices of its neighbouring nodes.
      * 
      * @param nodeIndex global index of the node
@@ -484,6 +439,70 @@ public:
      * @param zFactor is the scale in the z-direction
      **/
     void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
+
+    /**
+     * Add a node to the mesh.
+     *
+     * Note: After calling this one or more times, you must then call ReMesh.
+     * 
+     * @param pNewNode pointer to the new node
+     * @return the global index of the new node in the mesh.
+     */
+    unsigned AddNode(Node<SPACE_DIM> *pNewNode);
+
+    /**
+     * Mark an element as deleted. Note that it DOES NOT deal with the associated
+     * nodes and therefore should only be called immediately prior to a ReMesh()
+     * being called.
+     * 
+     * @param index  the global index of a specified vertex element
+     */
+    void DeleteElementPriorToReMesh(unsigned index);
+
+    /**
+     * Method to divide an element in half 
+     * 
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     * 
+     * @param pElement the element to divide
+     * 
+     * @return the index of the new element
+     */  
+    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
+
+    /**
+     * Add an element to the mesh.
+     */
+    unsigned AddElement(VertexElement<ELEMENT_DIM, SPACE_DIM> *pNewElement);
+
+    /**
+     * Delete mNodes and mElements.
+     */
+    void Clear();
+
+    /** 
+     * Add a node on the edge between two nodes.
+     * 
+     * @param pNodeA a pointer to one node
+     * @param pNodeB a pointer to the other nodes
+     */
+    void DivideEdge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+        
+    /**
+     * Re-mesh the mesh.
+     * 
+     * @param elementMap a NodeMap which associates the indices of VertexElements in the old mesh
+     *                   with indices of VertexElements in the new mesh.  This should be created 
+     *                   with the correct size, GetNumElements()
+     */
+    void ReMesh(NodeMap& elementMap);
+
+    /**
+     * Alternative version of remesh which takes no parameters does not require a NodeMap. 
+     * Note: inherited classes should overload ReMesh(NodeMap&).
+     */
+    void ReMesh();
+
 };
 
 namespace boost

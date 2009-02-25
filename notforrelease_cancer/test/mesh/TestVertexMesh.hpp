@@ -1151,7 +1151,7 @@ public:
 
     void TestDivideVertexElementAlongShortAxis() throw(Exception)
     {
-        // Make four nodes
+        // Make five nodes
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 2.0, -1.0));
         nodes.push_back(new Node<2>(1, false, 2.0, 1.0));
@@ -1411,6 +1411,75 @@ public:
 
         TS_ASSERT_DELTA(mesh.GetWidth(0), 2.8867, 1e-4);
         TS_ASSERT_DELTA(mesh.GetWidth(1), 7.0000, 1e-4);
+    }
+
+
+    void TestElementIncludesPoint(void)
+    {
+        // Make four nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        // Make element
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        // Make mesh
+        VertexMesh<2,2> mesh(nodes, elements);
+
+        // Make some test points and test ElementIncludesPoint()
+
+        // A point far outside the element
+        c_vector<double, 2> test_point1;
+        test_point1[0] = -1.0;
+        test_point1[1] = -1.0;
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point1, 0), false);
+
+        // A point far inside the element
+        c_vector<double, 2> test_point2;
+        test_point2[0] = 0.5;
+        test_point2[1] = 0.5;
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point2, 0), true);
+
+        // A point on a non-horizontal edge
+        c_vector<double, 2> test_point3;
+        test_point3[0] = 0.0;
+        test_point3[1] = 0.5;
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point3, 0), true);
+
+        // A point on a horizontal edge
+        c_vector<double, 2> test_point4;
+        test_point4[0] = 0.5;
+        test_point4[1] = 0.0;
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point4, 0), false);
+        
+        // A point just inside the element
+        c_vector<double, 2> test_point5;
+        test_point5[0] = 0.999;
+        test_point5[1] = 0.999;
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point5, 0), true);
+
+        // A point just outside the element
+        c_vector<double, 2> test_point6;
+        test_point6[0] = 1.001;
+        test_point6[1] = 0.5;
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point6, 0), false);
+
+        // A point coinciding with a vertex
+        c_vector<double, 2> test_point7;
+        test_point7[0] = 1.0;
+        test_point7[1] = 1.0;
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point7, 0), false);       
     }
 
 };    
