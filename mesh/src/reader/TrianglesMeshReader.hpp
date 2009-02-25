@@ -410,7 +410,6 @@ private:
 	    buffer_stream >> mNumNodes >> dimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
 	    if (SPACE_DIM != dimension)
 	    {
-	        assert(0);
             EXCEPTION("SPACE_DIM  != dimension read from file ");
 	    }
 
