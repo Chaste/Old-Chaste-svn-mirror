@@ -1116,7 +1116,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
         *
         * Perform a PartialT1Swap 
         */
-        PerformT1Swap(pNodeA, pNodeB, all_indices);
+        PerformT1Swap(pNodeA, pNodeB, all_indices); /// \todo this line needs coverage (#821)
     }
     else if (all_indices.size()==4) // Correct set up for T1Swap 
     {
@@ -1136,7 +1136,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     }
     else
     {
-        std::cout << "\n nodes are in more than 4 elements so we can't remesh\n";
+        std::cout << "\n nodes are in more than 4 elements so we can't remesh\n"; /// \todo these lines need coverage (#821)
         assert(0);
     }
 }
@@ -1165,7 +1165,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
             mElements[*it]->DeleteNode(nodeB_local_index); 
         }
     }
-    else
+    else /// \todo these lines need coverage (#821)
     {
         // Remove node A
         c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
@@ -1388,9 +1388,9 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         intersecting_nodes.push_back(num_nodes-1);
     }
 
-    if (intersecting_nodes.size()!=2)
+    if (intersecting_nodes.size()!=2) /// \todo this line needs coverage (#821)
     {
-        EXCEPTION("Cannot proceed with cell division algorithm - the number of intersecting nodes is not equal to 2");        
+        EXCEPTION("Cannot proceed with cell division algorithm - the number of intersecting nodes is not equal to 2");
     }
 
     std::vector<unsigned> new_node_global_indices;  
@@ -1529,7 +1529,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     {
         new_element_index = mElements.size();
     }
-    else
+    else /// \todo these lines need coverage (#821)
     {
         new_element_index = mDeletedElementIndices.back();
         mDeletedElementIndices.pop_back();

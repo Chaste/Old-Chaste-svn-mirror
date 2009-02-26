@@ -350,11 +350,36 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[0], 1.5, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[1], 1.0, 1e-6);
 
-        // Check first element has the right nodes
+        // Check second element has the right nodes
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(0), 2u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(1), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(2), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(5));
+
+        // Create mesh in which elements have attributes
+        VertexMeshReader2d mesh_reader2("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_with_attributes");
+        VertexMesh<2,2> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader2);
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 2u);
+
+        // Check some node co-ordinates
+        TS_ASSERT_DELTA(mesh2.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh2.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh2.GetNode(2)->GetPoint()[0], 1.5, 1e-6);
+        TS_ASSERT_DELTA(mesh2.GetNode(2)->GetPoint()[1], 1.0, 1e-6);
+
+        // Check second element has the right nodes
+        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetNodeGlobalIndex(0), 2u);
+        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetNodeGlobalIndex(1), 5u);
+        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetNodeGlobalIndex(2), 6u);
+        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetNode(1), mesh2.GetNode(5));
+
+        // Check element attributes
+        TS_ASSERT_EQUALS(mesh2.GetElement(0)->GetRegion(), 76u);
+        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetRegion(), 89u);
     }
 
 
@@ -1394,23 +1419,50 @@ public:
 
     void TestScale(void)
     {
-        // Create mesh
-        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        // Create 2D mesh
+        VertexMesh<2,2> mesh2d(3, 3, 0.01, 2.0);
         
-        TS_ASSERT_DELTA(mesh.GetWidth(0), 2.8867, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetWidth(1), 3.5000, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 2.8867, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 3.5000, 1e-4);
 
         // Squash in the x direction by a factor of 2
-        mesh.Scale(0.5);
+        mesh2d.Scale(0.5);
 
-        TS_ASSERT_DELTA(mesh.GetWidth(0), 1.4433, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetWidth(1), 3.5000, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 1.4433, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 3.5000, 1e-4);
 
         // Stretch in the x and y directions by a factor of 2
-        mesh.Scale(2.0, 2.0);
+        mesh2d.Scale(2.0, 2.0);
 
-        TS_ASSERT_DELTA(mesh.GetWidth(0), 2.8867, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetWidth(1), 7.0000, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 2.8867, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 7.0000, 1e-4);
+
+        // Create 3D mesh
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 1.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 0.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(4, false, 0.0, 2.0, 3.0));
+        nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 3.0));
+        nodes.push_back(new Node<3>(6, false, 1.0, 2.0, 3.0));
+        nodes.push_back(new Node<3>(7, false, 0.0, 2.0, 3.0));
+
+        std::vector<VertexElement<3,3>*> elements;
+        elements.push_back(new VertexElement<3,3>(0, nodes));
+
+        VertexMesh<3,3> mesh3d(nodes, elements);
+
+        TS_ASSERT_DELTA(mesh3d.GetWidth(0), 1.0, 1e-4);
+        TS_ASSERT_DELTA(mesh3d.GetWidth(1), 2.0, 1e-4);
+        TS_ASSERT_DELTA(mesh3d.GetWidth(2), 3.0, 1e-4);
+
+        // Stretch the mesh
+        mesh3d.Scale(4.0, 2.0, 4.0/3.0);
+
+        TS_ASSERT_DELTA(mesh3d.GetWidth(0), 4.0, 1e-4);
+        TS_ASSERT_DELTA(mesh3d.GetWidth(1), 4.0, 1e-4);
+        TS_ASSERT_DELTA(mesh3d.GetWidth(2), 4.0, 1e-4);
     }
 
 

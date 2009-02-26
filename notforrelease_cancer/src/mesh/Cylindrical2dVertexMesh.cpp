@@ -34,7 +34,9 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(double width,
     : VertexMesh<2,2>(cellRearrangementThreshold, edgeDivisionThreshold),
       mWidth(width)
 {
+    #define COVERAGE_IGNORE
     assert(width > 0.0);
+    #undef COVERAGE_IGNORE
 }
 
 
@@ -168,7 +170,7 @@ void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
     if (point.rGetLocation()[0] >= mWidth)
     {
         // Move point to the left
-        point.SetCoordinate(0u, point.rGetLocation()[0] - mWidth);
+        point.SetCoordinate(0u, point.rGetLocation()[0] - mWidth); /// \todo this line needs coverage (#918)
     }
     if (point.rGetLocation()[0] < 0.0)
     {
@@ -292,7 +294,7 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
 }
 
 
-c_vector<double, 3> Cylindrical2dVertexMesh::CalculateMomentsOfElement(unsigned index)
+c_vector<double, 3> Cylindrical2dVertexMesh::CalculateMomentsOfElement(unsigned index) /// \todo this method needs coverage (#918)
 {
     VertexElement<2, 2>* p_element = GetElement(index);
 

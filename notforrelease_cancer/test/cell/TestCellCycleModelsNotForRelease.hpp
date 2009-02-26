@@ -94,9 +94,21 @@ public:
         TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), true);
 
         TS_ASSERT_THROWS_NOTHING(p_cell_model->ResetForDivision());
-        
+
         // Tidy up
         CellwiseData<2>::Destroy();
+
+        // For coverage, create a 1D model
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        Alarcon2004OxygenBasedCellCycleModel* p_cell_model3 = new Alarcon2004OxygenBasedCellCycleModel(1);
+        TissueCell cell3(STEM, HEALTHY, p_cell_model3);
+        cell3.InitialiseCellCycleModel();
+
+        TS_ASSERT_DELTA(p_cell_model3->GetProteinConcentrations()[5], 1.0, 1e-5);
+        TS_ASSERT_EQUALS(p_cell_model3->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<1>::Destroy();
     }
     
     
@@ -228,7 +240,30 @@ public:
         TS_ASSERT(apoptotic_cell.GetCellType()==APOPTOTIC);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
+        // Tidy up
         CellwiseData<2>::Destroy();
+
+        // For coverage, create a 1D model
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        SimpleOxygenBasedCellCycleModel* p_cell_model1d = new SimpleOxygenBasedCellCycleModel(1);
+        TissueCell cell1d(STEM, HEALTHY, p_cell_model1d);
+        cell1d.InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cell_model1d->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<1>::Destroy();
+
+        // For coverage, create a 3D model
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        SimpleOxygenBasedCellCycleModel* p_cell_model3d = new SimpleOxygenBasedCellCycleModel(3);
+        TissueCell cell3d(STEM, HEALTHY, p_cell_model3d);
+        cell3d.InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cell_model3d->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<3>::Destroy();
     }
     
     
