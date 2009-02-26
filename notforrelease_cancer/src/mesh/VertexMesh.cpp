@@ -934,7 +934,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                     {
                         if (ElementIncludesPoint(p_current_node->rGetLocation(), other_elem_index))
                         {
-                            std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index << "\n" << std::flush;
+                            // \todo this doesnt account for cylindrical meshes
+                            //std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index << "\n" << std::flush;
                             /// \todo Remesh appropriately if an overlap occurs (see #933)
 //                            EXCEPTION("A node has overlapped an element");
                         }
