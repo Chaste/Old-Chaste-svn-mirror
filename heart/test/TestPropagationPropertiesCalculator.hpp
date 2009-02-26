@@ -86,7 +86,6 @@ public:
         // The file contains expeorted data at 3 nodes (5, 50 and 95).
 
          PropagationPropertiesCalculator ppc(&simulation_data);
-         double velocity = 0;
          
          // Make sure that node 5 has 2 upstrokes, Node 50 and 95 only one
         TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(5).size(),2U);
