@@ -46,11 +46,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Somebody had this problem before: http://www-users.cs.umn.edu/~karypis/.discus/messages/15/113.html?1119486445 
  *
  * Note that it is necessary to define the function header before the #include statement. 
- */
+ 
 extern "C" {
 extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, int*);
 };
-
+*/
 #include "metis.h"
 
  
@@ -773,8 +773,10 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     assert(epart != NULL);
 //    idxtype wgetflag = 0; // No weights considered in this problem
 //    idxtype* vwgt = NULL;
-        
-    METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);    
+    idxtype wgetflag = 0; // No weights considered in this problem 
+    idxtype* vwgt = NULL;     
+    METIS_PartMeshDual(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart, wgetflag, vwgt);     
+    //For Metis4 ... METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);    
 
     assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
     rProcessorsOffset.resize(PetscTools::NumProcs(), 0);
