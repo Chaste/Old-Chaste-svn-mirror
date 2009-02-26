@@ -60,6 +60,14 @@ public:
      */
     double CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex);
     
+     /**
+     * Calculate the maximum upstroke velocity at a single cell.
+     * We return all the max upstroke velocities for all APs.
+     *
+     * @param globalNodeIndex  The cell at which to calculate.
+     */
+    std::vector<double> CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex);
+    
     /**
      * Calculate the conduction velocity between two cells, i.e. the time
      * taken for an AP to propagate from one to the other. It returns

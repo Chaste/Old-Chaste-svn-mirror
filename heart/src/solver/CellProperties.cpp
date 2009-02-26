@@ -52,7 +52,6 @@ void CellProperties::CalculateProperties()
     double current_minimum_velocity=DBL_MAX;
     double prev_upstroke_vel=0;
     unsigned ap_counter = 0;
-    bool threshold_crossed_once_at_least = false;
     
     APPhases ap_phase = BELOWTHRESHOLD;
 
@@ -108,10 +107,6 @@ void CellProperties::CalculateProperties()
                         mCycleLengths.push_back( mOnsets[ap_counter]-mOnsets[ap_counter-1] );
                     }
                     
-                    //set the flag that the thershold has been crossed at least once.
-                    // once true, this won't be changed any more 
-                    threshold_crossed_once_at_least = true;
-                    
                     ap_phase = ABOVETHRESHOLD;
                 }
                 break;
@@ -154,19 +149,20 @@ void CellProperties::CalculateProperties()
         prev_upstroke_vel = upstroke_vel;
     }
     
-    // One last check. If the simulation has only one unfinished AP and the user is interested in
-    // upstroke and peak properties so far, we fill the relative vectors here, because we would normally wait 
-    // the end of the AP (which didn't happen) to write those info into the respective vectors.
-    // We do this only if the threshold has been crossed at least once. 
-    if ((mMaxUpstrokeVelocities.size()==0) && threshold_crossed_once_at_least == true) 
+    // One last check. If the simulation ends halfway through an AP
+    // i.e. if the vectors of onsets has more elements than the vectors
+    // of peak and upstroke properties (that are updated at the end of the AP),
+    // then we register the peak and upstroke values so far
+    // for the last incomplete AP. 
+    if (mOnsets.size()>mMaxUpstrokeVelocities.size()) 
     {
         mMaxUpstrokeVelocities.push_back(current_upstroke_velocity);
     }
-    if ((mPeakValues.size()==0) && threshold_crossed_once_at_least == true) 
+    if (mOnsets.size()>mPeakValues.size())
     {
         mPeakValues.push_back(current_peak);
     }
-    if ((mTimesAtMaxUpstrokeVelocity.size()==0) && threshold_crossed_once_at_least == true) 
+    if (mOnsets.size()>mTimesAtMaxUpstrokeVelocity.size()) 
     {
         mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
     }
