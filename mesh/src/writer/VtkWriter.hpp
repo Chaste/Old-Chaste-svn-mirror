@@ -96,7 +96,7 @@ void VtkWriter::MakeVtkMesh()
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
-        p_pts->InsertPoint(item_num, current_item.data());
+        p_pts->InsertPoint(item_num, current_item[0], current_item[1], current_item[2]);
     }
   
     //mpVtkUnstructedMesh->Allocate(rMesh.GetNumNodes(), rMesh.GetNumNodes());
