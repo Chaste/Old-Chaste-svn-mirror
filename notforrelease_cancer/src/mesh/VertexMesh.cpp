@@ -100,6 +100,11 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                         if (i%3 != 2)
                         {
                             Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                            
+                            if (j==0 || j==2*numUp || i==1 || i==3*numAcross || i==3*numAcross+1)
+                            {
+                                p_node->SetAsBoundaryNode(true);
+                            }
                             mNodes.push_back(p_node);
                             node_index++;
                         }
@@ -115,6 +120,10 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                         if (i%3 != 2)
                         {
                             Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                            if (j==1 || j==2*numUp+1 || i==0 || i==3*numAcross || i==3*numAcross+1)
+                            {
+                                p_node->SetAsBoundaryNode(true);
+                            }
                             mNodes.push_back(p_node);
                             node_index++;
                         }
@@ -928,16 +937,20 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
             {
                 // Find locations of current node and anticlockwise node
                 Node<SPACE_DIM>* p_current_node = mElements[elem_index]->GetNode(local_index);
-                for (unsigned other_elem_index=0; other_elem_index<mElements.size(); other_elem_index++)
+
+                if (p_current_node->IsBoundaryNode())
                 {
-                    if (other_elem_index != elem_index)
+                    for (unsigned other_elem_index=0; other_elem_index<mElements.size(); other_elem_index++)
                     {
-                        if (ElementIncludesPoint(p_current_node->rGetLocation(), other_elem_index))
+                        if (other_elem_index != elem_index)
                         {
-                            // \todo this doesnt account for cylindrical meshes
-                            //std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index << "\n" << std::flush;
-                            /// \todo Remesh appropriately if an overlap occurs (see #933)
-//                            EXCEPTION("A node has overlapped an element");
+                            if (ElementIncludesPoint(p_current_node->rGetLocation(), other_elem_index))
+                            {
+                                // \todo this doesnt account for cylindrical meshes
+                                std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index << "\n" << std::flush;
+                                /// \todo Remesh appropriately if an overlap occurs (see #933)
+                                // EXCEPTION("A node has overlapped an element");
+                            }
                         }
                     }
                 }
@@ -1556,11 +1569,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
     rMeshReader.Reset();
 
     // Add nodes
-    std::vector<double> coords;
+    std::vector<double> node_data;
     for (unsigned i=0; i<num_nodes; i++)
     {
-        coords = rMeshReader.GetNextNode();
-        mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
+        node_data = rMeshReader.GetNextNode();
+        unsigned is_boundary_node = node_data[2];
+        node_data.pop_back();
+        mNodes.push_back(new Node<SPACE_DIM>(i, node_data, is_boundary_node));
     }
 
     rMeshReader.Reset();

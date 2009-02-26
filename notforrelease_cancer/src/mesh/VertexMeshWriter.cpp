@@ -66,18 +66,19 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<EL
     *p_node_file << std::setprecision(6);
 
     // Write each node's data
-    unsigned default_marker = 0;
     for (unsigned node_num=0; node_num<num_nodes; node_num++)
     {
         unsigned global_node_index = rMesh.GetNode(node_num)->GetIndex();
-        c_vector<double,2> position = rMesh.GetNode(node_num)->rGetLocation(); //this->mNodeData[item_num];
         *p_node_file << global_node_index;
-        
+
+        c_vector<double,2> position = rMesh.GetNode(node_num)->rGetLocation();
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
             *p_node_file << "\t" << position(i);
         }
-        *p_node_file << "\t" << default_marker << "\n";
+
+        unsigned is_boundary_node = rMesh.GetNode(node_num)->IsBoundaryNode() ? 1 : 0;
+        *p_node_file << "\t" << is_boundary_node << "\n";
 
     }
     *p_node_file << comment << "\n";

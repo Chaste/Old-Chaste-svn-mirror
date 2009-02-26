@@ -73,7 +73,7 @@ void VertexMeshReader2d::Reset()
 
 std::vector<double> VertexMeshReader2d::GetNextNode()
 {
-    std::vector<double> ret_coords;
+    std::vector<double> node_data;
     
     std::string buffer;     
     GetNextLineFromStream(mNodesFile, buffer);
@@ -91,15 +91,15 @@ std::vector<double> VertexMeshReader2d::GetNextNode()
         EXCEPTION(error.str());
     }
 
-    double coord;        
-    for (unsigned i=0; i<2; i++)
+    double node_value;        
+    for (unsigned i=0; i<3; i++)
     {
-        buffer_stream >> coord;
-        ret_coords.push_back(coord);
+        buffer_stream >> node_value;
+        node_data.push_back(node_value);
     }
-            
+
     mNodesRead++;        
-    return ret_coords;
+    return node_data;
 }
 
 

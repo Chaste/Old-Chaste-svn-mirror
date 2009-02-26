@@ -1482,6 +1482,58 @@ public:
         TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point7, 0), false);       
     }
 
+
+    void TestBoundaryNodes(void)
+    {
+        // Create a mesh with just boundary nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        VertexMesh<2,2> mesh1(nodes, elements);
+            
+        // Test boundary property of nodes
+        for (unsigned i=0; i<mesh1.GetNumNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh1.GetNode(i)->IsBoundaryNode(), false);
+        }
+
+
+        // Create a mesh with some interior nodes
+        VertexMesh<2,2> mesh2(2, 2, 0.01, 2.0);
+            
+        // Test boundary property of nodes
+        for (unsigned i=0; i<mesh2.GetNumNodes(); i++)
+        {
+            bool expected_boundary_node = true;
+            if (i==6 || i==9)
+            {
+                expected_boundary_node = false;
+            }
+            TS_ASSERT_EQUALS(mesh2.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
+        }
+
+
+        // Create a larger mesh with some interior nodes
+        VertexMesh<2,2> mesh3(3, 3, 0.01, 2.0);
+            
+        // Test boundary property of nodes
+        for (unsigned i=0; i<mesh3.GetNumNodes(); i++)
+        {
+            bool expected_boundary_node = true;
+            if (i==9 || i==10 || i==13 || i==14 || i==17 || i==18 || i==21 || i==22)
+            {
+                expected_boundary_node = false;
+            }
+            TS_ASSERT_EQUALS(mesh3.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
+        }
+    }
+
 };    
 
 #endif /*TESTVERTEXMESH_HPP_*/
