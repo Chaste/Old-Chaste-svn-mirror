@@ -124,7 +124,7 @@ public:
      * 
      * @return width the CryptWidth or current height
      */
-    double GetWidth(const unsigned& rDimension);
+    double GetWidth(const unsigned& rDimension) const;
 
     /**
      * Overridden AddNode() method.
@@ -153,16 +153,6 @@ public:
      */
      c_vector<double, 2> GetCentroidOfElement(unsigned index);
 
-    /**
-     * Overridden CalculateMomentsOfElement() method.
-     * 
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     * 
-     * @param index  the global index of a specified vertex element
-     * 
-     * @return (Ixx,Iyy,Ixy).
-     */
-    virtual c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
 };
 
 

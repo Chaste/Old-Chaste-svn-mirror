@@ -41,63 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "VertexMeshWriter.hpp"
-
 #include "Cylindrical2dVertexMesh.hpp"
-
-void TestVertexMonolayerWithCellBirth() throw (Exception)
-    {
-        // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
-
-        // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
-        std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-        {
-            CellType cell_type = DIFFERENTIATED;
-            double birth_time = 0.0 - elem_index;
-
-            // Cell 12 should divide at time t=0.5
-            if (elem_index==12)
-            {
-                cell_type = STEM;
-                birth_time = -23.5;          
-            }
-
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
-
-        unsigned old_num_nodes = tissue.GetNumNodes();
-        unsigned old_num_elements = tissue.GetNumElements();
-        unsigned old_num_cells = tissue.GetNumRealCells();
-
-        // Create a force system
-        VertexBasedTissueForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
-        // Set up tissue simulation
-        TissueSimulation<2> simulator(tissue, force_collection);
-        simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
-        simulator.SetEndTime(2.0);
-
-        // Run simulation
-        simulator.Solve();
-
-        // Check that cell 4 divided successfully
-        unsigned new_num_nodes = simulator.rGetTissue().GetNumNodes();
-        unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
-        unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
-
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+2);
-        TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
-        TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
-    }
 
 
 /**
@@ -352,6 +296,7 @@ public:
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells-3);
     }
 
+
     void TestVertexCryptWithCellBirth() throw (Exception)
     {
         // Create a simple  Cylindrical2d VertexMesh
@@ -406,6 +351,7 @@ public:
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
     }
+
 
     /**
      * Test archiving of a TissueSimulation that uses a VertexBasedTissue.

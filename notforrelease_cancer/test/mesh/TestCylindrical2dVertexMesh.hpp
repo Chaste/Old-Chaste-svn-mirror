@@ -55,12 +55,18 @@ public:
 		TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumElements(), 16u);
         TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumNodes(), 40u);
 		
-		// Create a vertex mesh writer
-        VertexMeshWriter<2,2> vertex_mesh_writer("TestCylindricalVertexMesh", "cylindrical_vertex_mesh");
+		// Create a vertex mesh writer with cylindrical mesh
+        VertexMeshWriter<2,2> vertex_mesh_writer("TestCylindrical2dVertexMesh", "cylindrical_vertex_mesh");
         vertex_mesh_writer.WriteFilesUsingMesh(cylindrical_vertex_mesh);
 
-        /// \todo add more tests (#918)
+        OutputFileHandler handler("TestCylindricalVertexMesh", false);
+        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.node";
+        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.cell";
+
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease_cancer/test/data/TestCylindrical2dVertexMesh/cylindrical_vertex_mesh.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestCylindrical2dVertexMesh/cylindrical_vertex_mesh.cell").c_str()), 0);
     }
+
 
     void TestMeshGetWidth(void)
     {
@@ -85,6 +91,7 @@ public:
         TS_ASSERT_DELTA(height, 4.5000, 1e-4);
     }
 
+
     void TestGetVectorFromAtoB() throw (Exception)
     {
         // Create mesh
@@ -106,15 +113,13 @@ public:
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
 
         // Test a periodic calculation
-
         c_vector<double, 2> node16_location = mesh.GetNode(16)->rGetLocation();
-
         vector = mesh.GetVectorFromAtoB(node16_location, node19_location);
+        
         TS_ASSERT_DELTA(vector[0], -1.1547, 1e-4);
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
-
-        /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
     }
+
 
     void TestSetNodeLocationForCylindricalMesh() throw (Exception)
     {
@@ -132,8 +137,18 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[0], 3.4541, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[1], 1.5, 1e-4);
 
-        /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
+        // This node has stayed close to where it was
+        new_point.SetCoordinate(0u, 0.2);
+        mesh.SetNode(0u, new_point);
+        TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[0], 0.2, 1e-4);
+
+        // This node was on right and is now near the left
+        new_point.SetCoordinate(0u, 3.5);
+        mesh.SetNode(8u, new_point);
+        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[0], 0.0358, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[1], 1.5, 1e-4);
     }
+
 
     void TestAddNodeAndReMesh() throw (Exception)
     {
@@ -188,9 +203,8 @@ public:
         // Add this new node to the mesh
         new_index = mesh.AddNode(p_node2);
         TS_ASSERT_EQUALS(new_index, 29u);
-
-        /// \todo add more cases - see also TestCylindrical2dMesh.hpp (#918)
     }
+
 
     void TestElementAreaPerimeterAndCentroid()
     {
@@ -217,7 +231,153 @@ public:
         TS_ASSERT_DELTA(centroid(1),2.0 , 1e-4);
     }
 
-    /// \todo add archiving test - see also TestCylindrical2dMesh.hpp (#918)
+
+    void TestArchiving() throw (Exception)
+    {
+        std::string dirname = "archive";
+        OutputFileHandler handler(dirname, false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh_base.arch";
+
+        std::string mesh_filename = "cylindrical_vertex_mesh";
+        std::string mesh_pathname = handler.GetOutputDirectoryFullPath() + mesh_filename;
+
+        // Create mesh
+        unsigned num_cells_across = 4;
+        unsigned num_cells_up = 7;
+        
+        Cylindrical2dVertexMesh* const p_mesh = new Cylindrical2dVertexMesh(num_cells_across, num_cells_up, 0.01, 2.0);
+
+        double crypt_width = num_cells_across*sqrt(3.0)/2.0;
+
+        /*
+         * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
+         * This is because the serialization library only allows you to save 
+         * tracked objects while the compiler considers them const, to prevent
+         * the objects changing during the save, and so object tracking leading 
+         * to wrong results. For example, A is saved once via pointer, then 
+         * changed, then saved again.  The second save notes that A was saved 
+         * before, so doesn't write its data again, and the change is lost.
+         */
+        {
+            // Serialize the mesh
+            double width = p_mesh->GetWidth(0);
+            TS_ASSERT_DELTA(width, crypt_width, 1e-7);
+
+            // Save the mesh data using mesh writers
+            VertexMeshWriter<2,2> vertex_mesh_writer(dirname, mesh_filename);
+            vertex_mesh_writer.WriteFilesUsingMesh(*p_mesh);
+
+            // Archive the mesh
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // We have to serialize via a pointer here, or the derived class information is lost.
+            output_arch << p_mesh;
+        }
+
+        {
+            // De-serialize and compare
+            Cylindrical2dVertexMesh* p_mesh2;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_mesh2;
+
+            // Re-initialise the mesh
+            p_mesh2->Clear();
+            VertexMeshReader2d mesh_reader(mesh_pathname);
+            p_mesh2->ConstructFromMeshReader(mesh_reader);
+
+            // Compare the loaded mesh against the original
+
+            // Compare width            
+            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), crypt_width, 1e-7);
+
+            // Compare nodes
+            TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), p_mesh2->GetNumNodes());
+
+            for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+            {
+                Node<2> *p_node = p_mesh->GetNode(i);
+                Node<2> *p_node2 = p_mesh2->GetNode(i);
+                TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
+                TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
+                TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
+                for (unsigned j=0; j<2; j++)
+                {
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[j], p_node2->rGetLocation()[j], 1e-4);
+                }
+            }
+
+            // Compare elements
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), p_mesh2->GetNumElements());
+            TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh2->GetNumAllElements());
+
+            for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+            {
+                VertexElement<2,2>* p_elt = p_mesh->GetElement(i);
+                VertexElement<2,2>* p_elt2 = p_mesh2->GetElement(i);
+                TS_ASSERT_EQUALS(p_elt->GetNumNodes(), p_elt2->GetNumNodes());
+                for (unsigned i=0; i<p_elt->GetNumNodes(); i++)
+                {
+                    TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
+                }
+            }
+            
+            // Tidy up
+            delete p_mesh;
+            delete p_mesh2;
+        }
+    }
+
+    
+    void TestCylindricalReMesh() throw (Exception)
+    {
+        // Create mesh
+        unsigned num_cells_across = 6;
+        unsigned num_cells_up = 12;
+        
+        Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
+
+        // Remesh
+        NodeMap map(mesh.GetNumElements());
+        mesh.ReMesh(map);
+
+        TS_ASSERT_EQUALS(map.Size(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
+
+        // Check that there are the correct number of everything
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), num_cells_across*num_cells_up);
+    }
+
+
+    void TestCylindricalReMeshAfterDelete() throw (Exception)
+    {
+        // Create mesh
+        unsigned num_cells_across = 6;
+        unsigned num_cells_up = 12;
+        
+        Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
+        unsigned num_old_nodes = mesh.GetNumNodes();
+        unsigned num_old_elements = num_cells_across*num_cells_up;
+
+        // Delete a node
+        mesh.DeleteElementPriorToReMesh(8);
+
+        // Remesh
+        NodeMap map(mesh.GetNumElements());
+        mesh.ReMesh(map);
+
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+        TS_ASSERT_EQUALS(map.Size(), num_old_elements);
+
+        // Check that there are the correct number of everything
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_old_nodes);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), num_old_elements-1);
+   }
 
 };
 

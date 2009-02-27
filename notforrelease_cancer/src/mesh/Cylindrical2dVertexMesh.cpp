@@ -170,7 +170,7 @@ void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
     if (point.rGetLocation()[0] >= mWidth)
     {
         // Move point to the left
-        point.SetCoordinate(0u, point.rGetLocation()[0] - mWidth); /// \todo this line needs coverage (#918)
+        point.SetCoordinate(0u, point.rGetLocation()[0] - mWidth);
     }
     if (point.rGetLocation()[0] < 0.0)
     {
@@ -183,7 +183,7 @@ void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
 }
 
 
-double Cylindrical2dVertexMesh::GetWidth(const unsigned& rDimension)
+double Cylindrical2dVertexMesh::GetWidth(const unsigned& rDimension) const
 {
     double width = 0.0;
     assert(rDimension==0u || rDimension==1u);
@@ -291,58 +291,4 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
     centroid = transformed_centroid + first_node;
     
     return centroid;        
-}
-
-
-c_vector<double, 3> Cylindrical2dVertexMesh::CalculateMomentsOfElement(unsigned index) /// \todo this method needs coverage (#918)
-{
-    VertexElement<2, 2>* p_element = GetElement(index);
-
-    c_vector<double, 2> first_node_location = p_element->GetNodeLocation(0);
-    c_vector<double, 2> current_node_location;
-    c_vector<double, 2> next_node_location;
-    c_vector<double, 2> pos_1;
-    c_vector<double, 2> pos_2;
-
-    unsigned num_nodes_in_element = p_element->GetNumNodes();
-
-    c_vector<double, 3> moments = zero_vector<double>(3);
-
-    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
-    {
-        // Find locations of current node and anticlockwise node
-        current_node_location = p_element->GetNodeLocation(local_index);
-        next_node_location = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
-
-        /*
-         * In order to calculate the moments we map the origin to (x[0],y[0]) 
-         * then use  GetVectorFromAtoB() to get node cooordiantes
-         */
-
-        pos_1 = GetVectorFromAtoB(first_node_location, current_node_location);
-        pos_2 = GetVectorFromAtoB(first_node_location, next_node_location);
-
-        // Ixx
-        moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
-                                           + pos_1(1)*pos_1(1)*pos_2(1)
-                                           + pos_1(1)*pos_2(1)*pos_2(1)
-                                           + pos_2(1)*pos_2(1)*pos_2(1));
-
-        // Iyy
-        moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
-                                           + pos_1(0)*pos_1(0)*pos_2(0)
-                                           + pos_1(0)*pos_2(0)*pos_2(0)
-                                           + pos_2(0)*pos_2(0)*pos_2(0));
-
-        // Ixy
-        moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
-                      - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
-                      + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
-    }
-
-    moments(0) /= -12;
-    moments(1) /= 12;
-    moments(2) /= 24;
-
-    return moments;
 }

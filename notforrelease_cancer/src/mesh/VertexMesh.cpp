@@ -291,7 +291,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension)
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
     c_vector<double,2> extremes = GetWidthExtremes(rDimension);
@@ -300,7 +300,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension)
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, 2> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension)
+c_vector<double, 2> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
     assert(GetNumNodes() > 0);
@@ -565,13 +565,14 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
     unsigned num_nodes_in_element = p_element->GetNumNodes();
 
     c_vector<double, 3> moments = zero_vector<double>(3);
+
     unsigned node_1;
     unsigned node_2;
 
-    for (unsigned i=0; i<num_nodes_in_element; i++)
+    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
     {
-        node_1 = i;
-        node_2 = (i+1)%num_nodes_in_element;
+        node_1 = local_index;
+        node_2 = (local_index+1)%num_nodes_in_element;
 
         c_vector<double, 2> pos_1 = p_element->GetNodeLocation(node_1);
         c_vector<double, 2> pos_2 = p_element->GetNodeLocation(node_2);

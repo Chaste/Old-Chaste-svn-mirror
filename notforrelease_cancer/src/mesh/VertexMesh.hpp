@@ -225,7 +225,7 @@ public:
      *
      * N.B. Overwritten in Cylindrical2dVertexMesh.
      */
-    virtual double GetWidth(const unsigned& rDimension);
+    virtual double GetWidth(const unsigned& rDimension) const;
 
     /**
      * Calculates the `width extremes' of any dimension of the mesh.
@@ -233,7 +233,7 @@ public:
      * @param rDimension a dimension (0,1 or 2)
      * @return The minimum and maximum co-ordinates of any node in this dimension.
      */
-    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension);
+    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
 
     /**
      * @return the number of Nodes in the mesh.
