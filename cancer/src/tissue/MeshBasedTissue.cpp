@@ -226,10 +226,16 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 
             // Remove the node from the mesh
             num_removed++;
-            mrMesh.DeleteNodePriorToReMesh( this->mCellLocationMap[&(*it)] );
+            mrMesh.DeleteNodePriorToReMesh(this->mCellLocationMap[&(*it)]);
+
+            // Update mappings between cells and location indices
+            unsigned location_index_of_removed_node = this->mCellLocationMap[&(*it)];
+            this->mCellLocationMap.erase(&(*it));
+            this->mLocationCellMap.erase(location_index_of_removed_node);
+
+            // Update vector of cells
             it = this->mCells.erase(it);
-            //this->mLocationCellMap.erase(this->mCellLocationMap[&(*it)]);
-            //this->mCellLocationMap.erase(&(*it));
+
             --it;
         }
     }
@@ -248,10 +254,10 @@ void MeshBasedTissue<DIM>::Update()
     {
         UpdateGhostNodesAfterReMesh(map);
 
-        // Fix up the mappings between cells and nodes
+        // Update the mappings between cells and location indices
         std::map<TissueCell*, unsigned> old_map = this->mCellLocationMap;
-        // This removes any dead pointers from the maps
-        // (if we don't do this then archiving is a disaster that won't wait to happen...)
+
+        // Remove any dead pointers from the maps (needed to avoid archiving errors)
         this->mLocationCellMap.clear();
         this->mCellLocationMap.clear();
 
@@ -263,9 +269,8 @@ void MeshBasedTissue<DIM>::Update()
 
             // This shouldn't ever happen, as the cell vector only contains living cells
             assert(!map.IsDeleted(old_node_index));
-            unsigned new_node_index = map.GetNewIndex(old_node_index);
 
-            // Fix up the mappings between cells and nodes
+            unsigned new_node_index = map.GetNewIndex(old_node_index);
             this->mLocationCellMap[new_node_index] = &(*it);
             this->mCellLocationMap[&(*it)] = new_node_index;
         }

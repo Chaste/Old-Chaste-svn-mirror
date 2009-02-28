@@ -56,16 +56,8 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
                             location_indices.begin(), location_indices.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
-        // This method finishes and then calls Validate();...
+        // This method finishes and then calls Validate()
         SetGhostNodes(ghost_node_indices);
-
-        for (std::set<unsigned>::iterator iter=ghost_node_indices.begin();
-             iter!=ghost_node_indices.end();
-             ++iter)
-        {
-            this->mLocationCellMap[*iter] = NULL;
-            this->mCellLocationMap[NULL] = *iter;
-        }
     }
     else
     {
@@ -220,7 +212,8 @@ void MeshBasedTissueWithGhostNodes<DIM>::Validate()
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-        // If the node attached to this cell is labelled as a ghost node throw an error
+
+        // If the node attached to this cell is labelled as a ghost node, then throw an error
         if (mIsGhostNode[node_index])
         {
             std::stringstream ss;
