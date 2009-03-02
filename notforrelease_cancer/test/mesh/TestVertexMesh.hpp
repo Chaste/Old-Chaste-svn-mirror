@@ -674,10 +674,9 @@ public:
         nodes.push_back(new Node<2>(6, false, 0.4, 0.4));
         nodes.push_back(new Node<2>(7, false, 0.6, 0.6));
         
-
         std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
                 
-        // Make two triangular  elements out of these nodes
+        // Make two triangular elements out of these nodes
         nodes_elem_0.push_back(nodes[0]);
         nodes_elem_0.push_back(nodes[4]);
         nodes_elem_0.push_back(nodes[5]);
@@ -709,7 +708,7 @@ public:
 
         // Perform a merge on nodes 6 and 7
         containing_element_indices.insert(1);
-        vertex_mesh.PerformNodeMerge(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), containing_element_indices);
+        vertex_mesh.PerformNodeMerge(vertex_mesh.GetNode(7), vertex_mesh.GetNode(6), containing_element_indices);
                 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
@@ -1171,6 +1170,12 @@ public:
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
+
+        // For coverage, divide an element when mDeletedElementIndices is not empty
+        basic_vertex_mesh.DeleteElementPriorToReMesh(0);
+        new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(1), 2, 3);
+
+        TS_ASSERT_EQUALS(new_element_index, 0u);
     }
 
 

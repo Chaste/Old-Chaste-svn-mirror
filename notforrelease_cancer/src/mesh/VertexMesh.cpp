@@ -1117,7 +1117,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
         *
         * Perform a PartialT1Swap 
         */
-        PerformT1Swap(pNodeA, pNodeB, all_indices); /// \todo this line needs coverage (#821)
+        PerformT1Swap(pNodeA, pNodeB, all_indices);
     }
     else if (all_indices.size()==4) // Correct set up for T1Swap 
     {
@@ -1137,8 +1137,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     }
     else
     {
-        std::cout << "\n nodes are in more than 4 elements so we can't remesh\n"; /// \todo these lines need coverage (#821)
-        assert(0);
+        #define COVERAGE_IGNORE
+        EXCEPTION("Nodes are in more than 4 elements, so a remesh cannot be performed");
+        #undef COVERAGE_IGNORE
     }
 }
 
@@ -1166,7 +1167,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
             mElements[*it]->DeleteNode(nodeB_local_index); 
         }
     }
-    else /// \todo these lines need coverage (#821)
+    else
     {
         // Remove node A
         c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
@@ -1389,9 +1390,11 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         intersecting_nodes.push_back(num_nodes-1);
     }
 
-    if (intersecting_nodes.size()!=2) /// \todo this line needs coverage (#821)
+    if (intersecting_nodes.size()!=2)
     {
+        #define COVERAGE_IGNORE
         EXCEPTION("Cannot proceed with cell division algorithm - the number of intersecting nodes is not equal to 2");
+        #undef COVERAGE_IGNORE
     }
 
     std::vector<unsigned> new_node_global_indices;  
@@ -1530,7 +1533,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     {
         new_element_index = mElements.size();
     }
-    else /// \todo these lines need coverage (#821)
+    else
     {
         new_element_index = mDeletedElementIndices.back();
         mDeletedElementIndices.pop_back();
