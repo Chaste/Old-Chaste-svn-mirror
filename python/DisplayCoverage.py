@@ -205,7 +205,8 @@ for src_file in src_files:
                             (src_line_stripped.startswith('return') and
                              src_line_stripped[6] in [';', ' ']) or
                             (src_line_stripped.startswith('assert(DIM') or
-                             src_line_stripped.startswith('assert(ELEM_DIM')) or
+                             src_line_stripped.startswith('assert(ELEM_DIM') or
+                             src_line_stripped.startswith('assert(ELEMENT_DIM')) or
                             src_line_stripped.startswith('template class ') or #gcov bug
                             (src_line_stripped.startswith('catch ') and #Line is catch(...)
                              src_line_stripped[-1] == ')')

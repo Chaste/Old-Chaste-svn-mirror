@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
+#include "CuboidMeshConstructor.hpp"
 #include <cmath>
 #include <vector>
 
@@ -243,6 +244,9 @@ public:
         Node<1>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
         TS_ASSERT_EQUALS(*elt_iter, 0u);
         TS_ASSERT_EQUALS(*b_elt_iter, 0u);
+    
+        //There is only one boundary element at this end
+        TS_ASSERT_EQUALS(++b_elt_iter, p_node->ContainingBoundaryElementsEnd());
 
         Element<1,1>* p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
@@ -1356,6 +1360,31 @@ public:
                 TS_ASSERT_EQUALS(mesh.GetBoundaryElement(i)->GetRegion(), 1u);
             }
         }
+    }
+    
+    void TestCuboidMeshConstructors()
+    {
+        CuboidMeshConstructor<1> constructor1;
+
+        TrianglesMeshReader<1,1> mesh_reader1(constructor1.Construct(1, 1.0));
+        TS_ASSERT_EQUALS(constructor1.GetWidth(), 1.0);
+        
+        TetrahedralMesh<1,1> mesh1;
+        mesh1.ConstructFromMeshReader(mesh_reader1);
+        TS_ASSERT_EQUALS(mesh1.GetNumNodes(), 9U);
+        
+        CuboidMeshConstructor<2> constructor2;
+        TrianglesMeshReader<2,2> mesh_reader2(constructor2.Construct(1, 1.0));
+        TetrahedralMesh<2,2> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader2);
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 9U*9U);
+
+
+        CuboidMeshConstructor<3> constructor3;
+        TrianglesMeshReader<3,3> mesh_reader3(constructor3.Construct(1, 1.0));
+        TetrahedralMesh<3,3> mesh3;
+        mesh3.ConstructFromMeshReader(mesh_reader3);
+        TS_ASSERT_EQUALS(mesh3.GetNumNodes(), 9U*9U*9U);
     }
 
 };

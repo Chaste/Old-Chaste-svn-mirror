@@ -190,12 +190,6 @@ public:
             : mIndexIterator(indexIterator)
         {}
 
-        /**
-         * A default constructor allows users to declare an iterator without assigning to it
-         */
-        ContainingElementIterator()
-        {}
-
         const unsigned& operator*() const
         {
             return *mIndexIterator;
@@ -239,12 +233,7 @@ public:
             : mIndexIterator(indexIterator)
         {}
 
-        /**
-         * A default constructor allows users to declare an iterator without assigning to it
-         */
-        ContainingBoundaryElementIterator()
-        {}
-
+ 
         const unsigned& operator*() const
         {
             return *mIndexIterator;
