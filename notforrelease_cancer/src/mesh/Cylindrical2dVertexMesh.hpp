@@ -155,6 +155,7 @@ public:
 
 };
 
+BOOST_CLASS_EXPORT(Cylindrical2dVertexMesh)
 
 namespace boost
 {

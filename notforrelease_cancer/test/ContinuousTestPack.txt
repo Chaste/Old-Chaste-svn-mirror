@@ -13,6 +13,7 @@ simulation/TestTissueSimulationNotForRelease.hpp
 simulation/TestTissueSimulationWithNutrients.hpp
 simulation/TestTissueSimulationWithNutrientsAssembler.hpp
 simulation/TestTissueSimulationWithVertexBasedTissue.hpp
+simulation/TestVertexCryptSimulation2d.hpp
 tissue/TestCellKillersNotForRelease.hpp
 tissue/TestCellwiseDataGradient.hpp
 tissue/TestDiscreteSystemForceCalculator.hpp
