@@ -188,6 +188,7 @@ def optional_library_defines():
 
 def configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
+    libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
     if build.using_dealii:
         do_dealii(build)
         #do_metis()
@@ -202,8 +203,7 @@ def configure(build):
         intel_path = os.path.abspath(conf.intel_path)
         libpaths.append(os.path.join(intel_path, 'lib'))
     incpaths.extend(conf.other_includepaths)
-    libpaths.extend(map(os.path.abspath, conf.other_libpaths))
-    libraries.extend(conf.other_libraries)
+    libpaths.extend(map(os.path.abspath, conf.other_libpaths))    
 
     build.tools.update(conf.tools)
 
