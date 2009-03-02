@@ -64,6 +64,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 
 #include "TenTusscher2006OdeSystem.hpp"
+#include "DiFrancescoNoble1985OdeSystem.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
@@ -622,6 +623,32 @@ public:
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages) 
         TenTusscher2006OdeSystem TT_model_initial(&solver, &stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0002 , 1e-3);
+     }
+     
+    void TestDifrancescoNoble1985(void) throw (Exception)
+    {   
+        // Set stimulus (no stimulus in this case because this cell is self excitatory)
+        double magnitude_stimulus = 0.0;
+        RegularStimulus stimulus(magnitude_stimulus,
+                                  0.05,
+                                  500,
+                                  0.01);
+                                  
+        EulerIvpOdeSolver solver; //define the solver
+        HeartConfig::Instance()->SetOdeTimeStep(0.01);
+        DiFrancescoNoble1985OdeSystem purkinje_ode_system(&solver, &stimulus);
+        
+        // Solve and write to file
+        RunOdeSolverWithIonicModel(&purkinje_ode_system,
+                                   1800,/*end time, in milliseconds for this model*/
+                                   "DiFrancescoNoble",
+                                   100);
+        //Check against validated data 
+        //(the valid data have been checked against CellML code of the model known to be valid).
+        CheckCellModelResults("DiFrancescoNoble");
+        
+         //Test the GetIIonic method against one hardcoded value.
+        TS_ASSERT_DELTA(purkinje_ode_system.GetIIonic(), -0.0141, 1e-3); 
      }
 
 
