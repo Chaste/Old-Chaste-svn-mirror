@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SIMPLEDATAWRITER_HPP_
 #define SIMPLEDATAWRITER_HPP_
 
-#include <fstream>
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 

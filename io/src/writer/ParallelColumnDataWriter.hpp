@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ColumnDataWriter.hpp"
 #include "DistributedVector.hpp"
 #include <petscvec.h>
+
 class ParallelColumnDataWriter  : public ColumnDataWriter
 {
 private:

@@ -29,10 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTPARALLELWRITERPERFORMANCE_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include "ParallelColumnDataWriter.hpp"
 #include "DistributedVector.hpp"
 #include <petsc.h>
-#include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
 
 class TestParallelWriterPerformance : public CxxTest::TestSuite

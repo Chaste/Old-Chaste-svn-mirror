@@ -30,10 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //  MyTestSuite.h
 #include <cxxtest/TestSuite.h>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
+
 #include "ColumnDataWriter.hpp"
 #include "ColumnDataReader.hpp"
 #include "Exception.hpp"

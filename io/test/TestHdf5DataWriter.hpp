@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTHDF5DATAWRITER_HPP_
 #define TESTHDF5DATAWRITER_HPP_
 
-#include <hdf5.h>
 #include <cxxtest/TestSuite.h>
 
 #include "PetscSetupAndFinalize.hpp"

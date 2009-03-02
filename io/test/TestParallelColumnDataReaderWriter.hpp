@@ -25,21 +25,17 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _TESTCOLUMNDATAREADERWRITER_HPP_
-#define _TESTCOLUMNDATAREADERWRITER_HPP_
+#ifndef _TESTPARALLELCOLUMNDATAREADERWRITER_HPP_
+#define _TESTPARALLELCOLUMNDATAREADERWRITER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
+
 #include "ColumnDataWriter.hpp"
 #include "ParallelColumnDataWriter.hpp"
 #include "ColumnDataReader.hpp"
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
 #include <petsc.h>
-#include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
 
 class TestParallelColumnDataReaderWriter : public CxxTest::TestSuite
@@ -273,4 +269,4 @@ public:
     }
 };
 
-#endif //_TESTCOLUMNDATAREADERWRITER_HPP_
+#endif //_TESTPARALLELCOLUMNDATAREADERWRITER_HPP_

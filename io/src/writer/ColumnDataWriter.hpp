@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef COLUMNDATAWRITER_HPP
 #define COLUMNDATAWRITER_HPP
 
-#include <fstream>
 #include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
 #include "OutputFileHandler.hpp"

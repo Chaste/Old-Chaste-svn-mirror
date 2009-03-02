@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ColumnDataWriter.hpp"
 
 
-
-
 using std::string;
 /**
 * Constructs a new instance, setting the basename for output files and
