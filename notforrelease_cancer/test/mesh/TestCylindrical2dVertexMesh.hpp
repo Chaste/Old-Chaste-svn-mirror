@@ -59,7 +59,7 @@ public:
         VertexMeshWriter<2,2> vertex_mesh_writer("TestCylindrical2dVertexMesh", "cylindrical_vertex_mesh");
         vertex_mesh_writer.WriteFilesUsingMesh(cylindrical_vertex_mesh);
 
-        OutputFileHandler handler("TestCylindricalVertexMesh", false);
+        OutputFileHandler handler("TestCylindrical2dVertexMesh", false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.node";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.cell";
 
