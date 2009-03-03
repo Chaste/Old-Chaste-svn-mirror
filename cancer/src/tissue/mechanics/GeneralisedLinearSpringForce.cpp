@@ -26,33 +26,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "MeshBasedTissue.hpp"
 
 template<unsigned DIM>
-MeinekeInteractionForce<DIM>::MeinekeInteractionForce()
+GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
    : AbstractTwoBodyInteractionForce<DIM>()
 {
 }
 
 template<unsigned DIM>
-double MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
-                                                                                unsigned nodeBGlobalIndex, 
-                                                                                AbstractTissue<DIM>& rTissue, 
-                                                                                bool isCloserThanRestLength)
+double GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
+                                                                                     unsigned nodeBGlobalIndex, 
+                                                                                     AbstractTissue<DIM>& rTissue, 
+                                                                                     bool isCloserThanRestLength)
 {
     return 1.0;
 }
 
 template<unsigned DIM>
-MeinekeInteractionForce<DIM>::~MeinekeInteractionForce()
+GeneralisedLinearSpringForce<DIM>::~GeneralisedLinearSpringForce()
 {
 }
 
 template<unsigned DIM>
-c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, 
-                                                                               unsigned nodeBGlobalIndex, 
-                                                                               AbstractTissue<DIM>& rTissue)
+c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, 
+                                                                                    unsigned nodeBGlobalIndex, 
+                                                                                    AbstractTissue<DIM>& rTissue)
 {
     // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
@@ -195,8 +195,8 @@ c_vector<double, DIM> MeinekeInteractionForce<DIM>::CalculateForceBetweenNodes(u
 }
 
 template<unsigned DIM>
-void MeinekeInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                                           AbstractTissue<DIM>& rTissue)
+void GeneralisedLinearSpringForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
+                                                             AbstractTissue<DIM>& rTissue)
 {
     if (rTissue.HasMesh())
     {
@@ -244,6 +244,6 @@ void MeinekeInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<dou
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class MeinekeInteractionForce<1>;
-template class MeinekeInteractionForce<2>;
-template class MeinekeInteractionForce<3>;
+template class GeneralisedLinearSpringForce<1>;
+template class GeneralisedLinearSpringForce<2>;
+template class GeneralisedLinearSpringForce<3>;

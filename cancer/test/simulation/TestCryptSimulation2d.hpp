@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "TysonNovakCellCycleModelCellsGenerator.hpp"
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
-#include "MeinekeInteractionWithVariableSpringConstantsForce.hpp"
+#include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
@@ -171,9 +171,9 @@ public:
        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
        // Create force law
-       MeinekeInteractionForce<2> meineke_force;
+       GeneralisedLinearSpringForce<2> linear_force;
        std::vector<AbstractForce<2>*> force_collection;
-       force_collection.push_back(&meineke_force);
+       force_collection.push_back(&linear_force);
 
        // Create crypt simulation from tissue and force law
        CryptSimulation2d simulator(crypt, force_collection);
@@ -234,9 +234,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(tissue, force_collection);
@@ -319,9 +319,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -390,9 +390,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -468,9 +468,9 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -523,9 +523,9 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -585,11 +585,11 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
 
         // Create force law
-        MeinekeInteractionWithVariableSpringConstantsForce<2> meineke_force;
-        meineke_force.SetEdgeBasedSpringConstant(true);
+        LinearSpringWithVariableSpringConstantsForce<2> linear_force;
+        linear_force.SetEdgeBasedSpringConstant(true);
 
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection, false, true);
@@ -643,9 +643,9 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -715,9 +715,9 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -853,7 +853,7 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
 
         // Create force law
-        MeinekeInteractionWithVariableSpringConstantsForce<2> force;
+        LinearSpringWithVariableSpringConstantsForce<2> force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&force);
 
@@ -942,9 +942,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -1031,9 +1031,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -1077,9 +1077,9 @@ public:
         AbstractTissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(conf_crypt, force_collection);
@@ -1114,9 +1114,9 @@ public:
         AbstractTissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(conf_crypt, force_collection);
@@ -1163,9 +1163,9 @@ public:
         AbstractTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
@@ -1200,9 +1200,9 @@ public:
         AbstractTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
@@ -1247,9 +1247,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -1305,9 +1305,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -1345,9 +1345,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -1395,9 +1395,9 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
@@ -1464,9 +1464,9 @@ public:
         p_crypt->SetBottomCellAncestors();
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(*p_crypt, force_collection, false, false);

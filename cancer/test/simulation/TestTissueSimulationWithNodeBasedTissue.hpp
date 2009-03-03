@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 #include "NodeBasedTissue.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
@@ -97,10 +97,10 @@ public:
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
 
         // Create a mechanics system
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
@@ -175,10 +175,10 @@ public:
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
 
         // Create a mechanics system
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
@@ -219,10 +219,10 @@ public:
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
 
         // Create a mechanics system
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
@@ -258,10 +258,10 @@ public:
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
 
         // Create a mechanics system
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);

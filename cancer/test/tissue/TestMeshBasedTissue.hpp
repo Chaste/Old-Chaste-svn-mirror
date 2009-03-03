@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "MeshBasedTissue.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"

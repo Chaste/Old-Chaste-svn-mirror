@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "MeinekeInteractionWithVariableSpringConstantsForce.hpp"
+#include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "ChemotacticForce.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "CryptProjectionForce.hpp"
@@ -315,7 +315,7 @@ public:
         p_params->SetCryptProjectionParameterA(0.001);
         p_params->SetCryptProjectionParameterB(0.001);
         CryptProjectionForce flat_crypt_projection_force;
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
 
         // Normally this would be set up at the start of rCalculateforcesOfEachNode
         flat_crypt_projection_force.UpdateNode3dLocationMap(tissue);
@@ -328,7 +328,7 @@ public:
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
 
             c_vector<double, 2> force_flat = flat_crypt_projection_force.CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, tissue);
-            c_vector<double, 2> force_meineke = meineke_force.CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, tissue);
+            c_vector<double, 2> force_meineke = linear_force.CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, tissue);
 
             TS_ASSERT_DELTA( force_flat[0], force_meineke[0], 1e-3);
             TS_ASSERT_DELTA( force_flat[1], force_meineke[1], 1e-3);
@@ -519,14 +519,14 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Create two different force laws and add to a std::list
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
 
         p_params->SetCryptProjectionParameterA(0.0001);
         p_params->SetCryptProjectionParameterB(0.0001);
         CryptProjectionForce crypt_projection_force;
 
         std::vector<AbstractForce<2>* > forces;
-        forces.push_back(&meineke_force);
+        forces.push_back(&linear_force);
         forces.push_back(&crypt_projection_force);
 
         // Test node force calculation

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 
@@ -59,7 +59,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Create the force law and pass in to a std::list
-        MeinekeInteractionForce<2> force;
+        GeneralisedLinearSpringForce<2> force;
         std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
         force_collection.push_back(&force);
 
@@ -148,7 +148,7 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create the force law and pass in to a std::list
-        MeinekeInteractionForce<2> force;
+        GeneralisedLinearSpringForce<2> force;
         std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
         force_collection.push_back(&force);
 
@@ -217,7 +217,7 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create the force law and pass in to a std::list
-        MeinekeInteractionForce<2> force;
+        GeneralisedLinearSpringForce<2> force;
         std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
         force_collection.push_back(&force);
 

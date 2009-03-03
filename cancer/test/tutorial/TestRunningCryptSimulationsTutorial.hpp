@@ -61,7 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 /* These are the classes that will be used in these tests */
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "CryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
 #include "SloughingCellKiller.hpp"
@@ -134,11 +134,11 @@ public:
          * neighbour that can be represented as a linear overdamped spring. Since this 
          * model was first proposed in the context of crypt modelling by Meineke ''et al'' 
          * (Cell Prolif. 34:253-266, 2001), we call this object a 
-         * {{{MeinekeInteractionForce}}}. We pass a pointer to this force into a vector.
+         * {{{GeneralisedLinearSpringForce}}}. We pass a pointer to this force into a vector.
          */
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         /* Now we define the tissue simulation object, passing in the tissue and collection
          * of force laws: */
@@ -225,9 +225,9 @@ public:
         WntConcentration::Instance()->SetTissue(tissue);
 
         /* '''TODO''' add comment */
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         /* Create a simulator as before (except setting a different output directory). */
         CryptSimulation2d simulator(tissue,force_collection);

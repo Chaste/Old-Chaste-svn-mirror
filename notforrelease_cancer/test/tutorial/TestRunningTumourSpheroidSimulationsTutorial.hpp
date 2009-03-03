@@ -78,7 +78,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "TissueSimulationWithNutrients.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 /* PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is 
@@ -178,19 +178,19 @@ public:
          * neighbour that can be represented as a linear overdamped spring. Since this 
          * model was first proposed in the context of crypt modelling by Meineke ''et al'' 
          * (Cell Prolif. 34:253-266, 2001), we call this object a 
-         * {{{MeinekeInteractionForce}}}. We pass a pointer to this force into a vector. 
+         * {{{GeneralisedLinearSpringForce}}}. We pass a pointer to this force into a vector. 
          * Note that we have called the method {{{UseCutoffPoint}}} on the 
-         * {{{MeinekeInteractionForce}}} before passing it into the collection of force 
+         * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force 
          * laws - this modifies the force law so that two neighbouring cells do not impose 
          * a force on each other if they are located more than 3 units (=3 cell widths) 
          * away from each other. This modification is necessary when no ghost nodes are used, 
          * for example to avoid artificially large forces between cells that lie close together 
          * on the spheroid boundary.
          */
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(3);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(3);
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         /*
          * The simulator object for these problems is

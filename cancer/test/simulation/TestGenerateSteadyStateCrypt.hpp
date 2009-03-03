@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
@@ -88,9 +88,9 @@ public:
         CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
         WntConcentration::Instance()->SetTissue(crypt);
 
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory(output_directory);

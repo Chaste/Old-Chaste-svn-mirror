@@ -25,19 +25,19 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef MEINEKEINTERACTIONWITHVARIABLESPRINGCONSTANTSFORCE_HPP_
-#define MEINEKEINTERACTIONWITHVARIABLESPRINGCONSTANTSFORCE_HPP_
+#ifndef LINEARSPRINGWITHVARIABLESPRINGCONSTANTSFORCE_HPP
+#define LINEARSPRINGWITHVARIABLESPRINGCONSTANTSFORCE_HPP
 
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
 /**
- * A subclass of MeinekeInteractionForce with variable spring constants.
+ * A subclass of GeneralisedLinearSpringForce with variable spring constants.
  */
 template<unsigned DIM>
-class MeinekeInteractionWithVariableSpringConstantsForce : public MeinekeInteractionForce<DIM>
+class LinearSpringWithVariableSpringConstantsForce : public GeneralisedLinearSpringForce<DIM>
 {
     friend class TestForces;
     
@@ -49,7 +49,7 @@ private :
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<MeinekeInteractionForce<DIM> >(*this);
+        archive & boost::serialization::base_object<GeneralisedLinearSpringForce<DIM> >(*this);
         archive & mUseEdgeBasedSpringConstant;
         archive & mUseMutantSprings;
         archive & mMutantMutantMultiplier;
@@ -83,12 +83,12 @@ public :
     /**
      * Constructor.
      */
-    MeinekeInteractionWithVariableSpringConstantsForce();
+    LinearSpringWithVariableSpringConstantsForce();
     
     /**
      * Destructor.
      */
-    ~MeinekeInteractionWithVariableSpringConstantsForce();
+    ~LinearSpringWithVariableSpringConstantsForce();
 
     /**
      * Set whether to use an edge-based spring constant.
@@ -152,7 +152,7 @@ public :
 
 #include "TemplatedExport.hpp"
 
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeinekeInteractionWithVariableSpringConstantsForce)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(LinearSpringWithVariableSpringConstantsForce)
 
 
-#endif /*MEINEKEINTERACTIONWITHVARIABLESPRINGCONSTANTSFORCE_HPP_*/
+#endif /*LINEARSPRINGWITHVARIABLESPRINGCONSTANTSFORCE_HPP*/

@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 
 CryptProjectionForce::CryptProjectionForce()
-   : MeinekeInteractionForce<2>()
+   : GeneralisedLinearSpringForce<2>()
 {
     mA = CancerParameters::Instance()->GetCryptProjectionParameterA();
     mB = CancerParameters::Instance()->GetCryptProjectionParameterB();
@@ -105,7 +105,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     c_vector<double,2> node_a_location_2d = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
     c_vector<double,2> node_b_location_2d = rTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
 
-    // "Get the unit vector parallel to the line joining the two nodes" [MeinekeInteractionForce]
+    // "Get the unit vector parallel to the line joining the two nodes" [GeneralisedLinearSpringForce]
 
     // Create a unit vector in the direction of the 3D spring
     c_vector<double,3> unit_difference = mNode3dLocationMap[nodeBGlobalIndex] - mNode3dLocationMap[nodeAGlobalIndex];

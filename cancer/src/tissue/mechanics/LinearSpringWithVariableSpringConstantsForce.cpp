@@ -26,14 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MeinekeInteractionWithVariableSpringConstantsForce.hpp"
+#include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "MeshBasedTissue.hpp"
 #include "IngeWntSwatCellCycleModel.hpp"
 #include "VoronoiTessellation.hpp"
 
 template<unsigned DIM>
-MeinekeInteractionWithVariableSpringConstantsForce<DIM>::MeinekeInteractionWithVariableSpringConstantsForce()
-   : MeinekeInteractionForce<DIM>()
+LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSpringConstantsForce()
+   : GeneralisedLinearSpringForce<DIM>()
 {    
     // Edge-based springs
     mUseEdgeBasedSpringConstant = false;
@@ -51,19 +51,19 @@ MeinekeInteractionWithVariableSpringConstantsForce<DIM>::MeinekeInteractionWithV
 }
 
 template<unsigned DIM>
-MeinekeInteractionWithVariableSpringConstantsForce<DIM>::~MeinekeInteractionWithVariableSpringConstantsForce()
+LinearSpringWithVariableSpringConstantsForce<DIM>::~LinearSpringWithVariableSpringConstantsForce()
 {
 }
 
 template<unsigned DIM>
-void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant)
+void LinearSpringWithVariableSpringConstantsForce<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant)
 {
     assert(DIM == 2);
     mUseEdgeBasedSpringConstant = useEdgeBasedSpringConstant;
 }
 
 template<unsigned DIM>
-void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier)
+void LinearSpringWithVariableSpringConstantsForce<DIM>::SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier)
 {
     mUseMutantSprings = useMutantSprings;
     mMutantMutantMultiplier = mutantMutantMultiplier;
@@ -71,22 +71,25 @@ void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetMutantSprings(b
 }
 
 template<unsigned DIM>
-void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetBetaCateninSprings(bool useBCatSprings)
+void LinearSpringWithVariableSpringConstantsForce<DIM>::SetBetaCateninSprings(bool useBCatSprings)
 {
     mUseBCatSprings = useBCatSprings;
 }
 
 template<unsigned DIM>
-void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::SetApoptoticSprings(bool useApoptoticSprings)
+void LinearSpringWithVariableSpringConstantsForce<DIM>::SetApoptoticSprings(bool useApoptoticSprings)
 {
     mUseApoptoticSprings = useApoptoticSprings;
 }
 
 template<unsigned DIM>
-double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
-                                                           AbstractTissue<DIM>& rTissue, bool isCloserThanRestLength)
+double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstantMultiplicationFactor(
+    unsigned nodeAGlobalIndex, 
+    unsigned nodeBGlobalIndex,
+    AbstractTissue<DIM>& rTissue, 
+    bool isCloserThanRestLength)
 {
-    double multiplication_factor = MeinekeInteractionForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
+    double multiplication_factor = GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
                                                                                                             nodeBGlobalIndex,
                                                                                                             rTissue,
                                                                                                             isCloserThanRestLength);
@@ -199,8 +202,9 @@ double MeinekeInteractionWithVariableSpringConstantsForce<DIM>::VariableSpringCo
 }
 
 template<unsigned DIM>
-void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                                           AbstractTissue<DIM>& rTissue)
+void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(
+    std::vector<c_vector<double, DIM> >& rForces,
+    AbstractTissue<DIM>& rTissue)
 {
     for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
         spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
@@ -221,6 +225,6 @@ void MeinekeInteractionWithVariableSpringConstantsForce<DIM>::AddForceContributi
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class MeinekeInteractionWithVariableSpringConstantsForce<1>;
-template class MeinekeInteractionWithVariableSpringConstantsForce<2>;
-template class MeinekeInteractionWithVariableSpringConstantsForce<3>;
+template class LinearSpringWithVariableSpringConstantsForce<1>;
+template class LinearSpringWithVariableSpringConstantsForce<2>;
+template class LinearSpringWithVariableSpringConstantsForce<3>;

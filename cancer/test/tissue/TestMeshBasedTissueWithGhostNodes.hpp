@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -194,7 +194,7 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
 
         // It seems quite difficult to test this on a periodic mesh,
         // so just check the areas of all the cells are correct.

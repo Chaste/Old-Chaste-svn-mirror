@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -98,10 +98,10 @@ public:
 
         MeshBasedTissue<3> tissue(mesh,cells);
         
-        MeinekeInteractionForce<3> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
         
         TissueSimulation<3> simulator(tissue, force_collection);
 
@@ -131,10 +131,10 @@ public:
 
         MeshBasedTissue<3> tissue(mesh,cells);
         
-        MeinekeInteractionForce<3> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
         
         TissueSimulation<3> simulator(tissue, force_collection);
 
@@ -181,10 +181,10 @@ public:
 
         MeshBasedTissue<3> tissue(mesh,cells);        
         
-        MeinekeInteractionForce<3> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
         
         TissueSimulation<3> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
@@ -265,10 +265,10 @@ public:
         // Test Save with a MeshBasedTissueWithGhostNodes
         MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);        
                 
-        MeinekeInteractionForce<3> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
         
         TissueSimulation<3> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
 #include "StochasticCellCycleModelCellsGenerator.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 
@@ -184,9 +184,9 @@ public:
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         CryptSimulation2d simulator(crypt, force_collection, false, false);
 
@@ -410,9 +410,9 @@ public:
             p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
 
             // Set up force law
-            MeinekeInteractionForce<2> meineke_force;
+            GeneralisedLinearSpringForce<2> linear_force;
             std::vector<AbstractForce<2>*> force_collection;
-            force_collection.push_back(&meineke_force);
+            force_collection.push_back(&linear_force);
 
             // Set up crypt simulation
             CryptSimulation2d simulator(*p_crypt, force_collection, false, false);

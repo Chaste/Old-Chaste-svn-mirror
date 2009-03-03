@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CRYPTPROJECTIONFORCE_HPP_
 #define CRYPTPROJECTIONFORCE_HPP_
 
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A force law for use in crypt projection simulations.
  */
-class CryptProjectionForce : public MeinekeInteractionForce<2>
+class CryptProjectionForce : public GeneralisedLinearSpringForce<2>
 {
     friend class TestForcesNotForRelease;
 
@@ -48,7 +48,7 @@ private :
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<MeinekeInteractionForce<2> >(*this);
+        archive & boost::serialization::base_object<GeneralisedLinearSpringForce<2> >(*this);
         archive & mA;
         archive & mB;
         archive & mIncludeWntChemotaxis;

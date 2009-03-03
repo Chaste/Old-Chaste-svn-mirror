@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "SimpleWntCellCycleModel.hpp"
-#include "MeinekeInteractionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "FixedCellCycleModelCellsGenerator.hpp"
@@ -114,10 +114,10 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(tissue);
 
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
@@ -174,10 +174,10 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a force law
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
@@ -215,10 +215,10 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a force law
-        MeinekeInteractionForce<2> meineke_force;
-        meineke_force.UseCutoffPoint(1.5);
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Set up tissue simulation WITH the stopping event
         TissueSimulationWithMyStoppingEvent simulator(tissue, force_collection);
@@ -267,9 +267,9 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Create force law
-        MeinekeInteractionForce<2> meineke_force;
+        GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&meineke_force);
+        force_collection.push_back(&linear_force);
 
         // Create crypt simulation from tissue and force law
         TissueSimulation<2> simulator(tissue, force_collection);

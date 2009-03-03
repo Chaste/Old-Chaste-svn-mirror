@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef MEINEKEINTERACTIONFORCE_HPP_
-#define MEINEKEINTERACTIONFORCE_HPP_
+#ifndef GENERALISEDLINEARSPRINGFORCE_HPP_
+#define GENERALISEDLINEARSPRINGFORCE_HPP_
 
 #include "AbstractTwoBodyInteractionForce.hpp"
 
@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The force law is that of an linear overdamped spring. 
  */
 template<unsigned DIM>
-class MeinekeInteractionForce : public AbstractTwoBodyInteractionForce<DIM>
+class GeneralisedLinearSpringForce : public AbstractTwoBodyInteractionForce<DIM>
 {
     friend class TestForces;
     
@@ -60,12 +60,12 @@ public :
     /**
      * Constructor.
      */
-    MeinekeInteractionForce();
+    GeneralisedLinearSpringForce();
     
     /**
      * Destructor.
      */  
-    ~MeinekeInteractionForce();
+    ~GeneralisedLinearSpringForce();
 
     /**
      * Return a multiplication factor for the spring constant, which 
@@ -114,6 +114,6 @@ public :
 
 #include "TemplatedExport.hpp"
 
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeinekeInteractionForce)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(GeneralisedLinearSpringForce)
 
-#endif /*MEINEKEINTERACTIONFORCE_HPP_*/
+#endif /*GENERALISEDLINEARSPRINGFORCE_HPP_*/
