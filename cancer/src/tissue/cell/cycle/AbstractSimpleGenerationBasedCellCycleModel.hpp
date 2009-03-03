@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_
-#define ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_
+#ifndef ABSTRACTSIMPLEGENERATIONBASEDCYCLEMODEL_HPP_
+#define ABSTRACTSIMPLEGENERATIONBASEDCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * N.B. Whether or not the cell should actually divide may depend on
  * Wnt / Oxygen etc. in subclasses.
  */
-class AbstractSimpleMeinekeCellCycleModel : public AbstractSimpleCellCycleModel
+class AbstractSimpleGenerationBasedCellCycleModel : public AbstractSimpleCellCycleModel
 {
 private:
 
@@ -66,20 +66,20 @@ protected:
      * @param g1Duration
      * @param generation
      * */
-    AbstractSimpleMeinekeCellCycleModel(double g1Duration, unsigned generation);
+    AbstractSimpleGenerationBasedCellCycleModel(double g1Duration, unsigned generation);
 
 public:
 
     /**
      * Default constructor - creates an AbstractSimpleCellCycleModel.
      */
-    AbstractSimpleMeinekeCellCycleModel()
+    AbstractSimpleGenerationBasedCellCycleModel()
     {}
 
     /**
      * Default destructor.
      */
-    virtual ~AbstractSimpleMeinekeCellCycleModel()
+    virtual ~AbstractSimpleGenerationBasedCellCycleModel()
     {}
 
     /** Overridden ResetForDivision() method. */
@@ -93,6 +93,6 @@ public:
 
 };
 
-BOOST_IS_ABSTRACT(AbstractSimpleMeinekeCellCycleModel)
+BOOST_IS_ABSTRACT(AbstractSimpleGenerationBasedCellCycleModel)
 
-#endif /*ABSTRACTSIMPLEMEINEKECELLCYCLEMODEL_HPP_*/
+#endif /*ABSTRACTSIMPLEGENERATIONBASEDCYCLEMODEL_HPP_*/

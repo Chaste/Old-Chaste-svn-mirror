@@ -34,7 +34,7 @@ FixedCellCycleModel::FixedCellCycleModel()
 
 
 FixedCellCycleModel::FixedCellCycleModel(double g1Duration, unsigned generation)
-    : AbstractSimpleMeinekeCellCycleModel(g1Duration, generation)
+    : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation)
 {
 }
     

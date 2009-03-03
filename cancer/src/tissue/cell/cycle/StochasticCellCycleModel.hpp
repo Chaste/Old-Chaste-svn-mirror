@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <iostream>
 
-#include "AbstractSimpleMeinekeCellCycleModel.hpp"
+#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "Exception.hpp"
 
@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Stochastic cell cycle model.
  *
  */
-class StochasticCellCycleModel : public AbstractSimpleMeinekeCellCycleModel
+class StochasticCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
@@ -47,7 +47,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractSimpleMeinekeCellCycleModel>(*this);
+        archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;

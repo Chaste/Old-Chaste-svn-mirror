@@ -25,17 +25,17 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "AbstractSimpleMeinekeCellCycleModel.hpp"
+#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
 
-AbstractSimpleMeinekeCellCycleModel::AbstractSimpleMeinekeCellCycleModel(double g1Duration,
+AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCycleModel(double g1Duration,
                                                                          unsigned generation)
     : AbstractSimpleCellCycleModel(g1Duration, generation)
 {
 }
 
 
-void AbstractSimpleMeinekeCellCycleModel::ResetForDivision()
+void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
 {
     if (mGeneration+1u > CancerParameters::Instance()->GetMaxTransitGenerations())
     {
@@ -49,7 +49,7 @@ void AbstractSimpleMeinekeCellCycleModel::ResetForDivision()
 }
 
 
-void AbstractSimpleMeinekeCellCycleModel::InitialiseDaughterCell()
+void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
 {
     if (mGeneration == 0)
     {

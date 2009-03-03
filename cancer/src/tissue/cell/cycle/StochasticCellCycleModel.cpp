@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 StochasticCellCycleModel::StochasticCellCycleModel(double g1Duration, unsigned generation)
-    : AbstractSimpleMeinekeCellCycleModel(g1Duration, generation)
+    : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation)
 {
 }
 

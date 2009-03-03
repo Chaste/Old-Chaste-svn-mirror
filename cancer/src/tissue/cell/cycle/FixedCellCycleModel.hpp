@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef FIXEDCELLCYCLEMODEL_HPP_
 #define FIXEDCELLCYCLEMODEL_HPP_
 
-#include "AbstractSimpleMeinekeCellCycleModel.hpp"
+#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
 /**
  *  Fixed cell cycle model.
@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  CancerParameters::StemCellG1Duration + SG2MDuration
  *  and CancerParameters::TransitCellG1Duration + SG2MDuration)
  */
-class FixedCellCycleModel : public AbstractSimpleMeinekeCellCycleModel
+class FixedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
@@ -45,7 +45,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractSimpleMeinekeCellCycleModel>(*this);
+        archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
     }
 
     /**
