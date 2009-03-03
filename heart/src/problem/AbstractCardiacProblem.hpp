@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Base class for cardiac problems; contains code generic to both mono- and bidomain.
  * 
- * \todo further documentation, including of member variables.
+ * See tutorials for usage.
  */
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
@@ -53,34 +53,53 @@ class AbstractCardiacProblem
 friend class TestBidomainWithBathAssembler;
     
 protected:
+    /** Meshes can be read from file or instantiated and passed directly to this 
+     *  class, this is for the former */ 
     std::string mMeshFilename;
+
+    /*< If this is set, the nodes for each processor are read */
     std::string mNodesPerProcessorFilename;
 
-    /** data is not written if output directory or output file prefix are not set*/
+    /*< Data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
+    /**
+     *  Whether to use matrix-based assembly of the RHS vector (much more efficient). 
+     *  True by default
+     */ 
     bool mUseMatrixBasedRhsAssembly;
     bool mAllocatedMemoryForMesh;
     bool mWriteInfo;
     bool mPrintOutput;
     bool mCallChaste2Meshalyzer;
 
+    /*< If only outputing voltage for selected nodes, which nodes to output at */
     std::vector<unsigned> mNodesToOutput;
 
+    /** Used by the writer */
     unsigned mVoltageColumnId;
+    /** Used by the writer */
     unsigned mTimeColumnId;
+    /** Used by the writer */
     unsigned mNodeColumnId;
 
+    /** The monodomain or bidomain pde */
     AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
 
+    /** Boundary conditions container used in the simulation */
     BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
+    /** It is convenient to also have a separate variable for default (zero-Neumann) boundary conditions */
     BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpDefaultBoundaryConditionsContainer;
+    /** The PDE solver */
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
-
+    /** The cell factory creates the cells for each node */
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
+    /** The mesh. Can either by passed in, or the mesh filename can be set */
     AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
-    Vec mSolution; // Current solution
+    /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and 
+     *  [V_0 phi_0 .. V_N phi_N] for bidomain */
+    Vec mSolution; 
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.
@@ -99,7 +118,7 @@ protected:
 public:
     // This (and things in MonodomainProblem) being public are hacks for
     // CardiacElectroMechanicsProblem to work.
-    // TODO CardiacElectroMechanicsProblem should be a friend, but not sure
+    // ///\todo CardiacElectroMechanicsProblem should be a friend, but not sure
     // how to get friends to work when both friends are templated and abstract.
     Hdf5DataWriter* mpWriter;
 
@@ -118,6 +137,9 @@ public:
      */
     void Initialise();
 
+    /** 
+     *  Set a file from which the nodes for each processor are read
+     */ 
     void SetNodesPerProcessorFilename(const std::string& filename);
     
     /**
@@ -150,6 +172,7 @@ public:
      */
     void ConvertOutputToMeshalyzerFormat(bool call = true);
 
+    /** This only needs to be called if a mesh filename has not been set */ 
     void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     /**
@@ -195,7 +218,7 @@ public:
     void CloseFilesAndPostProcess();
 
 
-    virtual void WriteInfo(double time) =0;
+    virtual void WriteInfo(double time)=0;
 
     virtual void DefineWriterColumns();
 
