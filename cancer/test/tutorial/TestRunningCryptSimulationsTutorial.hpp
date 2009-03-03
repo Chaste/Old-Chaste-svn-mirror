@@ -131,10 +131,8 @@ public:
 
         /* We must now create one or more force laws, which determine the mechanics of
          * the tissue. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring. Since this 
-         * model was first proposed in the context of crypt modelling by Meineke ''et al'' 
-         * (Cell Prolif. 34:253-266, 2001), we call this object a 
-         * {{{GeneralisedLinearSpringForce}}}. We pass a pointer to this force into a vector.
+         * neighbour that can be represented as a linear overdamped spring. We put a pointer
+         * to this force into a vector.
          */
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -224,7 +222,7 @@ public:
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(tissue);
 
-        /* '''TODO''' add comment */
+        /* Create a force collection as above. */
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);

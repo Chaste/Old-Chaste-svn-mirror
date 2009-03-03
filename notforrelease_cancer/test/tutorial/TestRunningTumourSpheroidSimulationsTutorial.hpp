@@ -81,7 +81,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
-/* PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is 
+/* !PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is 
  * a suite of data structures and routines that are used in the finite element
  * PDE solvers, which is how we solve the nutrient PDE(s).
  */
