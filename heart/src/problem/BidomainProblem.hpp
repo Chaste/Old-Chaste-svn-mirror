@@ -66,7 +66,7 @@ private:
     /** Whether the mesh has a bath, ie whether this is a bath simulation */
     bool mHasBath;
 
-    /*< Electrodes used to provide a shock */
+    /** Electrodes used to provide a shock */
     Electrodes<DIM>* mpElectrodes;
 
     /**

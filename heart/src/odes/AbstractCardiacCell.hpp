@@ -175,13 +175,13 @@ public:
      */
     virtual void SetState(CellModelState state);
 
-    /*< Pure method, for setting the slow variables. Should only be valid in fast mode) */
+    /** Pure method, for setting the slow variables. Should only be valid in fast mode) */
     virtual void SetSlowValues(const std::vector<double> &rSlowValues);
 
-    /*< Pure method, for getting the slow variables. Should only valid in slow mode. */
+    /** Pure method, for getting the slow variables. Should only valid in slow mode. */
     virtual void GetSlowValues(std::vector<double>& rSlowValues);
     
-    /*< Get whether this cell is a fast or slow version */
+    /** Get whether this cell is a fast or slow version */
     virtual bool IsFastOnly();
     
     virtual void AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues);
@@ -191,8 +191,6 @@ public:
      *  (irrespective of whether in fast or slow mode
      */
     virtual unsigned GetNumSlowValues();
-    
-
     
 };
 

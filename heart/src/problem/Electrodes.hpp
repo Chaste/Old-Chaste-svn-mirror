@@ -51,13 +51,13 @@ class Electrodes
 friend class TestBidomainWithBathAssembler;
 
 private:
-    /*< Whether the second electrode is grounded */
+    /** Whether the second electrode is grounded */
     bool mGroundSecondElectrode;
-    /*< The created bcc, which BidomainProblem will use */
+    /** The created bcc, which BidomainProblem will use */
     BoundaryConditionsContainer<DIM,DIM,2>* mpBoundaryConditionsContainer;
-    /*< The time the electrodes are switched off */
+    /** The time the electrodes are switched off */
     double mEndTime;
-    /*< Whether the electrodes are currently switched on */
+    /** Whether the electrodes are currently switched on */
     bool mAreActive;
 
 public:

@@ -77,7 +77,7 @@ protected:
     QuadraticMesh<DIM>* mpQuadMesh;
 
 
-    /*< Boundary elements with (non-zero) surface tractions defined on them */
+    /** Boundary elements with (non-zero) surface tractions defined on them */
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
 
     GaussianQuadratureRule<DIM>* mpQuadratureRule;

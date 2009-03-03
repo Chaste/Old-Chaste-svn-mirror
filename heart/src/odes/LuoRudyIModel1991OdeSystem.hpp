@@ -39,7 +39,7 @@ class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
 {
 private:
 
-    /*< Constants for the LuoRudyIModel1991OdeSystem model */
+    /** Constants for the LuoRudyIModel1991OdeSystem model */
     static const double membrane_C = 1.0;
     static const double membrane_F = 96484.6;
     static const double membrane_R = 8314;
@@ -54,7 +54,7 @@ private:
     static const double plateau_potassium_current_g_Kp = 0.0183;
     static const double time_dependent_potassium_current_PR_NaK = 0.01833;
 
-    /*< Another parameter, which is a function of the above */
+    /** Another parameter, which is a function of the above */
     double fast_sodium_current_E_Na;
 
     /** 

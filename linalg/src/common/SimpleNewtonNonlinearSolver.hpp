@@ -97,10 +97,10 @@ public :
                       Vec initialGuess,
                       void *pContext);
 
-    /*< Set a tolerance other than the default */
+    /** Set a tolerance other than the default */
     void SetTolerance(double tolerance);
 
-    /*< Call to set the solver to write details as it solves */
+    /** Call to set the solver to write details as it solves */
     void SetWriteStats(bool writeStats = true)
     {
         mWriteStats = writeStats;

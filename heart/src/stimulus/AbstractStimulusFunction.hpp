@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractStimulusFunction
 {
 public:
-    /*< Returns stimulus at time 'time' */
+    /** Returns stimulus at time 'time' */
     virtual double GetStimulus(double time) = 0;
     virtual ~AbstractStimulusFunction()
     {}

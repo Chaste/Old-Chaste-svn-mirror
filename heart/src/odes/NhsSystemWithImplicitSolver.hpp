@@ -57,20 +57,20 @@ private:
      */
     const static double mTolerance = 1e-10;
 
-    /*< Timestep for the ODEs solving */
+    /** Timestep for the ODEs solving */
     double mDt;
 
-    /*< See SetUseImplicitExplicitSolveForZ() */
+    /** See SetUseImplicitExplicitSolveForZ() */
     bool mUseImplicitExplicitSolveForZ;
 
-    /*< Temporary stored state variables - current guesses to the current solution */
+    /** Temporary stored state variables - current guesses to the current solution */
     std::vector<double> mTempStoredStateVariables;
-    /*< Current state variables to be used in the next timestep */
+    /** Current state variables to be used in the next timestep */
     std::vector<double> mCurrentStateVars;
 
-    /*< Initial guess for the active tension */
+    /** Initial guess for the active tension */
     double mActiveTensionInitialGuess;
-    /*< The solution for the active tension after a SolveDoNotUpdate() has been called */
+    /** The solution for the active tension after a SolveDoNotUpdate() has been called */
     double mActiveTensionSolution;
 
     /**
@@ -86,7 +86,7 @@ private:
      *  Compute T0, Q and then T_a
      */
     void ImplicitSolveForActiveTension();
-    /*< The residual function for the main Newton solve. See ImplicitSolveForActiveTension() */
+    /** The residual function for the main Newton solve. See ImplicitSolveForActiveTension() */
     double CalcActiveTensionResidual(double activeTensionGuess);
 
     /**
@@ -101,9 +101,9 @@ private:
      *  implicitly using backward euler. Uses Newton's method
      */
     double ImplicitSolveForZ(double newCaTrop);
-    /*< Residual for solving z implicitly. See ImplicitSolveForZ() */
+    /** Residual for solving z implicitly. See ImplicitSolveForZ() */
     double CalcZResidual(double z, double newCaTrop);
-    /*< Solve for z semi implicitly. See UseImplicitExplicitSolveForZ() */
+    /** Solve for z semi implicitly. See UseImplicitExplicitSolveForZ() */
     double ImplicitExplicitSolveForZ(double newCaTrop);
 
     /**

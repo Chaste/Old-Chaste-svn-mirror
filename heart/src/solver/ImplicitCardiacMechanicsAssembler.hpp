@@ -75,17 +75,17 @@ private:
      */ 
     std::vector<double> mLambda;
 
-    /*< Current time */
+    /** Current time */
     double mCurrentTime;
-    /*< Time to which the solver has been asked to solve to */
+    /** Time to which the solver has been asked to solve to */
     double mNextTime;
-    /*< Time used to integrate the NHS model */
+    /** Time used to integrate the NHS model */
     double mOdeTimestep;
 
-    /*< Whether the material law was passed in or the default used */
+    /** Whether the material law was passed in or the default used */
     bool mAllocatedMaterialLawMemory;
     
-    /*< Total number of quad points in the (mechanics) mesh */
+    /** Total number of quad points in the (mechanics) mesh */
     unsigned mTotalQuadPoints;
     
 public:
@@ -107,10 +107,10 @@ public:
      */
     ~ImplicitCardiacMechanicsAssembler();
     
-    /*< Get the total number of quad points in the mesh */
+    /** Get the total number of quad points in the mesh */
     unsigned GetTotalNumQuadPoints();
     
-    /*< Get the quadrature rule used in the elements */
+    /** Get the quadrature rule used in the elements */
     GaussianQuadratureRule<DIM>* GetQuadratureRule();
 
     /**

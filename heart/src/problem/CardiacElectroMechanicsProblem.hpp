@@ -102,25 +102,25 @@ class CardiacElectroMechanicsProblem
 friend class TestCardiacElectroMechanicsProblem;
 
 protected :
-    /*< The cardiac problem class */
+    /** The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
-    /*< The mechanics assembler */
+    /** The mechanics assembler */
     ImplicitCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;
 
-    /*< End time. The start time is assumed to be 0.0 */
+    /** End time. The start time is assumed to be 0.0 */
     double mEndTime;
-    /*< The electrics timestep. */
+    /** The electrics timestep. */
     double mElectricsTimeStep;
-    /*< The mechanics timestep. Needs to be a multiple of the electrics timestep */
+    /** The mechanics timestep. Needs to be a multiple of the electrics timestep */
     double mMechanicsTimeStep;
-    /*< The number of electrics timesteps per mechanics timestep */
+    /** The number of electrics timesteps per mechanics timestep */
     unsigned mNumElecTimestepsPerMechTimestep;
-    /*< Timestep to use when solving NHS models (for implicit version)*/
+    /** Timestep to use when solving NHS models (for implicit version)*/
     double mNhsOdeTimeStep;
 
-    /*< The mesh for the electrics */
+    /** The mesh for the electrics */
     TetrahedralMesh<DIM,DIM>* mpElectricsMesh;
-    /*< The mesh for the mechanics */
+    /** The mesh for the mechanics */
     QuadraticMesh<DIM>* mpMechanicsMesh;
 
     /**
@@ -130,30 +130,30 @@ protected :
      */
     std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
 
-    /*< Output directory, relative to TEST_OUTPUT */
+    /** Output directory, relative to TEST_OUTPUT */
     std::string mOutputDirectory;
-    /*< Deformation output-sub-directory */
+    /** Deformation output-sub-directory */
     std::string mDeformationOutputDirectory;
-    /*< Whether to write any output */
+    /** Whether to write any output */
     bool mWriteOutput;
     /** Whether to not write out voltages */
     bool mNoElectricsOutput;
 
-    /*< when to write output */
+    /** when to write output */
     const static int WRITE_EVERY_NTH_TIME = 1; //hardcoded for the time being ///\todo, allow user to set this
 
-    /*< Whether any location has been set to be watched (lots of output for that location */
+    /** Whether any location has been set to be watched (lots of output for that location */
     bool mIsWatchedLocation;
-    /*< The watched location if there is one */
+    /** The watched location if there is one */
     c_vector<double,DIM> mWatchedLocation;
-    /*< The node in the electrics mesh corresponding to the watched location */
+    /** The node in the electrics mesh corresponding to the watched location */
     unsigned mWatchedElectricsNodeIndex;
-    /*< The node in the mechanics mesh corresponding to the watched location */
+    /** The node in the mechanics mesh corresponding to the watched location */
     unsigned mWatchedMechanicsNodeIndex;
-    /*< File where watched location info is written */
+    /** File where watched location info is written */
     out_stream mpWatchedLocationFile;
 
-    /*< Nodes for which the deformation is fixed to zero */
+    /** Nodes for which the deformation is fixed to zero */
     std::vector<unsigned> mFixedNodes;
 
     /** 

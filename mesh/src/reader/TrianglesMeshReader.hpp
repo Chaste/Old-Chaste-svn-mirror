@@ -48,18 +48,18 @@ private:
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 
-	std::string mFilesBaseName;
+    std::string mFilesBaseName;
 
-	std::ifstream mNodesFile;
-	std::ifstream mElementsFile;
-	std::ifstream mFacesFile;
+    std::ifstream mNodesFile;
+    std::ifstream mElementsFile;
+    std::ifstream mFacesFile;
 
-	unsigned mNumNodes;
-	unsigned mNumElements;
-	unsigned mNumFaces;
-	
-	unsigned mNodesRead;
-	unsigned mElementsRead;
+    unsigned mNumNodes;
+    unsigned mNumElements;
+    unsigned mNumFaces;
+    
+    unsigned mNodesRead;
+    unsigned mElementsRead;
     unsigned mFacesRead;
     unsigned mBoundaryFacesRead;
 
@@ -69,22 +69,22 @@ private:
     unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
     unsigned mNumFaceAttributes; /**< Is the number of attributes stored for each face */
 
-	unsigned mOrderOfElements;
+    unsigned mOrderOfElements;
     unsigned mNodesPerElement;
 
 public:
     TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements=1):
         mFilesBaseName(pathBaseName),
-    	mNumNodes(0),
-    	mNumElements(0),
-    	mNumFaces(0),
-		mNodesRead(0),
-		mElementsRead(0),
+        mNumNodes(0),
+        mNumElements(0),
+        mNumFaces(0),
+        mNodesRead(0),
+        mElementsRead(0),
         mFacesRead(0),
-		mBoundaryFacesRead(0),
+        mBoundaryFacesRead(0),
         mNumElementAttributes(0),
         mNumFaceAttributes(0),
-    	mOrderOfElements(orderOfElements)
+        mOrderOfElements(orderOfElements)
     {
         // Only linear and quadratic elements
         assert(orderOfElements==1 || orderOfElements==2);
@@ -103,13 +103,13 @@ public:
         mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
         
 
-    	OpenFiles();
+        OpenFiles();
 
-		ReadHeaders();
+        ReadHeaders();
 
     }
     
- 	/**< Returns the number of elements in the mesh */
+     /**< Returns the number of elements in the mesh */
     unsigned GetNumElements() const
     {
         return mNumElements;
@@ -159,33 +159,33 @@ public:
     } 
 
 
-	/**< Returns a vector of the coordinates of each node in turn */
+    /**< Returns a vector of the coordinates of each node in turn */
     std::vector<double> GetNextNode()
     {
-    	std::vector<double> ret_coords;
+        std::vector<double> ret_coords;
         
-        std::string buffer;		
-		GetNextLineFromStream(mNodesFile, buffer);
+        std::string buffer;        
+        GetNextLineFromStream(mNodesFile, buffer);
 
-		std::stringstream buffer_stream(buffer);
+        std::stringstream buffer_stream(buffer);
 
-		unsigned index;		
-		buffer_stream >> index;
-		
+        unsigned index;        
+        buffer_stream >> index;
+        
         unsigned offset = mIndexFromZero ? 0 : 1;
-		if(index != mNodesRead+offset)
-		{
-			std::stringstream error;
-			error << "Data for node " << mNodesRead << " missing";
-			EXCEPTION(error.str());
-		}
+        if(index != mNodesRead+offset)
+        {
+            std::stringstream error;
+            error << "Data for node " << mNodesRead << " missing";
+            EXCEPTION(error.str());
+        }
 
         double coord;
-    	
-	    for (unsigned i = 0; i < SPACE_DIM; i++)
+        
+        for (unsigned i = 0; i < SPACE_DIM; i++)
         {
-	        buffer_stream >> coord;
-	        ret_coords.push_back(coord);
+            buffer_stream >> coord;
+            ret_coords.push_back(coord);
         }
                 
         mNodesRead++;
@@ -193,32 +193,32 @@ public:
         return ret_coords;
     }
       
-    /*< Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
+    /** Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
     ElementData GetNextElementData()
     {
-		ElementData element_data;		
+        ElementData element_data;        
         
-        std::string buffer;		
-		GetNextLineFromStream(mElementsFile, buffer);
+        std::string buffer;        
+        GetNextLineFromStream(mElementsFile, buffer);
 
-		std::stringstream buffer_stream(buffer);
+        std::stringstream buffer_stream(buffer);
 
-		unsigned element_index;		
-		buffer_stream >> element_index; 
+        unsigned element_index;        
+        buffer_stream >> element_index; 
 
         unsigned offset = mIndexFromZero ? 0 : 1;
-		if(element_index != mElementsRead+offset)
-		{
-			std::stringstream error;
-			error << "Data for element " << mElementsRead << " missing";
-			EXCEPTION(error.str());
-		}
+        if(element_index != mElementsRead+offset)
+        {
+            std::stringstream error;
+            error << "Data for element " << mElementsRead << " missing";
+            EXCEPTION(error.str());
+        }
 
         unsigned node_index;
-	    for (unsigned i=0; i<mNodesPerElement; i++)
+        for (unsigned i=0; i<mNodesPerElement; i++)
         {
-	        buffer_stream >> node_index;
-	        element_data.NodeIndices.push_back(node_index - offset);
+            buffer_stream >> node_index;
+            element_data.NodeIndices.push_back(node_index - offset);
         }
          
         if(mNumElementAttributes>0)
@@ -237,14 +237,14 @@ public:
 
         mElementsRead++;
 
-		return element_data;
+        return element_data;
     } 
         
     /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
     ElementData GetNextFaceData()
     {
         ElementData face_data;
-		std::vector<unsigned> ret_indices;		
+        std::vector<unsigned> ret_indices;        
 
         // In the first two cases there's no file, all the nodes are set as faces
         if (SPACE_DIM == 1)
@@ -265,13 +265,13 @@ public:
             {       
                 ret_indices.clear();
                      
-		        std::string buffer;		
-				GetNextLineFromStream(mFacesFile, buffer);
-		
-				std::stringstream buffer_stream(buffer);
-		
-				unsigned face_index;		
-				buffer_stream >> face_index;
+                std::string buffer;        
+                GetNextLineFromStream(mFacesFile, buffer);
+        
+                std::stringstream buffer_stream(buffer);
+        
+                unsigned face_index;        
+                buffer_stream >> face_index;
 
                 if(face_index != mFacesRead+offset)
                 {
@@ -279,12 +279,12 @@ public:
                     error << "Data for face " << mFacesRead << " missing";
                     EXCEPTION(error.str());
                 }
-		
-		        unsigned node_index;                
-			    for (unsigned i = 0; i<element_dim; i++)
-		        {
-			        buffer_stream >> node_index;
-			        ret_indices.push_back(node_index-offset);
+        
+                unsigned node_index;                
+                for (unsigned i = 0; i<element_dim; i++)
+                {
+                    buffer_stream >> node_index;
+                    ret_indices.push_back(node_index-offset);
                 }
                        
                 if(mNumFaceAttributes>0)
@@ -304,10 +304,10 @@ public:
             }
             while((mNumFaceAttributes==1) && (face_data.AttributeValue==0));
         }        
-	                
+                    
         mBoundaryFacesRead++;
         face_data.NodeIndices = ret_indices;
-		return face_data;
+        return face_data;
     }
 
     /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
@@ -319,8 +319,8 @@ public:
 
 private:
 
-	void OpenFiles()
-	{
+    void OpenFiles()
+    {
         OpenNodeFile();
         OpenElementsFile();
         OpenFacesFile();
@@ -328,92 +328,92 @@ private:
     
     void OpenNodeFile()
     {        
-		// Nodes definition
-    	std::string file_name = mFilesBaseName + NODES_FILE_EXTENSION;
-		mNodesFile.open(file_name.c_str());
-		if (!mNodesFile.is_open())
-    	{
-        	EXCEPTION("Could not open data file: "+file_name);
-    	}
+        // Nodes definition
+        std::string file_name = mFilesBaseName + NODES_FILE_EXTENSION;
+        mNodesFile.open(file_name.c_str());
+        if (!mNodesFile.is_open())
+        {
+            EXCEPTION("Could not open data file: "+file_name);
+        }
     }
     
     void OpenElementsFile()
     {
-		// Elements definition
-		std::string file_name;
+        // Elements definition
+        std::string file_name;
         if (ELEMENT_DIM == SPACE_DIM)
-		{
-    		file_name = mFilesBaseName + ELEMENTS_FILE_EXTENSION;
-		}
-		else
-		{
-		    if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
-		    {
-		        file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
-		    }
-		    else if (SPACE_DIM == 3 && ELEMENT_DIM == 2)
-		    {
-		        file_name = mFilesBaseName + FACES_FILE_EXTENSION;
-		    }
-		    else
-		    {
-		        EXCEPTION("Can't have a zero-dimensional mesh in a one-dimensional space or a one-dimensional mesh in a three-dimensional space");
-		    }
-		}
-    	
-		mElementsFile.open(file_name.c_str());
-		if (!mElementsFile.is_open())
-    	{
-        	EXCEPTION("Could not open data file: "+file_name);
-    	}
+        {
+            file_name = mFilesBaseName + ELEMENTS_FILE_EXTENSION;
+        }
+        else
+        {
+            if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
+            {
+                file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
+            }
+            else if (SPACE_DIM == 3 && ELEMENT_DIM == 2)
+            {
+                file_name = mFilesBaseName + FACES_FILE_EXTENSION;
+            }
+            else
+            {
+                EXCEPTION("Can't have a zero-dimensional mesh in a one-dimensional space or a one-dimensional mesh in a three-dimensional space");
+            }
+        }
+        
+        mElementsFile.open(file_name.c_str());
+        if (!mElementsFile.is_open())
+        {
+            EXCEPTION("Could not open data file: "+file_name);
+        }
     }
 
     void OpenFacesFile()
-    {		
-		// Faces/edges definition
+    {        
+        // Faces/edges definition
         std::string file_name;
-	    if (SPACE_DIM == 3)
-    	{
-    		if (SPACE_DIM == ELEMENT_DIM)
-    		{
-	    		file_name = mFilesBaseName + FACES_FILE_EXTENSION;
-    		}
-    		else
-    		{
-    			file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
-    		}
-	    }
-	    else if (SPACE_DIM == 2)
-	    { 
-	    	file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
-	    }
-	    else if (SPACE_DIM == 1)
-	    {
-	    	//There is no file, data will be generated instead of read
-	    	return;
-	    }
-		
-		mFacesFile.open(file_name.c_str());
-		if (!mFacesFile.is_open())
-    	{
-        	EXCEPTION("Could not open data file: "+file_name);
-    	}		    			
-	}
-	
-	void ReadHeaders()
-	{
-		std::string buffer;
-		
-		GetNextLineFromStream(mNodesFile, buffer);
-		std::stringstream buffer_stream(buffer);
-		unsigned dimension;
-	    buffer_stream >> mNumNodes >> dimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
-	    if (SPACE_DIM != dimension)
-	    {
+        if (SPACE_DIM == 3)
+        {
+            if (SPACE_DIM == ELEMENT_DIM)
+            {
+                file_name = mFilesBaseName + FACES_FILE_EXTENSION;
+            }
+            else
+            {
+                file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
+            }
+        }
+        else if (SPACE_DIM == 2)
+        { 
+            file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
+        }
+        else if (SPACE_DIM == 1)
+        {
+            //There is no file, data will be generated instead of read
+            return;
+        }
+        
+        mFacesFile.open(file_name.c_str());
+        if (!mFacesFile.is_open())
+        {
+            EXCEPTION("Could not open data file: "+file_name);
+        }                        
+    }
+    
+    void ReadHeaders()
+    {
+        std::string buffer;
+        
+        GetNextLineFromStream(mNodesFile, buffer);
+        std::stringstream buffer_stream(buffer);
+        unsigned dimension;
+        buffer_stream >> mNumNodes >> dimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
+        if (SPACE_DIM != dimension)
+        {
             EXCEPTION("SPACE_DIM  != dimension read from file ");
-	    }
+        }
 
-        // get the next line to see if it is indexed from zero or not        	    
+        // get the next line to see if it is indexed from zero or not                
         GetNextLineFromStream(mNodesFile, buffer);
         std::stringstream buffer_stream_ii(buffer);
 
@@ -428,79 +428,79 @@ private:
         GetNextLineFromStream(mNodesFile, buffer);     
         
         
-		/// \todo: rename std::stringstream variables
-		GetNextLineFromStream(mElementsFile, buffer);
-		std::stringstream buffer_stream2(buffer);
-		
-		if (ELEMENT_DIM == SPACE_DIM)
-		{ 
-		    buffer_stream2 >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
-	    
-	    	if( mNumElementNodes != mNodesPerElement )
-	    	{
-	        	std::stringstream error;
-	        	error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "
-		              << "expected number, " << mNodesPerElement << " (which is calculated given "
-		              << "the order of elements chosen, " << mOrderOfElements << " (1=linear, 2=quadratics)";
-		        EXCEPTION(error.str());
-		    }
-		}
-		else
-		{
-	    	buffer_stream2 >> mNumElements >> mNumFaceAttributes;
+        /// \todo: rename std::stringstream variables
+        GetNextLineFromStream(mElementsFile, buffer);
+        std::stringstream buffer_stream2(buffer);
+        
+        if (ELEMENT_DIM == SPACE_DIM)
+        { 
+            buffer_stream2 >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
+        
+            if( mNumElementNodes != mNodesPerElement )
+            {
+                std::stringstream error;
+                error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "
+                      << "expected number, " << mNodesPerElement << " (which is calculated given "
+                      << "the order of elements chosen, " << mOrderOfElements << " (1=linear, 2=quadratics)";
+                EXCEPTION(error.str());
+            }
+        }
+        else
+        {
+            buffer_stream2 >> mNumElements >> mNumFaceAttributes;
 
-        	mNodesPerElement = ELEMENT_DIM+1;			
-		}
-	    		
+            mNodesPerElement = ELEMENT_DIM+1;            
+        }
+                
 
-		if (SPACE_DIM == 1)
-		{
-			mNumFaces = mNumNodes;
-		}
+        if (SPACE_DIM == 1)
+        {
+            mNumFaces = mNumNodes;
+        }
         else if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
         {
             mNumFaces = mNumNodes;            
         }
-		else
-		{
-			GetNextLineFromStream(mFacesFile, buffer);		
-			std::stringstream buffer_stream3(buffer);
+        else
+        {
+            GetNextLineFromStream(mFacesFile, buffer);        
+            std::stringstream buffer_stream3(buffer);
 
-		    buffer_stream3 >> mNumFaces >> mNumFaceAttributes;
-		    assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
+            buffer_stream3 >> mNumFaces >> mNumFaceAttributes;
+            assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
             
-		    // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
-		    // the number of faces which are marked as boundary faces
-			if((mNumFaceAttributes==1) && (SPACE_DIM!=1))
-			{
+            // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
+            // the number of faces which are marked as boundary faces
+            if((mNumFaceAttributes==1) && (SPACE_DIM!=1))
+            {
                 unsigned num_boundary_faces = 0;
                 bool end_of_file=false;
                 while(!end_of_file)
                 {
                     try
                     {
-         				GetNextFaceData();
+                         GetNextFaceData();
                         num_boundary_faces++;
                     }
                     catch(Exception& e)
                     {
                         end_of_file = true;
                     }
-				}
-				mNumFaces = num_boundary_faces;
-				
-				// close the file, reopen, and skip the header again
-				mFacesFile.close();
+                }
+                mNumFaces = num_boundary_faces;
+                
+                // close the file, reopen, and skip the header again
+                mFacesFile.close();
                 mFacesFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
                 OpenFacesFile();
                 GetNextLineFromStream(mFacesFile, buffer);
                 mFacesRead=0;
                 mBoundaryFacesRead=0;      
             }            
-		}		
+        }        
         
-	}
-	
+    }
+    
     void CloseFiles()
     {
         mNodesFile.close();
@@ -508,27 +508,27 @@ private:
         mFacesFile.close();                
     }
     
-	void GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
-	{
-		bool line_is_blank;
-		
-		do
-		{
-	    	getline(fileStream, rawLine);
+    void GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
+    {
+        bool line_is_blank;
+        
+        do
+        {
+            getline(fileStream, rawLine);
 
-	    	if (fileStream.eof())
-	    	{
-	    		/// \todo: improve this error message
-	    		EXCEPTION("File contains incomplete data");
-	    	}
-	
+            if (fileStream.eof())
+            {
+                /// \todo: improve this error message
+                EXCEPTION("File contains incomplete data");
+            }
+    
             // Get rid of any comment
             rawLine = rawLine.substr(0,rawLine.find('#',0));
             
-            line_is_blank = (rawLine.find_first_not_of(" \t",0) == std::string::npos);	
-		}
-		while (line_is_blank);		
-	}    
+            line_is_blank = (rawLine.find_first_not_of(" \t",0) == std::string::npos);    
+        }
+        while (line_is_blank);        
+    }    
 };
 
 #endif //_TRIANGLESMESHREADER_HPP_

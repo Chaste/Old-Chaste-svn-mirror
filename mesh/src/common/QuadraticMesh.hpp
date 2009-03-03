@@ -44,7 +44,7 @@ private:
      */
     std::vector<bool> mIsInternalNode;
 
-    /*< Number of vertices, ie non-internal (non-quadratic), nodes. */
+    /** Number of vertices, ie non-internal (non-quadratic), nodes. */
     unsigned mNumVertices;
 
     /**

@@ -50,20 +50,20 @@ class NhsCellularMechanicsOdeSystem  : public AbstractOdeSystem
 friend class TestCellularMechanicsOdeSystems;
 
 protected :
-    /*< The stretch. To be specified by the caller */
+    /** The stretch. To be specified by the caller */
     double mLambda;
-    /*< The stretch rate. To be specified by the caller */
+    /** The stretch rate. To be specified by the caller */
     double mDLambdaDt;
-    /*< The intracellular calcium concentration. To be specified by the caller */
+    /** The intracellular calcium concentration. To be specified by the caller */
     double mCalciumI;
 
 
-    /*< A parameter only dependent on constants and lambda, so updated whenever lambda is updated */
+    /** A parameter only dependent on constants and lambda, so updated whenever lambda is updated */
     double mCalciumTrop50;
 
-    /*< A constant determined from the other constrants. Set up in the constructor */
+    /** A constant determined from the other constrants. Set up in the constructor */
     double mK1;
-    /*< A constant determined from the other constrants. Set up in the constructor */
+    /** A constant determined from the other constrants. Set up in the constructor */
     double mK2;
 
     // Parameters

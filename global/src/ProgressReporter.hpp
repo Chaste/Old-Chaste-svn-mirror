@@ -40,13 +40,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ProgressReporter
 {
 private:
-    /*< Start time of the simulation */
+    /** Start time of the simulation */
     double mStartTime;
-    /*< End time of the simulation */
+    /** End time of the simulation */
     double mEndTime;
-    /*< Progress status file */
+    /** Progress status file */
     out_stream mpFile; 
-    /*< Last percentage that was written */
+    /** Last percentage that was written */
     unsigned mLastPercentage;
        
 public :

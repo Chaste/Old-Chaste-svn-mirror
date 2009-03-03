@@ -46,17 +46,17 @@ protected:
 
     Vec    mInitialCondition;
 
-    /*< Whether the matrix has been assembled for the current time step. */
+    /** Whether the matrix has been assembled for the current time step. */
     bool mMatrixIsAssembled;
 
-    /*< Whether the matrix of the system needs to be assembled at each time step. */
+    /** Whether the matrix of the system needs to be assembled at each time step. */
     bool mMatrixIsConstant;
 
-    /*< Whether the RHS vector of a linear problem is created by a matrix-vector multiplication */
+    /** Whether the RHS vector of a linear problem is created by a matrix-vector multiplication */
     bool mUseMatrixBasedRhsAssembly;
-    /*< If doing matrix-based assembly for the RHS b, the matrix B in Bz=b */
+    /** If doing matrix-based assembly for the RHS b, the matrix B in Bz=b */
     Mat* mpMatrixForMatrixBasedRhsAssembly;
-    /*< If doing matrix-based assembly for the RHS b, the vector z in Bz=b */
+    /** If doing matrix-based assembly for the RHS b, the vector z in Bz=b */
     Vec mVectorForMatrixBasedRhsAssembly;
     
     /**

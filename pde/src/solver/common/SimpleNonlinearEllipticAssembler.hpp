@@ -64,7 +64,7 @@ private:
     // residual & jacobian directly.
     friend class TestSimpleNonlinearEllipticAssembler;
 
-    /*< The pde to be solved */
+    /** The pde to be solved */
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;
 
 

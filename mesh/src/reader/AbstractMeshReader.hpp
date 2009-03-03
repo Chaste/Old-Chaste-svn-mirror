@@ -87,16 +87,16 @@ public:
     virtual ~AbstractMeshReader()
     {}
 
-    /*< Returns the number of elements in the mesh */
+    /** Returns the number of elements in the mesh */
     virtual unsigned GetNumElements() const =0;
 
-    /*< Returns the number of nodes in the mesh */
+    /** Returns the number of nodes in the mesh */
     virtual unsigned GetNumNodes() const =0;
 
-    /*< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
+    /** Returns the number of faces in the mesh (synonym of GetNumEdges()) */
     virtual unsigned GetNumFaces() const =0;
 
-    /*< Returns the number of element attributes in the mesh */
+    /** Returns the number of element attributes in the mesh */
     virtual unsigned GetNumElementAttributes() const
     {
         // By default returns 0.  If a concrete class does read attributes
@@ -104,7 +104,7 @@ public:
         return 0;
     }
 
-    /*< Returns the number of face attributes in the mesh */
+    /** Returns the number of face attributes in the mesh */
     virtual unsigned GetNumFaceAttributes() const
     {
         // By default returns 0.  If a concrete class does read attributes
@@ -112,25 +112,25 @@ public:
         return 0;
     }
 
-    /*< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
+    /** Returns the number of edges in the mesh (synonym of GetNumFaces()) */
     unsigned GetNumEdges() const
     {
         return GetNumFaces();
     }
 
-    /*< Returns a vector of the coordinates of each node in turn */
+    /** Returns a vector of the coordinates of each node in turn */
     virtual std::vector<double> GetNextNode()=0;
      
-    /*< Resets pointers to beginning*/
+    /** Resets pointers to beginning*/
     virtual void Reset()=0;     
      
-    /*< Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
+    /** Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
     virtual ElementData GetNextElementData()=0; 
         
-    /*< Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
+    /** Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
     virtual ElementData GetNextFaceData()=0;
     
-    /*< Returns a vector of the nodes of each edge in turn (synonym of GetNextFaceData()) */
+    /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFaceData()) */
     ElementData GetNextEdge()
     {
         return GetNextFaceData();

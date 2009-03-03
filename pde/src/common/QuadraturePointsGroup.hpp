@@ -45,11 +45,11 @@ template<unsigned DIM>
 class QuadraturePointsGroup
 {
 private :    
-    /*< The quadrature points in physical space */
+    /** The quadrature points in physical space */
     std::vector<c_vector<double,DIM> > data;
-    /*< Number of elements in given mesh */
+    /** Number of elements in given mesh */
     unsigned mNumElements;
-    /*< Number of quad points per element in given rule */
+    /** Number of quad points per element in given rule */
     unsigned mNumQuadPointsPerElement;
 
 public :
@@ -60,19 +60,19 @@ public :
     QuadraturePointsGroup(TetrahedralMesh<DIM,DIM>& rMesh,
                           GaussianQuadratureRule<DIM>& rQuadRule);
 
-    /*< Access the stored quad point by element index and quad index in the element */
+    /** Access the stored quad point by element index and quad index in the element */
     c_vector<double,DIM>& Get(unsigned elementIndex, unsigned quadIndex);
 
-    /*< Get the i-th stored quad point */
+    /** Get the i-th stored quad point */
     c_vector<double,DIM>& Get(unsigned i);
 
-    /*< Number of elements in the mesh that was given in the constructor */
+    /** Number of elements in the mesh that was given in the constructor */
     unsigned GetNumElements() const;
     
-    /*< Number of quad points per element in the rule that was given in the constructor */
+    /** Number of quad points per element in the rule that was given in the constructor */
     unsigned GetNumQuadPointsPerElement() const;
     
-    /*< Total size, ie total number of quad points, ie num_elem times num_quad_points_per_elem */
+    /** Total size, ie total number of quad points, ie num_elem times num_quad_points_per_elem */
     unsigned Size() const;
 };
 

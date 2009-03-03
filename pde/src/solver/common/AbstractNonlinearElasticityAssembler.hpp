@@ -54,11 +54,11 @@ template<unsigned DIM>
 class AbstractNonlinearElasticityAssembler
 {
 protected:
-    /*< Maximum absolute tolerance for newton solve  */
+    /** Maximum absolute tolerance for newton solve  */
     static const double MAX_NEWTON_ABS_TOL = 1e-8;
-    /*< Minimum absolute tolerance for newton solve  */
+    /** Minimum absolute tolerance for newton solve  */
     static const double MIN_NEWTON_ABS_TOL = 1e-12;
-    /*< Relative tolerance for newton solve  */
+    /** Relative tolerance for newton solve  */
     static const double NEWTON_REL_TOL = 1e-4;
 
     /** 
@@ -103,19 +103,19 @@ protected:
      */
     LinearSystem* mpPreconditionMatrixLinearSystem;
 
-    /*< Body force vector */
+    /** Body force vector */
     c_vector<double,DIM> mBodyForce;
-    /*< Mass density of the undeformed body (equal to the density of deformed body) */
+    /** Mass density of the undeformed body (equal to the density of deformed body) */
     double mDensity;
 
-    /*< Where to write output, relative to CHASTE_TESTOUTPUT */
+    /** Where to write output, relative to CHASTE_TESTOUTPUT */
     std::string mOutputDirectory;
-    /*< All nodes (including non-vertices) which are fixed */
+    /** All nodes (including non-vertices) which are fixed */
     std::vector<unsigned> mFixedNodes;
-    /*< The displacements of those nodes with displacement boundary conditions */
+    /** The displacements of those nodes with displacement boundary conditions */
     std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
 
-    /*< Whether to write any output */
+    /** Whether to write any output */
     bool mWriteOutput;
     
     /** 
@@ -131,11 +131,11 @@ protected:
      */
     FourthOrderTensor2<DIM> dTdE;
     
-    /*< Number of newton iterations taken in last solve */
+    /** Number of newton iterations taken in last solve */
     unsigned mNumNewtonIterations;
     
     
-    /*< Deformed position: mDeformedPosition[i](j) = x_j for node i */
+    /** Deformed position: mDeformedPosition[i](j) = x_j for node i */
     std::vector<c_vector<double,DIM> > mDeformedPosition;
 
     /** 
@@ -149,15 +149,15 @@ protected:
      */
     std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
-    /*< An optionally provided (pointer to a) function, giving body force as a function of undeformed position */ 
+    /** An optionally provided (pointer to a) function, giving body force as a function of undeformed position */ 
     c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>&);
     /** An optionally provided (pointer to a) function, giving the surface traction as a function of 
       * undeformed position
       */ 
     c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>&);
-    /*< Whether the functional version of the body force is being used or not */
+    /** Whether the functional version of the body force is being used or not */
     bool mUsingBodyForceFunction;
-    /*< Whether the functional version of the surface traction is being used or not */
+    /** Whether the functional version of the surface traction is being used or not */
     bool mUsingTractionBoundaryConditionFunction;
 
 
@@ -199,7 +199,7 @@ protected:
         }
     }
 
-    /*< Calculate |r|_2 / length(r), where r is the current residual vector */
+    /** Calculate |r|_2 / length(r), where r is the current residual vector */
     double CalculateResidualNorm()
     {
         double norm;

@@ -57,10 +57,10 @@ protected:
      *  class, this is for the former */ 
     std::string mMeshFilename;
 
-    /*< If this is set, the nodes for each processor are read */
+    /** If this is set, the nodes for each processor are read */
     std::string mNodesPerProcessorFilename;
 
-    /*< Data is not written if output directory or output file prefix are not set*/
+    /** Data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
     /**
@@ -73,7 +73,7 @@ protected:
     bool mPrintOutput;
     bool mCallChaste2Meshalyzer;
 
-    /*< If only outputing voltage for selected nodes, which nodes to output at */
+    /** If only outputing voltage for selected nodes, which nodes to output at */
     std::vector<unsigned> mNodesToOutput;
 
     /** Used by the writer */
