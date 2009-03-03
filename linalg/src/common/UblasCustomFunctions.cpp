@@ -99,12 +99,17 @@ c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3
         index_of_smallest = 2;
         min_eigenvalue = fabs(eigenvalues_real_part(2));
     }
-
+    
+    if (min_eigenvalue < DBL_EPSILON)
+    {   
+        ///\todo This needs to be investigated since an eigenvector corresponding to an eigenvalue near zero might not be reliable
+        std::cerr<<"Warning after LAPACK call:  eigenvalue was close to zero\n";
+    }
     c_vector<double, 3> output;            
     output(0) = right_eigenvalues(index_of_smallest,0);
     output(1) = right_eigenvalues(index_of_smallest,1);
     output(2) = right_eigenvalues(index_of_smallest,2);
-    
+
     return output;
     
 }
