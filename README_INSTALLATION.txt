@@ -10,8 +10,13 @@ The following packages and libraries are all compulsory for chaste to run
 Please install them as described below.
 
 ==========SCONS:=============
+(Python is a prerequisite for this)
+Use your package manager to install scons or
 
-Use your package manager to install scons or go to http://www.scons.org.
+wget http://mesh.dl.sourceforge.net/sourceforge/scons/scons-1.2.0.tar.gz
+gunzip scons-1.2.0.tar.gz
+tar -xf scons-1.2.0.tar
+python setup.py install --prefix=$HOME
 
 ========MPI and PETSC:=======
 
@@ -67,6 +72,7 @@ make check
 cd ..
 make install
 
+
 ================METIS:==================
 
 cd $HOME
@@ -117,6 +123,11 @@ PATH=$HOME/bin:$PATH
 You will need to edit the python/hostconfig/default.py to give the correct paths to each of the libraries.
  
 
+========== Compiling chaste ==========
+Now we should have all the necessary libraries to compile chaste. The following commands 
+should generate static and dynamic chaste libraries.
 
+scons compile_only=1 chaste_libs=1 static=0 build=GccOpt exe=1 apps
+scons compile_only=1 chaste_libs=1 static=1 build=GccOpt exe=1 apps
 
-
+The executable Chaste or Chaste.o can be found in the apps/src folder.
