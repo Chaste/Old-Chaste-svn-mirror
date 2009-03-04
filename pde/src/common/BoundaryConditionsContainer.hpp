@@ -69,6 +69,8 @@ private:
     NeumannMapIterator mLastNeumannCondition[PROBLEM_DIM];
 
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
+    
+    Vec mDirichletBoundaryConditionsVector;
 
 public:
 

@@ -33,6 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ConstBoundaryCondition.hpp"
 
+#include "PetscTools.hpp" //temporary
+
+
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsContainer()
             : AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>()
@@ -44,6 +47,9 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
         mAnyNonZeroNeumannConditionsForUnknown[index_of_unknown] = false;
         mLastNeumannCondition[index_of_unknown] = mpNeumannMap[index_of_unknown]->begin();
     }
+    
+    mDirichletBoundaryConditionsVector = NULL;
+
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -68,6 +74,11 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditions
     }
 
     this->DeleteDirichletBoundaryConditions(deleted_conditions);
+    
+    if(mDirichletBoundaryConditionsVector)
+    {
+        VecDestroy(mDirichletBoundaryConditionsVector);
+    }
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -151,6 +162,54 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
                                        bool applyToMatrix)
 {
+    if (applyToMatrix)
+    {
+        VecDuplicate(rLinearSystem.rGetRhsVector(), &mDirichletBoundaryConditionsVector);
+        VecZeroEntries(mDirichletBoundaryConditionsVector);
+        
+        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+        {
+            this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
+    
+            while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
+            {
+    
+                unsigned node_index = this->mDirichIterator->first->GetIndex();
+                double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
+    
+                unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
+                unsigned col = row;
+   // comments                        
+                //Extract the column from matrix
+                Vec matrix_col;
+                VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
+                VecZeroEntries(matrix_col);
+    
+                rLinearSystem.AssembleFinalLinearSystem(); 
+                Mat& r_mat = rLinearSystem.rGetLhsMatrix();
+                MatGetColumnVector(r_mat, matrix_col, col);
+                
+                //Zero the correct entry of the column
+                int indices[1] = {col};
+                double zero[1] = {0.0};
+                VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES); 
+    
+                VecAXPY(mDirichletBoundaryConditionsVector, -value, matrix_col);  
+
+                rLinearSystem.ZeroMatrixRow(row);
+                rLinearSystem.ZeroMatrixColumn(col);
+                rLinearSystem.SetMatrixElement(row, row, 1);
+
+                this->mDirichIterator++;
+            }
+        }
+    }
+    
+    if(mDirichletBoundaryConditionsVector)
+    {
+        VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, mDirichletBoundaryConditionsVector);
+    }
+     
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
         this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
@@ -161,20 +220,12 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
             double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
 
             unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
-
-            //old version equivalent to:
-            //unsigned row = node_index+index_of_unknown*mNumNodes;
-
-            if (applyToMatrix)
-            {
-                rLinearSystem.ZeroMatrixRow(row);
-                rLinearSystem.SetMatrixElement(row, row, 1);
-            }
+            
             rLinearSystem.SetRhsVectorElement(row, value);
 
             this->mDirichIterator++;
         }
-    }
+    }    
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
