@@ -366,6 +366,28 @@ class Coverage(GccDebug):
         else:
             return 'red'
 
+class DoxygenCoverage(GccDebug):
+    """Check for documentation coverage/problems."""
+    def DisplayStatus(self, status):
+        """
+        Return a (more) human readable version of the given status string.
+        """
+        if status == 'OK':
+            s = 'No Doxygen problems found'
+        elif status == 'Unknown':
+            s = 'Output unrecognised'
+        else:
+            s = ''
+            if status.startswith('warn_'):
+                s = s + status[5:].split('_')[0] + " Doxygen warnings"
+            else:
+                s = s + status.split('_')[0] + ' Doxygen errors'
+        return s
+    
+    def GetTestRunnerCommand(self, exefile, exeflags=''):
+        "We don't actually run any tests in this build..."
+        return ''
+
 class CovTool(Coverage):
     """Coverage testing using the covtool software."""
     def __init__(self, *args, **kwargs):

@@ -97,7 +97,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
         // If no mesh has been passed, we get it from the configuration file
         try
         {
-            /// \todo: Only considering <LoadMesh/> definition. Consider <Slab/> too
+            /// \todo: Only considering \<LoadMesh/> definition. Consider \<Slab/> too
             TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
             mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
             mAllocatedMemoryForMesh = true;

@@ -294,33 +294,34 @@ if check_failing_tests:
               str(out) + ' ' + build_type + ' --no-stdout')
     test_log_files.append(out)
 
-# Build each component.
 build_dir = build.build_dir
-for toplevel_dir in components:
-    bld_dir = os.path.join(toplevel_dir, 'build', build_dir)
-    if not os.path.exists(bld_dir):
-        os.mkdir(bld_dir)
-    script = os.path.join(toplevel_dir, 'SConscript')
-    (test_logs, lib) = SConscript(script, src_dir=toplevel_dir, build_dir=bld_dir,
-                                  duplicate=0)
-    if not lib:
-        # This component hasn't created a library file, so don't try to link
-        # against it.  Happens if the component consists only of headers.
-        for v in comp_deps.itervalues():
-            try:
-                v.remove(toplevel_dir)
-            except ValueError:
-                pass
-    test_log_files.append(test_logs)
-
-# Any user projects?
-for project in glob.glob('projects/[_a-zA-z]*'):
-    bld_dir = os.path.join(project, 'build', build_dir)
-    if not os.path.exists(bld_dir):
-        os.mkdir(bld_dir)
-    script = os.path.join(project, 'SConscript')
-    test_log_files.append(SConscript(script, src_dir=project, build_dir=bld_dir,
-                                     duplicate=0))
+if not isinstance(build, BuildTypes.DoxygenCoverage):
+    # Build each component.
+    for toplevel_dir in components:
+        bld_dir = os.path.join(toplevel_dir, 'build', build_dir)
+        if not os.path.exists(bld_dir):
+            os.mkdir(bld_dir)
+        script = os.path.join(toplevel_dir, 'SConscript')
+        (test_logs, lib) = SConscript(script, src_dir=toplevel_dir, build_dir=bld_dir,
+                                      duplicate=0)
+        if not lib:
+            # This component hasn't created a library file, so don't try to link
+            # against it.  Happens if the component consists only of headers.
+            for v in comp_deps.itervalues():
+                try:
+                    v.remove(toplevel_dir)
+                except ValueError:
+                    pass
+        test_log_files.append(test_logs)
+    
+    # Any user projects?
+    for project in glob.glob('projects/[_a-zA-z]*'):
+        bld_dir = os.path.join(project, 'build', build_dir)
+        if not os.path.exists(bld_dir):
+            os.mkdir(bld_dir)
+        script = os.path.join(project, 'SConscript')
+        test_log_files.append(SConscript(script, src_dir=project, build_dir=bld_dir,
+                                         duplicate=0))
 
 
 # Remove the contents of build.GetTestReportDir() on a clean build
@@ -360,6 +361,11 @@ if test_summary and not compile_only:
                         os.remove(os.path.join(dirpath, filename))
         # For a Coverage build, run gcov & summarise instead
         summary_action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type
+    elif isinstance(build, BuildTypes.DoxygenCoverage):
+        # Run Doxygen and parse the output
+        cmd = '( cat Doxyfile ; echo "PROJECT_NUMBER=Build::r%s" ) ' % build._revision \
+            + '| doxygen - 2>doxygen-error.log 1>doxygen-output.log'
+        summary_action = cmd + '; python python/ParseDoxygen.py doxygen-output.log doxygen-error.log ' + output_dir
     else:
         summary_action = 'python python/DisplayTests.py '+output_dir+' '+build_type
   
