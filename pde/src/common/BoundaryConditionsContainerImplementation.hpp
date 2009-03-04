@@ -118,7 +118,8 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannBoun
             // if can't find pBoundaryElement in map[unknown]
             if( mpNeumannMap[unknown]->find(pBoundaryElement)==mpNeumannMap[unknown]->end() )
             {
-                 (*(mpNeumannMap[unknown]))[pBoundaryElement] = mpZeroBoundaryCondition;
+                // add zero bc to other unknowns (so all maps are in sync)
+                (*(mpNeumannMap[unknown]))[pBoundaryElement] = mpZeroBoundaryCondition;
             }
         }
     }
@@ -400,12 +401,14 @@ bool BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AnyNonZeroNeum
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 typename BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BeginNeumann()
 {
+    // [0] is ok as all maps will be in sync due to the way ApplyNeumannBoundaryCondition works
     return mpNeumannMap[0]->begin();
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 typename BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::EndNeumann()
 {
+    // [0] is ok as all maps will be in sync due to the way ApplyNeumannBoundaryCondition works
     return mpNeumannMap[0]->end();
 }
 
