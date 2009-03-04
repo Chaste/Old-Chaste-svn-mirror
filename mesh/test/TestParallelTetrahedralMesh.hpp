@@ -103,32 +103,47 @@ public:
         double element_jacobian_determinant;
         c_matrix<double, 2, 2> element_inverse_jacobian;
         
-        mesh.GetInverseJacobianForElement(0, jacobian, jacobian_determinant, inverse_jacobian);
-        
-        mesh.GetElement(0)->CalculateInverseJacobian(element_jacobian, element_jacobian_determinant, element_inverse_jacobian);
-        
-        TS_ASSERT_EQUALS(element_jacobian_determinant, jacobian_determinant);
-        
-        for (unsigned row=0; row<2; row++)
+        try
         {
-            for (unsigned col=0; col<2; col++)
+            mesh.GetInverseJacobianForElement(0, jacobian, jacobian_determinant, inverse_jacobian);        
+            mesh.GetElement(0)->CalculateInverseJacobian(element_jacobian, element_jacobian_determinant, element_inverse_jacobian);
+        
+            TS_ASSERT_EQUALS(element_jacobian_determinant, jacobian_determinant);
+        
+            for (unsigned row=0; row<2; row++)
             {
-                TS_ASSERT_EQUALS(element_inverse_jacobian(row,col), inverse_jacobian(row,col));                
-            }            
+                for (unsigned col=0; col<2; col++)
+                {
+                    TS_ASSERT_EQUALS(element_inverse_jacobian(row,col), inverse_jacobian(row,col));                
+                }            
+            }
         }
+        catch(Exception& e)
+        {
+            // I don't own this element do I?                           
+        }
+            
         
         c_vector<double, 2> direction;
         c_vector<double, 2> element_direction;
         
-        mesh.GetWeightedDirectionForBoundaryElement(0, direction, jacobian_determinant);
-        mesh.GetBoundaryElement(0)->CalculateWeightedDirection(element_direction, element_jacobian_determinant);
-        
-        TS_ASSERT_EQUALS(element_jacobian_determinant, jacobian_determinant);
-        
-        for (unsigned row=0; row<2; row++)
+        try
         {
-            TS_ASSERT_EQUALS(element_direction(row), direction(row));
+            mesh.GetWeightedDirectionForBoundaryElement(0, direction, jacobian_determinant);
+            mesh.GetBoundaryElement(0)->CalculateWeightedDirection(element_direction, element_jacobian_determinant);
+            
+            TS_ASSERT_EQUALS(element_jacobian_determinant, jacobian_determinant);
+            
+            for (unsigned row=0; row<2; row++)
+            {
+                TS_ASSERT_EQUALS(element_direction(row), direction(row));
+            }
         }
+        catch(Exception& e)
+        {
+            // I don't own this boundary element do I?                           
+        }
+        
     
         mesh_reader.Reset();        
         TetrahedralMesh<2,2> seq_mesh;
