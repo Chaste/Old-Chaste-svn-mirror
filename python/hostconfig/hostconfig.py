@@ -192,9 +192,11 @@ def configure(build):
     if build.using_dealii:
         do_dealii(build)
         #do_metis()
+        libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
-        do_petsc('2_3', build.is_optimised, build.is_profile, build.is_production)
+        do_petsc('2_3', build.is_optimised, build.is_profile, build.is_production) # PETSc links against some objects defined in "other_libraries"
+        libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         if build.is_production:
             libraries.extend(conf.blas_lapack_production)
         else:
