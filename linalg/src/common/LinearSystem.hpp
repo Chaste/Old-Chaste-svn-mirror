@@ -70,6 +70,8 @@ private:
     bool mUseAbsoluteTolerance;
     char mKspType[30];
     char mPcType[30];
+
+    Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see boundary conditions container*/
     
 public:
     LinearSystem(PetscInt lhsVectorSize, MatType matType=(MatType) MATMPIAIJ);
@@ -109,6 +111,7 @@ public:
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
     Vec& rGetRhsVector();
     Mat& rGetLhsMatrix();
+    Vec& rGetDirichletBoundaryConditionsVector();
 
 
     // DEBUGGING CODE:

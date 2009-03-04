@@ -47,7 +47,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mKspIsSetup(false),
     mMatrixIsConstant(false),
     mTolerance(1e-6),
-    mUseAbsoluteTolerance(false)
+    mUseAbsoluteTolerance(false),
+    mDirichletBoundaryConditionsVector(NULL)
 {
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
@@ -78,7 +79,8 @@ LinearSystem::LinearSystem(Vec templateVector)
     mKspIsSetup(false),
     mMatrixIsConstant(false),
     mTolerance(1e-6),
-    mUseAbsoluteTolerance(false)
+    mUseAbsoluteTolerance(false),
+    mDirichletBoundaryConditionsVector(NULL)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -107,7 +109,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mKspIsSetup(false),
     mMatrixIsConstant(false),
     mTolerance(1e-6),
-    mUseAbsoluteTolerance(false)
+    mUseAbsoluteTolerance(false),
+    mDirichletBoundaryConditionsVector(NULL)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -152,6 +155,10 @@ LinearSystem::~LinearSystem()
     {
         KSPDestroy(mKspSolver);
     }
+    if(mDirichletBoundaryConditionsVector)
+    {
+        VecDestroy(mDirichletBoundaryConditionsVector);
+    }    
 }
 
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
@@ -404,6 +411,16 @@ Vec& LinearSystem::rGetRhsVector()
 Mat& LinearSystem::rGetLhsMatrix()
 {
     return mLhsMatrix;
+}
+
+/**
+ * Gets access to the dirichlet boundary conditions vector. 
+ * 
+ * Should only be used by the BoundaryConditionsContainer.
+ */
+Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
+{
+    return mDirichletBoundaryConditionsVector;   
 }
 
 /** Force PETSc to treat the matrix in this linear system as symmetric from now on

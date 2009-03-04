@@ -47,8 +47,6 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
         mAnyNonZeroNeumannConditionsForUnknown[index_of_unknown] = false;
         mLastNeumannCondition[index_of_unknown] = mpNeumannMap[index_of_unknown]->begin();
     }
-    
-    mDirichletBoundaryConditionsVector = NULL;
 
 }
 
@@ -74,11 +72,6 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditions
     }
 
     this->DeleteDirichletBoundaryConditions(deleted_conditions);
-    
-    if(mDirichletBoundaryConditionsVector)
-    {
-        VecDestroy(mDirichletBoundaryConditionsVector);
-    }
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -157,15 +150,24 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeum
 
     mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = false;
 }
-
+/**
+ * Modifies a linear system to incorporate Dirichlet boundary conditions
+ * 
+ * The BCs are imposed in such a way as to ensure that a symmetric linear system remains symmetric. 
+ * For each node with a boundary condition applied, both the corresponding row and column are zero'd 
+ * and the RHS vector modified to take into account the zero'd column. See #577.
+ * 
+ */
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
                                        bool applyToMatrix)
 {
     if (applyToMatrix)
     {
-        VecDuplicate(rLinearSystem.rGetRhsVector(), &mDirichletBoundaryConditionsVector);
-        VecZeroEntries(mDirichletBoundaryConditionsVector);
+        //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so 
+        //that they can be reapplied at each time step.
+        VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
+        VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
         
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
@@ -179,7 +181,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
     
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
                 unsigned col = row;
-   // comments                        
+   
                 //Extract the column from matrix
                 Vec matrix_col;
                 VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
@@ -194,8 +196,13 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
                 double zero[1] = {0.0};
                 VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES); 
     
-                VecAXPY(mDirichletBoundaryConditionsVector, -value, matrix_col);  
+                // Set up the RHS Dirichlet boundary conditions vector  
+                // Assuming one boundary at the zeroth node (x_0 = value), this is equal to 
+                //   -value*[0 a_21 a_31 .. a_N1]
+                // and will be added to the RHS.   
+                VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);  
 
+                //Zero out the appropriate row and column
                 rLinearSystem.ZeroMatrixRow(row);
                 rLinearSystem.ZeroMatrixColumn(col);
                 rLinearSystem.SetMatrixElement(row, row, 1);
@@ -205,11 +212,14 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
         }
     }
     
-    if(mDirichletBoundaryConditionsVector)
+    //Apply the RHS boundary conditions modification if required.
+    if(rLinearSystem.rGetDirichletBoundaryConditionsVector())
     {
-        VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, mDirichletBoundaryConditionsVector);
+        VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
     }
      
+    //Apply the actual boundary condition to the RHS, note this must be done after the modification to the
+    //RHS vector.
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
         this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
