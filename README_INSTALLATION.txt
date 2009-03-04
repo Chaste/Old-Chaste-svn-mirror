@@ -3,7 +3,7 @@ CHASTE DEVELOPER INSTALLATION GUIDE
 Go to a terminal and try typing
 $HOME
 if it doesn't return a directory then you need to define the variable e.g.
-HOME=~
+HOME=~/chaste-libs
 
 The following packages and libraries are all compulsory for chaste to run 
 (the version numbers of packages and libraries might need updating). 
@@ -131,3 +131,17 @@ scons compile_only=1 chaste_libs=1 static=0 build=GccOpt exe=1 apps
 scons compile_only=1 chaste_libs=1 static=1 build=GccOpt exe=1 apps
 
 The executable Chaste or Chaste.o can be found in the apps/src folder.
+
+In order to run a simulation edit the ChasteParameters.xml file according to your needs and, 
+from the chaste directory, type
+
+apps/src/Chaste ChasteParameters.xml
+
+Please note that the output directory specified in the ChasteParameters.xml file is 
+relative to a directory defined by the environmental variable CHASTE_TEST_OUTPUT. 
+In order to set the CHASTE_TEST_OUTPUT to a desired location:
+
+export CHASTE_TEST_OUTPUT=Desired_Directory_Path
+
+If CHASTE_TEST_OUTPUT is not set, results will be found relative to a 'testoutput' 
+folder in the current chaste directory.
