@@ -5,7 +5,9 @@ $HOME
 if it doesn't return a directory then you need to define the variable e.g.
 HOME=~
 
-The following packages and libraries are all compulsory for chaste to run (the version numbers of packages and libraries might need updating). Please install them as described below.
+The following packages and libraries are all compulsory for chaste to run 
+(the version numbers of packages and libraries might need updating). 
+Please install them as described below.
 
 ==========SCONS:=============
 
@@ -77,6 +79,27 @@ Also edit the file include/metis.h and specify the width (32 or 64 bits) of the 
 Then run:
 
 make all
+
+============= XSD and XML =============
+Installing Apache Xerces XML libraries:
+
+wget http://apache.mirror.infiniteconflict.com/xerces/c/3/sources/xerces-c-3.0.1.tar.gz
+tar -zxf xerces-c-3.0.1.tar.gz
+cd xerces-c-3.0.1
+./configure
+make
+cd ..
+
+If you experience any problems then you can modify the configuration options
+for your system according to http://xerces.apache.org/xerces-c/build-3.html
+
+Installing XSD:
+
+cd ~
+wget http://codesynthesis.com/download/xsd/2.3/linux-gnu/i686/xsd-2.3.1-i686-linux-gnu.tar.bz2
+tar -xjf xsd-2.3.1-i686-linux-gnu.tar.bz2
+ln -s ~/xsd-2.3.1-i686-linux-gnu/bin/xsd ~/bin/xsd
+
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 
