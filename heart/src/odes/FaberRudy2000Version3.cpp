@@ -670,7 +670,15 @@ public:
         double var_ionic_concentrations__i_K_ATP = var_ATP_sensitive_potassium_current__i_K_ATP;
         double var_ionic_concentrations__i_ns_K = var_non_specific_calcium_activated_current__i_ns_K;
         double var_ionic_concentrations__i_to = var_transient_outward_current__i_to;
-        double d_dt_membrane__V = ((-1.0) / var_membrane__Cm) * (var_membrane__i_Na + var_membrane__i_Ca_L + var_membrane__i_Ca_T + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_K_Na + var_membrane__i_K_ATP + var_membrane__i_to + var_membrane__i_K1 + var_membrane__i_Kp + var_membrane__i_NaCa + var_membrane__i_p_Ca + var_membrane__i_Na_b + var_membrane__i_Ca_b + var_membrane__i_NaK + var_membrane__i_ns_Ca + var_membrane__I_st);
+        double d_dt_membrane__V;
+        if (mSetVoltageDerivativeToZero)
+        {
+            d_dt_membrane__V = 0.0;
+        }
+        else
+        {
+            d_dt_membrane__V = ((-1.0) / var_membrane__Cm) * (var_membrane__i_Na + var_membrane__i_Ca_L + var_membrane__i_Ca_T + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_K_Na + var_membrane__i_K_ATP + var_membrane__i_to + var_membrane__i_K1 + var_membrane__i_Kp + var_membrane__i_NaCa + var_membrane__i_p_Ca + var_membrane__i_Na_b + var_membrane__i_Ca_b + var_membrane__i_NaK + var_membrane__i_ns_Ca + var_membrane__I_st);
+        }
         double d_dt_fast_sodium_current_m_gate__m = (var_fast_sodium_current_m_gate__alpha_m * (1.0 - var_fast_sodium_current_m_gate__m)) - (var_fast_sodium_current_m_gate__beta_m * var_fast_sodium_current_m_gate__m);
         double d_dt_fast_sodium_current_h_gate__h = (var_fast_sodium_current_h_gate__alpha_h * (1.0 - var_fast_sodium_current_h_gate__h)) - (var_fast_sodium_current_h_gate__beta_h * var_fast_sodium_current_h_gate__h);
         double d_dt_fast_sodium_current_j_gate__j = (var_fast_sodium_current_j_gate__alpha_j * (1.0 - var_fast_sodium_current_j_gate__j)) - (var_fast_sodium_current_j_gate__beta_j * var_fast_sodium_current_j_gate__j);

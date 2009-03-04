@@ -806,7 +806,15 @@ public:
         double var_calcium_release__RegBindSite = var_calcium_release__CaiReg + ((1.0 - var_calcium_release__CaiReg) * (var_intracellular_calcium_concentration__Ca_ds / (var_intracellular_calcium_concentration__Ca_ds + 0.01)));
         double var_calcium_release__InactRate = 60.0 + (500.0 * pow(var_calcium_release__RegBindSite, 2.0));
         double var_calcium_release__SpeedRel = (var_membrane__V <  -50.0) ? 5.0 : 1.0;
-        double d_dt_membrane__V =  -10526.3157895 * (var_membrane__i_Stim + var_membrane__i_K1 + var_membrane__i_to + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_NaK + var_membrane__i_Na + var_membrane__i_b_Na + var_membrane__i_p_Na + var_membrane__i_Ca_L_Na_cyt + var_membrane__i_Ca_L_Na_ds + var_membrane__i_NaCa_cyt + var_membrane__i_NaCa_ds + var_membrane__i_Ca_L_Ca_cyt + var_membrane__i_Ca_L_Ca_ds + var_membrane__i_Ca_L_K_cyt + var_membrane__i_Ca_L_K_ds + var_membrane__i_b_Ca);
+        double d_dt_membrane__V;
+        if (mSetVoltageDerivativeToZero)
+        {
+            d_dt_membrane__V = 0.0;
+        }
+        else
+        {
+            d_dt_membrane__V =  -10526.3157895 * (var_membrane__i_Stim + var_membrane__i_K1 + var_membrane__i_to + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_NaK + var_membrane__i_Na + var_membrane__i_b_Na + var_membrane__i_p_Na + var_membrane__i_Ca_L_Na_cyt + var_membrane__i_Ca_L_Na_ds + var_membrane__i_NaCa_cyt + var_membrane__i_NaCa_ds + var_membrane__i_Ca_L_Ca_cyt + var_membrane__i_Ca_L_Ca_ds + var_membrane__i_Ca_L_K_cyt + var_membrane__i_Ca_L_K_ds + var_membrane__i_b_Ca);
+        }
         double d_dt_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1 = (CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables::Instance()->_lookup_1(_table_index_0, _factor_0) * (1.0 - var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1)) - (CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables::Instance()->_lookup_2(_table_index_0, _factor_0) * var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1);
         double d_dt_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2 = (CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables::Instance()->_lookup_3(_table_index_0, _factor_0) * (1.0 - var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)) - (CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables::Instance()->_lookup_4(_table_index_0, _factor_0) * var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2);
         double d_dt_slow_delayed_rectifier_potassium_current_xs_gate__xs = (CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables::Instance()->_lookup_5(_table_index_0, _factor_0) * (1.0 - var_slow_delayed_rectifier_potassium_current_xs_gate__xs)) - (CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables::Instance()->_lookup_6(_table_index_0, _factor_0) * var_slow_delayed_rectifier_potassium_current_xs_gate__xs);

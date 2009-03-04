@@ -515,7 +515,15 @@ public:
         double var_intracellular_calcium_concentration__i_Ca_L_Ca_ds = var_L_type_Ca_channel__i_Ca_L_Ca_ds;
         double var_intracellular_calcium_concentration__i_b_Ca = var_calcium_background_current__i_b_Ca;
         double var_intracellular_calcium_concentration__F = var_membrane__F;
-        double d_dt_membrane__V = ((-1.0) / var_membrane__Cm) * (var_membrane__i_Stim + var_membrane__i_K1 + var_membrane__i_to + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_NaK + var_membrane__i_Na + var_membrane__i_b_Na + var_membrane__i_p_Na + var_membrane__i_Ca_L_Na_cyt + var_membrane__i_Ca_L_Na_ds + var_membrane__i_NaCa_cyt + var_membrane__i_NaCa_ds + var_membrane__i_Ca_L_Ca_cyt + var_membrane__i_Ca_L_Ca_ds + var_membrane__i_Ca_L_K_cyt + var_membrane__i_Ca_L_K_ds + var_membrane__i_b_Ca);
+        double d_dt_membrane__V;
+        if (mSetVoltageDerivativeToZero)
+        {
+            d_dt_membrane__V = 0.0;
+        }
+        else
+        {
+            d_dt_membrane__V = ((-1.0) / var_membrane__Cm) * (var_membrane__i_Stim + var_membrane__i_K1 + var_membrane__i_to + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_NaK + var_membrane__i_Na + var_membrane__i_b_Na + var_membrane__i_p_Na + var_membrane__i_Ca_L_Na_cyt + var_membrane__i_Ca_L_Na_ds + var_membrane__i_NaCa_cyt + var_membrane__i_NaCa_ds + var_membrane__i_Ca_L_Ca_cyt + var_membrane__i_Ca_L_Ca_ds + var_membrane__i_Ca_L_K_cyt + var_membrane__i_Ca_L_K_ds + var_membrane__i_b_Ca);
+        }
         double d_dt_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1 = (var_rapid_delayed_rectifier_potassium_current_xr1_gate__alpha_xr1 * (1.0 - var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1)) - (var_rapid_delayed_rectifier_potassium_current_xr1_gate__beta_xr1 * var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1);
         double d_dt_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2 = (var_rapid_delayed_rectifier_potassium_current_xr2_gate__alpha_xr2 * (1.0 - var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)) - (var_rapid_delayed_rectifier_potassium_current_xr2_gate__beta_xr2 * var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2);
         double d_dt_slow_delayed_rectifier_potassium_current_xs_gate__xs = (var_slow_delayed_rectifier_potassium_current_xs_gate__alpha_xs * (1.0 - var_slow_delayed_rectifier_potassium_current_xs_gate__xs)) - (var_slow_delayed_rectifier_potassium_current_xs_gate__beta_xs * var_slow_delayed_rectifier_potassium_current_xs_gate__xs);

@@ -794,7 +794,15 @@ public:
         double var_calcium_dynamics__i_up = (8.75 * var_calcium_dynamics__Cai) / (var_calcium_dynamics__Cai + 0.00092);
         double var_calcium_dynamics__i_leak = 0.583333333333 * var_calcium_dynamics__Ca_NSR;
         double var_calcium_dynamics__i_tr = (var_calcium_dynamics__Ca_NSR - var_calcium_dynamics__Ca_JSR) * 5.55555555556;
-        double d_dt_membrane__V =  -1000.0 * (var_membrane__i_Na + var_membrane__i_Ca_L + var_membrane__i_Ca_T + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_K_Na + var_membrane__i_K_ATP + var_membrane__i_to + var_membrane__i_K1 + var_membrane__i_Kp + var_membrane__i_NaCa + var_membrane__i_p_Ca + var_membrane__i_Na_b + var_membrane__i_Ca_b + var_membrane__i_NaK + var_membrane__i_ns_Ca + var_membrane__I_st);
+        double d_dt_membrane__V;
+        if (mSetVoltageDerivativeToZero)
+        {
+            d_dt_membrane__V = 0.0;
+        }
+        else
+        {
+            d_dt_membrane__V =  -1000.0 * (var_membrane__i_Na + var_membrane__i_Ca_L + var_membrane__i_Ca_T + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_K_Na + var_membrane__i_K_ATP + var_membrane__i_to + var_membrane__i_K1 + var_membrane__i_Kp + var_membrane__i_NaCa + var_membrane__i_p_Ca + var_membrane__i_Na_b + var_membrane__i_Ca_b + var_membrane__i_NaK + var_membrane__i_ns_Ca + var_membrane__I_st);
+        }
         double d_dt_fast_sodium_current_m_gate__m = (((fabs(var_fast_sodium_current_m_gate__E0_m) >= 1e-05) ? ((320.0 * var_fast_sodium_current_m_gate__E0_m) / (1.0 - exp( -0.1 * var_fast_sodium_current_m_gate__E0_m))) : 3200.0) * (1.0 - var_fast_sodium_current_m_gate__m)) - (FaberRudy2000Version3OptimisedLookupTables::Instance()->_lookup_0(_table_index_0, _factor_0) * var_fast_sodium_current_m_gate__m);
         double d_dt_fast_sodium_current_h_gate__h = (FaberRudy2000Version3OptimisedLookupTables::Instance()->_lookup_1(_table_index_0, _factor_0) * (1.0 - var_fast_sodium_current_h_gate__h)) - (FaberRudy2000Version3OptimisedLookupTables::Instance()->_lookup_2(_table_index_0, _factor_0) * var_fast_sodium_current_h_gate__h);
         double d_dt_fast_sodium_current_j_gate__j = (FaberRudy2000Version3OptimisedLookupTables::Instance()->_lookup_3(_table_index_0, _factor_0) * (1.0 - var_fast_sodium_current_j_gate__j)) - (FaberRudy2000Version3OptimisedLookupTables::Instance()->_lookup_4(_table_index_0, _factor_0) * var_fast_sodium_current_j_gate__j);
