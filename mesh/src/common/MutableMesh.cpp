@@ -36,12 +36,6 @@ MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh(unsigned numElements)
-{
-    mAddedNodes = false;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh(std::vector<Node<SPACE_DIM> *> nodes)
 {
     Clear();
@@ -325,15 +319,17 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
     {
         try
         {
-
-//            this->GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed 767
-// remove 767            
-//            this->mElementJacobianDeterminants[ (*element_iter) ] = this->GetElement(*element_iter)->CalculateJacobianDeterminant();
-//            this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementInverseJacobians[ (*element_iter) ]);
-            
-            this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementJacobians[(*element_iter)], 
-                                                                      this->mElementJacobianDeterminants[(*element_iter)], 
-                                                                      this->mElementInverseJacobians[ (*element_iter) ]);
+            if (SPACE_DIM == ELEMENT_DIM)
+            {            
+                this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementJacobians[(*element_iter)], 
+                                                                          this->mElementJacobianDeterminants[(*element_iter)], 
+                                                                          this->mElementInverseJacobians[ (*element_iter) ]);
+            }
+            else
+            {
+                this->GetElement(*element_iter)->CalculateWeightedDirection(this->mElementWeightedDirections[(*element_iter)], 
+                                                                            this->mElementJacobianDeterminants[(*element_iter)]);                
+            }
             
             if (concreteMove)
             {
@@ -893,7 +889,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
 {
-    assert (ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM == SPACE_DIM);
     unsigned num_nodes = pElement->GetNumNodes();
     std::set<unsigned> neighbouring_elements_indices;
     std::set< Element<ELEMENT_DIM,SPACE_DIM> *> neighbouring_elements;

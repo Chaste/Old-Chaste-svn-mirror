@@ -62,11 +62,12 @@ private:
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of the element, as a proportion of the circumsphere radius.
      */
+#define COVERAGE_IGNORE
     bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement, double maxPenetration);
+#undef COVERAGE_IGNORE
 
 public:
     MutableMesh();
-    MutableMesh(unsigned numElements);
     MutableMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
     virtual ~MutableMesh();
@@ -91,9 +92,13 @@ public:
     virtual void SetNode(unsigned index, ChastePoint<SPACE_DIM> point, bool concreteMove=true);
     void MoveMergeNode(unsigned index, unsigned targetIndex, bool concreteMove=true);
 
+#define COVERAGE_IGNORE
     void DeleteNode(unsigned index);
+#undef COVERAGE_IGNORE
 
+#define COVERAGE_IGNORE
     void DeleteNodePriorToReMesh(unsigned index);
+#undef COVERAGE_IGNORE
 
     unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, ChastePoint<SPACE_DIM> Point);
 
@@ -114,20 +119,26 @@ public:
     /**
      * Re-index a mesh so that it has no deleted elements or nodes
      */
+#define COVERAGE_IGNORE     
     void ReIndex(NodeMap& map);
+#undef COVERAGE_IGNORE
 
     /**
      * Re-mesh a mesh using triangle (via library calls) or tetgen
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
+#define COVERAGE_IGNORE
     virtual void ReMesh(NodeMap& map);
+#undef COVERAGE_IGNORE
 
     /**
      * Alternative version of remesh which takes no parameters does not require a NodeMap. Note: inherited
      * classes should overload ReMesh(NodeMap&)
      */
+#define COVERAGE_IGNORE
     void ReMesh();
+#undef COVERAGE_IGNORE
     
     /**
      * Checks the entire mesh element by element and checks whether any neighbouring node
@@ -136,8 +147,9 @@ public:
      * circumsphere of an element that it is not a member of, as a proportion of the
      * circumsphere radius.
      */
+#define COVERAGE_IGNORE     
     bool CheckVoronoi(double maxPenetration=0.0);    
-
+#undef COVERAGE_IGNORE
 };
 
 

@@ -961,6 +961,41 @@ public:
         }
     }
 
+    void TestReindex2dMeshIn3dSpace()
+    {
+        TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
+        MutableMesh<2,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        unsigned num_old_nodes = mesh.GetNumNodes();
+
+        mesh.DeleteNode(50);
+        mesh.DeleteNode(0);
+
+        NodeMap map(num_old_nodes);
+
+        mesh.ReIndex(map);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), (unsigned)(num_old_nodes-2));
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), (unsigned)(num_old_nodes-2));
+
+        TS_ASSERT_EQUALS(map.Size(), num_old_nodes);
+        TS_ASSERT_EQUALS(map.IsDeleted(50), true);
+        TS_ASSERT_EQUALS(map.IsDeleted(0), true);
+
+        for(unsigned i=1; i<num_old_nodes; i++)
+        {
+            if(i<50)
+            {
+                TS_ASSERT_EQUALS(map.GetNewIndex(i), (unsigned)(i-1));
+            }
+            if(i>50)
+            {
+                TS_ASSERT_EQUALS(map.GetNewIndex(i), (unsigned)(i-2));
+            }
+        }
+    }
+
     void TestConstructFromNodes() throw (Exception)
     {
 
