@@ -47,6 +47,8 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
         mAnyNonZeroNeumannConditionsForUnknown[index_of_unknown] = false;
         mLastNeumannCondition[index_of_unknown] = mpNeumannMap[index_of_unknown]->begin();
     }
+    
+    mpZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
 
 }
 
@@ -70,6 +72,12 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditions
 
         delete(mpNeumannMap[i]);
     }
+
+///// memory leak without this, but if mpZeroBoundaryCondition is used it will be deleted above and non-null
+//    if( mpZeroBoundaryCondition != NULL )
+//    {
+//        delete mpZeroBoundaryCondition;   
+//    }
 
     this->DeleteDirichletBoundaryConditions(deleted_conditions);
 }
@@ -99,7 +107,21 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannBoun
     // we assume that this could be a non-zero boundary condition
     mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = true;
 
-    (*(mpNeumannMap[indexOfUnknown]))[pBoundaryElement] = pBoundaryCondition;
+    for(unsigned unknown=0; unknown<PROBLEM_DIM; unknown++)
+    {
+        if(unknown==indexOfUnknown)
+        {
+            (*(mpNeumannMap[indexOfUnknown]))[pBoundaryElement] = pBoundaryCondition;
+        }
+        else
+        {
+            // if can't find pBoundaryElement in map[unknown]
+            if( mpNeumannMap[unknown]->find(pBoundaryElement)==mpNeumannMap[unknown]->end() )
+            {
+                 (*(mpNeumannMap[unknown]))[pBoundaryElement] = mpZeroBoundaryCondition;
+            }
+        }
+    }
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 #include "PetscException.hpp"
 #include "ChastePoint.hpp"
+#include "ConstBoundaryCondition.hpp"
 
 
 /**
@@ -69,6 +70,8 @@ private:
     NeumannMapIterator mLastNeumannCondition[PROBLEM_DIM];
 
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
+    
+    ConstBoundaryCondition<SPACE_DIM>* mpZeroBoundaryCondition;
 
 public:
 

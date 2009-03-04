@@ -422,6 +422,46 @@ public:
         TS_ASSERT(bcc.Validate(&mesh));
     }
 
+    void TestAddNeumannBoundaryConditions( void )
+    {
+          // Load a 2D square mesh with 1 central non-boundary node
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        BoundaryConditionsContainer<2,2,2> bcc;
+
+        // No BCs yet, so shouldn't validate
+        TS_ASSERT(!bcc.Validate(&mesh));
+
+        // Add some BCs
+        ConstBoundaryCondition<2> *bc1 = new ConstBoundaryCondition<2>(2.0);
+        ConstBoundaryCondition<2> *bc2 = new ConstBoundaryCondition<2>(-3.0);
+       
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter
+        = mesh.GetBoundaryElementIteratorEnd();
+        iter--;
+        bcc.AddNeumannBoundaryCondition(*iter, bc1, 0); 
+        bcc.AddNeumannBoundaryCondition(*iter, bc2, 1); 
+        iter--;
+        bcc.AddNeumannBoundaryCondition(*iter, bc1, 0); 
+        iter--;
+        bcc.AddNeumannBoundaryCondition(*iter, bc2, 1); 
+
+        iter = mesh.GetBoundaryElementIteratorEnd();
+        iter--;
+        TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 2.0, 1e-9);
+        TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
+        
+        iter--;
+        TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 2.0, 1e-9);
+        TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), 0.0, 1e-9);
+        
+        iter--;
+        TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 0.0, 1e-9);
+        TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
+    }
+
     void TestApplyToLinearSystem2Unknowns( void )
     {
         const int SIZE = 10;
