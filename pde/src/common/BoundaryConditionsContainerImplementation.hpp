@@ -49,6 +49,7 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
     }
     
     mpZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+    mZeroBoundaryConditionUsed = false; // only used if AddNeumannBc called.
 
 }
 
@@ -73,11 +74,10 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditions
         delete(mpNeumannMap[i]);
     }
 
-///// memory leak without this, but if mpZeroBoundaryCondition is used it will be deleted above and non-null
-//    if( mpZeroBoundaryCondition != NULL )
-//    {
-//        delete mpZeroBoundaryCondition;   
-//    }
+    if( !mZeroBoundaryConditionUsed ) // if used, it will be deleted above
+    {
+        delete mpZeroBoundaryCondition;   
+    }
 
     this->DeleteDirichletBoundaryConditions(deleted_conditions);
 }
@@ -120,6 +120,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannBoun
             {
                 // add zero bc to other unknowns (so all maps are in sync)
                 (*(mpNeumannMap[unknown]))[pBoundaryElement] = mpZeroBoundaryCondition;
+                mZeroBoundaryConditionUsed = true;
             }
         }
     }
