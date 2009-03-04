@@ -568,6 +568,18 @@ public:
         TS_ASSERT_DELTA(corner_after[2],  1.0, 1e-7);
 
     }
+    
+    void TestExceptions()
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_THROWS_ANYTHING(mesh.RotateZ(1.4));
+        TS_ASSERT_THROWS_ANYTHING(mesh.RotateY(0.3));
+        TS_ASSERT_THROWS_ANYTHING(mesh.RotateX(0.7));
+        
+    }
 };
 
 #endif /*TESTTRANSFORMATIONS_HPP_*/

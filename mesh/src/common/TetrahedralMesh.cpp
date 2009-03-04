@@ -39,30 +39,6 @@ TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::TetrahedralMesh()
     Clear();
 }
 
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::TetrahedralMesh(unsigned numElements)
-{
-    Clear();
-    this->mElements.reserve(numElements);
-}
-
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::TetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes)
-//  //: mNodes(nodes)
-//{
-//    Clear();
-//    for (unsigned index=0; index<nodes.size(); index++)
-//    {
-//        Node<SPACE_DIM>* temp_node = nodes[index];
-//        mNodes.push_back(temp_node);
-//    }
-//    mAddedNodes = true;
-//    NodeMap node_map(nodes.size());
-//    ReMesh(node_map);
-//}
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
@@ -563,7 +539,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsigned numProcs)
 {
-    assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
+    assert(ELEMENT_DIM==2 || ELEMENT_DIM==3);
     assert( this->GetNumAllElements() == this->GetNumElements());
     assert( this->GetNumAllNodes() == this->GetNumNodes());
 
