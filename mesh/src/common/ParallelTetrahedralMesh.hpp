@@ -324,8 +324,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             assert(!cullInternalFaces);
             actual_face_index++; 
             continue;
-        }
-            
+        }            
         
         bool is_boundary_face = true;
 
@@ -351,52 +350,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                 nodes.push_back(this->mHaloNodes[node_local_index]); 
             }
             
-            if(cullInternalFaces)
-            {
-                // Work out what elements contain this face, by taking the intersection
-                // of the sets of elements containing each node in the face.
-                if (node_index == 0)
-                {
-                    containing_element_indices = nodes[node_index]->rGetContainingElementIndices();
-                }
-                else
-                {
-                    std::set<unsigned> temp;
-                    std::set_intersection(nodes[node_index]->rGetContainingElementIndices().begin(),
-                                          nodes[node_index]->rGetContainingElementIndices().end(),
-                                          containing_element_indices.begin(), containing_element_indices.end(),
-                                          std::inserter(temp, temp.begin()));
-                    containing_element_indices = temp;
-                }
-            }
         }
        
-
-        if(cullInternalFaces)
-        {
-            // only if not 1D as this assertion does not apply to quadratic 1D meshes
-            if(ELEMENT_DIM!=1)
-            {
-                //If the following assertion is thrown, it means that the .edge/.face file does not
-                //match the .ele file -- they were generated at separate times.  Simply remove the internal
-                //edges/faces by hand.
-                assert(containing_element_indices.size() != 0);
-            }
-
-            // if num_containing_elements is greater than 1, it is not an boundary face
-            if(containing_element_indices.size() > 1)
-            {
-                is_boundary_face = false;
-            }
-            
-            // in 1D QUADRATICS, all nodes are faces, so internal nodes which don't have any
-            // containing elements must also be unmarked as a boundary face
-            if( (ELEMENT_DIM==1) && (containing_element_indices.size()==0))
-            {
-                is_boundary_face = false;
-            }
-        }
-
         if (is_boundary_face)
         {
             // This is a boundary face
@@ -475,7 +430,10 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
-    // all the local elements are owned by the processor (obviously...)    
+    // This method exists just to keep compatibility with TetrahedralMesh.
+    // In parallel, you only create the data structures for the elements you have been assigned.
+    // Therefore, all the local elements are owned by the processor (obviously...)
+    // We don't care about "hi" and "lo"    
     assert(hi>=lo);
     for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
     {
@@ -596,63 +554,52 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     // Only the master process should do IO and call METIS
     if (handler.IsMaster())
     {
-        try
+        /*
+         *  Create input file for METIS
+         */
+        out_stream metis_file=handler.OpenOutputFile(basename);
+
+        // File header
+        (*metis_file)<<this->GetNumElements()<<"\t";
+        if (ELEMENT_DIM==2)
         {
-        
-            /*
-             *  Create input file for METIS
-             */
-            out_stream metis_file=handler.OpenOutputFile(basename);
-    
-            // File header
-            (*metis_file)<<this->GetNumElements()<<"\t";
-            if (ELEMENT_DIM==2)
-            {
-                (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
-            }
-            else
-            {
-                (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
-            }
-    
-    
-            // Graph representation of the mesh
-            for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
-            {
-                ElementData element_data = rMeshReader.GetNextElementData();
-        
-                for(unsigned i=0; i<ELEMENT_DIM+1; i++)
-                {
-                        (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
-                }
-                (*metis_file)<<"\n";
-            }
-            metis_file->close();
-        
-            rMeshReader.Reset();
-    
-            /*
-             *  Call METIS binary to perform the partitioning.
-             *  It will output a file called metis.mesh.npart.numProcs
-             */
-            std::stringstream permute_command;
-            permute_command <<  "./bin/partdmesh "
-                            <<  handler.GetOutputDirectoryFullPath("")
-                            <<  basename << " "
-                            <<  num_procs
-                            <<  " > /dev/null";
-    
-            // METIS doesn't return 0 after a successful execution
-            IGNORE_RET(system, permute_command.str());
+            (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
         }
-        catch (Exception &e)
+        else
         {
-            PetscTools::ReplicateException(true);
-            throw e;
+            (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
         }
+
+
+        // Graph representation of the mesh
+        for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+        {
+            ElementData element_data = rMeshReader.GetNextElementData();
+    
+            for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+            {
+                    (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
+            }
+            (*metis_file)<<"\n";
+        }
+        metis_file->close();
+    
+        rMeshReader.Reset();
+
+        /*
+         *  Call METIS binary to perform the partitioning.
+         *  It will output a file called metis.mesh.npart.numProcs
+         */
+        std::stringstream permute_command;
+        permute_command <<  "./bin/partdmesh "
+                        <<  handler.GetOutputDirectoryFullPath("")
+                        <<  basename << " "
+                        <<  num_procs
+                        <<  " > /dev/null";
+
+        // METIS doesn't return 0 after a successful execution
+        IGNORE_RET(system, permute_command.str());
     }
-    //Other processes need to see the exception happening
-    PetscTools::ReplicateException(false);
      
      /*
      * Wait for the permutation to be available

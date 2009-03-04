@@ -84,6 +84,16 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100U);
         
+        // For coverage purposes
+        mesh.SetElementOwnerships(0,1); // see comment in ParallelTetrahedralMesh
+        
+        for(ParallelTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+            iter != mesh.GetElementIteratorEnd();
+            ++iter)
+        {
+            TS_ASSERT((*iter)->GetOwnership());
+        }            
+        
         // Check the inverse Jacobian
         c_matrix<double, 2, 2> jacobian;
         double jacobian_determinant;
