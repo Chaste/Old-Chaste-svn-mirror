@@ -2,7 +2,7 @@ CHASTE DEVELOPER INSTALLATION GUIDE
 
 Go to a terminal and try typing
 $HOME
-if it doesn't return a directory then you need to define the variable e.g.
+if it doesn't return a directory, or you want to change it (only for this session) then you need to define the variable e.g.
 HOME=~/chaste-libs
 
 The following packages and libraries are all compulsory for chaste to run 
@@ -14,9 +14,10 @@ Please install them as described below.
 Use your package manager to install scons or
 
 wget http://mesh.dl.sourceforge.net/sourceforge/scons/scons-1.2.0.tar.gz
-gunzip scons-1.2.0.tar.gz
-tar -xf scons-1.2.0.tar
+tar zxf scons-1.2.0.tar.gz
+cd scons-1.2.0
 python setup.py install --prefix=$HOME
+cd ..
 
 ========MPI and PETSC:=======
 
@@ -45,17 +46,20 @@ make all
 make all
 ./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=${HOME}/mpi --with-x=false  -PETSC_ARCH=linux-gnu-profile --with-clanguage=cxx --CFLAGS=-pg -CXXFLAGS=-pg -LDFLAGS=-pg
 make all
+cd ..
 
 =========BOOSTJAM and BOOST:===========
 
 Download BoostJam from http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941 according to your platform into your ${HOME} directory.
 Download Boost from http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=8041 according to your platform into your ${HOME} directory.
-Unpak and install them both:
+Unpack and install them both:
 
-tar -xzvf boost-jam-3.1.12-1-linuxx86.tgz
+cd $HOME
+tar -xzvf boost-jam-3.1.17-1-linuxx86.tgz
 tar -zxvf boost_1_33_1.tar.gz
 cd boost_1_33_1
-../boost-jam-3.1.12-1-linuxx86/bjam "-sTOOLS=gcc" --prefix=$HOME/boost install
+../boost-jam-3.1.17-1-linuxx86/bjam "-sTOOLS=gcc" --prefix=$HOME/boost install
+cd ..
 
 ==============HDF5:====================
 
@@ -85,6 +89,7 @@ Also edit the file include/metis.h and specify the width (32 or 64 bits) of the 
 Then run:
 
 make all
+cd ..
 
 ============= XSD and XML =============
 Installing Apache Xerces XML libraries:
@@ -101,22 +106,23 @@ for your system according to http://xerces.apache.org/xerces-c/build-3.html
 
 Installing XSD:
 
-cd ~
+cd $HOME
 wget http://codesynthesis.com/download/xsd/2.3/linux-gnu/i686/xsd-2.3.1-i686-linux-gnu.tar.bz2
 tar -xjf xsd-2.3.1-i686-linux-gnu.tar.bz2
-ln -s ~/xsd-2.3.1-i686-linux-gnu/bin/xsd ~/bin/xsd
+ln -s $HOME/xsd-2.3.1-i686-linux-gnu/bin/xsd $HOME/bin/xsd
 
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 
-Edit the .bashrc file in the home directory and append the following:
+Edit the .bash_profile file in the home directory and append the following:
 
-export LD_LIBRARY_PATH=$HOME/petsc-2.2.1/lib/libg_c++/linux-gnu/
+CHASTE_LIBS=<THE FOLDER YOU CALLED $HOME ABOVE>
+PATH=$CHASTE_LIBS/bin:$PATH
+export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.2.1/lib/libg_c++/linux-gnu/
 
-NB. change petsc-2.2.1 to the vesions you installed in earlier steps NB. You will need to logout and in again for the above to take effect. 
 
-Also, alter ~/.bash_profile to set the PATH as
-PATH=$HOME/bin:$PATH
+
+NB. change petsc-2.3.3 to the vesions you installed in earlier steps NB. You will need to logout and in again for the above to take effect. 
 
 /// \todo Check that the below instructions are valid once release is finalised.
 
