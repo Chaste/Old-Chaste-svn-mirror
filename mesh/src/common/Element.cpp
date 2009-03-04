@@ -129,7 +129,7 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
      * where (x,y,z) is the circumcentre
      *
      */
-    assert (ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM == SPACE_DIM);
     c_vector <double, ELEMENT_DIM> rhs;
 
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
@@ -176,7 +176,7 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
      *
      */
      
-    assert (ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM == SPACE_DIM);
     c_vector <double, ELEMENT_DIM> rhs;
 
     for (unsigned j=0; j<ELEMENT_DIM; j++)
@@ -216,7 +216,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphereVolume()
     {
         return M_PI*circum[SPACE_DIM]; //Pi*r^2
     }
-    assert (SPACE_DIM == 3);
+    assert(SPACE_DIM == 3);
     return 4.0*M_PI*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM])/3.0; //4*Pi*r^3/3
 }
 
@@ -228,7 +228,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphereVolume()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
 {
-    assert (SPACE_DIM == ELEMENT_DIM);
+    assert(SPACE_DIM == ELEMENT_DIM);
     if (SPACE_DIM == 1)
     {
         return 1.0;
@@ -257,7 +257,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
          */
         return 2.0*jacobian_determinant/(3.0*sqrt(3)*circum[SPACE_DIM]);
     }
-    assert (SPACE_DIM == 3);
+    assert(SPACE_DIM == 3);
     /* Want Q=(Vol_Tet / Vol_CirS) / (Vol_Plat_Tet / Vol_Plat_CirS)
       *  Vol_Tet  = |Jacobian| /6
       *  Vol_CirS = 4*Pi*r^3/3
@@ -274,7 +274,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
-    assert (ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM == SPACE_DIM);
 
     c_vector<double, SPACE_DIM+1> weights;
 
@@ -299,7 +299,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
-    assert (ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM == SPACE_DIM);
 
     c_vector<double, SPACE_DIM+1> weights = CalculateInterpolationWeights(testPoint);
 
@@ -327,7 +327,7 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
     // Note that all elements of weights are now non-negative and so the l1-norm (sum of magnitudes) is equivalent to the sum of the elements of the vector 
     double sum = norm_1 (weights);
     
-    assert (sum >= 1.0);
+    assert(sum >= 1.0);
     
     weights = weights/sum;
     
@@ -339,7 +339,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(ChastePoint<SPACE_DIM> testPoint)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
-    assert (ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM == SPACE_DIM);
 
     //Find the location with respect to node 0
     c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
@@ -359,7 +359,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
-    assert (ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM == SPACE_DIM);
 
     c_vector<double, SPACE_DIM+1> weights=CalculateInterpolationWeights(testPoint);
 
