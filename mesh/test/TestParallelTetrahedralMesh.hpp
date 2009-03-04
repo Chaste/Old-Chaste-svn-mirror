@@ -534,13 +534,36 @@ public:
     {
         EXIT_IF_SEQUENTIAL;
         
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);        
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        // Check that each processor owns the number of nodes corresponding to its METIS partition
-        std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
-        TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+            ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);        
+            mesh.ConstructFromMeshReader(mesh_reader);
+            
+            // Check that each processor owns the number of nodes corresponding to its METIS partition
+            std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
+            TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+        }
+
+        {
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_LIBRARY);        
+            mesh.ConstructFromMeshReader(mesh_reader);
+            
+            // Check that each processor owns the number of nodes corresponding to its METIS partition
+            std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
+            TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+        }
+
+        {
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_BINARY);        
+            mesh.ConstructFromMeshReader(mesh_reader);
+            
+            // Check that each processor owns the number of nodes corresponding to its METIS partition
+            std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
+            TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+        }
+
     }
     
 };
