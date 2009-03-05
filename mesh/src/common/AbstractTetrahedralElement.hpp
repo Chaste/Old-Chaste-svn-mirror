@@ -169,33 +169,27 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
     c_vector<double, SPACE_DIM> weighted_direction;
     double det;
-    try
+    
+    if (SPACE_DIM == ELEMENT_DIM)
     {
-        if (SPACE_DIM == ELEMENT_DIM)
-        {
+        try
+        {        
             CalculateJacobian(jacobian, det);
         }
-        else
+        catch (Exception)
         {
-            CalculateWeightedDirection(weighted_direction, det);            
+            // if the Jacobian is negative the orientation of the element is probably
+            // wrong, so swap the last two nodes around.
+    
+            this->mNodes[total_nodes-1] = rNodes[total_nodes-2];
+            this->mNodes[total_nodes-2] = rNodes[total_nodes-1];
+    
+            CalculateJacobian(jacobian, det);
         }
     }
-    catch (Exception)
+    else
     {
-        // if the Jacobian is negative the orientation of the element is probably
-        // wrong, so swap the last two nodes around.
-
-        this->mNodes[total_nodes-1] = rNodes[total_nodes-2];
-        this->mNodes[total_nodes-2] = rNodes[total_nodes-1];
-
-        if (SPACE_DIM == ELEMENT_DIM)
-        {
-            CalculateJacobian(jacobian, det);
-        }
-        else
-        {
-            CalculateWeightedDirection(weighted_direction, det);            
-        }
+        CalculateWeightedDirection(weighted_direction, det);            
     }
 
     // If determinant < 0 then element nodes are listed clockwise.
