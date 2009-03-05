@@ -13,7 +13,7 @@ mkdir $NAME
 cp apps/src/Chaste $NAME
 cat ChasteDefaults.xml   | sed s:heart/src/io/:: > $NAME/ChasteDefaults.xml 
 cat ChasteParameters.xml | sed s:heart/src/io/:: > $NAME/ChasteParameters.xml 
-cp README_STANDALONE $NAME/README
+cp README_STANDALONE.txt $NAME/README.txt
 cp heart/src/io/ChasteParameters.xsd $NAME
 tar cvfz $NAME.tgz $NAME
 scp $NAME.tgz  root@chaste.ediamond.ox.ac.uk:/var/www/html/chaste/downloads/
