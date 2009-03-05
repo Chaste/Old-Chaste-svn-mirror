@@ -1577,7 +1577,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
     for (unsigned i=0; i<num_nodes; i++)
     {
         node_data = rMeshReader.GetNextNode();
-        unsigned is_boundary_node = node_data[2];
+        unsigned is_boundary_node = (unsigned) node_data[2];
         node_data.pop_back();
         mNodes.push_back(new Node<SPACE_DIM>(i, node_data, is_boundary_node));
     }
