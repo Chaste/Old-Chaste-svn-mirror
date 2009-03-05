@@ -79,9 +79,6 @@ if use_chaste_libs:
         lib = env.Library(toplevel_dir, files)
         lib = env.Install('#lib', lib)
         libpath = '#lib'
-        # Remove any shared lib hanging around
-        shlib = File('#lib/lib'+toplevel_dir+'.so').abspath
-        env.Execute(Delete(shlib))
     else:
         if files:
             lib = env.SharedLibrary(toplevel_dir, files)
@@ -150,6 +147,8 @@ for testfile in testfiles:
             env.Depends(log_file, runner_dummy)
         test_log_files.append(log_file)
         env.RunTest(log_file, runner_exe)
+        if force_test_runs:
+            env.AlwaysBuild(log_file)
 
 return_value = (test_log_files, lib)
 Return("return_value")

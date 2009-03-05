@@ -111,6 +111,10 @@ else:
     single_test_suite_dir = ''
 Export('single_test_suite', 'single_test_suite_dir')
 
+# Force re-running of all (selected) tests even if the source is unchanged.
+force_test_runs = bool(ARGUMENTS.get('force_test_runs', 0))
+Export('force_test_runs')
+
 # Check for an easy mistake, where the user forgets the 'test_suite='.
 for target in BUILD_TARGETS:
     if target.endswith('.hpp'):
@@ -121,6 +125,13 @@ for target in BUILD_TARGETS:
 # test_component=<component> argument (deprecated).
 test_component = ARGUMENTS.get('test_component', '')
 Export('test_component')
+
+
+# If building static libraries, get rid of any old shared libraries,
+# in order to stop the automatic dependency algorithm getting confused.
+if use_chaste_libs and static_libs:
+    for lib in glob.glob('lib/lib*.a'):
+        Execute(Delete(lib))
 
 
 # Use a single file to store signatures.
@@ -180,7 +191,7 @@ Export("other_libpaths", "other_libs")
 
 # Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
-              + ' -DTRILIBRARY -DANSI_DECLARATORS '\
+              + ' -DTRILIBRARY -DANSI_DECLARATORS ' \
               + ' -DCHASTE_ROOT=\'"' + Dir('#').abspath + '"\' '
 link_flags  = build.LinkFlags() + ' ' + hostconfig.ldflags()
 
@@ -198,7 +209,8 @@ env = Environment(
     ENV={'PATH': os.environ['PATH'],
          'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
          'USER': os.environ['USER'],
-         'INTEL_LICENSE_FILE': '28518@lic1.osc.ox.ac.uk:'+os.environ['INTEL_LICENSE_FILE'],
+         'INTEL_LICENSE_FILE': os.environ.get('INTEL_LICENSE_FILE',
+                                              '28518@lic1.osc.ox.ac.uk'),
          'CHASTE_TEST_OUTPUT':
          os.environ.get('CHASTE_TEST_OUTPUT',
                         '/tmp/'+os.environ['USER']+'/testoutput/'),
