@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "PetscSetupAndFinalize.hpp"
-
+#include <petsc.h>
 
 class TestPetscEvents : public CxxTest::TestSuite
 {

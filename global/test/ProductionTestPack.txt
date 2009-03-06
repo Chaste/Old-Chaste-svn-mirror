@@ -6,7 +6,7 @@ TestHeartEventHandler.hpp
 TestLogFile.hpp
 TestOutputFileHandler.hpp
 TestPetscEvents.hpp
-TestPetSCSetup.hpp
+TestPetscSetup.hpp
 TestPetscTools.hpp
 TestRandomNumberGenerator.hpp
 TestReplicatableVector.hpp

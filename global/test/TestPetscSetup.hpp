@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
-class TestPetSCSetup : public CxxTest::TestSuite
+class TestPetscSetup : public CxxTest::TestSuite
 {
 public:
     void TestPetscIsThere()
