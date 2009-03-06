@@ -46,6 +46,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EllipticPdeWithLinearSource.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 
+// There is assembler hiearchy for assembler which use quadratic bases (ie the elasticity
+// solvers). Therefore, to test the quadratic bases/structure we first wrote this
+// QuadraticLaplacianAssembler, and then used it when writing the elasticity assemblers.
+
 template<unsigned DIM>
 class QuadraticLaplacianAssembler
 {
@@ -109,57 +113,6 @@ private:
 
             c_vector<double,1> u = zero_vector<double>(1);
             c_matrix<double,1,DIM> grad_u = zero_matrix<double>(1,DIM);
-
-//            // allow the concrete version of the assembler to interpolate any
-//            // desired quantities
-//            static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->ResetInterpolatedQuantities();
-//
-//
-//            /////////////////////////////////////////////////////////////
-//            // interpolation
-//            /////////////////////////////////////////////////////////////
-//            for (unsigned i=0; i<num_nodes; i++)
-//            {
-//                const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
-//
-//                if (NON_HEART)
-//                {
-//                    const c_vector<double, SPACE_DIM>& r_node_loc = p_node->rGetLocation();
-//                    // interpolate x
-//                    x.rGetLocation() += phi(i)*r_node_loc;
-//                }
-//
-//                // interpolate u and grad u if a current solution or guess exists
-//                unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
-//                if (mCurrentSolutionOrGuessReplicated.size()>0)
-//                {
-//                    for (unsigned index_of_unknown=0; index_of_unknown<(NON_HEART ? PROBLEM_DIM : 1); index_of_unknown++)
-//                    {
-//                        // If we have a current solution (e.g. this is a dynamic problem)
-//                        // get the value in a usable form.
-//
-//                        // NOTE - currentSolutionOrGuess input is actually now redundant at this point -
-//
-//                        // NOTE - following assumes that, if say there are two unknowns u and v, they
-//                        // are stored in the current solution vector as
-//                        // [U1 V1 U2 V2 ... U_n V_n]
-//                        double u_at_node=GetCurrentSolutionOrGuessValue(node_global_index, index_of_unknown);
-//                        u(index_of_unknown) += phi(i)*u_at_node;
-//
-//                        if (this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
-//                        {
-//                            for (unsigned j=0; j<SPACE_DIM; j++)
-//                            {
-//                                grad_u(index_of_unknown,j) += grad_phi(j,i)*u_at_node;
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                // allow the concrete version of the assembler to interpolate any
-//                // desired quantities
-//                static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
-//            }
             double wJ = jacobian_determinant * mpQuadRule->GetWeight(quad_index);
 
             ////////////////////////////////////////////////////////////
@@ -187,19 +140,6 @@ private:
     {
             return   prod( trans(rGradPhi), rGradPhi )
                    - mCoeffOfU*outer_prod(rPhi,rPhi);
-
-//        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
-//
-//        // if statement just saves computing phi*phi^T if it is to be multiplied by zero
-//        if(mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)!=0)
-//        {
-//            return   prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
-//                   - mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)*outer_prod(rPhi,rPhi);
-//        }
-//        else
-//        {
-//            return   prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) );
-//        }
     }
 
 
