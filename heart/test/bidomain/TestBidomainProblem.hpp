@@ -172,7 +172,7 @@ public:
     }
 
 
-    void TestBidomainDg01DMeanPhiEOverDifferentRows()
+    void TestBidomainDg01DAveragePhiEOverDifferentRows()
     {
         HeartEventHandler::Disable();
         
@@ -195,13 +195,10 @@ public:
         HeartConfig::Instance()->SetCapacitance(1.0);
 
 
-        // Apply the constraint 'Average phi = 0' to rows 1, 51, 101, 151, 201, ...
-        for (unsigned row=1; row<2*bidomain_problem.rGetMesh().GetNumNodes(); row+=50)
+        // Apply the constraint 'Average phi = 0' to nodes 0, 25, 50, 75, 100, ...
+        for (unsigned node=0; node<bidomain_problem.rGetMesh().GetNumNodes(); node+=25)
         {
-
-            // First line is for coverage
-            TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetRowForAverageOfPhiZeroed(row-1));
-            bidomain_problem.SetRowForAverageOfPhiZeroed(row);
+            bidomain_problem.SetNodeForAverageOfPhiZeroed(node);
 
             try
             {

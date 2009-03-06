@@ -193,15 +193,9 @@ void BidomainProblem<DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsig
 }
 
 template<unsigned DIM>
-void BidomainProblem<DIM>::SetRowForAverageOfPhiZeroed(unsigned row)
+void BidomainProblem<DIM>::SetNodeForAverageOfPhiZeroed(unsigned node)
 {
-    // Row should be odd in C++-like indexing
-    if (row % 2 == 0)
-    {
-        EXCEPTION("Row for enforcing 'Average phi_e = 0' should be odd in C++ style indexing");
-    }
-
-    mRowForAverageOfPhiZeroed = row;
+    mRowForAverageOfPhiZeroed = 2*node+1;
 }
 
 template<unsigned DIM>

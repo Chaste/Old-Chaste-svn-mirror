@@ -121,7 +121,7 @@ public:
      * condition that the average of phi_e is zero.  If not called, this
      * condition will not be used.
      */
-    void SetRowForAverageOfPhiZeroed(unsigned row);
+    void SetNodeForAverageOfPhiZeroed(unsigned node);
     
     /**
      *  Get the pde. Can only be called after Initialise()
