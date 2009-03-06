@@ -17,9 +17,9 @@
 #define PRINT_4_VARIABLES(var1,var2,var3,var4) std::cout << "DEBUG: " #var1 " = " << var1 << ", " #var2 " = " << var2 << ", " #var3 " = " << var3 << ", " #var4 " = " << var4 << std::endl << std::flush;
 
 /* Quit (assert(0)) on the n-th time this line is reached, for the given n */ 
-#define QUIT_AFTER_N_VISITS(n) { static unsigned _quit_counter=1; if(_quit_counter++==(n)) {TRACE("User-forced quit."); assert(0);} }
+#define QUIT_AFTER_N_VISITS(n) { static unsigned counter=1; if(counter++==(n)) {TRACE("User-forced quit."); assert(0);} }
 
 /* Print how many times this line has been reached, everytime it is reached */
-#define HOW_MANY_TIMES_HERE(message) { static unsigned _print_counter=1; std::cout << "DEBUG: Num times here ("<< message << "): " << _print_counter++ << std::endl << std::flush; }
+#define HOW_MANY_TIMES_HERE(message) { static unsigned counter=1; std::cout << "DEBUG: Num times here ("<< message << "): " << counter++ << std::endl << std::flush; }
 
 #endif /*DEBUG_HPP_*/
