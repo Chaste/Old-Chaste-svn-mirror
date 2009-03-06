@@ -92,7 +92,7 @@ else:
     lib = None
     for source_file in files + testsource:
         obj = env.StaticObject(source_file)
-        key = os.path.join(toplevel_dir, source_file)
+        key = os.path.join(toplevel_dir, str(source_file))
         #print toplevel_dir, "source", key
         env['CHASTE_OBJECTS'][key] = obj[0]
     

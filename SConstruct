@@ -130,7 +130,7 @@ Export('test_component')
 # If building static libraries, get rid of any old shared libraries,
 # in order to stop the automatic dependency algorithm getting confused.
 if use_chaste_libs and static_libs:
-    for lib in glob.glob('lib/lib*.a'):
+    for lib in glob.glob('lib/lib*.so'):
         Execute(Delete(lib))
 
 
@@ -191,8 +191,7 @@ Export("other_libpaths", "other_libs")
 
 # Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
-              + ' -DTRILIBRARY -DANSI_DECLARATORS ' \
-              + ' -DCHASTE_ROOT=\'"' + Dir('#').abspath + '"\' '
+              + ' -DTRILIBRARY -DANSI_DECLARATORS '
 link_flags  = build.LinkFlags() + ' ' + hostconfig.ldflags()
 
 # Search path for Chaste #includes
@@ -206,7 +205,7 @@ cpppath = map(lambda p: '#/'+p, cpppath)
 # Set up the environment to use for building.
 other_libpaths.append(os.path.abspath('lib'))
 env = Environment(
-    ENV={'PATH': os.environ['PATH'],
+    ENV={'PATH': '.:' + os.environ['PATH'],
          'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
          'USER': os.environ['USER'],
          'INTEL_LICENSE_FILE': '28518@lic1.osc.ox.ac.uk:' +

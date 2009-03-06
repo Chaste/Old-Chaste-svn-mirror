@@ -29,7 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import glob
-import SCons.Defaults
+
+from SCons.Script import Command, Dir, Value
 
 # Compatability with Python 2.3
 try:
@@ -89,6 +90,14 @@ def FindSourceFiles(rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
     if dirsOnly:
         return source_dirs
     else:
+        component = os.path.basename(os.path.dirname(os.path.abspath(rootDir)))
+        if component == 'global' and rootDir == 'src':
+            # Special-case the version info file.
+            file_name = os.path.join('src', 'Version.cpp')
+            file_node = Command(file_name,
+                                [Value(GetVersionCpp())],
+                                GenerateVersionCpp)[0]
+            source_files.append(file_node)
         return source_files, source_dirs
 
 def BuildTest(target, source, env):
@@ -133,8 +142,9 @@ def BuildTest(target, source, env):
                     # Does it have a source file?
                     base, ext = os.path.splitext(hdr)
                     cpp_file = base + '.cpp'
-                    if os.path.exists(cpp_file) and \
-                           not IsTemplateCpp(cpp_file):
+                    if base == 'global/src/Version' or \
+                           (os.path.exists(cpp_file) and \
+                            not IsTemplateCpp(cpp_file)):
                         # Find the object file and analyse it
                         obj = env['CHASTE_OBJECTS'][cpp_file]
                         objects.append(obj)
@@ -191,7 +201,7 @@ def FindTestsToRun(build, BUILD_TARGETS,
     else:
         # Are we building this component/project?
         test_this_comp = False
-        root_dir = SCons.Defaults.DefaultEnvironment().Dir('#').abspath
+        root_dir = Dir('#').abspath
         this_comp_targets = ['.', root_dir]
         if not project and component in comp_deps['core']:
             this_comp_targets.append('core')
@@ -235,3 +245,34 @@ def FindTestsToRun(build, BUILD_TARGETS,
                 except IOError:
                     pass
     return testfiles
+
+
+
+def GetVersionCpp():
+    """Return the contents of the Version.cpp source file."""
+    chaste_root = Dir('#').abspath
+    chaste_revision = os.popen("svnversion").read().strip()
+    return '''
+#include "Version.hpp"
+
+const char* GetChasteRoot()
+{
+    return "%s";
+}
+
+const char* GetChasteVersion()
+{
+    return "%s";
+}
+''' % (chaste_root, chaste_revision)
+
+def GenerateVersionCpp(env, target, source):
+    """An Action to generate the Version.cpp source file.
+
+    Use like:
+    Command('global/src/Version.cpp', [Value(GetVersionCpp())], GenerateVersionCpp)
+    """
+    out = open(target[0].path, "w")
+    out.write(source[0].get_contents())
+    out.close()
+

@@ -46,8 +46,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "PetscException.hpp"
+#include "PetscArguments.hpp"
+#include "Version.hpp"
 
-class PetSCSetup : public CxxTest::GlobalFixture
+class PetscSetup : public CxxTest::GlobalFixture
 {
 public:
     /// Standard setup method for PETSc.
@@ -57,13 +59,14 @@ public:
          * The cxxtest_argc and cxxtest_argv variables are global, and filled in
          * from the arguments passed to the cxxtest test suite runner.
          */
-        PETSCEXCEPT(PetscInitialize(&cxxtest_argc, &cxxtest_argv,
+        PetscArguments* p_args = PetscArguments::Instance();
+        PETSCEXCEPT(PetscInitialize(p_args->p_argc, p_args->p_argv,
                                     PETSC_NULL, PETSC_NULL) );
 
         char buf[10000];
         std::cout << std::endl << "CWD: " << getcwd(buf, 10000) << std::endl;
-        std::cout << "Root: " << CHASTE_ROOT << std::endl;
-        EXPECT0(chdir, CHASTE_ROOT);
+        std::cout << "Root: " << GetChasteRoot() << std::endl;
+        EXPECT0(chdir, GetChasteRoot());
         std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
 
         return true;
@@ -76,7 +79,8 @@ public:
         return true;
     }
 };
-static PetSCSetup thisSetup;
+
+static PetscSetup thisSetup;
 
 
 #endif //_PETSCSETUPANDFINALIZE_HPP_
