@@ -47,22 +47,25 @@ class CellwiseData
 
 private:
 
-    /* The single instance of the singleton object */
+    /** The single instance of the singleton object */
     static CellwiseData* mpInstance;
 
-    /* A pointer to a Tissue so a cell's node can be found */
+    /** A pointer to a Tissue so a cell's node can be found */
     MeshBasedTissue<DIM>* mpTissue;
 
-    /* Allocated memory for mData object */
+    /** Allocated memory for mData object */
     bool mAllocatedMemory;
 
-    /* Number of variables per node to be stored */
+    /** Number of variables per node to be stored */
     unsigned mNumberOfVariables;
 
-    /* Store of the data */
+    /** Store of the data */
     std::vector<double> mData;
 
+    /** Helper member storing constant data. Used in tests. */
     std::vector<double> mConstantDataForTesting;
+
+    /** Helper member storing whether mConstantDataForTesting is used. */
     bool mUseConstantDataForTesting;
 
     friend class boost::serialization::access;

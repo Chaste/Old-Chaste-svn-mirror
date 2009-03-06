@@ -134,6 +134,8 @@ protected:
 
     /**
      * Update mIsGhostNode if required by a remesh.
+     * 
+     * @param rMap A map between node indices before and after remesh
      */
     virtual void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
 
@@ -220,7 +222,8 @@ public:
      */
     void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation);
 
-     /* Find if a given node is a ghost node. The method always returns false
+    /**
+     * Find if a given node is a ghost node. The method always returns false
      * but is overridden in MeshBasedTissueWithGhostNodes.
      *
      * @param index the global index of a specified node
@@ -413,6 +416,8 @@ public:
 
         /**
          * Comparison not-equal-to.
+         * 
+         * @param other SpringIterator with which comparison is made
          */
         bool operator!=(const SpringIterator& other);
 
@@ -423,6 +428,9 @@ public:
 
         /**
          * Constructor for a new iterator.
+         * 
+         * @param rTissue the tissue
+         * @param edgeIter iterator over edges in the mesh
          */
         SpringIterator(MeshBasedTissue& rTissue, typename MutableMesh<DIM,DIM>::EdgeIterator edgeIter);
 
@@ -448,7 +456,9 @@ public:
      */
     SpringIterator SpringsEnd();
 
-    // For debugging
+    /**
+     * Helper method for use in debugging.
+     */
     void CheckTissueCellPointers();
 
     /**

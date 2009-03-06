@@ -73,57 +73,107 @@ private:
     /**
      * Parameters for the Swat et al. (2004) model
      */
+
+    /** Dimensional parameter k_2. */
     double mk2d;
+    /** Dimensional parameter k_3. */
     double mk3d;
+    /** Dimensional parameter k_34. */
     double mk34d;
+    /** Dimensional parameter k_2. */
     double mk43d;
+    /** Dimensional parameter k_23. */
     double mk23d;
+    /** Dimensional parameter a. */
     double mad;
+    /** Dimensional parameter J_11. */
     double mJ11d;
+    /** Dimensional parameter J_12. */
     double mJ12d;
+    /** Dimensional parameter J_13. */
     double mJ13d;
+    /** Dimensional parameter J_13. */
     double mJ61d;
+    /** Dimensional parameter J_62. */
     double mJ62d;
+    /** Dimensional parameter J_63. */
     double mJ63d;
+    /** Dimensional parameter K_m1. */
     double mKm1d;
+    /** Dimensional parameter k_p. */
     double mkpd;
+    /** Dimensionless parameter phi_r. */
     double mphi_r;
+    /** Dimensionless parameter phi_i. */
     double mphi_i;
+    /** Dimensionless parameter phi_j. */
     double mphi_j;
+    /** Dimensionless parameter phi_p. */
     double mphi_p;
+    /** Dimensional parameter k_16. */
     double mk16d;
+    /** Dimensional parameter k_61. */
     double mk61d;
+    /** Dimensionless parameter phi_E2F1. */
     double mPhiE2F1;
 
     /**
      * Parameters for the Van Leeuwen et al. (2007) model
      */
+
+    /** Dimensionless parameter s_A. */
     double mSa;
+    /** Dimensionless parameter s_CA. */
     double mSca;
+    /** Dimensionless parameter s_C. */
     double mSc;
+    /** Dimensionless parameter s_CT. */
     double mSct;
+    /** Dimensionless parameter s_D. */
     double mSd;
+    /** Dimensionless parameter s_T. */
     double mSt;
+    /** Dimensionless parameter s_X. */
     double mSx;
+    /** Dimensionless parameter s_Y. */
     double mSy;
+    /** Dimensionless parameter d_A. */
     double mDa;
+    /** Dimensionless parameter d_CA. */
     double mDca;
+    /** Dimensionless parameter d_C. */
     double mDc;
+    /** Dimensionless parameter d_CT. */
     double mDct;
+    /** Dimensionless parameter d_D. */
     double mDd;
+    /** Dimensionless parameter d_Dx. */
     double mDdx;
+    /** Dimensionless parameter d_T. */
     double mDt;
+    /** Dimensionless parameter d_U. */
     double mDu;
+    /** Dimensionless parameter d_X. */
     double mDx;
+    /** Dimensionless parameter d_Y. */
     double mDy;
+    /** Dimensionless parameter K_c. */
     double mKc;
+    /** Dimensionless parameter K_D. */
     double mKd;
+    /** Dimensionless parameter K_T. */
     double mKt;
+    /** Dimensionless parameter p_c. */
     double mPc;
+    /** Dimensionless parameter p_u. */
     double mPu;
+    /** Dimensionless parameter xi_D. */
     double mXiD;
+    /** Dimensionless parameter xi_Dx. */
     double mXiDx;
+    /** Dimensionless parameter xi_X. */
     double mXiX;
+    /** Dimensionless parameter xi_C. */
     double mXiC;
 
     /**
@@ -147,7 +197,7 @@ public:
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
      * @param rMutationState affects the ODE system and is given by CryptCellMutationStates.hpp
      */
-    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double WntStimulus = 0.0, const CellMutationState& rMutationState = HEALTHY);
+    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel = 0.0, const CellMutationState& rMutationState = HEALTHY);
 
     /**
      * Destructor.

@@ -28,9 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCELLCENTREBASEDTISSUE_HPP_
 #define ABSTRACTCELLCENTREBASEDTISSUE_HPP_
 
-
 #include "AbstractTissue.hpp"
 
+/**
+ * An abstract facade class encapsulating a cell-centre based tissue, in which
+ * each cell corresponds to a Node.
+ */
 template<unsigned DIM>
 class AbstractCellCentreBasedTissue : public AbstractTissue<DIM>
 {

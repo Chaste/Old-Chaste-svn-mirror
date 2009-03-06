@@ -37,8 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class CancerEventHandler : public GenericEventHandler<9, CancerEventHandler>
 {
 public:
+
+    /** Character array holding cancer event names. There are nine cancer events. */
     const static char* EventName[9];
- 
+
+    /** Definition of cancer event types. */ 
     typedef enum
     {
         SETUP=0,

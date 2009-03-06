@@ -40,17 +40,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractCancerTestSuite : public CxxTest::TestSuite
 {
 protected:
+
+    /**
+     * Overridden setUp() method. Initialises singleton classes.
+     */
     void setUp()
     {
-        // Initialise singleton classes
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
         CancerParameters::Instance()->Reset();
     }
 
+    /**
+     * Overridden setUp() method. Clears up singleton classes.
+     */
     void tearDown()
     {
-        // Clear up singleton classes
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

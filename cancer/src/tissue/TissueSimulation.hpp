@@ -90,21 +90,22 @@ class TissueSimulation
 
 protected:
 
-    /** Time step */
+    /** Time step. */
     double mDt;
 
-    /** Time to run the Solve() method up to */
+    /** Time to run the Solve() method up to. */
     double mEndTime;
 
-    /** Facade encapsulating cells in the tissue being simulated */
+    /** Facade encapsulating cells in the tissue being simulated. */
     AbstractTissue<DIM>& mrTissue;
     
-    /** Whether to delete the facade in our destructor */ 
+    /** Whether to delete the facade in the destructor. */ 
     bool mDeleteTissue;
 
+    /** Whether delete the collection of force laws in the destructor. */
     bool mAllocatedMemoryForForceCollection;
     
-    /** Whether to initialise the cells */
+    /** Whether to initialise the cells. */
     bool mInitialiseCells;
 
     /** Whether to run the simulation with no birth (defaults to false). */
@@ -128,10 +129,10 @@ protected:
     /** Whether to write the cell cycle phases to a file */
     bool mOutputCellCyclePhases;
 
-    /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
+    /** Output directory (a subfolder of tmp/[USERNAME]/testoutput) */
     std::string mOutputDirectory;
 
-    /** Simulation Output directory either the same as mOutputDirectory or includes mOutputDirectory/results_from_time_<TIME> */
+    /** Simulation Output directory either the same as mOutputDirectory or includes mOutputDirectory/results_from_time_[TIME] */
     std::string mSimulationOutputDirectory;
 
     /** Visualiser setup file */

@@ -106,6 +106,8 @@ public:
 
         TS_ASSERT_DELTA(p_cell_model3->GetProteinConcentrations()[5], 1.0, 1e-5);
         TS_ASSERT_EQUALS(p_cell_model3->ReadyToDivide(), false);
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model3->ReadyToDivide(), false);
 
         // Tidy up
         CellwiseData<1>::Destroy();

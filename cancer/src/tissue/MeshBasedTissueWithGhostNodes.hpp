@@ -44,7 +44,8 @@ template<unsigned DIM>
 class MeshBasedTissueWithGhostNodes : public MeshBasedTissue<DIM>
 {
 private:
-    /* Just so that the test can test the private functions */
+
+    /** Just so that the test can test the private functions */
     friend class TestMeshBasedTissueWithGhostNodes;
 
     /** Records whether a node is a ghost node or not */
@@ -151,15 +152,15 @@ public:
     /**
      * Update mIsGhostNode if required by a remesh.
      *
-     * @param rMap
+     * @param rMap A map between node indices before and after remesh
      */
     void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
 
     /**
      * This method is used to calculate the force between GHOST nodes.
      *
-     * @param NodeAGlobalIndex
-     * @param NodeBGlobalIndex
+     * @param rNodeAGlobalIndex
+     * @param rNodeBGlobalIndex
      *
      * @return The force exerted on Node A by Node B.
      */

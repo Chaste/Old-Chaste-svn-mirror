@@ -501,6 +501,8 @@ public:
 
         /**
          * Comparison not-equal-to.
+         * 
+         * @param other iterator with which comparison is made
          */
         inline bool operator!=(const Iterator& other);
 
@@ -511,6 +513,9 @@ public:
 
         /**
          * Constructor for a new iterator.
+         * 
+         * @param rTissue the tissue
+         * @param cellIter iterator over list of cells
          */
         Iterator(AbstractTissue& rTissue, std::list<TissueCell>::iterator cellIter);
 

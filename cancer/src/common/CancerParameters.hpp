@@ -52,82 +52,288 @@ public:
      */
     static CancerParameters* Instance();
 
-    /**
-     * Get methods
-     */
-    double GetStemCellG1Duration();
-    double GetTransitCellG1Duration();
-    double GetHepaOneCellG1Duration();
-    double GetMinimumGapDuration();
-    double GetSG2MDuration();
-    double GetSDuration();
-    double GetG2Duration();
-    double GetMDuration();
-    unsigned GetMaxTransitGenerations();
-    double GetCryptLength();
-    double GetCryptWidth();
-    double GetSpringStiffness();
-    double GetDampingConstantNormal();
-    double GetDampingConstantMutant();
-    double GetBetaCatSpringScaler();
-    double GetApoptosisTime();
-    double GetDivisionRestingSpringLength();
-    double GetDivisionSeparation();
-    double GetHepaOneCellHypoxicConcentration();
-    double GetHepaOneCellQuiescentConcentration();
-    double GetWntTransitThreshold();
-    double GetWntStemThreshold();
-    double GetTopOfLinearWntConcentration();
-    double GetCriticalHypoxicDuration();
-    double GetCryptProjectionParameterA();
-    double GetCryptProjectionParameterB();
-    double GetApoptoticSpringTensionStiffness();
-    double GetApoptoticSpringCompressionStiffness();
-    double GetWntChemotaxisStrength();
-    double GetSymmetricDivisionProbability();
-    double GetAreaBasedDampingConstantParameter();
-    double GetMatureCellTargetArea();
-    double GetDeformationEnergyParameter();
-    double GetMembraneSurfaceEnergyParameter();
-    double GetCellCellAdhesionEnergyParameter();
 
     /**
-     * Set methods
+     * @return mStemCellG1Duration
+     */
+    double GetStemCellG1Duration();
+    /**
+     * @return mTransitCellG1Duration
+     */
+    double GetTransitCellG1Duration();
+    /**
+     * @return mHepaOneCellG1Duration
+     */
+    double GetHepaOneCellG1Duration();
+    /**
+     * @return mMinimumGapDuration
+     */
+    double GetMinimumGapDuration();
+    /**
+     * @return mSDuration + mG2Duration + mMDuration
+     */
+    double GetSG2MDuration();
+    /**
+     * @return mSDuration
+     */
+    double GetSDuration();
+    /**
+     * @return mG2Duration
+     */
+    double GetG2Duration();
+    /**
+     * @return mMDuration
+     */
+    double GetMDuration();
+    /**
+     * @return mMaxTransitGenerations
+     */
+    unsigned GetMaxTransitGenerations();
+    /**
+     * @return mCryptLength
+     */
+    double GetCryptLength();
+    /**
+     * @return mCryptWidth
+     */
+    double GetCryptWidth();
+    /**
+     * @return mSpringStiffness
+     */
+    double GetSpringStiffness();
+    /**
+     * @return mDampingConstantNormal
+     */
+    double GetDampingConstantNormal();
+    /**
+     * @return mDampingConstantMutant
+     */
+    double GetDampingConstantMutant();
+    /**
+     * @return mBetaCatSpringScaler
+     */
+    double GetBetaCatSpringScaler();
+    /**
+     * @return mApoptosisTime
+     */
+    double GetApoptosisTime();
+    /**
+     * @return mDivisionRestingSpringLength
+     */
+    double GetDivisionRestingSpringLength();
+    /**
+     * @return mDivisionSeparation
+     */
+    double GetDivisionSeparation();
+    /**
+     * @return mHepaOneCellHypoxicConcentration
+     */
+    double GetHepaOneCellHypoxicConcentration();
+    /**
+     * @return mHepaOneCellQuiescentConcentration
+     */
+    double GetHepaOneCellQuiescentConcentration();
+    /**
+     * @return mWntTransitThreshold
+     */
+    double GetWntTransitThreshold();
+    /**
+     * @return mWntStemThreshold
+     */
+    double GetWntStemThreshold();
+    /**
+     * @return mTopOfLinearWntConcentration
+     */
+    double GetTopOfLinearWntConcentration();
+    /**
+     * @return mCriticalHypoxicDuration
+     */
+    double GetCriticalHypoxicDuration();
+    /**
+     * @return mCryptProjectionParameterA
+     */
+    double GetCryptProjectionParameterA();
+    /**
+     * @return mCryptProjectionParameterB
+     */
+    double GetCryptProjectionParameterB();
+    /**
+     * @return mApoptoticSpringTensionStiffness
+     */
+    double GetApoptoticSpringTensionStiffness();
+    /**
+     * @return mApoptoticSpringCompressionStiffness
+     */
+    double GetApoptoticSpringCompressionStiffness();
+    /**
+     * @return mWntChemotaxisStrength
+     */
+    double GetWntChemotaxisStrength();
+    /**
+     * @return mSymmetricDivisionProbability
+     */
+    double GetSymmetricDivisionProbability();
+    /**
+     * @return mAreaBasedDampingConstantParameter
+     */
+    double GetAreaBasedDampingConstantParameter();
+    /**
+     * @return mMatureCellTargetArea
+     */
+    double GetMatureCellTargetArea();
+    /**
+     * @return mDeformationEnergyParameter
+     */
+    double GetDeformationEnergyParameter();
+    /**
+     * @return mMembraneSurfaceEnergyParameter
+     */
+    double GetMembraneSurfaceEnergyParameter();
+    /**
+     * @return mCellCellAdhesionEnergyParameter
+     */
+    double GetCellCellAdhesionEnergyParameter();
+
+
+    /**
+     * Set mStemCellG1Duration.
      */
     void SetStemCellG1Duration(double);
+    /**
+     * Set mTransitCellG1Duration.
+     */
     void SetTransitCellG1Duration(double);
+    /**
+     * Set mHepaOneCellG1Duration.
+     */
     void SetHepaOneCellG1Duration(double);
+    /**
+     * Set mMinimumGapDuration.
+     */
     void SetMinimumGapDuration(double);
+    /**
+     * Set mSDuration.
+     */
     void SetSDuration(double);
+    /**
+     * Set mG2Duration.
+     */
     void SetG2Duration(double);
+    /**
+     * Set mMDuration.
+     */
     void SetMDuration(double);
+    /**
+     * Set mMaxTransitGenerations.
+     */
     void SetMaxTransitGenerations(unsigned);
+    /**
+     * Set mCryptLength.
+     */
     void SetCryptLength(double);
+    /**
+     * Set mCryptWidth.
+     */
     void SetCryptWidth(double);
+    /**
+     * Set mSpringStiffness.
+     */
     void SetSpringStiffness(double);
+    /**
+     * Set mDampingConstantNormal.
+     */
     void SetDampingConstantNormal(double);
+    /**
+     * Set mDampingConstantMutant.
+     */
     void SetDampingConstantMutant(double);
+    /**
+     * Set mBetaCatSpringScaler.
+     */
     void SetBetaCatSpringScaler(double);
+    /**
+     * Set mApoptosisTime.
+     */
     void SetApoptosisTime(double);
+    /**
+     * Set mDivisionRestingSpringLength.
+     */
     void SetDivisionRestingSpringLength(double);
+    /**
+     * Set mDivisionSeparation.
+     */
     void SetDivisionSeparation(double);
+    /**
+     * Set mHepaOneCellHypoxicConcentration.
+     */
     void SetHepaOneCellHypoxicConcentration(double);
+    /**
+     * Set mHepaOneCellQuiescentConcentration.
+     */
     void SetHepaOneCellQuiescentConcentration(double);
+    /**
+     * Set mWntTransitThreshold.
+     */
     void SetWntTransitThreshold(double);
+    /**
+     * Set mWntStemThreshold.
+     */
     void SetWntStemThreshold(double);
+    /**
+     * Set mTopOfLinearWntConcentration.
+     */
     void SetTopOfLinearWntConcentration(double);
+    /**
+     * Set mCriticalHypoxicDuration.
+     */
     void SetCriticalHypoxicDuration(double);
+    /**
+     * Set mHepaOneParameters.
+     */
     void SetHepaOneParameters();
+    /**
+     * Set mCryptProjectionParameterA.
+     */
     void SetCryptProjectionParameterA(double);
+    /**
+     * Set mCryptProjectionParameterB.
+     */
     void SetCryptProjectionParameterB(double);
+    /**
+     * Set mApoptoticSpringTensionStiffness.
+     */
     void SetApoptoticSpringTensionStiffness(double);
+    /**
+     * Set mApoptoticSpringCompressionStiffness.
+     */
     void SetApoptoticSpringCompressionStiffness(double);
+    /**
+     * Set mWntChemotaxisStrength.
+     */
     void SetWntChemotaxisStrength(double);
+    /**
+     * Set mSymmetricDivisionProbability.
+     */
     void SetSymmetricDivisionProbability(double);
+    /**
+     * Set mAreaBasedDampingConstantParameter.
+     */
     void SetAreaBasedDampingConstantParameter(double);
+    /**
+     * Set mMatureCellTargetArea.
+     */
     void SetMatureCellTargetArea(double);
+    /**
+     * Set mDeformationEnergyParameter.
+     */
     void SetDeformationEnergyParameter(double);
+    /**
+     * Set mMembraneSurfaceEnergyParameter.
+     */
     void SetMembraneSurfaceEnergyParameter(double);
+    /**
+     * Set mCellCellAdhesionEnergyParameter.
+     */
     void SetCellCellAdhesionEnergyParameter(double);
 
     /**
@@ -137,8 +343,19 @@ public:
 
 protected:
 
+    /**
+     * Default constructor.
+     */
     CancerParameters();
+
+    /**
+     * Copy constructor.
+     */
     CancerParameters(const CancerParameters&);
+
+    /**
+     * Overloaded assignement operator.
+     */
     CancerParameters& operator= (const CancerParameters&);
 
 private:
