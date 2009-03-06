@@ -188,8 +188,10 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
 {
     if (applyToMatrix)
     {
+        
         //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so 
         //that they can be reapplied at each time step.
+        //Make a new vector to store the Dirichlet offsets in
         VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
         VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
         
@@ -205,8 +207,8 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
     
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
                 unsigned col = row;
-   
-                //Extract the column from matrix
+                           
+                //Make a new vector in order to extract the column from matrix 
                 Vec matrix_col;
                 VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
                 VecZeroEntries(matrix_col);
@@ -225,6 +227,9 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
                 //   -value*[0 a_21 a_31 .. a_N1]
                 // and will be added to the RHS.   
                 VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);  
+                
+                //We are done with the matrix column...
+                VecDestroy(matrix_col);
 
                 //Zero out the appropriate row and column
                 rLinearSystem.ZeroMatrixRow(row);
@@ -232,6 +237,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
                 rLinearSystem.SetMatrixElement(row, row, 1);
 
                 this->mDirichIterator++;
+                
             }
         }
     }
