@@ -72,7 +72,6 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
 
     ConstBoundaryCondition<DIM>* p_bc_flux_in = new ConstBoundaryCondition<DIM>(magnitude);
     ConstBoundaryCondition<DIM>* p_bc_flux_out = new ConstBoundaryCondition<DIM>(-magnitude);
-    ConstBoundaryCondition<DIM>* p_bc_zero = new ConstBoundaryCondition<DIM>(0.0);
 
     // loop over boundary elements and add a non-zero phi_e boundary condition (ie extracellular
     // stimulus) if (assuming index=0, etc) x=lowerValue (where x is the x-value of the centroid)
@@ -99,22 +98,19 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
     // grounded
     if (mGroundSecondElectrode)
     {
+        ConstBoundaryCondition<DIM>* p_zero_bc = new ConstBoundaryCondition<DIM>(0.0);
+    
         for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
         {
             if (fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
             {
-                mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(rMesh.GetNode(i), p_bc_zero, 1);
+                mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(rMesh.GetNode(i), p_zero_bc, 1);
             }
         }
         
         //Unused boundary conditions will not be deleted by the b.c. container
         delete p_bc_flux_out;
-    } 
-    else
-    {
-        //Unused boundary conditions will not be deleted by the b.c. container
-        delete p_bc_zero;
-    }       
+    }     
 }
 
 /////////////////////////////////////////////////////////////////////

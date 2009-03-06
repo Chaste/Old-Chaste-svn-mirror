@@ -48,8 +48,11 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
         mLastNeumannCondition[index_of_unknown] = mpNeumannMap[index_of_unknown]->begin();
     }
     
+    // This zero boundary condition is only used in AddNeumannBoundaryCondition
     mpZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-    mZeroBoundaryConditionUsed = false; // only used if AddNeumannBc called.
+    // therefore we must delete it if AddNeumannBoundaryCondition is not called,
+    // so we keep a flag to check whether it need deleting or not.
+    mZeroBoundaryConditionUsed = false; 
 
 }
 
@@ -181,6 +184,28 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeum
  * For each node with a boundary condition applied, both the corresponding row and column are zero'd 
  * and the RHS vector modified to take into account the zero'd column. See #577.
  * 
+ * Suppose we have a matrix 
+ * [a b c] [x] = [ b1 ]
+ * [d e f] [y]   [ b2 ]
+ * [g h i] [z]   [ b3 ]
+ * and we want to apply the boundary condition x=v without losing symmetry if the matrix is 
+ * symmetric. We apply the boundary condition
+ * [1 0 0] [x] = [ v  ]
+ * [d e f] [y]   [ b2 ]
+ * [g h i] [z]   [ b3 ]
+ * and then zero the column as well, adding a term to the RHS to take account for the
+ * zero-matrix components
+ * [1 0 0] [x] = [ v  ] - v[ 0 ] 
+ * [0 e f] [y]   [ b2 ]    [ d ]
+ * [0 h i] [z]   [ b3 ]    [ g ]
+ * Note the last term is the first column of the matrix, with one component zeroed, and 
+ * multiplied by the boundary condition. This last term is the stored in 
+ * rLinearSystem.rGetDirichletBoundaryConditionsVector(), and in general form is the 
+ * SUM_{d=1..D} v_d a'_d
+ * where v_d is the boundary value of boundary condition d (d an index into the matrix),
+ * and a'_d is the dth-column of the matrix but with the d-th component zeroed, and where
+ * there are D boundary conditions
+ * 
  */
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
@@ -195,22 +220,22 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
         VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
         VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
         
+        // Set up a vector which will store the columns of the matrix (column d, where d is
+        // the index of the row (and column) to be altered for the boundary condition
+        Vec matrix_col;
+        VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
+
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
     
             while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
-    
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
     
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
                 unsigned col = row;
-                           
-                //Make a new vector in order to extract the column from matrix 
-                Vec matrix_col;
-                VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
                 VecZeroEntries(matrix_col);
     
                 rLinearSystem.AssembleFinalLinearSystem(); 
@@ -228,18 +253,17 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
                 // and will be added to the RHS.   
                 VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);  
                 
-                //We are done with the matrix column...
-                VecDestroy(matrix_col);
-
                 //Zero out the appropriate row and column
                 rLinearSystem.ZeroMatrixRow(row);
-                rLinearSystem.ZeroMatrixColumn(col);
+                rLinearSystem.ZeroMatrixColumn(col); // recall row=col
                 rLinearSystem.SetMatrixElement(row, row, 1);
 
                 this->mDirichIterator++;
                 
             }
         }
+        
+        VecDestroy(matrix_col);
     }
     
     //Apply the RHS boundary conditions modification if required.

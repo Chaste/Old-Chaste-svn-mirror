@@ -147,14 +147,17 @@ LinearSystem::~LinearSystem()
         VecDestroy(mRhsVector);
         MatDestroy(mLhsMatrix);
     }
+    
     if (mMatNullSpace)
     {
         MatNullSpaceDestroy(mMatNullSpace);
     }
+    
     if (mKspIsSetup)
     {
         KSPDestroy(mKspSolver);
     }
+    
     if(mDirichletBoundaryConditionsVector)
     {
         VecDestroy(mDirichletBoundaryConditionsVector);
