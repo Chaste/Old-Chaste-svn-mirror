@@ -205,9 +205,9 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::SetMesh(AbstractMesh<SPACE_D
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::PrintOutput(bool rPrintOutput)
+void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::PrintOutput(bool printOutput)
 {
-    mPrintOutput = rPrintOutput;
+    mPrintOutput = printOutput;
 }
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
