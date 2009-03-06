@@ -96,7 +96,7 @@ protected:
     Vec mExternalVoltageMask;
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
 
-    unsigned mRowMeanPhiEZero;
+    unsigned mRowForAverageOfPhiZeroed;
 
     void ResetInterpolatedQuantities( void );
 
@@ -193,7 +193,7 @@ public:
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> fixedExtracellularPotentialNodes);
 
-    void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero);
+    void SetRowForAverageOfPhiZeroed(unsigned rowMeanPhiEZero);
 };
 
 /**

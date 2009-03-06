@@ -190,9 +190,9 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
     if (mFixedExtracellularPotentialNodes.empty())
     {
         // We're not pinning any nodes.
-        if (mRowMeanPhiEZero==INT_MAX)
+        if (mRowForAverageOfPhiZeroed==INT_MAX)
         {
-            // We're not using the mean phi_e method, hence use a null space
+            // We're not using the 'Average phi_e = 0' method, hence use a null space
             if (!mNullSpaceCreated)
             {
                 // No null space set up, so create one and pass it to the linear system
@@ -263,26 +263,26 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
         }
         else
         {
-            // mRowMeanPhiEZero!=INT_MAX, i.e. we're using the mean phi_e method
-            //Set average phi_e to zero
+            // mRowForAverageOfPhiZeroed!=INT_MAX, i.e. we're using the 'Average phi_e = 0; method
+            // Set average phi_e to zero
             unsigned matrix_size = this->mpLinearSystem->GetSize();
             if (!this->mMatrixIsAssembled)
             {
 
-                // Set the mRowMeanPhiEZero-th matrix row to 0 1 0 1 ...
-                this->mpLinearSystem->ZeroMatrixRow(mRowMeanPhiEZero);
+                // Set the mRowForAverageOfPhiZeroed-th matrix row to 0 1 0 1 ...
+                this->mpLinearSystem->ZeroMatrixRow(mRowForAverageOfPhiZeroed);
                 for (unsigned col_index=0; col_index<matrix_size; col_index++)
                 {
                     if (col_index%2 == 1)
                     {
-                        this->mpLinearSystem->SetMatrixElement(mRowMeanPhiEZero, col_index, 1);
+                        this->mpLinearSystem->SetMatrixElement(mRowForAverageOfPhiZeroed, col_index, 1);
                     }
                 }
                 this->mpLinearSystem->AssembleFinalLhsMatrix();
 
             }
-            // Set the mRowMeanPhiEZero-th rhs vector row to 0
-            this->mpLinearSystem->SetRhsVectorElement(mRowMeanPhiEZero, 0);
+            // Set the mRowForAverageOfPhiZeroed-th rhs vector row to 0
+            this->mpLinearSystem->SetRhsVectorElement(mRowForAverageOfPhiZeroed, 0);
 
             this->mpLinearSystem->AssembleRhsVector();
         }
@@ -313,7 +313,7 @@ BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::BidomainDg0Assembler(
 
     this->SetMatrixIsConstant();
 
-    mRowMeanPhiEZero = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
+    mRowForAverageOfPhiZeroed = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
     
     mpConfig = HeartConfig::Instance();
 }
@@ -353,16 +353,15 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotential
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
+void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetRowForAverageOfPhiZeroed(unsigned row)
 {
     // Row should be odd in C++-like indexing
-    if (rowMeanPhiEZero % 2 == 0)
+    if (row % 2 == 0)
     {
-        EXCEPTION("Row for meaning phi_e to zero should be odd in C++ like indexing");
+        EXCEPTION("Row for applying the constraint 'Average of phi_e = zero' should be odd in C++ like indexing");
     }
 
-    mRowMeanPhiEZero = rowMeanPhiEZero;
-
+    mRowForAverageOfPhiZeroed = row;
 }
 
 /////////////////////////////////////////////////////////////////////

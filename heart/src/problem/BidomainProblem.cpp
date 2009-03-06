@@ -157,7 +157,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
     try
     {
         mpAssembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
-        mpAssembler->SetRowForMeanPhiEToZero(mRowMeanPhiEZero);
+        mpAssembler->SetRowForAverageOfPhiZeroed(mRowForAverageOfPhiZeroed);
     }
     catch (const Exception& e)
     {
@@ -173,7 +173,7 @@ BidomainProblem<DIM>::BidomainProblem(
             AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath)
     : AbstractCardiacProblem<DIM, 2>(pCellFactory),
       mpBidomainPde(NULL), 
-      mRowMeanPhiEZero(INT_MAX),
+      mRowForAverageOfPhiZeroed(INT_MAX),
       mHasBath(hasBath),
       mpElectrodes(NULL)    
 {
@@ -193,15 +193,15 @@ void BidomainProblem<DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsig
 }
 
 template<unsigned DIM>
-void BidomainProblem<DIM>::SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
+void BidomainProblem<DIM>::SetRowForAverageOfPhiZeroed(unsigned row)
 {
     // Row should be odd in C++-like indexing
-    if (rowMeanPhiEZero % 2 == 0)
+    if (row % 2 == 0)
     {
-        EXCEPTION("Row for enforcing mean phi_e = 0 should be odd in C++ style indexing");
+        EXCEPTION("Row for enforcing 'Average phi_e = 0' should be odd in C++ style indexing");
     }
 
-    mRowMeanPhiEZero = rowMeanPhiEZero;
+    mRowForAverageOfPhiZeroed = row;
 }
 
 template<unsigned DIM>
@@ -273,10 +273,10 @@ void BidomainProblem<DIM>::PreSolveChecks()
     if (mFixedExtracellularPotentialNodes.empty())
     {
         // We're not pinning any nodes.
-        if (mRowMeanPhiEZero==INT_MAX)
+        if (mRowForAverageOfPhiZeroed==INT_MAX)
         {
-            // We're not using the mean phi_e method, hence use a null space
-            //Check that the KSP solver isn't going to do anything stupid:
+            // We're not using the constrain Average phi_e to 0 method, hence use a null space
+            // Check that the KSP solver isn't going to do anything stupid:
             // phi_e is not bounded, so it'd be wrong to use a relative tolerance
             if (HeartConfig::Instance()->GetUseRelativeTolerance())
             {

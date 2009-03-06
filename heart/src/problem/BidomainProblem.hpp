@@ -61,7 +61,7 @@ protected:
 private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     unsigned mExtracelluarColumnId;
-    unsigned mRowMeanPhiEZero;
+    unsigned mRowForAverageOfPhiZeroed;
 
     /** Whether the mesh has a bath, ie whether this is a bath simulation */
     bool mHasBath;
@@ -118,10 +118,10 @@ public:
 
     /**
      * Set which row of the linear system should be used to enforce the
-     * condition that the mean of phi_e is zero.  If not called, this
+     * condition that the average of phi_e is zero.  If not called, this
      * condition will not be used.
      */
-    void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero);
+    void SetRowForAverageOfPhiZeroed(unsigned row);
     
     /**
      *  Get the pde. Can only be called after Initialise()

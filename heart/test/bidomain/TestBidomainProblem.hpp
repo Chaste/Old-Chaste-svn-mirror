@@ -195,13 +195,13 @@ public:
         HeartConfig::Instance()->SetCapacitance(1.0);
 
 
-        // Check rows 1, 51, 101, 151, 201, ...
-        for (unsigned row_to_mean_phi=1; row_to_mean_phi<2*bidomain_problem.rGetMesh().GetNumNodes(); row_to_mean_phi=row_to_mean_phi+50)
+        // Apply the constraint 'Average phi = 0' to rows 1, 51, 101, 151, 201, ...
+        for (unsigned row=1; row<2*bidomain_problem.rGetMesh().GetNumNodes(); row+=50)
         {
 
             // First line is for coverage
-            TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi-1));
-            bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi);
+            TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetRowForAverageOfPhiZeroed(row-1));
+            bidomain_problem.SetRowForAverageOfPhiZeroed(row);
 
             try
             {
@@ -293,7 +293,7 @@ public:
                             p_container,
                             2);
 
-        TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
+        TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForAverageOfPhiZeroed(0));
 
         delete p_container;
         delete p_bidomain_assembler;
