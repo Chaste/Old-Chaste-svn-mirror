@@ -37,100 +37,192 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 
+// Defines the body force and surface traction for a 3d problem
+// on a cube with a Neo-Hookean law with a known solution. See
+// documentation for the test class below and references therein.
+class ThreeDimensionalModelProblem
+{
+public:
+    static double a;
+    static double b;
+    static double c1;
+
+    static c_vector<double,3> GetBodyForce(c_vector<double,3>& X)
+    {
+        assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1 && X(2)>=0 && X(2)<=1);
+
+        double lam1 = 1+a*X(0);
+        double lam2 = 1+b*X(1);
+        double invlam1 = 1.0/lam1;
+        double invlam2 = 1.0/lam2;
+        
+        c_vector<double,3> body_force;
+        body_force(0) = a;
+        body_force(1) = b;
+        body_force(2) = 2*X(2)*invlam1*invlam2*( a*a*invlam1*invlam1 + b*b*invlam2*invlam2 );
+    
+        return -2*c1*body_force;
+    }
+
+    static c_vector<double,3> GetTraction(c_vector<double,3>& X)
+    {
+        c_vector<double,3> traction = zero_vector<double>(3);
+    
+        double lam1 = 1+a*X(0);
+        double lam2 = 1+b*X(1);
+
+        double invlam1 = 1.0/lam1;
+        double invlam2 = 1.0/lam2;
+        
+        double Z = X(2);
+
+        if( fabs(X(0)-1)<1e-6 )
+        {
+            traction(0) =  lam1 - invlam1;
+            traction(1) =  0.0;
+            traction(2) =  -a*Z*invlam1*invlam1*invlam2;
+        }
+        else if( fabs(X(1)-0)<1e-6 )
+        {
+            traction(0) =  0.0;
+            traction(1) =  0.0;
+            traction(2) =  b*Z*invlam1;
+        }
+        else if( fabs(X(1)-1)<1e-6 )
+        {
+            traction(0) =  0.0;
+            traction(1) =  lam2 - invlam2;
+            traction(2) =  -b*Z*invlam2*invlam2*invlam1;
+        }
+        else if( fabs(X(2)-0)<1e-6 )
+        {
+            traction(0) =  0.0;
+            traction(1) =  0.0;
+            traction(2) =  lam1*lam2 - invlam1*invlam2;
+        }
+        else if( fabs(X(2)-1)<1e-6 )
+        {
+            traction(0) =  -a*invlam1*invlam1;
+            traction(1) =  -b*invlam2*invlam2;
+            traction(2) =  invlam1*invlam2 - lam1*lam2;
+        }
+        else
+        {
+            NEVER_REACHED;
+        }
+        return 2*c1*traction;
+    }
+};
+
+double ThreeDimensionalModelProblem::a = 0.1;
+double ThreeDimensionalModelProblem::b = 0.1;
+double ThreeDimensionalModelProblem::c1 = 0.1;
+
+
+
+/**
+ *  Solve 3D nonlinear elasticity problem with an exact solution.
+ * 
+ *  For full details see Pathmanathan, Gavaghan, Whiteley "A comparison of numerical 
+ *  methods used in finite element modelling of soft tissue deformation", J. Strain 
+ *  Analysis, to appear.
+ *  
+ *  We solve a 3d problem on a cube with a Neo-Hookean material, assuming the solution
+ *  will be
+ *    x = X+aX^2/2
+ *    y = Y+bY^2/2
+ *    z = Z/(1+aX)(1+bY)
+ *    with p=2c (c the material parameter), 
+ *  which, note, has been constructed to be an incompressible. We assume displacement 
+ *  boundary conditions on X=0 and traction boundary conditions on the remaining 5 surfaces.
+ *  It is then possible to determine the body force and surface tractions required for
+ *  this deformation, and they are defined in the above class.
+ * 
+ */
 class TestNonlinearElasticityAssemblerLong : public CxxTest::TestSuite
 {
 public:
     void TestSolve3d() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
-        
-        QuadraticMesh<3> mesh("mesh/test/data/cube_136_elements_quadratic");
 
-        MooneyRivlinMaterialLaw<3> law(0.02, 0.0);
-        c_vector<double,3> body_force;
-        body_force(0) = 0.06;
-        body_force(1) = 0.0;
-        body_force(2) = 0.0;
-        
+        unsigned num_elem_each_dir = 5;
+        QuadraticMesh<3> mesh(1.0, 1.0, 1.0, num_elem_each_dir, num_elem_each_dir, num_elem_each_dir);
+
+        // Neo-Hookean material law 
+        MooneyRivlinMaterialLaw<3> law(ThreeDimensionalModelProblem::c1, 0.0);
+
+        // Define displacement boundary conditions
         std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,3> > locations;        
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            double X = mesh.GetNode(i)->rGetLocation()[0];
+            double Y = mesh.GetNode(i)->rGetLocation()[1];
+            double Z = mesh.GetNode(i)->rGetLocation()[2];
+            
+            // if X=0
+            if( fabs(X)<1e-6)
             {
                 fixed_nodes.push_back(i);
+                c_vector<double,3> new_position;
+                new_position(0) = 0.0;
+                new_position(1) = Y + Y*Y*ThreeDimensionalModelProblem::b/2.0; 
+                new_position(2) = Z/((1+X*ThreeDimensionalModelProblem::a)*(1+Y*ThreeDimensionalModelProblem::b));
+                locations.push_back(new_position);
             }
         }
+        assert(fixed_nodes.size()==(2*num_elem_each_dir+1)*(2*num_elem_each_dir+1));
         
-        NonlinearElasticityAssembler<3> assembler(&mesh, 
-                                                  &law, 
-                                                  body_force,
-                                                  1.0,
-                                                  "simple_nonlin_elas_3d",
-                                                  fixed_nodes);
-                                                  
+        // Define traction boundary conditions
+        // on all boundary elems that are not on X=0
+        std::vector<BoundaryElement<2,3>*> boundary_elems;
+        for(TetrahedralMesh<3,3>::BoundaryElementIterator iter 
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            if(fabs((*iter)->CalculateCentroid()[0])>1e-6)
+            {
+                BoundaryElement<2,3>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+            }
+        }
+        assert(boundary_elems.size()==10*num_elem_each_dir*num_elem_each_dir); 
+
+        NonlinearElasticityAssembler<3> assembler(&mesh, &law, 
+                                                  zero_vector<double>(3), /*body force-overwritten by functional definiton below*/
+                                                  1.0 /*density*/, "nonlin_elas_3d", 
+                                                  fixed_nodes, &locations);
+
+        // set the body force and traction functions
+        assembler.SetFunctionalBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
+        assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
+        
         assembler.Solve();
         
+        // compare        
         std::vector<c_vector<double,3> >& r_solution = assembler.rGetDeformedPosition();
         
-        double xend = 1.23671;
-        double yend = 0.00651; // the same as zend
-        
-        ////////////////////////////////////////////////////////////
-        // compare the solution at the corners with the values 
-        // obtained using the dealii finite elasticity assembler
-        //
-        // Results have been visually checked to see they agree 
-        // (they do, pretty well - note a slightly more refined
-        // mesh was in the dealii simulation).
-        ////////////////////////////////////////////////////////////
-        
-        // node 0 should still be at (0,0,0)
-        assert( fabs(mesh.GetNode(0)->rGetLocation()[0] - 0) < 1e-9 );
-        assert( fabs(mesh.GetNode(0)->rGetLocation()[1] - 0) < 1e-9 );
-        assert( fabs(mesh.GetNode(0)->rGetLocation()[2] - 0) < 1e-9 );
-        TS_ASSERT_DELTA( r_solution[0](0), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( r_solution[0](1), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( r_solution[0](2), 0.0, 1e-9 );
-        
-        // node 3 should still be at (0,1,0)
-        assert( fabs(mesh.GetNode(3)->rGetLocation()[0] - 0) < 1e-9 );
-        assert( fabs(mesh.GetNode(3)->rGetLocation()[1] - 1) < 1e-9 );
-        assert( fabs(mesh.GetNode(3)->rGetLocation()[2] - 0) < 1e-9 );
-        TS_ASSERT_DELTA( r_solution[3](0), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( r_solution[3](1), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( r_solution[3](2), 0.0, 1e-9 );
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double X = mesh.GetNode(i)->rGetLocation()[0];
+            double Y = mesh.GetNode(i)->rGetLocation()[1];
+            double Z = mesh.GetNode(i)->rGetLocation()[2];
 
-        // DEALII value for X=(1,0,0) node is x=(1.23671,0.00651,0.00651)
-        assert( fabs(mesh.GetNode(1)->rGetLocation()[0] - 1) < 1e-9 );
-        assert( fabs(mesh.GetNode(1)->rGetLocation()[1] - 0) < 1e-9 );
-        assert( fabs(mesh.GetNode(1)->rGetLocation()[2] - 0) < 1e-9 );
-        TS_ASSERT_DELTA( r_solution[1](0), xend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[1](1), yend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[1](2), yend, 1e-2 );
+            double exact_x = X + X*X*ThreeDimensionalModelProblem::a/2.0;
+            double exact_y = Y + Y*Y*ThreeDimensionalModelProblem::b/2.0;
+            double exact_z = Z/((1+X*ThreeDimensionalModelProblem::a)*(1+Y*ThreeDimensionalModelProblem::b));
 
-        // DEALII value for X=(1,1,0) node is x=(1.23671,0.00651,0.00651)
-        assert( fabs(mesh.GetNode(2)->rGetLocation()[0] - 1) < 1e-9 );
-        assert( fabs(mesh.GetNode(2)->rGetLocation()[1] - 1) < 1e-9 );
-        assert( fabs(mesh.GetNode(2)->rGetLocation()[2] - 0) < 1e-9 );
-        TS_ASSERT_DELTA( r_solution[2](0),   xend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[2](1), 1-yend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[2](2),   yend, 1e-2 );
+            TS_ASSERT_DELTA(r_solution[i](0), exact_x, 1e-2);
+            TS_ASSERT_DELTA(r_solution[i](1), exact_y, 1e-2);
+            TS_ASSERT_DELTA(r_solution[i](2), exact_z, 1e-2);
+        }
 
-        // DEALII value for X=(1,0,1) node is x=(1.23671,0.00651,0.00651)
-        assert( fabs(mesh.GetNode(5)->rGetLocation()[0] - 1) < 1e-9 );
-        assert( fabs(mesh.GetNode(5)->rGetLocation()[1] - 0) < 1e-9 );
-        assert( fabs(mesh.GetNode(5)->rGetLocation()[2] - 1) < 1e-9 );
-        TS_ASSERT_DELTA( r_solution[5](0),   xend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[5](1),   yend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[5](2), 1-yend, 1e-2 );
-
-        // DEALII value for X=(1,1,1) node is x=(1.23671,0.00651,0.00651)
-        assert( fabs(mesh.GetNode(6)->rGetLocation()[0] - 1) < 1e-9 );
-        assert( fabs(mesh.GetNode(6)->rGetLocation()[1] - 1) < 1e-9 );
-        assert( fabs(mesh.GetNode(6)->rGetLocation()[2] - 1) < 1e-9 );
-        TS_ASSERT_DELTA( r_solution[6](0),   xend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[6](1), 1-yend, 1e-2 );
-        TS_ASSERT_DELTA( r_solution[6](2), 1-yend, 1e-2 );
+        for(unsigned i=0; i<mesh.GetNumVertices(); i++)
+        {
+            TS_ASSERT_DELTA( assembler.rGetPressures()[i]/(2*ThreeDimensionalModelProblem::c1), 1.0, 2e-1);
+        }
     }
 };
 
