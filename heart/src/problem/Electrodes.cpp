@@ -109,7 +109,12 @@ Electrodes<DIM>::Electrodes(TetrahedralMesh<DIM,DIM>& rMesh,
         
         //Unused boundary conditions will not be deleted by the b.c. container
         delete p_bc_flux_out;
-    }
+    } 
+    else
+    {
+        //Unused boundary conditions will not be deleted by the b.c. container
+        delete p_bc_zero;
+    }       
 }
 
 /////////////////////////////////////////////////////////////////////
