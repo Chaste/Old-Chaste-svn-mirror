@@ -213,17 +213,13 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
 {
     if (applyToMatrix)
     {
-        
         //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so 
         //that they can be reapplied at each time step.
         //Make a new vector to store the Dirichlet offsets in
         VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
         VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
         
-        // Set up a vector which will store the columns of the matrix (column d, where d is
-        // the index of the row (and column) to be altered for the boundary condition
-        Vec matrix_col;
-        VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
+
 
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
@@ -236,6 +232,11 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
     
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
                 unsigned col = row;
+
+                // Set up a vector which will store the columns of the matrix (column d, where d is
+                // the index of the row (and column) to be altered for the boundary condition
+                Vec matrix_col;
+                VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
                 VecZeroEntries(matrix_col);
     
                 rLinearSystem.AssembleFinalLinearSystem(); 
@@ -252,6 +253,8 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
                 //   -value*[0 a_21 a_31 .. a_N1]
                 // and will be added to the RHS.   
                 VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);  
+
+                VecDestroy(matrix_col);
                 
                 //Zero out the appropriate row and column
                 rLinearSystem.ZeroMatrixRow(row);
@@ -263,7 +266,6 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
             }
         }
         
-        VecDestroy(matrix_col);
     }
     
     //Apply the RHS boundary conditions modification if required.

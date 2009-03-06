@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestBoundaryConditionsContainer : public CxxTest::TestSuite
 {
 public:
-    void zzTestSetGet()
+    void TestSetGet()
     {
         //////////////////////////////////////////////////////////////
         // test in 1d
@@ -275,7 +275,7 @@ public:
         VecDestroy(solution);
     }
 
-    void zzTestApplyToNonlinearSystem( void )
+    void TestApplyToNonlinearSystem( void )
     {
         const int SIZE = 10;
         DistributedVector::SetProblemSize(10);
@@ -337,7 +337,7 @@ public:
         VecDestroy(residual);
     }
 
-    void zzTestDefineZeroDirichletOnMeshBoundary()
+    void TestDefineZeroDirichletOnMeshBoundary()
     {
         // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -358,7 +358,7 @@ public:
         TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNode(4)));
     }
 
-    void zzTestAnyNonZeroNeumannConditionsAndApplyNeumannToMeshBoundary()
+    void TestAnyNonZeroNeumannConditionsAndApplyNeumannToMeshBoundary()
     {
         // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -395,7 +395,7 @@ public:
     }
 
 
-    void zzTestValidate()
+    void TestValidate()
     {
         // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -422,7 +422,7 @@ public:
         TS_ASSERT(bcc.Validate(&mesh));
     }
 
-    void zzTestAddNeumannBoundaryConditions( void )
+    void TestAddNeumannBoundaryConditions( void )
     {
           // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -462,7 +462,7 @@ public:
         TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
     }
 
-    void zzTestApplyToLinearSystem2Unknowns( void )
+    void TestApplyToLinearSystem2Unknowns( void )
     {
         const int SIZE = 10;
 
@@ -544,7 +544,7 @@ public:
     }
 
 
-    void zzTestApplyToLinearSystem3Unknowns( void )
+    void TestApplyToLinearSystem3Unknowns( void )
     {
         const int SIZE = 10;
 
@@ -621,7 +621,7 @@ public:
 
 
 
-    void zzTestApplyToNonlinearSystem3Unknowns( void )
+    void TestApplyToNonlinearSystem3Unknowns( void )
     {
         const int SIZE = 10;
         DistributedVector::SetProblemSize(SIZE);
