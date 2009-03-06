@@ -1,5 +1,6 @@
 TestArchiving.hpp
 TestCwd.hpp
+TestDebug.hpp
 TestDistributedVector.hpp
 TestException.hpp
 TestGenericEventHandler.hpp
