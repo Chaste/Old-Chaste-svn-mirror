@@ -51,6 +51,7 @@ private:
     /** Records whether a node is a ghost node or not */
     std::vector<bool> mIsGhostNode;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * Serialize the facade.

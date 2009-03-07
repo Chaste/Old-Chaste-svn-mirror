@@ -55,31 +55,59 @@ class WntCellCycleOdeSystem : public AbstractOdeSystem
 {
 private:
 
-    // Parameters for the Swat et al. (2004) Model
+    /**
+     * Parameters for the Swat et al. (2004) model
+     */
+
+    /** Dimensional parameter k_2. */
     double mk2d;
+    /** Dimensional parameter k_3. */
     double mk3d;
+    /** Dimensional parameter k_34. */
     double mk34d;
+    /** Dimensional parameter k_2. */
     double mk43d;
+    /** Dimensional parameter k_23. */
     double mk23d;
+    /** Dimensional parameter a. */
     double mad;
+    /** Dimensional parameter J_11. */
     double mJ11d;
+    /** Dimensional parameter J_12. */
     double mJ12d;
+    /** Dimensional parameter J_13. */
     double mJ13d;
+    /** Dimensional parameter J_13. */
     double mJ61d;
+    /** Dimensional parameter J_62. */
     double mJ62d;
+    /** Dimensional parameter J_63. */
     double mJ63d;
+    /** Dimensional parameter K_m1. */
     double mKm1d;
+    /** Dimensional parameter k_p. */
     double mkpd;
+    /** Dimensionless parameter phi_r. */
     double mphi_r;
+    /** Dimensionless parameter phi_i. */
     double mphi_i;
+    /** Dimensionless parameter phi_j. */
     double mphi_j;
+    /** Dimensionless parameter phi_p. */
     double mphi_p;
+    /** Dimensional parameter a_2. */
     double ma2d;
+    /** Dimensional parameter a_3. */
     double ma3d;
+    /** Dimensional parameter a_4. */
     double ma4d;
+    /** Dimensional parameter a_5. */
     double ma5d;
+    /** Dimensional parameter k_16. */
     double mk16d;
+    /** Dimensional parameter k_61. */
     double mk61d;
+    /** Dimensionless parameter phi_E2F1. */
     double mPhiE2F1;
 
     /** The mutation state of the cell - Wnt pathway behaviour (and hence cell cycle time) changes depending on this */
@@ -138,7 +166,10 @@ public:
     /**
      * This also contains a calculation of dY[1], copied from EvaluateYDerivatives.
      * Ensure they do not get out of sync!
-     *
+     * 
+     * @param time at which to calculate whether the stopping event has occurred
+     * @param rY value of the solution vector used to evaluate the RHS
+     * 
      * @return whether we have reached the stopping event
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
@@ -147,6 +178,9 @@ public:
      * When using CVODE this function is called instead of CalculateStoppingEvent.
      * It allows the point at which rY[1] reaches 1 to be found to greater precision.
      *
+     * @param time at which to calculate whether the stopping event has occurred
+     * @param rY value of the solution vector used to evaluate the RHS
+     * 
      * @return function value - giving CVODE an estimate of how close we are to the root.
      */
     double CalculateRootFunction(double time, const std::vector<double> &rY);

@@ -502,7 +502,30 @@ public:
         TS_ASSERT(apoptotic_cell.GetCellType()==APOPTOTIC);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
+        // Tidy up
         CellwiseData<2>::Destroy();
+
+        // For coverage, create a 1D model
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        StochasticOxygenBasedCellCycleModel* p_cell_model1d = new StochasticOxygenBasedCellCycleModel(1);
+        TissueCell cell1d(STEM, HEALTHY, p_cell_model1d);
+        cell1d.InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cell_model1d->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<1>::Destroy();
+
+        // For coverage, create a 3D model
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        StochasticOxygenBasedCellCycleModel* p_cell_model3d = new StochasticOxygenBasedCellCycleModel(3);
+        TissueCell cell3d(STEM, HEALTHY, p_cell_model3d);
+        cell3d.InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cell_model3d->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<3>::Destroy();
     }
 
 
@@ -544,7 +567,8 @@ public:
             // Archive cell
             TissueCell* const p_cell = &cell;            
             output_arch << p_cell;
-            
+
+            // Tidy up
             SimulationTime::Destroy();
         }
 
@@ -700,52 +724,66 @@ public:
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel(3);
-
-            TissueCell cell(STEM, HEALTHY, p_model);
+            // Create cell cycle model and associated cell
+            StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel(3);
+            TissueCell cell(STEM, HEALTHY, p_cell_model);
+            
             cell.InitialiseCellCycleModel();
+            cell.GetCellCycleModel()->SetBirthTime(-1.0);
 
             p_simulation_time->IncrementTimeOneStep();
 
-            p_model->SetBirthTime(-1.0);
-
+            // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
+            
+            // Archive cell
+            TissueCell* const p_cell = &cell;            
+            output_arch << p_cell;
 
-            output_arch << static_cast<const StochasticOxygenBasedCellCycleModel&>(*p_model);
-
+            // Tidy up
             SimulationTime::Destroy();
         }
 
         {
+            // Set up simulation time
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            StochasticOxygenBasedCellCycleModel model(2);
-            model.SetBirthTime(-2.0);
+            CancerParameters *inst1 = CancerParameters::Instance();
+
+            inst1->SetSDuration(101.0);
+
+            TissueCell* p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
             // Restore from the archive
-            input_arch >> model;
+            input_arch >> p_cell;
 
             // Check that archiving worked correctly
-            TS_ASSERT_EQUALS(model.GetDimension(), 3u);
-            TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(), M_PHASE);
+            StochasticOxygenBasedCellCycleModel* p_model = static_cast<StochasticOxygenBasedCellCycleModel*> (p_cell->GetCellCycleModel());
+;
+            TS_ASSERT_EQUALS(p_cell, p_model->GetCell());
+            TS_ASSERT_EQUALS(p_model->GetDimension(), 3u);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), M_PHASE);
 
-            TS_ASSERT_DELTA(model.GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12)
-            TS_ASSERT_DELTA(model.GetG2Duration(), 3.0676, 1e-4); // first random number generated
+            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-4);
+            TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-4);
+            TS_ASSERT_DELTA(p_model->GetG2Duration(), 3.0676, 1e-4); // first random number generated
+
+            // Tidy up
+            delete p_cell;
         }
     }
     

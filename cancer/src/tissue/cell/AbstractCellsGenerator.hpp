@@ -85,6 +85,7 @@ public:
      *
      * @param rCells  An empty cells vector for this function to fill up
      * @param rMesh  The crypt mesh (can be cylindrical)
+     * @param locationIndices the node indices corresponding to real cells
      * @param randomBirthTimes  Whether to assign the cells random birth times
      *    (this can be expensive computationally with ODE models)
      * @param y0  below this line cells are generation 0 (defaults to 0.3)

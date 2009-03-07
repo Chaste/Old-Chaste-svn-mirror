@@ -55,24 +55,30 @@ class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the cell cycle model. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
     }
 
-    // No member variables yet - if any are added put them in archive function
-    // and add default values in the default constructor.
-
 protected:
 
 #ifdef CHASTE_CVODE
+    /** The ODE solver. */
     static CvodeAdaptor msSolver;
 #else
+    /** The ODE solver. */
     static RungeKutta4IvpOdeSolver msSolver;
 #endif //CHASTE_CVODE
 
+    /**
+     * Constructor.
+     * 
+     * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
+     */
     AbstractWntOdeBasedCellCycleModel(double lastTime)
         : AbstractOdeBasedCellCycleModel(lastTime)
     {

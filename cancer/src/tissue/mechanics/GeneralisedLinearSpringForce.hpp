@@ -46,7 +46,9 @@ class GeneralisedLinearSpringForce : public AbstractTwoBodyInteractionForce<DIM>
     
 private :
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the object. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -74,7 +76,7 @@ public :
      * This method is overridden in a subclass. 
      * 
      * @param nodeAGlobalIndex index of one neighbouring node
-     * @param nodeAGlobalIndex index of the other neighbouring node
+     * @param nodeBGlobalIndex index of the other neighbouring node
      * @param rTissue the tissue
      * @param isCloserThanRestLength whether the neighbouring nodes lie closer than the rest length of their connecting spring
      * 
@@ -92,9 +94,9 @@ public :
      *
      * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
      *
-     * @param NodeAGlobalIndex
-     * @param NodeBGlobalIndex
-     * @param rtissue
+     * @param nodeAGlobalIndex index of one neighbouring node
+     * @param nodeBGlobalIndex index of the other neighbouring node
+     * @param rTissue the tissue
      * 
      * @return The force exerted on Node A by Node B.
      */

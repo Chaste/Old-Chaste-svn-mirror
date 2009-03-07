@@ -60,4 +60,4 @@ c_matrix<double,DIM,DIM> SimpleNutrientPde<DIM>::ComputeDiffusionTerm(const Chas
 
 template class SimpleNutrientPde<1>;
 template class SimpleNutrientPde<2>;
-//template class SimpleNutrientPde<3>;
+template class SimpleNutrientPde<3>;

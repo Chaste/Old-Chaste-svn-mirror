@@ -206,6 +206,7 @@ private:
      */
     bool mStartTimeSet;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * Serialization of a SimulationTime object must be done with care.

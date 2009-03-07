@@ -54,7 +54,16 @@ class AbstractCellCycleModel
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** 
+     * Archive the member variables.
+     * 
+     * Serialization of singleton objects must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -122,6 +131,8 @@ public:
      * Some cell cycle models pass this pointer to other classes (e.g. WntConcentration),
      * which use this information to determine other information based upon the location
      * of the cell (e.g. the Wnt concentration at this location).
+     * 
+     * @param pCell pointer to the cell
      */
     void SetCell(TissueCell* pCell);
 
@@ -181,6 +192,8 @@ public:
 
     /**
      * Sets the cell's generation.
+     * 
+     * @param generation
      */
     void SetGeneration(unsigned generation);
 

@@ -57,42 +57,42 @@ TissueCell::TissueCell(CellType cellType,
 }
 
 
-void TissueCell::CommonCopy(const TissueCell &other_cell)
+void TissueCell::CommonCopy(const TissueCell &otherCell)
 {
     // Copy private data members
-    mCanDivide = other_cell.mCanDivide;
+    mCanDivide = otherCell.mCanDivide;
 
     // Copy 'easy' protected data members
-    mCellType = other_cell.mCellType;
-    mMutationState = other_cell.mMutationState;
-    mUndergoingApoptosis = other_cell.mUndergoingApoptosis;
-    mIsDead = other_cell.mIsDead;
-    mDeathTime = other_cell.mDeathTime;
-    mIsLogged = other_cell.mIsLogged;
-    mAncestor = other_cell.mAncestor;
+    mCellType = otherCell.mCellType;
+    mMutationState = otherCell.mMutationState;
+    mUndergoingApoptosis = otherCell.mUndergoingApoptosis;
+    mIsDead = otherCell.mIsDead;
+    mDeathTime = otherCell.mDeathTime;
+    mIsLogged = otherCell.mIsLogged;
+    mAncestor = otherCell.mAncestor;
 
     // Copy cell cycle model
     // First create a new object
-    mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
+    mpCellCycleModel = otherCell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state.
     // BEWARE: This will only copy base class state!!!
-    *mpCellCycleModel = *(other_cell.mpCellCycleModel);
+    *mpCellCycleModel = *(otherCell.mpCellCycleModel);
     // and inform it of the new cell object
     mpCellCycleModel->SetCell(this);
 }
 
 
-TissueCell::TissueCell(const TissueCell &other_cell)
+TissueCell::TissueCell(const TissueCell &otherCell)
 {
-    CommonCopy(other_cell);
+    CommonCopy(otherCell);
 }
 
 
-TissueCell& TissueCell::operator=(const TissueCell &other_cell)
+TissueCell& TissueCell::operator=(const TissueCell &otherCell)
 {
-    // In case this is self-assignment, don't delete the cell cycle model...
+    // In case this is self-assignment, don't delete the cell cycle model
     AbstractCellCycleModel* temp = mpCellCycleModel;
-    CommonCopy(other_cell);
+    CommonCopy(otherCell);
     // ...until after we've copied it.
     delete temp;
     return *this;

@@ -556,7 +556,7 @@ private:
      */
     double mCellCellAdhesionEnergyParameter;
 
-
+    /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * As with other singleton classes, ensure the instance of this

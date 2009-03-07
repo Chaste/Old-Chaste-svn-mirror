@@ -94,7 +94,9 @@ private:
      */
     bool mUseConstantWntValueForTesting;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the object and its member variables. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -193,7 +195,7 @@ public:
      *  Force the Wnt concentration to return a given value for all cells.
      *  Only for testing.
      *  
-     *  @value the constant value to set the Wnt concentration to be
+     *  @param value the constant value to set the Wnt concentration to be
      */
     void SetConstantWntValueForTesting(double value);
 

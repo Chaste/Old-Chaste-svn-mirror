@@ -162,7 +162,16 @@ protected:
     /** The mechanics used to determine the new location of the cells */
     std::vector<AbstractForce<DIM>*> mForceCollection;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Archive the member variables. 
+     * 
+     * Serialization of singleton objects must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

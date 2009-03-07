@@ -115,7 +115,7 @@ public:
     /**
      * A private constructor for archiving.
      *
-     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param rMutationState the mutation state of the cell (used by ODEs)
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,

@@ -51,7 +51,11 @@ class CryptSimulation2d : public TissueSimulation<2>
 
 private :
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Archive the simulation and member variable.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

@@ -67,14 +67,16 @@ private:
     * A private constructor for daughter cells called only by the CreateDaughterCellCycleModel function
      *
     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
-    * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
+    * @param divideTime the SimulationTime when the cell divided (birth time of parent cell)
     * @param generation the cell's generation
     */
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
                              double divideTime,
                              unsigned generation);
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the cell cycle model. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

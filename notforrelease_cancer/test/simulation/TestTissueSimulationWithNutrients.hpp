@@ -517,6 +517,9 @@ public:
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
         simulator.SetEndTime(0.05);
 
+        // Coverage
+        simulator.SetAveragedSinksPde(&pde);
+
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&tissue);
         simulator.AddCellKiller(&killer);
@@ -876,81 +879,66 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+    void Test3DTissueSimulationWithNutrients() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; //defined in PetscTools
 
-///// seems to work ok:
-//    void xTestWithOxygen3D() throw(Exception)
-//    {
-//        EXIT_IF_PARALLEL; //defined in PetscTools
-//
-//        CancerParameters::Instance()->SetHepaOneParameters();
-//
-//        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-//        MutableMesh<3,3> mesh;
-//        mesh.ConstructFromMeshReader(mesh_reader);
-//
-//        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
-//        mesh_writer.WriteFilesUsingMesh(mesh);
-//
-//        // Set up cells
-//        std::vector<TissueCell> cells;
-//        FixedCellCycleModelCellsGenerator<3> generator;
-//        generator.GenerateBasic(cells, mesh.GetNumNodes());
-//
-//        // Set up tissue
-//        MeshBasedTissue<3> tissue(mesh, cells);
-//
-//        // Set up CellwiseData and associate it with the tissue
-//        CellwiseData<3>* p_data = CellwiseData<3>::Instance();
-//        p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
-//        p_data->SetTissue(tissue);
-//
-//        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-//        // we need to pass it some initial conditions to avoid memory errors
-//        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-//        {
-//            p_data->SetValue(1.0, mesh.GetNode(i));
-//        }
-//
-//        // Set up PDE
-//        SimpleNutrientPde<3> pde(0.1);
-//
-//        Meineke2001SpringSystem<3>* p_spring_system = new Meineke2001SpringSystem<3>(tissue);
-//        p_spring_system->UseCutoffPoint(1.5);
-//
-//        // Set up tissue simulation
-//        TissueSimulationWithNutrients<3> simulator(tissue, p_spring_system, &pde);
-//        simulator.SetOutputDirectory("TissueSimulationWithOxygen3d");
-//        simulator.SetEndTime(0.5);
-//
-//        // Set up cell killer and pass into simulation
-//        AbstractCellKiller<3>* p_killer = new OxygenBasedCellKiller<3>(&tissue);
-//        simulator.AddCellKiller(p_killer);
-//
-//        // Run tissue simulation
-//        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-////
-//
-////        // Test positions
-////        std::vector<double> node_5_location = simulator.GetNodeLocation(5);
-////        TS_ASSERT_DELTA(node_5_location[0], 0.4968, 1e-4);
-////        TS_ASSERT_DELTA(node_5_location[1], 0.8635, 1e-4);
-////
-////        std::vector<double> node_15_location = simulator.GetNodeLocation(15);
-////        TS_ASSERT_DELTA(node_15_location[0], 0.4976, 1e-4);
-////        TS_ASSERT_DELTA(node_15_location[1], 2.5977, 1e-4);
-////
-////        // Test the CellwiseData result
-////        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(5));
-////        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
-////
-////        p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(15));
-////        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
-//
-//        // Tidy up
-//        delete p_spring_system;
-//        delete p_killer;
-//        CellwiseData<2>::Destroy();
-//    }
+        CancerParameters::Instance()->SetHepaOneParameters();
+
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        MutableMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        FixedCellCycleModelCellsGenerator<3> generator;
+        generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Set up tissue
+        MeshBasedTissue<3> tissue(mesh, cells);
+
+        // Set up CellwiseData and associate it with the tissue
+        CellwiseData<3>* p_data = CellwiseData<3>::Instance();
+        p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
+        p_data->SetTissue(tissue);
+
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, mesh.GetNode(i));
+        }
+
+        // Set up PDE
+        SimpleNutrientPde<3> pde(0.1);
+
+        // Set up force law
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<3>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up tissue simulation
+        TissueSimulationWithNutrients<3> simulator(tissue, force_collection, &pde);
+        simulator.SetOutputDirectory("TissueSimulationWithOxygen3d");
+        simulator.SetEndTime(0.5);
+
+        // Set up cell killer and pass into simulation
+        AbstractCellKiller<3>* p_killer = new OxygenBasedCellKiller<3>(&tissue);
+        simulator.AddCellKiller(p_killer);
+
+        // Coverage
+        TS_ASSERT_THROWS_ANYTHING(simulator.CreateCoarseNutrientMesh(10.0));
+
+        // Run tissue simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+        // Tidy up
+        CellwiseData<3>::Destroy();
+    }
 
 
 };

@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MeshArchiveInfo
 {
 public:
+
+    /** Mesh pathname. */
     static std::string meshPathname;
 };
 

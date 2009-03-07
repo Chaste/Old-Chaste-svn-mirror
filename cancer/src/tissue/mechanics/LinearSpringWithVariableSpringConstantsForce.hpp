@@ -43,7 +43,9 @@ class LinearSpringWithVariableSpringConstantsForce : public GeneralisedLinearSpr
     
 private :
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the object and its member variables. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -128,7 +130,7 @@ public :
      * levels of beta catenin.
      * 
      * @param nodeAGlobalIndex index of one neighbouring node
-     * @param nodeAGlobalIndex index of the other neighbouring node
+     * @param nodeBGlobalIndex index of the other neighbouring node
      * @param rTissue the tissue
      * @param isCloserThanRestLength whether the neighbouring nodes lie closer than the rest length of their connecting spring
      * 

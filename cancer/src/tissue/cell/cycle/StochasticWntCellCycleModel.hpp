@@ -47,7 +47,16 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** 
+     * Archive the cell cycle model and member variables.
+     * 
+     * Serialization of singleton objects must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -113,7 +122,7 @@ public:
      * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
      *
      * @param pParentOdeSystem  to copy the state of
-     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param mutationState the mutation state of the cell (used by ODEs)
      * @param birthTime the simulation time when the cell divided (birth time of parent cell)
      * @param lastTime last time the cell cycle model was evaluated
      * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
@@ -136,9 +145,9 @@ public:
      * A private constructor for archiving.
      *
      * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param mutationState the mutation state of the cell (used by ODEs)
      */
-    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations,
+    StochasticWntCellCycleModel(std::vector<double> parentProteinConcentrations,
                                 CellMutationState mutationState);
 
     /**

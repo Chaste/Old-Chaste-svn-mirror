@@ -50,7 +50,9 @@ class AbstractSimpleCellCycleModel : public AbstractCellCycleModel
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the cell cycle model. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -62,6 +64,9 @@ protected:
     /**
      * Protected constructor for creating an identical daughter cell
      * (with the same G1 duration).
+     * 
+     * @param g1Duration
+     * @param generation
      */
     AbstractSimpleCellCycleModel(double g1Duration, unsigned generation);
 

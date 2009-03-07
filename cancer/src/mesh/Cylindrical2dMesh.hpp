@@ -190,6 +190,8 @@ private:
      */
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
     /**
      * Archives the member variables of the Cylindrical2dMesh class which
      * have to be preserved during the lifetime of the mesh.
@@ -197,7 +199,6 @@ private:
      * The remaining member variables are re-initialised before being used
      * by each ReMesh() call so they do not need to be archived.
      */
-    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

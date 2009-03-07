@@ -49,8 +49,10 @@ private:
     /** Indices of nodes that have been deleted, to be reused when adding new nodes */
     std::vector<unsigned> mDeletedNodeIndices;
 
+    /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * Serialize the facade.

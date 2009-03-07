@@ -41,7 +41,9 @@ class FixedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the cell cycle model. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

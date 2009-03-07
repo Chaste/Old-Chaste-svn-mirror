@@ -295,6 +295,13 @@ public:
 
         tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(4), tissue.rGetCellUsingLocationIndex(5));
 
+        // For coverage, test force calculation for a pair of neighbouring apoptotic cells
+        tissue.rGetCellUsingLocationIndex(6).StartApoptosis();
+        tissue.rGetCellUsingLocationIndex(7).StartApoptosis();
+        force_on_spring = crypt_projection_force.CalculateForceBetweenNodes(6, 7, tissue);
+        TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
+
         // Test force calculation for a particular node
 
         // Initialise a vector of node forces

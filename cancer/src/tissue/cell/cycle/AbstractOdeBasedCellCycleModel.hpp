@@ -48,7 +48,9 @@ class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the cell cycle model and member variables. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -105,6 +107,8 @@ public:
     /**
      * This method must be implemented by each subclass - solves the ODEs to a given time and
      *
+     * @param currentTime
+     * 
      * @return Whether a stopping event occurred.
      */
     virtual bool SolveOdeToTime(double currentTime)=0;

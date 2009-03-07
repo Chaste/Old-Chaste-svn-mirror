@@ -53,7 +53,9 @@ class IngeWntSwatCellCycleModel : public AbstractWntOdeBasedCellCycleModel
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the cell cycle model and ODE system. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -126,7 +128,7 @@ public:
      * A 'private' constructor for archiving.
      *
      * @param rHypothesis which model hypothesis to use (1 or 2)
-     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
+     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
      * @param rMutationState the mutation state of the cell (used by ODEs)
      */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,

@@ -100,6 +100,7 @@ protected:
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * Serialize the facade.

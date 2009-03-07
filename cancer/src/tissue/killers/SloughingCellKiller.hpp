@@ -48,7 +48,9 @@ private:
     /** Whether cells should be sloughed from the sides of the crypt. */
     bool mSloughSides;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the object and its member variables. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

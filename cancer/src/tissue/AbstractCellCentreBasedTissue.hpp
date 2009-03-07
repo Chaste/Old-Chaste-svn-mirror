@@ -39,7 +39,11 @@ class AbstractCellCentreBasedTissue : public AbstractTissue<DIM>
 {
 private:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Serialize the facade.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

@@ -53,13 +53,21 @@ private:
     /** Probability that a tested cell is labelled for apoptosis */
     double mProbabilityOfDeath;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the object and its member variables.
+     * 
+     * Serialization of singleton objects must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);
    
-        // Make sure random number generator is archived...
+        // Make sure the random number generator is archived
         RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
         archive & *p_random_generator;
         archive & p_random_generator;

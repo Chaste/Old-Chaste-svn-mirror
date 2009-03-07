@@ -68,6 +68,8 @@ public:
      *
      * First archives simulation time (and other singletons, if used)
      * then the simulation itself.
+     * 
+     * @param pSim pointer to the simulation
      */
     static void Save(SIM* pSim);
 
@@ -80,6 +82,11 @@ private:
      *
      * The path to the mesh is stored as MeshArchiveInfo::meshPathname for use by the
      * Tissue de-serialization routines.
+     * 
+     * @param rArchiveDirectory  the name of the simulation to load
+     *   (specified originally by simulation.SetOutputDirectory("wherever"); )
+     * @param rTimeStamp  the time at which to load the simulation (this must
+     *   be one of the times at which simulation.Save() was called)
      */
     static std::string GetArchivePathname(const std::string& rArchiveDirectory, const double& rTimeStamp);
 };

@@ -51,10 +51,12 @@ class TissueCell
 {
 private:
 
-    /// Caches the result of ReadyToDivide() so Divide() can look at it
+    /** Caches the result of ReadyToDivide() so Divide() can look at it. */
     bool mCanDivide;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /** Archive the member variables. */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -100,8 +102,11 @@ protected:
     /** Whether the cell is being tracked specially. */
     bool mIsLogged;
     
-    /** Contains code common to both the copy constructor and operator=. */
-    void CommonCopy(const TissueCell &other_cell);
+    /** Contains code common to both the copy constructor and operator=. 
+     * 
+     * @param otherCell  An existing TissueCell
+     */
+    void CommonCopy(const TissueCell &otherCell);
 
 public:
 
@@ -109,7 +114,6 @@ public:
      * Create a new tissue cell.
      * @param cellType  the type of cell this is
      * @param mutationState the mutation state of the cell
-     * @param generation  its generation
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
@@ -126,18 +130,20 @@ public:
 
     /**
      * Create a new tissue cell that is a copy of an existing cell
-     * @param other_cell  An existing TissueCell
+     * @param otherCell  An existing TissueCell
      */
-    TissueCell(const TissueCell &other_cell);
+    TissueCell(const TissueCell &otherCell);
 
     /**
-     * Copy all the attributes of one cell to another
+     * Copy all the attributes of one cell to another.
      *
-     * \todo
+     * @param otherCell  An existing TissueCell
+     * 
+     * \todo 
      * Since cell cycle models don't have an operator=, this operator only copies
      * data members of AbstractCellCycleModel when the model is copied (see #840)
      */
-    TissueCell& operator=(const TissueCell &other_cell);
+    TissueCell& operator=(const TissueCell &otherCell);
 
     /**
      * Set the birth time of the cell - can be negative so that your cells have an age when a simulation begins

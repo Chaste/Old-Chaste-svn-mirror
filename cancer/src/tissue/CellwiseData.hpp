@@ -68,7 +68,11 @@ private:
     /** Helper member storing whether mConstantDataForTesting is used. */
     bool mUseConstantDataForTesting;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

@@ -34,50 +34,92 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 
 /**
- * Represents the Tyson & Novak 2001 system of ODEs.
+ * Represents the Tyson & Novak (2001) system of ODEs.
+ * [doi:10.1006/jtbi.2001.2293]
  */
 class TysonNovak2001OdeSystem : public AbstractOdeSystemWithAnalyticJacobian
 {
 private:
 
-    // Parameters for the Tyson Novak 2001 model
+    /**
+     * Parameters for the Tyson & Novak (2001) model.
+     */
+
+    /** Dimensional parameter k_1. */
     double mK1;
+    /** Dimensional parameter k_2'. */
     double mK2d;
+    /** Dimensional parameter k_2''. */
     double mK2dd;
+    /** Dimensional parameter k_2'''. */
     double mK2ddd;
+    /** Dimensionless parameter [CycB]_threshold. */
     double mCycB_threshold;
+    /** Dimensional parameter k_3'. */
     double mK3d;
+    /** Dimensional parameter k_3''. */
     double mK3dd;
+    /** Dimensional parameter k_4'. */
     double mK4d;
+    /** Dimensional parameter k_4. */
     double mK4;
+    /** Dimensionless parameter J_3. */
     double mJ3;
+    /** Dimensionless parameter J_4. */
     double mJ4;
+    /** Dimensional parameter k_5'. */
     double mK5d;
+    /** Dimensional parameter k_5''. */
     double mK5dd;
+    /** Dimensional parameter k_6. */
     double mK6;
+    /** Dimensionless parameter J_5. */
     double mJ5;
+    /** Dimensionless parameter n. */
     double mN;
+    /** Dimensional parameter k_7. */
     double mK7;
+    /** Dimensional parameter k_8. */
     double mK8;
+    /** Dimensionless parameter J_7. */
     double mJ7;
+    /** Dimensionless parameter J_8. */
     double mJ8;
+    /** Dimensionless parameter [Mad]. */
     double mMad;
+    /** Dimensional parameter k_9. */
     double mK9;
+    /** Dimensional parameter k_10. */
     double mK10;
+    /** Dimensional parameter k_11. */
     double mK11;
+    /** Dimensional parameter k_12'. */
     double mK12d;
+    /** Dimensional parameter k_12''. */
     double mK12dd;
+    /** Dimensional parameter k_12'''. */
     double mK12ddd;
+    /** Dimensionless parameter K_eq. */
     double mKeq;
+    /** Dimensional parameter k_13. */
     double mK13;
+    /** Dimensional parameter k_14. */
     double mK14;
+    /** Dimensional parameter k_15'. */
     double mK15d;
+    /** Dimensional parameter k_15''. */
     double mK15dd;
+    /** Dimensional parameter k_16'. */
     double mK16d;
+    /** Dimensional parameter k_16''. */
     double mK16dd;
+    /** Dimensionless parameter J_15. */
     double mJ15;
+    /** Dimensionless parameter J_16. */
     double mJ16;
+    /** Dimensional parameter mu. */
     double mMu;
+    /** Dimensionless parameter m_star. */
     double mMstar;
 
 public:

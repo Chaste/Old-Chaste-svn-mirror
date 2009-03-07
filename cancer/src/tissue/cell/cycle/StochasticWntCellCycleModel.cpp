@@ -48,9 +48,9 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(AbstractOdeSystem* pPar
 {
 }
 
-StochasticWntCellCycleModel::StochasticWntCellCycleModel(std::vector<double> proteinConcentrations,
+StochasticWntCellCycleModel::StochasticWntCellCycleModel(std::vector<double> parentProteinConcentrations,
                                                          CellMutationState mutationState)
-    : WntCellCycleModel(proteinConcentrations, mutationState)
+    : WntCellCycleModel(parentProteinConcentrations, mutationState)
 {
 }
 

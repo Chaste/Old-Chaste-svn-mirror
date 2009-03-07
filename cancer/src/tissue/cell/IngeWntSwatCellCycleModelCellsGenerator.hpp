@@ -51,7 +51,7 @@ public:
     /**
      * Constructor.
      * 
-     * @hypothesis Hypothesis number (1 or 2), concerning the nature of the 
+     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the 
      * interactions modelled by the cell cycle ODE system
      */
     IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis);
