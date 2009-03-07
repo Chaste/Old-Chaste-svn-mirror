@@ -193,9 +193,12 @@ public:
      * @return mCellCellAdhesionEnergyParameter
      */
     double GetCellCellAdhesionEnergyParameter();
-
-
     /**
+     * @return mCellBoundaryAdhesionEnergyParameter
+     */
+    double GetCellBoundaryAdhesionEnergyParameter();
+
+	/**
      * Set mStemCellG1Duration.
      */
     void SetStemCellG1Duration(double);
@@ -335,6 +338,10 @@ public:
      * Set mCellCellAdhesionEnergyParameter.
      */
     void SetCellCellAdhesionEnergyParameter(double);
+    /**
+     * Set mCellBoundaryAdhesionEnergyParameter.
+     */
+    void SetCellBoundaryAdhesionEnergyParameter(double);
 
     /**
      *  Reset all parameters to their defaults
@@ -556,7 +563,13 @@ private:
      */
     double mCellCellAdhesionEnergyParameter;
 
-    /** Needed for serialization. */
+    /**
+     * Cell-boundary adhesion energy parameter.
+     * For use in vertex-based models.
+     */
+    double mCellBoundaryAdhesionEnergyParameter;
+
+	/** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * As with other singleton classes, ensure the instance of this
@@ -598,6 +611,7 @@ private:
         archive & mDeformationEnergyParameter;
         archive & mMembraneSurfaceEnergyParameter;
         archive & mCellCellAdhesionEnergyParameter;
+        archive & mCellBoundaryAdhesionEnergyParameter;
     }
 };
 

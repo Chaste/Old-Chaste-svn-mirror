@@ -85,6 +85,7 @@ private:
         TS_ASSERT_DELTA(inst->GetDeformationEnergyParameter(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetMembraneSurfaceEnergyParameter(), 0.1, 1e-12);
         TS_ASSERT_DELTA(inst->GetCellCellAdhesionEnergyParameter(), 0.01, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCellBoundaryAdhesionEnergyParameter(), 0.01, 1e-12);
     }
 
 public:
@@ -127,6 +128,7 @@ public:
         inst->SetDeformationEnergyParameter(5.8);
         inst->SetMembraneSurfaceEnergyParameter(17.9);
         inst->SetCellCellAdhesionEnergyParameter(0.5);
+        inst->SetCellBoundaryAdhesionEnergyParameter(0.6);
         inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -168,6 +170,7 @@ public:
         inst1->SetDeformationEnergyParameter(5.8);
         inst1->SetMembraneSurfaceEnergyParameter(17.9);
         inst1->SetCellCellAdhesionEnergyParameter(0.5);
+        inst1->SetCellBoundaryAdhesionEnergyParameter(0.6);
 
         CancerParameters *inst2 = CancerParameters::Instance();
 
@@ -202,6 +205,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetDeformationEnergyParameter(), 5.8, 1e-12);
         TS_ASSERT_DELTA(inst2->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
     }
 
     void TestArchiveCancerParameters()
@@ -246,6 +250,7 @@ public:
             inst1->SetDeformationEnergyParameter(5.8);
             inst1->SetMembraneSurfaceEnergyParameter(17.9);
             inst1->SetCellCellAdhesionEnergyParameter(0.5);
+            inst1->SetCellBoundaryAdhesionEnergyParameter(0.6);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -289,7 +294,8 @@ public:
             inst1->SetMatureCellTargetArea(1.0);
             inst1->SetDeformationEnergyParameter(1.0);
             inst1->SetMembraneSurfaceEnergyParameter(1.0);
-            inst1->SetCellCellAdhesionEnergyParameter(1.0);
+            inst1->SetCellCellAdhesionEnergyParameter(0.01);
+            inst1->SetCellBoundaryAdhesionEnergyParameter(0.01);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -330,6 +336,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetDeformationEnergyParameter(), 5.8, 1e-12);
             TS_ASSERT_DELTA(inst1->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
         }
     }
 };

@@ -81,6 +81,7 @@ CancerParameters::CancerParameters()
  * mDeformationEnergyParameter has ? units
  * mMembraneSurfaceEnergyParameter has ? units
  * mCellCellAdhesionEnergyParameter has ? units
+ * mCellBoundaryAdhesionEnergyParameter has ? units
  */
 void CancerParameters::Reset()
 {
@@ -124,6 +125,7 @@ void CancerParameters::Reset()
     mDeformationEnergyParameter = 1.0;
     mMembraneSurfaceEnergyParameter = 0.1;
     mCellCellAdhesionEnergyParameter = 0.01;
+    mCellBoundaryAdhesionEnergyParameter = 0.01;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -270,7 +272,10 @@ double CancerParameters::GetCellCellAdhesionEnergyParameter()
 {
     return mCellCellAdhesionEnergyParameter;
 }
-
+double CancerParameters::GetCellBoundaryAdhesionEnergyParameter()
+{
+    return mCellBoundaryAdhesionEnergyParameter;
+}
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -454,4 +459,8 @@ void CancerParameters::SetMembraneSurfaceEnergyParameter(double membraneSurfaceE
 void CancerParameters::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
 {
     mCellCellAdhesionEnergyParameter = cellCellAdhesionEnergyParameter;
+}
+void CancerParameters::SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
+{
+    mCellBoundaryAdhesionEnergyParameter = cellBoundaryAdhesionEnergyParameter;
 }

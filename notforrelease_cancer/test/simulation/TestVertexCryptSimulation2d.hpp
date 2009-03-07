@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexCryptSimulation2d.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
-#include "VertexBasedTissueForce.hpp"
+#include "NagaiHondaForce.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -125,7 +125,7 @@ public:
         VertexBasedTissue<2> tissue(mesh, cells);
 
         // Create force law
-        VertexBasedTissueForce<2> force_law;
+        NagaiHondaForce<2> force_law;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&force_law);
 
@@ -180,7 +180,7 @@ public:
         VertexBasedTissue<2> crypt(mesh, cells);
 
         // Create force law
-        VertexBasedTissueForce<2> force_law;
+        NagaiHondaForce<2> force_law;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&force_law);
 
@@ -219,7 +219,7 @@ public:
         VertexBasedTissue<2> crypt(mesh, cells);
 
         // Create force law
-        VertexBasedTissueForce<2> force_law;
+        NagaiHondaForce<2> force_law;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&force_law);
 

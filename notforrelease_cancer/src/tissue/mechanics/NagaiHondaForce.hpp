@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A force class for use in vertex-based tissue simulations
  */
 template<unsigned DIM>
-class VertexBasedTissueForce  : public AbstractForce<DIM>
+class NagaiHondaForce  : public AbstractForce<DIM>
 {
 friend class TestForcesNotForRelease;
 
@@ -60,12 +60,12 @@ public:
     /**
      * Constructor.
      */
-    VertexBasedTissueForce();
+    NagaiHondaForce();
 
     /**
      * Destructor.
      */
-    ~VertexBasedTissueForce();
+    ~NagaiHondaForce();
 
     /**
      * Overridden AddForceContribution() method.
@@ -83,6 +83,6 @@ public:
                               
 #include "TemplatedExport.hpp"
 
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(VertexBasedTissueForce)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(NagaiHondaForce)
 
 #endif /*VERTEXBASEDTISSUEFORCE_HPP_*/

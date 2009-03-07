@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "VertexBasedTissue.hpp"
-#include "VertexBasedTissueForce.hpp"
+#include "NagaiHondaForce.hpp"
 #include "AbstractCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "VertexMeshWriter.hpp"
@@ -117,7 +117,7 @@ public:
         VertexBasedTissue<2> tissue(mesh, cells);
 
         // Create a force system
-        VertexBasedTissueForce<2> force;
+        NagaiHondaForce<2> force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&force);
 
@@ -166,7 +166,7 @@ public:
         VertexBasedTissue<2> tissue(mesh, cells);
 
         // Create a force system
-        VertexBasedTissueForce<2> force;
+        NagaiHondaForce<2> force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&force);
 
@@ -217,7 +217,7 @@ public:
         unsigned old_num_cells = tissue.GetNumRealCells();
 
         // Create a force system
-        VertexBasedTissueForce<2> force;
+        NagaiHondaForce<2> force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&force);
 
@@ -264,7 +264,7 @@ public:
         unsigned old_num_cells = tissue.GetNumRealCells();
 
         // Create a force system
-        VertexBasedTissueForce<2> force;
+        NagaiHondaForce<2> force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&force);
 
@@ -330,7 +330,7 @@ public:
         unsigned old_num_cells = tissue.GetNumRealCells();
 
         // Create a force system
-        VertexBasedTissueForce<2> force;
+        NagaiHondaForce<2> force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&force);
 
@@ -376,7 +376,7 @@ public:
         VertexBasedTissue<2> tissue(mesh, cells);
 
         // Create a force system
-        VertexBasedTissueForce<2> force;
+        NagaiHondaForce<2> force;
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&force);
 

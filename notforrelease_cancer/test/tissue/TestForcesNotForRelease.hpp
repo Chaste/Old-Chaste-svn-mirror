@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChemotacticForce.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "CryptProjectionForce.hpp"
-#include "VertexBasedTissueForce.hpp"
+#include "NagaiHondaForce.hpp"
 #include "VertexBasedTissue.hpp"
 #include "WntConcentration.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -161,6 +161,8 @@ public:
             input_arch >> p_chemotactic_force;
 
             /// \todo Test the member data (see #627)
+
+            // Tidy up
             delete p_chemotactic_force;
         }
     }
@@ -343,7 +345,7 @@ public:
     }
 
     /**
-     * Note: WntBasedChemotaxis should be possible in other spring systems. If/when
+     * Note: WntBasedChemotaxis should be possible in other force laws. If/when
      * this is implemented, this test should be moved to somewhere more appropriate.
      */
     void TestCryptProjectionForceWithWntBasedChemotaxis() throw (Exception)
@@ -601,7 +603,7 @@ public:
         TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
     }
     
-    void TestVertexBasedTissueForceMethods() throw (Exception)
+    void TestNagaiHondaForceMethods() throw (Exception)
     {
         // Construct a 2D vertex mesh consisting of a single element
         std::vector<Node<2>*> nodes;
@@ -638,7 +640,7 @@ public:
         VertexBasedTissue<2> tissue(mesh, cells);
 
         // Create a force system
-        VertexBasedTissueForce<2> force;
+        NagaiHondaForce<2> force;
 
         // Initialise a vector of new node forces
         std::vector<c_vector<double, 2> > node_forces;
@@ -646,7 +648,7 @@ public:
 
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-             node_forces.push_back(zero_vector<double>(2));
+            node_forces.push_back(zero_vector<double>(2));
         }
 
         force.AddForceContribution(node_forces, tissue);

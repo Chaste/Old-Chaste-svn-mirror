@@ -97,7 +97,7 @@ double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 template<unsigned DIM>
 double VertexBasedTissue<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB)
 {
-    double adhesion_parameter = 0.01;
+    double adhesion_parameter;
 
     // Find the indices of the elements owned by each node
     std::set<unsigned> elements_containing_nodeA = pNodeA->rGetContainingElementIndices();
@@ -114,7 +114,15 @@ double VertexBasedTissue<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>
     // Check that the nodes have a common edge
     assert(shared_elements.size() > 0);
 
-    /// \todo Put code for differential adhesion here (#861)
+    // If the edge corresponds to a single element, then the cell is on the boundary
+    if (shared_elements.size() == 1)
+    {
+        adhesion_parameter = CancerParameters::Instance()->GetCellBoundaryAdhesionEnergyParameter();
+    }
+    else
+    {
+        adhesion_parameter = CancerParameters::Instance()->GetCellCellAdhesionEnergyParameter();
+    }
     return adhesion_parameter;
 }
 

@@ -25,24 +25,24 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "VertexBasedTissueForce.hpp"
+#include "NagaiHondaForce.hpp"
 
 
 template<unsigned DIM>
-VertexBasedTissueForce<DIM>::VertexBasedTissueForce()
+NagaiHondaForce<DIM>::NagaiHondaForce()
    : AbstractForce<DIM>()
 {
 }
 
 
 template<unsigned DIM>
-VertexBasedTissueForce<DIM>::~VertexBasedTissueForce()
+NagaiHondaForce<DIM>::~NagaiHondaForce()
 {
 }
 
 
 template<unsigned DIM>
-void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
+void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                        AbstractTissue<DIM>& rTissue)
 {
     // Helper instance of CancerParameters
@@ -157,6 +157,6 @@ void VertexBasedTissueForce<DIM>::AddForceContribution(std::vector<c_vector<doub
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class VertexBasedTissueForce<1>;
-template class VertexBasedTissueForce<2>;
-template class VertexBasedTissueForce<3>;
+template class NagaiHondaForce<1>;
+template class NagaiHondaForce<2>;
+template class NagaiHondaForce<3>;
