@@ -130,12 +130,6 @@
    fun:_Z16PetscGetUserNamePcm
    fun:_Z26PetscErrorPrintfInitializev
    fun:_Z15PetscInitializePiPPPcPKcS4_
-   fun:_ZN10PetSCSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
  }
 #
 # getpwuid on Debian-based systems
@@ -163,10 +157,6 @@
    fun:_Z16PetscGetUserNamePcm
    fun:_Z26PetscErrorPrintfInitializev
    fun:_Z15PetscInitializePiPPPcPKcS4_
-   fun:_ZN10PetSCSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
 }
 
 #Another getpwuid related suppression
@@ -201,12 +191,6 @@
    fun:_Z16PetscGetUserNamePcm
    fun:_Z26PetscErrorPrintfInitializev
    fun:_Z15PetscInitializePiPPPcPKcS4_
-   fun:_ZN10PetSCSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
 }
 
 # Ubuntu 8.04.2
@@ -223,12 +207,6 @@
    fun:_Z16PetscGetUserNamePcm
    fun:_Z26PetscErrorPrintfInitializev
    fun:_Z15PetscInitializePiPPPcPKcS4_
-   fun:_ZN10PetSCSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
 }
 {
    get--user-name-6
@@ -253,10 +231,6 @@
    fun:_Z16PetscGetUserNamePcm
    fun:_Z26PetscErrorPrintfInitializev
    fun:_Z15PetscInitializePiPPPcPKcS4_
-   fun:_ZN10PetSCSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
 }
 
 
@@ -411,7 +385,7 @@
    fun:_ZN9VtkWriter10WriteFilesEv
    fun:_ZN18AbstractMeshWriterILj3ELj3EE19WriteFilesUsingMeshER12AbstractMeshILj3ELj3EE
 }
- {
+{
    VTK compressed data problem
    Memcheck:Cond
    fun:_ZN18vtkBase64Utilities13EncodeTripletEhhhPhS0_S0_S0_
