@@ -60,6 +60,9 @@ private:
      *
      * Note also that member data related to writers is not saved - output must
      * be set up again by the caller after a restart.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

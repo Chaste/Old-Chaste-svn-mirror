@@ -171,6 +171,9 @@ protected:
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

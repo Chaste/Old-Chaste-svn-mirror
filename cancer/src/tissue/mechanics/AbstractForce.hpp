@@ -39,7 +39,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractForce
 {
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Serialize the object.
+     * 
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

@@ -45,7 +45,12 @@ private :
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** Archive the object and its member variables. */
+    /**
+     * Archive the object and its member variables.
+     * 
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

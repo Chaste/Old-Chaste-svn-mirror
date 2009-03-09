@@ -55,6 +55,9 @@ private :
     friend class boost::serialization::access;
     /**
      * Archive the simulation and member variable.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

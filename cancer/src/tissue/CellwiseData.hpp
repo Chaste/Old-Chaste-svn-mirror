@@ -72,6 +72,9 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the member variables.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

@@ -575,6 +575,9 @@ private:
      * As with other singleton classes, ensure the instance of this
      * class is serialized directly before being serialized via a
      * pointer.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

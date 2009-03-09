@@ -82,30 +82,34 @@ protected:
      * 
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
-     * @param rNodeA one of the nodes to perform the swap with 
-     * @param rNodeB the other node to perform the swap
+     * @param pNodeA one of the nodes to perform the swap with 
+     * @param pNodeB the other node to perform the swap
      */  
     void IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
     
     /**
-     * Helper method for ReMesh to merge nodes when needed 
-     * Move node with smallest global index to center and remove other node
+     * Helper method for ReMesh to merge nodes when needed.
+     * Move node with smallest global index to center and remove other node.
      * 
-     * @param rNodeA one of the nodes to perform the swap with 
-     * @param rNodeB the other node to perform the swap
+     * @param pNodeA one of the nodes to perform the swap with 
+     * @param pNodeB the other node to perform the swap
+     * @param elementsContainingNodes set of common elements
      */  
-    void PerformNodeMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB,
-                          std::set<unsigned> ElementsContainingNodes);
+    void PerformNodeMerge(Node<SPACE_DIM>* pNodeA,
+                          Node<SPACE_DIM>* pNodeB,
+                          std::set<unsigned> elementsContainingNodes);
     
     /**
      * Helper method for ReMesh to perform the T1 Swap
      * 
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
-     * @param rNodeA one of the nodes to perform the swap with 
-     * @param rNodeB the other node to perform the swap 
+     * @param pNodeA one of the nodes to perform the swap with 
+     * @param pNodeB the other node to perform the swap
+     * @param elementsContainingNodes set of common elements
      */  
-    void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, 
+    void PerformT1Swap(Node<SPACE_DIM>* pNodeA,
+                       Node<SPACE_DIM>* pNodeB, 
                        std::set<unsigned> ElementsContainingNodes);
     
     /**
@@ -113,7 +117,7 @@ protected:
      * 
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      * 
-     * @param rElement the element to divide
+     * @param pElement the element to divide
      * @param nodeAIndex the local index of node where to divide
      * @param nodeBindex the local index of node where to divide
      * 
@@ -139,7 +143,18 @@ protected:
      */
     bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex);
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Archives the member variables of the object which
+     * have to be preserved during its lifetime.
+     *
+     * The remaining member variables are re-initialised before being used
+     * by each ReMesh() call so they do not need to be archived.
+     * 
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

@@ -100,7 +100,7 @@ public:
      * This should be called by the relevant cell cycle model before any solving
      * of the ODE system (as it is used to evaluate the Y derivatives).
      *
-     * @param rMutationState the mutation state.
+     * @param rMutationState the mutation state
      */
     void SetMutationState(const CellMutationState &rMutationState);
 

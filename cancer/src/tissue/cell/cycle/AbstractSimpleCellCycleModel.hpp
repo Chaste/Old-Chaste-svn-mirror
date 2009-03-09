@@ -52,7 +52,12 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** Archive the cell cycle model. */
+    /**
+     * Archive the cell cycle model.
+     * 
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

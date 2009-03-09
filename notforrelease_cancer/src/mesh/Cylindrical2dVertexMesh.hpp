@@ -53,14 +53,18 @@ private:
     /** The circumference of the cylinder */
     double mWidth;
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
     /**
-     * Archives the member variables of the Cylindrical2dVertexMesh class which
-     * have to be preserved during the lifetime of the mesh.
+     * Archives the member variables of the object which
+     * have to be preserved during its lifetime.
      *
      * The remaining member variables are re-initialised before being used
      * by each ReMesh() call so they do not need to be archived.
+     * 
+     * @param archive
+     * @param version
      */
-    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {

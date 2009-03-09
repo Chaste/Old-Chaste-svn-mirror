@@ -93,7 +93,14 @@ protected:
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Serialize the facade.
+     * 
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
