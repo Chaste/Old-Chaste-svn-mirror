@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -52,7 +52,7 @@ public:
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
@@ -141,7 +141,7 @@ public:
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
@@ -210,7 +210,7 @@ public:
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 

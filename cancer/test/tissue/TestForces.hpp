@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -69,7 +69,7 @@ public:
                 mutation_state = APC_TWO_HIT;
             }
 
-            TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
+            TissueCell cell(STEM, mutation_state, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
@@ -195,7 +195,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true); // true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
@@ -272,7 +272,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
@@ -324,7 +324,7 @@ public:
         MutableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -406,7 +406,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         MeshBasedTissueWithGhostNodes<2> stretched_tissue(*p_mesh, cells, location_indices);
@@ -435,7 +435,7 @@ public:
         std::vector<unsigned> location_indices2 = generator2.GetCellLocationIndices();
 
         std::vector<TissueCell> cells2;
-        FixedCellCycleModelCellsGenerator<2> cells_generator2;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator2;
         cells_generator2.GenerateGivenLocationIndices(cells2, location_indices2);
 
         MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, location_indices2);
@@ -463,7 +463,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
-        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             cell.SetBirthTime(-50.0);
@@ -589,7 +589,7 @@ public:
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
             std::vector<TissueCell> cells;
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetBirthTime(-50.0);

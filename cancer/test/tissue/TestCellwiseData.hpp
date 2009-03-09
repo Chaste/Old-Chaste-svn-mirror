@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 #include "CellwiseData.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "MeshArchiveInfo.hpp"
 
@@ -58,7 +58,7 @@ public:
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue
@@ -90,7 +90,7 @@ public:
         TS_ASSERT_DELTA(p_data->GetValue(&(*iter)), 2.23, 1e-12);
 
         // Test ReallocateMemory method
-        TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;
@@ -157,7 +157,7 @@ public:
 
         // Set up cells, one for each node. Get each a birth time of -node_index, so the age = node_index
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue

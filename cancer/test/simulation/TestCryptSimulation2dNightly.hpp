@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -99,7 +99,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, mesh, std::vector<unsigned>(), false, 0.0, 3.0, 6.5, 8.0);
 
         // Create tissue
@@ -174,7 +174,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         TS_ASSERT_EQUALS(cells.size(), location_indices.size());
@@ -239,7 +239,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true, -1.0);
 
         // Create tissue
@@ -339,7 +339,7 @@ public:
                 birth_time = -1; //hours
             }
 
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -419,7 +419,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
@@ -617,7 +617,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
@@ -660,7 +660,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
@@ -697,7 +697,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
@@ -756,7 +756,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true, -1.0);
 
         // Create tissue

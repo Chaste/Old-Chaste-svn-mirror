@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Stochastic cell cycle model.
  *
  */
-class StochasticCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
+class StochasticDurationGenerationBasedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
@@ -69,7 +69,7 @@ private:
      * @param g1Duration
      * @param generation
      */
-    StochasticCellCycleModel(double g1Duration, unsigned generation);
+    StochasticDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation);
 
 public:
 
@@ -77,7 +77,7 @@ public:
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
      */
-    StochasticCellCycleModel()
+    StochasticDurationGenerationBasedCellCycleModel()
     {}
 
     /** 
@@ -89,7 +89,7 @@ public:
 };
 
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(StochasticCellCycleModel)
+BOOST_CLASS_EXPORT(StochasticDurationGenerationBasedCellCycleModel)
 
 
 #endif /*STOCHASTICCELLCYCLEMODEL_HPP_*/

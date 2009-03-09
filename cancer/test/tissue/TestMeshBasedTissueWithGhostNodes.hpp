@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 
@@ -63,7 +63,7 @@ public:
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
-            AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
+            AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -114,7 +114,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         // Create a tissue
@@ -189,7 +189,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true); // true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
@@ -235,7 +235,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, cell_location_indices.size());
         cells[27].StartApoptosis();
 
@@ -325,7 +325,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, cell_location_indices.size());
         cells[27].StartApoptosis();
 
@@ -335,7 +335,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 70u);
 
-        TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(0);
 
         c_vector<double,2> new_location;
@@ -354,7 +354,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
 
-        TissueCell new_cell2(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell new_cell2(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell2.SetBirthTime(0);
 
         c_vector<double,2> new_location2;
@@ -374,7 +374,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells2;
-        FixedCellCycleModelCellsGenerator<2> cells_generator2;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator2;
         cells_generator2.GenerateForCrypt(cells2, *p_mesh, location_indices, true);
 
         MeshBasedTissueWithGhostNodes<2> tissue2(*p_mesh, cells2, location_indices);
@@ -441,7 +441,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         // Create a tissue
@@ -488,7 +488,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<3> generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<3> generator;
         generator.GenerateBasic(cells, cell_location_indices.size());
 
         // Create a tissue, with no ghost nodes at the moment

@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationArchiver.hpp"
 
 #include "TissueSimulation.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "VertexBasedTissue.hpp"
 #include "NagaiHondaForce.hpp"
 #include "AbstractCellKiller.hpp"
@@ -107,7 +107,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - elem_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -157,7 +157,7 @@ public:
             CellType cell_type = DIFFERENTIATED;
             double birth_time = -1.0;
 
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -204,7 +204,7 @@ public:
                 birth_time = -23.5;          
             }
 
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -251,7 +251,7 @@ public:
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
             double birth_time = 0.0 - elem_index;
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -317,7 +317,7 @@ public:
                 birth_time = -17.5;          
             }
 
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -366,7 +366,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - elem_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

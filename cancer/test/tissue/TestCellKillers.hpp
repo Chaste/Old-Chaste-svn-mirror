@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "CellwiseData.hpp"
@@ -61,7 +61,7 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create tissue
@@ -156,7 +156,7 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create tissue
@@ -217,7 +217,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

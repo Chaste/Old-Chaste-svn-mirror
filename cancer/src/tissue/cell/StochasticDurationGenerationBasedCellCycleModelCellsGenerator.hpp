@@ -25,52 +25,31 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef FIXEDCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define FIXEDCELLCYCLEMODELCELLSGENERATOR_HPP_
+#ifndef STOCHASTICDURATIONGENERATIONBASEDCELLCYCLEMODELCELLSGENERATOR_HPP_
+#define STOCHASTICDURATIONGENERATIONBASEDCELLCYCLEMODELCELLSGENERATOR_HPP_
 
 #include "AbstractCellsGenerator.hpp"
-#include "FixedCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 
 /**
- * A helper class for generating a vector of cells with 
- * FixedCellCycleModels for a given mesh.
+ * A helper class for generating a vector of cells with
+ * StochasticDurationGenerationBasedCellCycleModels for a given mesh.
  */
 template<unsigned DIM>
-class FixedCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+class StochasticDurationGenerationBasedCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
 {
-public:
+public :
 
     /**
-     * @return a pointer to a new FixedCellCycleModel.
+     * @return a pointer to a new StochasticDurationGenerationBasedCellCycleModel.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
-    
-    /**
-     * Fills a vector of cells with a specified cell cycle model, to match
-     * a given number of cells. Gives them birth times of 0 for node 0,
-     * -1 for node 1, -2 for node 2 etc...
-     *
-     * @param rCells  An empty vector of cells to fill up.
-     * @param numCells  The number of cells to generate.
-     */
-    void GenerateBasic(std::vector<TissueCell>& rCells,
-                       const unsigned numCells);
-
-    /**
-     * Fills a vector of cells with a specified cell cycle model, to match
-     * a given vector of location indices.
-     * 
-     * @param rCells  An empty vector of cells to fill up.
-     * @param locationIndices  The indices of the tissue to assign real cells to.
-     */
-    void GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
-                                      const std::vector<unsigned> locationIndices);
 
     /**
      * @return default cell cycle time for a transit cell.
      */
     double GetTypicalTransitCellCycleTime();
-    
+
     /**
      * @return default cell cycle time for a transit cell.
      */
@@ -79,8 +58,8 @@ public:
     /**
      * @return true (cells can always differentiate).
      */
-    bool CellsCanDifferentiate();
+    virtual bool CellsCanDifferentiate();
 };
 
 
-#endif /*FIXEDCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+#endif /*STOCHASTICDURATIONGENERATIONBASEDCELLCYCLEMODELCELLSGENERATOR_HPP_*/

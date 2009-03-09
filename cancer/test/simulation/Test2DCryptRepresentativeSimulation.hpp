@@ -41,8 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 

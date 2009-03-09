@@ -38,8 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 #include "TissueCell.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -53,7 +53,7 @@ public:
     {
         // These lines are added to cover the exception case that a cell is
         // created without simulation time being set up...
-        FixedCellCycleModel fixed_model;
+        FixedDurationGenerationBasedCellCycleModel fixed_model;
         SimulationTime::Destroy();
 
         TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell(STEM, HEALTHY, &fixed_model));
@@ -66,7 +66,7 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(TissueCell stem_cell(STEM, HEALTHY, NULL));
 
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
         p_simulation_time->IncrementTimeOneStep();
@@ -103,7 +103,7 @@ public:
         // Cover bad cell cycle model
         TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell2(STEM, HEALTHY, NULL));
 
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
         p_simulation_time->IncrementTimeOneStep(); //t=12
@@ -170,7 +170,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         // SimulationTime returns 6 hours
 
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
         p_simulation_time->IncrementTimeOneStep();
@@ -272,7 +272,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
 
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
         stem_cell.ReadyToDivide();
 
@@ -323,7 +323,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
         std::vector<TissueCell> cells;
@@ -388,7 +388,7 @@ public:
     }
 
 
-    void TestWithFixedCellCycleModel() throw(Exception)
+    void TestWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         // Simulation time is 6000 because we want to test that differentiated cells never divide.
 
@@ -404,21 +404,21 @@ public:
         p_simulation_time->IncrementTimeOneStep();
 
         //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours.
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
-        TissueCell stochastic_stem_cell(STEM, HEALTHY, new StochasticCellCycleModel);
+        TissueCell stochastic_stem_cell(STEM, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
         stochastic_stem_cell.InitialiseCellCycleModel();
 
-        TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+        TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         differentiated_cell.InitialiseCellCycleModel();
         differentiated_cell.GetCellCycleModel()->SetGeneration(6);
 
-        TissueCell stochastic_differentiated_cell(DIFFERENTIATED, HEALTHY, new StochasticCellCycleModel);
+        TissueCell stochastic_differentiated_cell(DIFFERENTIATED, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
         stochastic_differentiated_cell.InitialiseCellCycleModel();
         stochastic_differentiated_cell.GetCellCycleModel()->SetGeneration(6);
 
-        TissueCell transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        TissueCell transit_cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell.InitialiseCellCycleModel();
         transit_cell.GetCellCycleModel()->SetGeneration(2);
 
@@ -473,7 +473,7 @@ public:
         }
 
         // Now at t=6.00
-        TissueCell transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        TissueCell transit_cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell.InitialiseCellCycleModel();
         transit_cell.GetCellCycleModel()->SetGeneration(2);
 
@@ -485,7 +485,7 @@ public:
         // Now at t = 17.99, cell is 11.99 old
         TS_ASSERT(!transit_cell.ReadyToDivide());
 
-        StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel *cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
 
         // This now resets the age of the cell to 0.0 so more time added in underneath
         transit_cell.SetCellCycleModel(cell_cycle_model);
@@ -537,7 +537,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
 
-            TissueCell stem_cell(STEM, HEALTHY, new StochasticCellCycleModel);
+            TissueCell stem_cell(STEM, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
             stem_cell.InitialiseCellCycleModel();
             cells.push_back(stem_cell);
 
@@ -611,26 +611,26 @@ public:
 
         std::vector<TissueCell> cells;
 
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
         cells.push_back(stem_cell);
 
-        TissueCell transit_cell_1(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        TissueCell transit_cell_1(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell_1.InitialiseCellCycleModel();
         transit_cell_1.GetCellCycleModel()->SetGeneration(1);
         cells.push_back(transit_cell_1);
 
-        TissueCell transit_cell_2(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        TissueCell transit_cell_2(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell_2.InitialiseCellCycleModel();
         transit_cell_2.GetCellCycleModel()->SetGeneration(2);
         cells.push_back(transit_cell_2);
 
-        TissueCell transit_cell_3(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        TissueCell transit_cell_3(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell_3.InitialiseCellCycleModel();
         transit_cell_3.GetCellCycleModel()->SetGeneration(3);
         cells.push_back(transit_cell_3);
 
-        TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+        TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         differentiated_cell.InitialiseCellCycleModel();
         differentiated_cell.GetCellCycleModel()->SetGeneration(4);
         cells.push_back(differentiated_cell);
@@ -969,7 +969,7 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
 
-        TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell.InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
@@ -1009,7 +1009,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
 
-        TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell.InitialiseCellCycleModel();
         p_simulation_time->IncrementTimeOneStep(); // t=25
 
@@ -1027,7 +1027,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
-        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
         std::vector<TissueCell> cells;
@@ -1124,7 +1124,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             stem_cell.InitialiseCellCycleModel();
             p_simulation_time->IncrementTimeOneStep();
 
@@ -1224,7 +1224,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
 
-        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell.InitialiseCellCycleModel();
 
         TS_ASSERT(!cell.IsLogged());
@@ -1252,7 +1252,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 2);
 
-        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell.InitialiseCellCycleModel();
         cell.SetAncestor(2u);
 

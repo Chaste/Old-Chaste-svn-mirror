@@ -55,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 /* The next two header files define helper classes for generating a vector of
  * cells with fixed, and Wnt-dependent, cell cycle models: */
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 /* This header file defines a helper class for generating a suitable mesh: */
 #include "HoneycombMeshGenerator.hpp"
@@ -111,14 +111,14 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
-         * To do this, we can use a static method on the {{{FixedCellCycleModelCellsGenerator}}}
+         * To do this, we can use a static method on the {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}}
          * helper class. The {{{<2>}}} below denotes the dimension. We create an empty vector 
          * of cells and pass this into the method along with the mesh. The third argument 
          * 'true' indicates that the cells should be assigned random birth times, to avoid 
          * synchronous division. The {{{cells}}} vector is populated once the method 
          * {{{GenerateForCrypt}}} is called. */
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices, 

@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "CryptSimulation1d.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ColumnDataReader.hpp"
@@ -270,7 +270,7 @@ public:
                 generation = 4;
                 birth_time = 0; // hours
             }
-            TissueCell cell(cell_type, HEALTHY, new StochasticCellCycleModel);
+            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
@@ -333,7 +333,7 @@ public:
                 generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
@@ -480,7 +480,7 @@ public:
                 generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetBirthTime(birth_time);

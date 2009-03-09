@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef FIXEDCELLCYCLEMODEL_HPP_
-#define FIXEDCELLCYCLEMODEL_HPP_
+#ifndef FIXEDDURATIONGENERATIONBASEDCELLCYCLEMODEL_HPP_
+#define FIXEDDURATIONGENERATIONBASEDCELLCYCLEMODEL_HPP_
 
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  CancerParameters::StemCellG1Duration + SG2MDuration
  *  and CancerParameters::TransitCellG1Duration + SG2MDuration)
  */
-class FixedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
+class FixedDurationGenerationBasedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
@@ -52,23 +52,23 @@ private:
 
     /**
      * Private constructor for identical cells.
-     * 
-     * @param g1Duration 
+     *
+     * @param g1Duration
      * @param generation
      */
-    FixedCellCycleModel(double g1Duration, unsigned generation);
+    FixedDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation);
 
 public:
 
     /**
-     * Default constructor. Note that mBirthTime is set in 
-     * AbstractCellCycleModel() and mG1Duration is set in 
+     * Default constructor. Note that mBirthTime is set in
+     * AbstractCellCycleModel() and mG1Duration is set in
      * AbstractSimpleCellCycleModel().
      */
-    FixedCellCycleModel();
+    FixedDurationGenerationBasedCellCycleModel();
 
-    /** 
-     * Overridden builder method to create new instances of 
+    /**
+     * Overridden builder method to create new instances of
      * the cell cycle model.
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
@@ -76,7 +76,7 @@ public:
 };
 
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(FixedCellCycleModel)
+BOOST_CLASS_EXPORT(FixedDurationGenerationBasedCellCycleModel)
 
 
-#endif /*FIXEDCELLCYCLEMODEL_HPP_*/
+#endif /*FIXEDDURATIONGENERATIONBASEDCELLCYCLEMODEL_HPP_*/

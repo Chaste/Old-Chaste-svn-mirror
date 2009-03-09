@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "CryptProjectionForce.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 

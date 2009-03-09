@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "FixedCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "LogFile.hpp"
 
@@ -55,7 +55,7 @@ private:
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (CancerParameters::Instance()->GetStemCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

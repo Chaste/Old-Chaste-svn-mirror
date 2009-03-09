@@ -25,41 +25,21 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef STOCHASTICCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define STOCHASTICCELLCYCLEMODELCELLSGENERATOR_HPP_
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 
-#include "AbstractCellsGenerator.hpp"
-#include "StochasticCellCycleModel.hpp"
 
-/**
- * A helper class for generating a vector of cells with 
- * StochasticCellCycleModels for a given mesh.
- */
-template<unsigned DIM>
-class StochasticCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+FixedDurationGenerationBasedCellCycleModel::FixedDurationGenerationBasedCellCycleModel()
 {
-public :
+}
 
-    /**
-     * @return a pointer to a new StochasticCellCycleModel.
-     */
-    AbstractCellCycleModel* CreateCellCycleModel();
 
-    /**
-     * @return default cell cycle time for a transit cell.
-     */
-    double GetTypicalTransitCellCycleTime();
+FixedDurationGenerationBasedCellCycleModel::FixedDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation)
+    : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation)
+{
+}
     
-    /**
-     * @return default cell cycle time for a transit cell.
-     */
-    double GetTypicalStemCellCycleTime();
-
-    /**
-     * @return true (cells can always differentiate).
-     */   
-    virtual bool CellsCanDifferentiate();
-};
-
-
-#endif /*STOCHASTICCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+    
+AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModel::CreateDaughterCellCycleModel()
+{
+    return new FixedDurationGenerationBasedCellCycleModel(mG1Duration, mGeneration);
+}

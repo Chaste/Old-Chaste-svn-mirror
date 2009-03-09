@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "FixedCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -86,7 +86,7 @@ public:
             unsigned generation;
             cell_type = STEM;
             generation = 0;
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
             if (i == 50u)
             {
@@ -117,7 +117,7 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
@@ -171,7 +171,7 @@ public:
             unsigned generation;
             cell_type = STEM;
             generation = 0;
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                ( CancerParameters::Instance()->GetStemCellG1Duration()
@@ -244,7 +244,7 @@ public:
                 }
             }
             
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                 (  CancerParameters::Instance()->GetStemCellG1Duration() +

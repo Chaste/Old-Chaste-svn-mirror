@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -66,7 +66,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(STEM, LABELLED, new FixedCellCycleModel());
+            TissueCell cell(STEM, LABELLED, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
@@ -129,7 +129,7 @@ public:
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
             std::vector<TissueCell> cells;
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetBirthTime(-50.0);
@@ -194,7 +194,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
 
             if (i==4 || i==5)
             {
@@ -375,7 +375,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(-10.0);
             cells.push_back(cell);
         }
@@ -453,7 +453,7 @@ public:
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
             std::vector<TissueCell> cells;
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetBirthTime(-50.0);
@@ -520,7 +520,7 @@ public:
             {
                 mutation_state = APC_TWO_HIT;
             }
-            TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
+            TissueCell cell(STEM, mutation_state, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(-10);
             cells.push_back(cell);
         }
@@ -631,7 +631,7 @@ public:
             CellType cell_type = DIFFERENTIATED;
             double birth_time = -1.0;
 
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptSimulation2d.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
 #include "NagaiHondaForce.hpp"
-#include "StochasticCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "CancerEventHandler.hpp"
@@ -116,7 +116,7 @@ public:
                                 ( CancerParameters::Instance()->GetTransitCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
 
-            TissueCell cell(TRANSIT, HEALTHY, new StochasticCellCycleModel());
+            TissueCell cell(TRANSIT, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -171,7 +171,7 @@ public:
                                 ( CancerParameters::Instance()->GetTransitCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
 
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new StochasticCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -210,7 +210,7 @@ public:
                                 ( CancerParameters::Instance()->GetTransitCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
 
-            TissueCell cell(STEM, HEALTHY, new StochasticCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

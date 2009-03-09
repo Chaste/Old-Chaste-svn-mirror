@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "SimpleWntCellCycleModelCellsGenerator.hpp"
-#include "StochasticCellCycleModelCellsGenerator.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "TysonNovakCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
@@ -48,7 +48,7 @@ class TestCellsGenerator : public AbstractCancerTestSuite
 {
 public:
 
-    void TestFixedCellCycleModelCellsGeneratorGenerateBasic() throw(Exception)
+    void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateBasic() throw(Exception)
     {
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
@@ -57,7 +57,7 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> generator;
         generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Test that cells were generated correctly
@@ -69,7 +69,7 @@ public:
         }
     }
 
-    void TestFixedCellCycleModelCellsGeneratorGenerateGivenLocationIndices() throw(Exception)
+    void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateGivenLocationIndices() throw(Exception)
     {
         // Use a mesh generator to generate some location indices corresponding to real cells
         HoneycombMeshGenerator generator(6, 7, 2u, false);
@@ -77,7 +77,7 @@ public:
 
         // Set up cells 
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         // Test that cells were generated correctly
@@ -90,7 +90,7 @@ public:
     }
 
 
-    void TestFixedCellCycleModelCellsGeneratorGenerateForCrypt() throw(Exception)
+    void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateForCrypt() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -107,7 +107,7 @@ public:
         double y2 = 2.0;
         double y3 = 3.0;
         
-        FixedCellCycleModelCellsGenerator<2> generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, true, y0, y1, y2,y3 );
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -141,7 +141,7 @@ public:
         }
     }
 
-    void TestStochasticCellCycleModelCellsGenerator() throw(Exception)
+    void TestStochasticDurationGenerationBasedCellCycleModelCellsGenerator() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -152,7 +152,7 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        StochasticCellCycleModelCellsGenerator<2> generator;
+        StochasticDurationGenerationBasedCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());

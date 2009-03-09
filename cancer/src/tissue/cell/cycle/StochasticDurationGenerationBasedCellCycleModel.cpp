@@ -25,22 +25,22 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "StochasticCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 
 
-StochasticCellCycleModel::StochasticCellCycleModel(double g1Duration, unsigned generation)
+StochasticDurationGenerationBasedCellCycleModel::StochasticDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation)
     : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation)
 {
 }
 
 
-AbstractCellCycleModel* StochasticCellCycleModel::CreateDaughterCellCycleModel()
+AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new StochasticCellCycleModel(mG1Duration, mGeneration);  // use a private constructor that doesn't reset mG1Duration.
+    return new StochasticDurationGenerationBasedCellCycleModel(mG1Duration, mGeneration);  // use a private constructor that doesn't reset mG1Duration.
 }
 
 
-void StochasticCellCycleModel::SetG1Duration()
+void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
 

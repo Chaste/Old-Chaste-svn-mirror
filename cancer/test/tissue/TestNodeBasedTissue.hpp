@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "NodeBasedTissue.hpp"
-#include "FixedCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -50,7 +50,7 @@ private:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -154,7 +154,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
-            AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
+            AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -173,7 +173,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> tissue(nodes, cells));
 
         // Add another cell
-        AbstractCellCycleModel* p_cell_cycle_model = new FixedCellCycleModel();
+        AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
         double birth_time = -4.0;
         cell.SetBirthTime(birth_time);
@@ -200,10 +200,10 @@ public:
         nodes.push_back(p_node1);
 
         // Create two cells
-        TissueCell cell0(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell0(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell0.SetBirthTime(-1);
 
-        TissueCell cell1(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell1(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell1.SetBirthTime(-1);
 
         std::vector<TissueCell> cells;
@@ -214,7 +214,7 @@ public:
         NodeBasedTissue<2> node_based_tissue(nodes, cells);
 
         // Create a new cell, DON'T set the node index, set birth time=-1
-        TissueCell cell2(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell2(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell2.SetBirthTime(-1);
 
         c_vector<double,2> cell2_location;
@@ -293,7 +293,7 @@ public:
         unsigned old_num_cells = node_based_tissue.rGetCells().size();
 
         // Create a new cell, DON'T set the node index, set birth time=-1
-        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell.SetBirthTime(-1);
 
         c_vector<double,2> new_cell_location;
@@ -379,7 +379,7 @@ public:
         // Make one cell start apoptosis
         cells[27].StartApoptosis();
 
-        TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(0);
 
         // Create a tissue
@@ -410,7 +410,7 @@ public:
         TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), 81u);
 
         // Add another cell to the tissue
-        TissueCell new_cell2(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell new_cell2(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell2.SetBirthTime(0);
 
         c_vector<double,2> new_location2;
@@ -565,7 +565,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time;
             if (i==1)
             {

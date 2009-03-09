@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
-#include "StochasticCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
@@ -79,7 +79,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
 
         // Create tissue
@@ -171,7 +171,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> temp_cells;
-        StochasticCellCycleModelCellsGenerator<2> cells_generator;
+        StochasticDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
         // This awkward way of setting up the cells is a result of #430
@@ -396,7 +396,7 @@ public:
 
             // Set up cells
             std::vector<TissueCell> temp_cells;
-            StochasticCellCycleModelCellsGenerator<2> cells_generator;
+            StochasticDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
             cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
             // This awkward way of setting up the cells is a result of #430

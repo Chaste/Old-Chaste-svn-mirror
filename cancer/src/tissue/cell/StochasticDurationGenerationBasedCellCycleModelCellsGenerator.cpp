@@ -25,18 +25,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "StochasticCellCycleModelCellsGenerator.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 
 
 template<unsigned DIM>
-AbstractCellCycleModel* StochasticCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
+AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-    return new StochasticCellCycleModel();
+    return new StochasticDurationGenerationBasedCellCycleModel();
 }
 
 
 template<unsigned DIM>
-double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
+double StochasticDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
 {    
     return CancerParameters::Instance()->GetTransitCellG1Duration()
             + CancerParameters::Instance()->GetSG2MDuration();    
@@ -44,7 +44,7 @@ double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTi
 
 
 template<unsigned DIM>
-double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
+double StochasticDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
 {
     return CancerParameters::Instance()->GetStemCellG1Duration()
             + CancerParameters::Instance()->GetSG2MDuration();
@@ -52,7 +52,7 @@ double StochasticCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime(
 
 
 template<unsigned DIM>
-bool StochasticCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
+bool StochasticDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
 {
     return true;
 }
@@ -62,6 +62,6 @@ bool StochasticCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-//template class StochasticCellCycleModelCellsGenerator<1>;
-template class StochasticCellCycleModelCellsGenerator<2>;
-//template class StochasticCellCycleModelCellsGenerator<3>;
+//template class StochasticDurationGenerationBasedCellCycleModelCellsGenerator<1>;
+template class StochasticDurationGenerationBasedCellCycleModelCellsGenerator<2>;
+//template class StochasticDurationGenerationBasedCellCycleModelCellsGenerator<3>;

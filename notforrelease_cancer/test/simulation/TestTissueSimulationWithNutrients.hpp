@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "SimpleNutrientPde.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -894,7 +894,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<3> generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<3> generator;
         generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Set up tissue

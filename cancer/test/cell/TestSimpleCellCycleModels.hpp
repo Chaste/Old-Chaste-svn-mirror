@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
@@ -47,7 +47,7 @@ class TestSimpleCellCycleModels : public AbstractCancerTestSuite
 {
 public:
 
-    void TestFixedCellCycleModel() throw(Exception)
+    void TestFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -57,9 +57,9 @@ public:
             2.0*(p_params->GetStemCellG1Duration()
                   +p_params->GetSG2MDuration()     ), num_steps);
 
-        TS_ASSERT_THROWS_NOTHING(FixedCellCycleModel model3);
+        TS_ASSERT_THROWS_NOTHING(FixedDurationGenerationBasedCellCycleModel model3);
 
-        FixedCellCycleModel* p_stem_model = new FixedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel;
         TS_ASSERT(!p_stem_model->UsesBetaCat());
         TissueCell stem_cell(STEM, HEALTHY, p_stem_model);
         stem_cell.InitialiseCellCycleModel();
@@ -69,14 +69,14 @@ public:
 
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
 
-        FixedCellCycleModel* p_transit_model = new FixedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_transit_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell transit_cell(TRANSIT, HEALTHY, p_transit_model);
         transit_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(transit_cell.GetCellType(),TRANSIT);
         TS_ASSERT_EQUALS(p_transit_model->GetGeneration(), 0u);
 
-        FixedCellCycleModel* p_diff_model = new FixedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_diff_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
         diff_cell.InitialiseCellCycleModel();
 
@@ -99,7 +99,7 @@ public:
         double hepa_one_cell_birth_time = p_simulation_time->GetTime();
 
         p_params->SetHepaOneParameters();
-        FixedCellCycleModel* p_hepa_one_model = new FixedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_hepa_one_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
 
@@ -114,7 +114,7 @@ public:
     }
 
 
-    void TestStochasticCellCycleModel(void) throw(Exception)
+    void TestStochasticDurationGenerationBasedCellCycleModel(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
 
@@ -123,11 +123,11 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
             2.0*(p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration()), num_steps);
 
-        TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3);
+        TS_ASSERT_THROWS_NOTHING(StochasticDurationGenerationBasedCellCycleModel cell_model3);
 
-        StochasticCellCycleModel* p_stem_model = new StochasticCellCycleModel;
-        StochasticCellCycleModel* p_transit_model = new StochasticCellCycleModel;
-        StochasticCellCycleModel* p_diff_model = new StochasticCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_stem_model = new StochasticDurationGenerationBasedCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_transit_model = new StochasticDurationGenerationBasedCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_diff_model = new StochasticDurationGenerationBasedCellCycleModel;
 
         TissueCell stem_cell(STEM, HEALTHY,  p_stem_model);
         stem_cell.InitialiseCellCycleModel();
@@ -150,7 +150,7 @@ public:
         }
 
         p_params->SetHepaOneParameters();
-        StochasticCellCycleModel* p_hepa_one_model = new StochasticCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_hepa_one_model = new StochasticDurationGenerationBasedCellCycleModel;
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
 
@@ -326,7 +326,7 @@ public:
     }
 
 
-    void TestArchiveFixedCellCycleModel() throw (Exception)
+    void TestArchiveFixedDurationGenerationBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
@@ -336,7 +336,7 @@ public:
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
-            FixedCellCycleModel* p_model = new FixedCellCycleModel;
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel;
 
             TissueCell cell(TRANSIT, HEALTHY, p_model);
             cell.InitialiseCellCycleModel();
@@ -386,7 +386,7 @@ public:
     }
 
 
-    void TestArchiveStochasticCellCycleModel()
+    void TestArchiveStochasticDurationGenerationBasedCellCycleModel()
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
@@ -399,7 +399,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            StochasticCellCycleModel* p_model = new StochasticCellCycleModel;
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel;
 
             TissueCell cell(TRANSIT,  HEALTHY, p_model);
             cell.InitialiseCellCycleModel();

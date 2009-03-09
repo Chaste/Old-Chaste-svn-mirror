@@ -25,18 +25,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 
 
 template<unsigned DIM>
-AbstractCellCycleModel* FixedCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
+AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-    return new FixedCellCycleModel();
+    return new FixedDurationGenerationBasedCellCycleModel();
 }
 
 
 template<unsigned DIM>
-double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
+double FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
 {
     return CancerParameters::Instance()->GetTransitCellG1Duration()
             + CancerParameters::Instance()->GetSG2MDuration();
@@ -44,7 +44,7 @@ double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
 
 
 template<unsigned DIM>
-double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
+double FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
 {
     return CancerParameters::Instance()->GetStemCellG1Duration()
             + CancerParameters::Instance()->GetSG2MDuration();
@@ -52,14 +52,14 @@ double FixedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
 
 
 template<unsigned DIM>
-bool FixedCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
+bool FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::CellsCanDifferentiate()
 {
     return true;
 }
 
 
 template<unsigned DIM>
-void FixedCellCycleModelCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
+void FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
                                                            const unsigned numCells)
 {
     rCells.clear();
@@ -77,7 +77,7 @@ void FixedCellCycleModelCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCel
 
 
 template<unsigned DIM>
-void FixedCellCycleModelCellsGenerator<DIM>::GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
+void FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
                                                                           const std::vector<unsigned> locationIndices)
 {
     assert(!locationIndices.empty());
@@ -102,6 +102,6 @@ void FixedCellCycleModelCellsGenerator<DIM>::GenerateGivenLocationIndices(std::v
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class FixedCellCycleModelCellsGenerator<1>;
-template class FixedCellCycleModelCellsGenerator<2>;
-template class FixedCellCycleModelCellsGenerator<3>;
+template class FixedDurationGenerationBasedCellCycleModelCellsGenerator<1>;
+template class FixedDurationGenerationBasedCellCycleModelCellsGenerator<2>;
+template class FixedDurationGenerationBasedCellCycleModelCellsGenerator<3>;

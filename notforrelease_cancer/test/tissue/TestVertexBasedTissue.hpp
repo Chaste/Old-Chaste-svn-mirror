@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "VertexBasedTissue.hpp"
-#include "FixedCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -55,7 +55,7 @@ private:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<rMesh.GetNumElements(); i++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -118,7 +118,7 @@ public:
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumElements()-1; i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -129,7 +129,7 @@ public:
         // does not equal the number of elements
         TS_ASSERT_THROWS_ANYTHING(VertexBasedTissue<2> tissue(mesh, cells));
 
-        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         double birth_time = 0.0 - mesh.GetNumElements()-1;
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);        
@@ -187,7 +187,7 @@ public:
                 cell_type = DIFFERENTIATED;
             }
 
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - 2*i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -227,7 +227,7 @@ public:
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);            
@@ -345,7 +345,7 @@ public:
 
         TissueCell cell0 = tissue.rGetCellUsingLocationIndex(0);
     
-        TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(-1);
         
         TissueCell* p_new_cell = tissue.AddCell(new_cell, new_cell_location, &cell0);
@@ -422,7 +422,7 @@ public:
                 birth_time = -50.0;          
             }
 
-            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

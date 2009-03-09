@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include "FixedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
 
@@ -165,7 +165,7 @@ public:
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (CancerParameters::Instance()->GetStemCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -208,7 +208,7 @@ public:
 
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;
-        FixedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create a tissue
@@ -256,7 +256,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetBirthTime(birth_time);
