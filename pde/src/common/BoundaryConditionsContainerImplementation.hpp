@@ -50,15 +50,12 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
     
     // This zero boundary condition is only used in AddNeumannBoundaryCondition
     mpZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-    // therefore we must delete it if AddNeumannBoundaryCondition is not called,
-    // so we keep a flag to check whether it need deleting or not.
-    mZeroBoundaryConditionUsed = false; 
-
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditionsContainer()
 {
+    
     // Keep track of what boundary condition objects we've deleted
     std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
     for (unsigned i=0; i<PROBLEM_DIM; i++)
@@ -66,23 +63,25 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditions
         NeumannMapIterator neumann_iterator = mpNeumannMap[i]->begin();
         while (neumann_iterator != mpNeumannMap[i]->end() )
         {
+            
             if (deleted_conditions.count(neumann_iterator->second) == 0)
             {
                 deleted_conditions.insert(neumann_iterator->second);
-                delete neumann_iterator->second;
+                //Leave the zero boundary condition until last
+                if (neumann_iterator->second != mpZeroBoundaryCondition)
+                {
+                    delete neumann_iterator->second;
+                }
             }
             neumann_iterator++;
         }
-
         delete(mpNeumannMap[i]);
     }
 
-    if( !mZeroBoundaryConditionUsed ) // if used, it will be deleted above
-    {
-        delete mpZeroBoundaryCondition;   
-    }
+    delete mpZeroBoundaryCondition;   
 
     this->DeleteDirichletBoundaryConditions(deleted_conditions);
+
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -123,7 +122,6 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannBoun
             {
                 // add zero bc to other unknowns (so all maps are in sync)
                 (*(mpNeumannMap[unknown]))[pBoundaryElement] = mpZeroBoundaryCondition;
-                mZeroBoundaryConditionUsed = true;
             }
         }
     }

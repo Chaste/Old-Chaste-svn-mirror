@@ -73,8 +73,6 @@ private:
     
     /** A zero bc, used for other unknowns in ApplyNeumannBoundaryCondition */
     ConstBoundaryCondition<SPACE_DIM>* mpZeroBoundaryCondition;
-    /** Whether the mpZeroBoundaryCondition has been used. */
-    bool mZeroBoundaryConditionUsed;
 
 public:
 
