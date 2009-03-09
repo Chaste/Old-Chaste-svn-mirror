@@ -433,6 +433,15 @@ public:
         // a hardcoded result
         TS_ASSERT_DELTA(fr2000_ode_system.GetIIonic(), 0.0002, 1e-4);
         TS_ASSERT_DELTA(fr2000_ode_system_opt.GetIIonic(), 0.0002, 1e-4);
+        
+        //Check that ComputeExceptVoltage does the correct thing (doesn't change the voltage) 
+        double voltage=fr2000_ode_system.GetVoltage();
+        fr2000_ode_system.ComputeExceptVoltage(end_time, end_time+0.001); 
+        TS_ASSERT_DELTA(fr2000_ode_system.GetVoltage(), voltage, 1e-5);
+        voltage=fr2000_ode_system.GetVoltage();
+        fr2000_ode_system_opt.ComputeExceptVoltage(end_time, end_time+0.001); 
+        TS_ASSERT_DELTA(fr2000_ode_system_opt.GetVoltage(), voltage, 1e-5);
+
     }
 
 

@@ -65,6 +65,7 @@ private:
     /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType>;
 
+#define COVERAGE_IGNORE //In case these protoypes show up as code
 protected:
     /**
      *  The term to be added to the element stiffness matrix:
@@ -100,6 +101,7 @@ protected:
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         c_vector<double, ELEMENT_DIM> &rPhi,
         ChastePoint<SPACE_DIM> &rX );
+#undef COVERAGE_IGNORE //In case these protoypes show up as code
 
 
 public:

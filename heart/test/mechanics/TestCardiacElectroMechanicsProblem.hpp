@@ -62,6 +62,7 @@ public:
         pos(0) = 1.0;
         pos(1) = 0.0;
         problem.SetWatchedPosition(pos);
+        problem.SetNoElectricsOutput();
         problem.Initialise();
 
         // have checked these hardcoded values correspond to the nodes
@@ -78,7 +79,7 @@ public:
         //TS_ASSERT_THROWS_ANYTHING(problem2.Initialise());
         //// ... but the exception causes a segmentation fault and had to be replaced
         //// with an assert(0);
-    }
+    }  
 
 
     void Test2dOneMechanicsElement() throw(Exception)
