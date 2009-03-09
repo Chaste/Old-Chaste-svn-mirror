@@ -53,7 +53,13 @@ private:
     std::string mMessage; /**< Exception message */
 
 public:
-    /** Construct an exception with a message string */
+    /**
+     * Construct an exception with a message string.
+     *
+     * @param message  the message
+     * @param filename  which source file threw the exception
+     * @param rLineNumber  which line number of the source file threw the exception
+     */
     Exception(std::string message, std::string filename, const unsigned rLineNumber);
 
     /** Get the message associated with the exception

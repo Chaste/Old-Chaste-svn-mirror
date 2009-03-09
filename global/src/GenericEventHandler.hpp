@@ -48,10 +48,10 @@ template <unsigned NUM_EVENTS, class CONCRETE>
 class GenericEventHandler
 {
 private:
-    static std::vector<double> mCpuTime;
-    static std::vector<bool> mHasBegun;
-    static bool mEnabled;
-    static bool mInitialised;
+    static std::vector<double> mCpuTime; /**< CPU ticks assigned to each event */
+    static std::vector<bool> mHasBegun; /**< Whether each event is in progress */
+    static bool mEnabled; /**< Whether the event handler is recording event times */
+    static bool mInitialised; /**< For internal use */
 
     /** Helper function - get the current CPU clock tick count */
     inline static double GetCpuTime()
@@ -87,6 +87,9 @@ private:
     }
 
 public:
+    /**
+     * Reset the event handler - set all event durations to zero.
+     */
     static void Reset()
     {
         CheckVectorSizes();
@@ -98,6 +101,7 @@ public:
         Enable();
     }
 
+    /** Record the start of an event */
     static void BeginEvent(unsigned event) throw (Exception)
     {
         assert(event<NUM_EVENTS);
@@ -121,6 +125,7 @@ public:
         //std::cout << PetscTools::GetMyRank()<<": Beginning " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
+    /** Record the ending of an event */
     static void EndEvent(unsigned event)
     {
         assert(event<NUM_EVENTS); 
@@ -275,18 +280,23 @@ public:
         }
     }
 
+    /**
+     * Enable the event handler so that it will record event durations.
+     */
     static void Enable()
     {
         CheckVectorSizes();
         mEnabled = true;
     }
 
+    /** Disable the event handler, so that event durations are no longer recorded. */
     static void Disable()
     {
         CheckVectorSizes();
         mEnabled = false;
     }
     
+    /** Check whether the event handler is enabled. */
     static bool IsEnabled()
     {
         return mEnabled;

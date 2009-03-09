@@ -109,7 +109,8 @@ public:
     /**
      *  This just calls the other OpenOutputFile after concatenating the first three arguments
      *  together to make the full filename. For example OpenOutputFile("results_", 3, ".dat")
-     *  creates results_3.dat. See documentation for alternative OpenOutputFile
+     *  creates results_3.dat. See documentation for
+     *  OpenOutputFile(std::string, std::ios_base::openmode).
      */
     out_stream OpenOutputFile(std::string fileName,
                               unsigned number,

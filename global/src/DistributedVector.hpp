@@ -36,10 +36,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "DistributedVectorException.hpp"
 
-/***
+/**
  * Gives access to the local portion of a PETSc vector via an iterator.
+ *
+ * It also provides two nested classes for accessing vectors with particular
+ * memory layouts: striped and chunked.
  */
-
 class DistributedVector
 {
 private:
@@ -103,7 +105,7 @@ public:
      */
     static Vec CreateVec(unsigned stride);
 
-    /***
+    /**
      * Constructor.
      * This class represents the portion of a distributed PETSc vector on this process.
      *
@@ -131,26 +133,35 @@ public:
 
     /**
      * Iterator class allows one to iterate over the elements of the distributed
-     * vector on this process
+     * vector on this process.
      */
     class Iterator
     {
     public:
-        unsigned Local;
-        unsigned Global;
+        unsigned Local;  /**< Current index, local to this process. */
+        unsigned Global; /**< Current index, global to the whole PETSc vector. */
 
+        /** Compare two indices for inequality. */
         bool operator!=(const Iterator& other);
 
+        /** Increment the iterator to the next index. */
         Iterator& operator++();
     };
 
+    /**
+     * Provide access to a particular stripe of a striped vector.
+     *
+     * A striped vector has multiple types of information encoded within a single
+     * vector, with a layout like [x_1, y_1, z_1, x_2, y_2, z_2, ... x_n, y_n, z_n].
+     * This class provides easy access to, for example, the x values.
+     */
     class Stripe
     {
     public:
         unsigned mStride;
         unsigned mStripe;
         double *mpVec;
-       /***
+       /**
         * Constructor
         * @param parallelVec striped vector
         * @param stripe number of this stripe within the vector starting from 0
@@ -191,18 +202,25 @@ public:
 
     };
 
+    /**
+     * Provide access to a particular chunk of a chunked vector.
+     *
+     * A chunked vector has multiple types of information encoded within a single
+     * vector, with a layout like [x_1, x_2, ..., x_n, y_1, y_2, ... y_n].
+     * This class provides easy access to, for example, the x values.
+     */
     class Chunk
     {
     public:
         //unsigned mChunk;
         unsigned mOffset;  //The start of this chunk within the locally-owned part of the vector
         double *mpVec;
-       /***
-        * Constructor
-        * @param parallelVec chunked vector
-        * @param chunk number of this chunk within the vector starting from 0
-        */
 
+        /**
+         * Constructor
+         * @param parallelVec chunked vector
+         * @param chunk number of this chunk within the vector starting from 0
+         */
         Chunk(DistributedVector parallelVec, unsigned chunk)
         {
             assert(chunk<parallelVec.mNumChunks);
