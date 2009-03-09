@@ -317,6 +317,10 @@ public:
         solver.SetMaxSteps(1);
         state_variables = ode_system.GetInitialConditions();
         TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+        //Try again with time sampling
+        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.1));
+        
+        
         
         // Exception in root function
         solver.CheckForStoppingEvents();
