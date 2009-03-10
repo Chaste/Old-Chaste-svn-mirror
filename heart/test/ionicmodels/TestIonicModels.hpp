@@ -622,16 +622,44 @@ public:
                                  "TenTusscher",
                                  1000,
                                  true);
-        //Check against validated data (checked against CellML code of the model for an epicardial cell)
+        //Check against validated data 
+        //These data are considered valid after (visually) checking against output from  CellML code of the model for an epicardial cell
+        // and also numerically compared against pycml automatically generated code.
         CheckCellModelResults("TenTusscher");
         
-         //Test the GetIIonic method against one hardcoded value.
+        //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA( TT_model.GetIIonic(), 0.0976, 1e-3);    
         
         //Test the GetIIonic method against one hardcoded value for initial values of voltage 
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages) 
         TenTusscher2006OdeSystem TT_model_initial(&solver, &stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0002 , 1e-3);
+        
+        //now test the scale factor methods
+        
+        TT_model.SetScaleFactorGks(1.0);
+        TT_model.SetScaleFactorGto(1.0);
+        //run for only 10 ms
+        RunOdeSolverWithIonicModel(&TT_model,
+                                   10,
+                                   "TenTusscher",
+                                   1000,
+                                   true);
+        double i_ionic = TT_model.GetIIonic();
+        
+        //now double the scale factors
+        TT_model.SetScaleFactorGks(2.0);
+        TT_model.SetScaleFactorGto(2.0);
+        //run again for only 10 ms
+        RunOdeSolverWithIonicModel(&TT_model,
+                                   10,
+                                   "TenTusscher",
+                                   1000,
+                                   true);
+        double i_ionic_2 = TT_model.GetIIonic();   
+        
+        //check that the second case gets a smaller i_ionic
+        TS_ASSERT_LESS_THAN(i_ionic , i_ionic_2);
      }
      
     void TestDifrancescoNoble1985(void) throw (Exception)

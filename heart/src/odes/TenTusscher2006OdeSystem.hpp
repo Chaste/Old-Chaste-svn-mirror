@@ -39,6 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TenTusscher2006OdeSystem : public AbstractCardiacCell
 {
 private:
+
+    /** Scale factor for Gks*/ 
+    double mScaleFactorGks;
+    /** Scale factor for Gto*/
+    double mScaleFactorGto;
+    
     //////////////////////////////////////////////////////////////
     //Constants for the TenTusscher2006 model, values for epicardial cell.
     //////////////////////////////////////////////////////////////
@@ -169,16 +175,35 @@ private:
     void VerifyStateVariables();
 
 public:
-    // Constructor
+    /**
+     * Constructor
+     */ 
     TenTusscher2006OdeSystem(AbstractIvpOdeSolver *pSolver,
                                AbstractStimulusFunction *pIntracellularStimulus);
 
-    // Destructor
+    /**
+     * Destructor
+     */ 
     ~TenTusscher2006OdeSystem();
 
-    // This method will compute the RHS of the TenTusscher model
+    /**
+     *  This method will compute the RHS of the TenTusscher model
+     */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-
+    
+    /**
+     * Set the scale factor for Gks in order to differentiate epi M and endo cells
+     */
+    void SetScaleFactorGks(double sfgks);
+    
+    /**
+     * Set the scale factor for Gks in order to differentiate epi M and endo cells
+     */
+    void SetScaleFactorGto(double sfgto);
+    
+     /**
+     * Returns the ionic current 
+     */
     double GetIIonic();
 
 };
