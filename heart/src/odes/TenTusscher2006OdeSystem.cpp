@@ -247,8 +247,8 @@ void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
 double TenTusscher2006OdeSystem::GetIIonic()
 {
       //Vector for state variables//
-      double Y[18];
-      double dY[18];
+      double Y[19];
+      double dY[19];
       
     Y[0] =  mStateVariables[0];// L_t Ype_Ca_current_d_gate_d (dimensionless)
     Y[1] =  mStateVariables[1];// L_t Ype_Ca_current_f2_gate_f2 (dimensionless)
