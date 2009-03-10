@@ -660,6 +660,17 @@ public:
         
         //check that the second case gets a smaller i_ionic
         TS_ASSERT_LESS_THAN(i_ionic , i_ionic_2);
+        
+        TT_model.SetScaleFactorGkr(0.0);
+        //run again for only 10 ms
+        RunOdeSolverWithIonicModel(&TT_model,
+                                   10,
+                                   "TenTusscher",
+                                   1000,
+                                   true);
+        double i_ionic_3 = TT_model.GetIIonic(); 
+        
+         TS_ASSERT_LESS_THAN(i_ionic , i_ionic_3);
      }
      
     void TestDifrancescoNoble1985(void) throw (Exception)

@@ -44,6 +44,8 @@ private:
     double mScaleFactorGks;
     /** Scale factor for Gto*/
     double mScaleFactorGto;
+    /** Scale factor for Gkr*/
+    double mScaleFactorGkr;
     
     //////////////////////////////////////////////////////////////
     //Constants for the TenTusscher2006 model, values for epicardial cell.
@@ -200,6 +202,11 @@ public:
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
      */
     void SetScaleFactorGto(double sfgto);
+    
+    /**
+     * Set the scale factor for Gkr (might be useful for simulating LQT2)
+     */
+    void SetScaleFactorGkr(double sfgkr);
     
      /**
      * Returns the ionic current 
