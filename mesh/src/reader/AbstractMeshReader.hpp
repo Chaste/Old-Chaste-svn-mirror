@@ -134,7 +134,13 @@ public:
     ElementData GetNextEdge()
     {
         return GetNextFaceData();
-    }     
+    }
+
+    virtual std::string GetMeshFileBaseName()
+    { 
+        return "";
+    }
+         
 };
 
 

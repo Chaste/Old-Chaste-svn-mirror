@@ -48,12 +48,16 @@ protected:  // Give access of these variables to subclasses
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
     
-    std::vector<unsigned> mNodesPerProcessor;   
+    std::vector<unsigned> mNodesPerProcessor;
+    
+    std::string mMeshFileBaseName;
 
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
+
+    AbstractMesh();
 
     virtual ~AbstractMesh();
 
@@ -125,6 +129,8 @@ public:
     virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
 
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+    
+    std::string GetMeshFileBaseName() const;
 };
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -146,6 +152,12 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, uns
         }
 
     }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
+: mMeshFileBaseName("")
+{
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -300,6 +312,17 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElemen
 {
     mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection, rJacobianDeterminant );
 }    
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::string AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
+{
+    if (mMeshFileBaseName == "")
+    {
+        EXCEPTION("This mesh was not constructed from a file.");
+    }
+    
+    return mMeshFileBaseName;
+}
 
 
 #endif /*ABSTRACTMESH_HPP_*/

@@ -373,7 +373,19 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostProcess()
         {
             //Write the mesh
             MeshalyzerMeshWriter<SPACE_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
-            mesh_writer.WriteFilesUsingMesh(*mpMesh);
+
+            try
+            {
+                // If this mesh object has been constructed from a mesh reader we can get reference to it            
+                TrianglesMeshReader<SPACE_DIM,SPACE_DIM> mesh_reader(mpMesh->GetMeshFileBaseName());
+                mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+            }
+            catch(Exception& e)
+            {
+                //If there isn't a MeshReader available we will use the data contained in the actual mesh object.                
+                ///\todo: WriteFilesUsingMesh cannot handle ParallelTetrahedralMesh objects. Abort if so.                            
+                mesh_writer.WriteFilesUsingMesh(*mpMesh);
+            }
             
             //Write the parameters out
             HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");

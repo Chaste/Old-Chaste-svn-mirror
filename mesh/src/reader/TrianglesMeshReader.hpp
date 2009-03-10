@@ -528,7 +528,12 @@ private:
             line_is_blank = (rawLine.find_first_not_of(" \t",0) == std::string::npos);    
         }
         while (line_is_blank);        
-    }    
+    }
+    
+    std::string GetMeshFileBaseName()
+    { 
+        return mFilesBaseName;
+    }
 };
 
 #endif //_TRIANGLESMESHREADER_HPP_

@@ -1387,5 +1387,24 @@ public:
         TS_ASSERT_EQUALS(mesh3.GetNumNodes(), 9U*9U*9U);
     }
 
+    void TestMeshStoresFilename(void)
+    {
+        TetrahedralMesh<3,3> mesh;
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+            mesh.ConstructFromMeshReader(mesh_reader);
+        }
+        
+        std::string mesh_file_base_name = mesh.GetMeshFileBaseName();
+        TrianglesMeshReader<3,3> mesh_reader(mesh_file_base_name);
+        
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), mesh.GetNumElements());
+        
+        TetrahedralMesh<3,3> cuboid_mesh;
+        cuboid_mesh.ConstructCuboid(7, 4, 5);
+        
+        TS_ASSERT_THROWS_ANYTHING(cuboid_mesh.GetMeshFileBaseName());        
+    }
+
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_

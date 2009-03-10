@@ -221,6 +221,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     // ticket #922: Face culling is not supported in parallel yet
     assert(!cullInternalFaces);    
     
+    this->mMeshFileBaseName = rMeshReader.GetMeshFileBaseName();
     mTotalNumElements = rMeshReader.GetNumElements();
     mTotalNumNodes = rMeshReader.GetNumNodes();
     mTotalNumBoundaryElements = rMeshReader.GetNumFaces();   

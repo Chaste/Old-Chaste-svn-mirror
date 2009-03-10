@@ -49,6 +49,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         cullInternalFaces = true;
     }
 
+    this->mMeshFileBaseName = rMeshReader.GetMeshFileBaseName();
+
     // Record number of corner nodes
     unsigned num_nodes = rMeshReader.GetNumNodes();
 
