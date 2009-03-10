@@ -378,7 +378,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostProcess()
             {
                 // If this mesh object has been constructed from a mesh reader we can get reference to it            
                 TrianglesMeshReader<SPACE_DIM,SPACE_DIM> mesh_reader(mpMesh->GetMeshFileBaseName());
-                mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+                mesh_writer.WriteFilesUsingMeshReader(mesh_reader, mpMesh->rGetNodePermutation());
             }
             catch(Exception& e)
             {

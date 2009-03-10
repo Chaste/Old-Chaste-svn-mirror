@@ -229,10 +229,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     std::set<unsigned> nodes_owned;
     std::set<unsigned> halo_nodes_owned;
     std::set<unsigned> elements_owned;
-    std::vector<unsigned> proc_offsets;//(PetscTools::NumProcs());
-    std::vector<unsigned> node_permutation;//(this->GetNumNodes());    
+    std::vector<unsigned> proc_offsets;//(PetscTools::NumProcs());    
     
-    ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets, node_permutation);
+    ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets, this->mNodesPermutation);
     
     // Reserve memory
     this->mElements.reserve(elements_owned.size());
@@ -385,7 +384,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
    
     if (mMetisPartitioning != DUMB && PetscTools::NumProcs()>1)
     {
-        ReorderNodes(node_permutation);
+        ReorderNodes(this->mNodesPermutation);
 
         // Compute nodes per processor based on offset information
         for (unsigned num_proc=0; num_proc<PetscTools::NumProcs()-1; num_proc++)

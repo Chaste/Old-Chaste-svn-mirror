@@ -100,6 +100,8 @@ public:
     }
     void WriteFilesUsingMesh(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
+    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+                                   std::vector<unsigned>& rNodePermutation);
 };
 
 
@@ -226,6 +228,53 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
         this->SetNextBoundaryFace(rMeshReader.GetNextFaceData().NodeIndices);
     }
     WriteFiles();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
+    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+    std::vector<unsigned>& rNodePermutation)
+{
+    if (rNodePermutation.size() == 0)
+    {
+       WriteFilesUsingMeshReader(rMeshReader);
+    }
+    else
+    {
+        mNodeData.resize(rMeshReader.GetNumNodes());        
+        for (unsigned i=0; i<rMeshReader.GetNumNodes();i++)
+        {
+            assert(rNodePermutation[i] < rMeshReader.GetNumNodes());
+            mNodeData[ rNodePermutation[i] ] = rMeshReader.GetNextNode();
+        }
+
+        for (unsigned i=0; i<rMeshReader.GetNumElements();i++)
+        {
+            ElementData element = rMeshReader.GetNextElementData();
+            
+            for(unsigned local_index=0; local_index<element.NodeIndices.size(); local_index++)
+            {
+                unsigned old_index = element.NodeIndices[local_index];
+                element.NodeIndices[local_index] = rNodePermutation[old_index];
+            }
+            
+            SetNextElement(element.NodeIndices);
+        }
+        
+        for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
+        {
+            ElementData face = rMeshReader.GetNextFaceData();
+            
+            for(unsigned local_index=0; local_index<face.NodeIndices.size(); local_index++)
+            {
+                unsigned old_index = face.NodeIndices[local_index];
+                face.NodeIndices[local_index] = rNodePermutation[old_index];
+            }
+            
+            SetNextBoundaryFace(face.NodeIndices);
+        }
+        WriteFiles();
+    }
 }
 
 #endif //_ABSTRACTMESHWRITER_HPP_

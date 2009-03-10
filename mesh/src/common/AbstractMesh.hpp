@@ -49,6 +49,8 @@ protected:  // Give access of these variables to subclasses
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
     
     std::vector<unsigned> mNodesPerProcessor;
+
+    std::vector<unsigned> mNodesPermutation;
     
     std::string mMeshFileBaseName;
 
@@ -131,6 +133,8 @@ public:
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
     
     std::string GetMeshFileBaseName() const;
+    
+    std::vector<unsigned>& rGetNodePermutation();
 };
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -324,5 +328,10 @@ std::string AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
     return mMeshFileBaseName;
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation()
+{
+    return mNodesPermutation;
+}
 
 #endif /*ABSTRACTMESH_HPP_*/
