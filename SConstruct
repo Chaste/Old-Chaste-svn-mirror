@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # We need at least Python 2.3.
 EnsurePythonVersion(2,3)
 
+# We're also no longer compatible with SCons 0.96
+EnsureSConsVersion(0,97)
+
 Help("""
   Type: 'scons -c' to remove all the compiled files (clean build),
         'scons' to do a default build,
