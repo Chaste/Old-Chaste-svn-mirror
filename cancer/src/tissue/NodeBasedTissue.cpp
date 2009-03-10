@@ -30,9 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
                                       const std::vector<TissueCell>& rCells,
-                                      const std::vector<unsigned> locationIndices)
+                                      const std::vector<unsigned> locationIndices,
+                                      bool deleteNodes)
     : AbstractCellCentreBasedTissue<DIM>(rCells, locationIndices),
-      mNodes(nodes.begin(), nodes.end())
+      mNodes(nodes.begin(), nodes.end()),
+      mDeleteNodes(deleteNodes)
 {
     Clear();
     mAddedNodes = true;
@@ -41,9 +43,10 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
 
 
 template<unsigned DIM>
-NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes)
+NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool deleteNodes)
     : AbstractCellCentreBasedTissue<DIM>(),
-      mNodes(nodes.begin(), nodes.end())
+      mNodes(nodes.begin(), nodes.end()),
+      mDeleteNodes(deleteNodes)
 {
     Clear();
     mAddedNodes = true;
@@ -53,7 +56,8 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes)
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
                                       const std::vector<TissueCell>& rCells)
-    : AbstractCellCentreBasedTissue<DIM>(rCells)
+    : AbstractCellCentreBasedTissue<DIM>(rCells),
+      mDeleteNodes(true)
 {
     Clear();
     mNodes.reserve(rMesh.GetNumNodes());
@@ -73,9 +77,12 @@ NodeBasedTissue<DIM>::~NodeBasedTissue()
 {
     Clear();
     // Free node memory
-    for (unsigned i=0; i<mNodes.size(); i++)
+    if(mDeleteNodes)
     {
-        delete mNodes[i];
+        for (unsigned i=0; i<mNodes.size(); i++)
+        {
+            delete mNodes[i];
+        }
     }
 }
 

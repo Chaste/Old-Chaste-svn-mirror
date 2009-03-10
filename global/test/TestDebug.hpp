@@ -51,6 +51,8 @@ public:
 
         double heart_disease_ending_constant = -3e-141;
         PRINT_4_VARIABLES(my_var, another_var, cancer_curing_constant, heart_disease_ending_constant);
+
+        TRACE("\n\n\n");
         
         for(unsigned i=0; i<10; i++)
         {
@@ -65,6 +67,13 @@ public:
         for(unsigned j=0; j<10 /*change to 11 and it should quit*/; j++)
         {
             QUIT_AFTER_N_VISITS(11);
+        }
+        
+        std::cout << "\n\n\n";
+
+        for(unsigned j=0; j<3; j++)
+        {
+            TRACE_FROM_NTH_VISIT("hello",2);
         }
     }
 };

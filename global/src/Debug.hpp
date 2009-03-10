@@ -52,6 +52,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
     
     /** Print how many times this line has been reached, everytime it is reached */
     #define HOW_MANY_TIMES_HERE(message) { static unsigned counter=1; std::cout << "DEBUG: Num times here ("<< message << "): " << counter++ << std::endl << std::flush; }
+
+    /** Prints the given message, but only from the n-th time that line is reached, for the given n */
+    #define TRACE_FROM_NTH_VISIT(stuff,n) { static unsigned counter=1; if(counter++>=(n)) {TRACE(stuff<<" (visit "<<counter-1<<")");} }
 #else
     /** macros do nothing in NDEBUG mode */
     #define TRACE(stuff)
@@ -61,6 +64,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
     #define PRINT_4_VARIABLES(var1,var2,var3,var4)
     #define QUIT_AFTER_N_VISITS(n)
     #define HOW_MANY_TIMES_HERE(message)
+    #define TRACE_FROM_NTH_VISIT(stuff,n)
 #endif    
 
 

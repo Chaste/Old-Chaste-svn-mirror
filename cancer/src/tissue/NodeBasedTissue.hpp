@@ -90,6 +90,11 @@ private:
      * Check consistency of our internal data structures.
      */
     void Validate();
+    
+    /** 
+     *  Whether to delete the nodes (taken in one of the constructors, defaults to true)
+     */ 
+    bool mDeleteNodes;
 
 public:
 
@@ -104,7 +109,8 @@ public:
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes, 
                     const std::vector<TissueCell>& rCells,                    
-                    const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+                    const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
+                    bool deleteNodes=true);
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
@@ -114,7 +120,7 @@ public:
      * 
      * @param nodes a vector of Nodes
      */
-    NodeBasedTissue(const std::vector<Node<DIM>* > nodes);
+    NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool deleteNodes=true);
 
     /**
      * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
