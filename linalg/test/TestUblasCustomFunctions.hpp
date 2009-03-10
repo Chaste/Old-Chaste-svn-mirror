@@ -284,7 +284,7 @@ public:
         
         c_vector<double, 3> eigenvector;
         
-        eigenvector = CalculateEigenvectorForSmallestEigenvalue(A);
+        eigenvector = CalculateEigenvectorForSmallestNonzeroEigenvalue(A);
         
         c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);              
 

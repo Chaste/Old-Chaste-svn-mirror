@@ -135,16 +135,24 @@ public:
         PapillaryFibreCalculator calculator(mesh);
         std::vector<c_vector<double,3> > fibre_orientations = calculator.CalculateFibreOrientations();
 
-        // Not very well defined for a cube but necessary to test coverage.
+        // Not very well defined for a cube (since it's so well structured that there are zero 
+        // eigenvectors in the smoothed tensors) but necessary to test coverage.
         // Nightly test TestPapillaryFibreCalculatorLong.hpp is a better one if you want to understand it!
-        TS_ASSERT_DELTA(fibre_orientations[0](0), 0.7085, 1e-4);
-        TS_ASSERT_DELTA(fibre_orientations[0](1), -0.0638, 1e-4);
-        TS_ASSERT_DELTA(fibre_orientations[0](2), -0.7027, 1e-4);
+        
+        ///\todo There may still be a sign issue between flapack and MKL
+        TS_ASSERT_DELTA(fabs(fibre_orientations[0](0)), 0.7056, 1e-4);
+        TS_ASSERT_DELTA(fabs(fibre_orientations[0](1)), 0.0641, 1e-4);
+        TS_ASSERT_DELTA(fabs(fibre_orientations[0](2)), 0.7056, 1e-4);
 
-        TS_ASSERT_DELTA(fibre_orientations[5](0), -0.0552, 1e-4);
-        TS_ASSERT_DELTA(fibre_orientations[5](1), -0.8798, 1e-4);
-        TS_ASSERT_DELTA(fibre_orientations[5](2), 0.4719, 1e-4);
+        TS_ASSERT_DELTA(fabs(fibre_orientations[4](0)), 0.0455, 1e-4);
+        TS_ASSERT_DELTA(fabs(fibre_orientations[4](1)), 0.5005, 1e-4);
+        TS_ASSERT_DELTA(fabs(fibre_orientations[4](2)),  0.8645, 1e-4);
+
+        TS_ASSERT_DELTA(fabs(fibre_orientations[5](0)), 0.6704, 1e-4);
+        TS_ASSERT_DELTA(fabs(fibre_orientations[5](1)), 0.3176, 1e-4);
+        TS_ASSERT_DELTA(fabs(fibre_orientations[5](2)), 0.6704, 1e-4);
     }
+
 
 };
 

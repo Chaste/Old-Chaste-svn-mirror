@@ -54,7 +54,7 @@ c_vector<double, 3> Create_c_vector(double x, double y, double z)
     return v;
 }
 
-c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3> &A)
+c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<double,3,3> &A)
 {
     int info;
     c_vector<double, 3 > eigenvalues_real_part;
@@ -85,26 +85,27 @@ c_vector<double,3> CalculateEigenvectorForSmallestEigenvalue(c_matrix<double,3,3
     // if this fails a complex eigenvalue was found
     assert(norm_2(eigenvalues_imaginary_part) == 0.0);
     
-    int index_of_smallest=0;    
-    double min_eigenvalue = fabs(eigenvalues_real_part(0));
+    unsigned index_of_smallest=UINT_MAX;
+    double min_eigenvalue = DBL_MAX;
     
-    if (fabs(eigenvalues_real_part(1)) < min_eigenvalue)
+    for (unsigned i=0; i<3; i++)    
     {
-        index_of_smallest = 1;
-        min_eigenvalue = fabs(eigenvalues_real_part(1));
+        double eigen_magnitude = fabs(eigenvalues_real_part(i));
+        if (eigen_magnitude < DBL_EPSILON)
+        {
+            //A zero eigenvalue is ignored
+            continue;
+        }
+        if (eigen_magnitude < min_eigenvalue)
+        {
+            min_eigenvalue = eigen_magnitude;
+            index_of_smallest = i;
+        }
     }
+    assert (min_eigenvalue != DBL_MAX);
+    assert (index_of_smallest != UINT_MAX);
+    assert (min_eigenvalue >= DBL_EPSILON);
 
-    if (fabs(eigenvalues_real_part(2)) < min_eigenvalue)
-    {
-        index_of_smallest = 2;
-        min_eigenvalue = fabs(eigenvalues_real_part(2));
-    }
-    
-    if (min_eigenvalue < DBL_EPSILON)
-    {   
-        ///\todo This needs to be investigated since an eigenvector corresponding to an eigenvalue near zero might not be reliable
-        std::cerr<<"Warning after LAPACK call:  eigenvalue was close to zero\n";
-    }
     c_vector<double, 3> output;            
     output(0) = right_eigenvalues(index_of_smallest,0);
     output(1) = right_eigenvalues(index_of_smallest,1);
