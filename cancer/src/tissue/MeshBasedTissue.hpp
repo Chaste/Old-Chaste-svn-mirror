@@ -53,7 +53,7 @@ class MeshBasedTissue : public AbstractCellCentreBasedTissue<DIM>
     friend class TestMeshBasedTissue;
 
 protected:
-
+#define COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
     /** Reference to the mesh. */
     MutableMesh<DIM, DIM>& mrMesh;
 
@@ -99,6 +99,7 @@ protected:
 
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
+#undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -150,6 +151,7 @@ protected:
     virtual void Validate();
 
 public:
+#define COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 
     /**
      * Create a new tissue facade from a mesh and collection of cells.
@@ -481,6 +483,7 @@ public:
     void UnmarkSpring(TissueCell&, TissueCell&);
 
 };
+#undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 
 
 #include "TemplatedExport.hpp"
