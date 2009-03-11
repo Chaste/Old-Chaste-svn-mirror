@@ -1,6 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <xs:complexType name="time_type">
+  	<xs:simpleContent>
+  		<xs:extension base="xs:decimal">		
+		  <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
+		</xs:extension>	
+  	</xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="dimensionless_type">
+  	<xs:simpleContent>
+  		<xs:extension base="xs:decimal">		
+		  <xs:attribute name="unit" type="xs:string" use="required" fixed="dimensionless"/>
+		</xs:extension>	
+  	</xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="conductivity_type">
+  	<xs:simpleContent>
+  		<xs:extension base="xs:decimal">		
+		  <xs:attribute name="unit" type="xs:string" use="required" fixed="mS/cm"/>
+		</xs:extension>	
+  	</xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="stimulus_strength_type">
+  	<xs:simpleContent>
+  		<xs:extension base="xs:decimal">		
+		  <xs:attribute name="unit" type="xs:string" use="required" fixed="uA/cm^3"/>
+		</xs:extension>	
+  	</xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="inverse_length_type">
+  	<xs:simpleContent>
+  		<xs:extension base="xs:decimal">		
+		  <xs:attribute name="unit" type="xs:string" use="required" fixed="1/cm"/>
+		</xs:extension>	
+  	</xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="capacitance_type">
+  	<xs:simpleContent>
+  		<xs:extension base="xs:decimal">		
+		  <xs:attribute name="unit" type="xs:string" use="required" fixed="uF/cm^2"/>
+		</xs:extension>	
+  	</xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="location_type">
+  	<xs:choice>
+      <xs:element name="Cuboid" type="box_type"/>
+    </xs:choice>
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="cm"/>
+  </xs:complexType>
+  
   <xs:simpleType name="domain_type">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Mono"/>
@@ -34,25 +89,25 @@
   
   <xs:complexType name="box_type">
     <xs:sequence>
-      <xs:element name="CornerA" type="point_type"/>
-      <xs:element name="CornerB" type="point_type"/>
+      <xs:element name="LowerCoordinates" type="point_type"/>
+      <xs:element name="UpperCoordinates" type="point_type"/>
     </xs:sequence>
   </xs:complexType>
   
   <xs:complexType name="stimulus_type">
     <xs:sequence>
-      <xs:element name="Strength" type="xs:double"/>
-      <xs:element name="Duration" type="xs:double"/>
-      <xs:element name="Delay" type="xs:double"/>
-      <xs:element name="Location" type="box_type"/>
+      <xs:element name="Strength" type="stimulus_strength_type"/>
+      <xs:element name="Duration" type="time_type"/>
+      <xs:element name="Delay" type="time_type"/>
+      <xs:element name="Location" type="location_type"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="cell_heterogeneity_type">
     <xs:sequence>
-      <xs:element name="ScaleFactorGks" type="xs:double"/>
-      <xs:element name="ScaleFactorIto" type="xs:double"/>
-      <xs:element name="Location" type="box_type"/>
+      <xs:element name="ScaleFactorGks" type="dimensionless_type"/>
+      <xs:element name="ScaleFactorIto" type="dimensionless_type"/>
+      <xs:element name="Location" type="location_type"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -60,7 +115,7 @@
     <xs:all>      
       <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
-      <xs:element name="Location" type="box_type"/>
+      <xs:element name="Location" type="location_type"/>
     </xs:all>
   </xs:complexType>
 
@@ -84,18 +139,21 @@
       <xs:element name="Slab" type="slab_type"/>
       <xs:element name="LoadMesh" type="load_mesh_type"/>
     </xs:choice>
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="cm"/>
   </xs:complexType>
   
   <xs:complexType name="conductivities_type">
     <xs:attribute name="longi" type="xs:double" use="required"/>
     <xs:attribute name="trans" type="xs:double" use="required"/>
-    <xs:attribute name="normal" type="xs:double" use="required"/>        
+    <xs:attribute name="normal" type="xs:double" use="required"/>  
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="mS/cm"/>
   </xs:complexType>
 
   <xs:complexType name="time_steps_type">
     <xs:attribute name="ode" type="xs:double" use="required"/>
     <xs:attribute name="pde" type="xs:double" use="required"/>
-    <xs:attribute name="printing" type="xs:double" use="required"/>        
+    <xs:attribute name="printing" type="xs:double" use="required"/>    
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
   </xs:complexType>
 
   <xs:simpleType name="ksp_use_type">
@@ -132,7 +190,7 @@
       
   <xs:complexType name="simulation_type">
     <xs:all>
-      <xs:element name="SimulationDuration" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
       <xs:element name="Domain" type="domain_type" minOccurs="0"/>
       <xs:element name="IonicModel" type="ionic_model_type" minOccurs="0"/>
       <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>
@@ -170,9 +228,9 @@
     <xs:all>
       <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
-      <xs:element name="BathConductivity" type="xs:decimal" minOccurs="0"/>
-      <xs:element name="SurfaceAreaToVolumeRatio" type="xs:decimal" minOccurs="0"/>
-      <xs:element name="Capacitance" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="BathConductivity" type="conductivity_type" minOccurs="0"/>
+      <xs:element name="SurfaceAreaToVolumeRatio" type="inverse_length_type" minOccurs="0"/>
+      <xs:element name="Capacitance" type="capacitance_type" minOccurs="0"/>
     </xs:all>      
   </xs:complexType>    
 
