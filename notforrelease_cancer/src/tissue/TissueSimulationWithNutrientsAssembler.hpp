@@ -98,7 +98,7 @@ public:
      * Constructor stores the mesh and pde and boundary conditions.
      */
     TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
-                                  AbstractLinearEllipticPde<DIM>* pPde,
+                                  AbstractLinearEllipticPde<DIM,DIM>* pPde,
                                   BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2);
 

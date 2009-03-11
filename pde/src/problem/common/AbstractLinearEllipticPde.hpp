@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // of the member variables in A
 
 
-template <unsigned SPACE_DIM>
+template <unsigned ELEM_DIM, unsigned SPACE_DIM>
 class AbstractLinearEllipticPde
 {
 public:
@@ -78,7 +78,7 @@ public:
      *  @param x The point in space
      */
     virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& x,
-                                                     Element<SPACE_DIM,SPACE_DIM>* pElement)=0;
+                                                     Element<ELEM_DIM,SPACE_DIM>* pElement)=0;
 
     /**
      * Compute Diffusion Term.

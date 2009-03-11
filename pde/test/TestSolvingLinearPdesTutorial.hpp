@@ -92,7 +92,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * which have to implemented. The template variable in the following line is the dimension
  * of the space.
  */
-class MyPde : public AbstractLinearEllipticPde<2>
+class MyPde : public AbstractLinearEllipticPde<2,2>
 {
 private:
     /* For efficiency, we will save the diffusion tensor that will be returned by one of the

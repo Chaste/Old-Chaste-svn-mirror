@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 TissueSimulationWithNutrientsAssembler<DIM>::TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
-                              AbstractLinearEllipticPde<DIM>* pPde,
+                              AbstractLinearEllipticPde<DIM,DIM>* pPde,
                               BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                               unsigned numQuadPoints) :
         BaseClassType(pMesh, pPde, pBoundaryConditions, numQuadPoints)

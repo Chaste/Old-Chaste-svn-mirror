@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A simple nutrient PDE which is not directly coupled to the tissue.
  */
 template<unsigned DIM>
-class SimpleNutrientPde : public AbstractLinearEllipticPde<DIM>
+class SimpleNutrientPde : public AbstractLinearEllipticPde<DIM,DIM>
 {
 private:
 

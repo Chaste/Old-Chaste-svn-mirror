@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The pde u_xx+u_yy - (x^2+y^2)u = 0, just for one particular test. This has the solution
  * exp(xy)
  */
-class EllipticPdeWithRadialLinearSource :public AbstractLinearEllipticPde<2>
+class EllipticPdeWithRadialLinearSource :public AbstractLinearEllipticPde<2,2>
 {
 public:
 

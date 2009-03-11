@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
 // a simple pde : u_xx + u_yy + x = 0
 //////////////////////////////////////////////////////////////////////////////
-class MySimplePde : public AbstractLinearEllipticPde<2>
+class MySimplePde : public AbstractLinearEllipticPde<2,2>
 {
 public:
     double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)

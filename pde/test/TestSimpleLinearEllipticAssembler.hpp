@@ -42,6 +42,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VaryingDiffusionAndSourceTermPde.hpp"
 #include "TrianglesMeshReader.hpp"
 
+// these are need for the nD problems in mD space (n!=m), as those
+// particular cases are not explicitly instantiated
+#include "AbstractBoundaryConditionsContainerImplementation.hpp"
+#include "BoundaryConditionsContainerImplementation.hpp"
+
 #include "PetscSetupAndFinalize.hpp"
 
 class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
@@ -52,7 +57,7 @@ public:
 
     void dontTestAssembleOnElement( void )
     {
-        SimplePoissonEquation<1> pde;
+        SimplePoissonEquation<1,1> pde;
         std::vector<Node<1>*> nodes;
         nodes.push_back(new Node<1>(0, false, 1.0));
         nodes.push_back(new Node<1>(1, false, 3));
@@ -79,7 +84,7 @@ public:
 
     void dontTestAssembleOnElement2DCanonical ( void )
     {
-        SimplePoissonEquation<2> pde;
+        SimplePoissonEquation<2,2> pde;
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
@@ -117,7 +122,7 @@ public:
 
     void dontTestAssembleOnElement2DGeneral ( void )
     {
-        SimplePoissonEquation<2> pde;
+        SimplePoissonEquation<2,2> pde;
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
         nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
@@ -153,7 +158,7 @@ public:
         delete nodes[2];
     }
 
-    void TestWithHeatEquationAndMeshReader()
+    void TestWithPoissonsEquationAndMeshReader()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/trivial_1d_mesh");
@@ -161,7 +166,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<1> pde;
+        SimplePoissonEquation<1,1> pde;
 
         double value1 = pde.ComputeConstantInUSourceTermAtNode(*(mesh.GetNode(0)));
         double value2 = pde.ComputeConstantInUSourceTerm(mesh.GetNode(0)->GetPoint());
@@ -201,7 +206,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<1> pde;
+        SimplePoissonEquation<1,1> pde;
 
         // Boundary conditions u(-1)=1, u'(-3)=0
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -238,7 +243,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<1> pde;
+        SimplePoissonEquation<1,1> pde;
 
         // Boundary conditions u'(-3)=1, u(-1)=1 
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -276,7 +281,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<2> pde;
+        SimplePoissonEquation<2,2> pde;
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -304,7 +309,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<2> pde;
+        SimplePoissonEquation<2,2> pde;
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -471,7 +476,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<3> pde;
+        SimplePoissonEquation<3,3> pde;
 
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
@@ -516,7 +521,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<3> pde;
+        SimplePoissonEquation<3,3> pde;
 
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
@@ -668,7 +673,7 @@ public:
         mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");
 
         // Instantiate PDE and BCC object, though not used
-        SimplePoissonEquation<2> pde;
+        SimplePoissonEquation<2,2> pde;
         BoundaryConditionsContainer<2,2,1> bcc;
 
         // Assembler
@@ -704,6 +709,47 @@ public:
             TS_ASSERT_THROWS_ANYTHING( assembler.PrepareForSolve() );
         }
     }
+
+
+// The code can't solve 1d problems in 2d space yet. This test sets one up but doesn't call  
+// Solve. See #965. 
+    void TestWithPoissonsEquation1dMeshIn2dSpace()
+    {
+        const unsigned SPACE_DIM = 2;
+        const unsigned ELEM_DIM = 1;
+        
+        // Create mesh from mesh reader
+        TrianglesMeshReader<ELEM_DIM,SPACE_DIM> mesh_reader("mesh/test/data/trivial_1d_in_2d_mesh");
+        TetrahedralMesh<ELEM_DIM,SPACE_DIM> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Instantiate PDE object
+        SimplePoissonEquation<ELEM_DIM,SPACE_DIM> pde;
+
+        // Boundary conditions (u=0 on one end, u'=0 on other end)
+        BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1> bcc;
+        ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
+
+        // Assembler
+        SimpleLinearEllipticAssembler<ELEM_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+
+//// we can't call Solve as assemblers can't solve nD probs in mD space (n!=m) - fails
+//// with an assert(ELEM_DIM==SPACE_DIM) error when calculating element jacobians..
+//        Vec result = assembler.Solve();
+//        ReplicatableVector result_repl(result);
+//
+//        // Solution should be u = 0.5*x*(3-x)
+//        for (unsigned i=0; i<result_repl.size(); i++)
+//        {
+//            double x = mesh.GetNode(i)->GetPoint()[0];
+//            double u = 0.5*x*(3-x);
+//            TS_ASSERT_DELTA(result_repl[i], u, 0.001);
+//        }
+//
+//        VecDestroy(result);
+    }
+
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

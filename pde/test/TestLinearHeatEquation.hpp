@@ -38,7 +38,7 @@ public:
     void TestComputeConstantInUSourceTermAtNode()
     {
         Node<2> zero(0);
-        SimplePoissonEquation<2> heat_equation;
+        SimplePoissonEquation<2,2> heat_equation;
 
         TS_ASSERT_DELTA(heat_equation.ComputeConstantInUSourceTermAtNode(zero), 1.0, 1e-12);
     }
@@ -49,9 +49,9 @@ public:
         ChastePoint<2> zero2(0,0);
         ChastePoint<3> zero3(0,0,0);
 
-        SimplePoissonEquation<1> heat_equation1;
-        SimplePoissonEquation<2> heat_equation2;
-        SimplePoissonEquation<3> heat_equation3;
+        SimplePoissonEquation<1,1> heat_equation1;
+        SimplePoissonEquation<2,2> heat_equation2;
+        SimplePoissonEquation<3,3> heat_equation3;
 
         // diffusion matrices should be equal to identity
         c_matrix<double,1,1> diff1 = heat_equation1.ComputeDiffusionTerm(zero1);

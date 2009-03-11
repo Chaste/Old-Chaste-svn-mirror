@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
-class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
+class SimplePdeForTesting : public AbstractLinearEllipticPde<2,2>
 {
 public:
     double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)

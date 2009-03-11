@@ -74,7 +74,7 @@ private :
     /**
      *  Pointer to the PDE satisfied by the nutrient.
      */
-    AbstractLinearEllipticPde<DIM>* mpPde;
+    AbstractLinearEllipticPde<DIM,DIM>* mpPde;
 
     /**
      *  Pointer to the averaged sink PDE satisfied by the nutrient.
@@ -194,7 +194,7 @@ public:
      */
      TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
                                    std::vector<AbstractForce<DIM>*> forceCollection,
-                                   AbstractLinearEllipticPde<DIM>* pPde=NULL,
+                                   AbstractLinearEllipticPde<DIM,DIM>* pPde=NULL,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde=NULL,
                                    bool deleteTissueAndForceCollection=false,
                                    bool initialiseCells=true);
@@ -212,7 +212,7 @@ public:
      * needed to set the PDE after loading a simulation
      * from an archive.
      */
-    void SetPde(AbstractLinearEllipticPde<DIM>* pPde);
+    void SetPde(AbstractLinearEllipticPde<DIM,DIM>* pPde);
 
     /**
      * A small hack until we fully archive this class -

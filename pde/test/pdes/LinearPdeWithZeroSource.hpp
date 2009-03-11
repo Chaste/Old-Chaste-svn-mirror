@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Linear PDE with zero source term and identity diffusion term.
  */
 template <int SPACE_DIM>
-class LinearPdeWithZeroSource:public AbstractLinearEllipticPde<SPACE_DIM>
+class LinearPdeWithZeroSource:public AbstractLinearEllipticPde<SPACE_DIM,SPACE_DIM>
 {
 public:
     double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& x)

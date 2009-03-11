@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  in the element containing that point and scaling by the element area.
  */
 template<unsigned DIM>
-class AveragedSinksPde : public AbstractLinearEllipticPde<DIM>
+class AveragedSinksPde : public AbstractLinearEllipticPde<DIM,DIM>
 {
 private:
 

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 template <int SPACE_DIM>
-class VaryingDiffusionAndSourceTermPde : public AbstractLinearEllipticPde<SPACE_DIM>
+class VaryingDiffusionAndSourceTermPde : public AbstractLinearEllipticPde<SPACE_DIM,SPACE_DIM>
 {
 private:
     double DistanceFromOrigin(const ChastePoint<SPACE_DIM>& x)

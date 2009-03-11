@@ -55,7 +55,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<2> pde;
+        SimplePoissonEquation<2,2> pde;
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;

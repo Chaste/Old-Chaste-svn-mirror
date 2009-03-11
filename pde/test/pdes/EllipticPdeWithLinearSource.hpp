@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The pde Div.(Grad u) + au + b = 0;
  */
 template <int SPACE_DIM>
-class EllipticPdeWithLinearSource : public AbstractLinearEllipticPde<SPACE_DIM>
+class EllipticPdeWithLinearSource : public AbstractLinearEllipticPde<SPACE_DIM,SPACE_DIM>
 {
 private:
     double mCoeffOfU;

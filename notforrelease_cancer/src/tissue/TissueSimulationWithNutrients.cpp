@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
                                    std::vector<AbstractForce<DIM>*> forceCollection,
-                                   AbstractLinearEllipticPde<DIM>* pPde,
+                                   AbstractLinearEllipticPde<DIM,DIM>* pPde,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde,
                                    bool deleteTissueAndForceCollection,
                                    bool initialiseCells)
@@ -77,7 +77,7 @@ TissueSimulationWithNutrients<DIM>::~TissueSimulationWithNutrients()
 }
 
 template<unsigned DIM>
-void TissueSimulationWithNutrients<DIM>::SetPde(AbstractLinearEllipticPde<DIM>* pPde)
+void TissueSimulationWithNutrients<DIM>::SetPde(AbstractLinearEllipticPde<DIM,DIM>* pPde)
 {
     mpPde = pPde;
 }
