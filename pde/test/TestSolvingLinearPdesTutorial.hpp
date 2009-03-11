@@ -350,7 +350,7 @@ public:
 
         /* Let's also solve the equivalent static PDE, ie set du/dt=0, so 0=div(gradu) + u. This
          * is easy, as the PDE class has already been defined */
-        SimplePoissonEquation<3> static_pde;
+        SimplePoissonEquation<3,3> static_pde;
         SimpleLinearEllipticAssembler<3,3> static_assembler(&mesh, &static_pde, &bcc);
         Vec static_solution = static_assembler.Solve();
         ReplicatableVector static_solution_repl(static_solution);
