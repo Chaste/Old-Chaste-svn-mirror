@@ -40,6 +40,268 @@
 
 #include "ChasteParameters.hpp"
 
+// time_type
+// 
+
+const time_type::unit::type& time_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const time_type::unit::type& time_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+time_type::unit::type& time_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void time_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void time_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+
+// dimensionless_type
+// 
+
+const dimensionless_type::unit::type& dimensionless_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const dimensionless_type::unit::type& dimensionless_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+dimensionless_type::unit::type& dimensionless_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void dimensionless_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void dimensionless_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+
+// conductivity_type
+// 
+
+const conductivity_type::unit::type& conductivity_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const conductivity_type::unit::type& conductivity_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+conductivity_type::unit::type& conductivity_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void conductivity_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void conductivity_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+
+// stimulus_strength_type
+// 
+
+const stimulus_strength_type::unit::type& stimulus_strength_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const stimulus_strength_type::unit::type& stimulus_strength_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+stimulus_strength_type::unit::type& stimulus_strength_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void stimulus_strength_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void stimulus_strength_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+
+// inverse_length_type
+// 
+
+const inverse_length_type::unit::type& inverse_length_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const inverse_length_type::unit::type& inverse_length_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+inverse_length_type::unit::type& inverse_length_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void inverse_length_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void inverse_length_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+
+// capacitance_type
+// 
+
+const capacitance_type::unit::type& capacitance_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const capacitance_type::unit::type& capacitance_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+capacitance_type::unit::type& capacitance_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void capacitance_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void capacitance_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+
+// location_type
+// 
+
+const location_type::Cuboid::type& location_type::
+Cuboid () const
+{
+  return this->_xsd_Cuboid_.get ();
+}
+
+location_type::Cuboid::type& location_type::
+Cuboid ()
+{
+  return this->_xsd_Cuboid_.get ();
+}
+
+void location_type::
+Cuboid (const Cuboid::type& Cuboid)
+{
+  this->_xsd_Cuboid_.set (Cuboid);
+}
+
+void location_type::
+Cuboid (::std::auto_ptr< Cuboid::type > Cuboid)
+{
+  this->_xsd_Cuboid_.set (Cuboid);
+}
+
+const location_type::unit::type& location_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const location_type::unit::type& location_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+location_type::unit::type& location_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void location_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void location_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+
 // domain_type
 // 
 
@@ -200,52 +462,52 @@ z (const z::type& z)
 // box_type
 // 
 
-const box_type::CornerA::type& box_type::
-CornerA () const
+const box_type::LowerCoordinates::type& box_type::
+LowerCoordinates () const
 {
-  return this->_xsd_CornerA_.get ();
+  return this->_xsd_LowerCoordinates_.get ();
 }
 
-box_type::CornerA::type& box_type::
-CornerA ()
+box_type::LowerCoordinates::type& box_type::
+LowerCoordinates ()
 {
-  return this->_xsd_CornerA_.get ();
-}
-
-void box_type::
-CornerA (const CornerA::type& CornerA)
-{
-  this->_xsd_CornerA_.set (CornerA);
+  return this->_xsd_LowerCoordinates_.get ();
 }
 
 void box_type::
-CornerA (::std::auto_ptr< CornerA::type > CornerA)
+LowerCoordinates (const LowerCoordinates::type& LowerCoordinates)
 {
-  this->_xsd_CornerA_.set (CornerA);
-}
-
-const box_type::CornerB::type& box_type::
-CornerB () const
-{
-  return this->_xsd_CornerB_.get ();
-}
-
-box_type::CornerB::type& box_type::
-CornerB ()
-{
-  return this->_xsd_CornerB_.get ();
+  this->_xsd_LowerCoordinates_.set (LowerCoordinates);
 }
 
 void box_type::
-CornerB (const CornerB::type& CornerB)
+LowerCoordinates (::std::auto_ptr< LowerCoordinates::type > LowerCoordinates)
 {
-  this->_xsd_CornerB_.set (CornerB);
+  this->_xsd_LowerCoordinates_.set (LowerCoordinates);
+}
+
+const box_type::UpperCoordinates::type& box_type::
+UpperCoordinates () const
+{
+  return this->_xsd_UpperCoordinates_.get ();
+}
+
+box_type::UpperCoordinates::type& box_type::
+UpperCoordinates ()
+{
+  return this->_xsd_UpperCoordinates_.get ();
 }
 
 void box_type::
-CornerB (::std::auto_ptr< CornerB::type > CornerB)
+UpperCoordinates (const UpperCoordinates::type& UpperCoordinates)
 {
-  this->_xsd_CornerB_.set (CornerB);
+  this->_xsd_UpperCoordinates_.set (UpperCoordinates);
+}
+
+void box_type::
+UpperCoordinates (::std::auto_ptr< UpperCoordinates::type > UpperCoordinates)
+{
+  this->_xsd_UpperCoordinates_.set (UpperCoordinates);
 }
 
 
@@ -270,6 +532,12 @@ Strength (const Strength::type& Strength)
   this->_xsd_Strength_.set (Strength);
 }
 
+void stimulus_type::
+Strength (::std::auto_ptr< Strength::type > Strength)
+{
+  this->_xsd_Strength_.set (Strength);
+}
+
 const stimulus_type::Duration::type& stimulus_type::
 Duration () const
 {
@@ -288,6 +556,12 @@ Duration (const Duration::type& Duration)
   this->_xsd_Duration_.set (Duration);
 }
 
+void stimulus_type::
+Duration (::std::auto_ptr< Duration::type > Duration)
+{
+  this->_xsd_Duration_.set (Duration);
+}
+
 const stimulus_type::Delay::type& stimulus_type::
 Delay () const
 {
@@ -302,6 +576,12 @@ Delay ()
 
 void stimulus_type::
 Delay (const Delay::type& Delay)
+{
+  this->_xsd_Delay_.set (Delay);
+}
+
+void stimulus_type::
+Delay (::std::auto_ptr< Delay::type > Delay)
 {
   this->_xsd_Delay_.set (Delay);
 }
@@ -352,6 +632,12 @@ ScaleFactorGks (const ScaleFactorGks::type& ScaleFactorGks)
   this->_xsd_ScaleFactorGks_.set (ScaleFactorGks);
 }
 
+void cell_heterogeneity_type::
+ScaleFactorGks (::std::auto_ptr< ScaleFactorGks::type > ScaleFactorGks)
+{
+  this->_xsd_ScaleFactorGks_.set (ScaleFactorGks);
+}
+
 const cell_heterogeneity_type::ScaleFactorIto::type& cell_heterogeneity_type::
 ScaleFactorIto () const
 {
@@ -366,6 +652,12 @@ ScaleFactorIto ()
 
 void cell_heterogeneity_type::
 ScaleFactorIto (const ScaleFactorIto::type& ScaleFactorIto)
+{
+  this->_xsd_ScaleFactorIto_.set (ScaleFactorIto);
+}
+
+void cell_heterogeneity_type::
+ScaleFactorIto (::std::auto_ptr< ScaleFactorIto::type > ScaleFactorIto)
 {
   this->_xsd_ScaleFactorIto_.set (ScaleFactorIto);
 }
@@ -674,6 +966,36 @@ LoadMesh (::std::auto_ptr< LoadMesh::type > LoadMesh)
   this->_xsd_LoadMesh_.set (LoadMesh);
 }
 
+const mesh_type::unit::type& mesh_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const mesh_type::unit::type& mesh_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+mesh_type::unit::type& mesh_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void mesh_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void mesh_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
 
 // conductivities_type
 // 
@@ -732,6 +1054,36 @@ normal (const normal::type& normal)
   this->_xsd_normal_.set (normal);
 }
 
+const conductivities_type::unit::type& conductivities_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const conductivities_type::unit::type& conductivities_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+conductivities_type::unit::type& conductivities_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void conductivities_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void conductivities_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
 
 // time_steps_type
 // 
@@ -788,6 +1140,36 @@ void time_steps_type::
 printing (const printing::type& printing)
 {
   this->_xsd_printing_.set (printing);
+}
+
+const time_steps_type::unit::type& time_steps_type::unit::
+default_value ()
+{
+  return default_value_;
+}
+
+const time_steps_type::unit::type& time_steps_type::
+unit () const
+{
+  return this->_xsd_unit_.get ();
+}
+
+time_steps_type::unit::type& time_steps_type::
+unit ()
+{
+  return this->_xsd_unit_.get ();
+}
+
+void time_steps_type::
+unit (const unit::type& unit)
+{
+  this->_xsd_unit_.set (unit);
+}
+
+void time_steps_type::
+unit (::std::auto_ptr< unit::type > unit)
+{
+  this->_xsd_unit_.set (unit);
 }
 
 
@@ -967,6 +1349,12 @@ void simulation_type::
 SimulationDuration (const SimulationDuration::container& SimulationDuration)
 {
   this->_xsd_SimulationDuration_ = SimulationDuration;
+}
+
+void simulation_type::
+SimulationDuration (::std::auto_ptr< SimulationDuration::type > SimulationDuration)
+{
+  this->_xsd_SimulationDuration_.set (SimulationDuration);
 }
 
 const simulation_type::Domain::container& simulation_type::
@@ -1363,6 +1751,12 @@ BathConductivity (const BathConductivity::container& BathConductivity)
   this->_xsd_BathConductivity_ = BathConductivity;
 }
 
+void physiological_type::
+BathConductivity (::std::auto_ptr< BathConductivity::type > BathConductivity)
+{
+  this->_xsd_BathConductivity_.set (BathConductivity);
+}
+
 const physiological_type::SurfaceAreaToVolumeRatio::container& physiological_type::
 SurfaceAreaToVolumeRatio () const
 {
@@ -1387,6 +1781,12 @@ SurfaceAreaToVolumeRatio (const SurfaceAreaToVolumeRatio::container& SurfaceArea
   this->_xsd_SurfaceAreaToVolumeRatio_ = SurfaceAreaToVolumeRatio;
 }
 
+void physiological_type::
+SurfaceAreaToVolumeRatio (::std::auto_ptr< SurfaceAreaToVolumeRatio::type > SurfaceAreaToVolumeRatio)
+{
+  this->_xsd_SurfaceAreaToVolumeRatio_.set (SurfaceAreaToVolumeRatio);
+}
+
 const physiological_type::Capacitance::container& physiological_type::
 Capacitance () const
 {
@@ -1409,6 +1809,12 @@ void physiological_type::
 Capacitance (const Capacitance::container& Capacitance)
 {
   this->_xsd_Capacitance_ = Capacitance;
+}
+
+void physiological_type::
+Capacitance (::std::auto_ptr< Capacitance::type > Capacitance)
+{
+  this->_xsd_Capacitance_.set (Capacitance);
 }
 
 
@@ -1614,6 +2020,603 @@ Numerical (::std::auto_ptr< Numerical::type > Numerical)
 
 #include <xsd/cxx/xml/dom/elements.hxx>
 #include <xsd/cxx/xml/dom/parser.hxx>
+
+// time_type
+//
+
+// time_type::unit
+// 
+
+const time_type::unit::type time_type::unit::default_value_ (
+  ::std::basic_string< char > ("ms"), 0, 0, 0);
+
+time_type::
+time_type (const _xsd_time_type::base_& _xsd_time_type,
+           const unit::type& _xsd_unit)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_time_type),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
+{
+}
+
+time_type::
+time_type (const time_type& _xsd_time_type,
+           ::xml_schema::flags f,
+           ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_time_type, f, c),
+_xsd_unit_ (_xsd_time_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
+{
+}
+
+time_type::
+time_type (const ::xercesc::DOMElement& e,
+           ::xml_schema::flags f,
+           ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (e, f, c),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void time_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("ms"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
+}
+
+time_type* time_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new time_type (*this, f, c);
+}
+
+// dimensionless_type
+//
+
+// dimensionless_type::unit
+// 
+
+const dimensionless_type::unit::type dimensionless_type::unit::default_value_ (
+  ::std::basic_string< char > ("dimensionless"), 0, 0, 0);
+
+dimensionless_type::
+dimensionless_type (const _xsd_dimensionless_type::base_& _xsd_dimensionless_type,
+                    const unit::type& _xsd_unit)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_dimensionless_type),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
+{
+}
+
+dimensionless_type::
+dimensionless_type (const dimensionless_type& _xsd_dimensionless_type,
+                    ::xml_schema::flags f,
+                    ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_dimensionless_type, f, c),
+_xsd_unit_ (_xsd_dimensionless_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
+{
+}
+
+dimensionless_type::
+dimensionless_type (const ::xercesc::DOMElement& e,
+                    ::xml_schema::flags f,
+                    ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (e, f, c),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void dimensionless_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("dimensionless"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
+}
+
+dimensionless_type* dimensionless_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new dimensionless_type (*this, f, c);
+}
+
+// conductivity_type
+//
+
+// conductivity_type::unit
+// 
+
+const conductivity_type::unit::type conductivity_type::unit::default_value_ (
+  ::std::basic_string< char > ("mS/cm"), 0, 0, 0);
+
+conductivity_type::
+conductivity_type (const _xsd_conductivity_type::base_& _xsd_conductivity_type,
+                   const unit::type& _xsd_unit)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_conductivity_type),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
+{
+}
+
+conductivity_type::
+conductivity_type (const conductivity_type& _xsd_conductivity_type,
+                   ::xml_schema::flags f,
+                   ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_conductivity_type, f, c),
+_xsd_unit_ (_xsd_conductivity_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
+{
+}
+
+conductivity_type::
+conductivity_type (const ::xercesc::DOMElement& e,
+                   ::xml_schema::flags f,
+                   ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (e, f, c),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void conductivity_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("mS/cm"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
+}
+
+conductivity_type* conductivity_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new conductivity_type (*this, f, c);
+}
+
+// stimulus_strength_type
+//
+
+// stimulus_strength_type::unit
+// 
+
+const stimulus_strength_type::unit::type stimulus_strength_type::unit::default_value_ (
+  ::std::basic_string< char > ("uA/cm^3"), 0, 0, 0);
+
+stimulus_strength_type::
+stimulus_strength_type (const _xsd_stimulus_strength_type::base_& _xsd_stimulus_strength_type,
+                        const unit::type& _xsd_unit)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_stimulus_strength_type),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
+{
+}
+
+stimulus_strength_type::
+stimulus_strength_type (const stimulus_strength_type& _xsd_stimulus_strength_type,
+                        ::xml_schema::flags f,
+                        ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_stimulus_strength_type, f, c),
+_xsd_unit_ (_xsd_stimulus_strength_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
+{
+}
+
+stimulus_strength_type::
+stimulus_strength_type (const ::xercesc::DOMElement& e,
+                        ::xml_schema::flags f,
+                        ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (e, f, c),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void stimulus_strength_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("uA/cm^3"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
+}
+
+stimulus_strength_type* stimulus_strength_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new stimulus_strength_type (*this, f, c);
+}
+
+// inverse_length_type
+//
+
+// inverse_length_type::unit
+// 
+
+const inverse_length_type::unit::type inverse_length_type::unit::default_value_ (
+  ::std::basic_string< char > ("1/cm"), 0, 0, 0);
+
+inverse_length_type::
+inverse_length_type (const _xsd_inverse_length_type::base_& _xsd_inverse_length_type,
+                     const unit::type& _xsd_unit)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_inverse_length_type),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
+{
+}
+
+inverse_length_type::
+inverse_length_type (const inverse_length_type& _xsd_inverse_length_type,
+                     ::xml_schema::flags f,
+                     ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_inverse_length_type, f, c),
+_xsd_unit_ (_xsd_inverse_length_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
+{
+}
+
+inverse_length_type::
+inverse_length_type (const ::xercesc::DOMElement& e,
+                     ::xml_schema::flags f,
+                     ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (e, f, c),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void inverse_length_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("1/cm"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
+}
+
+inverse_length_type* inverse_length_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new inverse_length_type (*this, f, c);
+}
+
+// capacitance_type
+//
+
+// capacitance_type::unit
+// 
+
+const capacitance_type::unit::type capacitance_type::unit::default_value_ (
+  ::std::basic_string< char > ("uF/cm^2"), 0, 0, 0);
+
+capacitance_type::
+capacitance_type (const _xsd_capacitance_type::base_& _xsd_capacitance_type,
+                  const unit::type& _xsd_unit)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_capacitance_type),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
+{
+}
+
+capacitance_type::
+capacitance_type (const capacitance_type& _xsd_capacitance_type,
+                  ::xml_schema::flags f,
+                  ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (_xsd_capacitance_type, f, c),
+_xsd_unit_ (_xsd_capacitance_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
+{
+}
+
+capacitance_type::
+capacitance_type (const ::xercesc::DOMElement& e,
+                  ::xml_schema::flags f,
+                  ::xml_schema::type* c)
+: ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type > (e, f, c),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void capacitance_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("uF/cm^2"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
+}
+
+capacitance_type* capacitance_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new capacitance_type (*this, f, c);
+}
+
+// location_type
+//
+
+// location_type::unit
+// 
+
+const location_type::unit::type location_type::unit::default_value_ (
+  ::std::basic_string< char > ("cm"), 0, 0, 0);
+
+location_type::
+location_type (const Cuboid::type& _xsd_Cuboid,
+               const unit::type& _xsd_unit)
+: ::xml_schema::type (),
+_xsd_Cuboid_ (_xsd_Cuboid,
+              ::xml_schema::flags (),
+              this),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
+{
+}
+
+location_type::
+location_type (const location_type& _xsd_location_type,
+               ::xml_schema::flags f,
+               ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_location_type, f, c),
+_xsd_Cuboid_ (_xsd_location_type._xsd_Cuboid_,
+              f | ::xml_schema::flags::not_root,
+              this),
+_xsd_unit_ (_xsd_location_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
+{
+}
+
+location_type::
+location_type (const ::xercesc::DOMElement& e,
+               ::xml_schema::flags f,
+               ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_Cuboid_ (f | ::xml_schema::flags::not_root, this),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void location_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // Cuboid
+    //
+    {
+      if (e.name () == "Cuboid" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Cuboid::type > r (
+          Cuboid::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Cuboid_.present ())
+          continue;
+        this->Cuboid (r);
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_Cuboid_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Cuboid",
+      "");
+  }
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("cm"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
+}
+
+location_type* location_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new location_type (*this, f, c);
+}
 
 // domain_type
 //
@@ -1955,15 +2958,15 @@ _clone (::xml_schema::flags f,
 //
 
 box_type::
-box_type (const CornerA::type& _xsd_CornerA,
-          const CornerB::type& _xsd_CornerB)
+box_type (const LowerCoordinates::type& _xsd_LowerCoordinates,
+          const UpperCoordinates::type& _xsd_UpperCoordinates)
 : ::xml_schema::type (),
-_xsd_CornerA_ (_xsd_CornerA,
-               ::xml_schema::flags (),
-               this),
-_xsd_CornerB_ (_xsd_CornerB,
-               ::xml_schema::flags (),
-               this)
+_xsd_LowerCoordinates_ (_xsd_LowerCoordinates,
+                        ::xml_schema::flags (),
+                        this),
+_xsd_UpperCoordinates_ (_xsd_UpperCoordinates,
+                        ::xml_schema::flags (),
+                        this)
 {
 }
 
@@ -1972,12 +2975,12 @@ box_type (const box_type& _xsd_box_type,
           ::xml_schema::flags f,
           ::xml_schema::type* c)
 : ::xml_schema::type (_xsd_box_type, f, c),
-_xsd_CornerA_ (_xsd_box_type._xsd_CornerA_,
-               f | ::xml_schema::flags::not_root,
-               this),
-_xsd_CornerB_ (_xsd_box_type._xsd_CornerB_,
-               f | ::xml_schema::flags::not_root,
-               this)
+_xsd_LowerCoordinates_ (_xsd_box_type._xsd_LowerCoordinates_,
+                        f | ::xml_schema::flags::not_root,
+                        this),
+_xsd_UpperCoordinates_ (_xsd_box_type._xsd_UpperCoordinates_,
+                        f | ::xml_schema::flags::not_root,
+                        this)
 {
 }
 
@@ -1986,8 +2989,8 @@ box_type (const ::xercesc::DOMElement& e,
           ::xml_schema::flags f,
           ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_CornerA_ (f | ::xml_schema::flags::not_root, this),
-_xsd_CornerB_ (f | ::xml_schema::flags::not_root, this)
+_xsd_LowerCoordinates_ (f | ::xml_schema::flags::not_root, this),
+_xsd_UpperCoordinates_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -2001,54 +3004,54 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   {
     const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
 
-    // CornerA
+    // LowerCoordinates
     //
     {
-      if (e.name () == "CornerA" && e.namespace_ ().empty ())
+      if (e.name () == "LowerCoordinates" && e.namespace_ ().empty ())
       {
-        ::std::auto_ptr< CornerA::type > r (
-          CornerA::traits::create (
+        ::std::auto_ptr< LowerCoordinates::type > r (
+          LowerCoordinates::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
 
-        if (_xsd_CornerA_.present ())
+        if (_xsd_LowerCoordinates_.present ())
           continue;
-        this->CornerA (r);
+        this->LowerCoordinates (r);
         continue;
       }
     }
 
-    // CornerB
+    // UpperCoordinates
     //
     {
-      if (e.name () == "CornerB" && e.namespace_ ().empty ())
+      if (e.name () == "UpperCoordinates" && e.namespace_ ().empty ())
       {
-        ::std::auto_ptr< CornerB::type > r (
-          CornerB::traits::create (
+        ::std::auto_ptr< UpperCoordinates::type > r (
+          UpperCoordinates::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
 
-        if (_xsd_CornerB_.present ())
+        if (_xsd_UpperCoordinates_.present ())
           continue;
-        this->CornerB (r);
+        this->UpperCoordinates (r);
         continue;
       }
     }
   }
 
-  if (!_xsd_CornerA_.present ())
+  if (!_xsd_LowerCoordinates_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "CornerA",
+      "LowerCoordinates",
       "");
   }
 
-  if (!_xsd_CornerB_.present ())
+  if (!_xsd_UpperCoordinates_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "CornerB",
+      "UpperCoordinates",
       "");
   }
 }
@@ -2131,13 +3134,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "Strength" && e.namespace_ ().empty ())
       {
-        if (_xsd_Strength_.present ())
-          continue;
-        this->Strength (
+        ::std::auto_ptr< Strength::type > r (
           Strength::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (_xsd_Strength_.present ())
+          continue;
+        this->Strength (r);
         continue;
       }
     }
@@ -2147,13 +3152,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "Duration" && e.namespace_ ().empty ())
       {
-        if (_xsd_Duration_.present ())
-          continue;
-        this->Duration (
+        ::std::auto_ptr< Duration::type > r (
           Duration::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (_xsd_Duration_.present ())
+          continue;
+        this->Duration (r);
         continue;
       }
     }
@@ -2163,13 +3170,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "Delay" && e.namespace_ ().empty ())
       {
-        if (_xsd_Delay_.present ())
-          continue;
-        this->Delay (
+        ::std::auto_ptr< Delay::type > r (
           Delay::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (_xsd_Delay_.present ())
+          continue;
+        this->Delay (r);
         continue;
       }
     }
@@ -2292,13 +3301,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "ScaleFactorGks" && e.namespace_ ().empty ())
       {
-        if (_xsd_ScaleFactorGks_.present ())
-          continue;
-        this->ScaleFactorGks (
+        ::std::auto_ptr< ScaleFactorGks::type > r (
           ScaleFactorGks::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (_xsd_ScaleFactorGks_.present ())
+          continue;
+        this->ScaleFactorGks (r);
         continue;
       }
     }
@@ -2308,13 +3319,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "ScaleFactorIto" && e.namespace_ ().empty ())
       {
-        if (_xsd_ScaleFactorIto_.present ())
-          continue;
-        this->ScaleFactorIto (
+        ::std::auto_ptr< ScaleFactorIto::type > r (
           ScaleFactorIto::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (_xsd_ScaleFactorIto_.present ())
+          continue;
+        this->ScaleFactorIto (r);
         continue;
       }
     }
@@ -2756,11 +3769,20 @@ _clone (::xml_schema::flags f,
 // mesh_type
 //
 
+// mesh_type::unit
+// 
+
+const mesh_type::unit::type mesh_type::unit::default_value_ (
+  ::std::basic_string< char > ("cm"), 0, 0, 0);
+
 mesh_type::
-mesh_type ()
+mesh_type (const unit::type& _xsd_unit)
 : ::xml_schema::type (),
 _xsd_Slab_ (::xml_schema::flags (), this),
-_xsd_LoadMesh_ (::xml_schema::flags (), this)
+_xsd_LoadMesh_ (::xml_schema::flags (), this),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
 {
 }
 
@@ -2774,7 +3796,10 @@ _xsd_Slab_ (_xsd_mesh_type._xsd_Slab_,
             this),
 _xsd_LoadMesh_ (_xsd_mesh_type._xsd_LoadMesh_,
                 f | ::xml_schema::flags::not_root,
-                this)
+                this),
+_xsd_unit_ (_xsd_mesh_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
 {
 }
 
@@ -2784,7 +3809,8 @@ mesh_type (const ::xercesc::DOMElement& e,
            ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
 _xsd_Slab_ (f | ::xml_schema::flags::not_root, this),
-_xsd_LoadMesh_ (f | ::xml_schema::flags::not_root, this)
+_xsd_LoadMesh_ (f | ::xml_schema::flags::not_root, this),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -2834,6 +3860,33 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
   }
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("cm"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
 }
 
 mesh_type* mesh_type::
@@ -2846,10 +3899,17 @@ _clone (::xml_schema::flags f,
 // conductivities_type
 //
 
+// conductivities_type::unit
+// 
+
+const conductivities_type::unit::type conductivities_type::unit::default_value_ (
+  ::std::basic_string< char > ("mS/cm"), 0, 0, 0);
+
 conductivities_type::
 conductivities_type (const longi::type& _xsd_longi,
                      const trans::type& _xsd_trans,
-                     const normal::type& _xsd_normal)
+                     const normal::type& _xsd_normal,
+                     const unit::type& _xsd_unit)
 : ::xml_schema::type (),
 _xsd_longi_ (_xsd_longi,
              ::xml_schema::flags (),
@@ -2859,7 +3919,10 @@ _xsd_trans_ (_xsd_trans,
              this),
 _xsd_normal_ (_xsd_normal,
               ::xml_schema::flags (),
-              this)
+              this),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
 {
 }
 
@@ -2876,7 +3939,10 @@ _xsd_trans_ (_xsd_conductivities_type._xsd_trans_,
              this),
 _xsd_normal_ (_xsd_conductivities_type._xsd_normal_,
               f | ::xml_schema::flags::not_root,
-              this)
+              this),
+_xsd_unit_ (_xsd_conductivities_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
 {
 }
 
@@ -2887,7 +3953,8 @@ conductivities_type (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f, c),
 _xsd_longi_ (f | ::xml_schema::flags::not_root, this),
 _xsd_trans_ (f | ::xml_schema::flags::not_root, this),
-_xsd_normal_ (f | ::xml_schema::flags::not_root, this)
+_xsd_normal_ (f | ::xml_schema::flags::not_root, this),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -2930,6 +3997,18 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
           this));
       continue;
     }
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
   }
 
   if (!_xsd_longi_.present ())
@@ -2952,6 +4031,16 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       "normal",
       "");
   }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("mS/cm"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
+  }
 }
 
 conductivities_type* conductivities_type::
@@ -2964,10 +4053,17 @@ _clone (::xml_schema::flags f,
 // time_steps_type
 //
 
+// time_steps_type::unit
+// 
+
+const time_steps_type::unit::type time_steps_type::unit::default_value_ (
+  ::std::basic_string< char > ("ms"), 0, 0, 0);
+
 time_steps_type::
 time_steps_type (const ode::type& _xsd_ode,
                  const pde::type& _xsd_pde,
-                 const printing::type& _xsd_printing)
+                 const printing::type& _xsd_printing,
+                 const unit::type& _xsd_unit)
 : ::xml_schema::type (),
 _xsd_ode_ (_xsd_ode,
            ::xml_schema::flags (),
@@ -2977,7 +4073,10 @@ _xsd_pde_ (_xsd_pde,
            this),
 _xsd_printing_ (_xsd_printing,
                 ::xml_schema::flags (),
-                this)
+                this),
+_xsd_unit_ (_xsd_unit,
+            ::xml_schema::flags (),
+            this)
 {
 }
 
@@ -2994,7 +4093,10 @@ _xsd_pde_ (_xsd_time_steps_type._xsd_pde_,
            this),
 _xsd_printing_ (_xsd_time_steps_type._xsd_printing_,
                 f | ::xml_schema::flags::not_root,
-                this)
+                this),
+_xsd_unit_ (_xsd_time_steps_type._xsd_unit_,
+            f | ::xml_schema::flags::not_root,
+            this)
 {
 }
 
@@ -3005,7 +4107,8 @@ time_steps_type (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f, c),
 _xsd_ode_ (f | ::xml_schema::flags::not_root, this),
 _xsd_pde_ (f | ::xml_schema::flags::not_root, this),
-_xsd_printing_ (f | ::xml_schema::flags::not_root, this)
+_xsd_printing_ (f | ::xml_schema::flags::not_root, this),
+_xsd_unit_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -3048,6 +4151,18 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
           this));
       continue;
     }
+
+    if (a.name () == "unit" && a.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< unit::type > r (
+        unit::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+
+      this->unit (r);
+      continue;
+    }
   }
 
   if (!_xsd_ode_.present ())
@@ -3069,6 +4184,16 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     throw ::xsd::cxx::tree::expected_attribute< char > (
       "printing",
       "");
+  }
+
+  if (!_xsd_unit_.present ())
+  {
+    this->unit (
+      unit::traits::create (
+        ::std::basic_string< char > ("ms"),
+        &e,
+        f | ::xml_schema::flags::not_root,
+        this));
   }
 }
 
@@ -3663,13 +4788,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "SimulationDuration" && e.namespace_ ().empty ())
       {
-        if (this->SimulationDuration ())
-          continue;
-        this->SimulationDuration (
+        ::std::auto_ptr< SimulationDuration::type > r (
           SimulationDuration::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (this->SimulationDuration ())
+          continue;
+        this->SimulationDuration (r);
         continue;
       }
     }
@@ -3928,13 +5055,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "BathConductivity" && e.namespace_ ().empty ())
       {
-        if (this->BathConductivity ())
-          continue;
-        this->BathConductivity (
+        ::std::auto_ptr< BathConductivity::type > r (
           BathConductivity::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (this->BathConductivity ())
+          continue;
+        this->BathConductivity (r);
         continue;
       }
     }
@@ -3944,13 +5073,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "SurfaceAreaToVolumeRatio" && e.namespace_ ().empty ())
       {
-        if (this->SurfaceAreaToVolumeRatio ())
-          continue;
-        this->SurfaceAreaToVolumeRatio (
+        ::std::auto_ptr< SurfaceAreaToVolumeRatio::type > r (
           SurfaceAreaToVolumeRatio::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (this->SurfaceAreaToVolumeRatio ())
+          continue;
+        this->SurfaceAreaToVolumeRatio (r);
         continue;
       }
     }
@@ -3960,13 +5091,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     {
       if (e.name () == "Capacitance" && e.namespace_ ().empty ())
       {
-        if (this->Capacitance ())
-          continue;
-        this->Capacitance (
+        ::std::auto_ptr< Capacitance::type > r (
           Capacitance::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (this->Capacitance ())
+          continue;
+        this->Capacitance (r);
         continue;
       }
     }
@@ -4497,6 +5630,119 @@ ChasteParameters (const ::xercesc::DOMDocument& d,
 
 void
 operator<< (::xercesc::DOMElement& e,
+            const time_type& i)
+{
+  e << static_cast< const ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type >& > (i);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const dimensionless_type& i)
+{
+  e << static_cast< const ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type >& > (i);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const conductivity_type& i)
+{
+  e << static_cast< const ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type >& > (i);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const stimulus_strength_type& i)
+{
+  e << static_cast< const ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type >& > (i);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const inverse_length_type& i)
+{
+  e << static_cast< const ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type >& > (i);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const capacitance_type& i)
+{
+  e << static_cast< const ::xsd::cxx::tree::fundamental_base< ::xml_schema::decimal, char, ::xml_schema::simple_type >& > (i);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const location_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Cuboid",
+      e);
+    s.dom_element () << i.Cuboid ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
             domain_type i)
 {
   e << static_cast< const ::xml_schema::string& > (i);
@@ -4599,16 +5845,16 @@ operator<< (::xercesc::DOMElement& e,
 
   {
     ::xsd::cxx::xml::dom::element< char > s (
-      "CornerA",
+      "LowerCoordinates",
       e);
-    s.dom_element () << i.CornerA ();
+    s.dom_element () << i.LowerCoordinates ();
   }
 
   {
     ::xsd::cxx::xml::dom::element< char > s (
-      "CornerB",
+      "UpperCoordinates",
       e);
-    s.dom_element () << i.CornerB ();
+    s.dom_element () << i.UpperCoordinates ();
   }
 }
 
@@ -4798,6 +6044,14 @@ operator<< (::xercesc::DOMElement& e,
       s.dom_element () << *i.LoadMesh ();
     }
   }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
 }
 
 void
@@ -4830,6 +6084,14 @@ operator<< (::xercesc::DOMElement& e,
 
     a.dom_attribute () << i.normal ();
   }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
+  }
 }
 
 void
@@ -4861,6 +6123,14 @@ operator<< (::xercesc::DOMElement& e,
       e);
 
     a.dom_attribute () << i.printing ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "unit",
+      e);
+
+    a.dom_attribute () << i.unit ();
   }
 }
 

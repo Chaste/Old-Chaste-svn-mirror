@@ -119,7 +119,7 @@ public :
 
         TS_ASSERT(cell_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.0, 0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks[1], 1.154);
-        TS_ASSERT_EQUALS(scale_factor_ito[2], 1);
+        TS_ASSERT_EQUALS(scale_factor_ito[1], 0.85);
 
         std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
@@ -376,6 +376,15 @@ public :
         HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath("Xml")+"test.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
         
+    }
+    /**
+     *  The following test is aimed at checking that the ChasteParameters.xml file,
+     *  which is distributed with the executable, remains valid.
+     */
+    void TestChasteParametersFile() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
     }
     void TestExceptions() throw (Exception)
     { 

@@ -6,7 +6,7 @@
 	<Simulation/>
 	<Physiological/>
     <Numerical>
-		<TimeSteps ode="1.5" pde="0.05" printing="1.0"/>
+		<TimeSteps ode="1.5" pde="0.05" printing="1.0" unit="ms" />
 	</Numerical>
 			    
 </ChasteParameters>
