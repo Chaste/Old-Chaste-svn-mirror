@@ -29,6 +29,16 @@ export CHASTE_TEST_OUTPUT=Desired_Directory_Path
 If CHASTE_TEST_OUTPUT is not set, results will be found relative to a 'testoutput' 
 folder in the current directory.
 
+If you are familiar with XML and you are unsure of the types of changes which you are permitted to make 
+to the ChasteParameters.xml file, then please see the ChasteParameters.xsd schema file.  For example,
+the schema contains a selection of cell models:
+<xs:simpleType name="ionic_model_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BackwardEulerFoxModel2002Modified"/>
+      <xs:enumeration value="BackwardEulerLuoRudyIModel1991"/>
+      <xs:enumeration value="LuoRudyIModel1991OdeSystem"/>
+etc...
+
 
 
 
