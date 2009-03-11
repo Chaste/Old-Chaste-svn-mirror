@@ -80,7 +80,6 @@ std::vector< c_vector<double,3> > specific_conductivities;
 std::vector<ChasteCuboid> conductivity_heterogeneity_areas;
 
 bool create_slab;
-bool load_mesh;
 
 class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -166,7 +165,6 @@ void ReadParametersFromFile()
     HeartConfig::Instance()->SetParametersFile(parameter_file);
 
     create_slab = HeartConfig::Instance()->GetCreateSlab();
-    load_mesh = HeartConfig::Instance()->GetLoadMesh();
 
     if (create_slab) /// \todo move this code to AbstractCardiacProblem
     {           

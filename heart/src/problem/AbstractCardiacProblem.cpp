@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
+#include "ParallelTetrahedralMesh.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "Exception.hpp"
@@ -99,7 +100,15 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
         {
             /// \todo: Only considering \<LoadMesh/> definition. Consider \<Slab/> too
             TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
-            mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+            if (SPACE_DIM == 1)
+            {
+                ///\todo We can't currently instantiate the parallel mesh in 1D
+                mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+            }
+            else
+            {
+                mpMesh = new ParallelTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+            }
             mAllocatedMemoryForMesh = true;
     
             HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);

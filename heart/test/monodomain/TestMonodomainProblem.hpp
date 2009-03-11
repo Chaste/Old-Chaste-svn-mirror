@@ -59,7 +59,9 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        if (node == mNodeNum)
+        assert(mpMesh != NULL);
+        
+        if (node == mpMesh->rGetNodePermutation()[mNodeNum])
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
@@ -237,39 +239,48 @@ public:
         need_initialisation = true;
 
         // Test the RHS of the mesh
+        
+        ///\todo - now this is a parallel mesh we should use an iterator on the local nodes and not replicate the voltage
         for (unsigned i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
-            if (monodomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
+            try
             {
-                // x = 0 is where the stimulus has been applied
-                // x = 0.1cm is the other end of the mesh and where we want to
-                //       to test the value of the nodes
-
-                if (need_initialisation)
+                if (monodomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
                 {
-                    probe_voltage = voltage_replicated[i];
-                    need_initialisation = false;
+                    // x = 0 is where the stimulus has been applied
+                    // x = 0.1cm is the other end of the mesh and where we want to
+                    //       to test the value of the nodes
+    
+                    if (need_initialisation)
+                    {
+                        probe_voltage = voltage_replicated[i];
+                        need_initialisation = false;
+                    }
+                    else
+                    {
+                        // Tests the final voltages for all the RHS edge nodes
+                        // are close to each other.
+                        // This works as we are using the 'criss-cross' mesh,
+                        // the voltages would vary more with a mesh with all the
+                        // triangles aligned in the same direction.
+                        TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
+                    }
+    
+    
+                    // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
+                    // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
+                    // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
+    
+                    // test the RHS edge voltages
+                    // hardcoded result that looks accurate - this is a test to see
+                    // that nothing has changeed
+                    // assumes endtime = 2ms
+                    TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 5e-4);
                 }
-                else
-                {
-                    // Tests the final voltages for all the RHS edge nodes
-                    // are close to each other.
-                    // This works as we are using the 'criss-cross' mesh,
-                    // the voltages would vary more with a mesh with all the
-                    // triangles aligned in the same direction.
-                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
-                }
-
-
-                // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
-                // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
-                // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
-
-                // test the RHS edge voltages
-                // hardcoded result that looks accurate - this is a test to see
-                // that nothing has changeed
-                // assumes endtime = 2ms
-                TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 5e-4);
+            }
+            catch (Exception e)
+            {
+                //Skipping node which we don't own                
             }
         }
 
@@ -319,19 +330,25 @@ public:
          */
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
+        std::vector<unsigned> node_permutation = monodomain_problem.rGetMesh().rGetNodePermutation();
+        for (unsigned i=0;i<node_permutation.size();i++)
+        {
+            std::cout<<node_permutation[i]<<"\t";
+        }
+        
         // corners
-        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[110], test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[120], test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]],  voltage_replicated[node_permutation[10]], test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]], voltage_replicated[node_permutation[110]], test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]], voltage_replicated[node_permutation[120]], test_tolerance);
 
         // centres of edges
-        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[55],  test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[65],  test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[115], test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[node_permutation[5]], voltage_replicated[node_permutation[55]],  test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[node_permutation[5]], voltage_replicated[node_permutation[65]],  test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[node_permutation[5]], voltage_replicated[node_permutation[115]], test_tolerance);
 
         // hardcoded result to check nothing has changed
         // assumes endtime = 1.3
-        TS_ASSERT_DELTA(voltage_replicated[0], -34.3481, 1e-3);
+        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]], -34.3481, 1e-3);
     }
     
     // Same as TestMonodomainProblem1D, but uses NO matrix based assembly.
