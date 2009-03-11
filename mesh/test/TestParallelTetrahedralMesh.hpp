@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ParallelTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 class TestParallelTetrahedralMesh : public CxxTest::TestSuite
 {
@@ -577,6 +578,92 @@ public:
             // Check that each processor owns the number of nodes corresponding to its METIS partition
             std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
             TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+        }
+
+    }
+    
+    void TestWritingPermutedMesh()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        ParallelTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        bool trivial_permutation = true;
+        for(unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            assert(node_index < mesh.rGetNodePermutation().size());
+            if (mesh.rGetNodePermutation()[node_index] != node_index)
+            {
+                trivial_permutation = false;
+                break;
+            }            
+        }
+        
+        TS_ASSERT( ! trivial_permutation );
+        
+        mesh_reader.Reset();
+        std::string filename = "PermutedMesh";     
+        TrianglesMeshWriter<3,3> mesh_writer("", filename);
+        mesh_writer.WriteFilesUsingMeshReader(mesh_reader, mesh.rGetNodePermutation());
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();        
+        TrianglesMeshReader<3,3> permuted_mesh_reader(output_dir+filename);                
+        
+        for(unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            try
+            {
+                std::vector<double> file_coordinates = permuted_mesh_reader.GetNextNode();
+                ChastePoint<3> mem_coordinates = mesh.GetNode(node_index)->GetPoint(); 
+                
+                for(unsigned coord_index=0; coord_index<file_coordinates.size(); coord_index++)
+                {
+                        TS_ASSERT_EQUALS(file_coordinates[coord_index],
+                                         mem_coordinates[coord_index]
+                                         );
+                }
+            }
+            catch(Exception& e)
+            {
+            }                
+        }
+
+        for(unsigned element_index=0; element_index<mesh.GetNumElements(); element_index++)
+        {
+            try
+            {
+                ElementData file_nodes = permuted_mesh_reader.GetNextElementData();
+                Element<3,3>* p_mem_element = mesh.GetElement(element_index); 
+                
+                for(unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
+                {
+                        TS_ASSERT_EQUALS(file_nodes.NodeIndices[node_index],
+                                         p_mem_element->GetNode(node_index)->GetIndex()
+                                         );
+                }
+            }
+            catch(Exception& e)
+            {
+            }                
+        }
+
+        for(unsigned face_index=0; face_index<mesh.GetNumElements(); face_index++)
+        {
+            try
+            {
+                ElementData file_nodes = permuted_mesh_reader.GetNextFaceData();
+                BoundaryElement<2,3>* p_mem_face = mesh.GetBoundaryElement(face_index); 
+                
+                for(unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
+                {
+                        TS_ASSERT_EQUALS(file_nodes.NodeIndices[node_index],
+                                         p_mem_face->GetNode(node_index)->GetIndex()
+                                         );
+                }
+            }
+            catch(Exception& e)
+            {
+            }                
         }
 
     }

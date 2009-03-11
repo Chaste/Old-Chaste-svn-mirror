@@ -121,18 +121,18 @@ private:
                                std::set<unsigned>& rHaloNodesOwned,
                                std::set<unsigned>& rElementsOwned,
                                std::vector<unsigned>& rProcessorsOffset,
-                               std::vector<unsigned>& rNodePermutation) const;    
+                               std::vector<unsigned>& rNodePermutation);    
     
     void DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-                              std::set<unsigned>& rNodesOwned) const;
+                              std::set<unsigned>& rNodesOwned);
 
     void MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                      std::set<unsigned>& rNodesOwned, std::vector<unsigned>& rProcessorsOffset,
-                                     std::vector<unsigned>& rNodePermutation) const;
+                                     std::vector<unsigned>& rNodePermutation);
 
     void MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                      std::set<unsigned>& rNodesOwned, std::vector<unsigned>& rProcessorsOffset,
-                                     std::vector<unsigned>& rNodePermutation) const;
+                                     std::vector<unsigned>& rNodePermutation);
                                      
     void ReorderNodes(std::vector<unsigned>& rNodePermutation);    
 };
@@ -160,12 +160,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
     std::set<unsigned>& rHaloNodesOwned,
     std::set<unsigned>& rElementsOwned,
     std::vector<unsigned>& rProcessorsOffset,
-    std::vector<unsigned>& rNodePermutation) const
+    std::vector<unsigned>& rNodePermutation)
 {
     ///\todo: add a timing event for the partitioning
     
     if (mMetisPartitioning==METIS_BINARY && PetscTools::NumProcs() > 1)
-    {        
+    {
         MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);                 
     }
     else if (mMetisPartitioning==METIS_LIBRARY && PetscTools::NumProcs() > 1)
@@ -384,6 +384,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
    
     if (mMetisPartitioning != DUMB && PetscTools::NumProcs()>1)
     {
+        assert(this->mNodesPermutation.size() != 0);
         ReorderNodes(this->mNodesPermutation);
 
         // Compute nodes per processor based on offset information
@@ -520,7 +521,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMa
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-                                                                           std::set<unsigned>& rNodesOwned) const
+                                                                           std::set<unsigned>& rNodesOwned) 
 {
     DistributedVector::SetProblemSize(mTotalNumNodes);
     for(DistributedVector::Iterator node_number = DistributedVector::Begin(); node_number != DistributedVector::End(); ++node_number)
@@ -534,7 +535,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned, 
                                                                                   std::vector<unsigned>& rProcessorsOffset,
-                                                                                  std::vector<unsigned>& rNodePermutation) const
+                                                                                  std::vector<unsigned>& rNodePermutation) 
 {
     assert(PetscTools::NumProcs() > 1);
     
@@ -669,7 +670,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned, 
                                                                                   std::vector<unsigned>& rProcessorsOffset,
-                                                                                  std::vector<unsigned>& rNodePermutation) const
+                                                                                  std::vector<unsigned>& rNodePermutation)
 {
     assert(PetscTools::NumProcs() > 1);
     
@@ -754,6 +755,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
         
         local_index[part_read]++;
     }
+    //std::cout << rNodePermutation.size() << std::endl;
+    //std::cout << this->mNodesPermutation.size() << std::endl;
     
     delete[] elmnts;
     delete[] epart;
