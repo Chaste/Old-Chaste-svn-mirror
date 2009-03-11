@@ -10,10 +10,11 @@ NAME=StandaloneChaste_r${REV}_${BITS}bit
 echo $NAME
 scons build=GccOpt static=1 chaste_libs=1 exe=1 compile_only=1 apps
 mkdir $NAME
-cp apps/src/Chaste $NAME
+cp apps/src/Chaste $NAME/
 cat ChasteDefaults.xml   | sed s:heart/src/io/:: > $NAME/ChasteDefaults.xml 
 cat ChasteParameters.xml | sed s:heart/src/io/:: > $NAME/ChasteParameters.xml 
 cp README_STANDALONE.txt $NAME/README.txt
-cp heart/src/io/ChasteParameters.xsd $NAME
+cp README_CELLML.txt $NAME/
+cp heart/src/io/ChasteParameters.xsd $NAME/
 tar cvfz $NAME.tgz $NAME
-scp $NAME.tgz  root@chaste.ediamond.ox.ac.uk:/var/www/html/chaste/downloads/
+scp $NAME.tgz root@chaste.ediamond.ox.ac.uk:/var/www/html/chaste/downloads/
