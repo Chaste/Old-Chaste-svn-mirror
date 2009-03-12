@@ -50,7 +50,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
         std::string directory_to_move_to = GetOutputDirectoryFullPath("last_cleaned_directory");
-        CHECK_SYSTEM("rm -rf " + directory_to_move_to);
+        IGNORE_RET(system, "rm -rf " + directory_to_move_to);
         // Re-create the special directory
         mkdir(directory_to_move_to.c_str(), 0775);
         CHECK_SYSTEM("mv " + mDirectory + " " + directory_to_move_to);
