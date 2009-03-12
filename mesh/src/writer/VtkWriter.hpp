@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  VtkWriter
  * 
- *  Writes a mesh in VTK  vtu format (that's an XMl-based, data compressed unstructured mesh)
+ *  Writes a mesh in VTK .vtu format (that's an XML-based, data compressed unstructured mesh)
  * 
  */
 class VtkWriter : public AbstractMeshWriter<3,3>
@@ -145,7 +145,7 @@ void VtkWriter::AddCellData(std::string dataName, std::vector<double> dataPayloa
     }
     
     vtkCellData *p_cell_data = mpVtkUnstructedMesh->GetCellData();
-    p_cell_data->SetScalars(p_scalars);
+    p_cell_data->AddArray(p_scalars);
     p_scalars->Delete(); //Reference counted
 }
 
@@ -159,7 +159,7 @@ void VtkWriter::AddPointData(std::string dataName, std::vector<double> dataPaylo
     }
     
     vtkPointData *p_point_data = mpVtkUnstructedMesh->GetPointData();
-    p_point_data->SetScalars(p_scalars);
+    p_point_data->AddArray(p_scalars);
     p_scalars->Delete(); //Reference counted
     
 }
