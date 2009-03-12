@@ -68,9 +68,13 @@ protected:
      *  True by default
      */ 
     bool mUseMatrixBasedRhsAssembly;
+    /** Whether this problem class has created the mesh itself, as opposed to being given it */
     bool mAllocatedMemoryForMesh;
+    /** Whether to print some statistics (max/min voltage) to screen during the simulation */
     bool mWriteInfo;
+    /** Whether to write any output at all */
     bool mPrintOutput;
+    /** Whether to convert the output from HDF5 to meshalyzer readable format */ 
     bool mCallChaste2Meshalyzer;
 
     /** If only outputing voltage for selected nodes, which nodes to output at */
