@@ -97,12 +97,8 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
     }
 
     /* Work out the ownership details */
-    Vec typical_vec=PetscTools::CreateVec(dimensionSize);
-    int lo, hi;
-    VecGetOwnershipRange(typical_vec, &lo, &hi);
-    mLo=lo;
-    mHi=hi;
-    VecDestroy(typical_vec);
+    mLo = DistributedVector::Begin().Global;
+    mHi = DistributedVector::End().Global;
     mNumberOwned=mHi-mLo;
     mOffset=mLo;
     mFileFixedDimensionSize = dimensionSize;
