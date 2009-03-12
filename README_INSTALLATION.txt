@@ -214,6 +214,7 @@ type one of the following (note that scons should always be run from the main Ch
 scons          # runs all the tests - will take a while
 scons global   # just runs the tests in the global folder
 scons io       # just runs the tests in the io folder
+scons linalg   # just runs the tests in the linalg (linear algebra) folder
 scons mesh     # just runs the tests in the mesh folder
 scons ode      # just runs the tests in the ode folder
 scons pde      # just runs the tests in the pde folder
