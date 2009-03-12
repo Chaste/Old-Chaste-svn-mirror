@@ -54,9 +54,6 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
     unsigned num_nodes = mpReader->GetNumberOfRows();
     unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
 
-    //DistributedVector::SetProblemSize(num_nodes);
-    //assert(num_nodes == DistributedVector::GetProblemSize());
-    
     if (DistributedVector::GetProblemSize() == 0)
     {
         // Problem size was not set before.

@@ -647,7 +647,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     // Move stream pointer to the beginning of the file
     partition_stream.seekg (0, std::ios::beg);
     
-    std::vector<unsigned> local_index(this->GetNumNodes(), 0);    
+    std::vector<unsigned> local_index(PetscTools::NumProcs(), 0);    
     
     rNodePermutation.resize(this->GetNumNodes());
     
@@ -743,7 +743,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     /*
      *  Once we know the offsets we can compute the permutation vector
      */    
-    std::vector<unsigned> local_index(this->GetNumNodes(), 0);    
+    std::vector<unsigned> local_index(PetscTools::NumProcs(), 0);    
     
     rNodePermutation.resize(this->GetNumNodes());
     
