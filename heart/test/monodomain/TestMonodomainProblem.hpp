@@ -79,7 +79,9 @@ public:
     
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
     {
-        assert(mFoundMiddlePoint == 1); // Only 1 cell should be stimulated
+        unsigned found_middle_point_reduced;
+        MPI_Allreduce(&mFoundMiddlePoint, &found_middle_point_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        assert(found_middle_point_reduced == 1); // Only 1 cell should be stimulated
     }    
 
     ~PointStimulus2dCellFactory(void)
@@ -338,76 +340,88 @@ public:
          * this rather difficult, especially since the edges are sampled
          * during the upstroke.
          */
-        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+        DistributedVector voltage(monodomain_problem.GetSolution());
         
         // corners -> 0, 10, 110, 120
         // hardcoded result to check against
         // assumes endtime = 1.3
         unsigned corners_checked=0;
-        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
+        for (DistributedVector::Iterator node_index = DistributedVector::Begin();
+             node_index!= DistributedVector::End();
+             ++node_index)        
+//        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
         {
-            ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index)->GetPoint();
+            ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();
             
             if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 0
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], -34.3481, 1e-3);
                 corners_checked++;
             }
                 
             if (fabs(location[0]-0.1)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 10
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], -34.3481, 1e-3);
                 corners_checked++;
             }
 
             if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 110
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], -34.3481, 1e-3);
                 corners_checked++;
             }
 
             if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 120
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], -34.3481, 1e-3);
                 corners_checked++;
             }
-        }        
-        TS_ASSERT(corners_checked==4);
+        }
+        
+        unsigned corners_checked_reduced;
+        MPI_Allreduce(&corners_checked, &corners_checked_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);                
+        TS_ASSERT(corners_checked_reduced==4);
 
 
         // centre of edges -> 5, 55, 65, 115
         // hardcoded result to check against
         // assumes endtime = 1.3
         unsigned edges_checked=0;
-        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
+        for (DistributedVector::Iterator node_index = DistributedVector::Begin();
+             node_index!= DistributedVector::End();
+             ++node_index)        
+//        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
         {
-            ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index)->GetPoint();
+            ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();
             
             if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.0)<1e-6) // Node 5
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], 34.6692, 1e-3);
                 edges_checked++;
             }
                 
             if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.05)<1e-6) // Node 55
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], 34.6692, 1e-3);
                 edges_checked++;
             }
 
             if (fabs(location[0]-0.1)<1e-6 && fabs(location[1]-0.05)<1e-6) // Node 65
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], 34.6692, 1e-3);
                 edges_checked++;
             }
 
             if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.1)<1e-6) // Node 115
             {
-                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                TS_ASSERT_DELTA(voltage[node_index.Global], 34.6692, 1e-3);
                 edges_checked++;
             }
-        }        
-        TS_ASSERT(edges_checked==4);            
+        }
+        
+        unsigned edges_checked_reduced;
+        MPI_Allreduce(&edges_checked, &edges_checked_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);                
+        TS_ASSERT(edges_checked_reduced==4);            
     }
     
     // Same as TestMonodomainProblem1D, but uses NO matrix based assembly.
