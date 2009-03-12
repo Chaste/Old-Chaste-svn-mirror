@@ -5,6 +5,7 @@
 ## (Note2: changed bash_profile to bashrc)
 ##
 ## 1. Error in parallel checks of HDF5 (the second 'make check'). See #763 for error messages
+## 1b. Remember to delete the 'FAILS HERE' below once (1) has been sorted.
 ## 2. Are the two edits in the Metis section needed. We purposefully didn't do the first
 ##    (CC=cc -> CC=gcc) and forgot the second (edit include/metis.h) but had no problems.
 ## 3. Triangle is not mentioned at all - or on the website???
