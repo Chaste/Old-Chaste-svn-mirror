@@ -45,24 +45,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 
+/*
+ *  This cell factory introduces a stimulus in the very centre of mesh/test/data/2D_0_to_1mm_400_elements.
+ *  This is node 60 at (0.5, 0.5)
+ */
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
     SimpleStimulus *mpStimulus;
-    unsigned mNodeNum;
+    unsigned mFoundMiddlePoint;        
+
+
 public:
-    PointStimulus2dCellFactory(int nodeNum) : AbstractCardiacCellFactory<2>()
-    {
+    PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>(), mFoundMiddlePoint(0)
+    {        
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
-        mNodeNum = nodeNum;
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        assert(mpMesh != NULL);
+        ChastePoint<2> location = mpMesh->GetNode(node)->GetPoint();
         
-        if (node == mpMesh->rGetNodePermutation()[mNodeNum])
+        if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.05)<1e-6)
         {
+            mFoundMiddlePoint++;
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
         else
@@ -70,6 +76,11 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
+    
+    void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
+    {
+        assert(mFoundMiddlePoint == 1); // Only 1 cell should be stimulated
+    }    
 
     ~PointStimulus2dCellFactory(void)
     {
@@ -301,9 +312,8 @@ public:
         time_t start,end;
         double dif;
         time (&start);
-        static double test_tolerance=1e-10;
 
-        PointStimulus2dCellFactory cell_factory(60); // Central node
+        PointStimulus2dCellFactory cell_factory;
 
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
@@ -329,26 +339,75 @@ public:
          * during the upstroke.
          */
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-
-        std::vector<unsigned> node_permutation = monodomain_problem.rGetMesh().rGetNodePermutation();
-        for (unsigned i=0;i<node_permutation.size();i++)
-        {
-            std::cout<<node_permutation[i]<<"\t";
-        }
         
-        // corners
-        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]],  voltage_replicated[node_permutation[10]], test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]], voltage_replicated[node_permutation[110]], test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]], voltage_replicated[node_permutation[120]], test_tolerance);
-
-        // centres of edges
-        TS_ASSERT_DELTA(voltage_replicated[node_permutation[5]], voltage_replicated[node_permutation[55]],  test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[node_permutation[5]], voltage_replicated[node_permutation[65]],  test_tolerance);
-        TS_ASSERT_DELTA(voltage_replicated[node_permutation[5]], voltage_replicated[node_permutation[115]], test_tolerance);
-
-        // hardcoded result to check nothing has changed
+        // corners -> 0, 10, 110, 120
+        // hardcoded result to check against
         // assumes endtime = 1.3
-        TS_ASSERT_DELTA(voltage_replicated[node_permutation[0]], -34.3481, 1e-3);
+        unsigned corners_checked=0;
+        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
+        {
+            ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index)->GetPoint();
+            
+            if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 0
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                corners_checked++;
+            }
+                
+            if (fabs(location[0]-0.1)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 10
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                corners_checked++;
+            }
+
+            if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 110
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                corners_checked++;
+            }
+
+            if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 120
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], -34.3481, 1e-3);
+                corners_checked++;
+            }
+        }        
+        TS_ASSERT(corners_checked==4);
+
+
+        // centre of edges -> 5, 55, 65, 115
+        // hardcoded result to check against
+        // assumes endtime = 1.3
+        unsigned edges_checked=0;
+        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
+        {
+            ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index)->GetPoint();
+            
+            if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.0)<1e-6) // Node 5
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                edges_checked++;
+            }
+                
+            if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.05)<1e-6) // Node 55
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                edges_checked++;
+            }
+
+            if (fabs(location[0]-0.1)<1e-6 && fabs(location[1]-0.05)<1e-6) // Node 65
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                edges_checked++;
+            }
+
+            if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.1)<1e-6) // Node 115
+            {
+                TS_ASSERT_DELTA(voltage_replicated[node_index], 34.6692, 1e-3);
+                edges_checked++;
+            }
+        }        
+        TS_ASSERT(edges_checked==4);            
     }
     
     // Same as TestMonodomainProblem1D, but uses NO matrix based assembly.
