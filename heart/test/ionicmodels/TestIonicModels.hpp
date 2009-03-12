@@ -705,11 +705,11 @@ public:
         double magnitude_stimulus = -1800;
         RegularStimulus stimulus(magnitude_stimulus,
                                   0.05,
-                                  500,
-                                  0.01);
+                                  1000,
+                                  10.0);
                                   
         EulerIvpOdeSolver solver; //define the solver
-        HeartConfig::Instance()->SetOdeTimeStep(0.01);
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);
         Mahajan2008OdeSystem rabbit_ode_system(&solver, &stimulus);
         
         //Test the GetIIonic method against one hardcoded value.
@@ -717,16 +717,11 @@ public:
          
         // Solve and write to file
         RunOdeSolverWithIonicModel(&rabbit_ode_system,
-                                   1800,/*end time, in milliseconds for this model*/
+                                   800,/*end time, in milliseconds for this model*/
                                    "Mahajan2008",
                                    100);
         // Check against validated data 
         // (the code for the mahajan model was generated from a CellML code known to be valid)
-        
-        //This "validated data" contains lots of Not-a-Numbers and can't be 
-        //reproduced with the Intel compiler!
-        TS_FAIL("This test fails Intel");
-        
         CheckCellModelResults("Mahajan2008");
      }
 
