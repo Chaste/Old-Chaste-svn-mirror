@@ -62,7 +62,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NobleVargheseKohlNoble1998.hpp"
 #include "NobleVargheseKohlNoble1998Optimised.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
-
+#include "Mahajan2008OdeSystem.hpp"
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 
@@ -697,6 +697,32 @@ public:
         
          //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(purkinje_ode_system.GetIIonic(), -0.0141, 1e-3); 
+     }
+     
+    void TestMahajan2008(void) throw (Exception)
+    {   
+        // Set stimulus 
+        double magnitude_stimulus = -1800;
+        RegularStimulus stimulus(magnitude_stimulus,
+                                  0.05,
+                                  500,
+                                  0.01);
+                                  
+        EulerIvpOdeSolver solver; //define the solver
+        HeartConfig::Instance()->SetOdeTimeStep(0.01);
+        Mahajan2008OdeSystem rabbit_ode_system(&solver, &stimulus);
+        
+        //Test the GetIIonic method against one hardcoded value.
+        TS_ASSERT_DELTA(rabbit_ode_system.GetIIonic(), 0.0027, 1e-3);
+         
+        // Solve and write to file
+        RunOdeSolverWithIonicModel(&rabbit_ode_system,
+                                   1800,/*end time, in milliseconds for this model*/
+                                   "Mahajan2008",
+                                   100);
+        // Check against validated data 
+        // (the code for the mahajan model was generated from a CellML code known to be valid)
+        CheckCellModelResults("Mahajan2008");
      }
 
 
