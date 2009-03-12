@@ -28,7 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 
-#To configure your machine please remove the following two lines and edit paths below:
+############################################################
+# TO CONFIGURE YOUR MACHINE: please remove the following 
+# two lines and edit paths below:
+############################################################
 print >>sys.stderr, "Unrecognised machine; please edit python/hostconfig/default.py"
 sys.exit(1)
 
@@ -37,7 +40,7 @@ petsc_2_3_path = '../../../petsc-2.3.3-p15/'
 petsc_build_name = 'linux-gnu'
 petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
-dealii_path = '../../../deal.II/'
+dealii_path = '../../../deal.II/'         ## valid path only needed if you are using the dealii project
 metis_path = '../../../metis-5.0pre2/'
 intel_path = '/opt/intel/cc/9.1.039/lib'
 icpc = 'icpc'
