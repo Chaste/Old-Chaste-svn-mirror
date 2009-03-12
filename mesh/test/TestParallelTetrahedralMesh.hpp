@@ -582,8 +582,14 @@ public:
 
     }
     
+    /*
+     *  This test creates a ParallelTetrahedralMesh, dumps it to disc (permuted), opens the newly 
+     * created file, and checks if it is consistent with the object in memory.
+     */    
     void TestWritingPermutedMesh()
     {
+        EXIT_IF_SEQUENTIAL
+        
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ParallelTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
