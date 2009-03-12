@@ -722,6 +722,11 @@ public:
                                    100);
         // Check against validated data 
         // (the code for the mahajan model was generated from a CellML code known to be valid)
+        
+        //This "validated data" contains lots of Not-a-Numbers and can't be 
+        //reproduced with the Intel compiler!
+        TS_FAIL("This test fails Intel");
+        
         CheckCellModelResults("Mahajan2008");
      }
 
