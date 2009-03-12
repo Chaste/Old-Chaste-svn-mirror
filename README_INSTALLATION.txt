@@ -1,19 +1,12 @@
 ############################ ISSUES TO BE RESOLVED ########################
 ##
-## Notes
-##  1. We changed "X=Y" to "export X=Y" everywhere
-##  2. Changed bash_profile to bashrc
-##  3. Changed the xerces instructions to the website xerces instructions
-##
 ## Errors:
 ## 1. Error in parallel checks of HDF5 (the second 'make check'). See #763 for error messages
 ##      - TestHdf5DataReader doesn't compile
 ## 2. Triangle is not mentioned at all - or on the website??? 
 ##      - Tests which require triangle fail "Remeshing (by calling triangle) failed"
-##      - Tests which require tetgen fail 
-##          - "tetgen: tetgen.cxx:4918: void tetgenmesh::findedge(tetgenmesh::triface*, double*, double*): Assertion `i < 3' failed."
-## 3. The readme said output would be written in <chaste_dir>/testoutput if CHASTE_TEST_OUTPUT is not set, but after running scons
-##    the output was written to /tmp/<username>/testoutout. Updated readme to say the latter. Bug?
+## 3. Tests which require tetgen fail 
+##      - "tetgen: tetgen.cxx:4918: void tetgenmesh::findedge(tetgenmesh::triface*, double*, double*): Assertion `i < 3' failed."
 ##
 ## Issues:
 ## **1**. Not at all clear how to edit default.py once you get there - easy to edit the petsc path
@@ -56,7 +49,7 @@ Please install them as described below.
 
 ==========SCONS:=============
 (Python is a prerequisite for this)
-Use your package manager to install scons or
+Use your package manager to install Scons or
 
 cd $CHASTE_LIBS
 wget http://mesh.dl.sourceforge.net/sourceforge/scons/scons-1.2.0.tar.gz
@@ -187,7 +180,7 @@ export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3/lib/libg_c++/linux-gnu/
 
 Note that test output will be put in the folder given by the environment variable CHASTE_TEST_OUTPUT. If this has not been
 assigned to anything, it will be (temporarily) set to be the directory "/tmp/<USER_NAME>/testoutput/" whenever scons is run.
-If you would prefer output in a different directory also add the following to the .bashrc file
+If you would prefer output in a different directory also add the following to the .bashrc file.
 
 export CHASTE_TEST_OUTPUT=<YOUR CHOICE OF DIRECTORY>
 
@@ -273,3 +266,8 @@ from the chaste directory, type
 
 apps/src/Chaste ChasteParameters.xml
 
+Please note that the output directory specified in the ChasteParameters.xml file is relative to 
+a directory defined by the environmental variable CHASTE_TEST_OUTPUT, as described above. If this
+variable is not set, results will be found relative to the 'testoutput' folder in the main 
+Chaste directory (unlike when scons is used to run tests). Add CHASTE_TEST_OUTPUT to the .bashrc 
+file as described above.
