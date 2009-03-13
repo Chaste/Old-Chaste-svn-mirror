@@ -2,9 +2,6 @@ The following new files/directories were created:
 <Test Directory>
 ----ChasteResults
 --------SimulationResults.h5
---------Slab.ele
---------Slab.face
---------Slab.node
 --------progress_status.txt
 --------output
 ------------SimulationResults_Phi_e.dat

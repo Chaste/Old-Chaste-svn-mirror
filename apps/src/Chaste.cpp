@@ -62,9 +62,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 std::string parameter_file;
 
 // User-modifiable parameters.  Real values will be read from a config file.
-c_vector<double, 3> slab_dimensions; //cm
-double inter_node_space = -1;        //cm
-
 std::string  output_directory = "/";      // Location to put simulation results
 domain_type domain = domain_type::Mono;
 ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
@@ -78,8 +75,6 @@ std::vector<ChasteCuboid> cell_heterogeneity_areas;
 
 std::vector< c_vector<double,3> > specific_conductivities;
 std::vector<ChasteCuboid> conductivity_heterogeneity_areas;
-
-bool create_slab;
 
 class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -138,7 +133,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        // Memory leak, this pointers should freed somewhere
+        // Memory leak, these pointers should freed somewhere
         MultiStimulus* node_specific_stimulus = new MultiStimulus();
 
         // Check which of the defined stimuli contain the current node
@@ -164,14 +159,6 @@ void ReadParametersFromFile()
 {
     HeartConfig::Instance()->SetParametersFile(parameter_file);
 
-    create_slab = HeartConfig::Instance()->GetCreateSlab();
-
-    if (create_slab) /// \todo move this code to AbstractCardiacProblem
-    {           
-        HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
-        inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
-    }
-
     output_directory = HeartConfig::Instance()->GetOutputDirectory();
 
     domain = HeartConfig::Instance()->GetDomain();
@@ -194,56 +181,6 @@ void ReadParametersFromFile()
     
     /// \todo Read and store Conductivity Heterogeneities
 
-}
-
-template<unsigned PROBLEM_DIM>
-void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
-{
-    rProblem.ConvertOutputToMeshalyzerFormat(true);
-}
-
-
-void CreateSlab(TetrahedralMesh<3,3>* pMesh)
-{
-    // construct mesh. Note that mesh is measured in cm
-    unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
-    unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
-    unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
-
-    pMesh->ConstructCuboid(slab_nodes_x,
-                           slab_nodes_y,
-                           slab_nodes_z,
-                           true);
-    // place at origin
-    pMesh->Translate(-(double)slab_nodes_x/2.0,
-                     -(double)slab_nodes_y/2.0,
-                     -(double)slab_nodes_z/2.0);
-                     
-    // scale
-    double mesh_scale_factor = inter_node_space;
-    pMesh->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
-                     
-
-    OutputFileHandler handler(output_directory,false);
-    std::string output_dir_full_path = handler.GetOutputDirectoryFullPath();
-}
-
-void WriteSlab(TetrahedralMesh<3,3>* pMesh)
-{
-
-    // write out the mesh that was used if we are the master process
-    if (PetscTools::AmMaster())
-    {
-        // Meshalyzer output format
-        //MeshalyzerMeshWriter<3,3> mesh_writer(output_directory+"/mesh", "Slab", false);
-        //mesh_writer.WriteFilesUsingMesh(mesh);
-        // Triangles output format
-        TrianglesMeshWriter<3,3> triangles_writer(output_directory, "Slab", false);
-        triangles_writer.WriteFilesUsingMesh(*pMesh);
-
-        // copy input parameters file to results directory
-        //system(("cp " + parameter_file + " " + output_dir_full_path).c_str());
-    }
 }
 
 
@@ -269,75 +206,49 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
     std::cout<<UNAME<<"\n";
     std::cout<<"from revision number "<<SVN_REV<<" with build type "<<BUILD_TYPE<<".\n\n";
     
-    try
+    PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
+
+    if (argc<2)
     {
-        PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
-
-        if (argc<2)
-        {
-            std::cout  << "Usage: Chaste parameters_file\n";
-            return -1;
-        }
-
-        parameter_file = std::string(argv[1]);
-        ReadParametersFromFile();
-
-        ChasteSlabCellFactory cell_factory;
-        TetrahedralMesh<3,3> mesh;
-
-        switch(domain)
-        {
-            case domain_type::Mono :
-            {
-                MonodomainProblem<3> mono_problem( &cell_factory);
-
-                SetupProblem(mono_problem);
-
-                if (create_slab)/// \todo move this code to AbstractCardiacProblem
-                {
-                    CreateSlab(&mesh);
-                    mono_problem.SetMesh(&mesh);
-                }
-
-                mono_problem.Initialise();
-                mono_problem.Solve();
-
-                break;
-            }
-
-            case domain_type::Bi :
-            {
-                BidomainProblem<3> bi_problem( &cell_factory);
-
-                SetupProblem(bi_problem);
-
-                if (create_slab)
-                {
-                    CreateSlab(&mesh);
-                    bi_problem.SetMesh(&mesh);
-                }
-
-                bi_problem.Initialise();
-                bi_problem.Solve();
-
-                break;
-            }
-
-            default :
-                EXCEPTION("Unknown domain type!!!");
-        }
-        
-        if (create_slab)
-        {        
-    	   WriteSlab(&mesh);
-        }
-    }
-    catch(Exception& e)
-    {
-        std::cerr << e.GetMessage() << "\n";
-        return 1;
+        std::cout  << "Usage: Chaste parameters_file\n";
+        return -1;
     }
 
+    parameter_file = std::string(argv[1]);
+    ReadParametersFromFile();
+
+    ChasteSlabCellFactory cell_factory;
+
+    switch(domain)
+    {
+        case domain_type::Mono :
+        {
+            MonodomainProblem<3> mono_problem( &cell_factory);
+
+            mono_problem.ConvertOutputToMeshalyzerFormat(true);
+
+            mono_problem.Initialise();
+            mono_problem.Solve();
+
+            break;
+        }
+
+        case domain_type::Bi :
+        {
+            BidomainProblem<3> bi_problem( &cell_factory);
+
+            bi_problem.ConvertOutputToMeshalyzerFormat(true);
+
+            bi_problem.Initialise();
+            bi_problem.Solve();
+
+            break;
+        }
+
+        default :
+            EXCEPTION("Unknown domain type!!!");
+    }
+            
     HeartEventHandler::Headings();
     HeartEventHandler::Report();
 

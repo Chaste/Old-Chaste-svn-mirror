@@ -99,21 +99,57 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
         try
         {
             /// \todo: Only considering \<LoadMesh/> definition. Consider \<Slab/> too
-            TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
-            if (SPACE_DIM == 1)
+            if(HeartConfig::Instance()->GetLoadMesh())
             {
-                ///\todo We can't currently instantiate the parallel mesh in 1D
-                mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+                TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
+                if (SPACE_DIM == 1)
+                {
+                    ///\todo We can't currently instantiate the parallel mesh in 1D
+                    mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+                }
+                else
+                {
+                    mpMesh = new ParallelTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+                }
+                mAllocatedMemoryForMesh = true;
+        
+                HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
+                mpMesh->ConstructFromMeshReader(mesh_reader);
+                HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
             }
             else
             {
-                mpMesh = new ParallelTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
-            }
-            mAllocatedMemoryForMesh = true;
-    
-            HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
-            mpMesh->ConstructFromMeshReader(mesh_reader);
-            HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);              
+                if(HeartConfig::Instance()->GetCreateSlab())
+                {
+                    c_vector<double, 3> slab_dimensions; //cm                    
+                    HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
+                    double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+                    
+                    mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+                    
+                    unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
+                    unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
+                    unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
+                
+                    static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->ConstructCuboid(slab_nodes_x,
+                                           slab_nodes_y,
+                                           slab_nodes_z,
+                                           true);
+                    // place at origin
+                    static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Translate(-(double)slab_nodes_x/2.0,
+                                     -(double)slab_nodes_y/2.0,
+                                     -(double)slab_nodes_z/2.0);
+                                     
+                    // scale
+                    double mesh_scale_factor = inter_node_space;
+                    static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
+                    
+                }
+                else
+                {
+                    NEVER_REACHED;
+                }   
+            }           
         }
         catch (Exception& e)
         {               
