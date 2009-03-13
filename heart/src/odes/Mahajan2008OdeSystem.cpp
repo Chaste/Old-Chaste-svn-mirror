@@ -25,8 +25,8 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
     {
     }
     
-    void Mahajan2008OdeSystem::VerifyGatingVariables()
-    {}
+ //   void Mahajan2008OdeSystem::VerifyGatingVariables()
+ //   {}
 
     double Mahajan2008OdeSystem::GetIIonic()
     {
