@@ -39,6 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 
 #include "AbstractMesh.hpp"
+#include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.hpp"
@@ -209,8 +211,6 @@ public:
         }
         SetInitialConvergenceParameters();
 
-        unsigned prev_mesh_num=9999;
-
         double prev_apd90_first_qn=0.0;
         double prev_apd90_third_qn=0.0;
         double prev_cond_velocity=0.0;
@@ -228,11 +228,13 @@ public:
             HeartConfig::Instance()->SetOutputDirectory ("Convergence");
             HeartConfig::Instance()->SetOutputFilenamePrefix ("Results");
 
-            if (this->MeshNum!=prev_mesh_num)
-            {
-                HeartConfig::Instance()->SetMeshFileName( constructor.Construct(this->MeshNum, mMeshWidth) );
-                prev_mesh_num = this->MeshNum;
-            }
+            //Don't use parallel mesh for now
+            //HeartConfig::Instance()->SetMeshFileName( constructor.Construct(this->MeshNum, mMeshWidth) );
+
+            TetrahedralMesh<DIM, DIM> mesh;
+            TrianglesMeshReader<DIM, DIM> mesh_reader(constructor.Construct(this->MeshNum, mMeshWidth) );
+            mesh.ConstructFromMeshReader(mesh_reader); 
+
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
 
             AbstractCardiacCellFactory<DIM>* p_cell_factory=NULL;
@@ -267,7 +269,8 @@ public:
 
 
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
-
+            ///\todo this is a sequential mesh
+            cardiac_problem.SetMesh(&mesh);
             if (mUseKspAbsoluteTolerance)
             {
                 HeartConfig::Instance()->SetUseAbsoluteTolerance(this->mKspTolerance);

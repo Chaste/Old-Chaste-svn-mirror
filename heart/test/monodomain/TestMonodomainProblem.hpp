@@ -349,7 +349,6 @@ public:
         for (DistributedVector::Iterator node_index = DistributedVector::Begin();
              node_index!= DistributedVector::End();
              ++node_index)        
-//        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
         {
             ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();
             
@@ -390,7 +389,6 @@ public:
         for (DistributedVector::Iterator node_index = DistributedVector::Begin();
              node_index!= DistributedVector::End();
              ++node_index)        
-//        for (unsigned node_index=0; node_index<monodomain_problem.rGetMesh().GetNumNodes(); node_index++)
         {
             ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();
             
