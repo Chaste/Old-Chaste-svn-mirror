@@ -2747,10 +2747,10 @@ _xsd_ionic_model_type_convert () const
 const char* const ionic_model_type::
 _xsd_ionic_model_type_literals_[9] =
 {
-  "BackwardEulerFoxModel2002Modified",
-  "BackwardEulerLuoRudyIModel1991",
+  "Fox2002BackwardEuler",
+  "LuoRudyIBackwardEuler",
   "LuoRudyI",
-  "FaberRudy2000Version3Optimised",
+  "FaberRudy2000Optimised",
   "FaberRudy2000",
   "DifrancescoNoble",
   "MahajanShiferaw",
@@ -2761,13 +2761,13 @@ _xsd_ionic_model_type_literals_[9] =
 const ionic_model_type::_xsd_ionic_model_type ionic_model_type::
 _xsd_ionic_model_type_indexes_[9] =
 {
-  ::ionic_model_type::BackwardEulerFoxModel2002Modified,
-  ::ionic_model_type::BackwardEulerLuoRudyIModel1991,
   ::ionic_model_type::DifrancescoNoble,
   ::ionic_model_type::FaberRudy2000,
-  ::ionic_model_type::FaberRudy2000Version3Optimised,
+  ::ionic_model_type::FaberRudy2000Optimised,
+  ::ionic_model_type::Fox2002BackwardEuler,
   ::ionic_model_type::HodgkinHuxley,
   ::ionic_model_type::LuoRudyI,
+  ::ionic_model_type::LuoRudyIBackwardEuler,
   ::ionic_model_type::MahajanShiferaw,
   ::ionic_model_type::tenTusscher2006
 };

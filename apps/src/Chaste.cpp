@@ -94,11 +94,11 @@ public:
                 return new LuoRudyIModel1991OdeSystem(mpSolver, intracellularStimulus);
                 break;
 
-            case(ionic_model_type::BackwardEulerLuoRudyIModel1991):
+            case(ionic_model_type::LuoRudyIBackwardEuler):
                 return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
                 break;
 
-            case(ionic_model_type::BackwardEulerFoxModel2002Modified):
+            case(ionic_model_type::Fox2002BackwardEuler):
                 return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
                 break;
             
@@ -137,7 +137,7 @@ public:
                     break;
                 }
 
-            case(ionic_model_type::FaberRudy2000Version3Optimised):
+            case(ionic_model_type::FaberRudy2000Optimised):
                 return new FaberRudy2000Version3Optimised(mpSolver, intracellularStimulus);
                 break;
 

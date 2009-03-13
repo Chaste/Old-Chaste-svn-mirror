@@ -764,10 +764,10 @@ class ionic_model_type: public ::xml_schema::string
   public:
   enum _xsd_ionic_model_type
   {
-    BackwardEulerFoxModel2002Modified,
-    BackwardEulerLuoRudyIModel1991,
+    Fox2002BackwardEuler,
+    LuoRudyIBackwardEuler,
     LuoRudyI,
-    FaberRudy2000Version3Optimised,
+    FaberRudy2000Optimised,
     FaberRudy2000,
     DifrancescoNoble,
     MahajanShiferaw,

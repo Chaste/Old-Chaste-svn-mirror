@@ -65,10 +65,10 @@
 
   <xs:simpleType name="ionic_model_type">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="BackwardEulerFoxModel2002Modified"/>
-      <xs:enumeration value="BackwardEulerLuoRudyIModel1991"/>
+      <xs:enumeration value="Fox2002BackwardEuler"/>
+      <xs:enumeration value="LuoRudyIBackwardEuler"/>
       <xs:enumeration value="LuoRudyI"/>
-      <xs:enumeration value="FaberRudy2000Version3Optimised"/>
+      <xs:enumeration value="FaberRudy2000Optimised"/>
       <xs:enumeration value="FaberRudy2000"/>
       <xs:enumeration value="DifrancescoNoble"/>
       <xs:enumeration value="MahajanShiferaw"/>

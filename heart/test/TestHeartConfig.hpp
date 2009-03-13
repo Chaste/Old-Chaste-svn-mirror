@@ -204,8 +204,8 @@ public :
         HeartConfig::Instance()->SetDomain(domain_type::Bi);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(), domain_type::Bi);
 
-        HeartConfig::Instance()->SetIonicModel(ionic_model_type::BackwardEulerLuoRudyIModel1991);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::BackwardEulerLuoRudyIModel1991);
+        HeartConfig::Instance()->SetIonicModel(ionic_model_type::LuoRudyIBackwardEuler);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::LuoRudyIBackwardEuler);
         
         HeartConfig::Instance()->SetIonicModel(ionic_model_type::MahajanShiferaw);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::MahajanShiferaw);

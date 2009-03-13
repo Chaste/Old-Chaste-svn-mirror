@@ -9,7 +9,7 @@
 		-->    
 	    <SimulationDuration unit="ms">4.0</SimulationDuration>
 	    <Domain>Bi</Domain>
-	    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
+	    <IonicModel>Fox2002BackwardEuler</IonicModel>
 	    
 		<!-- 
 			Mesh definition 
