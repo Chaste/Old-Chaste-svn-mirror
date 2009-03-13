@@ -112,15 +112,16 @@ public:
         */
         bool need_initialisation = true;
         double probe_voltage=0.0;
-        Vec voltage=monodomain_problem.GetSolution();
-        ReplicatableVector voltage_replicated;
-        voltage_replicated.ReplicatePetscVector(voltage);
+
+        DistributedVector voltage(monodomain_problem.GetSolution());
         need_initialisation = true;
 
         // Test the RHS of the mesh
-        for (unsigned i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
+        for (DistributedVector::Iterator node_index = DistributedVector::Begin(); 
+             node_index != DistributedVector::End();
+             ++node_index)          
         {
-            if (monodomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
+            if (monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint()[0] == 0.1)
             {
                 // x = 0 is where the stimulus has been applied
                 // x = 0.1cm is the other end of the mesh and where we want to
@@ -128,7 +129,7 @@ public:
 
                 if (need_initialisation)
                 {
-                    probe_voltage = voltage_replicated[i];
+                    probe_voltage = voltage[node_index];
                     need_initialisation = false;
                 }
                 else
@@ -139,10 +140,10 @@ public:
                     // the voltages would vary more with a mesh with all the
                     // triangles aligned in the same direction.
 
-                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 1e-10);
+                    TS_ASSERT_DELTA(voltage[node_index], probe_voltage, 1e-10);
                 }
 
-                TS_ASSERT_DELTA(voltage_replicated[i], 0.139426, 2e-3);
+                TS_ASSERT_DELTA(voltage[node_index], 0.139426, 2e-3);
              }
         }
     }
