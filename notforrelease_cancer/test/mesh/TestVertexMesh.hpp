@@ -1554,7 +1554,7 @@ public:
     }
 
 
-    void TestOverlappingElements(void)
+    void TestElementIncludesPointAndGetLocalIndexForElementEdgeClosestToPoint(void)
     {
         // Make four nodes
         std::vector<Node<2>*> nodes;
@@ -1623,6 +1623,80 @@ public:
         test_point7[1] = 1.0;
 
         TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point7, 0), false);
+    }
+
+
+    void TestRemeshNodeOverlappingElement(void)
+    {
+        /*
+         * Make a small mesh consisting of three elements: 
+         * a square and triangle sat on top of a rectangle.
+         */
+
+        // Make nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+        nodes.push_back(new Node<2>(4, true, 2.0, 0.0));
+        nodes.push_back(new Node<2>(5, true, 2.0, 1.0));
+        nodes.push_back(new Node<2>(6, true, 1.1, 0.5));
+        nodes.push_back(new Node<2>(7, true, 0.0, -1.0));
+        nodes.push_back(new Node<2>(8, true, 2.0, -1.0));
+
+        std::vector<Node<2>*> nodes_in_element0;
+        nodes_in_element0.push_back(nodes[0]);
+        nodes_in_element0.push_back(nodes[1]);
+        nodes_in_element0.push_back(nodes[2]);
+        nodes_in_element0.push_back(nodes[3]);
+
+        std::vector<Node<2>*> nodes_in_element1;
+        nodes_in_element1.push_back(nodes[4]);
+        nodes_in_element1.push_back(nodes[5]);
+        nodes_in_element1.push_back(nodes[6]);
+
+        std::vector<Node<2>*> nodes_in_element2;
+        nodes_in_element2.push_back(nodes[7]);
+        nodes_in_element2.push_back(nodes[8]);
+        nodes_in_element2.push_back(nodes[4]);
+        nodes_in_element2.push_back(nodes[1]);
+        nodes_in_element2.push_back(nodes[0]);
+
+        // Make elements
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes_in_element0));
+        elements.push_back(new VertexElement<2,2>(1, nodes_in_element1));
+        elements.push_back(new VertexElement<2,2>(2, nodes_in_element2));
+
+        // Make mesh
+        VertexMesh<2,2> mesh(nodes, elements);
+
+        // Node 6 is close to, but not overlapping, an edge of element 0
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(mesh.GetNode(6)->rGetLocation(), 0), false);
+
+        // Move node 6 to the left so that it overlaps element 1
+        ChastePoint<2> point = mesh.GetNode(6)->GetPoint();
+        point.SetCoordinate(0, 0.9);
+        mesh.SetNode(6, point);
+
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(mesh.GetNode(6)->rGetLocation(), 0), true);
+        TS_ASSERT_EQUALS(mesh.GetLocalIndexForElementEdgeClosestToPoint(mesh.GetNode(6)->rGetLocation(), 0), 1u);
+
+        // Call method to update mesh in this situation
+        mesh.MoveOverlappingNodeOntoEdgeOfElement(mesh.GetNode(6), 0);
+
+        // Check that node 6 has been moved onto the edge and added to element 0
+
+        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(2)->rGetLocation()[0], 1.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(2)->rGetLocation()[1], 0.5, 1e-4);
+
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(2), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(3), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(4), 3u);
     }
 
 

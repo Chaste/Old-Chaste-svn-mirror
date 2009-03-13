@@ -924,7 +924,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
 
         // areas and perimeters of elements are sorted in PerformT1Swap() method
 
-        // Check that no nodes have overlapped elements...
+        // Check that no nodes have overlapped elements
 
         /// \todo Only need to check this next bit if the element/node is on the boundary (see #933 and #943)
 
@@ -947,20 +947,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                         {
                             if (ElementIncludesPoint(p_current_node->rGetLocation(), other_elem_index))
                             {
-                                // \todo this doesnt account for cylindrical meshes
-                                unsigned index = GetLocalIndexForElementEdgeClosestToPoint(p_current_node->rGetLocation(), other_elem_index);
-                                unsigned num_nodes_in_elem = GetElement(other_elem_index)->GetNumNodes();
-                                std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index
-                                          << " between nodes " << GetElement(other_elem_index)->GetNodeGlobalIndex(index)
-                                          << " and " << GetElement(other_elem_index)->GetNodeGlobalIndex((index+1)%num_nodes_in_elem)
-                                          << "\n" << std::flush;
+                                MoveOverlappingNodeOntoEdgeOfElement(p_current_node, other_elem_index);
                             }
                         }
                     }
                 }
             }
         }
-
     }
     else // 3D
     {
@@ -1727,7 +1720,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
         c_vector<double, SPACE_DIM> vector_a_to_point = GetVectorFromAtoB(vertexA, testPoint);
         c_vector<double, SPACE_DIM> vector_a_to_b = GetVectorFromAtoB(vertexA, vertexB);
 
-        c_vector<double, 2> edge_ab_unit_vector = vector_a_to_b/norm_2(vector_a_to_b);
+        c_vector<double, SPACE_DIM> edge_ab_unit_vector = vector_a_to_b/norm_2(vector_a_to_b);
         double distance_parallel_to_edge = inner_prod(vector_a_to_point, edge_ab_unit_vector);
 
         double squared_distance_normal_to_edge = pow(norm_2(vector_a_to_point), 2) - pow(distance_parallel_to_edge, 2);
@@ -1740,6 +1733,41 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
     }
     return min_distance_edge_index;
 }
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::MoveOverlappingNodeOntoEdgeOfElement(Node<SPACE_DIM>* pNode, unsigned elementIndex)
+{
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
+    #undef COVERAGE_IGNORE
+
+    // Get the local index of the node in the element after which the new node is to be added
+    unsigned local_index = GetLocalIndexForElementEdgeClosestToPoint(pNode->rGetLocation(), elementIndex);
+
+    // Move the new node back onto the edge
+    c_vector<double, SPACE_DIM> node_location = pNode->rGetModifiableLocation();
+
+    // Get element
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
+    unsigned num_nodes = p_element->GetNumNodes();
+
+    c_vector<double, SPACE_DIM> vertexA = p_element->GetNodeLocation(local_index);
+    c_vector<double, SPACE_DIM> vertexB = p_element->GetNodeLocation((local_index+1)%num_nodes);
+
+    c_vector<double, SPACE_DIM> vector_a_to_point = GetVectorFromAtoB(vertexA, node_location);
+    c_vector<double, SPACE_DIM> vector_a_to_b = GetVectorFromAtoB(vertexA, vertexB);
+
+    c_vector<double, SPACE_DIM> edge_ab_unit_vector = vector_a_to_b/norm_2(vector_a_to_b);
+
+    pNode->rGetModifiableLocation() = vertexA + edge_ab_unit_vector*inner_prod(vector_a_to_point, edge_ab_unit_vector);
+
+    // Add the new node to the element (this also updates the node)
+    GetElement(elementIndex)->AddNode(local_index, pNode);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

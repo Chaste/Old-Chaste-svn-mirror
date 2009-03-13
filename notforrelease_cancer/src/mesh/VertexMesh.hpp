@@ -154,6 +154,15 @@ protected:
      */
     unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex);
 
+    /**
+     * Called by ReMesh(). Moves a node, which has been found to overlap an element,
+     * back onto the edge of that element and associates it with the element.
+     * 
+     * @param pNode pointer to the node
+     * @param elementIndex global index of the element in the mesh
+     */
+    void MoveOverlappingNodeOntoEdgeOfElement(Node<SPACE_DIM>* pNode, unsigned elementIndex);
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
