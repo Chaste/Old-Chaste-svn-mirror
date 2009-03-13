@@ -78,9 +78,6 @@ std::vector<double> scale_factor_gks;
 std::vector<double> scale_factor_ito;
 std::vector<ChasteCuboid> cell_heterogeneity_areas;
 
-std::vector< c_vector<double,3> > specific_conductivities;
-std::vector<ChasteCuboid> conductivity_heterogeneity_areas;
-
 class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
 {
 public:
@@ -154,7 +151,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        // Memory leak, these pointers should freed somewhere
+        /// \todo: Memory leak, these pointers should freed
         MultiStimulus* node_specific_stimulus = new MultiStimulus();
 
         // Check which of the defined stimuli contain the current node
@@ -186,7 +183,15 @@ void ReadParametersFromFile()
     ionic_model = HeartConfig::Instance()->GetIonicModel();
 
     // Read and store Stimuli
-    HeartConfig::Instance()->GetStimuli(stimuli_applied, stimuled_areas);
+    try
+    {
+        HeartConfig::Instance()->GetStimuli(stimuli_applied, stimuled_areas);
+    }
+    catch(Exception& e)
+    {
+        // No stimuli provided
+        std::cout << "Warning: No stimuli provided. Simulation will be run anyway." << std::endl;        
+    }
 
     // Read and store Cell Heterogeneities
     try
@@ -197,11 +202,8 @@ void ReadParametersFromFile()
     }
     catch(Exception& e)
     {
-        // Ignore the exception
+        // No cell heterogeneities provided
     }               
-    
-    /// \todo Read and store Conductivity Heterogeneities
-
 }
 
 
