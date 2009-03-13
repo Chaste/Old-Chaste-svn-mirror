@@ -45,7 +45,12 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** Archive the cell cycle model. */
+    /**
+     * Archive the cell cycle model and random number generator, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -65,7 +70,7 @@ private:
 
     /**
      * Private constructor for identical cells.
-     * 
+     *
      * @param g1Duration
      * @param generation
      */
@@ -80,8 +85,8 @@ public:
     StochasticDurationGenerationBasedCellCycleModel()
     {}
 
-    /** 
-     * Overridden builder method to create new instances of 
+    /**
+     * Overridden builder method to create new instances of
      * the cell cycle model.
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();

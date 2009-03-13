@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Wnt-dependent cell cycle model with a stochastic G2 duration.
  *
- * Note that this class uses C++'s default copying semantics, and so 
+ * Note that this class uses C++'s default copying semantics, and so
  * doesn't implement a copy constructor or operator=.
  */
 class StochasticWntCellCycleModel : public WntCellCycleModel
@@ -49,13 +49,17 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** 
+    /**
      * Archive the cell cycle model and member variables.
-     * 
+     * Used by boost, never directly by chaste code.
+     *
      * Serialization of singleton objects must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
+     *
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -71,14 +75,14 @@ private:
 
     /** The duration of the G2 phase, set stochastically. */
     double mG2Duration;
-    
+
     /**
      * This method overrides that in WntCellCycleModel and
      * introduces the stochastic element of this class.
-     * 
+     *
      * We allow the duration of the G2 phase of the cell cycle to
-     * vary as a normal random deviate with a mean of its deterministic 
-     * duration, a standard deviation of 0.9 hours, and a cutoff to 
+     * vary as a normal random deviate with a mean of its deterministic
+     * duration, a standard deviation of 0.9 hours, and a cutoff to
      * ensure that it is greater than some minimum value.
      *
      * @return the duration of the G2 phases of the cell cycle.
@@ -94,15 +98,15 @@ public:
 
     /**
      * Initialise the cell cycle model at the start of a simulation.
-     * 
-     * This overridden method sets up a new WntCellCycleOdeSystem, 
-     * sets the cell type according to the current beta catenin level 
+     *
+     * This overridden method sets up a new WntCellCycleOdeSystem,
+     * sets the cell type according to the current beta catenin level
      * and sets a random G2 duration.
      */
     void Initialise();
 
     /**
-     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision() 
+     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision()
      * and setting a new random G2 duration.
      */
     void ResetForDivision();
@@ -151,12 +155,12 @@ public:
                                 CellMutationState mutationState);
 
     /**
-     * Returns a new StochasticWntCellCycleModel, created with the correct 
+     * Returns a new StochasticWntCellCycleModel, created with the correct
      * initial conditions.
      *
-     * This method should be called just after the parent cell cycle model 
+     * This method should be called just after the parent cell cycle model
      * has been reset.
-     * 
+     *
      * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
@@ -190,9 +194,9 @@ inline void load_construct_data(
     Archive & ar, StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
     /**
-     * Invoke inplace constructor to initialise an instance of StochasticWntCellCycleModel. 
-     * It doesn't actually matter what values we pass to our standard constructor, 
-     * provided they are valid parameter values, since the state loaded later 
+     * Invoke inplace constructor to initialise an instance of StochasticWntCellCycleModel.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
      */
 

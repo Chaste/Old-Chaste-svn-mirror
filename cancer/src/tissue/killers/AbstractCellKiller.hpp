@@ -63,6 +63,8 @@ public:
 
     /**
      * Get a pointer to the tissue.
+     *
+     * @return A const pointer to the mpTissue
      */
     const AbstractTissue<SPACE_DIM>* GetTissue() const;
 
@@ -77,7 +79,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Serialize the facade.
-     * 
+     *
      * @param archive
      * @param version
      */

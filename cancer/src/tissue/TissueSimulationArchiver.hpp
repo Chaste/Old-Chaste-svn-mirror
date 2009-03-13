@@ -44,6 +44,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "MeshArchiveInfo.hpp"
 
+/**
+ * TissueSimulationArchiver handles the checkpointing (saving and loading)
+ * of all the various TissueSimulation objects. It has no explicit constructor
+ * (just uses a default one) and no member variables.
+ */
 template<unsigned DIM, class SIM>
 class TissueSimulationArchiver
 {
@@ -58,7 +63,7 @@ public:
      *   be one of the times at which simulation.Save() was called)
      */
     static SIM* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
-    
+
     /**
      * Saves the whole tissue simulation for restarting later.
      *
@@ -68,7 +73,7 @@ public:
      *
      * First archives simulation time (and other singletons, if used)
      * then the simulation itself.
-     * 
+     *
      * @param pSim pointer to the simulation
      */
     static void Save(SIM* pSim);
@@ -82,7 +87,7 @@ private:
      *
      * The path to the mesh is stored as MeshArchiveInfo::meshPathname for use by the
      * Tissue de-serialization routines.
-     * 
+     *
      * @param rArchiveDirectory  the name of the simulation to load
      *   (specified originally by simulation.SetOutputDirectory("wherever"); )
      * @param rTimeStamp  the time at which to load the simulation (this must
@@ -112,11 +117,11 @@ template<unsigned DIM, class SIM>
 SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
     std::string archive_filename = TissueSimulationArchiver<DIM, SIM>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
-    
+
     // Create an input archive
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
     boost::archive::text_iarchive input_arch(ifs);
-    
+
     // Load any data that isn't the simulation itself, mainly singletons
     // - simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -138,7 +143,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
         CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
         input_arch & *p_cellwise_data;
     }
-    
+
     // Load the simulation
     SIM* p_sim;
     input_arch >> p_sim;
@@ -154,7 +159,7 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     assert(p_sim_time->IsStartTimeSetUp());
     std::ostringstream time_stamp;
     time_stamp << p_sim_time->GetTime();
-    
+
     // Create an output file handler in order to get the full path of the
     // archive directory.  Note the false is so the handler doesn't clean
     // the directory.
@@ -162,15 +167,15 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     OutputFileHandler handler(archive_directory, false);
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_" + time_stamp.str() + ".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
-    
-    // Write the mesh to file. Call Update() first to 
+
+    // Write the mesh to file. Call Update() first to
     // ensure that the tissue is in a good state.
     pSim->rGetTissue().Update();
     if (pSim->rGetTissue().HasMesh())
     {
         pSim->rGetTissue().WriteMeshToFile(archive_directory, mesh_filename);
     }
-    
+
     // Create a new archive
     std::ofstream ofs(archive_filename.c_str());
     boost::archive::text_oarchive output_arch(ofs);
@@ -196,7 +201,7 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
         CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
         output_arch & *p_cellwise_data;
     }
-    
+
     // Archive the simulation itself
     output_arch & pSim; // const-ness would be a pain here
 }

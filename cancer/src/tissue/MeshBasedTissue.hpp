@@ -110,7 +110,7 @@ protected:
      *
      * Note also that member data related to writers is not saved - output must
      * be set up again by the caller after a restart.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -139,7 +139,7 @@ protected:
 
     /**
      * Update mIsGhostNode if required by a remesh.
-     * 
+     *
      * @param rMap A map between node indices before and after remesh
      */
     virtual void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
@@ -383,7 +383,9 @@ public:
      */
     void WriteTissueAreaResultsToFile();
 
-    /** Get a reference to a Voronoi tessellation of the mesh. */
+    /**
+     * Get a reference to a Voronoi tessellation of the mesh.
+     */
     void CreateVoronoiTessellation();
 
     /**
@@ -422,7 +424,7 @@ public:
 
         /**
          * Comparison not-equal-to.
-         * 
+         *
          * @param other SpringIterator with which comparison is made
          */
         bool operator!=(const SpringIterator& other);
@@ -434,7 +436,7 @@ public:
 
         /**
          * Constructor for a new iterator.
-         * 
+         *
          * @param rTissue the tissue
          * @param edgeIter iterator over edges in the mesh
          */

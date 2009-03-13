@@ -43,7 +43,12 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** Archive the cell cycle model. */
+    /**
+     * Archive the cell cycle model, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -51,7 +56,7 @@ private:
     }
 
     /**
-     * Private constructor for identical cells.
+     * Private constructor for creating identical cells.
      *
      * @param g1Duration
      * @param generation

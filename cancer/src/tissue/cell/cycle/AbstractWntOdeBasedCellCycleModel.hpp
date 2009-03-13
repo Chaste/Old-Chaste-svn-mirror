@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * These models have a constant length M phase, run ODEs to decide when
  * to finish G1 phase, then add time for S and G2 phases (in some classes,
- * random periods of time). The CellType is updated dependent on the 
+ * random periods of time). The CellType is updated dependent on the
  * concentration of beta-catenin (given by one of the ODEs).
  */
 class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
@@ -57,9 +57,9 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** 
-     * Archive the cell cycle model.
-     * 
+    /**
+     * Archive the cell cycle model, never used directly - boost uses this.
+     *
      * @param archive
      * @param version
      */
@@ -81,7 +81,7 @@ protected:
 
     /**
      * Constructor.
-     * 
+     *
      * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
      */
     AbstractWntOdeBasedCellCycleModel(double lastTime)

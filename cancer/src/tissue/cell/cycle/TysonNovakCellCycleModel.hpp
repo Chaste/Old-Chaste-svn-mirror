@@ -58,8 +58,10 @@ class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 private:
 
 #ifdef CHASTE_CVODE
+    /** A solver object for the ODE system - in this case a CVODE solver */
     static CvodeAdaptor msSolver;
 #else
+    /** A solver object for the ODE system - in this case a chaste Backward Euler solver */
     static BackwardEulerIvpOdeSolver msSolver;
 #endif  //CHASTE_CVODE
 
@@ -76,7 +78,12 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** Archive the cell cycle model. */
+    /**
+     * Archive the cell cycle model, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -91,25 +98,25 @@ public:
     TysonNovakCellCycleModel();
 
     /**
-     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision() 
+     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision()
      * and setting initial conditions for protein concentrations.
      */
     void ResetForDivision();
 
     /**
-     * Returns a new TysonNovakCellCycleModel, created with the correct 
+     * Returns a new TysonNovakCellCycleModel, created with the correct
      * initial conditions.
      *
-     * This method should be called just after the parent cell cycle model 
+     * This method should be called just after the parent cell cycle model
      * has been reset.
-     * 
+     *
      * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Solve the ODEs up to the current time and return whether a stopping event occurred.
-     * 
+     *
      * @param currentTime the current time
      * @return whether a stopping event occured
      */
@@ -117,7 +124,7 @@ public:
 
     /**
      * Get the time at which the ODE stopping event occured.
-     * 
+     *
      * @return the stopping event time
      */
     double GetOdeStopTime();
@@ -131,7 +138,7 @@ public:
      * Get the duration of the cell's G2 phase.
      */
     double GetG2Duration();
-    
+
     /**
      * Get the duration of the cell's M phase.
      */

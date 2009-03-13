@@ -98,7 +98,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the object and its member variables.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -124,9 +124,11 @@ protected:
 
 public:
 
-    /*
+    /**
      * Return a pointer to the WntConcentration object.
      * The first time this is called, the object is created.
+     *
+     * @return  A pointer to the singleton WntConcentration object.
      */
     static WntConcentration* Instance();
 
@@ -163,7 +165,7 @@ public:
     /**
      *  Get the Wnt gradient at a given location in the crypt. Note the
      *  CancerParameters::CryptLength() is used for this.
-     * 
+     *
      *  @param location  the location at which we want the Wnt gradient
      */
     c_vector<double,2> GetWntGradient(c_vector<double,2> location);
@@ -172,7 +174,7 @@ public:
      *  Get the Wnt gradient at a given cell in the crypt. The crypt
      *  must be set for this. Note the CancerParameters::CryptLength()
      *  is used for this.
-     * 
+     *
      *  @param pCell pointer to the cell at which we want the Wnt gradient
      */
     c_vector<double,2> GetWntGradient(TissueCell* pCell);
@@ -191,7 +193,7 @@ public:
 
     /**
      *  Set the type of Wnt concentration. Must be called before GetWntLevel().
-     * 
+     *
      *  @param type the type of Wnt concentration
      */
     void SetType(WntConcentrationType type);
@@ -199,7 +201,7 @@ public:
     /**
      *  Force the Wnt concentration to return a given value for all cells.
      *  Only for testing.
-     *  
+     *
      *  @param value the constant value to set the Wnt concentration to be
      */
     void SetConstantWntValueForTesting(double value);

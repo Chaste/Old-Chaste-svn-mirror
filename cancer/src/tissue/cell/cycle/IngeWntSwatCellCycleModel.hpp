@@ -55,7 +55,12 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** Archive the cell cycle model and ODE system. */
+    /**
+     * Archive the cell cycle model and ODE system, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -78,7 +83,7 @@ private:
     void ChangeCellTypeDueToCurrentBetaCateninLevel();
 
     /**
-     * Hypothesis number (1 or 2), concerning the nature of the 
+     * Hypothesis number (1 or 2), concerning the nature of the
      * interactions modelled by the cell cycle ODE system.
      */
     unsigned mHypothesis;
@@ -87,8 +92,8 @@ public:
 
     /**
      * Default constructor.
-     * 
-     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the 
+     *
+     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the
      * interactions modelled by the cell cycle ODE system.
      */
     IngeWntSwatCellCycleModel(unsigned hypothesis)
@@ -151,7 +156,7 @@ public:
 
     /**
      * Solve the ODE to the current time.
-     * 
+     *
      * @param currentTime the current time
      * @return Whether a stopping event occurred.
      */
@@ -212,23 +217,23 @@ inline void load_construct_data(
     Archive & ar, IngeWntSwatCellCycleModel * t, const unsigned int file_version)
 {
     /**
-     * Invoke inplace constructor to initialise an instance of IngeWntSwatCellCycleModel. 
-     * It doesn't actually matter what values we pass to our standard constructor, 
-     * provided they are valid parameter values, since the state loaded later 
+     * Invoke inplace constructor to initialise an instance of IngeWntSwatCellCycleModel.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
      */
-    
+
     std::vector<double> state_vars;
     for (unsigned i=0; i<22; i++)
     {
         state_vars.push_back(0.0);
     }
-    
+
     CellMutationState mutation_state = HEALTHY;
-    
+
     unsigned hypothesis;
     ar & hypothesis;
-    
+
     ::new(t)IngeWntSwatCellCycleModel(hypothesis, state_vars, mutation_state);
 }
 }

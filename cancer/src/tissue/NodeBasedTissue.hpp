@@ -36,7 +36,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/vector.hpp>
 
-
+/**
+ * A NodeBasedTissue is a Tissue consisting of only nodes in space with associated cells.
+ * There are no elements and no mesh.
+ */
 template<unsigned DIM>
 class NodeBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
@@ -70,17 +73,17 @@ private:
 
     /**
      * Overridden AddNode() method.
-     * 
+     *
      * Add a new node to the tissue.
-     * 
-     * @param pNewNode pointer to the new node 
+     *
+     * @param pNewNode pointer to the new node
      * @return global index of new node in tissue
      */
     unsigned AddNode(Node<DIM>* pNewNode);
 
     /**
      * Move the node with a given index to a new point in space.
-     * 
+     *
      * @param nodeIndex the index of the node to be moved
      * @param rNewLocation the new target location of the node
      */
@@ -90,34 +93,34 @@ private:
      * Check consistency of our internal data structures.
      */
     void Validate();
-    
-    /** 
+
+    /**
      *  Whether to delete the nodes (taken in one of the constructors, defaults to true)
-     */ 
+     */
     bool mDeleteNodes;
 
 public:
 
     /**
-     * Deafult constructor.
-     * 
+     * Default constructor.
+     *
      * Note that the tissue will take responsibility for freeing the memory used by the nodes.
-     * 
+     *
      * @param nodes a vector of Nodes
      * @param rCells a vector of TissueCells
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
-    NodeBasedTissue(const std::vector<Node<DIM>* > nodes, 
-                    const std::vector<TissueCell>& rCells,                    
+    NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
+                    const std::vector<TissueCell>& rCells,
                     const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                     bool deleteNodes=true);
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
      * dealt with by the serialize method of our base class.
-     * 
+     *
      * Note that the tissue will take responsibility for freeing the memory used by the nodes.
-     * 
+     *
      * @param nodes a vector of Nodes
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool deleteNodes=true);
@@ -125,20 +128,20 @@ public:
     /**
      * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
      * changed and no references to any of its data are created.
-     * 
+     *
      * This constructor is a helper constructor: it is generally easier for the user to
      * create a mesh than a set of nodes.
-     * 
+     *
      * @param rMesh a mesh
      * @param rCells a vector of TissueCells
-     * 
+     *
      */
     NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
                     const std::vector<TissueCell>& rCells);
 
     /**
      * Destructor.
-     * 
+     *
      * Frees all our node memory.
      */
     ~NodeBasedTissue();
@@ -150,7 +153,7 @@ public:
 
     /**
      * Overridden GetNode() method.
-     * 
+     *
      * @param index  global index of the specified node
      *
      * @return a pointer to the node with a given index.
@@ -177,14 +180,14 @@ public:
 
     /**
      * Method for getting all nodes in the tissue.
-     * 
+     *
      * @return vector of Nodes
-     */ 
+     */
     std::vector<Node<DIM>* >& rGetNodes();
-    
+
     /**
      * Method for getting all nodes in the tissue (for archiving).
-     * 
+     *
      * @return vector of Nodes
      */
     const std::vector<Node<DIM>* >& rGetNodes() const;
