@@ -4,7 +4,7 @@
   <Simulation>
     <SimulationDuration unit="ms">0.100000000000000006</SimulationDuration>
     <Domain>Mono</Domain>
-    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
+    <IonicModel>LuoRudyI</IonicModel>
     <OutputDirectory>Monodomain2d</OutputDirectory>
     <OutputFilenamePrefix>monodomain2d</OutputFilenamePrefix>
   </Simulation>
