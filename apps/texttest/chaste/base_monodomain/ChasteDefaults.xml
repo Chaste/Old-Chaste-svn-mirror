@@ -5,7 +5,7 @@
 
 	<Simulation>
 	    <Domain>Mono</Domain>
-	    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
+	    <IonicModel>LuoRudyI</IonicModel>
 		<OutputDirectory>ChasteResults</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 	</Simulation>

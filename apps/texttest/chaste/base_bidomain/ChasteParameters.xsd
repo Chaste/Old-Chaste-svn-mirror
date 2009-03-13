@@ -67,9 +67,13 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="BackwardEulerFoxModel2002Modified"/>
       <xs:enumeration value="BackwardEulerLuoRudyIModel1991"/>
-      <xs:enumeration value="LuoRudyIModel1991OdeSystem"/>
+      <xs:enumeration value="LuoRudyI"/>
       <xs:enumeration value="FaberRudy2000Version3Optimised"/>
-      <xs:enumeration value="FaberRudy2000Version3"/>
+      <xs:enumeration value="FaberRudy2000"/>
+      <xs:enumeration value="DifrancescoNoble"/>
+      <xs:enumeration value="MahajanShiferaw"/>
+      <xs:enumeration value="HodgkinHuxley"/>
+      <xs:enumeration value="tenTusscher2006"/>
     </xs:restriction>
   </xs:simpleType>
   

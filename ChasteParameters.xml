@@ -9,7 +9,7 @@
 		-->    
 	    <SimulationDuration unit="ms">50.0</SimulationDuration>
 	    <Domain>Mono</Domain>
-	    <IonicModel>FaberRudy2000Version3</IonicModel>
+	    <IonicModel>FaberRudy2000</IonicModel>
 	    
 		<!-- 
 			Mesh definition 

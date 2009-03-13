@@ -54,6 +54,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3.cpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
+#include "DiFrancescoNoble1985OdeSystem.hpp"
+#include "Mahajan2008OdeSystem.hpp"
+#include "TenTusscher2006OdeSystem.hpp"
+#include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
+
 #include "OrthotropicConductivityTensors.hpp"
 
 #include "Hdf5ToMeshalyzerConverter.hpp"
@@ -64,7 +69,7 @@ std::string parameter_file;
 // User-modifiable parameters.  Real values will be read from a config file.
 std::string  output_directory = "/";      // Location to put simulation results
 domain_type domain = domain_type::Mono;
-ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
+ionic_model_type ionic_model = ionic_model_type::LuoRudyI;
 
 std::vector<SimpleStimulus> stimuli_applied;
 std::vector<ChasteCuboid> stimuled_areas;
@@ -88,7 +93,7 @@ public:
     {
         switch(ionic_model)
         {
-            case(ionic_model_type::LuoRudyIModel1991OdeSystem):
+            case(ionic_model_type::LuoRudyI):
                 return new LuoRudyIModel1991OdeSystem(mpSolver, intracellularStimulus);
                 break;
 
@@ -99,8 +104,24 @@ public:
             case(ionic_model_type::BackwardEulerFoxModel2002Modified):
                 return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
                 break;
-
-            case(ionic_model_type::FaberRudy2000Version3):
+            
+            case(ionic_model_type::DifrancescoNoble):
+                return new DiFrancescoNoble1985OdeSystem(mpSolver, intracellularStimulus);
+                break;
+            
+            case(ionic_model_type::MahajanShiferaw):
+                return new Mahajan2008OdeSystem(mpSolver, intracellularStimulus);
+                break;
+                
+            case(ionic_model_type::tenTusscher2006):
+                return new TenTusscher2006OdeSystem(mpSolver, intracellularStimulus);
+                break;
+            
+            case(ionic_model_type::HodgkinHuxley):
+                return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(mpSolver, intracellularStimulus);
+                break;
+                
+            case(ionic_model_type::FaberRudy2000):
                 {
                     FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, intracellularStimulus);
 

@@ -73,7 +73,7 @@ public:
 
             TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
             TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000Version3);
+            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000);
         }
         catch (const xml_schema::exception& e)
         {
@@ -112,7 +112,7 @@ public:
 
             TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
             TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000Version3);
+            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000);
         }
         catch (const xml_schema::exception& e)
         {

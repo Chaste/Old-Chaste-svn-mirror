@@ -2732,11 +2732,11 @@ _xsd_ionic_model_type_convert () const
   ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ionic_model_type_literals_);
   const _xsd_ionic_model_type* i (::std::lower_bound (
                                     _xsd_ionic_model_type_indexes_,
-                                    _xsd_ionic_model_type_indexes_ + 5,
+                                    _xsd_ionic_model_type_indexes_ + 9,
                                     *this,
                                     c));
 
-  if (i == _xsd_ionic_model_type_indexes_ + 5 || _xsd_ionic_model_type_literals_[*i] != *this)
+  if (i == _xsd_ionic_model_type_indexes_ + 9 || _xsd_ionic_model_type_literals_[*i] != *this)
   {
     throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
   }
@@ -2745,23 +2745,31 @@ _xsd_ionic_model_type_convert () const
 }
 
 const char* const ionic_model_type::
-_xsd_ionic_model_type_literals_[5] =
+_xsd_ionic_model_type_literals_[9] =
 {
   "BackwardEulerFoxModel2002Modified",
   "BackwardEulerLuoRudyIModel1991",
-  "LuoRudyIModel1991OdeSystem",
+  "LuoRudyI",
   "FaberRudy2000Version3Optimised",
-  "FaberRudy2000Version3"
+  "FaberRudy2000",
+  "DifrancescoNoble",
+  "MahajanShiferaw",
+  "HodgkinHuxley",
+  "tenTusscher2006"
 };
 
 const ionic_model_type::_xsd_ionic_model_type ionic_model_type::
-_xsd_ionic_model_type_indexes_[5] =
+_xsd_ionic_model_type_indexes_[9] =
 {
   ::ionic_model_type::BackwardEulerFoxModel2002Modified,
   ::ionic_model_type::BackwardEulerLuoRudyIModel1991,
-  ::ionic_model_type::FaberRudy2000Version3,
+  ::ionic_model_type::DifrancescoNoble,
+  ::ionic_model_type::FaberRudy2000,
   ::ionic_model_type::FaberRudy2000Version3Optimised,
-  ::ionic_model_type::LuoRudyIModel1991OdeSystem
+  ::ionic_model_type::HodgkinHuxley,
+  ::ionic_model_type::LuoRudyI,
+  ::ionic_model_type::MahajanShiferaw,
+  ::ionic_model_type::tenTusscher2006
 };
 
 // media_type

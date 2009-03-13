@@ -61,10 +61,10 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
 
         ionic_model_type default_ionic_model = HeartConfig::Instance()->DefaultParameters()->Simulation().IonicModel().get();
-        TS_ASSERT_EQUALS(default_ionic_model, ionic_model_type::LuoRudyIModel1991OdeSystem);
+        TS_ASSERT_EQUALS(default_ionic_model, ionic_model_type::LuoRudyI);
 
         ionic_model_type user_ionic_model = HeartConfig::Instance()->UserParameters()->Simulation().IonicModel().get();
-        TS_ASSERT_EQUALS(user_ionic_model, ionic_model_type::FaberRudy2000Version3);
+        TS_ASSERT_EQUALS(user_ionic_model, ionic_model_type::FaberRudy2000);
 
         ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel();
         TS_ASSERT_EQUALS(user_ionic_model, get_ionic_model);
@@ -82,7 +82,7 @@ public :
                          domain_type::Mono);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(),
-                          ionic_model_type::FaberRudy2000Version3);
+                          ionic_model_type::FaberRudy2000);
 
         TS_ASSERT(HeartConfig::Instance()->GetCreateSlab());
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
@@ -206,6 +206,18 @@ public :
 
         HeartConfig::Instance()->SetIonicModel(ionic_model_type::BackwardEulerLuoRudyIModel1991);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::BackwardEulerLuoRudyIModel1991);
+        
+        HeartConfig::Instance()->SetIonicModel(ionic_model_type::MahajanShiferaw);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::MahajanShiferaw);
+        
+        HeartConfig::Instance()->SetIonicModel(ionic_model_type::HodgkinHuxley);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::HodgkinHuxley);
+        
+        HeartConfig::Instance()->SetIonicModel(ionic_model_type::tenTusscher2006);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::tenTusscher2006);
+
+        HeartConfig::Instance()->SetIonicModel(ionic_model_type::DifrancescoNoble);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::DifrancescoNoble);
 
         TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
 
