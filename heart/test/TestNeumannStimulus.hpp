@@ -272,24 +272,28 @@ public:
         bidomain_problem.Solve();
 
         // check some voltages
-        ReplicatableVector voltage_replicated(bidomain_problem.GetSolution());
+        DistributedVector solution(bidomain_problem.GetSolution());
+        DistributedVector::Stripe voltage(solution, 0);
+        
         double atol=2.0;
 
-        for (unsigned node_index = 0; node_index < r_mesh.GetNumNodes(); node_index++)
+        for (DistributedVector::Iterator node_index = DistributedVector::Begin(); 
+             node_index != DistributedVector::End();
+             ++node_index)  
         {
-            double x = r_mesh.GetNode(node_index)->rGetLocation()[0];
+            double x = r_mesh.GetNode(node_index.Global)->rGetLocation()[0];
 
             if (fabs(x)<1e-10)
             {
-                TS_ASSERT_DELTA(voltage_replicated[2*node_index], 21.0, atol)
+                TS_ASSERT_DELTA(voltage[node_index], 21.0, atol)
             }
             if (fabs(x-0.05)<1e-10)
             {
-                TS_ASSERT_DELTA(voltage_replicated[2*node_index], 23.5, atol)
+                TS_ASSERT_DELTA(voltage[node_index], 23.5, atol)
             }
             if (fabs(x-0.1)<1e-10)
             {
-                TS_ASSERT_DELTA(voltage_replicated[2*node_index], -68.5, 2*atol)
+                TS_ASSERT_DELTA(voltage[node_index], -68.5, 2*atol)
             }
         }
     }
