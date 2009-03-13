@@ -265,27 +265,6 @@ public:
     virtual AbstractCellCycleModel* CreateDaughterCellCycleModel()=0;
 
     /**
-     * @return whether the cell cycle model uses the beta-catenin level.
-     *
-     * \todo Since this method only makes sense when using an IngeWntSwatCellCycleModel,
-     *       it may be better to use dynamic_cast and/or multiple inheritance (see #838)
-     *
-     */
-    virtual bool UsesBetaCat();
-
-    /**
-     * Returns the protein concentrations at the current time.
-     *
-     * \todo This method only makes sense when using a subclass of AbstractOdeBasedCellCycleModel. Rather
-     *       than our current "work-around", in which an exception is thrown if this method is called for
-     *       a non-ODE-based cell cycle model, it may be better to use dynamic_cast and/or multiple inheritance
-     *       (see #838)
-     *
-     * NB: Will copy the vector - you can't use this to modify the concentrations.
-     */
-     virtual std::vector<double> GetProteinConcentrations() const;
-
-    /**
      * @return the current cell cycle phase
      */
     CellCyclePhase GetCurrentCellCyclePhase();

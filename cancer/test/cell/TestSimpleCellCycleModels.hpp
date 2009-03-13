@@ -60,7 +60,6 @@ public:
         TS_ASSERT_THROWS_NOTHING(FixedDurationGenerationBasedCellCycleModel model3);
 
         FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel;
-        TS_ASSERT(!p_stem_model->UsesBetaCat());
         TissueCell stem_cell(STEM, HEALTHY, p_stem_model);
         stem_cell.InitialiseCellCycleModel();
 

@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractTissue.hpp"
+#include "AbstractOdeBasedCellCycleModel.hpp"
 
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
@@ -394,9 +395,9 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         }
 
         // Write cell variable data to file if required
-        if (outputCellVariables)
+        if ( outputCellVariables && dynamic_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()) )
         {
-            std::vector<double> proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
+            std::vector<double> proteins = (static_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()))->GetProteinConcentrations();
 
             // Loop over cell positions
             /// \todo Note that the output format of mpCellVariablesFile has changed, it now

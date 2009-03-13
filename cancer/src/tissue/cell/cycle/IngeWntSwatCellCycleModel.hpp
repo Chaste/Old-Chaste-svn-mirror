@@ -182,10 +182,6 @@ public:
      */
     unsigned GetHypothesis() const; // this function promises not to change the object
 
-    /**
-     * @return whether the cell cycle model uses beta-catenin levels in cell cycle model, ie Inge models.
-     */
-    bool UsesBetaCat();
 };
 
 // Declare identifier for the serializer

@@ -183,9 +183,3 @@ unsigned IngeWntSwatCellCycleModel::GetHypothesis() const
 {
     return mHypothesis;
 }
-
-
-bool IngeWntSwatCellCycleModel::UsesBetaCat()
-{
-    return true;
-}

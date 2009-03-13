@@ -296,7 +296,6 @@ public:
         IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
 
         // Test that member variables are set correctly
-        TS_ASSERT(p_cell_model->UsesBetaCat());
         TS_ASSERT_EQUALS(p_cell_model->GetHypothesis(), 1u);
 
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);

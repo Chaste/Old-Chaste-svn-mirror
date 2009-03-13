@@ -56,10 +56,14 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<TissueSimulation<2> >(*this);
+        archive & mUseJiggledBottomCells;
     }
 
     /** Helper member that is a static cast of the tissue. */
     VertexBasedTissue<2>* mpStaticCastTissue;
+
+    /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
+    bool mUseJiggledBottomCells;
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
@@ -83,18 +87,30 @@ public :
                       bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
 
+    /**
+     * Overridden ApplyTissueBoundaryConditions() method.
+     * 
+     * If an instance of WntConcentration is not set up, then stem cells at the 
+     * bottom of the crypt are pinned. Any cell that has moved below the bottom 
+     * of the crypt is moved back up.
+     * 
+     * @param rOldLocations the node locations at the previous time step
+     */
+    void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
+
+    /**
+     * Set method for mUseJiggledBottomCells.
+     */
+    void UseJiggledBottomCells();
+
     /*
      * \todo Consider whether we need to code up the following members and methods which are present in CryptSimulation2d:
-     *       bool mUseJiggledBottomCells;
      *       out_stream mBetaCatResultsFile;
      *       void SetupWriteBetaCatenin();
      *       void WriteBetaCatenin(double time);
      *       void SetupSolve();
      *       void PostSolve();
-     *       void AfterSolve();
-     *       void UseJiggledBottomCells();
-     *       void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
-     * 
+     *       void AfterSolve(); 
      * See also #923.
      */
 

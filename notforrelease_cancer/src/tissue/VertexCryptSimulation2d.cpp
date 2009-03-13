@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VertexCryptSimulation2d.hpp"
-
+#include "WntConcentration.hpp"
 
 VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
                   std::vector<AbstractForce<2>*> forceCollection,
@@ -36,7 +36,8 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
     : TissueSimulation<2>(rTissue,
                           forceCollection,
                           deleteTissueAndForceCollection,
-                          initialiseCells)
+                          initialiseCells),
+      mUseJiggledBottomCells(false)
 {
     mpStaticCastTissue = static_cast<VertexBasedTissue<2>*>(&mrTissue);
 }
@@ -45,4 +46,63 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
 void VertexCryptSimulation2d::WriteVisualizerSetupFile()
 {
     *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u) << "\n";
+}
+
+
+void VertexCryptSimulation2d::UseJiggledBottomCells()
+{
+    mUseJiggledBottomCells = true;
+}
+
+
+void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
+{
+    bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
+    if (!is_wnt_included)
+    {
+        WntConcentration::Destroy();
+    }
+
+    // update node positions according to any tissue boundary conditions
+    for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
+    {
+        // Get pointer to this node
+        Node<2>* p_node = mrTissue.GetNode(node_index);
+
+//        if (!is_wnt_included)
+//        {
+//            /**
+//             * If WntConcentration is not set up then stem cells must be pinned,
+//             * so we reset the location of each stem cell.
+//             */
+//            if (cell_iter->GetCellType()==STEM)
+//            {
+//                // Get old node location
+//                c_vector<double, 2> old_node_location = rOldLocations[node_index];
+//
+//                // Return node to old location
+//                p_node->rGetModifiableLocation()[0] = old_node_location[0];
+//                p_node->rGetModifiableLocation()[1] = old_node_location[1];
+//            }
+//        }
+
+        // Any cell that has moved below the bottom of the crypt must be moved back up
+        if (p_node->rGetLocation()[1] < 0.0)
+        {
+            p_node->rGetModifiableLocation()[1] = 0.0;
+            if (mUseJiggledBottomCells)
+            {
+               /*
+                * Here we give the cell a push upwards so that it doesn't
+                * get stuck on the bottom of the crypt (as per #422).
+                *
+                * Note that all stem cells may get moved to the same height, so
+                * we use a random perturbation to help ensure we are not simply
+                * faced with the same problem at a different height!
+                */
+                p_node->rGetModifiableLocation()[1] = 0.05*mpRandomGenerator->ranf();
+            }
+        }
+        assert(p_node->rGetLocation()[1] >= 0.0);
+    }
 }

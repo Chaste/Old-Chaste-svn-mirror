@@ -122,7 +122,7 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
         y = mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
 
         // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
-        IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
+        IngeWntSwatCellCycleModel* p_model = static_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
 
         b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
         b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
@@ -137,8 +137,8 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
 
 void CryptSimulation2d::SetupSolve()
 {
-    if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
-        && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+    if (   (mrTissue.Begin() != mrTissue.End()) // there are any cells
+        && (dynamic_cast<IngeWntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
     {
         SetupWriteBetaCatenin();
         double current_time = SimulationTime::Instance()->GetTime();
@@ -153,8 +153,8 @@ void CryptSimulation2d::PostSolve()
 
     if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
     {
-        if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
-            && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+        if (   (mrTissue.Begin() != mrTissue.End()) // there are any cells
+            && (dynamic_cast<IngeWntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
         {
             double time_next_step = p_time->GetTime() + p_time->GetTimeStep();
             WriteBetaCatenin(time_next_step);
@@ -165,8 +165,8 @@ void CryptSimulation2d::PostSolve()
 
 void CryptSimulation2d::AfterSolve()
 {
-    if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
-        && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+    if (   (mrTissue.Begin() != mrTissue.End()) // there are any cells
+        && (dynamic_cast<IngeWntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
     {
         mBetaCatResultsFile->close();
     }
