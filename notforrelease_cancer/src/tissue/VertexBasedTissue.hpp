@@ -72,6 +72,9 @@ private:
      *
      * Note also that member data related to writers is not saved - output must
      * be set up again by the caller after a restart.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -94,7 +97,7 @@ public:
      * the mesh.
      *
      * @param rMesh reference to a VertexMesh
-     * @param cells reference to a vector of TissueCells
+     * @param rCells reference to a vector of TissueCells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      * @param validate whether to validate the tissue when it is created (defaults to true)
      * @param locationIndices an optional vector of location indices that correspond to real cells
@@ -222,6 +225,10 @@ public:
 
     /**
      * Get a pointer to the element corresponding to a given TissueCell.
+     * 
+     * @param pCell pointer to the cell
+     * 
+     * @return pointer to the element.
      */
     VertexElement<DIM, DIM>* GetElementCorrespondingToCell(TissueCell* pCell);
 

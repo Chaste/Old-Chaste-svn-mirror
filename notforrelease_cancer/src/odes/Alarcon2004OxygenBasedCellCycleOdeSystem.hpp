@@ -34,8 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellMutationStates.hpp"
 
 /**
- * Represents the Alarcon et al. (2004) system of ODEs (see ticket #461). Here
- * the cell mutation state HEALTHY corresponds to a 'normal' state, while
+ * Represents the Alarcon et al. (2004) system of ODEs (see ticket #461).
+ * [doi:10.1016/j.jtbi.2004.04.016]
+ * 
+ * Here the cell mutation state HEALTHY corresponds to a 'normal' state, while
  * LABELLED corresponds to a 'cancer' state.
  *
  * The variables are
@@ -54,24 +56,43 @@ private:
     /**
      * Constants for the Alarcon et al. (2004) model
      */
+
+    /** Dimensionless parameter a_1. */
     double ma1;
+    /** Dimensionless parameter a_2. */
     double ma2;
+    /** Dimensionless parameter a_3. */
     double ma3;
+    /** Dimensionless parameter a_4. */
     double ma4;
+    /** Dimensionless parameter b_3. */
     double mb3;
+    /** Dimensionless parameter b_4. */
     double mb4;
+    /** Dimensionless parameter c_1. */
     double mc1;
+    /** Dimensionless parameter c_2. */
     double mc2;
+    /** Dimensionless parameter d_1. */
     double md1;
+    /** Dimensionless parameter d_2. */
     double md2;
+    /** Dimensionless parameter J_3. */
     double mJ3;
+    /** Dimensionless parameter J_4. */
     double mJ4;
+    /** Dimensionless parameter eta. */
     double mEta;
+    /** Dimensionless parameter m_star. */
     double mMstar;
+    /** Dimensionless parameter B. */
     double mB;
+    /** Dimensionless parameter x_THR. */
     double mxThreshold;
+    /** Dimensionless parameter y_THR. */
     double myThreshold;
 
+    /** The mutation state of the cell associated with this cell cycle model. */
     CellMutationState mMutationState;
 
 public:

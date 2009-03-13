@@ -30,7 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractElement.hpp"
 
-
+/**
+ * An element class for use in the VertexMesh class. The main 
+ * difference between this and the Element class is that a 
+ * VertexElement can have a variable number of nodes associated 
+ * with it.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {

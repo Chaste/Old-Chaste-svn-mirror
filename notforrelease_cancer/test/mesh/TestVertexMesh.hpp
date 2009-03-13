@@ -1554,7 +1554,7 @@ public:
     }
 
 
-    void TestElementIncludesPoint(void)
+    void TestOverlappingElements(void)
     {
         // Make four nodes
         std::vector<Node<2>*> nodes;
@@ -1585,6 +1585,7 @@ public:
         test_point2[1] = 0.5;
 
         TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point2, 0), true);
+        TS_ASSERT_EQUALS(mesh.GetLocalIndexForElementEdgeClosestToPoint(test_point2, 0), 0u);
 
         // A point on a non-horizontal edge
         c_vector<double, 2> test_point3;
@@ -1592,6 +1593,7 @@ public:
         test_point3[1] = 0.5;
 
         TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point3, 0), true);
+        TS_ASSERT_EQUALS(mesh.GetLocalIndexForElementEdgeClosestToPoint(test_point3, 0), 3u);
 
         // A point on a horizontal edge
         c_vector<double, 2> test_point4;
@@ -1599,13 +1601,14 @@ public:
         test_point4[1] = 0.0;
 
         TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point4, 0), false);
-        
+
         // A point just inside the element
         c_vector<double, 2> test_point5;
         test_point5[0] = 0.999;
-        test_point5[1] = 0.999;
+        test_point5[1] = 0.998;
 
         TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point5, 0), true);
+        TS_ASSERT_EQUALS(mesh.GetLocalIndexForElementEdgeClosestToPoint(test_point5, 0), 1u);
 
         // A point just outside the element
         c_vector<double, 2> test_point6;
@@ -1619,7 +1622,7 @@ public:
         test_point7[0] = 1.0;
         test_point7[1] = 1.0;
 
-        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point7, 0), false);       
+        TS_ASSERT_EQUALS(mesh.ElementIncludesPoint(test_point7, 0), false);
     }
 
 

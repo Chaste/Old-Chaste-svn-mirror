@@ -45,7 +45,7 @@ class OxygenBasedCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
 
-    // The oxygen concentration below which cells become hypoxic
+    /** The oxygen concentration below which cells become hypoxic. */
     double mHypoxicConcentration;
 
     friend class boost::serialization::access;
@@ -60,8 +60,8 @@ public:
     /**
      * Constructor.
      *
-     * @param pointer to the tissue.
-     * @param oxygen concentration below which cells become hypoxic.
+     * @param pTissue pointer to the tissue.
+     * @param concentration oxygen concentration below which cells become hypoxic.
      */
     OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue,
                           double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration());

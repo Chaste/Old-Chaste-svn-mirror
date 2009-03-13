@@ -139,7 +139,7 @@ public:
      */
     unsigned AddNode(Node<2> *pNewNode);
     
-    /*
+    /**
      * Overridden GetAreaOfElement() method.
      * 
      * @param index  the global index of a specified vertex element

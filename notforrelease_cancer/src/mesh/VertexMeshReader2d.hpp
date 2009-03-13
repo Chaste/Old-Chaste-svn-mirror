@@ -35,6 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 
+/**
+ * Helper structure that stores the nodes and any attribute value
+ * associated with a VertexElement.
+ */
 struct VertexElementData
 {
     std::vector<unsigned> NodeIndices;

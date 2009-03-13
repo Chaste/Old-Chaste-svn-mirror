@@ -77,7 +77,9 @@ private :
     bool mIncludeWntChemotaxis;
 
     /**
-     * Fix up the mappings between node indices and 3D locations
+     * Fix up the mappings between node indices and 3D locations.
+     * 
+     * @param rTissue the tissue
      */
     void UpdateNode3dLocationMap(AbstractTissue<2>& rTissue);
 
@@ -86,8 +88,9 @@ private :
      *
      * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
      *
-     * @param NodeAGlobalIndex
-     * @param NodeBGlobalIndex
+     * @param nodeAGlobalIndex the index of the first node
+     * @param nodeBGlobalIndex the index of the second node
+     * @param rTissue the tissue
      *
      * @return The force exerted on Node A by Node B.
      */

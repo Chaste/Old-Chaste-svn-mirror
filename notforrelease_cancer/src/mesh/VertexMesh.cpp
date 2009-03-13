@@ -948,9 +948,12 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                             if (ElementIncludesPoint(p_current_node->rGetLocation(), other_elem_index))
                             {
                                 // \todo this doesnt account for cylindrical meshes
-                                std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index << "\n" << std::flush;
-                                /// \todo Remesh appropriately if an overlap occurs (see #933)
-                                // EXCEPTION("A node has overlapped an element");
+                                unsigned index = GetLocalIndexForElementEdgeClosestToPoint(p_current_node->rGetLocation(), other_elem_index);
+                                unsigned num_nodes_in_elem = GetElement(other_elem_index)->GetNumNodes();
+                                std::cout << "Node " << p_current_node->GetIndex() << " has overlapped element " << other_elem_index
+                                          << " between nodes " << GetElement(other_elem_index)->GetNodeGlobalIndex(index)
+                                          << " and " << GetElement(other_elem_index)->GetNodeGlobalIndex((index+1)%num_nodes_in_elem)
+                                          << "\n" << std::flush;
                             }
                         }
                     }
@@ -1697,6 +1700,46 @@ bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<dou
     return element_includes_point;
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex)
+{
+    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
+    #undef COVERAGE_IGNORE
+
+    // Get the element
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
+    unsigned num_nodes = p_element->GetNumNodes();
+
+    double min_squared_distance = 1e100;
+    unsigned min_distance_edge_index;
+
+    // Loop over edges of the element
+    for (unsigned local_index=0; local_index<num_nodes; local_index++)
+    {
+        // Get the end points of this edge
+        c_vector<double, SPACE_DIM> vertexA = p_element->GetNodeLocation(local_index);
+        c_vector<double, SPACE_DIM> vertexB = p_element->GetNodeLocation((local_index+1)%num_nodes);
+
+        c_vector<double, SPACE_DIM> vector_a_to_point = GetVectorFromAtoB(vertexA, testPoint);
+        c_vector<double, SPACE_DIM> vector_a_to_b = GetVectorFromAtoB(vertexA, vertexB);
+
+        c_vector<double, 2> edge_ab_unit_vector = vector_a_to_b/norm_2(vector_a_to_b);
+        double distance_parallel_to_edge = inner_prod(vector_a_to_point, edge_ab_unit_vector);
+
+        double squared_distance_normal_to_edge = pow(norm_2(vector_a_to_point), 2) - pow(distance_parallel_to_edge, 2);
+
+        if (squared_distance_normal_to_edge < min_squared_distance)
+        {
+            min_squared_distance = squared_distance_normal_to_edge;
+            min_distance_edge_index = local_index;
+        }
+    }
+    return min_distance_edge_index;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

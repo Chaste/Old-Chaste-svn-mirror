@@ -153,7 +153,11 @@ private :
     void SolveNutrientPdeUsingCoarseMesh();
 
     /**
-     *  Find the index of the coarse mesh element containing rCell.
+     * Find the index of the coarse mesh element containing a given cell.
+     * 
+     * @param rCell the cell
+     * 
+     * @return the element index.
      */
     unsigned FindElementContainingCell(TissueCell& rCell);
 
@@ -171,6 +175,8 @@ private :
      *  Create a coarse mesh on which to solve the nutrient PDE.
      * 
      * \todo currently only works in 2D (see #737)
+     * 
+     * @param coarseGrainScaleFactor the ratio of the width of the coarse nutrient mesh to the initial width of the tissue
      */
     void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
 
@@ -188,7 +194,7 @@ public:
      * @param forceCollection The mechanics to use in the simulation
      * @param pPde The PDE for the nutrient concentration(s)
      * @param pAveragedSinksPde The PDE for the nutrient concentration(s)
-     * @param deleteTissue whether to delete the tissue on destruction to free up memory
+     * @param deleteTissueAndForceCollection whether to delete the tissue on destruction to free up memory
      * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      *
      */
@@ -211,6 +217,8 @@ public:
      * A small hack until we fully archive this class -
      * needed to set the PDE after loading a simulation
      * from an archive.
+     * 
+     * @param pPde pointer to the PDE object
      */
     void SetPde(AbstractLinearEllipticPde<DIM,DIM>* pPde);
 
@@ -218,6 +226,8 @@ public:
      * A small hack until we fully archive this class -
      * needed to set the PDE after loading a simulation
      * from an archive.
+     * 
+     * @param pAveragedSinksPde pointer to the PDE object
      */
     void SetAveragedSinksPde(AveragedSinksPde<DIM>* pAveragedSinksPde);
 
@@ -240,7 +250,7 @@ public:
     /**
      * Solve the nutrient PDE on a coarse mesh.
      *
-     * @param coarseGrainScaleFactor The ratio of the width of the coarse nutrient mesh to the initial width of the tissue
+     * @param coarseGrainScaleFactor the ratio of the width of the coarse nutrient mesh to the initial width of the tissue
      */
     void UseCoarseNutrientMesh(double coarseGrainScaleFactor=10.0);
 

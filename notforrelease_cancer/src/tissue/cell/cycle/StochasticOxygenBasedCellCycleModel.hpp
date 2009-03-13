@@ -79,7 +79,7 @@ private:
      */
     double mCurrentHypoxicDuration;
 
-    /*
+    /**
      * The time when the current period of hypoxia began.
      */
     double mCurrentHypoxiaOnsetTime;

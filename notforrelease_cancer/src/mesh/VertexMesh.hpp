@@ -110,7 +110,7 @@ protected:
      */  
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA,
                        Node<SPACE_DIM>* pNodeB, 
-                       std::set<unsigned> ElementsContainingNodes);
+                       std::set<unsigned> elementsContainingNodes);
     
     /**
      * Method to divide an element given 2 nodes in which to divide the element with 
@@ -119,7 +119,7 @@ protected:
      * 
      * @param pElement the element to divide
      * @param nodeAIndex the local index of node where to divide
-     * @param nodeBindex the local index of node where to divide
+     * @param nodeBIndex the local index of node where to divide
      * 
      * @return the index of the new element
      */  
@@ -142,6 +142,17 @@ protected:
      * @return if the point is included in the element.
      */
     bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex);
+
+    /**
+     * Get the local index of a given element which is the start vertex of the edge
+     * of the element that the overlapping point testPoint is closest to.
+     * 
+     * @param testPoint the point to test
+     * @param elementIndex global index of the element in the mesh
+     * 
+     * @return the local index
+     */
+    unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex);
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -279,7 +290,7 @@ public:
      */    
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
 
-    /*
+    /**
      * Compute the area of an element.
      *
      * This needs to be overridden 
@@ -291,7 +302,7 @@ public:
      */
     virtual double GetAreaOfElement(unsigned index);
 
-    /*
+    /**
      * Compute the perimeter of an element.
      * 
      * N.B. This calls GetVectorFromAtoB(), which can be overridden 
@@ -487,6 +498,10 @@ public:
 
     /**
      * Add an element to the mesh.
+     * 
+     * @param pElement the new element
+     * 
+     * @return the index of the new element in the mesh
      */
     unsigned AddElement(VertexElement<ELEMENT_DIM, SPACE_DIM> *pNewElement);
 

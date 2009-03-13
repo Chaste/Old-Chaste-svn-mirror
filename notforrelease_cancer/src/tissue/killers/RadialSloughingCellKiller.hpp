@@ -43,10 +43,10 @@ class RadialSloughingCellKiller : public AbstractCellKiller<2>
 {
 private:
 
-    // Centre of death.
+    /** Centre of death. */
     c_vector<double,2> mCentre;
 
-    // Radius of death.
+    /** Radius of death. */
     double mRadius;
 
     friend class boost::serialization::access;
