@@ -9,7 +9,7 @@
 		-->    
 	    <SimulationDuration>5.0</SimulationDuration>
 	    <Domain>Mono</Domain>
-	    <IonicModel>FaberRudy2000Version3</IonicModel>
+	    <IonicModel>FaberRudy2000</IonicModel>
 	    
 		<!-- 
 			Mesh definition 
@@ -23,12 +23,14 @@
 	   	-->
 	   	<Stimuli>
 		  	<Stimulus> <!-- #1 -->
-				<Strength>-35500.0</Strength>
-				<Duration>0.5</Duration>
-				<Delay>0</Delay>
-				<Location>
-					<CornerA x="-9" y="-2.5" z="-1.5"/>
-					<CornerB x="-8" y="-1.5" z="-0.5"/>
+				<Strength unit="uA/cm^3">-35500.0</Strength>
+				<Duration unit="ms">0.5</Duration>
+				<Delay unit="ms">0</Delay>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-9" y="-2.5" z="-1.5"/>
+						<UpperCoordinates x="-8" y="-1.5" z="-0.5"/>
+					</Cuboid>
 				</Location>
 			</Stimulus>
 		</Stimuli>	
@@ -44,7 +46,7 @@
 	</Physiological>
 
 	<Numerical>
-		<TimeSteps ode="0.02" pde="0.02" printing="0.02"/>
+		<TimeSteps ode="0.02" pde="0.02" printing="0.02" unit="ms"/>
 		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
