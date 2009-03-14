@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 #include "TissueCell.hpp"
+#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
+
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
@@ -165,7 +167,7 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
         p_cell_cycle_model = CreateCellCycleModel();
         typical_transit_cycle_time = this->GetTypicalTransitCellCycleTime();
         typical_stem_cycle_time = GetTypicalStemCellCycleTime();
-        
+
         double birth_time = 0.0;
         if (randomBirthTimes)
         {
@@ -202,14 +204,12 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
             generation = 4;
             birth_time *= typical_transit_cycle_time; // hours
         }
-        /**
-         * \todo
-         * Not all cell cycle models use the generation, only some of them are generation based.
-         * The following line does not do any harm, but does give redundant information to some of the models.
-         * We could create an AbstractGenerationBasedCellCycleModel, but not a priority at the moment (see #839).
-         */
-        p_cell_cycle_model->SetGeneration(generation);
-        
+
+        if (dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model))
+        {
+            static_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
+        }
+
         TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
         if (initialiseCells)
         {
@@ -217,7 +217,7 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
         }
 
         cell.SetBirthTime(birth_time);
-        
+
         if (!locationIndices.empty())
         {
             if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )

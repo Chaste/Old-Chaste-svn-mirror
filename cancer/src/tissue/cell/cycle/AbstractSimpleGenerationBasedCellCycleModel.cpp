@@ -28,24 +28,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
 
+AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCycleModel()
+    : AbstractSimpleCellCycleModel(),
+      mGeneration(0)
+{
+}
+
 AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCycleModel(double g1Duration,
                                                                          unsigned generation)
-    : AbstractSimpleCellCycleModel(g1Duration, generation)
+    : AbstractSimpleCellCycleModel(g1Duration),
+      mGeneration(generation)
 {
 }
 
 
 void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
 {
-    if (mGeneration+1u > CancerParameters::Instance()->GetMaxTransitGenerations())
+    mGeneration++;
+    if (mGeneration > CancerParameters::Instance()->GetMaxTransitGenerations())
     {
         mpCell->SetCellType(DIFFERENTIATED);
     }
-    AbstractSimpleCellCycleModel::ResetForDivision();
     if (mGeneration == 1)
     {
         mGeneration = 0;
     }
+    AbstractSimpleCellCycleModel::ResetForDivision();
 }
 
 
@@ -62,4 +70,16 @@ void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
         mpCell->SetCellType(DIFFERENTIATED);
     }
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();
+}
+
+
+void AbstractSimpleGenerationBasedCellCycleModel::SetGeneration(unsigned generation)
+{
+    mGeneration = generation;
+}
+
+
+unsigned AbstractSimpleGenerationBasedCellCycleModel::GetGeneration() const
+{
+    return mGeneration;
 }

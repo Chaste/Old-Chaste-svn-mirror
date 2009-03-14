@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PetscSetup : public CxxTest::GlobalFixture
 {
 public:
-    /// Standard setup method for PETSc.
+    /** Standard setup method for PETSc. */
     bool setUpWorld()
     {
         /**
@@ -71,7 +71,7 @@ public:
 
         return true;
     }
-    // Clean up PETSc after running all tests.
+    /** Clean up PETSc after running all tests. */
     bool tearDownWorld()
     {
         //std::cout << "Finalizing..." << std::endl;

@@ -79,9 +79,9 @@ void DistributedVector::SetProblemSize(Vec vec)
 #endif
     // calculate my range
     PetscInt petsc_lo, petsc_hi;
-    VecGetOwnershipRange(vec,&petsc_lo,&petsc_hi);
-    mLo=(unsigned)petsc_lo;
-    mHi=(unsigned)petsc_hi;
+    VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
+    mLo = (unsigned)petsc_lo;
+    mHi = (unsigned)petsc_hi;
     // vector size
     PetscInt size;
     VecGetSize(vec, &size);
@@ -95,7 +95,7 @@ unsigned DistributedVector::GetProblemSize()
 
 bool DistributedVector::IsGlobalIndexLocal(unsigned globalIndex)
 {
-    return (mLo <= globalIndex && globalIndex < mHi);
+    return (mLo<=globalIndex && globalIndex<mHi);
 }
 
 Vec DistributedVector::CreateVec()
@@ -110,7 +110,7 @@ Vec DistributedVector::CreateVec()
 Vec DistributedVector::CreateVec(unsigned stride)
 {
     Vec vec;
-    VecCreateMPI(PETSC_COMM_WORLD, stride*(mHi-mLo) , stride*mGlobalHi, &vec);
+    VecCreateMPI(PETSC_COMM_WORLD, stride*(mHi-mLo), stride*mGlobalHi, &vec);
     return vec;
 }
 
@@ -126,7 +126,7 @@ DistributedVector::DistributedVector(Vec vec) : mVec(vec)
 double& DistributedVector::operator[](unsigned globalIndex) throw (DistributedVectorException)
 {
     assert(mNumChunks==1);
-    if (mLo<=globalIndex && globalIndex <mHi)
+    if (mLo<=globalIndex && globalIndex<mHi)
     {
         return mpVec[globalIndex - mLo];
     }
@@ -155,16 +155,16 @@ DistributedVector::Iterator& DistributedVector::Iterator::operator++()
 DistributedVector::Iterator DistributedVector::Begin()
 {
     Iterator index;
-    index.Local=0;
-    index.Global=mLo;
+    index.Local = 0;
+    index.Global = mLo;
     return index;
 }
 
 DistributedVector::Iterator DistributedVector::End()
 {
     Iterator index;
-    index.Local=mHi-mLo;
-    index.Global=mHi;
+    index.Local = mHi-mLo;
+    index.Global = mHi;
     return index;
 }
 

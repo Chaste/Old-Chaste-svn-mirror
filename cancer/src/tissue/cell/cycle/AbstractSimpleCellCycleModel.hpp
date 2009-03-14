@@ -71,9 +71,8 @@ protected:
      * (with the same G1 duration).
      * 
      * @param g1Duration
-     * @param generation
      */
-    AbstractSimpleCellCycleModel(double g1Duration, unsigned generation);
+    AbstractSimpleCellCycleModel(double g1Duration);
 
     /**
      * Subclasses can override this function if they wish,

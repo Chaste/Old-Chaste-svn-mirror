@@ -55,6 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Timer
 {
 private:
+    /** The start time. */
     static time_t StartTime;
 
 public:
@@ -69,6 +70,8 @@ public:
     /**
      *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
      *  preceded by the message provided.
+     * 
+     *  @param message
      */ 
     static void Print(std::string message)
     {
@@ -80,6 +83,8 @@ public:
     /**
      *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
      *  preceded by the message provided, and also reset the timer.
+     * 
+     *  @param message
      */
     static void PrintAndReset(std::string message)
     {

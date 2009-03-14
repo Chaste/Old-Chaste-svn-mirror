@@ -28,22 +28,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleCellCycleModel.hpp"
 
 
-void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
-{
-    AbstractCellCycleModel::InitialiseDaughterCell();
-    SetG1Duration();
-}
-
-
-AbstractSimpleCellCycleModel::AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
+AbstractSimpleCellCycleModel::AbstractSimpleCellCycleModel(double g1Duration)
+    : AbstractCellCycleModel()
 {
     mG1Duration = g1Duration;
-    mGeneration = generation;
 }
     
     
 void AbstractSimpleCellCycleModel::Initialise()
 {
+    SetG1Duration();
+}
+
+
+void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
+{
+    AbstractCellCycleModel::InitialiseDaughterCell();
     SetG1Duration();
 }
 

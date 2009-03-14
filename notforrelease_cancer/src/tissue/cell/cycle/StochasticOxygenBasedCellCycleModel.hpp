@@ -99,14 +99,12 @@ private:
     /**
      * Private constructor for creating an identical daughter cell.
      * @param g1Duration
-     * @param generation
      * @param currentHypoxicDuration
      * @param currentHypoxiaOnsetTime
      * @param g2Duration
      * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
     StochasticOxygenBasedCellCycleModel(double g1Duration,
-                                        unsigned generation,
                                         double currentHypoxicDuration,
                                         double currentHypoxiaOnsetTime,
                                         double g2Duration,

@@ -108,16 +108,16 @@ void KspException(PetscInt kspError,
         // The code for the last known error (-10) is hardcoded in PETSc,
         // in future releases it might change. It is defined in
         // src/ksp/ksp/interface/dlregisksp.c
-        if (kspError >= -10 ) err_string = KSPConvergedReasons[kspError];
+        if (kspError >= -10) err_string = KSPConvergedReasons[kspError];
         else err_string = "Unknown KSP error code";
   #endif
 
-        err_string+= " in function '";
-        err_string+= funct;
-        err_string+= "' on line ";
-        err_string+= line;
-        err_string+= " of file ";
-        err_string+= file;
+        err_string += " in function '";
+        err_string += funct;
+        err_string += "' on line ";
+        err_string += line;
+        err_string += " of file ";
+        err_string += file;
 
         EXCEPTION(err_string);
     }

@@ -107,10 +107,16 @@ public:
 
 
     /**
-     *  This just calls the other OpenOutputFile after concatenating the first three arguments
-     *  together to make the full filename. For example OpenOutputFile("results_", 3, ".dat")
-     *  creates results_3.dat. See documentation for
-     *  OpenOutputFile(std::string, std::ios_base::openmode).
+     * This just calls the other OpenOutputFile after concatenating the first three arguments
+     * together to make the full filename. For example OpenOutputFile("results_", 3, ".dat")
+     * creates results_3.dat. See documentation for
+     * OpenOutputFile(std::string, std::ios_base::openmode).
+     *  
+     * @param filename  the root name of the file to open
+     * @param number  the number to append to the root name of the file
+     * @param fileFormat  the file format
+     * @param mode  optionally, flags to use when opening the file (defaults are as for
+     *         std::ofstream).
      */
     out_stream OpenOutputFile(std::string fileName,
                               unsigned number,

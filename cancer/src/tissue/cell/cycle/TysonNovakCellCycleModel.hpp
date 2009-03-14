@@ -70,11 +70,9 @@ private:
      *
     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
     * @param divideTime the SimulationTime when the cell divided (birth time of parent cell)
-    * @param generation the cell's generation
     */
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
-                             double divideTime,
-                             unsigned generation);
+                             double divideTime);
 
     /** Needed for serialization. */
     friend class boost::serialization::access;

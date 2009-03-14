@@ -45,7 +45,6 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
                                                                            bool inSG2MPhase,
                                                                            bool readyToDivide,
                                                                            double divideTime,
-                                                                           unsigned generation,
                                                                            unsigned dimension)
     : AbstractOdeBasedCellCycleModel(lastTime) // these values are overwritten below
 {
@@ -73,7 +72,6 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
     mFinishedRunningOdes = inSG2MPhase;
-    mGeneration = generation;
     mDimension = dimension;
 }
 
@@ -119,7 +117,6 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateDaughterCell
                                                     mFinishedRunningOdes,
                                                     mReadyToDivide,
                                                     mDivideTime,
-                                                    mGeneration,
                                                     mDimension);
 }
 

@@ -32,7 +32,6 @@ AbstractCellCycleModel::AbstractCellCycleModel()
     : mpCell(NULL),
       mBirthTime(SimulationTime::Instance()->GetTime()),
       mCurrentCellCyclePhase(M_PHASE),
-      mGeneration(0),
       mG1Duration(DOUBLE_UNSET),
       mReadyToDivide(false)
 {
@@ -84,22 +83,9 @@ CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
 }
 
 
-void AbstractCellCycleModel::SetGeneration(unsigned generation)
-{
-    mGeneration = generation;
-}
-
-
-unsigned AbstractCellCycleModel::GetGeneration() const
-{
-    return mGeneration;
-}
-
-
 void AbstractCellCycleModel::ResetForDivision()
 {
     assert(mReadyToDivide);
-    mGeneration++;
     mCurrentCellCyclePhase = M_PHASE;
     mReadyToDivide = false;
 }

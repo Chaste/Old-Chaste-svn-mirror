@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef STOCHASTICDIVISIONRULECELLCYCLEMODEL_HPP_
 #define STOCHASTICDIVISIONRULECELLCYCLEMODEL_HPP_
 
-#include "AbstractSimpleCellCycleModel.hpp"
+#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 
 
@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  simulations under the non-niche hypothesis.
  *
  */
-class StochasticDivisionRuleCellCycleModel : public AbstractSimpleCellCycleModel
+class StochasticDivisionRuleCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 

@@ -81,6 +81,7 @@ public:
      * Overridden ComputeLinearInUCoeffInSourceTerm() method.
      * 
      * @param x The point in space
+     * @param pElement the element
      * 
      * @return the coefficient of u in the linear part of the source term, i.e f(x) in
      *  Div(D Grad u)  +  f(x)u + g(x) = 0.
@@ -94,7 +95,7 @@ public:
      * 
      * @return a matrix.
      */
-    c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& );
+    c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& x);
 };
 
 #endif /*AVERAGEDSINKPDE_HPP_*/

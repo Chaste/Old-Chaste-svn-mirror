@@ -120,7 +120,7 @@ public:
         TissueCell daughter_cell = stem_cell.Divide();
 
         TS_ASSERT(!stem_cell.ReadyToDivide());
-        TS_ASSERT(daughter_cell.GetCellCycleModel()->GetGeneration() == 1);
+        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(daughter_cell.GetCellCycleModel())->GetGeneration(), 1u);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
         TS_ASSERT_DELTA(daughter_cell.GetAge(), 0, 1e-9);
 
@@ -222,21 +222,21 @@ public:
                     if (cell_iterator->GetCellType()==STEM)
                     {
                         TS_ASSERT_EQUALS(new_cell.GetCellType(), TRANSIT);
-                        TS_ASSERT_EQUALS(cell_iterator->GetCellCycleModel()->GetGeneration(), 0u);
+                        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell_iterator->GetCellCycleModel())->GetGeneration(), 0u);
                     }
                     else if (cell_iterator->GetCellType()==TRANSIT)
                     {
                         TS_ASSERT_EQUALS(new_cell.GetCellType(), TRANSIT);
-                        TS_ASSERT_EQUALS(cell_iterator->GetCellCycleModel()->GetGeneration(), generation);
+                        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell_iterator->GetCellCycleModel())->GetGeneration(), generation);
                     }
                     else
                     {
                         TS_ASSERT_EQUALS(new_cell.GetCellType(), DIFFERENTIATED);
-                        TS_ASSERT_EQUALS(cell_iterator->GetCellCycleModel()->GetGeneration(), generation);
+                        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell_iterator->GetCellCycleModel())->GetGeneration(), generation);
                     }
 
                     TS_ASSERT_DELTA(new_cell.GetAge(), 0, 1e-9);
-                    TS_ASSERT_EQUALS(new_cell.GetCellCycleModel()->GetGeneration(), generation);
+                    TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(new_cell.GetCellCycleModel())->GetGeneration(), generation);
 
                     newly_born.push_back(new_cell);
                 }
@@ -412,15 +412,15 @@ public:
 
         TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         differentiated_cell.InitialiseCellCycleModel();
-        differentiated_cell.GetCellCycleModel()->SetGeneration(6);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(differentiated_cell.GetCellCycleModel())->SetGeneration(6);
 
         TissueCell stochastic_differentiated_cell(DIFFERENTIATED, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
         stochastic_differentiated_cell.InitialiseCellCycleModel();
-        stochastic_differentiated_cell.GetCellCycleModel()->SetGeneration(6);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(stochastic_differentiated_cell.GetCellCycleModel())->SetGeneration(6);
 
         TissueCell transit_cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell.InitialiseCellCycleModel();
-        transit_cell.GetCellCycleModel()->SetGeneration(2);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(transit_cell.GetCellCycleModel())->SetGeneration(2);
 
         // SimulationTime = 6 hours
         p_simulation_time->IncrementTimeOneStep();
@@ -475,7 +475,7 @@ public:
         // Now at t=6.00
         TissueCell transit_cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell.InitialiseCellCycleModel();
-        transit_cell.GetCellCycleModel()->SetGeneration(2);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(transit_cell.GetCellCycleModel())->SetGeneration(2);
 
         for (int i=0; i<1199; i++)
         {
@@ -617,22 +617,22 @@ public:
 
         TissueCell transit_cell_1(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell_1.InitialiseCellCycleModel();
-        transit_cell_1.GetCellCycleModel()->SetGeneration(1);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(transit_cell_1.GetCellCycleModel())->SetGeneration(1);
         cells.push_back(transit_cell_1);
 
         TissueCell transit_cell_2(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell_2.InitialiseCellCycleModel();
-        transit_cell_2.GetCellCycleModel()->SetGeneration(2);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(transit_cell_2.GetCellCycleModel())->SetGeneration(2);
         cells.push_back(transit_cell_2);
 
         TissueCell transit_cell_3(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         transit_cell_3.InitialiseCellCycleModel();
-        transit_cell_3.GetCellCycleModel()->SetGeneration(3);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(transit_cell_3.GetCellCycleModel())->SetGeneration(3);
         cells.push_back(transit_cell_3);
 
         TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         differentiated_cell.InitialiseCellCycleModel();
-        differentiated_cell.GetCellCycleModel()->SetGeneration(4);
+        static_cast<FixedDurationGenerationBasedCellCycleModel*>(differentiated_cell.GetCellCycleModel())->SetGeneration(4);
         cells.push_back(differentiated_cell);
 
         std::vector<TissueCell> newly_born;
@@ -724,8 +724,6 @@ public:
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);
-        
         
 #ifdef CHASTE_CVODE 
         const double expected_g1_duration = 5.96441; 
@@ -765,10 +763,10 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
 
-            bool result1=wnt_cell.ReadyToDivide();
-            bool result2=wnt_cell2.ReadyToDivide();
+            bool result1 = wnt_cell.ReadyToDivide();
+            bool result2 = wnt_cell2.ReadyToDivide();
 
-            if (time>=expected_g1_duration+SG2MDuration+time_of_birth)
+            if (time >= expected_g1_duration + SG2MDuration + time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);
@@ -808,7 +806,6 @@ public:
 
         TissueCell wnt_cell(TRANSIT, HEALTHY, new StochasticWntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -880,7 +877,6 @@ public:
 
         TissueCell tn_cell(TRANSIT, HEALTHY, new TysonNovakCellCycleModel());
         tn_cell.InitialiseCellCycleModel();
-        tn_cell.GetCellCycleModel()->SetGeneration(1);
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -1165,7 +1161,7 @@ public:
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
 
             TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
-            TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetGeneration(), 0u);
+            TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_stem_cell->GetCellCycleModel())->GetGeneration(), 0u);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
 
             AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();
@@ -1197,19 +1193,15 @@ public:
 
         TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);
 
         TissueCell wnt_cell2(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel());
         wnt_cell2.InitialiseCellCycleModel();
-        wnt_cell2.GetCellCycleModel()->SetGeneration(1);
 
         TissueCell wnt_cell3(TRANSIT, APC_TWO_HIT, new WntCellCycleModel());
         wnt_cell3.InitialiseCellCycleModel();
-        wnt_cell3.GetCellCycleModel()->SetGeneration(1);
 
         TissueCell wnt_cell4(TRANSIT, LABELLED, new WntCellCycleModel());
         wnt_cell4.InitialiseCellCycleModel();
-        wnt_cell4.GetCellCycleModel()->SetGeneration(1);
 
         TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);
         TS_ASSERT_EQUALS(wnt_cell2.ReadyToDivide(), false);

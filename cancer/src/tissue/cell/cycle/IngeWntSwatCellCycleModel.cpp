@@ -36,8 +36,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
                                                      double lastTime,
                                                      bool inSG2MPhase,
                                                      bool readyToDivide,
-                                                     double divideTime,
-                                                     unsigned generation)
+                                                     double divideTime)
    : AbstractWntOdeBasedCellCycleModel(lastTime)
 {
     if (pParentOdeSystem !=NULL)
@@ -64,7 +63,6 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
     mHypothesis = rHypothesis;
-    mGeneration = generation;
 }
 
 
@@ -96,8 +94,7 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel(
                                          mLastTime,
                                          mFinishedRunningOdes,
                                          mReadyToDivide,
-                                         mDivideTime,
-                                         mGeneration);
+                                         mDivideTime);
 }
 
 

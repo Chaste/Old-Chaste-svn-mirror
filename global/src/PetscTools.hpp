@@ -108,13 +108,18 @@ public:
 
 #ifndef SPECIAL_SERIAL
     /**
-     *  Create a vector of the specified size. SetFromOptions is called.
+     * Create a vector of the specified size. SetFromOptions is called.
+     * 
+     * @param size
      */
     static Vec CreateVec(int size);
 
     /**
-     *  Create a vector of the specified size with all values set to be the given
-     *  constant. SetFromOptions is called.
+     * Create a vector of the specified size with all values set to be the given
+     * constant. SetFromOptions is called.
+     * 
+     * @param size
+     * @param value
      */
     static Vec CreateVec(int size, double value);
 
@@ -127,6 +132,12 @@ public:
      * Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The
      * number of local rows and columns is by default PETSC_DECIDE. SetFromOptions is called.
      *
+     * @param rMat the matrix
+     * @param numRows the number of rows in the matrix
+     * @param numColumns the number of columns in the matrix
+     * @param matType the matrix type (defaults to MATMPIAIJ)
+     * @param numLocalRows the number of local rows (detaults to PETSC_DECIDE)
+     * @param numLocalColumns the number of local columns (detaults to PETSC_DECIDE)
      * @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependent.
      *     An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem)
      *     should be big enough for any of the problems being solved.
@@ -171,16 +182,36 @@ public:
 //        return ret;
 //    }
 
-    /*
-     *  Dumps a given Petsc object to disk.
+    /**
+     * Dumps a given Petsc object to disk.
+     * 
+     * @param rMat a matrix
+     * @param rOutputFileFullPath where to dump the matrix to disk
      */
     static void DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPath);
+
+    /**
+     * Dumps a given Petsc object to disk.
+     * 
+     * @param rVec a vector
+     * @param rOutputFileFullPath where to dump the vector to disk
+     */
     static void DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
 
-    /*
-     *  Read a previously dumped Petsc object from disk.
+    /**
+     * Read a previously dumped Petsc object from disk.
+     *  
+     * @param rMat a matrix
+     * @param rOutputFileFullPath where to read the matrix from
      */
     static void ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath);
+
+    /**
+     * Read a previously dumped Petsc object from disk.
+     *  
+     * @param rVec a vector
+     * @param rOutputFileFullPath where to read the matrix from
+     */
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
 
 

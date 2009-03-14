@@ -34,7 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystem.hpp"
 
 /**
- * Represents the Lee et al. (2003) Wnt Signalling pathway model equations
+ * Represents the Lee et al. (2003) Wnt Signalling pathway model equations.
+ * [doi:10.1371/journal.pbio.0000010]
  *
  * The variables are
  *   1. X2 Dsh_active
@@ -53,27 +54,50 @@ private:
     /**
      * Parameters for the Lee et al. (2003) Model
      */
+
+    /** Dimensional parameter Dsh_0. */
     double mDsh0;
+    /** Dimensional parameter APC_0. */
     double mAPC0;
+    /** Dimensional parameter TCF_0. */
     double mTCF0;
+    /** Dimensional parameter GSK_0. */
     double mGSK0;
+    /** Dimensional parameter K_7. */
     double mK7;
+    /** Dimensional parameter K_8. */
     double mK8;
+    /** Dimensional parameter K_16. */
     double mK16;
+    /** Dimensional parameter K_17. */
     double mK17;
+    /** Dimensional parameter k_1. */
     double mk1;
+    /** Dimensional parameter k_2. */
     double mk2;
+    /** Dimensional parameter k_3. */
     double mk3;
+    /** Dimensional parameter k_4. */
     double mk4;
+    /** Dimensional parameter k_5. */
     double mk5;
+    /** Dimensional parameter k_6. */
     double mk6;
+    /** Dimensional parameter k_-6. */
     double mk_6;
+    /** Dimensional parameter k_9. */
     double mk9;
+    /** Dimensional parameter k_10. */
     double mk10;
+    /** Dimensional parameter k_11. */
     double mk11;
+    /** Dimensional parameter k_13. */
     double mk13;
+    /** Dimensional parameter k_15. */
     double mk15;
+    /** Dimensional parameter v_12. */
     double mv12;
+    /** Dimensional parameter v_14. */
     double mv14;
 
 public:
@@ -81,10 +105,10 @@ public:
     /**
      * Constructor.
      *
-     * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
+     * @param wntStimulus is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
      *
      */
-    Lee2003WntSignallingOdeSystem(double WntStimulus=0.0);
+    Lee2003WntSignallingOdeSystem(double wntStimulus=0.0);
 
     /**
      * Destructor.

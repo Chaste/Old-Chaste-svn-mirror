@@ -52,7 +52,6 @@ public:
      */
     static CancerParameters* Instance();
 
-
     /**
      * @return mStemCellG1Duration
      */

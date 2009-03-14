@@ -222,13 +222,13 @@ public:
         
         // Test centroid calculations for nonperiodic element
         c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
-        TS_ASSERT_DELTA(centroid(0),1.4433 , 1e-4);
-        TS_ASSERT_DELTA(centroid(1),2.0 , 1e-4);
+        TS_ASSERT_DELTA(centroid(0), 1.4433, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
         
         // Test centroid calculations for periodic element
         centroid = mesh.GetCentroidOfElement(7);
-        TS_ASSERT_DELTA(centroid(0),3.1754 , 1e-4);
-        TS_ASSERT_DELTA(centroid(1),2.0 , 1e-4);
+        TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
     }
 
 

@@ -60,18 +60,17 @@ public:
      *  replicated into the internal data
      */
     ReplicatableVector(Vec vec);
+
     /**
      * Constructor to make a vector of given size.
      */
     ReplicatableVector(unsigned size);
-
 
     /**
      * Default destructor.
      * Remove PETSc context.
      */
     ~ReplicatableVector();
-
 
     /**
      * Return the size of the vector.
@@ -89,7 +88,6 @@ public:
      * Access the vector.
      */
     double& operator[](unsigned index);
-
 
     /**
      * Replicate this vector over all processes.

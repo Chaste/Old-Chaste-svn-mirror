@@ -41,8 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 struct VertexElementData
 {
-    std::vector<unsigned> NodeIndices;
-    unsigned AttributeValue;
+    std::vector<unsigned> NodeIndices; /**< Vector of Node indices owned by the VertexElement. */
+    unsigned AttributeValue; /**< Attribute value associated with the VertexElement. */
 };
 
 /**

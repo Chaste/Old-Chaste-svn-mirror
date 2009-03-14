@@ -66,41 +66,69 @@ protected:
 
     /**
      *  The SimpleLinearEllipticAssembler version of this method is
-     *  overloaded using the interpolated source term
+     *  overloaded using the interpolated source term.
+     * 
+     * @param rPhi
+     * @param rGradPhi
+     * @param rX
+     * @param rU
+     * @param rGradU
+     * @param pElement
      */
-    virtual c_vector<double,1*(DIM+1)> ComputeVectorTerm(
-        c_vector<double, DIM+1> &rPhi,
-        c_matrix<double, DIM, DIM+1> &rGradPhi,
-        ChastePoint<DIM> &rX,
-        c_vector<double,1>& rU,
-        c_matrix<double, 1, DIM> &rGradU /* not used */,
-        Element<DIM,DIM>* pElement);
+    virtual c_vector<double, 1*(DIM+1)> ComputeVectorTerm(
+        c_vector<double, DIM+1>& rPhi,
+        c_matrix<double, DIM, DIM+1>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double, 1>& rU,
+        c_matrix<double, 1, DIM>& rGradU /* not used */,
+        Element<DIM, DIM>* pElement);
 
     /**
      *  The SimpleLinearEllipticAssembler version of this method is
-     *  overloaded using the interpolated source term
+     *  overloaded using the interpolated source term.
+     * 
+     * @param rPhi
+     * @param rGradPhi
+     * @param rX
+     * @param rU
+     * @param rGradU
+     * @param pElement
      */
-    virtual c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
-        c_vector<double, DIM+1> &rPhi,
-        c_matrix<double, DIM, DIM+1> &rGradPhi,
-        ChastePoint<DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double,1,DIM> &rGradU,
-        Element<DIM,DIM>* pElement);
+    virtual c_matrix<double, 1*(DIM+1), 1*(DIM+1)> ComputeMatrixTerm(
+        c_vector<double, DIM+1>& rPhi,
+        c_matrix<double, DIM, DIM+1>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double, 1>& rU,
+        c_matrix<double, 1, DIM>& rGradU,
+        Element<DIM, DIM>* pElement);
 
+    /**
+     * Overridden ResetInterpolatedQuantities() method.
+     */
     void ResetInterpolatedQuantities();
 
+    /**
+     * Overridden ResetInterpolatedQuantities() method.
+     * 
+     * @param phiI
+     * @param pNode
+     */
     void IncrementInterpolatedQuantities(double phiI, const Node<DIM> *pNode);
 
 public:
 
     /**
-     * Constructor stores the mesh and pde and boundary conditions.
+     * Constructor stores the mesh and PDE and boundary conditions.
+     * 
+     * @param pMesh
+     * @param pPde
+     * @param pBoundaryConditions
+     * @param numQuadPoints
      */
     TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
                                   AbstractLinearEllipticPde<DIM,DIM>* pPde,
                                   BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
-                                  unsigned numQuadPoints = 2);
+                                  unsigned numQuadPoints=2);
 
     /**
      *  Destructor

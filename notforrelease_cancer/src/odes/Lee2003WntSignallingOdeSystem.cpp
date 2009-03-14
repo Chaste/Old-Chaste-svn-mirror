@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Lee2003WntSignallingOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
+Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double wntStimulus)
         : AbstractOdeSystem(8)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>);
@@ -49,7 +49,7 @@ Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
     Init(); // set up parameters values
 
     // Cell-specific initial conditions
-    SetInitialConditionsComponent(7u, WntLevel);
+    SetInitialConditionsComponent(7u, wntStimulus);
 }
 
 Lee2003WntSignallingOdeSystem::~Lee2003WntSignallingOdeSystem(void)

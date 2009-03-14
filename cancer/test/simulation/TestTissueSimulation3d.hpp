@@ -82,15 +82,12 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CellType cell_type;
-            unsigned generation;
-            cell_type = STEM;
-            generation = 0;
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            cell.GetCellCycleModel()->SetGeneration(generation);
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
+
             if (i == 50u)
             {
-                cell.SetBirthTime(-50.0 );
+                cell.SetBirthTime(-50.0);
             }
 
             cells.push_back(cell);
@@ -167,12 +164,8 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CellType cell_type;
-            unsigned generation;
-            cell_type = STEM;
-            generation = 0;
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            cell.GetCellCycleModel()->SetGeneration(generation);
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                ( CancerParameters::Instance()->GetStemCellG1Duration()
                                  + CancerParameters::Instance()->GetSG2MDuration()   ));
@@ -245,7 +238,7 @@ public:
             }
             
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            cell.GetCellCycleModel()->SetGeneration(0);
+            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                 (  CancerParameters::Instance()->GetStemCellG1Duration() +
                                    CancerParameters::Instance()->GetSG2MDuration()  ));

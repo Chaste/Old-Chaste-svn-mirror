@@ -29,9 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 SimpleWntCellCycleModel::SimpleWntCellCycleModel(double g1Duration,
-                                                 unsigned generation,
                                                  bool useCellTypeDependentG1Duration)
-    : AbstractSimpleCellCycleModel(g1Duration, generation),
+    : AbstractSimpleCellCycleModel(g1Duration),
       mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
 {
 }
@@ -46,7 +45,7 @@ SimpleWntCellCycleModel::SimpleWntCellCycleModel(bool useCellTypeDependentG1Dura
 AbstractCellCycleModel* SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     // Use a private constructor that doesn't reset mG1Duration
-    return new SimpleWntCellCycleModel(mG1Duration, mGeneration, mUseCellTypeDependentG1Duration);
+    return new SimpleWntCellCycleModel(mG1Duration, mUseCellTypeDependentG1Duration);
 }
 
 
@@ -162,13 +161,13 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 void SimpleWntCellCycleModel::ResetForDivision()
 {
     AbstractSimpleCellCycleModel::ResetForDivision();
-    if (WntConcentration::Instance()->GetType()==RADIAL)
-    {
-        if (mGeneration == 1)
-        {
-            mGeneration = 0;
-        }
-    }
+//    if (WntConcentration::Instance()->GetType()==RADIAL)
+//    {
+//        if (mGeneration == 1)
+//        {
+//            mGeneration = 0;
+//        }
+//    }
 }
 
 

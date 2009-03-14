@@ -100,12 +100,12 @@ double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
 void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues)
 {
     rValues.resize(num);
-    for(unsigned i=0; i<num; i++)
+    for (unsigned i=0; i<num; i++)
     {
         rValues[i] = i;
     }
         
-    for(unsigned end=num; end>0; end--)
+    for (unsigned end=num; end>0; end--)
     {
         // Pick a random integer from {0,..,end-1}
         unsigned k = RandomNumberGenerator::Instance()->randMod(end); 

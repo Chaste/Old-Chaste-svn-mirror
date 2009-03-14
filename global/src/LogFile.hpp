@@ -109,6 +109,10 @@ public:
      *  been set (ie Close() wasn't called the last time a log was used).
      *
      *  The directory is never cleaned.
+     * 
+     *  @param level
+     *  @param directory
+     *  @param fileName
      */
     void Set(unsigned level, std::string directory, std::string fileName="log.txt");
 
@@ -118,6 +122,8 @@ public:
     /**
      *  Set the precision to write data (the 'decimal precision', look up 
      *  documentation for std::setprecision()).
+     * 
+     *  @param precision
      */
     void SetPrecision(unsigned precision);
 
@@ -126,13 +132,14 @@ public:
      *  date and time
      *
      *  @simulationType The type of simulation, eg "Bidomain" or "Crypt" or
-     *  "Cardiac Electromechanics". Defaults to empty
+     *  "Cardiac Electromechanics". Defaults to empty.
      */
     void WriteHeader(std::string simulationType="");
 
     /**
-     *  Write the elapsed time since the simulation began (since the log file was created)
-     *  @param pre a string (eg spacings) to write before the elapsed time line
+     *  Write the elapsed time since the simulation began (since the log file was created).
+     * 
+     *  @param pre a string (eg spacings) to write before the elapsed time line.
      */
     void WriteElapsedTime(std::string pre="");
 
@@ -153,7 +160,7 @@ public:
     template <class T>
     LogFile& operator<<(T message)
     {
-        if(mFileSet)
+        if (mFileSet)
         {
             (*mpOutStream) << std::setprecision((int)mPrecision) << message << std::flush;
         }

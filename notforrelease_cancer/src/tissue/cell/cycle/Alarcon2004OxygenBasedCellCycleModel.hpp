@@ -102,7 +102,6 @@ public:
      * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
      * @param readyToDivide whether the cell is ready to divide
      * @param divideTime if in the future this is the time at which the cell is going to divide
-     * @param generation the cell's generation
      * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
     Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
@@ -112,7 +111,6 @@ public:
                                          bool inSG2MPhase,
                                          bool readyToDivide,
                                          double divideTime,
-                                         unsigned generation,
                                          unsigned dimension);
 
     /**

@@ -34,8 +34,7 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                      double lastTime,
                                      bool inSG2MPhase,
                                      bool readyToDivide,
-                                     double divideTime,
-                                     unsigned generation)
+                                     double divideTime)
    : AbstractWntOdeBasedCellCycleModel(lastTime)
 {
     if (pParentOdeSystem != NULL)
@@ -61,7 +60,6 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
     mFinishedRunningOdes = inSG2MPhase;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
-    mGeneration = generation;
 }
 
 
@@ -90,8 +88,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateDaughterCellCycleModel()
                                  mLastTime,
                                  mFinishedRunningOdes,
                                  mReadyToDivide,
-                                 mDivideTime,
-                                 mGeneration);
+                                 mDivideTime);
 }
 
 

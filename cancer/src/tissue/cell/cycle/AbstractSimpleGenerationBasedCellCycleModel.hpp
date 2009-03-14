@@ -62,16 +62,20 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
+        archive & mGeneration;
     }
 
 protected:
+
+    /** The generation of this cell (STEM cells have a generation of 0) */
+    unsigned mGeneration;
 
     /**
      * Protected constructor for creating an identical daughter cell
      * (with the same G1 duration).
      * 
-     * @param g1Duration
-     * @param generation
+     * @param g1Duration the parent cell's G1 duration
+     * @param generation the cell's generation
      * */
     AbstractSimpleGenerationBasedCellCycleModel(double g1Duration, unsigned generation);
 
@@ -80,8 +84,7 @@ public:
     /**
      * Default constructor - creates an AbstractSimpleCellCycleModel.
      */
-    AbstractSimpleGenerationBasedCellCycleModel()
-    {}
+    AbstractSimpleGenerationBasedCellCycleModel();
 
     /**
      * Default destructor.
@@ -98,6 +101,17 @@ public:
      */
     void InitialiseDaughterCell();
 
+    /**
+     * Sets the cell's generation.
+     *
+     * @param generation
+     */
+    void SetGeneration(unsigned generation);
+
+    /**
+     * Returns the cell's generation.
+     */
+    unsigned GetGeneration() const;
 };
 
 BOOST_IS_ABSTRACT(AbstractSimpleGenerationBasedCellCycleModel)

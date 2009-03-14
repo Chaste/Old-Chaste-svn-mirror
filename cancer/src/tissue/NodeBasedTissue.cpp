@@ -77,7 +77,7 @@ NodeBasedTissue<DIM>::~NodeBasedTissue()
 {
     Clear();
     // Free node memory
-    if(mDeleteNodes)
+    if (mDeleteNodes)
     {
         for (unsigned i=0; i<mNodes.size(); i++)
         {

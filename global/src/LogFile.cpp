@@ -66,7 +66,7 @@ unsigned LogFile::Level()
 
 void LogFile::Set(unsigned level, std::string directory, std::string fileName)
 {
-    if(level > mMaxLoggingLevel)
+    if (level > mMaxLoggingLevel)
     {
         std::stringstream string_stream;
         string_stream << "Requested level " << level

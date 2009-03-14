@@ -272,7 +272,7 @@ public:
             }
             TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
             cell.InitialiseCellCycleModel();
-            cell.GetCellCycleModel()->SetGeneration(generation);
+            static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -335,7 +335,7 @@ public:
             }
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.InitialiseCellCycleModel();
-            cell.GetCellCycleModel()->SetGeneration(generation);
+            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -406,7 +406,6 @@ public:
             }
             TissueCell cell(cell_type, HEALTHY, new TysonNovakCellCycleModel());
             cell.InitialiseCellCycleModel();
-            cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -482,7 +481,7 @@ public:
             }
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.InitialiseCellCycleModel();
-            cell.GetCellCycleModel()->SetGeneration(generation);
+            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

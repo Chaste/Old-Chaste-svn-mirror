@@ -177,7 +177,7 @@ Vec PetscTools::CreateVec(std::vector<double> data)
     int lo, hi;
     VecGetOwnershipRange(ret, &lo, &hi);
 
-    for (int global_index=lo; global_index < hi; global_index++)
+    for (int global_index=lo; global_index<hi; global_index++)
     {
         int local_index = global_index - lo;
         p_ret[local_index] = data[global_index];
@@ -225,7 +225,7 @@ void PetscTools::DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
 #endif
 
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          type , &view);
+                          type, &view);
     MatView(rMat, view); 
     PetscViewerDestroy(view);
 }
@@ -240,7 +240,7 @@ void PetscTools::DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 #endif
 
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          type , &view);
+                          type, &view);
     VecView(rVec, view); 
     PetscViewerDestroy(view);
 }

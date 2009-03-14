@@ -508,7 +508,7 @@ public:
     /**
      * Add an element to the mesh.
      * 
-     * @param pElement the new element
+     * @param pNewElement the new element
      * 
      * @return the index of the new element in the mesh
      */

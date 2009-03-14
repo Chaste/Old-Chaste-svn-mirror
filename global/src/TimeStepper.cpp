@@ -67,7 +67,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
 
 double TimeStepper::CalculateNextTime() const
 {
-    double next_time=mStart + (mTimeStep+1) * mDt;
+    double next_time = mStart + (mTimeStep+1) * mDt;
     if ((next_time) + smidge*(mDt) >= mEnd)
     {
         next_time = mEnd;
@@ -79,7 +79,7 @@ void TimeStepper::AdvanceOneTimeStep()
 {
     mTimeStep++;
     mTime = mNextTime;
-    mNextTime=CalculateNextTime();
+    mNextTime = CalculateNextTime();
 }
 
 double TimeStepper::GetTime() const

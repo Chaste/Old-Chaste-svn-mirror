@@ -41,9 +41,8 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(AbstractOdeSystem* pPar
                                                          bool inSG2MPhase,
                                                          bool readyToDivide,
                                                          double divideTime,
-                                                         unsigned generation,
                                                          double g2Duration)
-    : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, inSG2MPhase, readyToDivide, divideTime, generation),
+    : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, inSG2MPhase, readyToDivide, divideTime),
       mG2Duration(g2Duration)
 {
 }
@@ -117,6 +116,5 @@ AbstractCellCycleModel* StochasticWntCellCycleModel::CreateDaughterCellCycleMode
                                            mFinishedRunningOdes,
                                            mReadyToDivide,
                                            mDivideTime,
-                                           mGeneration,
                                            mG2Duration);
 }

@@ -52,7 +52,11 @@ private:
 public :
 
     /** 
-     *  Constuctor saves times and opens output file ('progress_status.txt')
+     * Constuctor saves times and opens output file ('progress_status.txt').
+     * 
+     * @param outputDirectory where to open the output file
+     * @param startTime the start time
+     * @param endTime the end time
      */
     ProgressReporter(std::string outputDirectory, double startTime, double endTime)
         : mStartTime(startTime),
@@ -66,10 +70,13 @@ public :
 
         mLastPercentage = UINT_MAX;
     }
-    
+
+    /**
+     * Destructor.
+     */
     ~ProgressReporter()
     {
-        if(mLastPercentage!=100)
+        if (mLastPercentage!=100)
         {
             *mpFile << "100% completed" << std::endl;
         }
@@ -78,24 +85,32 @@ public :
     }
     
     /**
-     *  Calculates the percentage completed using the time given and the start and end
-     *  time and prints to file if another percent has been done.
+     * Calculates the percentage completed using the time given and the start and end
+     * time and prints to file if another percent has been done.
+     * 
+     * @param currentTime the given time
      */
     void Update(double currentTime)
     {
         unsigned percentage = (unsigned)( (currentTime - mStartTime)/(mEndTime - mStartTime)*100 );
-        if(mLastPercentage==UINT_MAX || percentage > mLastPercentage)
+        if (mLastPercentage==UINT_MAX || percentage > mLastPercentage)
         {
             *mpFile << percentage << "% completed" << std::endl;
             mLastPercentage = percentage;
         }
     }
-    
+
+    /**
+     * Print finalising message to file.
+     */
     void PrintFinalising()
     {
         *mpFile << "Finalising.." << std::endl;
     }
 
+    /**
+     * Print initialising message to file.
+     */
     void PrintInitialising()
     {
         *mpFile << "Initialising.." << std::endl;

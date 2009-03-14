@@ -47,25 +47,25 @@ TissueSimulationWithNutrientsAssembler<DIM>::~TissueSimulationWithNutrientsAssem
 }
 
 template<unsigned DIM>
-c_vector<double,1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>::ComputeVectorTerm(
-        c_vector<double, DIM+1> &rPhi,
-        c_matrix<double, DIM, DIM+1> &rGradPhi,
-        ChastePoint<DIM> &rX,
-        c_vector<double,1>& rU,
-        c_matrix<double, 1, DIM> &rGradU /* not used */,
-        Element<DIM,DIM>* pElement)
+c_vector<double, 1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>::ComputeVectorTerm(
+        c_vector<double, DIM+1>& rPhi,
+        c_matrix<double, DIM, DIM+1>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double, 1>& rU,
+        c_matrix<double, 1, DIM>& rGradU /* not used */,
+        Element<DIM, DIM>* pElement)
 {
     return mConstantInUSourceTerm * rPhi;
 }
 
 template<unsigned DIM>
-c_matrix<double,1*(DIM+1),1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>::ComputeMatrixTerm(
-        c_vector<double, DIM+1> &rPhi,
-        c_matrix<double, DIM, DIM+1> &rGradPhi,
-        ChastePoint<DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double,1,DIM> &rGradU,
-        Element<DIM,DIM>* pElement)
+c_matrix<double, 1*(DIM+1), 1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>::ComputeMatrixTerm(
+        c_vector<double, DIM+1>& rPhi,
+        c_matrix<double, DIM, DIM+1>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double, 1>& rU,
+        c_matrix<double, 1, DIM>& rGradU,
+        Element<DIM, DIM>* pElement)
 {
     c_matrix<double, DIM, DIM> pde_diffusion_term = this->mpEllipticPde->ComputeDiffusionTerm(rX);
 

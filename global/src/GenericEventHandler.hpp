@@ -61,6 +61,8 @@ private:
     
     /**
      * Convert a CPU clock tick count to milliseconds.
+     * 
+     * @param clockTicks
      */
     inline static double ConvertTicksToMilliseconds(double clockTicks)
     {
@@ -69,6 +71,8 @@ private:
     
     /**
      * Convert a CPU clock tick count to seconds.
+     * 
+     * @param clockTicks
      */
     inline static double ConvertTicksToSeconds(double clockTicks)
     {
@@ -87,6 +91,7 @@ private:
     }
 
 public:
+
     /**
      * Reset the event handler - set all event durations to zero.
      */
@@ -101,7 +106,11 @@ public:
         Enable();
     }
 
-    /** Record the start of an event */
+    /**
+     * Record the start of an event.
+     * 
+     * @param event
+     */
     static void BeginEvent(unsigned event) throw (Exception)
     {
         assert(event<NUM_EVENTS);
@@ -125,7 +134,11 @@ public:
         //std::cout << PetscTools::GetMyRank()<<": Beginning " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
-    /** Record the ending of an event */
+    /**
+     * Record the ending of an event.
+     * 
+     * @param event
+     */
     static void EndEvent(unsigned event)
     {
         assert(event<NUM_EVENTS); 
@@ -151,6 +164,8 @@ public:
      * Get the time (in milliseconds) accounted so far to the given event. 
      * 
      * Will automatically determine if the event is currently ongoing or not. 
+     * 
+     * @param event
      */ 
     static double GetElapsedTime(unsigned event)
     {

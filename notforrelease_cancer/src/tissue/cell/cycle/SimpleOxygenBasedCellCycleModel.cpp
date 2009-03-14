@@ -29,11 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(double g1Duration,
-                                                                 unsigned generation,
                                                                  double currentHypoxicDuration,
                                                                  double currentHypoxiaOnsetTime,
                                                                  unsigned dimension)
-    : AbstractSimpleCellCycleModel(g1Duration, generation),
+    : AbstractSimpleCellCycleModel(g1Duration),
       mTimeSpentInG1Phase(0.0),
       mCurrentHypoxicDuration(currentHypoxicDuration),
       mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime),
@@ -118,7 +117,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new SimpleOxygenBasedCellCycleModel(mG1Duration, mGeneration, mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime, mDimension);
+    return new SimpleOxygenBasedCellCycleModel(mG1Duration, mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime, mDimension);
 }
 
 

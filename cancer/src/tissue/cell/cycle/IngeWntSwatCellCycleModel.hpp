@@ -117,7 +117,6 @@ public:
     * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
     * @param readyToDivide whether the cell is ready to divide
     * @param divideTime if in the future this is the time at which the cell is going to divide
-    * @param generation the cell's generation
     */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                               AbstractOdeSystem* pParentOdeSystem,
@@ -126,8 +125,7 @@ public:
                               double lastTime,
                               bool inSG2MPhase,
                               bool readyToDivide,
-                              double divideTime,
-                              unsigned generation);
+                              double divideTime);
 
     /**
      * A 'private' constructor for archiving.

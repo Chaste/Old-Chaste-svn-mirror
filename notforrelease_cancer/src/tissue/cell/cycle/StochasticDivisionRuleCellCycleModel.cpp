@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 StochasticDivisionRuleCellCycleModel::StochasticDivisionRuleCellCycleModel(double g1Duration,
                                                                            unsigned generation,
                                                                            bool dividedSymmetrically)
-    : AbstractSimpleCellCycleModel(g1Duration, generation),
+    : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation),
       mDividedSymmetrically(dividedSymmetrically)
 {
 }
@@ -117,7 +117,7 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
         }
     }
 
-    AbstractSimpleCellCycleModel::ResetForDivision();
+    AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision();
 
     if (mpCell->GetCellType() == STEM)
     {

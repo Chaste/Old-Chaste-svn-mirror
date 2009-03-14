@@ -82,7 +82,6 @@ private:
         // which knows this and it is handled in the load_construct of TissueCell.
         archive & mBirthTime;
         archive & mCurrentCellCyclePhase;
-        archive & mGeneration;
         archive & mG1Duration;
         archive & mReadyToDivide;
     }
@@ -100,9 +99,6 @@ protected:
 
     /** The phase of the cell cycle that this model is in (specified in CellCyclePhases.hpp) */
     CellCyclePhase mCurrentCellCyclePhase;
-
-    /** The generation of this cell (STEM cells have a generation of 0) */
-    unsigned mGeneration;
 
     /**
      * How long the G1 phase lasts for.
@@ -192,18 +188,6 @@ public:
      * Returns the cell's age.
      */
     double GetAge();
-
-    /**
-     * Sets the cell's generation.
-     *
-     * @param generation
-     */
-    void SetGeneration(unsigned generation);
-
-    /**
-     * Returns the cell's generation.
-     */
-    unsigned GetGeneration() const;
 
     /**
      * Determine whether the cell is ready to divide (enter M phase).

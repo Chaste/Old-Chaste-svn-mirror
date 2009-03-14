@@ -42,13 +42,13 @@ double SimpleNutrientPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DI
 }
 
 template<unsigned DIM>
-double SimpleNutrientPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>*)
+double SimpleNutrientPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>* pElement)
 {
     return -mCoefficient;
 }
 
 template<unsigned DIM>
-c_matrix<double,DIM,DIM> SimpleNutrientPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& )
+c_matrix<double,DIM,DIM> SimpleNutrientPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& x)
 {
     return identity_matrix<double>(DIM);
 }

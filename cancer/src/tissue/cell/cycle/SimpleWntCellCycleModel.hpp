@@ -82,10 +82,9 @@ protected:
      * Private constructor for identical cells.
      *
      * @param g1Duration  The duration of the G1 phase
-     * @param generation  The generation of the cell cycle model
      * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
-    SimpleWntCellCycleModel(double g1Duration, unsigned generation, bool useCellTypeDependentG1Duration=false);
+    SimpleWntCellCycleModel(double g1Duration, bool useCellTypeDependentG1Duration=false);
 
 public:
 

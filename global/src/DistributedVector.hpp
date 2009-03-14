@@ -71,17 +71,24 @@ private:
 public:
 
     /**
-     * Set the problem size specifying distribution over local processor
+     * Set the problem size specifying distribution over local processor.
+     * 
+     * @param size
+     * @param local
      */
     static void SetProblemSizePerProcessor(unsigned size, PetscInt local);
 
     /**
      * Set the problem size.
+     * 
+     * @param size
      */
     static void SetProblemSize(unsigned size);
 
     /**
-     * Set the problem with an existing PETSc vector -- must have stride=1
+     * Set the problem with an existing PETSc vector -- must have stride=1.
+     * 
+     * @param vec
      */
     static void SetProblemSize(Vec vec);
 
@@ -92,6 +99,8 @@ public:
 
     /**
      * Test if the given global index is owned by the current process, i.e. is local to it.
+     * 
+     * @param globalIndex
      */
     static bool IsGlobalIndexLocal(unsigned globalIndex);
 
@@ -102,6 +111,8 @@ public:
 
     /*
      * Create a striped PETSc vector of size: stride * problem size
+     * 
+     * @param stride
      */
     static Vec CreateVec(unsigned stride);
 
@@ -141,7 +152,11 @@ public:
         unsigned Local;  /**< Current index, local to this process. */
         unsigned Global; /**< Current index, global to the whole PETSc vector. */
 
-        /** Compare two indices for inequality. */
+        /**
+         * Compare two indices for inequality.
+         * 
+         * @param other 
+         */
         bool operator!=(const Iterator& other);
 
         /** Increment the iterator to the next index. */
@@ -161,18 +176,19 @@ public:
         unsigned mStride;
         unsigned mStripe;
         double *mpVec;
+
        /**
-        * Constructor
+        * Constructor.
+        * 
         * @param parallelVec striped vector
         * @param stripe number of this stripe within the vector starting from 0
         */
-
         Stripe(DistributedVector parallelVec, unsigned stripe)
         {
-            mStride=parallelVec.mNumChunks;
-            mStripe=stripe;
-            assert(mStripe<mStride);
-            mpVec=parallelVec.mpVec;
+            mStride = parallelVec.mNumChunks;
+            mStripe = stripe;
+            assert(mStripe < mStride);
+            mpVec = parallelVec.mpVec;
         }
 
        /**
@@ -186,7 +202,7 @@ public:
         {
             if (mLo<=globalIndex && globalIndex <mHi)
             {
-                return mpVec[(globalIndex - mLo)*mStride+mStripe];
+                return mpVec[(globalIndex - mLo)*mStride + mStripe];
             }
             throw DistributedVectorException();
         }
@@ -213,7 +229,7 @@ public:
     {
     public:
         //unsigned mChunk;
-        unsigned mOffset;  //The start of this chunk within the locally-owned part of the vector
+        unsigned mOffset;  /**< The start of this chunk within the locally-owned part of the vector. */
         double *mpVec;
 
         /**
@@ -225,7 +241,7 @@ public:
         {
             assert(chunk<parallelVec.mNumChunks);
             mOffset = chunk*(parallelVec.mHi - parallelVec.mLo);
-            mpVec=parallelVec.mpVec;
+            mpVec = parallelVec.mpVec;
         }
 
        /**

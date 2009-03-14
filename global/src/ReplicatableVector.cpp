@@ -61,25 +61,25 @@ void ReplicatableVector::RemovePetscContext()
 
 ReplicatableVector::ReplicatableVector()
 {
-    mToAll=NULL;
-    mReplicated=NULL;
-    mDistributed=NULL;
+    mToAll = NULL;
+    mReplicated = NULL;
+    mDistributed = NULL;
 }
 
 ReplicatableVector::ReplicatableVector(Vec vec)
 {
-    mToAll=NULL;
-    mReplicated=NULL;
-    mDistributed=NULL;
+    mToAll = NULL;
+    mReplicated = NULL;
+    mDistributed = NULL;
 
     ReplicatePetscVector(vec);
 }
 
 ReplicatableVector::ReplicatableVector(unsigned size)
 {
-    mToAll=NULL;
-    mReplicated=NULL;
-    mDistributed=NULL;
+    mToAll = NULL;
+    mReplicated = NULL;
+    mDistributed = NULL;
     resize(size);
 }
 
@@ -124,7 +124,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
     VecGetArray(mDistributed, &p_distributed);
     for (unsigned global_index=lo; global_index<hi; global_index++)
     {
-        p_distributed[ (global_index-lo) ]= mData[global_index];
+        p_distributed[ (global_index-lo) ] = mData[global_index];
     }
     VecAssemblyBegin(mDistributed);
     VecAssemblyEnd(mDistributed);
@@ -165,6 +165,6 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     VecGetArray(mReplicated, &p_replicated);
     for (unsigned i=0; i<size; i++)
     {
-        mData[i]=p_replicated[i];
+        mData[i] = p_replicated[i];
     }
 }

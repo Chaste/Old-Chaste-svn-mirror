@@ -62,6 +62,9 @@ private:
      *
      * Note that serialization of the nodes is handled by load/save_construct_data,
      * so we don't actually have to do anything here except delegate to the base class.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -109,6 +112,7 @@ public:
      * @param nodes a vector of Nodes
      * @param rCells a vector of TissueCells
      * @param locationIndices an optional vector of location indices that correspond to real cells
+     * @param deleteNodes whether to delete nodes in destructor
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
                     const std::vector<TissueCell>& rCells,
@@ -122,6 +126,7 @@ public:
      * Note that the tissue will take responsibility for freeing the memory used by the nodes.
      *
      * @param nodes a vector of Nodes
+     * @param deleteNodes whether to delete nodes in destructor
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool deleteNodes=true);
 
@@ -171,6 +176,9 @@ public:
      */
     unsigned RemoveDeadCells();
 
+    /**
+     *  Reset the member variables mDeletedNodeIndices and mAddedNodes.
+     */
     void Clear();
 
     /**

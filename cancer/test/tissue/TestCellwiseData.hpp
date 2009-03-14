@@ -95,7 +95,7 @@ public:
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;
         new_cell_location[1] = 0.3;
-        tissue.AddCell(new_cell ,new_cell_location);
+        tissue.AddCell(new_cell, new_cell_location);
 
         TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory());
         TS_ASSERT_EQUALS(p_data->mData.size(), tissue.rGetMesh().GetNumNodes());

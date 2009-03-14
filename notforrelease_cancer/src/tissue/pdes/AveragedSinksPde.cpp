@@ -80,7 +80,7 @@ double AveragedSinksPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoin
 }
 
 template<unsigned DIM>
-c_matrix<double,DIM,DIM> AveragedSinksPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& )
+c_matrix<double,DIM,DIM> AveragedSinksPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& x)
 {
     return identity_matrix<double>(DIM);
 }
