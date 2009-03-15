@@ -872,7 +872,7 @@ public:
         double standard_tyson_duration = 1.242;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        unsigned num_steps=100;
+        unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
 
         TissueCell tn_cell(TRANSIT, HEALTHY, new TysonNovakCellCycleModel());
@@ -908,10 +908,10 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
-            bool result1=tn_cell.ReadyToDivide();
-            bool result2=tn_cell2.ReadyToDivide();
+            bool result1 = tn_cell.ReadyToDivide();
+            bool result2 = tn_cell2.ReadyToDivide();
 
-            if (time>=standard_tyson_duration+time_of_birth)
+            if (time >= standard_tyson_duration + time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 //std::cout << "Parent G1 duration (post division) = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;

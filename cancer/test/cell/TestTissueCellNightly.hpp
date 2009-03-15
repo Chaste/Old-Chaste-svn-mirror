@@ -37,8 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "TissueCell.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
@@ -51,60 +49,44 @@ public:
 
     void TestTysonNovakImmortalStemCell()
     {
-        double end_time=100.0; // A good load of divisions to make sure nothing mucks up..
+        double end_time = 100.0; // A good load of divisions to make sure nothing mucks up..
         // one division = 1.26 hours.
-        int time_steps=1000;
+        int time_steps = 1000;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
         TissueCell stem_cell(STEM, HEALTHY, new TysonNovakCellCycleModel());
+        stem_cell.InitialiseCellCycleModel();
 
-        std::vector<TissueCell> cells;
-        std::vector<TissueCell> newly_born;
-        std::vector<unsigned> stem_cells(time_steps);
-        std::vector<unsigned> transit_cells(time_steps);
-        std::vector<unsigned> differentiated_cells(time_steps);
-        std::vector<double> times(time_steps);
+        TS_ASSERT_EQUALS(stem_cell.ReadyToDivide(), false);
 
-        cells.push_back(stem_cell);
-        std::vector<TissueCell>::iterator cell_iterator;
-
-        unsigned i=0;
-        unsigned divisions=0;
-        while (p_simulation_time->GetTime()< end_time)
+        unsigned divisions = 0;
+        while (p_simulation_time->GetTime() < end_time)
         {
-            // produce the offspring of the cells
-
             p_simulation_time->IncrementTimeOneStep();
-            times[i]=p_simulation_time->GetTime();
-            cell_iterator = cells.begin();
-            unsigned j=0;
-            while (cell_iterator < cells.end())
+
+            if (stem_cell.ReadyToDivide())
             {
-                if (cell_iterator->ReadyToDivide())
-                {
-                    TissueCell new_cell = cell_iterator->Divide();
-                    divisions++;
-                }
-                cell_iterator++;
-                j++;
+                stem_cell.Divide();
+                TS_ASSERT_EQUALS(stem_cell.ReadyToDivide(), false);
+                divisions++;
             }
-            i++;
         }
-        TS_ASSERT_DELTA(divisions,(unsigned)(end_time/1.26),1);
+        TS_ASSERT_DELTA(divisions, (unsigned)(end_time/1.26), 1);
     }
 
     void Test0DBucketWithTysonNovak()
     {
-        double end_time=7.0; // not very long because cell cycle time is only 1.2
+        double end_time = 7.0; // not very long because cell cycle time is only 1.2
         // (75 mins) because Tyson Novaks is for yeast
-        int time_steps=100;
+        int time_steps = 100;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
         TissueCell stem_cell(STEM, HEALTHY, new TysonNovakCellCycleModel());
+        stem_cell.InitialiseCellCycleModel();
 
         std::vector<TissueCell> cells;
         std::vector<TissueCell> newly_born;
@@ -116,15 +98,15 @@ public:
         cells.push_back(stem_cell);
         std::vector<TissueCell>::iterator cell_iterator;
 
-        unsigned i=0;
+        unsigned i = 0;
         while (p_simulation_time->GetTime()< end_time)
         {
             // produce the offspring of the cells
 
             p_simulation_time->IncrementTimeOneStep();
-            times[i]=p_simulation_time->GetTime();
+            times[i] = p_simulation_time->GetTime();
             cell_iterator = cells.begin();
-            unsigned j=0;
+            unsigned j = 0;
             while (cell_iterator < cells.end())
             {
                 if (cell_iterator->ReadyToDivide())
@@ -182,17 +164,15 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         CancerParameters *p_parameters = CancerParameters::Instance();
-        double SG2MDuration = p_parameters->GetSG2MDuration();
+        double s_g2_duration = p_parameters->GetSG2MDuration();
 
-        unsigned num_steps=200;
+        unsigned num_steps = 200;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 1.0;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel());
-
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);
         wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
@@ -200,7 +180,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
 
-            if (time>=4.804+SG2MDuration)
+            if (time >= 4.804 + s_g2_duration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
             }
@@ -212,12 +192,8 @@ public:
 
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==1);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
-
-        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetCellCycleModel()->GetGeneration()==2);
 
         double time_of_birth = wnt_cell.GetBirthTime();
         double time_of_birth2 = wnt_cell2.GetBirthTime();
@@ -232,7 +208,7 @@ public:
             bool result1 = wnt_cell.ReadyToDivide();
             bool result2 = wnt_cell2.ReadyToDivide();
 
-            if ( time >= 4.804+SG2MDuration+time_of_birth )
+            if (time >= 4.804 + s_g2_duration + time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);
@@ -258,17 +234,15 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         CancerParameters *p_parameters = CancerParameters::Instance();
-        double SG2MDuration = p_parameters->GetSG2MDuration();
+        double s_g2_duration = p_parameters->GetSG2MDuration();
 
-        unsigned num_steps=200;
+        unsigned num_steps = 200;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 0.0;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         TissueCell wnt_cell(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel());
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);
-
         wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
@@ -276,7 +250,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
 
-            if (time>=7.82+SG2MDuration)
+            if (time >= 7.82 + s_g2_duration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
             }
@@ -288,12 +262,8 @@ public:
 
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==1);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
-
-        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetCellCycleModel()->GetGeneration()==2);
 
         double time_of_birth = wnt_cell.GetBirthTime();
         double time_of_birth2 = wnt_cell2.GetBirthTime();
@@ -305,9 +275,10 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
 
-            bool result1=wnt_cell.ReadyToDivide();
-            bool result2=wnt_cell2.ReadyToDivide();
-            if ( time >= 7.82+SG2MDuration+time_of_birth )
+            bool result1 = wnt_cell.ReadyToDivide();
+            bool result2 = wnt_cell2.ReadyToDivide();
+
+            if (time >= 7.82 + s_g2_duration + time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);
@@ -333,19 +304,15 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         CancerParameters *p_parameters = CancerParameters::Instance();
-        double SG2MDuration = p_parameters->GetSG2MDuration();
+        double s_g2_duration = p_parameters->GetSG2MDuration();
 
-        unsigned num_steps=200;
+        unsigned num_steps = 200;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 0.0;
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, // type
-                                  APC_TWO_HIT,//Mutation State
-                                  new WntCellCycleModel());
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);
-
+        TissueCell wnt_cell(TRANSIT, APC_TWO_HIT, new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
 
         CellMutationState this_state = wnt_cell.GetMutationState();
@@ -367,7 +334,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
 
-            if (time>=3.9435+SG2MDuration)
+            if (time >= 3.9435 + s_g2_duration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
             }
@@ -379,12 +346,8 @@ public:
 
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==1);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
-
-        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetCellCycleModel()->GetGeneration()==2);
 
         double time_of_birth = wnt_cell.GetBirthTime();
         double time_of_birth2 = wnt_cell2.GetBirthTime();
@@ -396,9 +359,10 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
 
-            bool result1=wnt_cell.ReadyToDivide();
-            bool result2=wnt_cell2.ReadyToDivide();
-            if ( time >= 3.9435+SG2MDuration+time_of_birth )
+            bool result1 = wnt_cell.ReadyToDivide();
+            bool result2 = wnt_cell2.ReadyToDivide();
+
+            if (time >= 3.9435 + s_g2_duration + time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);

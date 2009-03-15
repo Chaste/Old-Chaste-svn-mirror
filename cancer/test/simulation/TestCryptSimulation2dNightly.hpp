@@ -340,7 +340,7 @@ public:
             }
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            cell.GetCellCycleModel()->SetGeneration(generation);
+            (static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel()))->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
