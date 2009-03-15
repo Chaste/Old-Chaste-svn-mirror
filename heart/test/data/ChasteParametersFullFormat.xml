@@ -6,10 +6,9 @@
 	<Simulation>
 		<!-- 
 			Problem definition 
-		-->    
+		-->
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
 	    <Domain>Mono</Domain>
-	    <IonicModel>FaberRudy2000</IonicModel>
 	    
 		<!-- 
 			Mesh definition 
@@ -22,6 +21,31 @@
 		    	<InterNodeSpace>0.1</InterNodeSpace>
 	    	</Slab>
 	  	</Mesh>
+	
+		<!--
+			Ionic models	
+		-->
+		<IonicModels>
+			<Default>FaberRudy2000</Default>
+			<Region>
+				<IonicModel>LuoRudyI</IonicModel>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-2.0" y="-0.05" z="-1.0"/>
+						<UpperCoordinates x="-1.0" y="0.05"  z="1.0"/>
+					</Cuboid>
+				</Location>				
+			</Region>
+			<Region>
+				<IonicModel>DifrancescoNoble</IonicModel>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-1.0" y="-0.05" z="-1.0"/>
+						<UpperCoordinates x="0.0"  y="0.05"  z="1.0"/>
+					</Cuboid>
+				</Location>				
+			</Region>
+		</IonicModels>
 	
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 

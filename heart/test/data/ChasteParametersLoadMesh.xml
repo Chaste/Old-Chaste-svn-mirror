@@ -9,7 +9,6 @@
 		-->    
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
 	    <Domain>Mono</Domain>
-	    <IonicModel>FaberRudy2000</IonicModel>
 	    
 		<!-- 
 			Mesh definition 
@@ -17,6 +16,13 @@
 		<Mesh unit="cm">
 			<LoadMesh name="foo" conductivity_media="NoFibreOrientation"/>    
 	  	</Mesh>
+
+		<!--
+			Ionic models	
+		-->
+		<IonicModels>
+			<Default>FaberRudy2000</Default>
+		</IonicModels>
 	
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 

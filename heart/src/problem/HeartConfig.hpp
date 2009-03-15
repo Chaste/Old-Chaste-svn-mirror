@@ -64,7 +64,10 @@ public:
     // Simulation
     double GetSimulationDuration() const;
     domain_type GetDomain() const;
-    ionic_model_type GetIonicModel() const;
+    ionic_models_available_type GetDefaultIonicModel() const;
+    void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
+                              std::vector<ionic_models_available_type>& ionicModels) const;
+    
     
     bool GetIsMeshProvided() const;
     bool GetCreateSlab() const;
@@ -122,7 +125,7 @@ public:
     // Simulation
     void SetSimulationDuration(double simulationDuration);
     void SetDomain(domain_type domain);
-    void SetIonicModel(ionic_model_type ionicModel);
+    void SetDefaultIonicModel(ionic_models_available_type ionicModel);
     void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
     void SetConductivityHeterogeneities(std::vector< c_vector<double,3> >& cornerA,
                                         std::vector< c_vector<double,3> >& cornerB,

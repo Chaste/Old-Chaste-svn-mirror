@@ -66,10 +66,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Path to the parameter file
 std::string parameter_file;
 
-// User-modifiable parameters.  Real values will be read from a config file.
-std::string  output_directory = "/";      // Location to put simulation results
+/* 
+ * User-modifiable parameters.  Real values will be read from the config file. 
+ * Defaults are required in the declaration due to the lack of default constructor. 
+ * Values will be ignored, though.
+ */
+std::string  output_directory = "/";
 domain_type domain = domain_type::Mono;
-ionic_model_type ionic_model = ionic_model_type::LuoRudyI;
+
+ionic_models_available_type default_ionic_model = ionic_models_available_type::LuoRudyI;
+std::vector<ChasteCuboid> ionic_model_regions;
+std::vector<ionic_models_available_type> ionic_models_defined;
 
 std::vector<SimpleStimulus> stimuli_applied;
 std::vector<ChasteCuboid> stimuled_areas;
@@ -88,37 +95,50 @@ public:
 
     AbstractCardiacCell* CreateCellWithIntracellularStimulus(AbstractStimulusFunction* intracellularStimulus, unsigned node)
     {
+        ionic_models_available_type ionic_model = default_ionic_model;
+        
+        for (unsigned ionic_model_region_index = 0;
+             ionic_model_region_index < ionic_model_regions.size();
+             ++ionic_model_region_index)
+        {
+            if ( ionic_model_regions[ionic_model_region_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
+            {
+                ionic_model = ionic_models_defined[ionic_model_region_index];
+                break;
+            }
+        }        
+        
         switch(ionic_model)
         {
-            case(ionic_model_type::LuoRudyI):
+            case(ionic_models_available_type::LuoRudyI):
                 return new LuoRudyIModel1991OdeSystem(mpSolver, intracellularStimulus);
                 break;
 
-            case(ionic_model_type::LuoRudyIBackwardEuler):
+            case(ionic_models_available_type::LuoRudyIBackwardEuler):
                 return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
                 break;
 
-            case(ionic_model_type::Fox2002BackwardEuler):
+            case(ionic_models_available_type::Fox2002BackwardEuler):
                 return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
                 break;
             
-            case(ionic_model_type::DifrancescoNoble):
+            case(ionic_models_available_type::DifrancescoNoble):
                 return new DiFrancescoNoble1985OdeSystem(mpSolver, intracellularStimulus);
                 break;
             
-            case(ionic_model_type::MahajanShiferaw):
+            case(ionic_models_available_type::MahajanShiferaw):
                 return new Mahajan2008OdeSystem(mpSolver, intracellularStimulus);
                 break;
                 
-            case(ionic_model_type::tenTusscher2006):
+            case(ionic_models_available_type::tenTusscher2006):
                 return new TenTusscher2006OdeSystem(mpSolver, intracellularStimulus);
                 break;
             
-            case(ionic_model_type::HodgkinHuxley):
+            case(ionic_models_available_type::HodgkinHuxley):
                 return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(mpSolver, intracellularStimulus);
                 break;
                 
-            case(ionic_model_type::FaberRudy2000):
+            case(ionic_models_available_type::FaberRudy2000):
                 {
                     FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, intracellularStimulus);
 
@@ -137,7 +157,7 @@ public:
                     break;
                 }
 
-            case(ionic_model_type::FaberRudy2000Optimised):
+            case(ionic_models_available_type::FaberRudy2000Optimised):
                 return new FaberRudy2000Version3Optimised(mpSolver, intracellularStimulus);
                 break;
 
@@ -180,7 +200,11 @@ void ReadParametersFromFile()
     output_directory = HeartConfig::Instance()->GetOutputDirectory();
 
     domain = HeartConfig::Instance()->GetDomain();
-    ionic_model = HeartConfig::Instance()->GetIonicModel();
+
+    // Read and store default ionic model and possible region definitions
+    default_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
+    HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
+                                                  ionic_models_defined);
 
     // Read and store Stimuli
     try

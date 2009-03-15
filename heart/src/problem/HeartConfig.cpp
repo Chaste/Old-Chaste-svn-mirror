@@ -168,12 +168,66 @@ domain_type HeartConfig::GetDomain() const
                            "Domain")->get();
 }
 
-ionic_model_type HeartConfig::GetIonicModel() const
+ionic_models_available_type HeartConfig::GetDefaultIonicModel() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().IonicModel(),
-                           & mpDefaultParameters->Simulation().IonicModel(),
-                           "IonicModel")->get();
+    return DecideLocation( & mpUserParameters->Simulation().IonicModels(),
+                           & mpDefaultParameters->Simulation().IonicModels(),
+                           "IonicModel")->get().Default();
 }
+
+void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
+                                       std::vector<ionic_models_available_type>& ionicModels) const
+{
+    ionic_models_type::Region::container&
+         regions = DecideLocation( & mpUserParameters->Simulation().IonicModels(),
+                                   & mpDefaultParameters->Simulation().IonicModels(),
+                                   "IonicModel")->get().Region();
+
+    for (ionic_models_type::Region::iterator i = regions.begin();
+         i != regions.end();
+         ++i)
+    {
+        ionic_model_region_type ionic_model_region(*i);
+        point_type point_a = ionic_model_region.Location().Cuboid().LowerCoordinates();
+        point_type point_b = ionic_model_region.Location().Cuboid().UpperCoordinates();
+
+        ChastePoint<3> chaste_point_a ( point_a.x(),
+                                        point_a.y(),
+                                        point_a.z());
+
+        ChastePoint<3> chaste_point_b ( point_b.x(),
+                                        point_b.y(),
+                                        point_b.z());
+        
+        definedRegions.push_back(ChasteCuboid( chaste_point_a, chaste_point_b ));
+        ionicModels.push_back(ionic_model_region.IonicModel());
+    }
+
+//    simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
+//         stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(),
+//                           & mpDefaultParameters->Simulation().Stimuli(),
+//                           "Stimuli")->get().Stimulus();
+//    for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
+//         i != stimuli.end();
+//         ++i)
+//    {
+//        stimulus_type stimulus(*i);
+//        point_type point_a = stimulus.Location().Cuboid().LowerCoordinates();
+//        point_type point_b = stimulus.Location().Cuboid().UpperCoordinates();
+//
+//        ChastePoint<3> chaste_point_a ( point_a.x(),
+//                                        point_a.y(),
+//                                        point_a.z());
+//
+//        ChastePoint<3> chaste_point_b ( point_b.x(),
+//                                        point_b.y(),
+//                                        point_b.z());
+//
+//        stimuliApplied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
+//        stimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+//    }    
+}
+
 
 bool HeartConfig::GetIsMeshProvided() const
 {
@@ -632,9 +686,9 @@ void HeartConfig::SetDomain(domain_type domain)
     mpUserParameters->Simulation().Domain().set(domain);
 }
 
-void HeartConfig::SetIonicModel(ionic_model_type ionicModel)
+void HeartConfig::SetDefaultIonicModel(ionic_models_available_type ionicModel)
 {
-    mpUserParameters->Simulation().IonicModel().set(ionicModel);
+    mpUserParameters->Simulation().IonicModels().set(ionicModel);
 }
 
 void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefinition)

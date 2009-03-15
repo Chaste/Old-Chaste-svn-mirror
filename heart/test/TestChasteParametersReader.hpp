@@ -49,6 +49,7 @@ public:
             simulation_type simulation_params = params->Simulation();
 
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
+            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
 
             TS_ASSERT(simulation_params.Mesh().present());
             TS_ASSERT(simulation_params.Mesh().get().LoadMesh() == NULL);
@@ -58,6 +59,10 @@ public:
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabY(), 0.1);
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabZ(), 2.0);
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->InterNodeSpace(), 0.1);
+
+            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), ionic_models_available_type::FaberRudy2000);
+
+            TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
 
             physiological_type physiological_params = params->Physiological();
 
@@ -70,10 +75,6 @@ public:
             TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().longi(), 7.0);
             TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().trans(), 7.0);
             TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().normal(), 7.0);
-
-            TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
-            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000);
         }
         catch (const xml_schema::exception& e)
         {
@@ -91,6 +92,8 @@ public:
             simulation_type simulation_params = params->Simulation();
 
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
+            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
+            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), ionic_models_available_type::FaberRudy2000);
 
             TS_ASSERT(simulation_params.Mesh().present());
             TS_ASSERT(simulation_params.Mesh().get().LoadMesh() != NULL);
@@ -111,8 +114,6 @@ public:
             TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().normal(), 7.0);
 
             TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
-            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000);
         }
         catch (const xml_schema::exception& e)
         {

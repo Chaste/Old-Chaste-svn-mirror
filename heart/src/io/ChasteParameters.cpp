@@ -335,36 +335,134 @@ operator= (_xsd_domain_type v)
 }
 
 
-// ionic_model_type
+// ionic_models_available_type
 // 
 
-ionic_model_type::
-ionic_model_type (_xsd_ionic_model_type v)
-: ::xml_schema::string (_xsd_ionic_model_type_literals_[v])
+ionic_models_available_type::
+ionic_models_available_type (_xsd_ionic_models_available_type v)
+: ::xml_schema::string (_xsd_ionic_models_available_type_literals_[v])
 {
 }
 
-ionic_model_type::
-ionic_model_type (const ::xml_schema::string& _xsd_ionic_model_type)
-: ::xml_schema::string (_xsd_ionic_model_type)
+ionic_models_available_type::
+ionic_models_available_type (const ::xml_schema::string& _xsd_ionic_models_available_type)
+: ::xml_schema::string (_xsd_ionic_models_available_type)
 {
 }
 
-ionic_model_type::
-ionic_model_type (const ionic_model_type& v,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+ionic_models_available_type::
+ionic_models_available_type (const ionic_models_available_type& v,
+                             ::xml_schema::flags f,
+                             ::xml_schema::type* c)
 : ::xml_schema::string (v, f, c)
 {
 }
 
-ionic_model_type& ionic_model_type::
-operator= (_xsd_ionic_model_type v)
+ionic_models_available_type& ionic_models_available_type::
+operator= (_xsd_ionic_models_available_type v)
 {
   static_cast< ::xml_schema::string& > (*this) = 
-  ::xml_schema::string (_xsd_ionic_model_type_literals_[v]);
+  ::xml_schema::string (_xsd_ionic_models_available_type_literals_[v]);
 
   return *this;
+}
+
+
+// ionic_model_region_type
+// 
+
+const ionic_model_region_type::IonicModel::type& ionic_model_region_type::
+IonicModel () const
+{
+  return this->_xsd_IonicModel_.get ();
+}
+
+ionic_model_region_type::IonicModel::type& ionic_model_region_type::
+IonicModel ()
+{
+  return this->_xsd_IonicModel_.get ();
+}
+
+void ionic_model_region_type::
+IonicModel (const IonicModel::type& IonicModel)
+{
+  this->_xsd_IonicModel_.set (IonicModel);
+}
+
+void ionic_model_region_type::
+IonicModel (::std::auto_ptr< IonicModel::type > IonicModel)
+{
+  this->_xsd_IonicModel_.set (IonicModel);
+}
+
+const ionic_model_region_type::Location::type& ionic_model_region_type::
+Location () const
+{
+  return this->_xsd_Location_.get ();
+}
+
+ionic_model_region_type::Location::type& ionic_model_region_type::
+Location ()
+{
+  return this->_xsd_Location_.get ();
+}
+
+void ionic_model_region_type::
+Location (const Location::type& Location)
+{
+  this->_xsd_Location_.set (Location);
+}
+
+void ionic_model_region_type::
+Location (::std::auto_ptr< Location::type > Location)
+{
+  this->_xsd_Location_.set (Location);
+}
+
+
+// ionic_models_type
+// 
+
+const ionic_models_type::Default::type& ionic_models_type::
+Default () const
+{
+  return this->_xsd_Default_.get ();
+}
+
+ionic_models_type::Default::type& ionic_models_type::
+Default ()
+{
+  return this->_xsd_Default_.get ();
+}
+
+void ionic_models_type::
+Default (const Default::type& Default)
+{
+  this->_xsd_Default_.set (Default);
+}
+
+void ionic_models_type::
+Default (::std::auto_ptr< Default::type > Default)
+{
+  this->_xsd_Default_.set (Default);
+}
+
+const ionic_models_type::Region::container& ionic_models_type::
+Region () const
+{
+  return this->_xsd_Region_;
+}
+
+ionic_models_type::Region::container& ionic_models_type::
+Region ()
+{
+  return this->_xsd_Region_;
+}
+
+void ionic_models_type::
+Region (const Region::container& Region)
+{
+  this->_xsd_Region_ = Region;
 }
 
 
@@ -1387,36 +1485,6 @@ Domain (::std::auto_ptr< Domain::type > Domain)
   this->_xsd_Domain_.set (Domain);
 }
 
-const simulation_type::IonicModel::container& simulation_type::
-IonicModel () const
-{
-  return this->_xsd_IonicModel_;
-}
-
-simulation_type::IonicModel::container& simulation_type::
-IonicModel ()
-{
-  return this->_xsd_IonicModel_;
-}
-
-void simulation_type::
-IonicModel (const IonicModel::type& IonicModel)
-{
-  this->_xsd_IonicModel_.set (IonicModel);
-}
-
-void simulation_type::
-IonicModel (const IonicModel::container& IonicModel)
-{
-  this->_xsd_IonicModel_ = IonicModel;
-}
-
-void simulation_type::
-IonicModel (::std::auto_ptr< IonicModel::type > IonicModel)
-{
-  this->_xsd_IonicModel_.set (IonicModel);
-}
-
 const simulation_type::Mesh::container& simulation_type::
 Mesh () const
 {
@@ -1445,6 +1513,36 @@ void simulation_type::
 Mesh (::std::auto_ptr< Mesh::type > Mesh)
 {
   this->_xsd_Mesh_.set (Mesh);
+}
+
+const simulation_type::IonicModels::container& simulation_type::
+IonicModels () const
+{
+  return this->_xsd_IonicModels_;
+}
+
+simulation_type::IonicModels::container& simulation_type::
+IonicModels ()
+{
+  return this->_xsd_IonicModels_;
+}
+
+void simulation_type::
+IonicModels (const IonicModels::type& IonicModels)
+{
+  this->_xsd_IonicModels_.set (IonicModels);
+}
+
+void simulation_type::
+IonicModels (const IonicModels::container& IonicModels)
+{
+  this->_xsd_IonicModels_ = IonicModels;
+}
+
+void simulation_type::
+IonicModels (::std::auto_ptr< IonicModels::type > IonicModels)
+{
+  this->_xsd_IonicModels_.set (IonicModels);
 }
 
 // simulation_type::Stimuli::_xsd_Stimuli_::Stimuli
@@ -2688,55 +2786,55 @@ _xsd_domain_type_indexes_[2] =
   ::domain_type::Mono
 };
 
-// ionic_model_type
+// ionic_models_available_type
 //
 
-ionic_model_type::
-ionic_model_type (const ::xercesc::DOMElement& e,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+ionic_models_available_type::
+ionic_models_available_type (const ::xercesc::DOMElement& e,
+                             ::xml_schema::flags f,
+                             ::xml_schema::type* c)
 : ::xml_schema::string (e, f, c)
 {
-  _xsd_ionic_model_type_convert ();
+  _xsd_ionic_models_available_type_convert ();
 }
 
-ionic_model_type::
-ionic_model_type (const ::xercesc::DOMAttr& a,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+ionic_models_available_type::
+ionic_models_available_type (const ::xercesc::DOMAttr& a,
+                             ::xml_schema::flags f,
+                             ::xml_schema::type* c)
 : ::xml_schema::string (a, f, c)
 {
-  _xsd_ionic_model_type_convert ();
+  _xsd_ionic_models_available_type_convert ();
 }
 
-ionic_model_type::
-ionic_model_type (const ::std::basic_string< char >& s,
-                  const ::xercesc::DOMElement* e,
-                  ::xml_schema::flags f,
-                  ::xml_schema::type* c)
+ionic_models_available_type::
+ionic_models_available_type (const ::std::basic_string< char >& s,
+                             const ::xercesc::DOMElement* e,
+                             ::xml_schema::flags f,
+                             ::xml_schema::type* c)
 : ::xml_schema::string (s, e, f, c)
 {
-  _xsd_ionic_model_type_convert ();
+  _xsd_ionic_models_available_type_convert ();
 }
 
-ionic_model_type* ionic_model_type::
+ionic_models_available_type* ionic_models_available_type::
 _clone (::xml_schema::flags f,
         ::xml_schema::type* c) const
 {
-  return new ionic_model_type (*this, f, c);
+  return new ionic_models_available_type (*this, f, c);
 }
 
-ionic_model_type::_xsd_ionic_model_type ionic_model_type::
-_xsd_ionic_model_type_convert () const
+ionic_models_available_type::_xsd_ionic_models_available_type ionic_models_available_type::
+_xsd_ionic_models_available_type_convert () const
 {
-  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ionic_model_type_literals_);
-  const _xsd_ionic_model_type* i (::std::lower_bound (
-                                    _xsd_ionic_model_type_indexes_,
-                                    _xsd_ionic_model_type_indexes_ + 9,
-                                    *this,
-                                    c));
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ionic_models_available_type_literals_);
+  const _xsd_ionic_models_available_type* i (::std::lower_bound (
+                                               _xsd_ionic_models_available_type_indexes_,
+                                               _xsd_ionic_models_available_type_indexes_ + 9,
+                                               *this,
+                                               c));
 
-  if (i == _xsd_ionic_model_type_indexes_ + 9 || _xsd_ionic_model_type_literals_[*i] != *this)
+  if (i == _xsd_ionic_models_available_type_indexes_ + 9 || _xsd_ionic_models_available_type_literals_[*i] != *this)
   {
     throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
   }
@@ -2744,8 +2842,8 @@ _xsd_ionic_model_type_convert () const
   return *i;
 }
 
-const char* const ionic_model_type::
-_xsd_ionic_model_type_literals_[9] =
+const char* const ionic_models_available_type::
+_xsd_ionic_models_available_type_literals_[9] =
 {
   "Fox2002BackwardEuler",
   "LuoRudyIBackwardEuler",
@@ -2758,19 +2856,225 @@ _xsd_ionic_model_type_literals_[9] =
   "tenTusscher2006"
 };
 
-const ionic_model_type::_xsd_ionic_model_type ionic_model_type::
-_xsd_ionic_model_type_indexes_[9] =
+const ionic_models_available_type::_xsd_ionic_models_available_type ionic_models_available_type::
+_xsd_ionic_models_available_type_indexes_[9] =
 {
-  ::ionic_model_type::DifrancescoNoble,
-  ::ionic_model_type::FaberRudy2000,
-  ::ionic_model_type::FaberRudy2000Optimised,
-  ::ionic_model_type::Fox2002BackwardEuler,
-  ::ionic_model_type::HodgkinHuxley,
-  ::ionic_model_type::LuoRudyI,
-  ::ionic_model_type::LuoRudyIBackwardEuler,
-  ::ionic_model_type::MahajanShiferaw,
-  ::ionic_model_type::tenTusscher2006
+  ::ionic_models_available_type::DifrancescoNoble,
+  ::ionic_models_available_type::FaberRudy2000,
+  ::ionic_models_available_type::FaberRudy2000Optimised,
+  ::ionic_models_available_type::Fox2002BackwardEuler,
+  ::ionic_models_available_type::HodgkinHuxley,
+  ::ionic_models_available_type::LuoRudyI,
+  ::ionic_models_available_type::LuoRudyIBackwardEuler,
+  ::ionic_models_available_type::MahajanShiferaw,
+  ::ionic_models_available_type::tenTusscher2006
 };
+
+// ionic_model_region_type
+//
+
+ionic_model_region_type::
+ionic_model_region_type (const IonicModel::type& _xsd_IonicModel,
+                         const Location::type& _xsd_Location)
+: ::xml_schema::type (),
+_xsd_IonicModel_ (_xsd_IonicModel,
+                  ::xml_schema::flags (),
+                  this),
+_xsd_Location_ (_xsd_Location,
+                ::xml_schema::flags (),
+                this)
+{
+}
+
+ionic_model_region_type::
+ionic_model_region_type (const ionic_model_region_type& _xsd_ionic_model_region_type,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_ionic_model_region_type, f, c),
+_xsd_IonicModel_ (_xsd_ionic_model_region_type._xsd_IonicModel_,
+                  f | ::xml_schema::flags::not_root,
+                  this),
+_xsd_Location_ (_xsd_ionic_model_region_type._xsd_Location_,
+                f | ::xml_schema::flags::not_root,
+                this)
+{
+}
+
+ionic_model_region_type::
+ionic_model_region_type (const ::xercesc::DOMElement& e,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_IonicModel_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Location_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void ionic_model_region_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // IonicModel
+    //
+    {
+      if (e.name () == "IonicModel" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< IonicModel::type > r (
+          IonicModel::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_IonicModel_.present ())
+          continue;
+        this->IonicModel (r);
+        continue;
+      }
+    }
+
+    // Location
+    //
+    {
+      if (e.name () == "Location" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Location::type > r (
+          Location::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Location_.present ())
+          continue;
+        this->Location (r);
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_IonicModel_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "IonicModel",
+      "");
+  }
+
+  if (!_xsd_Location_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Location",
+      "");
+  }
+}
+
+ionic_model_region_type* ionic_model_region_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new ionic_model_region_type (*this, f, c);
+}
+
+// ionic_models_type
+//
+
+ionic_models_type::
+ionic_models_type (const Default::type& _xsd_Default)
+: ::xml_schema::type (),
+_xsd_Default_ (_xsd_Default,
+               ::xml_schema::flags (),
+               this),
+_xsd_Region_ (::xml_schema::flags (), this)
+{
+}
+
+ionic_models_type::
+ionic_models_type (const ionic_models_type& _xsd_ionic_models_type,
+                   ::xml_schema::flags f,
+                   ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_ionic_models_type, f, c),
+_xsd_Default_ (_xsd_ionic_models_type._xsd_Default_,
+               f | ::xml_schema::flags::not_root,
+               this),
+_xsd_Region_ (_xsd_ionic_models_type._xsd_Region_,
+              f | ::xml_schema::flags::not_root,
+              this)
+{
+}
+
+ionic_models_type::
+ionic_models_type (const ::xercesc::DOMElement& e,
+                   ::xml_schema::flags f,
+                   ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_Default_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Region_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void ionic_models_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // Default
+    //
+    {
+      if (e.name () == "Default" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Default::type > r (
+          Default::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Default_.present ())
+          continue;
+        this->Default (r);
+        continue;
+      }
+    }
+
+    // Region
+    //
+    {
+      if (e.name () == "Region" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Region::type > r (
+          Region::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        this->Region ().push_back (r);
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_Default_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Default",
+      "");
+  }
+}
+
+ionic_models_type* ionic_models_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new ionic_models_type (*this, f, c);
+}
 
 // media_type
 //
@@ -4719,8 +5023,8 @@ simulation_type ()
 : ::xml_schema::type (),
 _xsd_SimulationDuration_ (::xml_schema::flags (), this),
 _xsd_Domain_ (::xml_schema::flags (), this),
-_xsd_IonicModel_ (::xml_schema::flags (), this),
 _xsd_Mesh_ (::xml_schema::flags (), this),
+_xsd_IonicModels_ (::xml_schema::flags (), this),
 _xsd_Stimuli_ (::xml_schema::flags (), this),
 _xsd_CellHeterogeneities_ (::xml_schema::flags (), this),
 _xsd_ConductivityHeterogeneities_ (::xml_schema::flags (), this),
@@ -4740,12 +5044,12 @@ _xsd_SimulationDuration_ (_xsd_simulation_type._xsd_SimulationDuration_,
 _xsd_Domain_ (_xsd_simulation_type._xsd_Domain_,
               f | ::xml_schema::flags::not_root,
               this),
-_xsd_IonicModel_ (_xsd_simulation_type._xsd_IonicModel_,
-                  f | ::xml_schema::flags::not_root,
-                  this),
 _xsd_Mesh_ (_xsd_simulation_type._xsd_Mesh_,
             f | ::xml_schema::flags::not_root,
             this),
+_xsd_IonicModels_ (_xsd_simulation_type._xsd_IonicModels_,
+                   f | ::xml_schema::flags::not_root,
+                   this),
 _xsd_Stimuli_ (_xsd_simulation_type._xsd_Stimuli_,
                f | ::xml_schema::flags::not_root,
                this),
@@ -4771,8 +5075,8 @@ simulation_type (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f, c),
 _xsd_SimulationDuration_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Domain_ (f | ::xml_schema::flags::not_root, this),
-_xsd_IonicModel_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Mesh_ (f | ::xml_schema::flags::not_root, this),
+_xsd_IonicModels_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Stimuli_ (f | ::xml_schema::flags::not_root, this),
 _xsd_CellHeterogeneities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ConductivityHeterogeneities_ (f | ::xml_schema::flags::not_root, this),
@@ -4827,24 +5131,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
 
-    // IonicModel
-    //
-    {
-      if (e.name () == "IonicModel" && e.namespace_ ().empty ())
-      {
-        ::std::auto_ptr< IonicModel::type > r (
-          IonicModel::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-
-        if (this->IonicModel ())
-          continue;
-        this->IonicModel (r);
-        continue;
-      }
-    }
-
     // Mesh
     //
     {
@@ -4859,6 +5145,24 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (this->Mesh ())
           continue;
         this->Mesh (r);
+        continue;
+      }
+    }
+
+    // IonicModels
+    //
+    {
+      if (e.name () == "IonicModels" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< IonicModels::type > r (
+          IonicModels::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (this->IonicModels ())
+          continue;
+        this->IonicModels (r);
         continue;
       }
     }
@@ -5772,23 +6076,72 @@ operator<< (::xsd::cxx::tree::list_stream< char >& l,
 
 void
 operator<< (::xercesc::DOMElement& e,
-            ionic_model_type i)
+            ionic_models_available_type i)
 {
   e << static_cast< const ::xml_schema::string& > (i);
 }
 
 void
 operator<< (::xercesc::DOMAttr& a,
-            ionic_model_type i)
+            ionic_models_available_type i)
 {
   a << static_cast< const ::xml_schema::string& > (i);
 }
 
 void
 operator<< (::xsd::cxx::tree::list_stream< char >& l,
-            ionic_model_type i)
+            ionic_models_available_type i)
 {
   l << static_cast< const ::xml_schema::string& > (i);
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const ionic_model_region_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "IonicModel",
+      e);
+    s.dom_element () << i.IonicModel ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Location",
+      e);
+    s.dom_element () << i.Location ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const ionic_models_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "Default",
+      e);
+    s.dom_element () << i.Default ();
+  }
+
+  {
+    for (ionic_models_type::Region::const_iterator
+         b (i.Region ().begin ()), n (i.Region ().end ());
+         b != n; ++b)
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Region",
+        e);
+      s.dom_element () << *b;
+    }
+  }
 }
 
 void
@@ -6321,22 +6674,22 @@ operator<< (::xercesc::DOMElement& e,
   }
 
   {
-    if (i.IonicModel ())
-    {
-      ::xsd::cxx::xml::dom::element< char > s (
-        "IonicModel",
-        e);
-      s.dom_element () << *i.IonicModel ();
-    }
-  }
-
-  {
     if (i.Mesh ())
     {
       ::xsd::cxx::xml::dom::element< char > s (
         "Mesh",
         e);
       s.dom_element () << *i.Mesh ();
+    }
+  }
+
+  {
+    if (i.IonicModels ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "IonicModels",
+        e);
+      s.dom_element () << *i.IonicModels ();
     }
   }
 

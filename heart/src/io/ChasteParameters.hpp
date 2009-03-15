@@ -215,7 +215,9 @@ class inverse_length_type;
 class capacitance_type;
 class location_type;
 class domain_type;
-class ionic_model_type;
+class ionic_models_available_type;
+class ionic_model_region_type;
+class ionic_models_type;
 class media_type;
 class point_type;
 class box_type;
@@ -759,10 +761,10 @@ class domain_type: public ::xml_schema::string
   static const _xsd_domain_type _xsd_domain_type_indexes_[2];
 };
 
-class ionic_model_type: public ::xml_schema::string
+class ionic_models_available_type: public ::xml_schema::string
 {
   public:
-  enum _xsd_ionic_model_type
+  enum _xsd_ionic_models_available_type
   {
     Fox2002BackwardEuler,
     LuoRudyIBackwardEuler,
@@ -775,47 +777,204 @@ class ionic_model_type: public ::xml_schema::string
     tenTusscher2006
   };
 
-  ionic_model_type (_xsd_ionic_model_type);
+  ionic_models_available_type (_xsd_ionic_models_available_type);
 
-  ionic_model_type (const ::xml_schema::string&);
+  ionic_models_available_type (const ::xml_schema::string&);
 
-  ionic_model_type (const ::xercesc::DOMElement&,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  ionic_models_available_type (const ::xercesc::DOMElement&,
+                               ::xml_schema::flags = 0,
+                               ::xml_schema::type* = 0);
 
-  ionic_model_type (const ::xercesc::DOMAttr&,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  ionic_models_available_type (const ::xercesc::DOMAttr&,
+                               ::xml_schema::flags = 0,
+                               ::xml_schema::type* = 0);
 
-  ionic_model_type (const ::std::basic_string< char >&,
-                    const ::xercesc::DOMElement*,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  ionic_models_available_type (const ::std::basic_string< char >&,
+                               const ::xercesc::DOMElement*,
+                               ::xml_schema::flags = 0,
+                               ::xml_schema::type* = 0);
 
-  ionic_model_type (const ionic_model_type&,
-                    ::xml_schema::flags = 0,
-                    ::xml_schema::type* = 0);
+  ionic_models_available_type (const ionic_models_available_type&,
+                               ::xml_schema::flags = 0,
+                               ::xml_schema::type* = 0);
 
-  virtual ionic_model_type*
+  virtual ionic_models_available_type*
   _clone (::xml_schema::flags = 0,
           ::xml_schema::type* = 0) const;
 
-  ionic_model_type&
-  operator= (_xsd_ionic_model_type);
+  ionic_models_available_type&
+  operator= (_xsd_ionic_models_available_type);
 
   virtual
-  operator _xsd_ionic_model_type () const
+  operator _xsd_ionic_models_available_type () const
   {
-    return _xsd_ionic_model_type_convert ();
+    return _xsd_ionic_models_available_type_convert ();
   }
 
   protected:
-  _xsd_ionic_model_type
-  _xsd_ionic_model_type_convert () const;
+  _xsd_ionic_models_available_type
+  _xsd_ionic_models_available_type_convert () const;
 
   public:
-  static const char* const _xsd_ionic_model_type_literals_[9];
-  static const _xsd_ionic_model_type _xsd_ionic_model_type_indexes_[9];
+  static const char* const _xsd_ionic_models_available_type_literals_[9];
+  static const _xsd_ionic_models_available_type _xsd_ionic_models_available_type_indexes_[9];
+};
+
+class ionic_model_region_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_ionic_model_region_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // IonicModel
+  // 
+  public:
+  struct IonicModel
+  {
+    typedef ::ionic_models_available_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const IonicModel::type&
+  IonicModel () const;
+
+  IonicModel::type&
+  IonicModel ();
+
+  void
+  IonicModel (const IonicModel::type&);
+
+  void
+  IonicModel (::std::auto_ptr< IonicModel::type >);
+
+  // Location
+  // 
+  public:
+  struct Location
+  {
+    typedef ::location_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Location::type&
+  Location () const;
+
+  Location::type&
+  Location ();
+
+  void
+  Location (const Location::type&);
+
+  void
+  Location (::std::auto_ptr< Location::type >);
+
+  // Constructors.
+  //
+  public:
+  ionic_model_region_type (const IonicModel::type&,
+                           const Location::type&);
+
+  ionic_model_region_type (const ::xercesc::DOMElement&,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
+
+  ionic_model_region_type (const ionic_model_region_type&,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
+
+  virtual ionic_model_region_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< IonicModel::type > _xsd_IonicModel_;
+  ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
+};
+
+class ionic_models_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_ionic_models_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // Default
+  // 
+  public:
+  struct Default
+  {
+    typedef ::ionic_models_available_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Default::type&
+  Default () const;
+
+  Default::type&
+  Default ();
+
+  void
+  Default (const Default::type&);
+
+  void
+  Default (::std::auto_ptr< Default::type >);
+
+  // Region
+  // 
+  public:
+  struct Region
+  {
+    typedef ::ionic_model_region_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::sequence< type > container;
+    typedef container::iterator iterator;
+    typedef container::const_iterator const_iterator;
+  };
+
+  const Region::container&
+  Region () const;
+
+  Region::container&
+  Region ();
+
+  void
+  Region (const Region::container&);
+
+  // Constructors.
+  //
+  public:
+  ionic_models_type (const Default::type&);
+
+  ionic_models_type (const ::xercesc::DOMElement&,
+                     ::xml_schema::flags = 0,
+                     ::xml_schema::type* = 0);
+
+  ionic_models_type (const ionic_models_type&,
+                     ::xml_schema::flags = 0,
+                     ::xml_schema::type* = 0);
+
+  virtual ionic_models_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< Default::type > _xsd_Default_;
+  ::xsd::cxx::tree::sequence< Region::type > _xsd_Region_;
 };
 
 class media_type: public ::xml_schema::string
@@ -2227,31 +2386,6 @@ class simulation_type: public ::xml_schema::type
   void
   Domain (::std::auto_ptr< Domain::type >);
 
-  // IonicModel
-  // 
-  public:
-  struct IonicModel
-  {
-    typedef ::ionic_model_type type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-    typedef ::xsd::cxx::tree::optional< type > container;
-  };
-
-  const IonicModel::container&
-  IonicModel () const;
-
-  IonicModel::container&
-  IonicModel ();
-
-  void
-  IonicModel (const IonicModel::type&);
-
-  void
-  IonicModel (const IonicModel::container&);
-
-  void
-  IonicModel (::std::auto_ptr< IonicModel::type >);
-
   // Mesh
   // 
   public:
@@ -2276,6 +2410,31 @@ class simulation_type: public ::xml_schema::type
 
   void
   Mesh (::std::auto_ptr< Mesh::type >);
+
+  // IonicModels
+  // 
+  public:
+  struct IonicModels
+  {
+    typedef ::ionic_models_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const IonicModels::container&
+  IonicModels () const;
+
+  IonicModels::container&
+  IonicModels ();
+
+  void
+  IonicModels (const IonicModels::type&);
+
+  void
+  IonicModels (const IonicModels::container&);
+
+  void
+  IonicModels (::std::auto_ptr< IonicModels::type >);
 
   // Stimuli
   // 
@@ -2604,8 +2763,8 @@ class simulation_type: public ::xml_schema::type
 
   ::xsd::cxx::tree::optional< SimulationDuration::type > _xsd_SimulationDuration_;
   ::xsd::cxx::tree::optional< Domain::type > _xsd_Domain_;
-  ::xsd::cxx::tree::optional< IonicModel::type > _xsd_IonicModel_;
   ::xsd::cxx::tree::optional< Mesh::type > _xsd_Mesh_;
+  ::xsd::cxx::tree::optional< IonicModels::type > _xsd_IonicModels_;
   ::xsd::cxx::tree::optional< Stimuli::type > _xsd_Stimuli_;
   ::xsd::cxx::tree::optional< CellHeterogeneities::type > _xsd_CellHeterogeneities_;
   ::xsd::cxx::tree::optional< ConductivityHeterogeneities::type > _xsd_ConductivityHeterogeneities_;
@@ -3166,15 +3325,23 @@ operator<< (::xsd::cxx::tree::list_stream< char >&,
 
 void
 operator<< (::xercesc::DOMElement&,
-            ionic_model_type);
+            ionic_models_available_type);
 
 void
 operator<< (::xercesc::DOMAttr&,
-            ionic_model_type);
+            ionic_models_available_type);
 
 void
 operator<< (::xsd::cxx::tree::list_stream< char >&,
-            ionic_model_type);
+            ionic_models_available_type);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const ionic_model_region_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const ionic_models_type&);
 
 void
 operator<< (::xercesc::DOMElement&,
