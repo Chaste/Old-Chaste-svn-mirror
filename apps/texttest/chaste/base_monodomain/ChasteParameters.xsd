@@ -63,7 +63,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="ionic_model_type">
+  <xs:simpleType name="ionic_models_available_type">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Fox2002BackwardEuler"/>
       <xs:enumeration value="LuoRudyIBackwardEuler"/>
@@ -76,6 +76,20 @@
       <xs:enumeration value="tenTusscher2006"/>
     </xs:restriction>
   </xs:simpleType>
+
+  <xs:complexType name="ionic_model_region_type">
+    <xs:sequence>
+    	<xs:element name="IonicModel" type="ionic_models_available_type"/>
+    	<xs:element name="Location" type="location_type"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ionic_models_type">
+    <xs:sequence>
+    	<xs:element name="Default" type="ionic_models_available_type"/>
+    	<xs:element name="Region" type="ionic_model_region_type" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
   
   <xs:simpleType name="media_type">
     <xs:restriction base="xs:string">
@@ -196,8 +210,9 @@
     <xs:all>
       <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
       <xs:element name="Domain" type="domain_type" minOccurs="0"/>
-      <xs:element name="IonicModel" type="ionic_model_type" minOccurs="0"/>
       <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>
+
+      <xs:element name="IonicModels" type="ionic_models_type" minOccurs="0"/>
       
       <xs:element name="Stimuli" minOccurs="0">
         <xs:complexType>
