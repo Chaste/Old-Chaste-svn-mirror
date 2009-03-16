@@ -1,15 +1,11 @@
 ############################ ISSUES TO BE RESOLVED ########################
 ##
-## 1. Triangle is not mentioned at all - or on the website??? 
-##      - Tests which require triangle fail "Remeshing (by calling triangle) failed"
-## 2. Tests which require tetgen fail 
+## 1. Tests which require tetgen fail 
 ##      - "tetgen: tetgen.cxx:4918: void tetgenmesh::findedge(tetgenmesh::triface*, double*, double*): Assertion `i < 3' failed."
 ##
 ## Issues:
 ## 1. Are the two edits in the Metis section needed. We purposefully didn't do the first
 ##    (CC=cc -> CC=gcc) and forgot the second (edit include/metis.h) but had no problems.
-## 2. Intel production not mentioned - suggest we create a public webpage for this 
-##     (installing MKL, optimised petsc, etc) and give a link here.
 ##    
 ## 
 ##
@@ -115,17 +111,12 @@ make install
 ================METIS:==================
 
 cd $CHASTE_LIBS
-wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.0pre2.tar.gz
-tar -zxf metis-5.0pre2.tar.gz
-cd metis-5.0pre2
-
-Edit the file Makefile.in, changing the line CC = cc to CC = gcc.
-Also edit the file include/metis.h and specify the width (32 or 64 bits) of the elementary data type used in METIS. This is controled by the IDXTYPEWIDTH constant. For now, on a 32 bit architecture you can only specify a width of 32, whereas for a 64 bit architecture you can specify a width of either 32 or 64 bits.
-Then run:
-
-make all
+wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-4.0.tar.gz
+tar -zxf metis-4.0.tar.gz
+cd metis-4.0
+make
 cd ..
-rm -f metis-5.0pre2.tar.gz
+rm -f metis-4.0.tar.gz
 
 ============= XSD and XML =============
 Installing Apache Xerces XML libraries:
@@ -165,6 +156,16 @@ mv tetgen $CHASTE_LIBS/bin/
 cd ..
 rm -rf tetgen1.3.4*
 
+=============== TRIANGLE =====================
+
+cd $CHASTE_LIBS
+wget http://www.netlib.org/voronoi/triangle.zip
+mkdir triangle
+cd triangle
+unzip ../triangle.zip
+make
+cp ./triangle $CHASTE_LIBS/bin/
+cp ./showme  $CHASTE_LIBS/bin/
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 
@@ -206,6 +207,11 @@ You will need to edit the python/hostconfig/default.py to give the correct paths
 Note that if you followed these instructions (placing all dependencies below
 a ${CHASTE_LIBS} directory) then this should a matter of removing two lines
 and editing one line below. 
+
+Note that if you have the Intel compiler available, you may want to enable
+Chaste compilation with Intel.  We've found that on some tests the
+build-type for optimised Intel "build=IntelProduction" (see below) provides
+an executable that is up to 60% faster than optimised Gnu "build=GccOpt".
 
 ========== Compiling and running Chaste ==========
 Now we should have all the necessary libraries to compile Chaste. To run the Chaste tests to see if everything compiles and the tests pass

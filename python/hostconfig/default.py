@@ -46,20 +46,21 @@ petsc_build_name = 'linux-gnu'
 petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = ''
-metis_path = chaste_libs_path+'/metis-5.0pre2/'
+metis_path = chaste_libs_path+'/metis-4.0/'
 intel_path = '/opt/intel/cc/9.1.039/lib'
 icpc = 'icpc'
 
 other_includepaths = [chaste_libs_path+'hdf5/include',
                       chaste_libs_path+'/xsd-2.3.1-i686-linux-gnu/libxsd',
-		      os.path.join(metis_path, 'include')]
+                      os.path.join(metis_path, 'Lib')]
 
 other_libpaths = [chaste_libs_path+'lib',
-		  chaste_libs_path+'boost/lib', 
+                  chaste_libs_path+'boost/lib', 
                   chaste_libs_path+'xerces-c-src_2_7_0/lib',
- 		  chaste_libs_path+'hdf5/lib',
+                  chaste_libs_path+'hdf5/lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
-                  os.path.join(metis_path, 'build/Linux-x86_64')]
+                  metis_path]
+
 
 blas_lapack = ['f2clapack', 'f2cblas']
 other_libraries = ['boost_serialization-gcc', 'xerces-c', 'hdf5', 'z', 'metis']
