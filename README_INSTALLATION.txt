@@ -1,23 +1,15 @@
 ############################ ISSUES TO BE RESOLVED ########################
 ##
-## Errors:
-## 1. Error in parallel checks of HDF5 (the second 'make check'). See #763 for error messages
-##      - TestHdf5DataReader doesn't compile
-## 2. Triangle is not mentioned at all - or on the website??? 
+## 1. Triangle is not mentioned at all - or on the website??? 
 ##      - Tests which require triangle fail "Remeshing (by calling triangle) failed"
-## 3. Tests which require tetgen fail 
+## 2. Tests which require tetgen fail 
 ##      - "tetgen: tetgen.cxx:4918: void tetgenmesh::findedge(tetgenmesh::triface*, double*, double*): Assertion `i < 3' failed."
 ##
 ## Issues:
-## **1**. Not at all clear how to edit default.py once you get there - easy to edit the petsc path
-##        but then had to just start running scons and adding the unfound libraries to other_libpaths
-## 2. Maybe get all libraries put in the same place, $CHASTE_LIBS/libs, rather than
-##    $CHASTE_LIBS/libs and $CHASTE_LIBS/boost/libs and $CHASTE_LIBS/blah/libs etc.
-## 3. Are the two edits in the Metis section needed. We purposefully didn't do the first
+## 1. Are the two edits in the Metis section needed. We purposefully didn't do the first
 ##    (CC=cc -> CC=gcc) and forgot the second (edit include/metis.h) but had no problems.
-## 4. Intel production not mentioned - suggest we create a public webpage for this 
+## 2. Intel production not mentioned - suggest we create a public webpage for this 
 ##     (installing MKL, optimised petsc, etc) and give a link here.
-## 5. Installation takes too long to be done at the workshop??? 
 ##    
 ## 
 ##
@@ -28,7 +20,7 @@
 
 CHASTE DEVELOPER INSTALLATION GUIDE
 
-First define the folder where you want to install the libraries which chaste depends on, e.g.
+First define the folder where you want to install the libraries which Chaste depends on, e.g.
 export CHASTE_LIBS=~/chaste-libs
 
 If it doesn't already exist, create this directory:
@@ -42,7 +34,7 @@ mkdir $CHASTE_LIBS
 =
 ===================================================================================
 
-The following packages and libraries are all compulsory for chaste to run 
+The following packages and libraries are all compulsory for Chaste to run 
 (the version numbers of packages and libraries might need updating). 
 Please install them as described below.
 
@@ -83,8 +75,6 @@ export PETSC_DIR=`pwd`
 ./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false  -PETSC_ARCH=linux-gnu --with-clanguage=cxx
 make all
 ./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false   --with-debugging=0 -PETSC_ARCH=linux-gnu-opt --with-clanguage=cxx
-make all
-./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false  -PETSC_ARCH=linux-gnu-profile --with-clanguage=cxx --CFLAGS=-pg -CXXFLAGS=-pg -LDFLAGS=-pg
 make all
 cd ..
 
@@ -208,13 +198,17 @@ NB. You will need to logout and in again for the above to take effect (or instea
 
 
 
-========== Compiling and running chaste ==========
+========== Configuring Chaste ==========
 
 First, return to the main Chaste directory (the folder with the code and this README file)
 
 You will need to edit the python/hostconfig/default.py to give the correct paths to each of the libraries.
+Note that if you followed these instructions (placing all dependencies below
+a ${CHASTE_LIBS} directory) then this should a matter of removing two lines
+and editing one line below. 
 
-Now we should have all the necessary libraries to compile chaste. To run the Chaste tests to see if everything compiles and the tests pass
+========== Compiling and running Chaste ==========
+Now we should have all the necessary libraries to compile Chaste. To run the Chaste tests to see if everything compiles and the tests pass
 type one of the following (note that scons should always be run from the main Chaste directory):
  
 scons          # runs all the tests - will take a while

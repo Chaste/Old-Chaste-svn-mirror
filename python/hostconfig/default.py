@@ -35,24 +35,35 @@ import sys
 print >>sys.stderr, "Unrecognised machine; please edit python/hostconfig/default.py"
 sys.exit(1)
 
-petsc_2_2_path = '../../../petsc-2.2.1/'
-petsc_2_3_path = '../../../petsc-2.3.3-p15/'
+#EDIT HERE
+#For a simple installation all paths will be below this directory
+chaste_libs_path = '/home/scratch/chaste/'
+#EDIT HERE
+
+petsc_2_2_path = ''
+petsc_2_3_path = chaste_libs_path+'petsc-2.3.3-p15/'
 petsc_build_name = 'linux-gnu'
 petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
-dealii_path = '../../../deal.II/'         ## valid path only needed if you are using the dealii project
-metis_path = '../../../metis-5.0pre2/'
+dealii_path = ''
+metis_path = chaste_libs_path+'/metis-5.0pre2/'
 intel_path = '/opt/intel/cc/9.1.039/lib'
 icpc = 'icpc'
 
-other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd',
+other_includepaths = [chaste_libs_path+'hdf5/include',
+                      chaste_libs_path+'/xsd-2.3.1-i686-linux-gnu/libxsd',
 		      os.path.join(metis_path, 'include')]
 
-other_libpaths = ['../../../lib',
+other_libpaths = [chaste_libs_path+'lib',
+		  chaste_libs_path+'boost/lib', 
+                  chaste_libs_path+'xerces-c-src_2_7_0/lib',
+ 		  chaste_libs_path+'hdf5/lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
                   os.path.join(metis_path, 'build/Linux-x86_64')]
 
 blas_lapack = ['f2clapack', 'f2cblas']
 other_libraries = ['boost_serialization-gcc', 'xerces-c', 'hdf5', 'z', 'metis']
 
-tools = {}
+
+tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
+         'mpicxx': chaste_libs_path+'mpi/bin/mpicxx'}
