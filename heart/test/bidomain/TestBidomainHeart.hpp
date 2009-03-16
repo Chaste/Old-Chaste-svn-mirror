@@ -114,50 +114,6 @@ public:
         HeartEventHandler::Headings();
         HeartEventHandler::Report();
     }
-
-    // Creates data for the following test
-    void TestPermuteWithMetisBinaries()
-    {
-        EXIT_IF_SEQUENTIAL;
-        
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        unsigned num_procs = PetscTools::NumProcs();
-        mesh.PermuteNodesWithMetisBinaries(num_procs);
-
-        TrianglesMeshWriter<3,3> mesh_writer("","halfheart_metis");
-        mesh_writer.WriteFilesUsingMesh(mesh);
-    }
-
-
-    void TestBidomainDg0HeartMetis() throw (Exception)
-    {
-        EXIT_IF_SEQUENTIAL;
-        SetParameters();
-
-        HeartConfig::Instance()->SetOutputDirectory("BiDg0HeartMetis");
-        
-        PointStimulusHeartCellFactory cell_factory;
-        BidomainProblem<3> bidomain_problem(&cell_factory);
-
-        // Data created in TestPermuteWithMetisBinaries
-        OutputFileHandler handler("");
-        std::string metis_mesh = handler.GetOutputDirectoryFullPath("") + "halfheart_metis";
-        std::string nodes_file = handler.GetOutputDirectoryFullPath("") + "metis.mesh.nodesperproc";
-
-        HeartConfig::Instance()->SetMeshFileName(metis_mesh);//"heart/test/data/halfheart_metis");
-        bidomain_problem.SetNodesPerProcessorFilename(nodes_file);
-
-
-        bidomain_problem.SetWriteInfo();
-        bidomain_problem.Initialise();
-        bidomain_problem.Solve();
-
-        HeartEventHandler::Headings();
-        HeartEventHandler::Report();
-    }
 };
 
 #endif //_TESTBIDOMAINHEART_HPP_
