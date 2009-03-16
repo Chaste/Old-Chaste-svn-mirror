@@ -85,10 +85,11 @@ std::vector<double> scale_factor_gks;
 std::vector<double> scale_factor_ito;
 std::vector<ChasteCuboid> cell_heterogeneity_areas;
 
-class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
+template<unsigned SPACE_DIM>
+class ChasteSlabCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>
 {
 public:
-    ChasteSlabCellFactory() : AbstractCardiacCellFactory<3>()
+    ChasteSlabCellFactory() : AbstractCardiacCellFactory<SPACE_DIM>()
     {
     }
 
@@ -101,7 +102,7 @@ public:
              ionic_model_region_index < ionic_model_regions.size();
              ++ionic_model_region_index)
         {
-            if ( ionic_model_regions[ionic_model_region_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
+            if ( ionic_model_regions[ionic_model_region_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
             {
                 ionic_model = ionic_models_defined[ionic_model_region_index];
                 break;
@@ -111,7 +112,7 @@ public:
         switch(ionic_model)
         {
             case(ionic_models_available_type::LuoRudyI):
-                return new LuoRudyIModel1991OdeSystem(mpSolver, intracellularStimulus);
+                return new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
 
             case(ionic_models_available_type::LuoRudyIBackwardEuler):
@@ -123,30 +124,30 @@ public:
                 break;
             
             case(ionic_models_available_type::DifrancescoNoble):
-                return new DiFrancescoNoble1985OdeSystem(mpSolver, intracellularStimulus);
+                return new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
             
             case(ionic_models_available_type::MahajanShiferaw):
-                return new Mahajan2008OdeSystem(mpSolver, intracellularStimulus);
+                return new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
                 
             case(ionic_models_available_type::tenTusscher2006):
-                return new TenTusscher2006OdeSystem(mpSolver, intracellularStimulus);
+                return new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
             
             case(ionic_models_available_type::HodgkinHuxley):
-                return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(mpSolver, intracellularStimulus);
+                return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
                 break;
                 
             case(ionic_models_available_type::FaberRudy2000):
                 {
-                    FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, intracellularStimulus);
+                    FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
 
                     for (unsigned ht_index = 0;
                          ht_index < cell_heterogeneity_areas.size();
                          ++ht_index)
                     {
-                        if ( cell_heterogeneity_areas[ht_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
+                        if ( cell_heterogeneity_areas[ht_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
                         {
                             faber_rudy_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
                             faber_rudy_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);
@@ -158,7 +159,7 @@ public:
                 }
 
             case(ionic_models_available_type::FaberRudy2000Optimised):
-                return new FaberRudy2000Version3Optimised(mpSolver, intracellularStimulus);
+                return new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
                 break;
 
             default:
@@ -179,7 +180,7 @@ public:
              stimulus_index < stimuli_applied.size();
              ++stimulus_index)
         {
-            if ( stimuled_areas[stimulus_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
+            if ( stimuled_areas[stimulus_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
             {
                 node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);
             }
@@ -253,51 +254,122 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
     std::cout<<UNAME<<"\n";
     std::cout<<"from revision number "<<SVN_REV<<" with build type "<<BUILD_TYPE<<".\n\n";
     
-    PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
-
-    if (argc<2)
+    try
     {
-        std::cout  << "Usage: Chaste parameters_file\n";
-        return -1;
-    }
-
-    parameter_file = std::string(argv[1]);
-    ReadParametersFromFile();
-
-    ChasteSlabCellFactory cell_factory;
-
-    switch(domain)
-    {
-        case domain_type::Mono :
+        PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
+    
+        if (argc<2)
         {
-            MonodomainProblem<3> mono_problem( &cell_factory);
-
-            mono_problem.ConvertOutputToMeshalyzerFormat(true);
-
-            mono_problem.Initialise();
-            mono_problem.Solve();
-
-            break;
+            std::cout  << "Usage: Chaste parameters_file\n";
+            return -1;
         }
-
-        case domain_type::Bi :
+    
+        parameter_file = std::string(argv[1]);
+        ReadParametersFromFile();
+    
+        switch(domain)
         {
-            BidomainProblem<3> bi_problem( &cell_factory);
-
-            bi_problem.ConvertOutputToMeshalyzerFormat(true);
-
-            bi_problem.Initialise();
-            bi_problem.Solve();
-
-            break;
-        }
-
-        default :
-            EXCEPTION("Unknown domain type!!!");
-    }
+            case domain_type::Mono :
+            {
+                switch (HeartConfig::Instance()->GetSpaceDimension())
+                {
+                    case 3:
+                    {
+                        ChasteSlabCellFactory<3> cell_factory;
+                        MonodomainProblem<3> mono_problem( &cell_factory);
             
-    HeartEventHandler::Headings();
-    HeartEventHandler::Report();
+                        mono_problem.ConvertOutputToMeshalyzerFormat(true);        
+                        mono_problem.Initialise();
+                        mono_problem.Solve();
+            
+                        break;
+                    }
+                    
+                    case 2:
+                    {
+                        ChasteSlabCellFactory<2> cell_factory;                   
+                        MonodomainProblem<2> mono_problem( &cell_factory);
+            
+                        mono_problem.ConvertOutputToMeshalyzerFormat(true);
+            
+                        mono_problem.Initialise();
+                        mono_problem.Solve();
+            
+                        break;
+                    }
+    
+                    case 1:
+                    {
+                        ChasteSlabCellFactory<1> cell_factory;                    
+                        MonodomainProblem<1> mono_problem( &cell_factory);
+            
+                        mono_problem.ConvertOutputToMeshalyzerFormat(true);
+            
+                        mono_problem.Initialise();
+                        mono_problem.Solve();
+            
+                        break;
+                    }
+                    default :
+                        EXCEPTION("Space dimension not supported!!!");
+                }
+                break;                    
+            }
+    
+            case domain_type::Bi :
+            {
+                switch (HeartConfig::Instance()->GetSpaceDimension())
+                {
+                    case 3:
+                    {
+                        ChasteSlabCellFactory<3> cell_factory;                    
+                        BidomainProblem<3> bi_problem( &cell_factory);
+            
+                        bi_problem.ConvertOutputToMeshalyzerFormat(true);        
+                        bi_problem.Initialise();
+                        bi_problem.Solve();
+            
+                        break;
+                    }
+                    case 2:
+                    {
+                        ChasteSlabCellFactory<2> cell_factory;                    
+                        BidomainProblem<2> bi_problem( &cell_factory);
+            
+                        bi_problem.ConvertOutputToMeshalyzerFormat(true);        
+                        bi_problem.Initialise();
+                        bi_problem.Solve();
+            
+                        break;
+                    }
+                    case 1:
+                    {
+                        ChasteSlabCellFactory<1> cell_factory;                    
+                        BidomainProblem<1> bi_problem( &cell_factory);
+            
+                        bi_problem.ConvertOutputToMeshalyzerFormat(true);        
+                        bi_problem.Initialise();
+                        bi_problem.Solve();
+            
+                        break;
+                    }
+                    default :
+                        EXCEPTION("Space dimension not supported!!!");
+                }
+                break;
+            }
+    
+            default :
+                EXCEPTION("Unknown domain type!!!");
+        }
+                
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
+    }
+    catch(Exception& e)
+    {
+        std::cout << e.GetMessage() << std::endl;
+    }
 
     PetscFinalize();
 
