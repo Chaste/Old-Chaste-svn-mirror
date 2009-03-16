@@ -17,12 +17,7 @@
 			Mesh definition 
 		-->    
 		<Mesh unit="cm">
-			<Slab>    
-		    	<SlabX>0.5</SlabX>
-		    	<SlabY>0.5</SlabY>
-		    	<SlabZ>0.5</SlabZ>
-		    	<InterNodeSpace>0.025</InterNodeSpace>
-	    	</Slab>
+			<Slab x="0.5" y="0.5" z="0.5" inter_node_space="0.025"/>
 	  	</Mesh>
 		    
 	    <!-- 

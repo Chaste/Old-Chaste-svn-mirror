@@ -4,6 +4,7 @@
        xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
 
 	<Simulation>
+		<SpaceDimension>3</SpaceDimension>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default>LuoRudyI</Default>
