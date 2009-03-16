@@ -52,6 +52,7 @@ icpc = 'icpc'
 
 other_includepaths = [chaste_libs_path+'hdf5/include',
                       chaste_libs_path+'xerces/include',
+                      chaste_libs_path+'/boost/include/boost-1_34_1',
                       chaste_libs_path+'/xsd-2.3.1-i686-linux-gnu/libxsd',
                       os.path.join(metis_path, 'Lib')]
 
