@@ -51,12 +51,13 @@ intel_path = '/opt/intel/cc/9.1.039/lib'
 icpc = 'icpc'
 
 other_includepaths = [chaste_libs_path+'hdf5/include',
+                      chaste_libs_path+'xerces/include',
                       chaste_libs_path+'/xsd-2.3.1-i686-linux-gnu/libxsd',
                       os.path.join(metis_path, 'Lib')]
 
 other_libpaths = [chaste_libs_path+'lib',
                   chaste_libs_path+'boost/lib', 
-                  chaste_libs_path+'xerces-c-src_2_7_0/lib',
+                  chaste_libs_path+'xerces/lib',
                   chaste_libs_path+'hdf5/lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
                   metis_path]

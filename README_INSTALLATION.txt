@@ -1,13 +1,3 @@
-############################ ISSUES TO BE RESOLVED ########################
-##
-## 1. Double check XSD - heart isn't compiling
-## 
-##
-###########################################################################
-
-
-
-
 CHASTE DEVELOPER INSTALLATION GUIDE
 
 First define the folder where you want to install the libraries which Chaste depends on, e.g.
