@@ -39,18 +39,24 @@ public:
     void TestDebugMacros()
     {
         TRACE("Some trace");
+        //Note that these macros do nothing in NDEBUG -- we should ensure that the variables get used anyway.
+        double use_vars=0.0;
         
         unsigned my_var = 3141;
         PRINT_VARIABLE(my_var);
+        use_vars += (double) my_var;
         
         double another_var = 2.81;
         PRINT_VARIABLES(my_var, another_var);
+        use_vars += another_var;
         
         double cancer_curing_constant = 0.053450242435;
         PRINT_3_VARIABLES(my_var, another_var, cancer_curing_constant);
+        use_vars += cancer_curing_constant;
 
         double heart_disease_ending_constant = -3e-141;
         PRINT_4_VARIABLES(my_var, another_var, cancer_curing_constant, heart_disease_ending_constant);
+        use_vars += heart_disease_ending_constant;
 
         TRACE("\n\n\n");
         

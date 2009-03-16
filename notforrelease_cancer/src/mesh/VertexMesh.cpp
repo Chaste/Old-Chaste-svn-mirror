@@ -1707,8 +1707,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
     unsigned num_nodes = p_element->GetNumNodes();
 
-    double min_squared_distance = 1e100;
-    unsigned min_distance_edge_index;
+    double min_squared_distance = DBL_MAX;
+    unsigned min_distance_edge_index=UINT_MAX;
 
     // Loop over edges of the element
     for (unsigned local_index=0; local_index<num_nodes; local_index++)
