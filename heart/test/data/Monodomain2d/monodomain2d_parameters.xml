@@ -2,6 +2,7 @@
 <ChasteParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/miqueloscar/eclipse/workspace/Chaste/heart/src/io/ChasteParameters.xsd">
 
   <Simulation>
+    <SpaceDimension>3</SpaceDimension>
     <SimulationDuration unit="ms">0.100000000000000006</SimulationDuration>
     <Domain>Mono</Domain>
     <IonicModels>
