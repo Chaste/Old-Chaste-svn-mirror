@@ -112,6 +112,11 @@ public:
 class TestBidomainWithBathAssembler : public CxxTest::TestSuite
 {
 public:
+    void tearDown()
+    {
+        HeartConfig::Reset();   
+    }
+
     void TestLabellingNodes() throw (Exception)
     {
         // all this is just to create a mesh, pde and bcc to pass to the new 

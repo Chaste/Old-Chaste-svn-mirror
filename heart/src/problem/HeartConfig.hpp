@@ -126,9 +126,15 @@ public:
      *  Set methods
      */
     // Simulation
+    void SetSpaceDimension(unsigned spaceDimension);
     void SetSimulationDuration(double simulationDuration);
     void SetDomain(domain_type domain);
     void SetDefaultIonicModel(ionic_models_available_type ionicModel);
+
+    void SetSlabDimensions(double x, double y, double z, double inter_node_space);
+    void SetSheetDimensions(double x, double y, double inter_node_space);
+    void SetFibreLength(double x, double inter_node_space);
+
     void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
     void SetConductivityHeterogeneities(std::vector< c_vector<double,3> >& cornerA,
                                         std::vector< c_vector<double,3> >& cornerB,

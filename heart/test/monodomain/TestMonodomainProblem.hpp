@@ -556,6 +556,86 @@ public:
         
     }
 
+    void TestMonodomainProblemCreates1DGeometry()
+    {
+        HeartConfig::Instance()->SetSpaceDimension(1);
+        HeartConfig::Instance()->SetFibreLength(1, 0.01);          
+        HeartConfig::Instance()->SetSimulationDuration(5.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory(-600 * 5000);
+             
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+
+        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
+        monodomain_problem.Initialise();
+        
+        monodomain_problem.Solve();
+        
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 13.9682, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 13.9149, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 13.8216, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 13.7275, atol);
+    }
+
+    void TestMonodomainProblemCreates2DGeometry()
+    {
+        HeartConfig::Instance()->SetSpaceDimension(2);
+        HeartConfig::Instance()->SetSheetDimensions(0.3, 0.3, 0.01);          
+        HeartConfig::Instance()->SetSimulationDuration(4.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-600 * 5000);
+             
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
+
+        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
+        monodomain_problem.Initialise();
+        
+        monodomain_problem.Solve();
+        
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 17.5728, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 17.4562, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 17.2559, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 17.0440, atol);
+    }
+
+    void TestMonodomainProblemCreates3DGeometry()
+    {
+        HeartConfig::Instance()->SetSpaceDimension(3);
+        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.01);          
+        HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain3d");
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-600 * 5000);
+             
+        MonodomainProblem<3> monodomain_problem( &cell_factory );
+
+        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
+        monodomain_problem.Initialise();
+        
+        monodomain_problem.Solve();
+        
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 31.8629, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 32.0507, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 32.6340, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 33.6119, atol);
+    }
 
     void TestMonodomainProblemExceptions() throw (Exception)
     {

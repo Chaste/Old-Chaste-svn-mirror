@@ -121,29 +121,81 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
             {
                 if(HeartConfig::Instance()->GetCreateMesh())
                 {
-                    c_vector<double, 3> slab_dimensions; //cm                    
-                    HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
-                    double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
-                    
-                    mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
-                    
-                    unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
-                    unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
-                    unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
-                
-                    static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->ConstructCuboid(slab_nodes_x,
-                                           slab_nodes_y,
-                                           slab_nodes_z,
-                                           true);
-                    // place at origin
-                    static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Translate(-(double)slab_nodes_x/2.0,
-                                     -(double)slab_nodes_y/2.0,
-                                     -(double)slab_nodes_z/2.0);
-                                     
-                    // scale
-                    double mesh_scale_factor = inter_node_space;
-                    static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
-                    
+                    switch(HeartConfig::Instance()->GetSpaceDimension())
+                    {
+                        case 1:
+                        {
+                            c_vector<double, 1> fibre_length;
+                            HeartConfig::Instance()->GetFibreLength(fibre_length);
+                            double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+
+                            mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+                            
+                            unsigned slab_nodes_x = (unsigned)round(fibre_length[0]/inter_node_space);
+                        
+                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->ConstructLinearMesh(slab_nodes_x);
+                            // place at origin
+//                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Translate(-(double)slab_nodes_x/2.0,
+//                                             -(double)slab_nodes_y/2.0,
+//                                             -(double)slab_nodes_z/2.0);
+                                             
+                            // scale
+                            double mesh_scale_factor = inter_node_space;
+                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Scale(mesh_scale_factor, 1, 1);
+                            break;
+                        }
+                        case 2:
+                        {
+                            c_vector<double, 2> sheet_dimensions; //cm                    
+                            HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
+                            double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+                            
+                            mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+                            
+                            unsigned slab_nodes_x = (unsigned)round(sheet_dimensions[0]/inter_node_space);
+                            unsigned slab_nodes_y = (unsigned)round(sheet_dimensions[1]/inter_node_space);
+                        
+                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->ConstructRectangularMesh(slab_nodes_x, slab_nodes_y);
+                            
+                            // place at origin
+//                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Translate(-(double)slab_nodes_x/2.0,
+//                                             -(double)slab_nodes_y/2.0,
+//                                             -(double)slab_nodes_z/2.0);
+                                             
+                            // scale
+                            double mesh_scale_factor = inter_node_space;
+                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
+                            break;
+                        }
+                        case 3:
+                        {
+                            c_vector<double, 3> slab_dimensions; //cm                    
+                            HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
+                            double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+                            
+                            mpMesh = new TetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+                            
+                            unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
+                            unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
+                            unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
+                        
+                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->ConstructCuboid(slab_nodes_x,
+                                                   slab_nodes_y,
+                                                   slab_nodes_z,
+                                                   true);
+                            // place at origin
+//                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Translate(-(double)slab_nodes_x/2.0,
+//                                             -(double)slab_nodes_y/2.0,
+//                                             -(double)slab_nodes_z/2.0);
+                                             
+                            // scale
+                            double mesh_scale_factor = inter_node_space;
+                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
+                            break;
+                        }
+                        default:
+                            NEVER_REACHED;
+                    }
                 }
                 else
                 {

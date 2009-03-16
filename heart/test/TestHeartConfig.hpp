@@ -243,6 +243,8 @@ public :
 
         c_vector<double, 3> slab_dimensions;
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions));
+        c_vector<double, 1> fibre_length;
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetFibreLength(fibre_length));
 
         c_vector<double, 2> sheet_dimensions;
         HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
@@ -266,6 +268,8 @@ public :
 
         c_vector<double, 3> slab_dimensions;
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions));
+        c_vector<double, 2> sheet_dimensions;
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions));        
 
         c_vector<double, 1> fibre_length;
         HeartConfig::Instance()->GetFibreLength(fibre_length);

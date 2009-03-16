@@ -267,7 +267,7 @@ void HeartConfig::GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const
 
     if (GetSpaceDimension() != 2)
     {
-        EXCEPTION("Tissue sheets can only be defined in 3D");
+        EXCEPTION("Tissue sheets can only be defined in 2D");
     }
 
     optional<sheet_type, false> sheet_dimensions = DecideLocation( & mpUserParameters->Simulation().Mesh(),
@@ -284,7 +284,7 @@ void HeartConfig::GetFibreLength(c_vector<double, 1>& fibreLength) const
 
     if (GetSpaceDimension() != 1)
     {
-        EXCEPTION("Tissue fibres can only be defined in 3D");
+        EXCEPTION("Tissue fibres can only be defined in 1D");
     }
 
     optional<fibre_type, false> fibre_length = DecideLocation( & mpUserParameters->Simulation().Mesh(),
@@ -717,7 +717,11 @@ const char* HeartConfig::GetKSPPreconditioner() const
 /*
  *  Set methods
  */
-// Simulation
+void HeartConfig::SetSpaceDimension(unsigned spaceDimension)
+{
+    mpUserParameters->Simulation().SpaceDimension().set(spaceDimension);    
+}
+
 void HeartConfig::SetSimulationDuration(double simulationDuration)
 {
     time_type time(simulationDuration, "ms");
@@ -734,12 +738,48 @@ void HeartConfig::SetDefaultIonicModel(ionic_models_available_type ionicModel)
     mpUserParameters->Simulation().IonicModels().set(ionicModel);
 }
 
+void HeartConfig::SetSlabDimensions(double x, double y, double z, double inter_node_space)
+{
+    if ( ! mpUserParameters->Simulation().Mesh().present())
+    {
+        mesh_type mesh_to_load("cm");
+        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
+    }
+
+    slab_type slab_definition(x, y, z, inter_node_space);    
+    mpUserParameters->Simulation().Mesh().get().Slab().set(slab_definition);        
+}
+
+void HeartConfig::SetSheetDimensions(double x, double y, double inter_node_space)
+{
+    if ( ! mpUserParameters->Simulation().Mesh().present())
+    {
+        mesh_type mesh_to_load("cm");
+        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
+    }
+
+    sheet_type sheet_definition(x, y, inter_node_space);    
+    mpUserParameters->Simulation().Mesh().get().Sheet().set(sheet_definition);        
+}
+
+void HeartConfig::SetFibreLength(double x, double inter_node_space)
+{
+    if ( ! mpUserParameters->Simulation().Mesh().present())
+    {
+        mesh_type mesh_to_load("cm");
+        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
+    }
+
+    fibre_type fibre_definition(x, inter_node_space);    
+    mpUserParameters->Simulation().Mesh().get().Fibre().set(fibre_definition);    
+}
+
 void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefinition)
 {
     if ( ! mpUserParameters->Simulation().Mesh().present())
     {
         mesh_type mesh_to_load("cm");
-        mpUserParameters->Simulation().Mesh().set(mesh_to_load);    
+        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
     }
     
     mesh_type::LoadMesh::type mesh_prefix(meshPrefix, fibreDefinition);    
