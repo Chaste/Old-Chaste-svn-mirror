@@ -82,7 +82,7 @@ public:
 
 /* The ODE solvers will repeatedly call a method called EvaluateYDerivatives(), which needs
  * to be implemented in this concrete class. This takes in the time, a {{{std::vector}}} of
- * y values (in this, of size 1), and a reference to a {{{std::vector}}} in which the
+ * y values (in this case, of size 1), and a reference to a {{{std::vector}}} in which the
  * derivative(s) should be filled in by the method..
  */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY,
@@ -94,7 +94,8 @@ public:
 };
 
 /* The following ''template specialisation'' defines the information for this
- * ODE system.  Note that we use the ODE system class as a template parameter.
+ * ODE system.  Note that we use the ODE system class that we have just defined
+ * as a template parameter 
  */
 template<>
 void OdeSystemInformation<MyOde>::Initialise(void)
@@ -106,7 +107,7 @@ void OdeSystemInformation<MyOde>::Initialise(void)
     this->mInitialised = true;
 }
 
-/* That would be all that is needed for this class to solve the ODE. However, rather
+/* That would be all that is needed to solve this ODE. However, rather
  * than solving up to a fixed time, suppose we wanted to solve until some function
  * of y (and t) reached a certain value, e.g. let's say we wanted to solve the ODE until
  * y reached 2.5. To do this, we have to define a stopping event, by implementing
@@ -127,9 +128,9 @@ public:
     }
 };
 
-/* (Ignore this class until solving with state variables is discussed)
+/* (Ignore the following class until solving with state variables is discussed).
  *
- * Another class which sets up a state variable. Note that this is done in the
+ * This is another ODE class which sets up a 'state variable'. Note that this is done in the
  * constructor, and the {{{EvaluateYDerivatives}}} is identical to before */
 class MyOdeUsingStateVariables : public AbstractOdeSystem
 {
@@ -220,8 +221,8 @@ public:
         /* Then, just call Solve(), passing in a pointer to the ODE, the
          * initial condition, the start time, end time, the solving timestep,
          * and sampling timestep (how often we want the returned solution).
-         * Here we solve from 0 to 1, with a timestep of 0.01 but a sampling
-         * timestep of 0.1. The return value is an object of type {{{OdeSolution}}}
+         * Here we solve from 0 to 1, with a timestep of 0.01 but a ''sampling
+         * timestep'' (how often the results are stored) of 0.1. The return value is an object of type {{{OdeSolution}}}
          * (which is basically just a list of times and solutions).
          */
         OdeSolution solutions = euler_solver.Solve(&my_ode, initial_condition, 0, 1, 0.01, 0.1);
@@ -237,9 +238,8 @@ public:
 
         /* Alternatively, we can print the solution directly to a file, using the {{{WriteToFile}}}
          * method on the {{{OdeSolution}}} class. (To do this, we need to provide the
-         * ODE system and the units time is in, since a header line is written (this is because
-         * the ODE system can contain the names and units of the variables, although our's
-         * does not have that defined)) */
+         * ODE system, so a header line containing the names and units of the variable can be written,
+         * and also the units of time). */
         solutions.WriteToFile("SolvingOdesTutorial", "ode1.txt", &my_ode, "sec");
 
         /* We can see from the printed out results that y goes above 2.5 somewhere just

@@ -58,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleLinearEllipticAssembler.hpp"
 /* This is the class that is needed to solve a linear parabolic PDE */
 #include "SimpleDg0ParabolicAssembler.hpp"
-/* This is the parabolic PDE we will solve */
+/* This is a parabolic PDE, one of the PDEs we will solve */
 #include "HeatEquationWithSourceTerm.hpp"
 /* We will also solve this PDE */
 #include "SimplePoissonEquation.hpp"
@@ -81,7 +81,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Here, we solve the PDE: div(D grad u) + u = x^2^+y^2^, in 2D, where
  * D is the diffusion tensor (1 1; 0 1) (ie D11=D12=D22=1, D21=0), on a square
- * domain, with boundary conditions u=0 on x=0 or y=0, and (D gradu).n = 0 on x=1 and y=1,
+ * domain, with boundary conditions u=0 on x=0 or y=0, and (D grad u).n = 0 on x=1 and y=1,
  * where n is the surface normal.
  *
  * EMPTYLINE
@@ -89,7 +89,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * We need to create a class representing the PDE we want to solve, which will be
  * passed into the solver. The PDE we are solving is of the type
  * {{{AbstractLinearEllipticPde}}}, which is an abstract class with 3 pure methods
- * which have to implemented. The template variable in the following line is the dimension
+ * which have to implemented. The template variables in the following line are both the dimension
  * of the space.
  */
 class MyPde : public AbstractLinearEllipticPde<2,2>
@@ -123,13 +123,13 @@ public:
 
     /* The second method which has to be implemented returns the coefficient in the linear-in-u
      * part of the source term, which for our PDE is just 1.0 */
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>&, Element<2,2>* )
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& rX, Element<2,2>* pElement)
     {
         return 1.0;
     }
 
     /* The third method returns the diffusion tensor D */
-    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& rX)
     {
         return mDiffusionTensor;
     }
@@ -145,7 +145,7 @@ public:
     /* Define a particular test */
     void TestSolvingEllipticPde()
     {
-        /* First we declare a mesh reader which reads mesh data files of the 'Triangles'
+        /* First we declare a mesh reader which reads mesh data files of the 'Triangle'
          * format. The path given is the relative to the main Chaste directory. The reader
          * will look for three datafiles, [name].nodes, [name].ele and (in 2d or 3d)
          * [name].edge. Note that the first template argument here is the dimension of the
@@ -299,7 +299,7 @@ public:
      *
      * Now we solve a parabolic PDE. We choose a simple problem so that the code changes
      * needed from the elliptic case are clearer. We will solve
-     * du/dt = div(gradu) + u, in 3d, with boundary conditions u=1 on the boundary, and initial
+     * du/dt = div(grad u) + u, in 3d, with boundary conditions u=1 on the boundary, and initial
      * conditions u=1
      *
      */
@@ -315,7 +315,7 @@ public:
 
         /* Our PDE object should be a class that is derived from the {{{AbstractLinearParabolicPde}}}.
          * We could write it ourselves as in the previous test, but since the PDE we want to solve is
-         * so simple, it has already been defined
+         * so simple, it has already been defined (look it up! - it is located in pde/test/pdes)
          */
         HeatEquationWithSourceTerm<3> pde;
 
@@ -324,7 +324,7 @@ public:
         bcc.DefineConstantDirichletOnMeshBoundary(&mesh, 1.0);
 
         /* Create an instance of the assembler, passing in the mesh, pde and boundary conditions.
-         * The {{{true}}} template parameters says this is a NON_HEART problem (so the certain
+         * The '{{{true}}}' template parameter says this is a NON_HEART problem (so the certain
          * optimisations for cardiac problems are not used). */
         SimpleDg0ParabolicAssembler<3,3,true> assembler(&mesh,&pde,&bcc);
 
@@ -347,6 +347,13 @@ public:
          */
         Vec solution = assembler.Solve();
         ReplicatableVector solution_repl(solution);
+        
+        /* '''Important note''': for efficiency reasons, we assume the matrix that is set up when 
+         * solving parabolic equations with the finite element method is constant and only thus
+         * needs to be assembled in the first timestep. If you end up solving a more complicated
+         * PDE with (for example) time-dependent diffusion tensors where the matrix is not constant
+         * in time, you must do: {{{assembler.SetMatrixIsConstant(false)}}} before calling `Solve`.
+         */
 
         /* Let's also solve the equivalent static PDE, ie set du/dt=0, so 0=div(gradu) + u. This
          * is easy, as the PDE class has already been defined */
