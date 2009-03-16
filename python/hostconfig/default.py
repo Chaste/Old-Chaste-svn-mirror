@@ -64,7 +64,7 @@ other_libpaths = [chaste_libs_path+'lib',
 
 
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization-gcc', 'xerces-c', 'hdf5', 'z', 'metis']
+other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'metis']
 
 
 tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',

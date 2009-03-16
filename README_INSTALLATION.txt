@@ -60,15 +60,19 @@ cd ..
 
 =========BOOSTJAM and BOOST:===========
 
+Most modern Linux distributions have Boost libraries installed.  Please
+check before compiling since this step can be lengthy.
+
 cd $CHASTE_LIBS
 wget http://fastbull.dl.sourceforge.net/sourceforge/boost/boost-jam-3.1.17-1-linuxx86.tgz
-wget http://garr.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.gz
+wget http://garr.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.gz
 tar -zxvf boost-jam-3.1.17-1-linuxx86.tgz
-tar -zxvf boost_1_33_1.tar.gz
-cd boost_1_33_1
+tar -zxvf boost_1_34_1.tar.gz
+cd boost_1_34_1
 ../boost-jam-3.1.17-1-linuxx86/bjam "-sTOOLS=gcc" --prefix=$CHASTE_LIBS/boost install
 cd ..
-rm -rf boost_1_33_1.tar.gz boost-jam-3.1.17-1-linuxx86.tgz
+rm -f boost_1_34_1.tar.gz boost-jam-3.1.17-1-linuxx86.tgz
+rm -rf boost_1_34_1 boost-jam-3.1.17-1-linuxx86
 
 ==============HDF5:====================
 
