@@ -225,6 +225,8 @@ class stimulus_type;
 class cell_heterogeneity_type;
 class conductivity_heterogeneity_type;
 class slab_type;
+class sheet_type;
+class fibre_type;
 class load_mesh_type;
 class mesh_type;
 class conductivities_type;
@@ -1546,85 +1548,85 @@ class slab_type: public ::xml_schema::type
     typedef ::xml_schema::type base_;
   };
 
-  // SlabX
+  // x
   // 
   public:
-  struct SlabX
+  struct x
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const SlabX::type&
-  SlabX () const;
+  const x::type&
+  x () const;
 
-  SlabX::type&
-  SlabX ();
+  x::type&
+  x ();
 
   void
-  SlabX (const SlabX::type&);
+  x (const x::type&);
 
-  // SlabY
+  // y
   // 
   public:
-  struct SlabY
+  struct y
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const SlabY::type&
-  SlabY () const;
+  const y::type&
+  y () const;
 
-  SlabY::type&
-  SlabY ();
+  y::type&
+  y ();
 
   void
-  SlabY (const SlabY::type&);
+  y (const y::type&);
 
-  // SlabZ
+  // z
   // 
   public:
-  struct SlabZ
+  struct z
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const SlabZ::type&
-  SlabZ () const;
+  const z::type&
+  z () const;
 
-  SlabZ::type&
-  SlabZ ();
+  z::type&
+  z ();
 
   void
-  SlabZ (const SlabZ::type&);
+  z (const z::type&);
 
-  // InterNodeSpace
+  // inter_node_space
   // 
   public:
-  struct InterNodeSpace
+  struct inter_node_space
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const InterNodeSpace::type&
-  InterNodeSpace () const;
+  const inter_node_space::type&
+  inter_node_space () const;
 
-  InterNodeSpace::type&
-  InterNodeSpace ();
+  inter_node_space::type&
+  inter_node_space ();
 
   void
-  InterNodeSpace (const InterNodeSpace::type&);
+  inter_node_space (const inter_node_space::type&);
 
   // Constructors.
   //
   public:
-  slab_type (const SlabX::type&,
-             const SlabY::type&,
-             const SlabZ::type&,
-             const InterNodeSpace::type&);
+  slab_type (const x::type&,
+             const y::type&,
+             const z::type&,
+             const inter_node_space::type&);
 
   slab_type (const ::xercesc::DOMElement&,
              ::xml_schema::flags = 0,
@@ -1644,10 +1646,176 @@ class slab_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
-  ::xsd::cxx::tree::one< SlabX::type > _xsd_SlabX_;
-  ::xsd::cxx::tree::one< SlabY::type > _xsd_SlabY_;
-  ::xsd::cxx::tree::one< SlabZ::type > _xsd_SlabZ_;
-  ::xsd::cxx::tree::one< InterNodeSpace::type > _xsd_InterNodeSpace_;
+  ::xsd::cxx::tree::one< x::type > _xsd_x_;
+  ::xsd::cxx::tree::one< y::type > _xsd_y_;
+  ::xsd::cxx::tree::one< z::type > _xsd_z_;
+  ::xsd::cxx::tree::one< inter_node_space::type > _xsd_inter_node_space_;
+};
+
+class sheet_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_sheet_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // x
+  // 
+  public:
+  struct x
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const x::type&
+  x () const;
+
+  x::type&
+  x ();
+
+  void
+  x (const x::type&);
+
+  // y
+  // 
+  public:
+  struct y
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const y::type&
+  y () const;
+
+  y::type&
+  y ();
+
+  void
+  y (const y::type&);
+
+  // inter_node_space
+  // 
+  public:
+  struct inter_node_space
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const inter_node_space::type&
+  inter_node_space () const;
+
+  inter_node_space::type&
+  inter_node_space ();
+
+  void
+  inter_node_space (const inter_node_space::type&);
+
+  // Constructors.
+  //
+  public:
+  sheet_type (const x::type&,
+              const y::type&,
+              const inter_node_space::type&);
+
+  sheet_type (const ::xercesc::DOMElement&,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
+
+  sheet_type (const sheet_type&,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
+
+  virtual sheet_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< x::type > _xsd_x_;
+  ::xsd::cxx::tree::one< y::type > _xsd_y_;
+  ::xsd::cxx::tree::one< inter_node_space::type > _xsd_inter_node_space_;
+};
+
+class fibre_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_fibre_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // x
+  // 
+  public:
+  struct x
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const x::type&
+  x () const;
+
+  x::type&
+  x ();
+
+  void
+  x (const x::type&);
+
+  // inter_node_space
+  // 
+  public:
+  struct inter_node_space
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const inter_node_space::type&
+  inter_node_space () const;
+
+  inter_node_space::type&
+  inter_node_space ();
+
+  void
+  inter_node_space (const inter_node_space::type&);
+
+  // Constructors.
+  //
+  public:
+  fibre_type (const x::type&,
+              const inter_node_space::type&);
+
+  fibre_type (const ::xercesc::DOMElement&,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
+
+  fibre_type (const fibre_type&,
+              ::xml_schema::flags = 0,
+              ::xml_schema::type* = 0);
+
+  virtual fibre_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< x::type > _xsd_x_;
+  ::xsd::cxx::tree::one< inter_node_space::type > _xsd_inter_node_space_;
 };
 
 class load_mesh_type: public ::xml_schema::type
@@ -1763,6 +1931,56 @@ class mesh_type: public ::xml_schema::type
   void
   Slab (::std::auto_ptr< Slab::type >);
 
+  // Sheet
+  // 
+  public:
+  struct Sheet
+  {
+    typedef ::sheet_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const Sheet::container&
+  Sheet () const;
+
+  Sheet::container&
+  Sheet ();
+
+  void
+  Sheet (const Sheet::type&);
+
+  void
+  Sheet (const Sheet::container&);
+
+  void
+  Sheet (::std::auto_ptr< Sheet::type >);
+
+  // Fibre
+  // 
+  public:
+  struct Fibre
+  {
+    typedef ::fibre_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const Fibre::container&
+  Fibre () const;
+
+  Fibre::container&
+  Fibre ();
+
+  void
+  Fibre (const Fibre::type&);
+
+  void
+  Fibre (const Fibre::container&);
+
+  void
+  Fibre (::std::auto_ptr< Fibre::type >);
+
   // LoadMesh
   // 
   public:
@@ -1839,6 +2057,8 @@ class mesh_type: public ::xml_schema::type
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
   ::xsd::cxx::tree::optional< Slab::type > _xsd_Slab_;
+  ::xsd::cxx::tree::optional< Sheet::type > _xsd_Sheet_;
+  ::xsd::cxx::tree::optional< Fibre::type > _xsd_Fibre_;
   ::xsd::cxx::tree::optional< LoadMesh::type > _xsd_LoadMesh_;
   ::xsd::cxx::tree::one< unit::type > _xsd_unit_;
 };
@@ -2336,6 +2556,28 @@ class simulation_type: public ::xml_schema::type
     typedef ::xml_schema::type base_;
   };
 
+  // SpaceDimension
+  // 
+  public:
+  struct SpaceDimension
+  {
+    typedef ::xml_schema::integer type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const SpaceDimension::container&
+  SpaceDimension () const;
+
+  SpaceDimension::container&
+  SpaceDimension ();
+
+  void
+  SpaceDimension (const SpaceDimension::type&);
+
+  void
+  SpaceDimension (const SpaceDimension::container&);
+
   // SimulationDuration
   // 
   public:
@@ -2761,6 +3003,7 @@ class simulation_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
+  ::xsd::cxx::tree::optional< SpaceDimension::type > _xsd_SpaceDimension_;
   ::xsd::cxx::tree::optional< SimulationDuration::type > _xsd_SimulationDuration_;
   ::xsd::cxx::tree::optional< Domain::type > _xsd_Domain_;
   ::xsd::cxx::tree::optional< Mesh::type > _xsd_Mesh_;
@@ -3378,6 +3621,14 @@ operator<< (::xercesc::DOMElement&,
 void
 operator<< (::xercesc::DOMElement&,
             const slab_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const sheet_type&);
+
+void
+operator<< (::xercesc::DOMElement&,
+            const fibre_type&);
 
 void
 operator<< (::xercesc::DOMElement&,

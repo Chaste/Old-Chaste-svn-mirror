@@ -876,76 +876,174 @@ Location (::std::auto_ptr< Location::type > Location)
 // slab_type
 // 
 
-const slab_type::SlabX::type& slab_type::
-SlabX () const
+const slab_type::x::type& slab_type::
+x () const
 {
-  return this->_xsd_SlabX_.get ();
+  return this->_xsd_x_.get ();
 }
 
-slab_type::SlabX::type& slab_type::
-SlabX ()
+slab_type::x::type& slab_type::
+x ()
 {
-  return this->_xsd_SlabX_.get ();
-}
-
-void slab_type::
-SlabX (const SlabX::type& SlabX)
-{
-  this->_xsd_SlabX_.set (SlabX);
-}
-
-const slab_type::SlabY::type& slab_type::
-SlabY () const
-{
-  return this->_xsd_SlabY_.get ();
-}
-
-slab_type::SlabY::type& slab_type::
-SlabY ()
-{
-  return this->_xsd_SlabY_.get ();
+  return this->_xsd_x_.get ();
 }
 
 void slab_type::
-SlabY (const SlabY::type& SlabY)
+x (const x::type& x)
 {
-  this->_xsd_SlabY_.set (SlabY);
+  this->_xsd_x_.set (x);
 }
 
-const slab_type::SlabZ::type& slab_type::
-SlabZ () const
+const slab_type::y::type& slab_type::
+y () const
 {
-  return this->_xsd_SlabZ_.get ();
+  return this->_xsd_y_.get ();
 }
 
-slab_type::SlabZ::type& slab_type::
-SlabZ ()
+slab_type::y::type& slab_type::
+y ()
 {
-  return this->_xsd_SlabZ_.get ();
-}
-
-void slab_type::
-SlabZ (const SlabZ::type& SlabZ)
-{
-  this->_xsd_SlabZ_.set (SlabZ);
-}
-
-const slab_type::InterNodeSpace::type& slab_type::
-InterNodeSpace () const
-{
-  return this->_xsd_InterNodeSpace_.get ();
-}
-
-slab_type::InterNodeSpace::type& slab_type::
-InterNodeSpace ()
-{
-  return this->_xsd_InterNodeSpace_.get ();
+  return this->_xsd_y_.get ();
 }
 
 void slab_type::
-InterNodeSpace (const InterNodeSpace::type& InterNodeSpace)
+y (const y::type& y)
 {
-  this->_xsd_InterNodeSpace_.set (InterNodeSpace);
+  this->_xsd_y_.set (y);
+}
+
+const slab_type::z::type& slab_type::
+z () const
+{
+  return this->_xsd_z_.get ();
+}
+
+slab_type::z::type& slab_type::
+z ()
+{
+  return this->_xsd_z_.get ();
+}
+
+void slab_type::
+z (const z::type& z)
+{
+  this->_xsd_z_.set (z);
+}
+
+const slab_type::inter_node_space::type& slab_type::
+inter_node_space () const
+{
+  return this->_xsd_inter_node_space_.get ();
+}
+
+slab_type::inter_node_space::type& slab_type::
+inter_node_space ()
+{
+  return this->_xsd_inter_node_space_.get ();
+}
+
+void slab_type::
+inter_node_space (const inter_node_space::type& inter_node_space)
+{
+  this->_xsd_inter_node_space_.set (inter_node_space);
+}
+
+
+// sheet_type
+// 
+
+const sheet_type::x::type& sheet_type::
+x () const
+{
+  return this->_xsd_x_.get ();
+}
+
+sheet_type::x::type& sheet_type::
+x ()
+{
+  return this->_xsd_x_.get ();
+}
+
+void sheet_type::
+x (const x::type& x)
+{
+  this->_xsd_x_.set (x);
+}
+
+const sheet_type::y::type& sheet_type::
+y () const
+{
+  return this->_xsd_y_.get ();
+}
+
+sheet_type::y::type& sheet_type::
+y ()
+{
+  return this->_xsd_y_.get ();
+}
+
+void sheet_type::
+y (const y::type& y)
+{
+  this->_xsd_y_.set (y);
+}
+
+const sheet_type::inter_node_space::type& sheet_type::
+inter_node_space () const
+{
+  return this->_xsd_inter_node_space_.get ();
+}
+
+sheet_type::inter_node_space::type& sheet_type::
+inter_node_space ()
+{
+  return this->_xsd_inter_node_space_.get ();
+}
+
+void sheet_type::
+inter_node_space (const inter_node_space::type& inter_node_space)
+{
+  this->_xsd_inter_node_space_.set (inter_node_space);
+}
+
+
+// fibre_type
+// 
+
+const fibre_type::x::type& fibre_type::
+x () const
+{
+  return this->_xsd_x_.get ();
+}
+
+fibre_type::x::type& fibre_type::
+x ()
+{
+  return this->_xsd_x_.get ();
+}
+
+void fibre_type::
+x (const x::type& x)
+{
+  this->_xsd_x_.set (x);
+}
+
+const fibre_type::inter_node_space::type& fibre_type::
+inter_node_space () const
+{
+  return this->_xsd_inter_node_space_.get ();
+}
+
+fibre_type::inter_node_space::type& fibre_type::
+inter_node_space ()
+{
+  return this->_xsd_inter_node_space_.get ();
+}
+
+void fibre_type::
+inter_node_space (const inter_node_space::type& inter_node_space)
+{
+  this->_xsd_inter_node_space_.set (inter_node_space);
 }
 
 
@@ -1032,6 +1130,66 @@ void mesh_type::
 Slab (::std::auto_ptr< Slab::type > Slab)
 {
   this->_xsd_Slab_.set (Slab);
+}
+
+const mesh_type::Sheet::container& mesh_type::
+Sheet () const
+{
+  return this->_xsd_Sheet_;
+}
+
+mesh_type::Sheet::container& mesh_type::
+Sheet ()
+{
+  return this->_xsd_Sheet_;
+}
+
+void mesh_type::
+Sheet (const Sheet::type& Sheet)
+{
+  this->_xsd_Sheet_.set (Sheet);
+}
+
+void mesh_type::
+Sheet (const Sheet::container& Sheet)
+{
+  this->_xsd_Sheet_ = Sheet;
+}
+
+void mesh_type::
+Sheet (::std::auto_ptr< Sheet::type > Sheet)
+{
+  this->_xsd_Sheet_.set (Sheet);
+}
+
+const mesh_type::Fibre::container& mesh_type::
+Fibre () const
+{
+  return this->_xsd_Fibre_;
+}
+
+mesh_type::Fibre::container& mesh_type::
+Fibre ()
+{
+  return this->_xsd_Fibre_;
+}
+
+void mesh_type::
+Fibre (const Fibre::type& Fibre)
+{
+  this->_xsd_Fibre_.set (Fibre);
+}
+
+void mesh_type::
+Fibre (const Fibre::container& Fibre)
+{
+  this->_xsd_Fibre_ = Fibre;
+}
+
+void mesh_type::
+Fibre (::std::auto_ptr< Fibre::type > Fibre)
+{
+  this->_xsd_Fibre_.set (Fibre);
 }
 
 const mesh_type::LoadMesh::container& mesh_type::
@@ -1424,6 +1582,30 @@ operator= (_xsd_ksp_preconditioner_type v)
 
 // simulation_type
 // 
+
+const simulation_type::SpaceDimension::container& simulation_type::
+SpaceDimension () const
+{
+  return this->_xsd_SpaceDimension_;
+}
+
+simulation_type::SpaceDimension::container& simulation_type::
+SpaceDimension ()
+{
+  return this->_xsd_SpaceDimension_;
+}
+
+void simulation_type::
+SpaceDimension (const SpaceDimension::type& SpaceDimension)
+{
+  this->_xsd_SpaceDimension_.set (SpaceDimension);
+}
+
+void simulation_type::
+SpaceDimension (const SpaceDimension::container& SpaceDimension)
+{
+  this->_xsd_SpaceDimension_ = SpaceDimension;
+}
 
 const simulation_type::SimulationDuration::container& simulation_type::
 SimulationDuration () const
@@ -3818,23 +4000,23 @@ _clone (::xml_schema::flags f,
 //
 
 slab_type::
-slab_type (const SlabX::type& _xsd_SlabX,
-           const SlabY::type& _xsd_SlabY,
-           const SlabZ::type& _xsd_SlabZ,
-           const InterNodeSpace::type& _xsd_InterNodeSpace)
+slab_type (const x::type& _xsd_x,
+           const y::type& _xsd_y,
+           const z::type& _xsd_z,
+           const inter_node_space::type& _xsd_inter_node_space)
 : ::xml_schema::type (),
-_xsd_SlabX_ (_xsd_SlabX,
-             ::xml_schema::flags (),
-             this),
-_xsd_SlabY_ (_xsd_SlabY,
-             ::xml_schema::flags (),
-             this),
-_xsd_SlabZ_ (_xsd_SlabZ,
-             ::xml_schema::flags (),
-             this),
-_xsd_InterNodeSpace_ (_xsd_InterNodeSpace,
-                      ::xml_schema::flags (),
-                      this)
+_xsd_x_ (_xsd_x,
+         ::xml_schema::flags (),
+         this),
+_xsd_y_ (_xsd_y,
+         ::xml_schema::flags (),
+         this),
+_xsd_z_ (_xsd_z,
+         ::xml_schema::flags (),
+         this),
+_xsd_inter_node_space_ (_xsd_inter_node_space,
+                        ::xml_schema::flags (),
+                        this)
 {
 }
 
@@ -3843,18 +4025,18 @@ slab_type (const slab_type& _xsd_slab_type,
            ::xml_schema::flags f,
            ::xml_schema::type* c)
 : ::xml_schema::type (_xsd_slab_type, f, c),
-_xsd_SlabX_ (_xsd_slab_type._xsd_SlabX_,
-             f | ::xml_schema::flags::not_root,
-             this),
-_xsd_SlabY_ (_xsd_slab_type._xsd_SlabY_,
-             f | ::xml_schema::flags::not_root,
-             this),
-_xsd_SlabZ_ (_xsd_slab_type._xsd_SlabZ_,
-             f | ::xml_schema::flags::not_root,
-             this),
-_xsd_InterNodeSpace_ (_xsd_slab_type._xsd_InterNodeSpace_,
-                      f | ::xml_schema::flags::not_root,
-                      this)
+_xsd_x_ (_xsd_slab_type._xsd_x_,
+         f | ::xml_schema::flags::not_root,
+         this),
+_xsd_y_ (_xsd_slab_type._xsd_y_,
+         f | ::xml_schema::flags::not_root,
+         this),
+_xsd_z_ (_xsd_slab_type._xsd_z_,
+         f | ::xml_schema::flags::not_root,
+         this),
+_xsd_inter_node_space_ (_xsd_slab_type._xsd_inter_node_space_,
+                        f | ::xml_schema::flags::not_root,
+                        this)
 {
 }
 
@@ -3863,10 +4045,10 @@ slab_type (const ::xercesc::DOMElement& e,
            ::xml_schema::flags f,
            ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_SlabX_ (f | ::xml_schema::flags::not_root, this),
-_xsd_SlabY_ (f | ::xml_schema::flags::not_root, this),
-_xsd_SlabZ_ (f | ::xml_schema::flags::not_root, this),
-_xsd_InterNodeSpace_ (f | ::xml_schema::flags::not_root, this)
+_xsd_x_ (f | ::xml_schema::flags::not_root, this),
+_xsd_y_ (f | ::xml_schema::flags::not_root, this),
+_xsd_z_ (f | ::xml_schema::flags::not_root, this),
+_xsd_inter_node_space_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -3876,100 +4058,76 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
 {
   ::xsd::cxx::xml::dom::parser< char > p (e);
 
-  while (p.more_elements ())
+  while (p.more_attributes ())
   {
-    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
 
-    // SlabX
-    //
+    if (a.name () == "x" && a.namespace_ ().empty ())
     {
-      if (e.name () == "SlabX" && e.namespace_ ().empty ())
-      {
-        if (_xsd_SlabX_.present ())
-          continue;
-        this->SlabX (
-          SlabX::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-        continue;
-      }
+      this->x (
+        x::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
     }
 
-    // SlabY
-    //
+    if (a.name () == "y" && a.namespace_ ().empty ())
     {
-      if (e.name () == "SlabY" && e.namespace_ ().empty ())
-      {
-        if (_xsd_SlabY_.present ())
-          continue;
-        this->SlabY (
-          SlabY::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-        continue;
-      }
+      this->y (
+        y::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
     }
 
-    // SlabZ
-    //
+    if (a.name () == "z" && a.namespace_ ().empty ())
     {
-      if (e.name () == "SlabZ" && e.namespace_ ().empty ())
-      {
-        if (_xsd_SlabZ_.present ())
-          continue;
-        this->SlabZ (
-          SlabZ::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-        continue;
-      }
+      this->z (
+        z::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
     }
 
-    // InterNodeSpace
-    //
+    if (a.name () == "inter_node_space" && a.namespace_ ().empty ())
     {
-      if (e.name () == "InterNodeSpace" && e.namespace_ ().empty ())
-      {
-        if (_xsd_InterNodeSpace_.present ())
-          continue;
-        this->InterNodeSpace (
-          InterNodeSpace::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-        continue;
-      }
+      this->inter_node_space (
+        inter_node_space::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
     }
   }
 
-  if (!_xsd_SlabX_.present ())
+  if (!_xsd_x_.present ())
   {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "SlabX",
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "x",
       "");
   }
 
-  if (!_xsd_SlabY_.present ())
+  if (!_xsd_y_.present ())
   {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "SlabY",
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "y",
       "");
   }
 
-  if (!_xsd_SlabZ_.present ())
+  if (!_xsd_z_.present ())
   {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "SlabZ",
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "z",
       "");
   }
 
-  if (!_xsd_InterNodeSpace_.present ())
+  if (!_xsd_inter_node_space_.present ())
   {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "InterNodeSpace",
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "inter_node_space",
       "");
   }
 }
@@ -3979,6 +4137,217 @@ _clone (::xml_schema::flags f,
         ::xml_schema::type* c) const
 {
   return new slab_type (*this, f, c);
+}
+
+// sheet_type
+//
+
+sheet_type::
+sheet_type (const x::type& _xsd_x,
+            const y::type& _xsd_y,
+            const inter_node_space::type& _xsd_inter_node_space)
+: ::xml_schema::type (),
+_xsd_x_ (_xsd_x,
+         ::xml_schema::flags (),
+         this),
+_xsd_y_ (_xsd_y,
+         ::xml_schema::flags (),
+         this),
+_xsd_inter_node_space_ (_xsd_inter_node_space,
+                        ::xml_schema::flags (),
+                        this)
+{
+}
+
+sheet_type::
+sheet_type (const sheet_type& _xsd_sheet_type,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_sheet_type, f, c),
+_xsd_x_ (_xsd_sheet_type._xsd_x_,
+         f | ::xml_schema::flags::not_root,
+         this),
+_xsd_y_ (_xsd_sheet_type._xsd_y_,
+         f | ::xml_schema::flags::not_root,
+         this),
+_xsd_inter_node_space_ (_xsd_sheet_type._xsd_inter_node_space_,
+                        f | ::xml_schema::flags::not_root,
+                        this)
+{
+}
+
+sheet_type::
+sheet_type (const ::xercesc::DOMElement& e,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_x_ (f | ::xml_schema::flags::not_root, this),
+_xsd_y_ (f | ::xml_schema::flags::not_root, this),
+_xsd_inter_node_space_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void sheet_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "x" && a.namespace_ ().empty ())
+    {
+      this->x (
+        x::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+
+    if (a.name () == "y" && a.namespace_ ().empty ())
+    {
+      this->y (
+        y::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+
+    if (a.name () == "inter_node_space" && a.namespace_ ().empty ())
+    {
+      this->inter_node_space (
+        inter_node_space::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+  }
+
+  if (!_xsd_x_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "x",
+      "");
+  }
+
+  if (!_xsd_y_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "y",
+      "");
+  }
+
+  if (!_xsd_inter_node_space_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "inter_node_space",
+      "");
+  }
+}
+
+sheet_type* sheet_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new sheet_type (*this, f, c);
+}
+
+// fibre_type
+//
+
+fibre_type::
+fibre_type (const x::type& _xsd_x,
+            const inter_node_space::type& _xsd_inter_node_space)
+: ::xml_schema::type (),
+_xsd_x_ (_xsd_x,
+         ::xml_schema::flags (),
+         this),
+_xsd_inter_node_space_ (_xsd_inter_node_space,
+                        ::xml_schema::flags (),
+                        this)
+{
+}
+
+fibre_type::
+fibre_type (const fibre_type& _xsd_fibre_type,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_fibre_type, f, c),
+_xsd_x_ (_xsd_fibre_type._xsd_x_,
+         f | ::xml_schema::flags::not_root,
+         this),
+_xsd_inter_node_space_ (_xsd_fibre_type._xsd_inter_node_space_,
+                        f | ::xml_schema::flags::not_root,
+                        this)
+{
+}
+
+fibre_type::
+fibre_type (const ::xercesc::DOMElement& e,
+            ::xml_schema::flags f,
+            ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_x_ (f | ::xml_schema::flags::not_root, this),
+_xsd_inter_node_space_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void fibre_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "x" && a.namespace_ ().empty ())
+    {
+      this->x (
+        x::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+
+    if (a.name () == "inter_node_space" && a.namespace_ ().empty ())
+    {
+      this->inter_node_space (
+        inter_node_space::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+  }
+
+  if (!_xsd_x_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "x",
+      "");
+  }
+
+  if (!_xsd_inter_node_space_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "inter_node_space",
+      "");
+  }
+}
+
+fibre_type* fibre_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new fibre_type (*this, f, c);
 }
 
 // load_mesh_type
@@ -4091,6 +4460,8 @@ mesh_type::
 mesh_type (const unit::type& _xsd_unit)
 : ::xml_schema::type (),
 _xsd_Slab_ (::xml_schema::flags (), this),
+_xsd_Sheet_ (::xml_schema::flags (), this),
+_xsd_Fibre_ (::xml_schema::flags (), this),
 _xsd_LoadMesh_ (::xml_schema::flags (), this),
 _xsd_unit_ (_xsd_unit,
             ::xml_schema::flags (),
@@ -4106,6 +4477,12 @@ mesh_type (const mesh_type& _xsd_mesh_type,
 _xsd_Slab_ (_xsd_mesh_type._xsd_Slab_,
             f | ::xml_schema::flags::not_root,
             this),
+_xsd_Sheet_ (_xsd_mesh_type._xsd_Sheet_,
+             f | ::xml_schema::flags::not_root,
+             this),
+_xsd_Fibre_ (_xsd_mesh_type._xsd_Fibre_,
+             f | ::xml_schema::flags::not_root,
+             this),
 _xsd_LoadMesh_ (_xsd_mesh_type._xsd_LoadMesh_,
                 f | ::xml_schema::flags::not_root,
                 this),
@@ -4121,6 +4498,8 @@ mesh_type (const ::xercesc::DOMElement& e,
            ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
 _xsd_Slab_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Sheet_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Fibre_ (f | ::xml_schema::flags::not_root, this),
 _xsd_LoadMesh_ (f | ::xml_schema::flags::not_root, this),
 _xsd_unit_ (f | ::xml_schema::flags::not_root, this)
 {
@@ -4150,6 +4529,42 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (this->Slab ())
           continue;
         this->Slab (r);
+        continue;
+      }
+    }
+
+    // Sheet
+    //
+    {
+      if (e.name () == "Sheet" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Sheet::type > r (
+          Sheet::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (this->Sheet ())
+          continue;
+        this->Sheet (r);
+        continue;
+      }
+    }
+
+    // Fibre
+    //
+    {
+      if (e.name () == "Fibre" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Fibre::type > r (
+          Fibre::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (this->Fibre ())
+          continue;
+        this->Fibre (r);
         continue;
       }
     }
@@ -5021,6 +5436,7 @@ _clone (::xml_schema::flags f,
 simulation_type::
 simulation_type ()
 : ::xml_schema::type (),
+_xsd_SpaceDimension_ (::xml_schema::flags (), this),
 _xsd_SimulationDuration_ (::xml_schema::flags (), this),
 _xsd_Domain_ (::xml_schema::flags (), this),
 _xsd_Mesh_ (::xml_schema::flags (), this),
@@ -5038,6 +5454,9 @@ simulation_type (const simulation_type& _xsd_simulation_type,
                  ::xml_schema::flags f,
                  ::xml_schema::type* c)
 : ::xml_schema::type (_xsd_simulation_type, f, c),
+_xsd_SpaceDimension_ (_xsd_simulation_type._xsd_SpaceDimension_,
+                      f | ::xml_schema::flags::not_root,
+                      this),
 _xsd_SimulationDuration_ (_xsd_simulation_type._xsd_SimulationDuration_,
                           f | ::xml_schema::flags::not_root,
                           this),
@@ -5073,6 +5492,7 @@ simulation_type (const ::xercesc::DOMElement& e,
                  ::xml_schema::flags f,
                  ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
+_xsd_SpaceDimension_ (f | ::xml_schema::flags::not_root, this),
 _xsd_SimulationDuration_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Domain_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Mesh_ (f | ::xml_schema::flags::not_root, this),
@@ -5094,6 +5514,22 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   while (p.more_elements ())
   {
     const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // SpaceDimension
+    //
+    {
+      if (e.name () == "SpaceDimension" && e.namespace_ ().empty ())
+      {
+        if (this->SpaceDimension ())
+          continue;
+        this->SpaceDimension (
+          SpaceDimension::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
 
     // SimulationDuration
     //
@@ -6327,31 +6763,91 @@ operator<< (::xercesc::DOMElement& e,
     e.removeChild (n);
 
   {
-    ::xsd::cxx::xml::dom::element< char > s (
-      "SlabX",
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "x",
       e);
-    s.dom_element () << i.SlabX ();
+
+    a.dom_attribute () << i.x ();
   }
 
   {
-    ::xsd::cxx::xml::dom::element< char > s (
-      "SlabY",
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "y",
       e);
-    s.dom_element () << i.SlabY ();
+
+    a.dom_attribute () << i.y ();
   }
 
   {
-    ::xsd::cxx::xml::dom::element< char > s (
-      "SlabZ",
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "z",
       e);
-    s.dom_element () << i.SlabZ ();
+
+    a.dom_attribute () << i.z ();
   }
 
   {
-    ::xsd::cxx::xml::dom::element< char > s (
-      "InterNodeSpace",
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "inter_node_space",
       e);
-    s.dom_element () << i.InterNodeSpace ();
+
+    a.dom_attribute () << i.inter_node_space ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const sheet_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "x",
+      e);
+
+    a.dom_attribute () << i.x ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "y",
+      e);
+
+    a.dom_attribute () << i.y ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "inter_node_space",
+      e);
+
+    a.dom_attribute () << i.inter_node_space ();
+  }
+}
+
+void
+operator<< (::xercesc::DOMElement& e,
+            const fibre_type& i)
+{
+  while (::xercesc::DOMNode* n = e.getFirstChild ())
+    e.removeChild (n);
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "x",
+      e);
+
+    a.dom_attribute () << i.x ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::attribute< char > a (
+      "inter_node_space",
+      e);
+
+    a.dom_attribute () << i.inter_node_space ();
   }
 }
 
@@ -6393,6 +6889,26 @@ operator<< (::xercesc::DOMElement& e,
         "Slab",
         e);
       s.dom_element () << *i.Slab ();
+    }
+  }
+
+  {
+    if (i.Sheet ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Sheet",
+        e);
+      s.dom_element () << *i.Sheet ();
+    }
+  }
+
+  {
+    if (i.Fibre ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "Fibre",
+        e);
+      s.dom_element () << *i.Fibre ();
     }
   }
 
@@ -6652,6 +7168,16 @@ operator<< (::xercesc::DOMElement& e,
 {
   while (::xercesc::DOMNode* n = e.getFirstChild ())
     e.removeChild (n);
+
+  {
+    if (i.SpaceDimension ())
+    {
+      ::xsd::cxx::xml::dom::element< char > s (
+        "SpaceDimension",
+        e);
+      s.dom_element () << *i.SpaceDimension ();
+    }
+  }
 
   {
     if (i.SimulationDuration ())

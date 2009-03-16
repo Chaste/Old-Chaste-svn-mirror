@@ -55,10 +55,10 @@ public:
             TS_ASSERT(simulation_params.Mesh().get().LoadMesh() == NULL);
             TS_ASSERT(simulation_params.Mesh().get().Slab() != NULL);
 
-            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabX(), 4.0);
-            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabY(), 0.1);
-            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabZ(), 2.0);
-            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->InterNodeSpace(), 0.1);
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->x(), 4.0);
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->y(), 0.1);
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->z(), 2.0);
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->inter_node_space(), 0.1);
 
             TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), ionic_models_available_type::FaberRudy2000);
 

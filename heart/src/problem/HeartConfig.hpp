@@ -62,6 +62,7 @@ public:
      *  Get methods
      */
     // Simulation
+    unsigned GetSpaceDimension() const;
     double GetSimulationDuration() const;
     domain_type GetDomain() const;
     ionic_models_available_type GetDefaultIonicModel() const;
@@ -70,10 +71,12 @@ public:
     
     
     bool GetIsMeshProvided() const;
-    bool GetCreateSlab() const;
+    bool GetCreateMesh() const;
     bool GetLoadMesh() const;
      
-    void GetSlabDimensions(c_vector<double, 3>& slabDimensions) const;    
+    void GetSlabDimensions(c_vector<double, 3>& slabDimensions) const;
+    void GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const;
+    void GetFibreLength(c_vector<double, 1>& fibreLength) const;    
     double GetInterNodeSpace() const;
     
     std::string GetMeshName() const;

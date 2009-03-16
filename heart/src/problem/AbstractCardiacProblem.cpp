@@ -119,7 +119,7 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
             }
             else
             {
-                if(HeartConfig::Instance()->GetCreateSlab())
+                if(HeartConfig::Instance()->GetCreateMesh())
                 {
                     c_vector<double, 3> slab_dimensions; //cm                    
                     HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);

@@ -7,7 +7,7 @@
 		<!-- 
 			Problem definition 
 		-->
-		<SpaceDimension>3</SpaceDimension>
+		<SpaceDimension>1</SpaceDimension>
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    
@@ -15,7 +15,7 @@
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
+			<Fibre x="4.0" inter_node_space="0.1"/>    
 	  	</Mesh>
 	
 		<!--

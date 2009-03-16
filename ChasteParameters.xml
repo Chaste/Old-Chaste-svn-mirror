@@ -6,7 +6,8 @@
 	<Simulation>
 		<!-- 
 			Problem definition 
-		-->    
+		-->
+		<SpaceDimension>3</SpaceDimension>
 	    <SimulationDuration unit="ms">50.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
@@ -17,12 +18,7 @@
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab>    
-		    	<SlabX>4.0</SlabX>
-		    	<SlabY>0.1</SlabY>
-		    	<SlabZ>2.0</SlabZ>
-		    	<InterNodeSpace>0.1</InterNodeSpace>
-	    	</Slab>
+			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
 	  	</Mesh>
 	
 	    <!-- 

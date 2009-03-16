@@ -138,14 +138,23 @@
   </xs:complexType>
 
   <xs:complexType name="slab_type">
-    <xs:sequence>
-      <xs:element name="SlabX" type="xs:double"/>
-      <xs:element name="SlabY" type="xs:double"/>
-      <xs:element name="SlabZ" type="xs:double"/>
-      <xs:element name="InterNodeSpace" type="xs:double"/>
-    </xs:sequence>
+    <xs:attribute name="x" type="xs:double" use="required"/>
+    <xs:attribute name="y" type="xs:double" use="required"/>
+    <xs:attribute name="z" type="xs:double" use="required"/>
+    <xs:attribute name="inter_node_space" type="xs:double" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="sheet_type">
+    <xs:attribute name="x" type="xs:double" use="required"/>
+    <xs:attribute name="y" type="xs:double" use="required"/>
+    <xs:attribute name="inter_node_space" type="xs:double" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="fibre_type">
+    <xs:attribute name="x" type="xs:double" use="required"/>
+    <xs:attribute name="inter_node_space" type="xs:double" use="required"/>
+  </xs:complexType>
+  
   <xs:complexType name="load_mesh_type">
 	  <xs:attribute name="name" type="xs:string" use="required"/>
 	  <xs:attribute name="conductivity_media" type="media_type" use="required"/>
@@ -155,6 +164,8 @@
   <xs:complexType name="mesh_type">
   	<xs:choice>
       <xs:element name="Slab" type="slab_type"/>
+      <xs:element name="Sheet" type="sheet_type"/>
+      <xs:element name="Fibre" type="fibre_type"/>
       <xs:element name="LoadMesh" type="load_mesh_type"/>
     </xs:choice>
     <xs:attribute name="unit" type="xs:string" use="required" fixed="cm"/>
@@ -208,6 +219,7 @@
       
   <xs:complexType name="simulation_type">
     <xs:all>
+      <xs:element name="SpaceDimension" type="xs:integer" minOccurs="0"/>
       <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
       <xs:element name="Domain" type="domain_type" minOccurs="0"/>
       <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>

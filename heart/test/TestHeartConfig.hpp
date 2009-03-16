@@ -75,6 +75,9 @@ public :
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSpaceDimension(),
+                         3u);
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(),
                          10.0);
 
@@ -96,7 +99,7 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined[0], ionic_models_available_type::LuoRudyI);
         TS_ASSERT_EQUALS(ionic_models_defined[1], ionic_models_available_type::DifrancescoNoble);
 
-        TS_ASSERT(HeartConfig::Instance()->GetCreateSlab());
+        TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
 
         c_vector<double, 3> slab_dimensions;
@@ -182,7 +185,7 @@ public :
 
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
 
-        TS_ASSERT(!HeartConfig::Instance()->GetCreateSlab());
+        TS_ASSERT(!HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(), "foo");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetConductivityMedia(), media_type::NoFibreOrientation);
@@ -199,13 +202,80 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), false);
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetLoadMesh())
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateSlab())
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateMesh())
         
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), true);        
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetLoadMesh(), true);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateSlab(), false);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateMesh(), false);        
     }
+    
+    void Test2dProblems()
+    {
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParameters2D.xml");
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSpaceDimension(),
+                         2u);
+
+//        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(),
+//                         10.0);
+//
+//        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(),
+//                         domain_type::Mono);
+//
+//        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+//                          ionic_models_available_type::FaberRudy2000);
+//
+//        std::vector<ChasteCuboid> ionic_model_regions;
+//        std::vector<ionic_models_available_type> ionic_models_defined;
+//        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
+//                                                      ionic_models_defined);
+//
+//        TS_ASSERT_EQUALS(ionic_model_regions.size(), 2u);
+//        TS_ASSERT_EQUALS(ionic_models_defined.size(), 2u);
+//
+//        TS_ASSERT(ionic_model_regions[0].DoesContain(ChastePoint<3>(-1.95, 0, 0)));
+//        TS_ASSERT_EQUALS(ionic_models_defined[0], ionic_models_available_type::LuoRudyI);
+//        TS_ASSERT_EQUALS(ionic_models_defined[1], ionic_models_available_type::DifrancescoNoble);
+
+        TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
+        TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
+
+        c_vector<double, 3> slab_dimensions;
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions));
+
+        c_vector<double, 2> sheet_dimensions;
+        HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
+        
+        TS_ASSERT_EQUALS(sheet_dimensions[0], 4.0);
+        TS_ASSERT_EQUALS(sheet_dimensions[1], 0.1);
+        
+        double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+        TS_ASSERT_EQUALS(inter_node_space, 0.1);                
+    }
+
+    void Test1dProblems()
+    {
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParameters1D.xml");
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSpaceDimension(),
+                         1u);
+
+        TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
+        TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
+
+        c_vector<double, 3> slab_dimensions;
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions));
+
+        c_vector<double, 1> fibre_length;
+        HeartConfig::Instance()->GetFibreLength(fibre_length);
+        
+        TS_ASSERT_EQUALS(fibre_length[0], 4.0);
+        
+        double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+        TS_ASSERT_EQUALS(inter_node_space, 0.1);                
+    }
+
 
     void TestSetFunctions() throw(Exception)
     {

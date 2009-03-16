@@ -154,6 +154,13 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     EXCEPTION("No " + nameParameter + " provided (neither default nor user defined)");
 }
 
+unsigned HeartConfig::GetSpaceDimension() const
+{
+    return DecideLocation( & mpUserParameters->Simulation().SpaceDimension(),
+                           & mpDefaultParameters->Simulation().SpaceDimension(),
+                           "SpaceDimension")->get();
+}
+
 double HeartConfig::GetSimulationDuration() const
 {
     return DecideLocation( & mpUserParameters->Simulation().SimulationDuration(),
@@ -202,30 +209,6 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions
         definedRegions.push_back(ChasteCuboid( chaste_point_a, chaste_point_b ));
         ionicModels.push_back(ionic_model_region.IonicModel());
     }
-
-//    simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
-//         stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(),
-//                           & mpDefaultParameters->Simulation().Stimuli(),
-//                           "Stimuli")->get().Stimulus();
-//    for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
-//         i != stimuli.end();
-//         ++i)
-//    {
-//        stimulus_type stimulus(*i);
-//        point_type point_a = stimulus.Location().Cuboid().LowerCoordinates();
-//        point_type point_b = stimulus.Location().Cuboid().UpperCoordinates();
-//
-//        ChastePoint<3> chaste_point_a ( point_a.x(),
-//                                        point_a.y(),
-//                                        point_a.z());
-//
-//        ChastePoint<3> chaste_point_b ( point_b.x(),
-//                                        point_b.y(),
-//                                        point_b.z());
-//
-//        stimuliApplied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
-//        stimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
-//    }    
 }
 
 
@@ -244,11 +227,13 @@ bool HeartConfig::GetIsMeshProvided() const
     }
 }    
 
-bool HeartConfig::GetCreateSlab() const
+bool HeartConfig::GetCreateMesh() const
 {
-    return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                            & mpDefaultParameters->Simulation().Mesh(),
-                            "Mesh")->get().Slab().present());
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                     & mpDefaultParameters->Simulation().Mesh(),
+                                     "Mesh")->get();
+                                     
+    return (mesh.Slab().present() || mesh.Sheet().present() || mesh.Fibre().present());
 }
 
 bool HeartConfig::GetLoadMesh() const
@@ -260,24 +245,82 @@ bool HeartConfig::GetLoadMesh() const
  
 void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
 {
-    assert(GetCreateSlab());
+    assert(GetCreateMesh());
+    
+    if (GetSpaceDimension() != 3)
+    {
+        EXCEPTION("Tissue slabs can only be defined in 3D");
+    }
     
     optional<slab_type, false> slab_dimensions = DecideLocation( & mpUserParameters->Simulation().Mesh(),
                                                                   & mpDefaultParameters->Simulation().Mesh(),
                                                                   "Slab")->get().Slab();
     
-    slabDimensions[0] = slab_dimensions->SlabX();
-    slabDimensions[1] = slab_dimensions->SlabY();
-    slabDimensions[2] = slab_dimensions->SlabZ();
+    slabDimensions[0] = slab_dimensions->x();
+    slabDimensions[1] = slab_dimensions->y();
+    slabDimensions[2] = slab_dimensions->z();
 }
+
+void HeartConfig::GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const
+{
+    assert(GetCreateMesh());
+
+    if (GetSpaceDimension() != 2)
+    {
+        EXCEPTION("Tissue sheets can only be defined in 3D");
+    }
+
+    optional<sheet_type, false> sheet_dimensions = DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                                                  & mpDefaultParameters->Simulation().Mesh(),
+                                                                  "Sheet")->get().Sheet();
+    
+    sheetDimensions[0] = sheet_dimensions->x();
+    sheetDimensions[1] = sheet_dimensions->y();    
+}
+
+void HeartConfig::GetFibreLength(c_vector<double, 1>& fibreLength) const
+{
+    assert(GetCreateMesh());
+
+    if (GetSpaceDimension() != 1)
+    {
+        EXCEPTION("Tissue fibres can only be defined in 3D");
+    }
+
+    optional<fibre_type, false> fibre_length = DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                                                  & mpDefaultParameters->Simulation().Mesh(),
+                                                                  "Fibre")->get().Fibre();
+    
+    fibreLength[0] = fibre_length->x();
+}    
+
 
 double HeartConfig::GetInterNodeSpace() const
 {
-    assert(GetCreateSlab());
+    assert(GetCreateMesh());
 
-    return DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                           & mpDefaultParameters->Simulation().Mesh(),
-                           "Slab")->get().Slab()->InterNodeSpace();
+    switch(GetSpaceDimension())
+    {
+        case 3:
+            return DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                   & mpDefaultParameters->Simulation().Mesh(),
+                                   "Slab")->get().Slab()->inter_node_space();
+            break;                                  
+        case 2:
+            return DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                   & mpDefaultParameters->Simulation().Mesh(),
+                                   "Sheet")->get().Sheet()->inter_node_space();
+            break;
+        case 1:
+            return DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                   & mpDefaultParameters->Simulation().Mesh(),
+                                   "Fibre")->get().Fibre()->inter_node_space();
+            break;
+        default:
+            NEVER_REACHED;
+    }
+                                              
+                               
 }
 
 std::string HeartConfig::GetMeshName() const
