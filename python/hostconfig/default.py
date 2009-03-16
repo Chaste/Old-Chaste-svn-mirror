@@ -37,7 +37,7 @@ sys.exit(1)
 
 #EDIT HERE
 #For a simple installation all paths will be below this directory
-chaste_libs_path = '/home/scratch/chaste/'
+chaste_libs_path = '/home/scratch/chaste-libs/'
 #EDIT HERE
 
 petsc_2_2_path = ''

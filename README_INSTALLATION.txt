@@ -1,7 +1,7 @@
 CHASTE DEVELOPER INSTALLATION GUIDE
 
-First define the folder where you want to install the libraries which Chaste depends on, e.g.
-export CHASTE_LIBS=~/chaste-libs
+First define the folder where you want to install the libraries which Chaste depends on, for example,
+export CHASTE_LIBS=/home/scratch/chaste-libs
 
 If it doesn't already exist, create this directory:
 mkdir $CHASTE_LIBS
@@ -159,19 +159,16 @@ export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
 export PATH=$CHASTE_LIBS/bin:$PATH
 export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3/lib/libg_c++/linux-gnu/
 
-Note that test output will be put in the folder given by the environment variable CHASTE_TEST_OUTPUT. If this has not been
-assigned to anything, it will be (temporarily) set to be the directory "/tmp/<USER_NAME>/testoutput/" whenever scons is run.
-If you would prefer output in a different directory also add the following to the .bashrc file.
+Note that test output will be put in the folder given by the environment variable CHASTE_TEST_OUTPUT. 
+If this has not been assigned to anything, it will be (temporarily) set to be the directory 
+"/tmp/<USER_NAME>/testoutput/" whenever scons is run. If you would prefer output in a different 
+directory also add the following to the .bashrc file.
 
 export CHASTE_TEST_OUTPUT=<YOUR CHOICE OF DIRECTORY>
 
 
-NB. You will need to logout and in again for the above to take effect (or instead do "source ~/.bashrc" to implement the above changes for that particular terminal).
-
-
-
-///\todo Check that the below instructions are valid once release is finalised.
-
+NB. You will need to logout and in again for the above to take effect (or instead do 
+"source ~/.bashrc" to implement the above changes for that particular terminal).
 
 
 
@@ -187,19 +184,21 @@ NB. You will need to logout and in again for the above to take effect (or instea
 
 First, return to the main Chaste directory (the folder with the code and this README file)
 
-You will need to edit the python/hostconfig/default.py to give the correct paths to each of the libraries.
-Note that if you followed these instructions (placing all dependencies below
-a ${CHASTE_LIBS} directory) then this should a matter of removing two lines
-and editing one line below. 
+You will need to edit the python/hostconfig/default.py to give the correct paths to each 
+of the libraries. Note that if you followed these instructions (placing all dependencies below
+a ${CHASTE_LIBS} directory) then this should a matter of removing two lines and editing one 
+line below. 
 
-Note that if you have the Intel compiler available, you may want to enable
-Chaste compilation with Intel.  We've found that on some tests the
-build-type for optimised Intel "build=IntelProduction" (see below) provides
-an executable that is up to 60% faster than optimised Gnu "build=GccOpt".
+Note that if you have the Intel compiler available, you may want to enable Chaste compilation 
+with Intel.  We've found that on some tests the build-type for optimised Intel 
+"build=IntelProduction" (see below) provides an executable that is up to 60% faster than 
+optimised Gnu "build=GccOpt".
+
 
 ========== Compiling and running Chaste ==========
-Now we should have all the necessary libraries to compile Chaste. To run the Chaste tests to see if everything compiles and the tests pass
-type one of the following (note that scons should always be run from the main Chaste directory):
+Now we should have all the necessary libraries to compile Chaste. To run the Chaste tests to see if 
+everything compiles and the tests pass type one of the following (note that scons should always be 
+run from the main Chaste directory):
  
 scons          # runs all the tests - will take a while
 scons global   # just runs the tests in the global folder
@@ -222,7 +221,7 @@ Note that this is just a file in the Chaste directory.
 To run a single test, do (for example):
 scons test_suite=heart/test/bidomain/TestBidomainProblem.hpp
 
-To run a single test in parallel with 2 processors, do:
+To run a single test in parallel, do:
 scons build=Parallel test_suite=heart/test/bidomain/TestBidomainProblem.hpp   # 2 processors
 scons build=Parallel3 test_suite=heart/test/bidomain/TestBidomainProblem.hpp  # 3 processors
 
@@ -232,13 +231,9 @@ scons build=GccOpt test_suite=heart/test/bidomain/TestBidomainProblem.hpp
 To just compile a single test, do (for example):
 scons test_suite=heart/test/bidomain/TestBidomainProblem.hpp compile_only=1
 
-///\todo mention the existence of an intel production build and give a link to installation instructions??
-
 Note that if you scons build=<SOMETHING>, the webpage to go to is
 file:///<CHASTE_CODE_DIRECTORY>/testoutput/<NAME_OF_YOUR_COMPUTER>.<SOMETHING>/index.html
 for example: file:///home/scratch/chaste-code/testoutput/msc30.ecs.ox.ac.uk.GccOpt/index.html
-
-
 
 
 ========== Creating an executable ==========
