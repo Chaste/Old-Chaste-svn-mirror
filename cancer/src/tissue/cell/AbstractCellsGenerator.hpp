@@ -131,7 +131,7 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
     assert(DIM==2);
     #undef COVERAGE_IGNORE
     
-    RandomNumberGenerator *p_random_num_gen = RandomNumberGenerator::Instance();
+    RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
     unsigned num_cells = rMesh.GetNumNodes();    
     if (!locationIndices.empty())

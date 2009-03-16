@@ -137,7 +137,7 @@ public:
      *
      * @return the global index of the new node
      */
-    unsigned AddNode(Node<2> *pNewNode);
+    unsigned AddNode(Node<2>* pNewNode);
     
     /**
      * Overridden GetAreaOfElement() method.

@@ -95,6 +95,8 @@ std::vector<TissueCell> CryptSimulation1d::GetCells()
 
 void CryptSimulation1d::Solve()
 {
+    CancerParameters* p_params = CancerParameters::Instance();
+
     if (mOutputDirectory=="")
     {
         EXCEPTION("OutputDirectory not set");
@@ -154,10 +156,10 @@ void CryptSimulation1d::Solve()
                         TissueCell new_cell = mCells[i].Divide();
 
                         // Add new node to mesh
-                        Node<1> *p_our_node = mrMesh.GetNode(i);
+                        Node<1>* p_our_node = mrMesh.GetNode(i);
 
                         // Note: May need to check which side element is put esp. at the ends
-                        Element<1,1> *p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
+                        Element<1,1>* p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
 
                         unsigned new_node_index = AddNodeToElement(p_element,SimulationTime::Instance()->GetTime());
 
@@ -206,9 +208,8 @@ void CryptSimulation1d::Solve()
 
                         assert(rest_length<=1.0);
                     }
-                    CancerParameters* params = CancerParameters::Instance();
-                    drdt_contributions(0) = ( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
-                    drdt_contributions(1) = ( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - rest_length) );
+                    drdt_contributions(0) = ( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_forward  * (distance_between_nodes - rest_length) );
+                    drdt_contributions(1) = ( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_backward * (distance_between_nodes - rest_length) );
                     drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                     drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
                 }
@@ -225,9 +226,8 @@ void CryptSimulation1d::Solve()
                     double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
                     double unit_vector_backward = -1;
                     double unit_vector_forward = 1;
-                    CancerParameters* params = CancerParameters::Instance();
-                    drdt_contributions(0) =( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - 1.0) );
-                    drdt_contributions(1) =( params->GetSpringStiffness() / params->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - 1.0) );
+                    drdt_contributions(0) =( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_forward  * (distance_between_nodes - 1.0) );
+                    drdt_contributions(1) =( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_backward * (distance_between_nodes - 1.0) );
 
                     drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                     drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);

@@ -177,7 +177,7 @@ public:
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 
-        double h_value_rk4=1e-4;
+        double h_value_rk4 = 1e-4;
 
         RungeKutta4IvpOdeSolver rk4_solver;
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
@@ -221,8 +221,10 @@ public:
         // Testing RK4 solution
         // Test solutions are OK for a small time increase...
         int end = solutions_rk4.rGetSolutions().size() - 1;
+
         // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
         TS_ASSERT_DELTA(solutions_rk4.rGetTimes()[end], 5.971, 1e-2);
+
         // Proper values from Matlab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
         TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][1],1.000220438771564, 1.02e-2);
@@ -257,7 +259,7 @@ public:
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 
-        double h_value=0.0001;
+        double h_value = 0.0001;
 
         RungeKutta4IvpOdeSolver rk4_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
@@ -292,7 +294,7 @@ public:
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 
-        double h_value=0.001;
+        double h_value = 0.001;
 
         RungeKutta4IvpOdeSolver rk4_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
@@ -309,7 +311,6 @@ public:
         //elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         //std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
 
-//
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 7.8 hours)
@@ -333,7 +334,7 @@ public:
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 
-        double h_value=0.001;
+        double h_value = 0.001;
 
         RungeKutta4IvpOdeSolver rk4_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
@@ -345,12 +346,12 @@ public:
 
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
 
-
-
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
+
         // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 3.9435, 1e-2);
+
         // Proper values from Matlab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],2.058373151310055e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.999, 1e-2);

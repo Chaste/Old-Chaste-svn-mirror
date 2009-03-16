@@ -521,7 +521,7 @@ public:
         nodes_elem_1.push_back(nodes[6]);
         
         std::vector<VertexElement<2,2>*> elements;
-        VertexElement<2,2> *p_replaced_vertex_element=new VertexElement<2,2>(0, nodes_elem_0);
+        VertexElement<2,2>* p_replaced_vertex_element = new VertexElement<2,2>(0, nodes_elem_0);
         elements.push_back(p_replaced_vertex_element);
         elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
         
@@ -624,8 +624,8 @@ public:
 
             for (unsigned node_index=0; node_index<p_mesh->GetNumNodes(); node_index++)
             {
-                Node<2> *p_node = p_mesh->GetNode(node_index);
-                Node<2> *p_node2 = p_mesh2->GetNode(node_index);
+                Node<2>* p_node = p_mesh->GetNode(node_index);
+                Node<2>* p_node2 = p_mesh2->GetNode(node_index);
 
                 TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());

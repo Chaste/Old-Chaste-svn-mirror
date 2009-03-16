@@ -598,7 +598,7 @@ public:
      */
     void TestIngeWntOdeSolutionDoesNotGoNegative() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         p_params->Reset();
 
         double time_of_each_run = 0.01; // for each run
@@ -648,7 +648,6 @@ public:
         simulator.AddCellKiller(&cell_killer);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-//        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();

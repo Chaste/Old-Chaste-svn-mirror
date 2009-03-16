@@ -80,7 +80,7 @@ public:
      */
     void TestTissueSimulationWithCryptProjectionSpringSystem() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetWntStemThreshold(0.95);
 
         double a = 0.2;

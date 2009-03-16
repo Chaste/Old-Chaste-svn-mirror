@@ -52,7 +52,7 @@ public:
     void TestGetSection() throw (Exception)
     {
         // Set up tissue
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetWntStemThreshold(0.95);
 
         double a = 0.2;

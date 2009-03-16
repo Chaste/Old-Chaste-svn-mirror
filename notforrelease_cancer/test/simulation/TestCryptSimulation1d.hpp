@@ -171,7 +171,7 @@ public:
         // Note: converges very slowly so large tolerance of 0.1
         for (unsigned index = 0; index<mesh.GetNumNodes(); index++)
         {
-            Node<1> *p_node = mesh.GetNode(index);
+            Node<1>* p_node = mesh.GetNode(index);
             TS_ASSERT(!p_node->IsDeleted());
             const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
             TS_ASSERT_DELTA(r_node_loc[0], index, 1e-1);
@@ -205,7 +205,7 @@ public:
         // Note: converges very slowly so small tolerance of 0.1
         for (unsigned index = 0; index<mesh.GetNumAllNodes(); index++)
         {
-            Node<1> *p_node = mesh.GetNode(index);
+            Node<1>* p_node = mesh.GetNode(index);
             if (!p_node->IsDeleted())
             {
                 const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
@@ -229,8 +229,8 @@ public:
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
-        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
-        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         double crypt_length = 22.0;
         p_params->SetCryptLength(crypt_length);
@@ -293,8 +293,8 @@ public:
     // (see comment for Test1DChainWithBirthVariableRestLength).
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
         double crypt_length = 22.0;
         p_params->SetCryptLength(crypt_length);
@@ -355,8 +355,8 @@ public:
 
     void Test1DChainWithTysonNovakCells() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
         double crypt_length = 22.0;
         p_params->SetCryptLength(crypt_length);
@@ -441,7 +441,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////
     void Test1dChainCorrectCellNumbers()
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // Check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass

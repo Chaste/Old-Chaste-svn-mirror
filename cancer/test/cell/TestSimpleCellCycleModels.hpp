@@ -49,7 +49,7 @@ public:
 
     void TestFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         unsigned num_steps = 100;
@@ -115,7 +115,7 @@ public:
 
     void TestStochasticDurationGenerationBasedCellCycleModel(void) throw(Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
@@ -166,7 +166,7 @@ public:
         CancerParameters* p_params = CancerParameters::Instance();
 
         // Set up the simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         double end_time = 60.0;
         unsigned num_timesteps = 1000*(unsigned)end_time;
@@ -196,7 +196,7 @@ public:
         TissueCell cell2 = cell.Divide();
         cell.SetMutationState(LABELLED);
 
-        SimpleWntCellCycleModel *p_cycle_model2 = static_cast<SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());
+        SimpleWntCellCycleModel* p_cycle_model2 = static_cast<SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());
 
         // Now reduce the Wnt concentration
         wnt_level = 0.7;
@@ -440,24 +440,25 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            CancerParameters *inst1 = CancerParameters::Instance();
+            CancerParameters* p_inst1 = CancerParameters::Instance();
 
-            inst1->SetSDuration(101.0);
+            p_inst1->SetSDuration(101.0);
 
             // Restore from the archive
             input_arch >> p_cell;
 
-            TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(),random_number_test,1e-7);
+            TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(), random_number_test, 1e-7);
 
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
 
             // Check
-            TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.1,1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(),2.1,1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
+            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
 
-            TS_ASSERT_DELTA(inst1->GetSDuration(),5.0,1e-12);
+            TS_ASSERT_DELTA(p_inst1->GetSDuration(), 5.0, 1e-12);
 
+            // Tidy up
             delete p_cell;
         }
     }
@@ -480,7 +481,7 @@ public:
         // Create an ouput archive
         {
             // Set up the simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
 
             // The number for the G1 duration is taken from
             // the first random number generated
@@ -534,9 +535,9 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters *inst1 = CancerParameters::Instance();
+            CancerParameters* p_inst1 = CancerParameters::Instance();
 
-            inst1->SetSDuration(101.0);
+            p_inst1->SetSDuration(101.0);
 
             TissueCell* p_cell;
 
@@ -559,10 +560,11 @@ public:
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
 
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
 
+            // Tidy up
             SimulationTime::Destroy();
             delete p_cell;
         }
@@ -587,7 +589,7 @@ public:
         // Create an ouput archive
         {
             // Set up the simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
 
             // The number for the G1 duration is taken from
             // the first random number generated
@@ -644,9 +646,9 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters *inst1 = CancerParameters::Instance();
+            CancerParameters* p_inst1 = CancerParameters::Instance();
 
-            inst1->SetSDuration(101.0);
+            p_inst1->SetSDuration(101.0);
 
             TissueCell* p_cell;
 
@@ -673,16 +675,16 @@ public:
             TS_ASSERT_EQUALS(p_cell->GetCellType(), TRANSIT);
 
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
 
             delete p_cell;
         }
 
+        // Tidy up
         WntConcentration::Destroy();
     }
-
 
 };
 

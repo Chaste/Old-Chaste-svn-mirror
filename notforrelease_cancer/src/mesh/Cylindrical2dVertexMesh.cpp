@@ -199,7 +199,7 @@ double Cylindrical2dVertexMesh::GetWidth(const unsigned& rDimension) const
 }
 
 
-unsigned Cylindrical2dVertexMesh::AddNode(Node<2> *pNewNode)
+unsigned Cylindrical2dVertexMesh::AddNode(Node<2>* pNewNode)
 {
     unsigned node_index = VertexMesh<2,2>::AddNode(pNewNode);
 

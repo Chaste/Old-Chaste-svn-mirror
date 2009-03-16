@@ -576,7 +576,7 @@ public:
     void TestSpringMarking()
     {
         // Create a small tissue
-        std::vector<Node<2> *> nodes;
+        std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0.5));
         nodes.push_back(new Node<2>(1, false, 1, 0));
         nodes.push_back(new Node<2>(2, false, 1, 1));
@@ -616,7 +616,7 @@ public:
         tissue.CheckTissueCellPointers();
 
         // Move cell 2
-        AbstractTissue<2>::Iterator it=tissue.Begin();
+        AbstractTissue<2>::Iterator it = tissue.Begin();
         ++it;
         ++it;
         TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&(*it)), 2u);
@@ -635,7 +635,7 @@ public:
     void TestSettingCellAncestors() throw (Exception)
     {
         // Create a small tissue
-        std::vector<Node<2> *> nodes;
+        std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0.5));
         nodes.push_back(new Node<2>(1, false, 1, 0));
         nodes.push_back(new Node<2>(2, false, 1, 1));

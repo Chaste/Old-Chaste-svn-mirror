@@ -36,7 +36,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width)
 }
 
 
-Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
+Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2>* > nodes)
   : MutableMesh<2,2>(),
     mWidth(width)
 {
@@ -509,7 +509,7 @@ double Cylindrical2dMesh::GetWidth(const unsigned& rDimension) const
 }
 
 
-unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
+unsigned Cylindrical2dMesh::AddNode(Node<2>* pNewNode)
 {
     unsigned node_index = MutableMesh<2,2>::AddNode(pNewNode);
 

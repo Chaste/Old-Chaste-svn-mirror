@@ -91,7 +91,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
 
         // We are going to start at t=0 and jump up in steps of 6.0
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -155,7 +155,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // If the value of GetStemCellG1Duration() changes in p_params the simulation time
         // step and end time will need to be changed accordingly so that
@@ -394,7 +394,7 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(6000.0, 1000);
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -460,7 +460,7 @@ public:
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -510,7 +510,7 @@ public:
 
     void Test0DBucketStochastic()
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -643,7 +643,7 @@ public:
 
         std::vector<TissueCell>::iterator cell_iterator;
 
-        unsigned i=0;
+        unsigned i = 0;
         while (!p_simulation_time->IsFinished())
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -712,12 +712,11 @@ public:
     void TestWithWntCellCycleModel() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-
-        CancerParameters *p_parameters = CancerParameters::Instance();
+        CancerParameters* p_parameters = CancerParameters::Instance();
 
         double SG2MDuration = p_parameters->GetSG2MDuration();
 
-        unsigned num_steps=100;
+        unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 1.0;
@@ -738,18 +737,18 @@ public:
 
             if (time >= expected_g1_duration+SG2MDuration)
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
             }
             else
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==false);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);
             }
         }
 
         p_simulation_time->IncrementTimeOneStep();
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
 
@@ -768,13 +767,13 @@ public:
 
             if (time >= expected_g1_duration + SG2MDuration + time_of_birth)
             {
-                TS_ASSERT(result1==true);
-                TS_ASSERT(result2==true);
+                TS_ASSERT_EQUALS(result1, true);
+                TS_ASSERT_EQUALS(result2, true);
             }
             else
             {
-                TS_ASSERT(result1==false);
-                TS_ASSERT(result2==false);
+                TS_ASSERT_EQUALS(result1, false);
+                TS_ASSERT_EQUALS(result2, false);
             }
         }
 
@@ -789,7 +788,7 @@ public:
      */
     void TestWithStochasticWntCellCycleModel() throw(Exception)
     {
-        CancerParameters *p_parameters = CancerParameters::Instance();
+        CancerParameters* p_parameters = CancerParameters::Instance();
 
         // These are the first three normal random with mean 10, s.d. 1 and this seed (0)
         double SG2MDuration1 = p_parameters->GetSDuration() + 3.16084 + p_parameters->GetMDuration();
@@ -798,7 +797,7 @@ public:
         double g1_duration = 5.971;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        unsigned num_steps=100;
+        unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 1.0;
@@ -814,16 +813,16 @@ public:
 
             if (time >= g1_duration+SG2MDuration1)
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
             }
             else
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==false);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);
             }
         }
 
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
 
@@ -885,17 +884,17 @@ public:
             if (time>standard_tyson_duration)
             {
                 //std::cout << "Time = " << SimulationTime::Instance()->GetTime() << std::endl;
-                TS_ASSERT(tn_cell.ReadyToDivide()==true);
+                TS_ASSERT_EQUALS(tn_cell.ReadyToDivide(), true);
                 //std::cout << "Parent G1 duration = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
-                TS_ASSERT(tn_cell.ReadyToDivide()==false);
+                TS_ASSERT_EQUALS(tn_cell.ReadyToDivide(), false);
             }
         }
 
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT(tn_cell.ReadyToDivide()==true);
+        TS_ASSERT_EQUALS(tn_cell.ReadyToDivide(), true);
 
         TissueCell tn_cell2 = tn_cell.Divide();
 
@@ -913,15 +912,15 @@ public:
 
             if (time >= standard_tyson_duration + time_of_birth)
             {
-                TS_ASSERT(result1==true);
+                TS_ASSERT_EQUALS(result1, true);
                 //std::cout << "Parent G1 duration (post division) = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
-                TS_ASSERT(result2==true);
+                TS_ASSERT_EQUALS(result2, true);
                 //std::cout << "Daughter G1 duration = " << tn_cell2.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
-                TS_ASSERT(result1==false);
-                TS_ASSERT(result2==false);
+                TS_ASSERT_EQUALS(result1, false);
+                TS_ASSERT_EQUALS(result2, false);
             }
         }
     }
@@ -962,7 +961,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.6, 3);
 
         // This test needs particular apoptosis time
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
 
         TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -1017,8 +1016,8 @@ public:
 
     void Test0DBucketWithDeath()
     {
-        double end_time=92.0;
-        int time_steps=92;
+        double end_time = 92.0;
+        int time_steps = 92;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
@@ -1168,6 +1167,7 @@ public:
 
             TS_ASSERT_EQUALS(p_model->GetCell(), p_stem_cell);
 
+            // Tidy up
             delete p_stem_cell;
         }
     }
@@ -1185,7 +1185,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        unsigned num_steps=10;
+        unsigned num_steps = 10;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
         double wnt_stimulus = 1.0;

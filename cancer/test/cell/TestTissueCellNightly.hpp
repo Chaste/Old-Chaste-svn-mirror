@@ -163,7 +163,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        CancerParameters *p_parameters = CancerParameters::Instance();
+        CancerParameters* p_parameters = CancerParameters::Instance();
         double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
@@ -182,16 +182,16 @@ public:
 
             if (time >= 4.804 + s_g2_duration)
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
             }
             else
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==false);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);
             }
         }
 
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
 
@@ -210,13 +210,13 @@ public:
 
             if (time >= 4.804 + s_g2_duration + time_of_birth)
             {
-                TS_ASSERT(result1==true);
-                TS_ASSERT(result2==true);
+                TS_ASSERT_EQUALS(result1, true);
+                TS_ASSERT_EQUALS(result2, true);
             }
             else
             {
-                TS_ASSERT(result1==false);
-                TS_ASSERT(result2==false);
+                TS_ASSERT_EQUALS(result1, false);
+                TS_ASSERT_EQUALS(result2, false);
             }
         }
 
@@ -233,7 +233,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        CancerParameters *p_parameters = CancerParameters::Instance();
+        CancerParameters* p_parameters = CancerParameters::Instance();
         double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
@@ -252,16 +252,16 @@ public:
 
             if (time >= 7.82 + s_g2_duration)
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
             }
             else
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==false);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);
             }
         }
 
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
 
@@ -280,16 +280,17 @@ public:
 
             if (time >= 7.82 + s_g2_duration + time_of_birth)
             {
-                TS_ASSERT(result1==true);
-                TS_ASSERT(result2==true);
+                TS_ASSERT_EQUALS(result1, true);
+                TS_ASSERT_EQUALS(result2, true);
             }
             else
             {
-                TS_ASSERT(result1==false);
-                TS_ASSERT(result2==false);
+                TS_ASSERT_EQUALS(result1, false);
+                TS_ASSERT_EQUALS(result2, false);
             }
         }
 
+        // Tidy up
         WntConcentration::Destroy();
     }
 
@@ -302,8 +303,8 @@ public:
     void TestWithWntCellCycleModelAndMutationAPC2() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        CancerParameters* p_parameters = CancerParameters::Instance();
 
-        CancerParameters *p_parameters = CancerParameters::Instance();
         double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
@@ -336,16 +337,16 @@ public:
 
             if (time >= 3.9435 + s_g2_duration)
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
             }
             else
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide()==false);
+                TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);
             }
         }
 
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT(wnt_cell.ReadyToDivide()==true);
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), true);
 
         TissueCell wnt_cell2 = wnt_cell.Divide();
 
@@ -364,16 +365,17 @@ public:
 
             if (time >= 3.9435 + s_g2_duration + time_of_birth)
             {
-                TS_ASSERT(result1==true);
-                TS_ASSERT(result2==true);
+                TS_ASSERT_EQUALS(result1, true);
+                TS_ASSERT_EQUALS(result2, true);
             }
             else
             {
-                TS_ASSERT(result1==false);
-                TS_ASSERT(result2==false);
+                TS_ASSERT_EQUALS(result1, false);
+                TS_ASSERT_EQUALS(result2, false);
             }
         }
 
+        // Tidy up
         WntConcentration::Destroy();
     }
 };

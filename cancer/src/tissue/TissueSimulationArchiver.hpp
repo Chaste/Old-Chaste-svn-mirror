@@ -124,7 +124,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
 
     // Load any data that isn't the simulation itself, mainly singletons
     // - simulation time
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    SimulationTime* p_simulation_time = SimulationTime::Instance();
     assert(p_simulation_time->IsStartTimeSetUp());
     input_arch & *p_simulation_time;
     // - Wnt concentration (if used)

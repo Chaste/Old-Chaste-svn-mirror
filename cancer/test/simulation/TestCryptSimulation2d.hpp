@@ -105,8 +105,8 @@ private:
 
         for (unsigned i=0; i<pMesh1->GetNumAllNodes(); i++)
         {
-            Node<DIM> *p_node = pMesh1->GetNode(i);
-            Node<DIM> *p_node2 = pMesh2->GetNode(i);
+            Node<DIM>* p_node = pMesh1->GetNode(i);
+            Node<DIM>* p_node2 = pMesh2->GetNode(i);
             TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
             TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
             TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
@@ -1511,8 +1511,6 @@ public:
         delete p_crypt;
         delete p_params;
     }
-
-
 
 };
 

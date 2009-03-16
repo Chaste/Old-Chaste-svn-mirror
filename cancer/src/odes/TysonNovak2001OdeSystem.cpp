@@ -146,7 +146,7 @@ void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vecto
 
 void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
 {
-    timeStep *=60.0; // to scale Jacobian so in hours not minutes
+    timeStep *= 60.0; // to scale Jacobian so in hours not minutes
     double x1 = solutionGuess[0];
     double x2 = solutionGuess[1];
     double x3 = solutionGuess[2];

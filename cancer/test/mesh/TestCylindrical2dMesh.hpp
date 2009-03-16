@@ -586,7 +586,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        MutableMesh<2,2> * const p_mesh = generator.GetCylindricalMesh();
+        MutableMesh<2,2>* const p_mesh = generator.GetCylindricalMesh();
 
         // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
         // This is because the serialization library only allows you to save tracked
@@ -647,8 +647,8 @@ public:
 
             for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
             {
-                Node<2> *p_node = p_mesh->GetNode(i);
-                Node<2> *p_node2 = p_mesh2->GetNode(i);
+                Node<2>* p_node = p_mesh->GetNode(i);
+                Node<2>* p_node2 = p_mesh2->GetNode(i);
                 TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
                 TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
@@ -685,7 +685,7 @@ public:
 
     void TestConstructFromNodeList() throw (Exception)
     {
-        std::vector<Node<2> *> nodes;
+        std::vector<Node<2>*> nodes;
 
         nodes.push_back(new Node<2>(0, true, 0.1, -0.01));
         nodes.push_back(new Node<2>(1, true, 0.5, 0.0));
@@ -793,7 +793,7 @@ public:
             std::vector<unsigned> indices;
 
             // Get the forward star from each node that isn't at the top or bottom boundary
-            Node<2> *p_node=mesh.GetNode(node_index);
+            Node<2>* p_node = mesh.GetNode(node_index);
             if (p_node->rGetLocation()[1] < -2.5)
             {
                 continue;
@@ -808,7 +808,7 @@ public:
                 it != p_node->ContainingElementsEnd();
                 ++it)
             {
-                Element <2, 2> *p_element = mesh.GetElement(*it);
+                Element <2,2>* p_element = mesh.GetElement(*it);
                 for (unsigned j=0; j<3; j++)
                 {
                     unsigned index=p_element->GetNodeGlobalIndex(j);
@@ -833,7 +833,7 @@ public:
 
     void TestCorrectNonPeriodicMeshes() throw (Exception)
     {
-        std::vector<Node<2> *> nodes;
+        std::vector<Node<2>*> nodes;
         // Generates a mesh which could be meshed in different ways.
         nodes.push_back(new Node<2>(0, true, 1.1, 0.0));
         nodes.push_back(new Node<2>(1, true, 3.0, 0.0));

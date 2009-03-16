@@ -76,7 +76,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     double sigma_D = 0.0; // for healthy cells
     double sigma_B = 0.0; // for healthy cells
 
-    switch(mMutationState)
+    switch (mMutationState)
     {
         case HEALTHY:
         {

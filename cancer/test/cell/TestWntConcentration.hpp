@@ -92,7 +92,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
 
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         double height = 100;
         double wnt_level = 0.0;
@@ -132,8 +132,8 @@ public:
         WntConcentration* p_wnt = WntConcentration::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
-        CancerParameters *params = CancerParameters::Instance();
-        params->SetTopOfLinearWntConcentration(1.0/3.0);
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->SetTopOfLinearWntConcentration(1.0/3.0);
 
         double height = 100;
         double wnt_level = 0.0;
@@ -150,14 +150,14 @@ public:
 
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
-        params->SetCryptLength(10.0);
+        p_params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         // under a third of the way up the crypt.
-        params->SetCryptLength(22.0);
+        p_params->SetCryptLength(22.0);
         height = 7.0;
         wnt_level = p_wnt->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level, 1.0 - height/((1.0/3.0)*params->GetCryptLength()), 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 1.0 - height/((1.0/3.0)*p_params->GetCryptLength()), 1e-9);
         // more than a third of the way up the crypt.
         height = 10.0;
         wnt_level = p_wnt->GetWntLevel(height);
@@ -171,7 +171,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(RADIAL);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a tissue is assigned.
-        CancerParameters *params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // Test GetWntLevel(double) method
         double height = 100;
@@ -189,11 +189,11 @@ public:
 
         TS_ASSERT_DELTA(wnt_level, 0.0454, 1e-4);
 
-        params->SetCryptLength(10.0);
+        p_params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
-        params->SetCryptLength(22.0);
+        p_params->SetCryptLength(22.0);
         height = 7.0;
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.6818, 1e-4);
@@ -220,7 +220,7 @@ public:
 
         // Create a crypt
         MeshBasedTissue<2> crypt(mesh,cells);
-        CancerParameters::Instance()->SetCryptLength(1.0);
+        p_params->SetCryptLength(1.0);
         p_wnt->SetTissue(crypt);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // fully set up now
 
@@ -239,8 +239,8 @@ public:
 
         double wnt_at_cell0 = p_wnt->GetWntLevel(&(*cell_iter));
 
-        double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
-        double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
+        double a = p_params->GetCryptProjectionParameterA();
+        double b = p_params->GetCryptProjectionParameterB();
 
         while (cell_iter != crypt.End())
         {
@@ -302,7 +302,7 @@ public:
 
     void TestSingletonnessOfWntConcentration()
     {
-        CancerParameters *params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         WntConcentration* p_wnt = WntConcentration::Instance();
         p_wnt->SetType(NONE);
@@ -333,9 +333,9 @@ public:
         height = 21.0;
         wnt_level = p_wnt->GetWntLevel(height);
 
-        TS_ASSERT_DELTA(wnt_level, 1.0-height/params->GetCryptLength(), 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 1.0-height/p_params->GetCryptLength(), 1e-9);
 
-        params->SetCryptLength(10.0);
+        p_params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
 
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);

@@ -301,8 +301,8 @@ public:
 
             for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
             {
-                Node<2> *p_node = p_mesh->GetNode(i);
-                Node<2> *p_node2 = p_mesh2->GetNode(i);
+                Node<2>* p_node = p_mesh->GetNode(i);
+                Node<2>* p_node2 = p_mesh2->GetNode(i);
                 TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
                 TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());

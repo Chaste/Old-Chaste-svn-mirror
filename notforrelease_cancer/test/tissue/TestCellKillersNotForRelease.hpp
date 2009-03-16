@@ -118,7 +118,7 @@ public:
         // Set up
         CancerParameters::Instance()->SetHepaOneParameters();
 
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;
         int num_timesteps = 100*(int)end_time; // ensure the time step is not too small
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
@@ -226,7 +226,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            RadialSloughingCellKiller * const p_cell_killer = &cell_killer;
+            RadialSloughingCellKiller* const p_cell_killer = &cell_killer;
             output_arch << p_cell_killer;
 
             TS_ASSERT_DELTA(p_cell_killer->GetCentre()[0], 0.1, 1e-9);
@@ -274,7 +274,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            OxygenBasedCellKiller<2> * const p_cell_killer = &cell_killer;
+            OxygenBasedCellKiller<2>* const p_cell_killer = &cell_killer;
 
             p_cell_killer->SetHypoxicConcentration(0.3);
 

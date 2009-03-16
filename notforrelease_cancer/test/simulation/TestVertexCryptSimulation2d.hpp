@@ -56,8 +56,8 @@ private:
 
         for (unsigned i=0; i<pMesh1->GetNumNodes(); i++)
         {
-            Node<DIM> *p_node1 = pMesh1->GetNode(i);
-            Node<DIM> *p_node2 = pMesh2->GetNode(i);
+            Node<DIM>* p_node1 = pMesh1->GetNode(i);
+            Node<DIM>* p_node2 = pMesh2->GetNode(i);
 
             TS_ASSERT_EQUALS(p_node1->IsDeleted(), p_node2->IsDeleted());
             TS_ASSERT_EQUALS(p_node1->GetIndex(), p_node2->GetIndex());

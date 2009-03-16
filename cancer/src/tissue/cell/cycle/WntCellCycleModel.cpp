@@ -77,7 +77,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
     
-    /**
+    /*
      * We call a cheeky version of the constructor which makes the new cell 
      * cycle model the same as the old one - not a dividing copy at this time,
      * unless the parent cell has just divided.

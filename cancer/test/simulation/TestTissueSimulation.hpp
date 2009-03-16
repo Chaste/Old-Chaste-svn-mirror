@@ -224,7 +224,7 @@ public:
         TissueSimulationWithMyStoppingEvent simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimWithStoppingEvent");
 
-        // ** Set the end time to 10.0 - the stopping event is, however, t>3.1415.
+        // Set the end time to 10.0 - the stopping event is, however, t>3.1415.
         simulator.SetEndTime(10.0);
 
         // Run tissue simulation

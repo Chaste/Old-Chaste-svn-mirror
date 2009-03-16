@@ -172,7 +172,7 @@ Node<DIM>* VertexBasedTissue<DIM>::GetNode(unsigned index)
 
 
 template<unsigned DIM>
-unsigned VertexBasedTissue<DIM>::AddNode(Node<DIM> *pNewNode)
+unsigned VertexBasedTissue<DIM>::AddNode(Node<DIM>* pNewNode)
 {
     return mrMesh.AddNode(pNewNode);
 }
@@ -214,7 +214,7 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
     this->mCells.push_back(rNewCell);
 
     // Update location cell map
-    TissueCell *p_created_cell = &(this->mCells.back());
+    TissueCell* p_created_cell = &(this->mCells.back());
     this->mLocationCellMap[new_element_index] = p_created_cell;
     this->mCellLocationMap[p_created_cell] = new_element_index;
 

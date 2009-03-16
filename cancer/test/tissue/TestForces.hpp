@@ -48,7 +48,7 @@ public:
 
     void TestGeneralisedLinearSpringForceMethods() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         unsigned cells_across = 7;
         unsigned cells_up = 5;
@@ -315,7 +315,7 @@ public:
     void TestGeneralisedLinearSpringForceWithSpringConstantsForMutantCells()
     {
         // Create a small tissue
-        std::vector<Node<2> *> nodes;
+        std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0));
         nodes.push_back(new Node<2>(1, false, 0, 2));
         nodes.push_back(new Node<2>(2, false, 2, 2));
@@ -504,7 +504,7 @@ public:
         }
 
         // Scale entire mesh and check that forces are correctly calculated
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         double scale_factor = 1.5;
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)

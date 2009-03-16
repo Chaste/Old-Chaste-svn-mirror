@@ -73,7 +73,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
             unsigned node_global_index = r_elem.GetNodeGlobalIndex(node_index);
 
             // Check whether ghost element
-            if ( r_tissue.IsGhostNode(node_global_index)==true )
+            if (r_tissue.IsGhostNode(node_global_index) == true)
             {
                 is_ghost_element = true;
                 break;

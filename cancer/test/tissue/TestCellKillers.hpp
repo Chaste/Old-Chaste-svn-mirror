@@ -51,7 +51,7 @@ public:
     void TestRandomCellKiller(void) throw(Exception)
     {
         // Set up singleton classes
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         // Create mesh
@@ -146,7 +146,7 @@ public:
     void TestSloughingCellKillerTopAndSides(void) throw(Exception)
     {
         // Set up singleton classes
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -205,7 +205,7 @@ public:
     void TestSloughingCellKillerTopOnly(void) throw(Exception)
     {
         // Set up singleton classes
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -275,7 +275,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            RandomCellKiller<2> * const p_cell_killer = &cell_killer;
+            RandomCellKiller<2>* const p_cell_killer = &cell_killer;
             output_arch << p_cell_killer;
 
             TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
@@ -306,7 +306,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
 
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         p_params->SetCryptLength(10.0);
         p_params->SetCryptWidth(5.0);
@@ -319,7 +319,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            SloughingCellKiller * const p_cell_killer = &cell_killer;
+            SloughingCellKiller* const p_cell_killer = &cell_killer;
             output_arch << p_cell_killer;
 
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);

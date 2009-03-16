@@ -483,7 +483,7 @@ public:
      * @param pNewNode pointer to the new node
      * @return the global index of the new node in the mesh.
      */
-    unsigned AddNode(Node<SPACE_DIM> *pNewNode);
+    unsigned AddNode(Node<SPACE_DIM>* pNewNode);
 
     /**
      * Mark an element as deleted. Note that it DOES NOT deal with the associated

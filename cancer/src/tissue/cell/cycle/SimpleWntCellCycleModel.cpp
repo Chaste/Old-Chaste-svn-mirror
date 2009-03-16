@@ -89,7 +89,7 @@ void SimpleWntCellCycleModel::SetG1Duration()
 
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
-    CancerParameters *p_params = CancerParameters::Instance();
+    CancerParameters* p_params = CancerParameters::Instance();
     WntConcentration* p_wnt = WntConcentration::Instance();
 
     // The cell is of type STEM if the Wnt concentration > wnt_stem_cell_threshold
@@ -99,8 +99,10 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     double wnt_division_threshold = DBL_MAX;
     double healthy_threshold = p_params->GetWntTransitThreshold();
 
-    // In the case of a RADIAL Wnt concentration, set up under what level
-    // of Wnt stimulus a cell will change type
+    /*
+     * In the case of a RADIAL Wnt concentration, set up under what level
+     * of Wnt stimulus a cell will change type
+     */
     if (p_wnt->GetType()==RADIAL)
     {
         wnt_stem_cell_threshold = p_params->GetWntStemThreshold();
@@ -128,9 +130,11 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             NEVER_REACHED;
     }
 
-    // If the Wnt stimulus exceeds the threshold, the cell is
-    // of type TRANSIT, and hence its cell cycle phase depends
-    // on its age, just as in AbstractSimpleCellCycleModel.
+    /*
+     * If the Wnt stimulus exceeds the threshold, the cell is
+     * of type TRANSIT, and hence its cell cycle phase depends
+     * on its age, just as in AbstractSimpleCellCycleModel.
+     */
     if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
     {
         CellType cell_type = TRANSIT;
@@ -150,8 +154,10 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     }
     else
     {
-        // If the Wnt stimulus is below the threshold, the cell is
-        // of type DIFFERENTIATED and hence in G0 phase
+        /*
+         * If the Wnt stimulus is below the threshold, the cell is
+         * of type DIFFERENTIATED and hence in G0 phase
+         */
         mpCell->SetCellType(DIFFERENTIATED);
         mCurrentCellCyclePhase = G_ZERO_PHASE;
     }
@@ -161,13 +167,6 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 void SimpleWntCellCycleModel::ResetForDivision()
 {
     AbstractSimpleCellCycleModel::ResetForDivision();
-//    if (WntConcentration::Instance()->GetType()==RADIAL)
-//    {
-//        if (mGeneration == 1)
-//        {
-//            mGeneration = 0;
-//        }
-//    }
 }
 
 

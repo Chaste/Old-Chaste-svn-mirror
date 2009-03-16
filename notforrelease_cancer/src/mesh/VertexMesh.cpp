@@ -665,7 +665,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAto
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
 {
     if (mDeletedNodeIndices.empty())
     {
@@ -1708,7 +1708,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
     unsigned num_nodes = p_element->GetNumNodes();
 
     double min_squared_distance = DBL_MAX;
-    unsigned min_distance_edge_index=UINT_MAX;
+    unsigned min_distance_edge_index = UINT_MAX;
 
     // Loop over edges of the element
     for (unsigned local_index=0; local_index<num_nodes; local_index++)

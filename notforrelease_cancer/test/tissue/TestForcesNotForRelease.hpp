@@ -143,7 +143,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            ChemotacticForce<2> * const p_chemotactic_force = &chemotactic_force;
+            ChemotacticForce<2>* const p_chemotactic_force = &chemotactic_force;
 
             output_arch << p_chemotactic_force;
         }
@@ -469,7 +469,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            CryptProjectionForce * const p_crypt_projection_force = &crypt_projection_force;
+            CryptProjectionForce* const p_crypt_projection_force = &crypt_projection_force;
 
             p_crypt_projection_force->UseCutoffPoint(1.1);
 
@@ -500,7 +500,7 @@ public:
 
     void TestForceCollection() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
         unsigned cells_across = 7;
         unsigned cells_up = 5;
