@@ -49,7 +49,7 @@ void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
     {
         mpCell->SetCellType(DIFFERENTIATED);
     }
-    if (mGeneration == 1)
+    if (mpCell->GetCellType() == STEM)
     {
         mGeneration = 0;
     }
@@ -59,11 +59,19 @@ void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
 
 void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
 {
+    /*
+     * If the parent cell is a stem cell then its generation was reset 
+     * to zero when ResetForDivision() was called. The daughter cell's 
+     * generation must therefore be incremented here.
+     */
     if (mGeneration == 0)
     {
         mGeneration = 1;
     }
-    // Daughter cell is always a TRANSIT or DIFFERENTIATED
+    /*
+     * In generation-based cell cycle models, the daughter cell 
+     * is always of type transit or differentiated.
+     */
     mpCell->SetCellType(TRANSIT);
     if (mGeneration > CancerParameters::Instance()->GetMaxTransitGenerations())
     {

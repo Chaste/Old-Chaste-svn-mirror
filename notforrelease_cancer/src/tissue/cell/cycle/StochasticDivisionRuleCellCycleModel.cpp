@@ -77,11 +77,6 @@ void StochasticDivisionRuleCellCycleModel::SetG1Duration()
 
 void StochasticDivisionRuleCellCycleModel::ResetForDivision()
 {
-    if (mGeneration+1u > CancerParameters::Instance()->GetMaxTransitGenerations())
-    {
-        mpCell->SetCellType(DIFFERENTIATED);
-    }
-
     /**
      * If dealing with a stem cell, we may have symmetric division.
      * We therefore neglect the possibility of de-differentiation.
@@ -118,32 +113,21 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
     }
 
     AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision();
-
-    if (mpCell->GetCellType() == STEM)
-    {
-        mGeneration = 0;
-    }
 }
 
 
 void StochasticDivisionRuleCellCycleModel::InitialiseDaughterCell()
 {
-    // If the cell was born out of symmetric division,
-    // then do not alter generation or cell type
     if (mDividedSymmetrically == false)
     {
-        if (mGeneration == 0)
-        {
-            mGeneration = 1;
-        }
-        // Daughter cell is always a TRANSIT or DIFFERENTIATED
-        mpCell->SetCellType(TRANSIT);
-        if (mGeneration > CancerParameters::Instance()->GetMaxTransitGenerations())
-        {
-            mpCell->SetCellType(DIFFERENTIATED);
-        }
+        // If cell division was asymmetric, then the daughter cell must be TRANSIT or DIFFERENTIATED
+        AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell();
     }
-    AbstractSimpleCellCycleModel::InitialiseDaughterCell();
+    else
+    {
+        // If cell division was symmetric, then do not alter generation or cell type
+        AbstractSimpleCellCycleModel::InitialiseDaughterCell();
+    }
 }
 
 

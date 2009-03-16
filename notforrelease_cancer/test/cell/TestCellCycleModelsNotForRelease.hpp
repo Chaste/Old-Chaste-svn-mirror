@@ -58,7 +58,7 @@ public:
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up SimulationTime
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
 
         // Set up oxygen_concentration
@@ -81,7 +81,7 @@ public:
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
 
         // Divide a cell
-        Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        Alarcon2004OxygenBasedCellCycleModel* p_cell_model2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
 
         TissueCell cell2(STEM, HEALTHY, p_cell_model2);
 
@@ -116,12 +116,12 @@ public:
     
     void TestSimpleOxygenBasedCellCycleModel(void) throw(Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetHepaOneParameters();
 
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are
         // updated correctly
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
 
         SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel(2);
@@ -206,7 +206,7 @@ public:
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);
 
         // Check that cell division correctly resets the cell cycle phase
-        SimpleOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
+        SimpleOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
 
         TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);
@@ -272,7 +272,7 @@ public:
     void TestStochasticDivisionRuleCellCycleModel() throw(Exception)
     {
         // Set up the simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 72.0;
         unsigned num_timesteps = 1000*(unsigned)end_time;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
@@ -281,6 +281,8 @@ public:
         StochasticDivisionRuleCellCycleModel* p_cycle_model1 = new StochasticDivisionRuleCellCycleModel;
         TissueCell cell1(STEM, HEALTHY, p_cycle_model1);
         cell1.InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cycle_model1->GetGeneration(), 0u);
 
         /**
          * Test with asymmetric division
@@ -298,11 +300,15 @@ public:
         // This cell must have divided asymmetrically
         TS_ASSERT_EQUALS(p_cycle_model1->DividedSymmetrically(), false);
         TS_ASSERT_EQUALS(cell1.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(p_cycle_model1->GetGeneration(), 0u);
 
         TS_ASSERT_EQUALS(cell1.ReadyToDivide(), true);
         TissueCell cell2 = cell1.Divide();
 
         TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
+
+        StochasticDivisionRuleCellCycleModel* p_cycle_model2 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell2.GetCellCycleModel());
+        TS_ASSERT_EQUALS(p_cycle_model2->GetGeneration(), 1u);
 
         /**
          * Test with symmetric division
@@ -311,11 +317,11 @@ public:
         CancerParameters::Instance()->SetSymmetricDivisionProbability(1.0);
         CancerParameters::Instance()->SetMaxTransitGenerations(1);
 
-        StochasticDivisionRuleCellCycleModel *p_cycle_model2 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell2.GetCellCycleModel());
-
         StochasticDivisionRuleCellCycleModel* p_cycle_model3 = new StochasticDivisionRuleCellCycleModel;
         TissueCell cell3(STEM, HEALTHY, p_cycle_model3);
         cell3.InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cycle_model3->GetGeneration(), 0u);
 
         // Increment time
         for (unsigned i=0; i<num_timesteps/3; i++)
@@ -327,20 +333,22 @@ public:
         }
 
         // The stem cell cell1 must have divided symmetrically, and it
-        // happens to have divided into two transit cells
+        // happens to have divided into two stem cells
         TS_ASSERT_EQUALS(cell1.ReadyToDivide(), true);
         TissueCell cell4 = cell1.Divide();
 
         TS_ASSERT_EQUALS(p_cycle_model1->DividedSymmetrically(), true);
         TS_ASSERT_EQUALS(cell1.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(p_cycle_model1->GetGeneration(), 0u);
 
-        StochasticDivisionRuleCellCycleModel *p_cycle_model4 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell4.GetCellCycleModel());
+        StochasticDivisionRuleCellCycleModel* p_cycle_model4 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell4.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_cycle_model4->DividedSymmetrically(), true);
         TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(p_cycle_model4->GetGeneration(), 0u);
 
         // The stem cell cell3 must have divided symmetrically. For coverage,
         // we iterate the random number generator so that it divides into two
-        // stem cells
+        // transit cells
         RandomNumberGenerator::Instance()->ranf();
 
         TS_ASSERT_EQUALS(cell3.ReadyToDivide(), true);
@@ -348,10 +356,12 @@ public:
 
         TS_ASSERT_EQUALS(p_cycle_model3->DividedSymmetrically(), true);
         TS_ASSERT_EQUALS(cell3.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(p_cycle_model3->GetGeneration(), 1u);
 
-        StochasticDivisionRuleCellCycleModel *p_cycle_model5 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell5.GetCellCycleModel());
+        StochasticDivisionRuleCellCycleModel* p_cycle_model5 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell5.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_cycle_model5->DividedSymmetrically(), true);
         TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(p_cycle_model5->GetGeneration(), 1u);
 
         // The transit cell cell2 divides into two differentiated cells
         TS_ASSERT_EQUALS(cell2.ReadyToDivide(), true);
@@ -359,26 +369,29 @@ public:
 
         TS_ASSERT_EQUALS(p_cycle_model2->DividedSymmetrically(), false);
         TS_ASSERT_EQUALS(cell2.GetCellType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(p_cycle_model2->GetGeneration(), 2u);
 
-        StochasticDivisionRuleCellCycleModel *p_cycle_model6 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell6.GetCellCycleModel());
+        StochasticDivisionRuleCellCycleModel* p_cycle_model6 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell6.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_cycle_model6->DividedSymmetrically(), false);
         TS_ASSERT_EQUALS(cell6.GetCellType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(p_cycle_model6->GetGeneration(), 2u);
 
         // For coverage
         StochasticDivisionRuleCellCycleModel* p_cycle_model7 = new StochasticDivisionRuleCellCycleModel;
         TissueCell cell7(DIFFERENTIATED, HEALTHY, p_cycle_model7);
         cell7.InitialiseCellCycleModel();
+        TS_ASSERT_EQUALS(p_cycle_model7->GetGeneration(), 0u);
     }
     
     
     void TestStochasticOxygenBasedCellCycleModel(void) throw(Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetHepaOneParameters();
 
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration 
         // are updated correctly
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
 
         StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel(2);
@@ -467,7 +480,7 @@ public:
         TissueCell hepa_one_cell_divide = hepa_one_cell.Divide();
 
         // Check that cell division correctly resets the cell cycle phase
-        StochasticOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <StochasticOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
+        StochasticOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <StochasticOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
 
         TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);
@@ -578,7 +591,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters *inst1 = CancerParameters::Instance();
+            CancerParameters* inst1 = CancerParameters::Instance();
 
             inst1->SetSDuration(101.0);
 
@@ -758,7 +771,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters *inst1 = CancerParameters::Instance();
+            CancerParameters* inst1 = CancerParameters::Instance();
 
             inst1->SetSDuration(101.0);
 
