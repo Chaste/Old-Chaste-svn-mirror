@@ -51,7 +51,7 @@ rm -rf scons-1.2.0.tar.gz scons-1.2.0
 
 cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz
-tar -xzvf mpich.tar.gz
+tar -zxvf mpich.tar.gz
 cd mpich-1.2.7p1
 ./configure --prefix=$CHASTE_LIBS --with-comm=shared --with-device=ch_shmem --enable-sharedlib --disable-f77
 make
@@ -64,7 +64,7 @@ rm -rf mpich-1.2.7p1/  mpich.tar.gz
 
 cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-2.3.3-p15.tar.gz
-tar -xzvf petsc-2.3.3-p15.tar.gz
+tar -zxvf petsc-2.3.3-p15.tar.gz
 rm -rf petsc-2.3.3-p15.tar.gz
 cd petsc-2.3.3-p15/
 export PETSC_DIR=`pwd`
@@ -79,7 +79,7 @@ cd ..
 cd $CHASTE_LIBS
 wget http://fastbull.dl.sourceforge.net/sourceforge/boost/boost-jam-3.1.17-1-linuxx86.tgz
 wget http://garr.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.gz
-tar -xzvf boost-jam-3.1.17-1-linuxx86.tgz
+tar -zxvf boost-jam-3.1.17-1-linuxx86.tgz
 tar -zxvf boost_1_33_1.tar.gz
 cd boost_1_33_1
 ../boost-jam-3.1.17-1-linuxx86/bjam "-sTOOLS=gcc" --prefix=$CHASTE_LIBS/boost install
@@ -148,13 +148,13 @@ rm -f xsd-2.3.1-i686-linux-gnu.tar.bz2
 =============== TETGEN =====================
 
 cd $CHASTE_LIBS
-wget http://www.wias-berlin.de/people/si/tetgen1.3.4.tar.gz
-tar -xfvz tetgen1.3.4.tar.gz
-cd tetgen1.3.4
+wget http://www.wias-berlin.de/people/si/tetgen1.4.2.tar.gz
+tar -zxvf tetgen1.4.2.tar.gz 
+cd tetgen1.4.2
 make
 mv tetgen $CHASTE_LIBS/bin/
 cd ..
-rm -rf tetgen1.3.4*
+rm -rf tetgen1.4.2*
 
 =============== TRIANGLE =====================
 
