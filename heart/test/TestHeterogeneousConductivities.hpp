@@ -134,26 +134,6 @@ public:
             }
         }
     }
-    void TestExceptions()
-    {
-        //Tests of lower-level functionality
-        ChastePoint<3> corner1(width/2, 0, 0);
-        ChastePoint<3> corner2(width, height, depth);
-        ChasteCuboid blocked_region(corner1, corner2); 
-        
-        ChastePoint<3> p1(0, 0, 0);
-        TS_ASSERT_EQUALS(blocked_region.DoesContain(p1), false);
-        ChastePoint<3> p2(width/2., height/2., depth/2.);
-        TS_ASSERT_EQUALS(blocked_region.DoesContain(p2), true);
-        ChastePoint<3> p3(width, height, depth);
-        TS_ASSERT_EQUALS(blocked_region.DoesContain(p3), true);
-        ChastePoint<2> point2d(width/2., height/2.);
-        ChastePoint<1> point1d(width/2.);
-        TS_ASSERT_THROWS_ANYTHING(blocked_region.DoesContain(point2d));
-        TS_ASSERT_THROWS_ANYTHING(blocked_region.DoesContain(point1d));
-        
-        
-    }
 };
 
 #endif /*TESTHETEROGENEOUSCONDUCTIVITIES_HPP_*/

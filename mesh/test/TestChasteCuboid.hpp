@@ -63,8 +63,8 @@ public:
         //Lower dimension
         ChastePoint<2> two_d_point(0.0, 0.0);
         ChastePoint<1> one_d_point(0.0);
-        TS_ASSERT_THROWS_ANYTHING(cuboid_a_b.DoesContain(two_d_point));
-        TS_ASSERT_THROWS_ANYTHING(cuboid_a_b.DoesContain(one_d_point));
+        TS_ASSERT(cuboid_a_b.DoesContain(two_d_point));
+        TS_ASSERT(cuboid_a_b.DoesContain(one_d_point));
     }
 };
 
