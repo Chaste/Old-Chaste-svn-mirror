@@ -1,12 +1,6 @@
 ############################ ISSUES TO BE RESOLVED ########################
 ##
-## 1. Tests which require tetgen fail 
-##      - "tetgen: tetgen.cxx:4918: void tetgenmesh::findedge(tetgenmesh::triface*, double*, double*): Assertion `i < 3' failed."
-##
-## Issues:
-## 1. Are the two edits in the Metis section needed. We purposefully didn't do the first
-##    (CC=cc -> CC=gcc) and forgot the second (edit include/metis.h) but had no problems.
-##    
+## 1. Double check XSD - heart isn't compiling
 ## 
 ##
 ###########################################################################
