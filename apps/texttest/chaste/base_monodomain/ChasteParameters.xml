@@ -24,25 +24,14 @@
 	    	Stimuli (as many <Stimulus> definitions as needed) 
 	   	-->
    		<Stimuli>
-		  	<Stimulus> <!-- #1 -->
-				<Strength unit="uA/cm^3">-80000.0</Strength>
-				<Duration unit="ms">1.0</Duration>
-				<Delay unit="ms">0</Delay>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="-0.5" y="-0.5" z="-0.5" />
-						<UpperCoordinates x="-0.45" y="0.5" z="0.5" />
-					</Cuboid>
-				</Location>
-			</Stimulus>	
-			<Stimulus> <!-- #2 -->
+			<Stimulus> <!-- #1 -->
 				<Strength unit="uA/cm^3">-80000.0</Strength>
 				<Duration unit="ms">1.0</Duration>
 				<Delay unit="ms">2.0</Delay>
 				<Location unit="cm">
 					<Cuboid>
-						<LowerCoordinates x="-0.5" y="-0.5" z="-0.5"/>
-						<UpperCoordinates x="0" y="0" z="0.5"/>
+						<LowerCoordinates x="-0.25" y="-0.25" z="-0.25"/>
+						<UpperCoordinates x="0.25" y="0.25" z="0.75"/>
 					</Cuboid>
 				</Location>
 			</Stimulus>	
