@@ -106,7 +106,13 @@ cd $CHASTE_LIBS
 wget ftp://ftp.hdfgroup.org/HDF5/prev-releases/hdf5-1.6.6/src/hdf5-1.6.6.tar.gz
 tar -zxf hdf5-1.6.6.tar.gz
 cd hdf5-1.6.6
-CC=mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5
+CC=${CHASTE_LIBS}/mpi/bin/mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5
+#If you are compiling with a modern gcc (4.3 and higher) then you will need
+#to fix a known bug in hdf5-1.6.6.
+# At line 548 of perform/zip_perf.c 
+#    output = open(filename, O_RDWR | O_CREAT);
+# should be edited to 
+#    output = open(filename, O_RDWR | O_CREAT, S_IRWXU);
 make
 cd test
 make check
