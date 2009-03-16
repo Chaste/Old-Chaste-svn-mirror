@@ -111,7 +111,7 @@ make
 cd test
 make check
 cd ../testpar
-make check                                                 ### FAILS HERE
+make check
 cd ..
 make install
 
