@@ -98,7 +98,7 @@ private:
 
 public:
     /* Our contructor takes in nothing. It calls the constructor of {{{AbstractCardiacCellFactory}}}
-     * and we also initialise the stimulus to have magnitude -6000 (uA/cm^3) and duration 0.5 (ms).
+     * and we also initialise the stimulus to have magnitude 6000 (uA/cm^3) and duration 0.5 (ms).
      */
     PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>()
     {
@@ -368,7 +368,7 @@ public:
         {
             if (mesh.GetNode(i)->GetRegion()==HeartRegionCode::TISSUE)
             {
-                if (solution_repl[2*i] > 0.0) // 2*i, so the voltage for this node (2*i+1 for phi_e)
+                if (solution_repl[2*i] > 0.0) // 2*i, ie the voltage for this node (would be 2*i+1 for phi_e for this node)
                 {
                     ap_triggered = true;
                 }
