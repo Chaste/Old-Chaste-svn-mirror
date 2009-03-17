@@ -8,17 +8,17 @@
 			Problem definition 
 		-->
 		<SpaceDimension>3</SpaceDimension>
-	    <SimulationDuration unit="ms">50.0</SimulationDuration>
+	    <SimulationDuration unit="ms">1.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
-	    	<Default>FaberRudy2000</Default>
+	    	<Default>LuoRudyI</Default>
     	</IonicModels>
 	    
 		<!-- 
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
+			<LoadMesh name="heart_chaste2_renum_i_triangles" conductivity_media="NoFibreOrientation"/>
 	  	</Mesh>
 	
 	    <!-- 
@@ -26,55 +26,18 @@
 	   	-->
 	   	<Stimuli>
 		  	<Stimulus> <!-- #1 -->
-				<Strength unit="uA/cm^3">-25500.0</Strength>
+				<Strength unit="uA/cm^3">-80000.0</Strength>
 				<Duration unit="ms">2.0</Duration>
 				<Delay unit="ms">0</Delay>
 				<Location unit="cm">
 					<Cuboid>
-						<LowerCoordinates x="-2.0" y="-0.1" z="-1.0"/>
-						<UpperCoordinates x="-1.9" y="0.1" z="1.0"/>
+						<LowerCoordinates x="-100" y="-100" z="-100"/>
+						<UpperCoordinates x="100" y="100" z="0.04248"/>
 					</Cuboid>
 				</Location>
 			</Stimulus>	
 		</Stimuli>
 
-	    <!-- 
-	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
-	   	-->
-		<CellHeterogeneities>
-		  	<CellHeterogeneity> <!-- #1 -->
-				<ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="-2.0" y="-0.1" z="-1.0"/>
-						<UpperCoordinates x="-0.5" y="0.1" z="1.0"/>
-					</Cuboid>
-				</Location>
-			</CellHeterogeneity>	
-		
-		  	<CellHeterogeneity> <!-- #2 -->
-				<ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.85</ScaleFactorIto>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="-0.5" y="-0.1" z="-1.0"/>
-						<UpperCoordinates x="0.5" y="0.1" z="1.0"/>
-					</Cuboid>
-				</Location>
-			</CellHeterogeneity>	
-		
-		  	<CellHeterogeneity> <!-- #3 -->
-				<ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">1.0</ScaleFactorIto>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="0.5" y="-0.1" z="-1.0"/>
-						<UpperCoordinates x="2.0" y="0.1" z="1.0"/>
-					</Cuboid>
-				</Location>
-			</CellHeterogeneity>
-		</CellHeterogeneities>		
 		
 		<!-- 
 			Output 
@@ -94,7 +57,7 @@
 	</Physiological>
 
 	<Numerical>
-		<TimeSteps ode="0.005" pde="0.01" printing="0.1" unit="ms"/>
+		<TimeSteps ode="0.005" pde="0.1" printing="0.1" unit="ms"/>
 		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
