@@ -67,9 +67,8 @@ private:
 
 public:
     /** Constructor, which does the conversion.
-     *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT,
-     *  where the .h5 file has been written
-     *  @param outputDirectory  The output directory, relative to CHASTE_TEST_OUTPUT, where the output will be place
+     *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
+     *  @param outputDirectory  The output directory, relative to CHASTE_TEST_OUTPUT, where the output will be placed
      *  @param fileBaseName The base name of the data file.
      */
     Hdf5ToMeshalyzerConverter(std::string inputDirectory,
