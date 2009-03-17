@@ -72,6 +72,9 @@ public:
     
     bool GetIsMeshProvided() const;
     bool GetCreateMesh() const;
+    bool GetCreateSlab() const;
+    bool GetCreateSheet() const;
+    bool GetCreateFibre() const;    
     bool GetLoadMesh() const;
      
     void GetSlabDimensions(c_vector<double, 3>& slabDimensions) const;

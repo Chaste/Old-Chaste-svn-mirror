@@ -236,6 +236,34 @@ bool HeartConfig::GetCreateMesh() const
     return (mesh.Slab().present() || mesh.Sheet().present() || mesh.Fibre().present());
 }
 
+bool HeartConfig::GetCreateSlab() const
+{
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                     & mpDefaultParameters->Simulation().Mesh(),
+                                     "Mesh")->get();
+                                     
+    return (mesh.Slab().present());
+}
+
+bool HeartConfig::GetCreateSheet() const
+{
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                     & mpDefaultParameters->Simulation().Mesh(),
+                                     "Mesh")->get();
+                                     
+    return (mesh.Sheet().present());
+}
+
+bool HeartConfig::GetCreateFibre() const
+{
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
+                                     & mpDefaultParameters->Simulation().Mesh(),
+                                     "Mesh")->get();
+                                     
+    return (mesh.Fibre().present());
+}
+
+
 bool HeartConfig::GetLoadMesh() const
 {
     return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
@@ -245,9 +273,7 @@ bool HeartConfig::GetLoadMesh() const
  
 void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
 {
-    assert(GetCreateMesh());
-    
-    if (GetSpaceDimension() != 3)
+    if (GetSpaceDimension()!=3 || !GetCreateSlab())
     {
         EXCEPTION("Tissue slabs can only be defined in 3D");
     }
@@ -263,9 +289,7 @@ void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
 
 void HeartConfig::GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const
 {
-    assert(GetCreateMesh());
-
-    if (GetSpaceDimension() != 2)
+    if (GetSpaceDimension()!=2 || !GetCreateSheet())
     {
         EXCEPTION("Tissue sheets can only be defined in 2D");
     }
@@ -280,9 +304,7 @@ void HeartConfig::GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const
 
 void HeartConfig::GetFibreLength(c_vector<double, 1>& fibreLength) const
 {
-    assert(GetCreateMesh());
-
-    if (GetSpaceDimension() != 1)
+    if (GetSpaceDimension()!=1 || !GetCreateFibre())
     {
         EXCEPTION("Tissue fibres can only be defined in 1D");
     }
