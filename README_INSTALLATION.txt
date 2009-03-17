@@ -37,7 +37,7 @@ cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz
 tar -zxvf mpich.tar.gz
 cd mpich-1.2.7p1
-./configure --prefix=$CHASTE_LIBS/mpi --with-comm=shared --with-device=ch_shmem --enable-sharedlib --disable-f77
+CCFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=$CHASTE_LIBS/mpi --with-comm=shared --with-device=ch_shmem --enable-sharedlib --disable-f77  
 make
 cd examples/test/
 make testing
@@ -242,14 +242,15 @@ for example: file:///home/scratch/chaste-code/testoutput/msc30.ecs.ox.ac.uk.GccO
 
 ========== Creating an executable ==========
 
-*IF* you want to create the standalone cardiac chaste executable:
+*IF* you want to create the standalone cardiac Chaste executable:
 
-The following commands should generate static and dynamic chaste libraries.
-
+The following command should generates Chaste executable:
 scons compile_only=1 chaste_libs=1 static=0 build=GccOpt exe=1 apps
-scons compile_only=1 chaste_libs=1 static=1 build=GccOpt exe=1 apps
 
-The executable Chaste or Chaste.o can be found in the apps/src folder.
+(The distributed stand-alone executable uses "static=1", but it requires a
+making sure that all the dependencies are available as static libraries.)
+
+The executable Chaste can be found in the apps/src folder.
 
 In order to run a simulation edit the ChasteParameters.xml file according to your needs and, 
 from the chaste directory, type
