@@ -448,7 +448,7 @@ public:
         double var_time_independent_potassium_current__T = var_membrane__T;
         double var_time_independent_potassium_current__E_K = ((var_time_independent_potassium_current__R * var_time_independent_potassium_current__T) / var_time_independent_potassium_current__F) * log(var_time_independent_potassium_current__Ko / var_time_independent_potassium_current__Ki);
         double var_rapid_delayed_rectifier_potassium_current__E_K = var_time_independent_potassium_current__E_K;
-        double var_rapid_delayed_rectifier_potassium_current__i_Kr = var_rapid_delayed_rectifier_potassium_current__g_Kr * var_rapid_delayed_rectifier_potassium_current__xr * var_rapid_delayed_rectifier_potassium_current__Rect * (var_rapid_delayed_rectifier_potassium_current__V - var_rapid_delayed_rectifier_potassium_current__E_K);
+        double var_rapid_delayed_rectifier_potassium_current__i_Kr = mScaleFactorGkr*var_rapid_delayed_rectifier_potassium_current__g_Kr * var_rapid_delayed_rectifier_potassium_current__xr * var_rapid_delayed_rectifier_potassium_current__Rect * (var_rapid_delayed_rectifier_potassium_current__V - var_rapid_delayed_rectifier_potassium_current__E_K);
         double var_membrane__i_Kr = var_rapid_delayed_rectifier_potassium_current__i_Kr;
         double var_slow_delayed_rectifier_potassium_current__xs2 = var_slow_delayed_rectifier_potassium_current_xs2_gate__xs2;
         double var_slow_delayed_rectifier_potassium_current__Nai = var_ionic_concentrations__Nai;
