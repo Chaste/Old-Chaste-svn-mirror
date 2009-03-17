@@ -23,102 +23,113 @@ Please install them as described below.
 (Python is a prerequisite for this)
 Use your package manager to install Scons or
 
-cd $CHASTE_LIBS
-wget http://mesh.dl.sourceforge.net/sourceforge/scons/scons-1.2.0.tar.gz
-tar zxf scons-1.2.0.tar.gz
-cd scons-1.2.0
-python setup.py install --prefix=$CHASTE_LIBS
-cd ..
-rm -rf scons-1.2.0.tar.gz scons-1.2.0
+cd $CHASTE_LIBS ;
+wget http://mesh.dl.sourceforge.net/sourceforge/scons/scons-1.2.0.tar.gz ;
+tar zxf scons-1.2.0.tar.gz ;
+cd scons-1.2.0 ;
+python setup.py install --prefix=$CHASTE_LIBS ;
+cd .. ;
+rm -rf scons-1.2.0.tar.gz scons-1.2.0 ;
+
 
 ========MPI and PETSC:=======
 
-cd $CHASTE_LIBS
-wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz
-tar -zxvf mpich.tar.gz
-cd mpich-1.2.7p1
-CCFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=$CHASTE_LIBS/mpi --with-comm=shared --with-device=ch_shmem --enable-sharedlib --disable-f77  
-make
-cd examples/test/
-make testing
-cd ../..
-make install
-cd ..
-rm -rf mpich-1.2.7p1/  mpich.tar.gz 
+cd $CHASTE_LIBS ;
+wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz ;
+tar -zxvf mpich.tar.gz ;
+cd mpich-1.2.7p1 ;
+CCFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=$CHASTE_LIBS/mpi --with-comm=shared --with-device=ch_shmem --enable-sharedlib --disable-f77 ;
+make ;
+cd examples/test/ ;
+make testing ;
+cd ../.. ;
+make install ;
+cd .. ;
+rm -rf mpich-1.2.7p1/  mpich.tar.gz ;
 
-cd $CHASTE_LIBS
-wget ftp://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-2.3.3-p15.tar.gz
-tar -zxvf petsc-2.3.3-p15.tar.gz
-rm -rf petsc-2.3.3-p15.tar.gz
-cd petsc-2.3.3-p15/
-export PETSC_DIR=`pwd`
-./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false  -PETSC_ARCH=linux-gnu --with-clanguage=cxx
-make all
-./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false   --with-debugging=0 -PETSC_ARCH=linux-gnu-opt --with-clanguage=cxx
-make all
-cd ..
+cd $CHASTE_LIBS ;
+wget ftp://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-2.3.3-p15.tar.gz ;
+tar -zxvf petsc-2.3.3-p15.tar.gz ;
+rm -rf petsc-2.3.3-p15.tar.gz ;
+cd petsc-2.3.3-p15/ ;
+export PETSC_DIR=`pwd` ; 
+./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false  -PETSC_ARCH=linux-gnu --with-clanguage=cxx ;
+make all ; 
+./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false   --with-debugging=0 -PETSC_ARCH=linux-gnu-opt --with-clanguage=cxx ;
+make all ;
+cd .. ;
+
 
 =========BOOSTJAM and BOOST:===========
 
 Most modern Linux distributions have Boost libraries installed.  Please
 check before compiling since this step can be lengthy.
 
-cd $CHASTE_LIBS
-wget http://fastbull.dl.sourceforge.net/sourceforge/boost/boost-jam-3.1.17-1-linuxx86.tgz
-wget http://garr.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.gz
-tar -zxvf boost-jam-3.1.17-1-linuxx86.tgz
-tar -zxvf boost_1_34_1.tar.gz
-cd boost_1_34_1
-../boost-jam-3.1.17-1-linuxx86/bjam "-sTOOLS=gcc" --prefix=$CHASTE_LIBS/boost install
-cd ..
-rm -f boost_1_34_1.tar.gz boost-jam-3.1.17-1-linuxx86.tgz
-rm -rf boost_1_34_1 boost-jam-3.1.17-1-linuxx86
+cd $CHASTE_LIBS ;
+wget http://fastbull.dl.sourceforge.net/sourceforge/boost/boost-jam-3.1.17-1-linuxx86.tgz ; 
+wget http://garr.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.gz ;
+tar -zxvf boost-jam-3.1.17-1-linuxx86.tgz ;
+tar -zxvf boost_1_34_1.tar.gz ;
+cd boost_1_34_1 ;
+../boost-jam-3.1.17-1-linuxx86/bjam "-sTOOLS=gcc" --prefix=$CHASTE_LIBS/boost install ;
+cd .. ;
+rm -f boost_1_34_1.tar.gz boost-jam-3.1.17-1-linuxx86.tgz ;
+rm -rf boost_1_34_1 boost-jam-3.1.17-1-linuxx86 ;
+
 
 ==============HDF5:====================
 
-cd $CHASTE_LIBS
-wget ftp://ftp.hdfgroup.org/HDF5/prev-releases/hdf5-1.6.6/src/hdf5-1.6.6.tar.gz
-tar -zxf hdf5-1.6.6.tar.gz
-cd hdf5-1.6.6
-CC=${CHASTE_LIBS}/mpi/bin/mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5
+cd $CHASTE_LIBS ;
+wget ftp://ftp.hdfgroup.org/HDF5/prev-releases/hdf5-1.6.6/src/hdf5-1.6.6.tar.gz ;
+tar -zxf hdf5-1.6.6.tar.gz ;
+cd hdf5-1.6.6 ;
+CC=${CHASTE_LIBS}/mpi/bin/mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5 ;
 #If you are compiling with a modern gcc (4.3 and higher) then you will need
 #to fix a known bug in hdf5-1.6.6.
 # At line 548 of perform/zip_perf.c 
 #    output = open(filename, O_RDWR | O_CREAT);
 # should be edited to 
 #    output = open(filename, O_RDWR | O_CREAT, S_IRWXU);
-make
-cd test
-make check
-cd ../testpar
-make check
-cd ..
-make install
+make ;
+cd test ;
+make check ;
+cd ../testpar ;
+make check ;
+cd .. ;
+make install ;
+cd .. ;
+rm -rf hdf5-1.6.6.tar.gz ;
+
+## rm -rf  hdf5-1.6.6 ;         ??? (there is hdf5 directory)
 
 
 ================METIS:==================
 
-cd $CHASTE_LIBS
-wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-4.0.tar.gz
-tar -zxf metis-4.0.tar.gz
-cd metis-4.0
-make
-cd ..
-rm -f metis-4.0.tar.gz
+cd $CHASTE_LIBS ;
+wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-4.0.tar.gz ;
+tar -zxf metis-4.0.tar.gz ;
+cd metis-4.0 ;
+make ;
+cd .. ;
+rm -f metis-4.0.tar.gz ;
+
+## rm -rf metis-4.0 ;           ???
+
 
 ============= XSD and XML =============
 Installing Apache Xerces XML libraries:
 
-cd $CHASTE_LIBS
-wget http://archive.apache.org/dist/xml/xerces-c/Xerces-C_2_7_0/source/xerces-c-src_2_7_0.tar.gz
-tar -zxf xerces-c-src_2_7_0.tar.gz
-cd xerces-c-src_2_7_0/
-export XERCESCROOT=`pwd`
-cd $XERCESCROOT/src/xercesc
-./runConfigure -plinux -cgcc -xg++ -P$CHASTE_LIB/xerces
-make
-make install
-cd $CHASTE_LIBS
+cd $CHASTE_LIBS ; 
+wget http://archive.apache.org/dist/xml/xerces-c/Xerces-C_2_7_0/source/xerces-c-src_2_7_0.tar.gz ;
+tar -zxf xerces-c-src_2_7_0.tar.gz ;
+cd xerces-c-src_2_7_0/ ;
+export XERCESCROOT=`pwd` ;
+cd $XERCESCROOT/src/xercesc ;
+./runConfigure -plinux -cgcc -xg++ -P$CHASTE_LIBS/xerces ;
+make ;
+make install ;
+cd $CHASTE_LIBS ;
+rm -rf xerces-c-src_2_7_0 xerces-c-src_2_7_0.tar.gz ;
 
 If you experience any problems then you can modify the configuration options
 for your system according to http://xerces.apache.org/xerces-c/build-3.html
@@ -126,34 +137,38 @@ for your system according to http://xerces.apache.org/xerces-c/build-3.html
 
 Installing XSD:
 
-cd $CHASTE_LIBS
-wget http://codesynthesis.com/download/xsd/2.3/linux-gnu/i686/xsd-2.3.1-i686-linux-gnu.tar.bz2
-tar -xjf xsd-2.3.1-i686-linux-gnu.tar.bz2
-ln -s $CHASTE_LIBS/xsd-2.3.1-i686-linux-gnu/bin/xsd $CHASTE_LIBS/bin/xsd
-rm -f xsd-2.3.1-i686-linux-gnu.tar.bz2
+cd $CHASTE_LIBS ; 
+wget http://codesynthesis.com/download/xsd/2.3/linux-gnu/i686/xsd-2.3.1-i686-linux-gnu.tar.bz2 ; 
+tar -xjf xsd-2.3.1-i686-linux-gnu.tar.bz2 ; 
+ln -s $CHASTE_LIBS/xsd-2.3.1-i686-linux-gnu/bin/xsd $CHASTE_LIBS/bin/xsd ;
+rm -f xsd-2.3.1-i686-linux-gnu.tar.bz2 ;
 
 
 =============== TETGEN =====================
 
-cd $CHASTE_LIBS
-wget http://www.wias-berlin.de/people/si/tetgen1.4.2.tar.gz
-tar -zxvf tetgen1.4.2.tar.gz 
-cd tetgen1.4.2
-make
-mv tetgen $CHASTE_LIBS/bin/
-cd ..
-rm -rf tetgen1.4.2*
+cd $CHASTE_LIBS ;
+wget http://www.wias-berlin.de/people/si/tetgen1.4.2.tar.gz ;
+tar -zxvf tetgen1.4.2.tar.gz ;
+cd tetgen1.4.2 ;
+make ;
+mv tetgen $CHASTE_LIBS/bin/ ;
+cd .. ;
+rm -rf tetgen1.4.2* ;
+
 
 =============== TRIANGLE =====================
 
-cd $CHASTE_LIBS
-wget http://www.netlib.org/voronoi/triangle.zip
-mkdir triangle
-cd triangle
-unzip ../triangle.zip
-make
-cp ./triangle $CHASTE_LIBS/bin/
-cp ./showme  $CHASTE_LIBS/bin/
+cd $CHASTE_LIBS ;
+wget http://www.netlib.org/voronoi/triangle.zip ;
+mkdir triangle ;
+cd triangle ;
+unzip ../triangle.zip ;
+make ;
+cp ./triangle $CHASTE_LIBS/bin/ ;
+cp ./showme  $CHASTE_LIBS/bin/ ;
+cd .. ;
+rm -rf triangle.zip triangle ;
+
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 
@@ -244,7 +259,7 @@ for example: file:///home/scratch/chaste-code/testoutput/msc30.ecs.ox.ac.uk.GccO
 
 *IF* you want to create the standalone cardiac Chaste executable:
 
-The following command generates Chaste executable:
+The following command should generates Chaste executable:
 scons compile_only=1 chaste_libs=1 static=0 build=GccOpt exe=1 apps
 
 (The distributed stand-alone executable uses "static=1", but it requires a
@@ -252,15 +267,8 @@ making sure that all the dependencies are available as static libraries.)
 
 The executable Chaste can be found in the apps/src folder.
 
-To use the correct dynamic libraries you will need to add this to your
-environment (where [*PATH_TO_CHASTE*] is the location of your Chaste
-directory):
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:[*PATH_TO_CHASTE*]/linklib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/boost/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/xerces/lib
-
 In order to run a simulation edit the ChasteParameters.xml file according to your needs and, 
-from the Chaste directory, type
+from the chaste directory, type
 
 apps/src/Chaste ChasteParameters.xml
 
