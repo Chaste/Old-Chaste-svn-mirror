@@ -111,7 +111,6 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
                 {
                     mpMesh = new ParallelTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
                 }
-                mAllocatedMemoryForMesh = true;
         
                 HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
                 mpMesh->ConstructFromMeshReader(mesh_reader);
@@ -201,7 +200,9 @@ void AbstractCardiacProblem<SPACE_DIM,PROBLEM_DIM>::Initialise()
                 {
                     NEVER_REACHED;
                 }   
-            }           
+            } 
+            
+            mAllocatedMemoryForMesh = true;                      
         }
         catch (Exception& e)
         {               
