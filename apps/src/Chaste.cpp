@@ -271,7 +271,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
     //Compilation information
     std::cout<<"This version of Chaste was compiled on:\n";
-    std::cout<<UNAME<<"\n";
+    std::cout<<UNAME<<" (uname)\n";
     std::cout<<"from revision number "<<SVN_REV<<" with build type "<<BUILD_TYPE<<".\n\n";
     
     try
