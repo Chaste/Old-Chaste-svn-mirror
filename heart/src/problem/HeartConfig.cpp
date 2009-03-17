@@ -371,7 +371,8 @@ void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::v
 
 void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
                                          std::vector<double>& scaleFactorGks,
-                                         std::vector<double>& scaleFactorIto) const
+                                         std::vector<double>& scaleFactorIto,
+                                         std::vector<double>& scaleFactorGkr) const
 {
     simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(),
@@ -396,6 +397,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
 
         scaleFactorGks.push_back (ht.ScaleFactorGks());
         scaleFactorIto.push_back (ht.ScaleFactorIto());
+        scaleFactorGkr.push_back (ht.ScaleFactorGkr());
         cellHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
     }
 }

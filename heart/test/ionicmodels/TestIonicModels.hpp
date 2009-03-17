@@ -460,7 +460,7 @@ public:
         FaberRudy2000Version3 fr2000_ode_system_endo(&solver, &stimulus);
         fr2000_ode_system_endo.SetScaleFactorGks(0.462);
         fr2000_ode_system_endo.SetScaleFactorIto(0.0);
-
+        fr2000_ode_system_endo.SetScaleFactorGkr(1.0);
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_endo,
                                    end_time,
@@ -472,6 +472,7 @@ public:
         FaberRudy2000Version3 fr2000_ode_system_mid(&solver, &stimulus);
         fr2000_ode_system_mid.SetScaleFactorGks(1.154);
         fr2000_ode_system_mid.SetScaleFactorIto(0.85);
+        fr2000_ode_system_mid.SetScaleFactorGkr(1.0);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_mid,
@@ -484,7 +485,8 @@ public:
         FaberRudy2000Version3 fr2000_ode_system_epi(&solver, &stimulus);
         fr2000_ode_system_epi.SetScaleFactorGks(1.154);
         fr2000_ode_system_epi.SetScaleFactorIto(1.0);
-
+        fr2000_ode_system_epi.SetScaleFactorGkr(1.0);
+        
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_epi,
                                    end_time,
@@ -638,7 +640,7 @@ public:
         //now test the scale factor methods
         
         TT_model.SetScaleFactorGks(1.0);
-        TT_model.SetScaleFactorGto(1.0);
+        TT_model.SetScaleFactorIto(1.0);
         //run for only 10 ms
         RunOdeSolverWithIonicModel(&TT_model,
                                    10,
@@ -649,7 +651,7 @@ public:
         
         //now double the scale factors
         TT_model.SetScaleFactorGks(2.0);
-        TT_model.SetScaleFactorGto(2.0);
+        TT_model.SetScaleFactorIto(2.0);
         //run again for only 10 ms
         RunOdeSolverWithIonicModel(&TT_model,
                                    10,

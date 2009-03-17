@@ -1380,6 +1380,27 @@ class cell_heterogeneity_type: public ::xml_schema::type
   void
   ScaleFactorIto (::std::auto_ptr< ScaleFactorIto::type >);
 
+  // ScaleFactorGkr
+  // 
+  public:
+  struct ScaleFactorGkr
+  {
+    typedef ::dimensionless_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const ScaleFactorGkr::type&
+  ScaleFactorGkr () const;
+
+  ScaleFactorGkr::type&
+  ScaleFactorGkr ();
+
+  void
+  ScaleFactorGkr (const ScaleFactorGkr::type&);
+
+  void
+  ScaleFactorGkr (::std::auto_ptr< ScaleFactorGkr::type >);
+
   // Location
   // 
   public:
@@ -1406,6 +1427,7 @@ class cell_heterogeneity_type: public ::xml_schema::type
   public:
   cell_heterogeneity_type (const ScaleFactorGks::type&,
                            const ScaleFactorIto::type&,
+                           const ScaleFactorGkr::type&,
                            const Location::type&);
 
   cell_heterogeneity_type (const ::xercesc::DOMElement&,
@@ -1428,6 +1450,7 @@ class cell_heterogeneity_type: public ::xml_schema::type
 
   ::xsd::cxx::tree::one< ScaleFactorGks::type > _xsd_ScaleFactorGks_;
   ::xsd::cxx::tree::one< ScaleFactorIto::type > _xsd_ScaleFactorIto_;
+  ::xsd::cxx::tree::one< ScaleFactorGkr::type > _xsd_ScaleFactorGkr_;
   ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
 };
 

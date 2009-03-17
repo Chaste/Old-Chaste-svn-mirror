@@ -42,7 +42,7 @@ TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(
     mpSystemInfo = OdeSystemInformation<TenTusscher2006OdeSystem>::Instance();
     //Initialise the scale factors
     mScaleFactorGks=1.0;
-    mScaleFactorGto=1.0;
+    mScaleFactorIto=1.0;
     mScaleFactorGkr=1.0;
     
     AbstractCardiacCell::Init();
@@ -57,9 +57,9 @@ void TenTusscher2006OdeSystem::SetScaleFactorGks(double sfgks)
 {
     mScaleFactorGks=sfgks;
 }
-void TenTusscher2006OdeSystem::SetScaleFactorGto(double sfgto)
+void TenTusscher2006OdeSystem::SetScaleFactorIto(double sfito)
 {
-    mScaleFactorGto=sfgto;
+    mScaleFactorIto=sfito;
 }
 void TenTusscher2006OdeSystem::SetScaleFactorGkr(double sfgkr)
 {
@@ -184,7 +184,7 @@ void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
    inward_rectifier_potassium_current_i_K1 = inward_rectifier_potassium_current_g_K1*inward_rectifier_potassium_current_xK1_inf*(Y[11]-reversal_potentials_E_K);
 
 
-   transient_outward_current_i_to = mScaleFactorGto*transient_outward_current_g_to*Y[17]*Y[18]*(Y[11]-reversal_potentials_E_K);
+   transient_outward_current_i_to = mScaleFactorIto*transient_outward_current_g_to*Y[17]*Y[18]*(Y[11]-reversal_potentials_E_K);
    rapid_time_dependent_potassium_current_i_Kr = mScaleFactorGkr*rapid_time_dependent_potassium_current_g_Kr*sqrt(potassium_dynamics_K_o/5.4)*Y[13]*Y[14]*(Y[11]-reversal_potentials_E_K);
    reversal_potentials_E_Ks = membrane_R*membrane_T/membrane_F*log((potassium_dynamics_K_o+reversal_potentials_P_kna*sodium_dynamics_Na_o)/(Y[12]+reversal_potentials_P_kna*Y[16]));
    slow_time_dependent_potassium_current_i_Ks = mScaleFactorGks*slow_time_dependent_potassium_current_g_Ks*pow(Y[15], 2.0)*(Y[11]-reversal_potentials_E_Ks);
@@ -352,7 +352,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
    inward_rectifier_potassium_current_i_K1 = inward_rectifier_potassium_current_g_K1*inward_rectifier_potassium_current_xK1_inf*(Y[11]-reversal_potentials_E_K);
 
 
-   transient_outward_current_i_to = mScaleFactorGto*transient_outward_current_g_to*Y[17]*Y[18]*(Y[11]-reversal_potentials_E_K);
+   transient_outward_current_i_to = mScaleFactorIto*transient_outward_current_g_to*Y[17]*Y[18]*(Y[11]-reversal_potentials_E_K);
    rapid_time_dependent_potassium_current_i_Kr = mScaleFactorGkr*rapid_time_dependent_potassium_current_g_Kr*sqrt(potassium_dynamics_K_o/5.4)*Y[13]*Y[14]*(Y[11]-reversal_potentials_E_K);
    reversal_potentials_E_Ks = membrane_R*membrane_T/membrane_F*log((potassium_dynamics_K_o+reversal_potentials_P_kna*sodium_dynamics_Na_o)/(Y[12]+reversal_potentials_P_kna*Y[16]));
    slow_time_dependent_potassium_current_i_Ks = mScaleFactorGks*slow_time_dependent_potassium_current_g_Ks*pow(Y[15], 2.0)*(Y[11]-reversal_potentials_E_Ks);

@@ -128,13 +128,16 @@ public :
         std::vector<ChasteCuboid> cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
+        std::vector<double> scale_factor_gkr;
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                         scale_factor_gks,
-                                                        scale_factor_ito);
+                                                        scale_factor_ito,
+                                                        scale_factor_gkr);
 
         TS_ASSERT(cell_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.0, 0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks[1], 1.154);
         TS_ASSERT_EQUALS(scale_factor_ito[1], 0.85);
+        TS_ASSERT_EQUALS(scale_factor_gkr[1], 1.0);
 
         std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;

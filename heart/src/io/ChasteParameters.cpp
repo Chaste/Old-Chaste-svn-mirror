@@ -760,6 +760,30 @@ ScaleFactorIto (::std::auto_ptr< ScaleFactorIto::type > ScaleFactorIto)
   this->_xsd_ScaleFactorIto_.set (ScaleFactorIto);
 }
 
+const cell_heterogeneity_type::ScaleFactorGkr::type& cell_heterogeneity_type::
+ScaleFactorGkr () const
+{
+  return this->_xsd_ScaleFactorGkr_.get ();
+}
+
+cell_heterogeneity_type::ScaleFactorGkr::type& cell_heterogeneity_type::
+ScaleFactorGkr ()
+{
+  return this->_xsd_ScaleFactorGkr_.get ();
+}
+
+void cell_heterogeneity_type::
+ScaleFactorGkr (const ScaleFactorGkr::type& ScaleFactorGkr)
+{
+  this->_xsd_ScaleFactorGkr_.set (ScaleFactorGkr);
+}
+
+void cell_heterogeneity_type::
+ScaleFactorGkr (::std::auto_ptr< ScaleFactorGkr::type > ScaleFactorGkr)
+{
+  this->_xsd_ScaleFactorGkr_.set (ScaleFactorGkr);
+}
+
 const cell_heterogeneity_type::Location::type& cell_heterogeneity_type::
 Location () const
 {
@@ -3738,12 +3762,16 @@ _clone (::xml_schema::flags f,
 cell_heterogeneity_type::
 cell_heterogeneity_type (const ScaleFactorGks::type& _xsd_ScaleFactorGks,
                          const ScaleFactorIto::type& _xsd_ScaleFactorIto,
+                         const ScaleFactorGkr::type& _xsd_ScaleFactorGkr,
                          const Location::type& _xsd_Location)
 : ::xml_schema::type (),
 _xsd_ScaleFactorGks_ (_xsd_ScaleFactorGks,
                       ::xml_schema::flags (),
                       this),
 _xsd_ScaleFactorIto_ (_xsd_ScaleFactorIto,
+                      ::xml_schema::flags (),
+                      this),
+_xsd_ScaleFactorGkr_ (_xsd_ScaleFactorGkr,
                       ::xml_schema::flags (),
                       this),
 _xsd_Location_ (_xsd_Location,
@@ -3763,6 +3791,9 @@ _xsd_ScaleFactorGks_ (_xsd_cell_heterogeneity_type._xsd_ScaleFactorGks_,
 _xsd_ScaleFactorIto_ (_xsd_cell_heterogeneity_type._xsd_ScaleFactorIto_,
                       f | ::xml_schema::flags::not_root,
                       this),
+_xsd_ScaleFactorGkr_ (_xsd_cell_heterogeneity_type._xsd_ScaleFactorGkr_,
+                      f | ::xml_schema::flags::not_root,
+                      this),
 _xsd_Location_ (_xsd_cell_heterogeneity_type._xsd_Location_,
                 f | ::xml_schema::flags::not_root,
                 this)
@@ -3776,6 +3807,7 @@ cell_heterogeneity_type (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f, c),
 _xsd_ScaleFactorGks_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ScaleFactorIto_ (f | ::xml_schema::flags::not_root, this),
+_xsd_ScaleFactorGkr_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Location_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
@@ -3826,6 +3858,24 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
 
+    // ScaleFactorGkr
+    //
+    {
+      if (e.name () == "ScaleFactorGkr" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< ScaleFactorGkr::type > r (
+          ScaleFactorGkr::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_ScaleFactorGkr_.present ())
+          continue;
+        this->ScaleFactorGkr (r);
+        continue;
+      }
+    }
+
     // Location
     //
     {
@@ -3856,6 +3906,13 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   {
     throw ::xsd::cxx::tree::expected_element< char > (
       "ScaleFactorIto",
+      "");
+  }
+
+  if (!_xsd_ScaleFactorGkr_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "ScaleFactorGkr",
       "");
   }
 
@@ -6710,6 +6767,13 @@ operator<< (::xercesc::DOMElement& e,
       "ScaleFactorIto",
       e);
     s.dom_element () << i.ScaleFactorIto ();
+  }
+
+  {
+    ::xsd::cxx::xml::dom::element< char > s (
+      "ScaleFactorGkr",
+      e);
+    s.dom_element () << i.ScaleFactorGkr ();
   }
 
   {

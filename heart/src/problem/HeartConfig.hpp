@@ -85,7 +85,8 @@ public:
     void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
                                 std::vector<double>& scaleFactorGks,
-                                std::vector<double>& scaleFactorIto) const;
+                                std::vector<double>& scaleFactorIto,
+                                std::vector<double>& scaleFactorGkr) const;
     bool GetConductivityHeterogeneitiesProvided() const;
     void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
                                         std::vector< c_vector<double,3> >& intraConductivities,

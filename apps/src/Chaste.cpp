@@ -83,6 +83,7 @@ std::vector<ChasteCuboid> stimuled_areas;
 
 std::vector<double> scale_factor_gks;
 std::vector<double> scale_factor_ito;
+std::vector<double> scale_factor_gkr;
 std::vector<ChasteCuboid> cell_heterogeneity_areas;
 
 template<unsigned SPACE_DIM>
@@ -132,8 +133,25 @@ public:
                 break;
                 
             case(ionic_models_available_type::tenTusscher2006):
-                return new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
-                break;
+                {
+                    TenTusscher2006OdeSystem*  tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
+
+                    for (unsigned ht_index = 0;
+                         ht_index < cell_heterogeneity_areas.size();
+                         ++ht_index)
+                    {
+                        if ( cell_heterogeneity_areas[ht_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
+                        {
+                            tt06_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
+                            tt06_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);
+                            tt06_instance->SetScaleFactorGkr(scale_factor_gkr[ht_index]);
+                        }
+                    }
+
+                    return tt06_instance;
+                    break;
+                }
+
             
             case(ionic_models_available_type::HodgkinHuxley):
                 return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
@@ -151,6 +169,7 @@ public:
                         {
                             faber_rudy_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
                             faber_rudy_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);
+                            faber_rudy_instance->SetScaleFactorGkr(scale_factor_gkr[ht_index]);
                         }
                     }
 
@@ -223,7 +242,8 @@ void ReadParametersFromFile()
     {
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                         scale_factor_gks,
-                                                        scale_factor_ito);
+                                                        scale_factor_ito,
+                                                        scale_factor_gkr);
     }
     catch(Exception& e)
     {

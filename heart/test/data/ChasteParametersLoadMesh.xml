@@ -59,6 +59,7 @@
 		  	<CellHeterogeneity> <!-- #1 -->
 				<ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
 				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
+				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-2.0" y="-0.1" z="-1.0"/>
@@ -70,6 +71,7 @@
 		  	<CellHeterogeneity> <!-- #2 -->
 				<ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
 				<ScaleFactorIto unit="dimensionless">0.85</ScaleFactorIto>
+				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-0.5" y="-0.1" z="-1.0"/>
