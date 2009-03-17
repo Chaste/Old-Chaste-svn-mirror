@@ -37,7 +37,7 @@ cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz
 tar -zxvf mpich.tar.gz
 cd mpich-1.2.7p1
-./configure --prefix=$CHASTE_LIBS --with-comm=shared --with-device=ch_shmem --enable-sharedlib --disable-f77
+./configure --prefix=$CHASTE_LIBS/mpi --with-comm=shared --with-device=ch_shmem --enable-sharedlib --disable-f77
 make
 cd examples/test/
 make testing
