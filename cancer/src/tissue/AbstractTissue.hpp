@@ -581,6 +581,11 @@ enum cell_colours
 
 namespace boost {
 namespace serialization {
+/**
+ * Since this abstract class is templated, we cannot use 
+ * the preprocessor macro BOOST_IS_ABSTRACT, and instead 
+ * must drop down to the underlying source code.
+ */
 template<unsigned DIM>
 struct is_abstract<AbstractTissue<DIM> > {
     typedef mpl::bool_<true> type;

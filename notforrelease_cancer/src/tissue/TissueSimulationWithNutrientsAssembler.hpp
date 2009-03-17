@@ -45,6 +45,7 @@ template<unsigned DIM>
 class TissueSimulationWithNutrientsAssembler
     : public SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> >
 {
+    /** Save typing. */
     typedef SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> > BaseClassType;
     friend class AbstractStaticAssembler<DIM, DIM, 1u, true, BaseClassType>;
 

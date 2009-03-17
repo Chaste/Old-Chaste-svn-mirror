@@ -41,8 +41,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class HeartEventHandler : public GenericEventHandler<11, HeartEventHandler>
 {
 public:
+
+    /** Character array holding heart event names. There are eleven heart events. */
     const static char* EventName[11];
-    
+
+    /** Definition of heart event types. */ 
     typedef enum
     {
         READ_MESH=0,

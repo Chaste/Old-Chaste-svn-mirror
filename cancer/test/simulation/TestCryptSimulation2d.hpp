@@ -990,7 +990,7 @@ public:
     void TestVisualizerOutput() throw (Exception)
     {
         // Work out where one of the previous tests wrote its files
-        OutputFileHandler handler("Crypt2DCylindricalMultipleDivisions",false);
+        OutputFileHandler handler("Crypt2DCylindricalMultipleDivisions", false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
 
         NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cancer/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements");

@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "CellwiseData.hpp"
-
+#include "AbstractTwoBodyInteractionForce.hpp"
 
 template<unsigned DIM>
 TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
@@ -97,6 +97,19 @@ Vec TissueSimulationWithNutrients<DIM>::GetNutrientSolution()
 //////////////////////////////////////////////////////////////////////////////
 //                          Setup/AfterSolve methods                        //
 //////////////////////////////////////////////////////////////////////////////
+
+template<unsigned DIM>
+void TissueSimulationWithNutrients<DIM>::WriteVisualizerSetupFile()
+{
+    for (unsigned i=0; i<this->mForceCollection.size(); i++)
+    {
+        if (dynamic_cast<AbstractTwoBodyInteractionForce<DIM>*>(this->mForceCollection[i]))
+        {
+            double cutoff = (static_cast<AbstractTwoBodyInteractionForce<DIM>*>(this->mForceCollection[i]))->GetCutoffPoint();
+            *(this->mpSetupFile) << "Cutoff\t" << cutoff << "\n";
+        }
+    }
+}
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupSolve()

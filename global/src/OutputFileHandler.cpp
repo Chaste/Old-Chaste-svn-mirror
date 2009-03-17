@@ -108,13 +108,13 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath()
 }
 
 
-out_stream OutputFileHandler::OpenOutputFile(std::string filename,
+out_stream OutputFileHandler::OpenOutputFile(std::string fileName,
                                              std::ios_base::openmode mode)
 {
-    out_stream p_output_file(new std::ofstream((mDirectory+filename).c_str(), mode));
+    out_stream p_output_file(new std::ofstream((mDirectory+fileName).c_str(), mode));
     if (!p_output_file->is_open())
     {
-        EXCEPTION("Could not open file " + filename + " in " + mDirectory);
+        EXCEPTION("Could not open file " + fileName + " in " + mDirectory);
     }
     return p_output_file;
 }

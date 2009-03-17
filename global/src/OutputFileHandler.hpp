@@ -97,12 +97,12 @@ public:
      * Open an output file in our directory, and check it was opened successfully.
      * Throws an Exception if not.
      *
-     * @param filename  the name of the file to open, relative to the output directory.
+     * @param fileName  the name of the file to open, relative to the output directory.
      * @param mode  optionally, flags to use when opening the file (defaults are as for
      *         std::ofstream).
      * @return  a managed pointer to the opened file stream.
      */
-    out_stream OpenOutputFile(std::string filename,
+    out_stream OpenOutputFile(std::string fileName,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
 
 
@@ -112,7 +112,7 @@ public:
      * creates results_3.dat. See documentation for
      * OpenOutputFile(std::string, std::ios_base::openmode).
      *  
-     * @param filename  the root name of the file to open
+     * @param fileName  the root name of the file to open
      * @param number  the number to append to the root name of the file
      * @param fileFormat  the file format
      * @param mode  optionally, flags to use when opening the file (defaults are as for

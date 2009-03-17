@@ -78,7 +78,13 @@ public :
      */
     void UseCutoffPoint(double cutoffPoint);
 
-    
+    /**
+     * Get the cutoff point.
+     * 
+     * @return mCutoffPoint
+     */
+    double GetCutoffPoint();
+
     /**
      * Calculates the force between two nodes.
      *
@@ -110,6 +116,12 @@ void AbstractTwoBodyInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
     assert(cutoffPoint > 0.0);
     mUseCutoffPoint = true;
     mCutoffPoint = cutoffPoint;
+}
+
+template<unsigned DIM>
+double AbstractTwoBodyInteractionForce<DIM>::GetCutoffPoint()
+{
+    return mCutoffPoint;
 }
 
 #endif /*ABSTRACTTWOBODYINTERACTIONFORCE_HPP_*/

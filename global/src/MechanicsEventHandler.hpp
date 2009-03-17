@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MechanicsEventHandler : public GenericEventHandler<7,MechanicsEventHandler>
 {
 public:
+
+    /** Definition of mechanics event types. */ 
     typedef enum
     {
         ASSEMBLE=0,
@@ -44,6 +46,7 @@ public:
         ALL
     } MechanicsEventType;
 
+    /** Character array holding mechanics event names. There are seven mechanics events. */
     const static char* EventName[7];
 };
 

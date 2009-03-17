@@ -104,12 +104,12 @@ public:
      */
     static bool IsGlobalIndexLocal(unsigned globalIndex);
 
-    /*
+    /**
      * Create a PETSc vector of the problem size
      */
     static Vec CreateVec();
 
-    /*
+    /**
      * Create a striped PETSc vector of size: stride * problem size
      * 
      * @param stride

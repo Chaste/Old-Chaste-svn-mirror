@@ -124,7 +124,9 @@ public:
     static Vec CreateVec(int size, double value);
 
     /**
-     *  Create a Vec from the given data.
+     * Create a Vec from the given data.
+     * 
+     * @param data
      */
     static Vec CreateVec(std::vector<double> data);
 

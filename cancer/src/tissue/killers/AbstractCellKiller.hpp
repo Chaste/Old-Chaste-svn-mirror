@@ -105,6 +105,11 @@ const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() cons
 
 namespace boost {
 namespace serialization {
+/**
+ * Since this abstract class is templated, we cannot use 
+ * the preprocessor macro BOOST_IS_ABSTRACT, and instead 
+ * must drop down to the underlying source code.
+ */
 template<unsigned DIM>
 struct is_abstract<AbstractCellKiller<DIM> > {
     typedef mpl::bool_<true> type;

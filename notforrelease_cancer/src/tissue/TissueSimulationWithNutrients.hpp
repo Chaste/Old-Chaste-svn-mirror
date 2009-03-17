@@ -185,6 +185,13 @@ private :
      */
     void InitialiseCoarseNutrientMesh();
 
+    /**
+     * Overridden WriteVisualizerSetupFile() method.
+     * 
+     * Writes out special information about the mesh to the visualizer.
+     */
+    void WriteVisualizerSetupFile();
+
 public:
 
     /**

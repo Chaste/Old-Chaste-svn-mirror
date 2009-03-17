@@ -131,7 +131,7 @@ public:
      *  Write a header in the log file, stating the (given) type of simulation and the
      *  date and time
      *
-     *  @simulationType The type of simulation, eg "Bidomain" or "Crypt" or
+     *  @param simulationType The type of simulation, eg "Bidomain" or "Crypt" or
      *  "Cardiac Electromechanics". Defaults to empty.
      */
     void WriteHeader(std::string simulationType="");

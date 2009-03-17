@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseNutrientSinkPde.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "../../global/test/NumericFileComparison.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2,2>
 {
@@ -191,6 +192,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+
     void TestWithOxygen() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
@@ -256,6 +258,38 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
     }
+
+
+    /*
+     * This test compares the visualizer output from the previous test
+     * with a known file.
+     *
+     * Note: if the previous test is changed we need to update the file
+     * this test refers to.
+     */
+    void TestVisualizerOutput() throw (Exception)
+    {
+        // Work out where one of the previous tests wrote its files
+        OutputFileHandler handler("TissueSimulationWithOxygen", false);
+        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
+
+        NumericFileComparison comp_nut(results_dir + "/results.viznutrient", "notforrelease_cancer/test/data/TissueSimulationWithOxygen/results.viznutrient");
+        TS_ASSERT(comp_nut.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.viznutrient notforrelease_cancer/test/data/TissueSimulationWithOxygen/results.viznutrient").c_str()), 0);
+
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "notforrelease_cancer/test/data/TissueSimulationWithOxygen/results.vizelements");
+        TS_ASSERT(comp_ele.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements notforrelease_cancer/test/data/TissueSimulationWithOxygen/results.vizelements").c_str()), 0);
+
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "notforrelease_cancer/test/data/TissueSimulationWithOxygen/results.viznodes");
+        TS_ASSERT(comp_nodes.CompareFiles(1e-15));
+
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "notforrelease_cancer/test/data/TissueSimulationWithOxygen/results.vizcelltypes");
+        TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
+
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup notforrelease_cancer/test/data/TissueSimulationWithOxygen/results.vizsetup").c_str()), 0);
+    }
+
 
     void TestWithPointwiseNutrientSink() throw(Exception)
     {
@@ -340,27 +374,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    /*
-     * This test compares the visualizer output from the previous test
-     * with a known file.
-     *
-     * Note: if the previous test is changed we need to update the file
-     * this test refers to.
-     */
-    void TestWriteNutrient() throw (Exception)
-    {
-        EXIT_IF_PARALLEL; // defined in PetscTools
 
-        // Work out where the previous test wrote its files
-        OutputFileHandler handler("TissueSimulationWithOxygen",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznutrient";
-        TS_ASSERT_EQUALS(system(("cmp " + results_file + " notforrelease_cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);
-    }
-
-    /**
-     * This test compares the visualizer output from the previous test
-     * with a known file.
-     */
     void TestSpheroidStatistics() throw (Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
@@ -463,6 +477,7 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
     }
+
 
     void TestCoarseNutrientMesh() throw(Exception)
     {
@@ -617,6 +632,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+
     void TestCoarseNutrientMeshBoundaryConditionImplementation() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
@@ -690,6 +706,7 @@ public:
         CellwiseData<2>::Destroy();
         delete p_mesh;
     }
+
 
     void TestArchivingWithSimplePde() throw (Exception)
     {
@@ -785,6 +802,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+
     /**
      * This test demonstrates how to archive a TissueSimulationWithNutrients
      * in the case where the nutrient PDE has the tissue as a member variable
@@ -879,6 +897,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+
     void Test3DTissueSimulationWithNutrients() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
@@ -941,7 +960,6 @@ public:
         
         delete p_killer;
     }
-
 
 };
 #endif /*TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_*/

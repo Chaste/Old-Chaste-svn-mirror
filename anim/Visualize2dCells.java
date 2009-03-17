@@ -94,6 +94,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static double crypt_width = 0.0;
     public static double half_width = 0.0;
     public static double stress_time = 0.0;
+    public static double force_cutoff = 0.0;
     public static double[] times;
     public static double[][] nutrient_values;
     public static double[][][] beta_catenin_values;
@@ -673,6 +674,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         drawCells = false;
                         cells.setState(false);
                         circles.setVisible(false);
+                    }
+                    if (parameter.equals("Cutoff"))
+                    {
+                    	force_cutoff = Double.valueOf(st_setup.nextToken()).doubleValue();
+                    	System.out.println("Force cutoff = " + force_cutoff);
                     }
                     if (parameter.equals("Complete")) 
                     {
@@ -1445,7 +1451,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         if (vis.elementFilePresent)
         {        	
 	        // Draw elements first
-	        for (int i=0; i < vis.numElements[vis.timeStep]; i++)
+	        for (int i=0; i<vis.numElements[vis.timeStep]; i++)
 	        {       
 	            // What nodes are we joining up?
 	        	int index[] = new int[3];
@@ -1457,7 +1463,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	            RealPoint r2 = vis.positions[vis.timeStep][index[1]];
 	            RealPoint r3 = vis.positions[vis.timeStep][index[2]];
 	            
-	            RealPoint circumcentre=DrawCircumcentre(r1,r2,r3);
+	            RealPoint circumcentre = DrawCircumcentre(r1,r2,r3);
 	            PlotPoint plotcircumcentre = scale(circumcentre);
 	            
 	            // Where are they? Convert to integer pixels
@@ -1505,7 +1511,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	                    ys[2] = vertex[node].y;
 	                    xs[3] = midpoint[(node+2)%3].x;
 	                    ys[3] = midpoint[(node+2)%3].y;
-	                    g2.fillPolygon(xs,ys,4);
+	                    g2.fillPolygon(xs, ys, 4);
 	                }
 	                
 	                g2.setColor(Color.black);
@@ -1538,7 +1544,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	            		clipx[node] = vertex[node].x;
 	            		clipy[node] = vertex[node].y;
 	            	}
-	            	Polygon clip = new Polygon(clipx,clipy,3);
+	            	Polygon clip = new Polygon(clipx, clipy, 3);
 	            	boolean clip_me = false;
 	            	// Is circumcentre in the triangle?
 	            	// If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
@@ -1547,21 +1553,30 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	            		clip_me = true;
 	            		g2.setClip(clip);
 	            	}
-	            	 	               
+
+	            	PlotPoint cutoff = scale(vis.force_cutoff, 0.0);
 	            	for (int node=0; node<3; node++)
-	            	{   
-	            		SetCellColour(index[node]);
-	            		int xs[]=new int[4];
-	            	    int ys[]=new int[4];
-	                    xs[0]=plotcircumcentre.x;
-	            	    ys[0]=plotcircumcentre.y;
-	            		xs[1]=midpoint[(node+1)%3].x;
-	            		ys[1]=midpoint[(node+1)%3].y;
-	          	        xs[2]=vertex[node].x;
-	         	        ys[2]=vertex[node].y;
-	          	        xs[3]=midpoint[(node+2)%3].x;
-	          	        ys[3]=midpoint[(node+2)%3].y;
-	           	        g2.fillPolygon(xs,ys,4);
+	            	{
+	            		// See #542
+	            		PlotPoint cutoff_point = new PlotPoint(vertex[node].x + cutoff.x, vertex[node].y + cutoff.y);
+	            		int sq_dist_cutoff = SquaredDistance(vertex[node], cutoff_point);
+	            		int sq_dist_prev_node = SquaredDistance(vertex[node], vertex[(node+2)%3]);
+	            		int sq_dist_next_node = SquaredDistance(vertex[node], vertex[(node+1)%3]);
+	                    if ( (sq_dist_prev_node <= sq_dist_cutoff) && (sq_dist_next_node <= sq_dist_cutoff))
+	                    {
+	                    	SetCellColour(index[node]);
+	                    	int xs[] = new int[4];
+	                    	int ys[] = new int[4];
+	                    	xs[0] = plotcircumcentre.x;
+	                    	ys[0] = plotcircumcentre.y;
+	                    	xs[1] = midpoint[(node+1)%3].x;
+	                    	ys[1] = midpoint[(node+1)%3].y;
+	                    	xs[2] = vertex[node].x;
+	                    	ys[2] = vertex[node].y;
+	                    	xs[3] = midpoint[(node+2)%3].x;
+	                    	ys[3] = midpoint[(node+2)%3].y;
+	                    	g2.fillPolygon(xs, ys, 4);
+	                    }
 	            	}
 	            	 	           
 	            	g2.setColor(Color.black);
@@ -1713,7 +1728,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 
         // Draw nodes second so that dots are on top of lines
         double fibre_length = 1.2*node_radius;
-        for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
+        for (int i=0; i<vis.numCells[vis.timeStep]; i++) 
         {
         	PlotPoint p = scale(vis.positions[vis.timeStep][i]);
 
@@ -1946,7 +1961,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         PlotPoint end = scale(0, max_y);        
         g2.drawLine(start.x, start.y, end.x, end.y);
         
-        for (int i = 0; i <= num_ticks; i++) 
+        for (int i=0; i<=num_ticks; i++) 
         {
             double y = (double) (min_y + tick_spacing*i);
             DecimalFormat df = new DecimalFormat("0.0");
@@ -1966,12 +1981,12 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         int ix = (int) ((x - vis.min_x) * (width-2*eps) /(vis.max_x - vis.min_x) +eps);
         int iy = (int) ((y - vis.min_y) * (height-2*eps) /(vis.max_y - vis.min_y) +eps);
         iy = height - iy; // this is because java is silly and has the y axis going down the screen
-        return (new PlotPoint(ix,iy));
+        return (new PlotPoint(ix, iy));
     }
     
     PlotPoint scale(RealPoint p) 
     {
-        return (scale(p.x,p.y));    
+        return (scale(p.x, p.y));
     }
     
     RealPoint unscale(PlotPoint p)
@@ -1983,7 +1998,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         double x = (ix-eps)*(vis.max_x - vis.min_x) / (width-2.0*eps) + vis.min_x;
         double y = (iy-eps)*(vis.max_y - vis.min_y) / (height-2.0*eps) + vis.min_y;
         
-        return (new RealPoint(x,y));
+        return (new RealPoint(x, y));
     }
     
     public void mouseMoved(MouseEvent e) 
@@ -1992,9 +2007,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         RealPoint real_position = unscale(mouse_position);
         
         int nearest_index = -1;
-        for (int i = 0; i < vis.numCells[vis.timeStep]; i++) 
+        for (int i=0; i<vis.numCells[vis.timeStep]; i++) 
         {
-            int sq_dist = SquaredDistance(scale(vis.positions[vis.timeStep][i]),mouse_position);
+            int sq_dist = SquaredDistance(scale(vis.positions[vis.timeStep][i]), mouse_position);
             if (sq_dist < node_radius*node_radius)
             {
                 nearest_index = i;
