@@ -8,7 +8,7 @@
 			Problem definition 
 		-->
 		<SpaceDimension>3</SpaceDimension>
-	    <SimulationDuration unit="ms">1.0</SimulationDuration>
+	    <SimulationDuration unit="ms">5.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default>LuoRudyI</Default>
@@ -59,7 +59,7 @@
 	<Numerical>
 		<TimeSteps ode="0.005" pde="0.1" printing="0.1" unit="ms"/>
 		<KSPTolerances>
-			<KSPRelative>1e-6</KSPRelative>
+			<KSPAbsolute>2e-4</KSPAbsolute>
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>jacobi</KSPPreconditioner>
