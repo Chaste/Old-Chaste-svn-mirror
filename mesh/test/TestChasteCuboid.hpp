@@ -61,10 +61,15 @@ public:
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(just_outside), true);
         
         //Lower dimension
-        ChastePoint<2> two_d_point(0.0, 0.0);
-        ChastePoint<1> one_d_point(0.0);
-        TS_ASSERT(cuboid_a_b.DoesContain(two_d_point));
-        TS_ASSERT(cuboid_a_b.DoesContain(one_d_point));
+        ChastePoint<2> two_d_point_in(0.0, 0.0);
+        ChastePoint<1> one_d_point_in(0.0);
+        TS_ASSERT(cuboid_a_b.DoesContain(two_d_point_in));
+        TS_ASSERT(cuboid_a_b.DoesContain(one_d_point_in));
+
+        ChastePoint<2> two_d_point_out(-4.0, -4.0);
+        ChastePoint<1> one_d_point_out(-4.0);
+        TS_ASSERT( ! cuboid_a_b.DoesContain(two_d_point_out));
+        TS_ASSERT( ! cuboid_a_b.DoesContain(one_d_point_out));
     }
 };
 
