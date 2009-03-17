@@ -244,7 +244,7 @@ for example: file:///home/scratch/chaste-code/testoutput/msc30.ecs.ox.ac.uk.GccO
 
 *IF* you want to create the standalone cardiac Chaste executable:
 
-The following command should generates Chaste executable:
+The following command generates Chaste executable:
 scons compile_only=1 chaste_libs=1 static=0 build=GccOpt exe=1 apps
 
 (The distributed stand-alone executable uses "static=1", but it requires a
@@ -252,8 +252,15 @@ making sure that all the dependencies are available as static libraries.)
 
 The executable Chaste can be found in the apps/src folder.
 
+To use the correct dynamic libraries you will need to add this to your
+environment (where [*PATH_TO_CHASTE*] is the location of your Chaste
+directory):
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:[*PATH_TO_CHASTE*]/linklib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/boost/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/xerces/lib
+
 In order to run a simulation edit the ChasteParameters.xml file according to your needs and, 
-from the chaste directory, type
+from the Chaste directory, type
 
 apps/src/Chaste ChasteParameters.xml
 
