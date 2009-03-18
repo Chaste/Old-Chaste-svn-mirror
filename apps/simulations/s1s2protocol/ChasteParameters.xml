@@ -7,7 +7,7 @@
 		<!-- 
 			Problem definition 
 		-->
-		<SpaceDimension>3</SpaceDimension>
+		<SpaceDimension>2</SpaceDimension>
 	    <SimulationDuration unit="ms">300</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
@@ -40,11 +40,11 @@
 		  	<Stimulus> <!-- #2 -->
 				<Strength unit="uA/cm^3">-25500.0</Strength>
 				<Duration unit="ms">2.0</Duration>
-				<Delay unit="ms">200</Delay>
+				<Delay unit="ms">220</Delay>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
-						<UpperCoordinates x="2.0" y="2.0" z="4.0"/>
+						<UpperCoordinates x="1.0" y="2.0" z="4.0"/>
 					</Cuboid>
 				</Location>
 			</Stimulus>	
