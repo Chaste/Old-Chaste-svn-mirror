@@ -32,8 +32,8 @@ import sys
 # TO CONFIGURE YOUR MACHINE: please remove the following 
 # two lines and edit paths below:
 ############################################################
-print >>sys.stderr, "Unrecognised machine; please edit python/hostconfig/default.py"
-sys.exit(1)
+#print >>sys.stderr, "Unrecognised machine; please edit python/hostconfig/default.py"
+#sys.exit(1)
 
 #EDIT HERE
 #For a simple installation all paths will be below this directory
@@ -65,7 +65,9 @@ other_libpaths = [chaste_libs_path+'lib',
 
 
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'metis']
+other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'metis']
+#Note that boost serialization sometimes have different names:
+#other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'metis']
 
 
 tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
