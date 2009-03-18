@@ -269,6 +269,8 @@ public:
      */
     void TestVisualizerOutput() throw (Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         // Work out where one of the previous tests wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen", false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
