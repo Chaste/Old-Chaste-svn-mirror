@@ -8,7 +8,7 @@
 			Problem definition 
 		-->
 		<SpaceDimension>2</SpaceDimension>
-	    <SimulationDuration unit="ms">300</SimulationDuration>
+	    <SimulationDuration unit="ms">1000</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default>FaberRudy2000</Default>
@@ -18,7 +18,7 @@
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Sheet x="4.0" y="4.0" inter_node_space="0.1"/>    
+			<Sheet x="4.0" y="6.0" inter_node_space="0.1"/>    
 	  	</Mesh>
 	
 	    <!-- 
@@ -32,7 +32,7 @@
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
-						<UpperCoordinates x="0.1" y="4.0" z="0.1"/>
+						<UpperCoordinates x="0.1" y="6.0" z="0.1"/>
 					</Cuboid>
 				</Location>
 			</Stimulus>	
@@ -40,16 +40,31 @@
 		  	<Stimulus> <!-- #2 -->
 				<Strength unit="uA/cm^3">-25500.0</Strength>
 				<Duration unit="ms">2.0</Duration>
-				<Delay unit="ms">220</Delay>
+				<Delay unit="ms">255</Delay>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
-						<UpperCoordinates x="1.0" y="2.0" z="4.0"/>
+						<UpperCoordinates x="2.0" y="4.5" z="4.0"/>
 					</Cuboid>
 				</Location>
 			</Stimulus>	
 
 		</Stimuli>
+
+		<CellHeterogeneities>
+		  	<CellHeterogeneity> <!-- #1 -->
+				<ScaleFactorGks unit="dimensionless">1.0</ScaleFactorGks>
+				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
+				<ScaleFactorGkr unit="dimensionless">5.0</ScaleFactorGkr>				
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="4.0" y="4.0" z="0.0"/>
+						<UpperCoordinates x="4.0" y="4.0" z="0.0"/>
+					</Cuboid>
+				</Location>
+			</CellHeterogeneity>	
+		</CellHeterogeneities>		
+
 		
 		<!-- 
 			Output 
@@ -62,7 +77,7 @@
 	    <!--
 	        Conductivities
 	    -->
-	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" unit="mS/cm"/>
+	    <IntracellularConductivities longi="1.0" trans="1.0" normal="1.0" unit="mS/cm"/>
 	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" unit="mS/cm"/>
 	    <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio>
 	    <Capacitance unit="uF/cm^2"> 1.0 </Capacitance>

@@ -125,6 +125,7 @@
     <xs:sequence>
       <xs:element name="ScaleFactorGks" type="dimensionless_type"/>
       <xs:element name="ScaleFactorIto" type="dimensionless_type"/>
+      <xs:element name="ScaleFactorGkr" type="dimensionless_type"/>
       <xs:element name="Location" type="location_type"/>
     </xs:sequence>
   </xs:complexType>
