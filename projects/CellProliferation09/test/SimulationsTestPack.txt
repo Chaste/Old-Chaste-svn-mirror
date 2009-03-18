@@ -1,5 +1,0 @@
-TestGeneratePlotsOfASingleCell.hpp
-TestGenerateSteadyStateCryptCellProliferation.hpp
-TestMeinekeLabellingExperimentsSunterData.hpp
-TestMutationSpread.hpp
-TestNicheSuccessionTimeDistributions.hpp
