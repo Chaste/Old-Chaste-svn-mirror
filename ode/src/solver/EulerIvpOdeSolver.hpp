@@ -26,10 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-/**
- * Concrete EulerIvpOdeSolver class.
- */
 #ifndef _EULERIVPODESOLVER_HPP_
 #define _EULERIVPODESOLVER_HPP_
 
@@ -39,9 +35,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+/**
+ * A concrete one step ODE solver class that employs the forward Euler 
+ * method. This numerical method is explicit.
+ */
 class EulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 protected:
+
+    /**
+     * Calculate the solution to the ODE system at the next timestep.
+     * 
+     * A usage example:
+     *     EulerIvpOdeSolver mySolver;
+     *     OdeSolution solution = mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, TimeStep, SamplingTime);
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param nextYValues  the state at the next timestep
+     */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                              double timeStep,
                              double time,
@@ -49,9 +63,16 @@ protected:
                              std::vector<double>& nextYValues);
 
 public:
-    EulerIvpOdeSolver()
-    {}; //Constructor-does nothing
 
+    /**
+     * Constructor.
+     */
+    EulerIvpOdeSolver()
+    {};
+
+    /**
+     * Destructor.
+     */
     virtual ~EulerIvpOdeSolver()
     {}
 };

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 AbstractOdeSystem::AbstractOdeSystem(unsigned numberOfStateVariables)
 {
     mNumberOfStateVariables = numberOfStateVariables;
-    mUseAnalytic = false;
+    mUseAnalyticJacobian = false;
 }
 
 AbstractOdeSystem::~AbstractOdeSystem()

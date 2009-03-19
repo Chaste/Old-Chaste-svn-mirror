@@ -38,20 +38,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PetscArguments
 {
 public:
-    /** The number of command line arguments */
+
+    /** The number of command line arguments. */
     int* p_argc;
-    /** The arguments themselves */
+
+    /** The arguments themselves. */
     char*** p_argv;
 
-    /** Get the single instance of this class */
+    /** Get the single instance of this class. */
     static PetscArguments* Instance();
 
 private:
+
+    /** Default constructor. Should never be called directly, call PetscArguments::Instance() instead.*/
     PetscArguments();
+
+    /** Copy constructor. */
     PetscArguments(const PetscArguments&);
+
+    /** Overloaded assignement operator. */
     PetscArguments& operator= (const PetscArguments&);
 
-    /** The single instance of the class */
+    /** The single instance of the class. */
     static PetscArguments *mpInstance;
 };
 

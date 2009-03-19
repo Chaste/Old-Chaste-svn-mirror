@@ -26,10 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-/**
- * Concrete RungeKutta2IvpOdeSolver class.
- */
 #ifndef _RUNGEKUTTA4IVPODESOLVER_HPP_
 #define _RUNGEKUTTA4IVPODESOLVER_HPP_
 
@@ -39,9 +35,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+/**
+ * A concrete one step ODE solver class that employs the Runge Kutta 
+ * 4th order solver (RK4).
+ */
 class RungeKutta4IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 protected:
+
+    /**
+     * Calculate the solution to the ODE system at the next timestep.
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param nextYValues  the state at the next timestep
+     */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                              double timeStep,
                              double time,
@@ -49,12 +59,13 @@ protected:
                              std::vector<double>& nextYValues);
 
 private:
-    // Working memory
-    std::vector<double> k1;
-    std::vector<double> k2;
-    std::vector<double> k3;
-    std::vector<double> k4;
-    std::vector<double> yki;
+    
+    std::vector<double> k1;  /**< Working memory: expression k1 in the RK4 method. */
+    std::vector<double> k2;  /**< Working memory: expression k2 in the RK4 method. */
+    std::vector<double> k3;  /**< Working memory: expression k3 in the RK4 method. */
+    std::vector<double> k4;  /**< Working memory: expression k4 in the RK4 method. */
+    std::vector<double> yki; /**< Working memory: expression yki in the RK4 method. */
+    
 };
 
 #endif //_RUNGEKUTTA4IVPODESOLVER_HPP_

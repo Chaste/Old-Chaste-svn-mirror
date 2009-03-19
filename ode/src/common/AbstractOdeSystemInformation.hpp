@@ -51,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractOdeSystemInformation
 {
 protected:
+
     /** State variable names */
     std::vector<std::string> mVariableNames;
     
@@ -68,20 +69,32 @@ protected:
      * 
      * This must be provided by subclasses.
      */
-    virtual void Initialise(void)=0;
+    virtual void Initialise()=0;
     
 public:
+
+    /**
+     * Constructor.
+     */
     AbstractOdeSystemInformation();
 
+    /**
+     * Virtual destructor since we have virtual methods.
+     */
     virtual ~AbstractOdeSystemInformation();
 
     /**
      * Set the suggested initial conditions to use.
+     * 
+     * @param rInitialConditions  vector containing initial values for the state variables
      */
     void SetInitialConditions(const std::vector<double>& rInitialConditions);
     
     /**
      * Set a single component of the suggested initial conditions to use.
+     * 
+     * @param index  the index of the state variable in the system
+     * @param initialCondition  the initial value for the state variable
      */
     void SetInitialConditionsComponent(unsigned index, double initialCondition) throw(std::out_of_range);
     
@@ -105,20 +118,21 @@ public:
      * the vector of state variables of an ODE system. This number can
      * then be used with the method GetStateVariableUnitsByNumber.
      *
-     * @param name The name of a state variable.
-     * @return The state variable's position within
-     *   the vector of state variables associated with the ODE system.
+     * @param rName  the name of a state variable
+     * @return the state variable's position within the vector of state 
+     *         variables associated with the ODE system.
      */
     unsigned GetStateVariableNumberByName(const std::string& rName) const;
     
     /**
-     * @param varNumber A state variable's position within
-     *   the vector of state variables associated with the ODE system.
-     * @return The units of the state variable.
+     * Get the units of a state variable given its index in the ODE system.
+     * 
+     * @param varNumber  a state variable's position within the vector of 
+     *                   state variables associated with the ODE system.
+     * @return the units of the state variable.
      */
     std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
 };
-
 
 
 #endif /*_ABSTRACTODESYSTEMINFORMATION_HPP_*/

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * An event handler class with event types suitable for cardiac electrophysiological
  * simulations.
  *
- * It also contains events suitable to most generic PDE solves too.
+ * It also contains events suitable to most generic PDE solvers too.
  */
 class HeartEventHandler : public GenericEventHandler<11, HeartEventHandler>
 {

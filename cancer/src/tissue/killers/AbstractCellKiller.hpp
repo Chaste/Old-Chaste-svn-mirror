@@ -103,19 +103,25 @@ const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() cons
     return mpTissue;
 }
 
-namespace boost {
-namespace serialization {
+namespace boost
+{
+namespace serialization
+{   
 /**
  * Since this abstract class is templated, we cannot use 
  * the preprocessor macro BOOST_IS_ABSTRACT, and instead 
  * must drop down to the underlying source code.
  */
 template<unsigned DIM>
-struct is_abstract<AbstractCellKiller<DIM> > {
+struct is_abstract<AbstractCellKiller<DIM> >
+{
+    /** The type that is an abstract class. */
     typedef mpl::bool_<true> type;
-        BOOST_STATIC_CONSTANT(bool, value = true);
+    /** The type is an abstract class, so value=true. */
+    BOOST_STATIC_CONSTANT(bool, value=true);
 };
-}}
+}
+}
 
 
 #endif /*ABSTRACTCELLKILLER_HPP_*/

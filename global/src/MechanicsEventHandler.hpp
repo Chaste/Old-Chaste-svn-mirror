@@ -30,6 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GenericEventHandler.hpp"
 
+/**
+ * An event handler class with event types suitable for cardiac electromechanics
+ * simulations.
+ *
+ * It also contains events suitable to most generic PDE solvers too.
+ */
 class MechanicsEventHandler : public GenericEventHandler<7,MechanicsEventHandler>
 {
 public:

@@ -88,7 +88,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData);
 //  * If solving an AbstractOdeSystemWithAnalyticJacobian, this function
 //  * can be used to allow CVODE to compute the Jacobian analytically.
 //  *
-//  * Note to self: can test using pSystem->GetUseAnalytic().
+//  * Note to self: can test using pSystem->GetUseAnalyticJacobian().
 //  */
 // int CvodeDenseJacobianAdaptor(long int numberOfStateVariables, DenseMat J,
 //                               realtype t, N_Vector y, N_Vector fy,

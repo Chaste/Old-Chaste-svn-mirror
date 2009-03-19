@@ -578,20 +578,25 @@ enum cell_colours
     INVISIBLE_COLOUR, // visualizer treats '7' as invisible
 };
 
-
-namespace boost {
-namespace serialization {
+namespace boost
+{
+namespace serialization
+{   
 /**
  * Since this abstract class is templated, we cannot use 
  * the preprocessor macro BOOST_IS_ABSTRACT, and instead 
  * must drop down to the underlying source code.
  */
 template<unsigned DIM>
-struct is_abstract<AbstractTissue<DIM> > {
+struct is_abstract<AbstractTissue<DIM> >
+{
+    /** The type that is an abstract class. */
     typedef mpl::bool_<true> type;
+    /** The type is an abstract class, so value=true. */
     BOOST_STATIC_CONSTANT(bool, value=true);
 };
-}}
+}
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //         Iterator class implementation - most methods are inlined         //

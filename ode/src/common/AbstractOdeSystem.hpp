@@ -48,7 +48,11 @@ class AbstractOdeSystem
     friend class TestAbstractOdeSystem;
 
 protected:
+
+    /** The number of state variables in the ODE system. */
     unsigned mNumberOfStateVariables;
+
+    /** Vector containing the current values of the state variables. */
     std::vector<double> mStateVariables;
 
     /**
@@ -59,14 +63,15 @@ protected:
      */
     boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
 
-    /// Whether to use an analytic Jacobian.
-    bool mUseAnalytic;
+    /** Whether to use an analytic Jacobian. */
+    bool mUseAnalyticJacobian;
 
 public:
+
     /**
-     * Constructor for an ODE system.
+     * Constructor.
      *
-     * @param numberOfStateVariables  how many ODEs make up the system
+     * @param numberOfStateVariables  the number of state variables in the ODE system (defaults to 0)
      */
     AbstractOdeSystem(unsigned numberOfStateVariables = 0);
 
@@ -85,12 +90,21 @@ public:
     virtual void EvaluateYDerivatives(double time, const std::vector<double> &rY,
                                       std::vector<double> &rDY)=0;
 
+    /**
+     * Get the number of state variables in the ODE system.
+     * 
+     * @return mNumberOfStateVariables
+     */
     unsigned GetNumberOfStateVariables() const
     {
         return mNumberOfStateVariables;
     }
 
-
+    /**
+     * Set the initial conditions for the ODE system.
+     * 
+     * @param rInitialConditions  vector containing initial values for the state variables
+     */
     void SetInitialConditions(const std::vector<double>& rInitialConditions)
     {
         if (rInitialConditions.size() != mNumberOfStateVariables)
@@ -101,6 +115,12 @@ public:
         mpSystemInfo->SetInitialConditions(rInitialConditions);
     }
 
+    /**
+     * Set the initial condition one state variable.
+     * 
+     * @param index  the index of the state variable in the system
+     * @param initialCondition  the initial value for the state variable
+     */
     void SetInitialConditionsComponent(unsigned index, double initialCondition)
     {
         if ( index >= mNumberOfStateVariables)
@@ -111,13 +131,20 @@ public:
         mpSystemInfo->SetInitialConditionsComponent(index, initialCondition);
     }
 
-
+    /**
+     * Get the initial conditions for the ODE system.
+     */
     std::vector<double> GetInitialConditions() const
     {
         assert(mpSystemInfo);
         return mpSystemInfo->GetInitialConditions();
     }
 
+    /**
+     * Set the values of the state variables in the ODE system.
+     * 
+     * @param rStateVariables vector containing values for the state variables
+     */
     void SetStateVariables(const std::vector<double>& rStateVariables)
     {
         if ( mNumberOfStateVariables != rStateVariables.size() )
@@ -127,17 +154,26 @@ public:
         mStateVariables = rStateVariables;
     }
 
+    /**
+     * Get the values of the state variables in the ODE system.
+     */
     std::vector<double>& rGetStateVariables()
     {
         return mStateVariables;
     }
 
+    /**
+     * Get the names of the state variables in the ODE system.
+     */
     std::vector<std::string>& rGetVariableNames()
     {
         assert(mpSystemInfo);
         return mpSystemInfo->rGetVariableNames();
     }
 
+    /**
+     * Get the units of the state variables in the ODE system.
+     */
     std::vector<std::string>& rGetVariableUnits()
     {
         assert(mpSystemInfo);
@@ -151,6 +187,9 @@ public:
      *
      *  After each timestep the solver will call this method on the ODE to see if
      *  it should stop there. By default, false is returned here.
+     * 
+     * @param time  the current time
+     * @param rY  the current values of the state variables
      */
     virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
     
@@ -160,6 +199,9 @@ public:
      * and home in on them to find sign transitions to high precision.
      * 
      * The default implementation here fakes a root function using CalculateStoppingEvent.
+     * 
+     * @param time  the current time
+     * @param rY  the current values of the state variables
      */
     virtual double CalculateRootFunction(double time, const std::vector<double> &rY)
     {
@@ -167,21 +209,26 @@ public:
         return stop ? 0.0 : 1.0;
     }
 
-    bool GetUseAnalytic()
+    /**
+     * Get whether an analytic Jacobian is used.
+     * 
+     * @return mUseAnalyticJacobian
+     */
+    bool GetUseAnalyticJacobian()
     {
-        return mUseAnalytic;
+        return mUseAnalyticJacobian;
     }
 
-
     /**
-     * This method is used to establish a state varible's position within
+     * This method is used to establish a state variable's position within
      * the vector of state variables of an ODE system. This number can
      * then be used with the methods GetStateVariableValueByNumber and
      * GetStateVariableUnitsByNumber.
      *
-     * @param name The name of a state variable.
-     * @return The state variable's position within
-     *   the vector of state variables associated with the ODE system.
+     * @param name  the name of a state variable.
+     * 
+     * @return the state variable's position within the vector of state variables 
+     *         associated with the ODE system.
      */
     unsigned GetStateVariableNumberByName(const std::string name)
     {
@@ -190,9 +237,12 @@ public:
     }
 
     /**
-     * @param varNumber A state variable's position within
-     *   the vector of state variables associated with the ODE system.
-     * @return The current value of the state variable.
+     * Get the value of a state variable given its index in the ODE system.
+     * 
+     * @param varNumber  a state variable's position within the vector of 
+     *                   state variables associated with the ODE system.
+     * 
+     * @return the current value of the state variable.
      */
     double GetStateVariableValueByNumber(unsigned varNumber) const
     {
@@ -201,9 +251,11 @@ public:
     }
 
     /**
-     * @param varNumber A state variable's position within
-     *   the vector of state variables associated with the ODE system.
-     * @return The units of the state variable.
+     * Get the units of a state variable given its index in the ODE system.
+     * 
+     * @param varNumber  a state variable's position within the vector of 
+     *                   state variables associated with the ODE system.
+     * @return the units of the state variable.
      */
     std::string GetStateVariableUnitsByNumber(unsigned varNumber) const
     {
@@ -213,10 +265,14 @@ public:
     }
 
 protected:
+
     /**
      * Used to include extra debugging information in exception messages.
      * For example,
      *      EXCEPTION(DumpState("Gating variable out of range"));
+     * 
+     * @param message  the exception message
+     * @param Y  the values of the state variables (optional input argument) 
      */
     std::string DumpState(const std::string& message,
                           std::vector<double> Y = std::vector<double>());

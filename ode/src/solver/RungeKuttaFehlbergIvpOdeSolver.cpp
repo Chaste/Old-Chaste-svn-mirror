@@ -26,10 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-/**
- * Concrete RungeKuttaFehlbergIvpOdeSolver class.
- */
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
@@ -37,10 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <cfloat>
-//#include <iostream>
 #include <vector>
 
-const double smidge=1e-10;
+const double smidge = 1e-10;
 
 /*
  * PROTECTED FUNCTIONS =========================================================
@@ -85,7 +80,7 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
 
     // should never get here if this bool has been set to true;
     assert(!mStoppingEventOccurred);
-    while ( !got_to_end )
+    while (!got_to_end)
     {
         //std::cout << "New timestep\n" << std::flush;
         while (!accurate_enough)
@@ -99,7 +94,7 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
                                 rYValues,
                                 rWorkingMemory);
 
-            // Find the maximum error in this vector.
+            // Find the maximum error in this vector
             double max_error = -DBL_MAX;
             for (unsigned i=0; i<number_of_variables; i++)
             {
@@ -159,7 +154,6 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
     rSolution.SetNumberOfTimeSteps(number_of_time_steps);
 }
 
-
 void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                                   double timeStep,
                                                   double time,
@@ -173,21 +167,21 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
 
     pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, dy);
 
-    for (unsigned i=0;i<num_equations; i++)
+    for (unsigned i=0; i<num_equations; i++)
     {
         mk1[i] = timeStep*dy[i];
         myk2[i] = currentYValues[i] + 0.25*mk1[i];
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time + 0.25*timeStep, myk2, dy);
-    for (unsigned i=0;i<num_equations; i++)
+    for (unsigned i=0; i<num_equations; i++)
     {
         mk2[i] = timeStep*dy[i];
         myk3[i] = currentYValues[i] + 0.09375*mk1[i] + 0.28125*mk2[i];
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time + 0.375*timeStep, myk3, dy);
-    for (unsigned i=0;i<num_equations; i++)
+    for (unsigned i=0; i<num_equations; i++)
     {
         mk3[i] = timeStep*dy[i];
         myk4[i] = currentYValues[i] + m1932o2197*mk1[i] - m7200o2197*mk2[i]
@@ -203,7 +197,7 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep, myk5, dy);
-    for (unsigned i=0;i<num_equations; i++)
+    for (unsigned i=0; i<num_equations; i++)
     {
         mk5[i] = timeStep*dy[i];
         myk6[i] = currentYValues[i] - m8o27*mk1[i] + 2*mk2[i] - m3544o2565*mk3[i]
@@ -211,9 +205,9 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep, myk6, dy);
-    for (unsigned i=0;i<num_equations; i++)
+    for (unsigned i=0; i<num_equations; i++)
     {
-        mk6[i]=timeStep*dy[i];
+        mk6[i] = timeStep*dy[i];
         mError[i] = (1/timeStep)*fabs(m1o360*mk1[i] - m128o4275*mk3[i]
                     - m2197o75240*mk4[i] + 0.02*mk5[i]+ m2o55*mk6[i]);
         nextYValues[i] = currentYValues[i] + m25o216*mk1[i] + m1408o2565*mk3[i]
@@ -312,5 +306,3 @@ void RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     bool return_solution = false;
     InternalSolve(not_required_solution, pOdeSystem, rYValues, working_memory, startTime, endTime, timeStep, 1e-4, 1e-5, return_solution);
 }
-
-

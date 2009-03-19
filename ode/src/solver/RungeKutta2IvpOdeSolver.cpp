@@ -27,29 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/**
- * Concrete RungeKutta2IvpOdeSolver class.
- */
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 
-//#include <iostream>
 #include <vector>
 #include <cassert>
-
-/**
- * Solves a system of ODEs using the Runge Kutta 2nd Order Initial Value Problem Ordinary Differential Equation Solver
- *
- * To be used in the form:
- *
- * RungeKutta2IvpOdeSolver mySolver
- *
- * OdeSolution solution=mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, TimeStep, SamplingTime);
- *
- * See documentation for AbstractOneStepIvpOdeSolver::Solve()
- */
 
 void RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                                   double timeStep,
@@ -57,11 +41,13 @@ void RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
                                                   std::vector<double>& currentYValues,
                                                   std::vector<double>& nextYValues)
 {
-    const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
+    /*
+     * Apply Runge-Kutta 2nd order method for each timestep in AbstractOneStepIvpSolver.
+     * Calculates a vector containing the next Y value from the current one for each
+     * equation in the system.
+     */
 
-    // Apply Runge-Kutta 2nd Order method for each timestep in AbstractOneStepIvpSolver.
-    // Calculates a vector containing the next Y value from the current one for each
-    // equation in the system.
+    const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
 
     std::vector<double> k1(num_equations);
     std::vector<double>& dy = nextYValues; // re-use memory

@@ -26,10 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-/**
- * Concrete RungeKutta2IvpOdeSolver class.
- */
 #ifndef _RUNGEKUTTA2IVPODESOLVER_HPP_
 #define _RUNGEKUTTA2IVPODESOLVER_HPP_
 
@@ -39,9 +35,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+/**
+ * A concrete one step ODE solver class that employs the Runge Kutta 
+ * 2nd order solver.
+ */
 class RungeKutta2IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 protected:
+
+    /**
+     * Calculate the solution to the ODE system at the next timestep.
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param nextYValues  the state at the next timestep
+     */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                              double timeStep,
                              double time,
@@ -49,8 +59,12 @@ protected:
                              std::vector<double>& nextYValues);
 
 public:
+
+    /**
+     * Constructor.
+     */
     RungeKutta2IvpOdeSolver()
-    {};    //Constructor-does nothing
+    {};
 
 };
 

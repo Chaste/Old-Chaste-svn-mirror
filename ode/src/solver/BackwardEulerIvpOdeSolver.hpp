@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef BACKWARDEULERIVPODESOLVER_HPP_
 #define BACKWARDEULERIVPODESOLVER_HPP_
 
@@ -37,28 +36,50 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <vector>
 
-
+/**
+ * A concrete one step ODE solver class that employs the backward Euler 
+ * method. This numerical method is implicit and hence unconditionally stable.
+ */
 class BackwardEulerIvpOdeSolver  : public AbstractOneStepIvpOdeSolver
 {
 private:
+
+    /** The number of state variables in the ODE system. */
     unsigned mSizeOfOdeSystem;
 
-    /** the epsilon to use in calculating numerical jacobians */
+    /** The epsilon to use in calculating the numerical Jacobian of the ODE system. */
     double mNumericalJacobianEpsilon;
+
+    /**
+     * Whether to force the solver to use the numerical Jacobian even if 
+     * the ODE system object provides an analytical Jacobian.
+     */
     bool mForceUseOfNumericalJacobian;
 
-    // NOTE: we use (unsafe) double pointers here rather than
-    // std::vectors because using std::vectors would lead to a
-    // slow down by a factor of about 4.
+    /*
+     * NOTE: we use (unsafe) double pointers here rather than
+     * std::vectors because using std::vectors would lead to a
+     * slow down by a factor of about 4.
+     */
 
     /** Working memory : residual vector */
     double* mResidual;
+
     /** Working memory : Jacobian matrix */
     double** mJacobian;
+
     /** Working memory : update vector */
     double* mUpdate;
 
-
+    /**
+     * Compute the current residual.
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param currentGuess  current guess for the state at the next timestep
+     */
     void ComputeResidual(AbstractOdeSystem* pAbstractOdeSystem,
                          double timeStep,
                          double time,
@@ -74,24 +95,32 @@ private:
         }
     }
 
-
+    /**
+     * Compute the Jacobian of the ODE system.
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param currentGuess  current guess for the state at the next timestep
+     */
     void ComputeJacobian(AbstractOdeSystem* pAbstractOdeSystem,
                          double timeStep,
                          double time,
                          std::vector<double>& currentYValues,
                          std::vector<double>& currentGuess)
     {
-        for (unsigned i = 0; i<mSizeOfOdeSystem; i++)
+        for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
-            for (unsigned j = 0; j <mSizeOfOdeSystem; j++)
+            for (unsigned j=0; j<mSizeOfOdeSystem; j++)
             {
-                mJacobian[i][j]=0.0;
+                mJacobian[i][j] = 0.0;
             }
         }
 
-        if (pAbstractOdeSystem->GetUseAnalytic() && !mForceUseOfNumericalJacobian)
+        if (pAbstractOdeSystem->GetUseAnalyticJacobian() && !mForceUseOfNumericalJacobian)
         {
-            // the ode system has an analytic jacobian, use that
+            // The ODE system has an analytic jacobian, so use that
             AbstractOdeSystemWithAnalyticJacobian *p_ode_system
             = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
             p_ode_system->AnalyticJacobian(currentGuess, mJacobian, time, timeStep);
@@ -106,6 +135,12 @@ private:
         }
     }
 
+    /**
+     * Solve a linear system of equations to update the 
+     * current guess for the solution to the ODE system at
+     * the next timestep.
+     * Used by the method CalculateNextYValue.
+     */
     void SolveLinearSystem()
     {
         double fact;
@@ -134,6 +169,13 @@ private:
         }
     }
 
+    /**
+     * Compute the infinity/maximum norm of a vector.
+     * Used by the method CalculateNextYValue.
+     * 
+     * @param vector  a pointer to a vector
+     * @return the vector's norm.
+     */
     double ComputeNorm(double* vector)
     {
         double norm = 0.0;
@@ -147,7 +189,15 @@ private:
         return norm;
     }
 
-
+    /**
+     * Compute the Jacobian of the ODE system numerically.
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param currentGuess  current guess for the state at the next timestep
+     */
     void ComputeNumericalJacobian(AbstractOdeSystem* pAbstractOdeSystem,
                                   double timeStep,
                                   double time,
@@ -158,14 +208,13 @@ private:
         std::vector<double> residual_perturbed(mSizeOfOdeSystem);
         std::vector<double> guess_perturbed(mSizeOfOdeSystem);
 
-        double epsilon= mNumericalJacobianEpsilon;
+        double epsilon = mNumericalJacobianEpsilon;
 
         ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, currentGuess);
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             residual[i] = mResidual[i];
         }
-
 
         for (unsigned global_column=0; global_column<mSizeOfOdeSystem; global_column++)
         {
@@ -182,7 +231,7 @@ private:
                 residual_perturbed[i] = mResidual[i];
             }
 
-            // compute residual_perturbed - residual
+            // Compute residual_perturbed - residual
             double one_over_eps=1.0/epsilon;
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
@@ -191,10 +240,21 @@ private:
         }
     }
 
-
-
-
 protected:
+
+    /**
+     * Calculate the solution to the ODE system at the next timestep.
+     * 
+     * A usage example:
+     *     BackwardEulerIvpOdeSolver mySolver;
+     *     OdeSolution solution = mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, TimeStep, SamplingTime);
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param nextYValues  the state at the next timestep
+     */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                              double timeStep,
                              double time,
@@ -241,6 +301,12 @@ protected:
     }
 
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param sizeOfOdeSystem  the number of state variables in the ODE system
+     */
     BackwardEulerIvpOdeSolver(unsigned sizeOfOdeSystem)
     {
         mSizeOfOdeSystem = sizeOfOdeSystem;
@@ -260,9 +326,12 @@ public:
         }
     }
 
+    /**
+     * Destructor.
+     */
     ~BackwardEulerIvpOdeSolver()
     {
-        // delete pointers
+        // Delete pointers
         delete[] mResidual;
         delete[] mUpdate;
 
@@ -273,14 +342,21 @@ public:
         delete[] mJacobian;
     }
 
+    /**
+     * Set the epsilon to use in calculating the 
+     * numerical Jacobian of the ODE system.
+     * 
+     * @param epsilon
+     */
     void SetEpsilonForNumericalJacobian(double epsilon)
     {
         assert(epsilon > 0);
         mNumericalJacobianEpsilon = epsilon;
     }
 
-    /** Force the solver to use the numerical Jacobian even if the
-     *  ode system is one with an analytical jacobian provided
+    /**
+     * Force the solver to use the numerical Jacobian even if 
+     * the ODE system object provides an analytical Jacobian.
      */
     void ForceUseOfNumericalJacobian()
     {

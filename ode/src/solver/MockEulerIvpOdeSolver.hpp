@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _MOCKEULERIVPODESOLVER_HPP_
 #define _MOCKEULERIVPODESOLVER_HPP_
 
@@ -34,18 +33,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This 'mock' class is only used in testing. It is the same
- * as the EulerIvpOdeSolver, but also keeps a count of how many
- * times it has been called. This is useful to check ode solving
- * has been parallelised.
+ * as the EulerIvpOdeSolver class, but also keeps a count of 
+ * how many times it has been called. This is useful to check 
+ * ODE solving has been parallelised correctly.
  */
-
-
 class MockEulerIvpOdeSolver : public EulerIvpOdeSolver
 {
 private:
+
+    /** How many times the ODE solver has been called. */
     unsigned mCallCount;
 
 protected:
+
     virtual void InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
                                std::vector<double>& rCurrentYValues,
                                std::vector<double>& rWorkingMemory,
@@ -54,10 +54,22 @@ protected:
                                double timeStep);
 
 public:
+
+    /**
+     * Constructor.
+     */
     MockEulerIvpOdeSolver();
 
+    /**
+     * Get the number of times the ODE solver has been called.
+     * 
+     * @return mCallCount.
+     */
     unsigned GetCallCount();
 
+    /**
+     * Destructor.
+     */
     virtual ~MockEulerIvpOdeSolver()
     {}
 

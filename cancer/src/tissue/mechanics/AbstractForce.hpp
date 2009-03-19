@@ -90,7 +90,7 @@ AbstractForce<DIM>::~AbstractForce()
 namespace boost
 {
 namespace serialization
-{
+{   
 /**
  * Since this abstract class is templated, we cannot use 
  * the preprocessor macro BOOST_IS_ABSTRACT, and instead 
@@ -99,8 +99,10 @@ namespace serialization
 template<unsigned DIM>
 struct is_abstract<AbstractForce<DIM> >
 {
+    /** The type that is an abstract class. */
     typedef mpl::bool_<true> type;
-        BOOST_STATIC_CONSTANT(bool, value = true);
+    /** The type is an abstract class, so value=true. */
+    BOOST_STATIC_CONSTANT(bool, value=true);
 };
 }
 }

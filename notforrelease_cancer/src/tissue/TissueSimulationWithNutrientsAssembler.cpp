@@ -95,6 +95,12 @@ void TissueSimulationWithNutrientsAssembler<DIM>::IncrementInterpolatedQuantitie
     mLinearInUCoeffInSourceTerm += phiI * this->mpEllipticPde->ComputeLinearInUCoeffInSourceTermAtNode(*pNode);
 }
 
+/**
+ * Helper structure that defines typedefs specifying where in the 
+ * hierarchy of assembler classes various methods are defined, so 
+ * that we can avoid virtual method overhead by setting which method 
+ * is called at compile time.
+ */
 template<unsigned DIM>
 struct AssemblerTraits<TissueSimulationWithNutrientsAssembler<DIM> >
 {

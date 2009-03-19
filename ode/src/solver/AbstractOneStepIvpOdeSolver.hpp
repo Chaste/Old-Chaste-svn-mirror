@@ -26,31 +26,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-/**
- * Abstract One Step Ode Solver class. Sets up variables and functions for all the ODE solvers
- * that only have one timestep.
-*/
 #ifndef _ABSTRACTONESTEPIVPODESOLVER_HPP_
 #define _ABSTRACTONESTEPIVPODESOLVER_HPP_
 
 #include "AbstractIvpOdeSolver.hpp"
 
+/**
+ * Abstract one-step initial value problem ODE solver class. Sets up variables and functions 
+ * for all the ODE solvers that only have one timestep.
+*/
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
 private:
+
     /**
      * Working memory
      */
     std::vector<double> mWorkingMemory;
 
 protected:
+
     /**
      * Method that actually performs the solving on behalf of the public Solve methods.
      *
-     * @param pAbstractOdeSystem  the system to solve
+     * @param pAbstractOdeSystem  the ODE system to solve
      * @param rCurrentYValues  the current (initial) state; results will also be returned
-     *     in here
+     *                         in here
      * @param rWorkingMemory  working memory; same size as rCurrentYValues
      * @param startTime  initial time
      * @param endTime  time to solve to
@@ -64,7 +65,14 @@ protected:
                                double timeStep);
 
     /**
-     * Calculate the next time step.  Concrete subclasses should provide this method.
+     * Calculate the solution to the ODE system at the next timestep.
+     * Concrete subclasses should provide this method.
+     * 
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param timeStep  dt
+     * @param time  the current time
+     * @param rCurrentYValues  the current (initial) state
+     * @param nextYValues  the state at the next timestep
      */
     virtual void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                      double timeStep,
@@ -73,37 +81,32 @@ protected:
                                      std::vector<double>& nextYValues)=0;
 
 public:
+
     /**
-     * Solves a system of ODEs using a specified one-step ODE solver
+     * Solves a system of ODEs using a specified one-step ODE solver and returns 
+     * the solution as an OdeSolution object.
+     * 
+     * An example, which returns the solution every 0.1 seconds using dt=0.01:
      *
-     * @param pAbstractOdeSystem points to the concrete ODE system to be solved
-     *
-     * @param rYValues a standard vector specifying the intial condition
-     * of each solution variable in the system (this can be the initial
-     * conditions vector stored in the ode system)
-     *
-     * @param startTime the time at which the initial conditions are specified
-     *
-     * @param endTime the time to which the system should be solved and the solution
-     * returned
-     *
-     * @param timeStep the time interval to be used by the solver
-     *
-     * @param timeSampling the times at which the solution is returned
-     *
+     *     MyOdeSystem ode;
+     *     std::vector<double> init_cond = ode_system.GetInitialConditions();
+     *     OdeSolution solution = solver.Solve(&ode, init_cond, 0, 1, 0.01, 0.1);
+     * 
+     * 
+     * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
+     * @param rYValues  a standard vector specifying the intial condition of each 
+     *                  solution variable in the system (this can be the initial 
+     *                  conditions vector stored in the ODE system)
+     * @param startTime  the time at which the initial conditions are specified
+     * @param endTime  the time to which the system should be solved and the solution 
+     *                 returned
+     * @param timeStep  the time interval to be used by the solver
+     * @param timeSampling  the interval at which to sample the solution to the ODE system
+     * 
      * @return OdeSolution is an object containing an integer of the number of
-     * equations, a std::vector of times and a std::vector of std::vectors where
+     * equations, a stdAbstractOdeSystem::vector of times and a std::vector of std::vectors where
      * each of those vectors contains the solution for one variable of the ODE
      * system at those times.
-     *
-     * EXAMPLE, which returns the solution every 0.1 seconds using dt=0.01:
-     *
-     * MyOdeSystem ode;
-     *
-     * std::vector<double> init_cond = ode_system.GetInitialConditions();
-     *
-     * OdeSolution solution = solver.Solve(&ode, init_cond, 0, 1, 0.01, 0.1);
-     *
      */
     virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
                               std::vector<double>& rYValues,
@@ -112,34 +115,27 @@ public:
                               double timeStep,
                               double timeSampling);
 
-
     /**
-     * Second version of Solve. See comments for the first version of Solve.
-     * This method does not return the solution and therefore does not take
-     * in a sampling time. Instead, the mStateVariables component in the
-     * ode object is updated.
+     * Second version of Solve. Solves a system of ODEs using a specified one-step 
+     * ODE solver. This method does not return the solution and therefore does not 
+     * take in a sampling time. Instead, the mStateVariables component in the ODE 
+     * system object is updated.
      *
-     * @param pAbstractOdeSystem points to the concrete ODE system to be solved
+     * An example:
      *
-     * @param rYValues a standard vector specifying the intial condition
-     * of each solution variable in the system (this can be the initial
-     * conditions vector stored in the ode system)
-     *
-     * @param startTime the time at which the initial conditions are specified
-     *
-     * @param endTime the time to which the system should be solved and the solution
-     * returned
-     *
-     * @param timeStep the time interval to be used by the solver
-     *
-     * EXAMPLE:
-     *
-     * std::vector<double> init_cond = ode_system.GetInitialConditions();
-     *
-     * solver.Solve(&ode, init_cond, 0, 1, 0.01);
-     *
-     * state_variables = ode_system.rGetStateVariables(); // solution at t=1 found here
-     *
+     *     std::vector<double> init_cond = ode_system.GetInitialConditions();
+     *     solver.Solve(&ode, init_cond, 0, 1, 0.01);
+     *     state_variables = ode_system.rGetStateVariables(); // solution at t=1 found here
+     * 
+     * 
+     * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
+     * @param rYValues  a standard vector specifying the intial condition of each 
+     *                  solution variable in the system (this can be the initial 
+     *                  conditions vector stored in the ODE system)
+     * @param startTime  the time at which the initial conditions are specified
+     * @param endTime  the time to which the system should be solved and the solution 
+     *                 returned
+     * @param timeStep  the time interval to be used by the solver
      */
     virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem,
                        std::vector<double>& rYValues,
@@ -147,6 +143,9 @@ public:
                        double endTime,
                        double timeStep);
 
+    /**
+     * Virtual destructor since we have virtual methods.
+     */
     virtual ~AbstractOneStepIvpOdeSolver()
     {}
 };

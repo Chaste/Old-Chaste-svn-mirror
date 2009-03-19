@@ -47,6 +47,7 @@ template <class ODE_SYSTEM>
 class OdeSystemInformation : public AbstractOdeSystemInformation
 {
 private:
+
     /**
      * The single instance of this class, for this ODE_SYSTEM.
      * 
@@ -56,6 +57,7 @@ private:
     static boost::shared_ptr<OdeSystemInformation<ODE_SYSTEM> > mpInstance;
     
 protected:
+
     /**
      * Default constructor.
      * 
@@ -63,7 +65,15 @@ protected:
      * method.
      */
     OdeSystemInformation();
+
+    /**
+     * Copy constructor.
+     */
     OdeSystemInformation(const OdeSystemInformation<ODE_SYSTEM>&);
+
+    /**
+     * Overloaded assignement operator.
+     */
     OdeSystemInformation& operator= (const OdeSystemInformation<ODE_SYSTEM>&);
     
     /**
@@ -84,10 +94,12 @@ void OdeSystemInformation<MyNewOdeSystem>::Initialise(void)
     void Initialise(void);
     
 public:
+
     /**
      * Return a pointer to the singleton instance, creating it if necessary.
      */
     static boost::shared_ptr<OdeSystemInformation<ODE_SYSTEM> > Instance();
+
 };
 
 

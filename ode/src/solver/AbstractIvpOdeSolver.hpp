@@ -26,11 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-/**
- * Abstract IvpOdeSolver class. Sets up variables and functions for a numerical solution
- * technique for an initial value ODE problem.
-*/
 #ifndef _ABSTRACTIVPODESOLVER_HPP_
 #define _ABSTRACTIVPODESOLVER_HPP_
 
@@ -39,36 +34,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+/**
+ * Abstract initial value problem ODE solver class. Sets up variables and functions 
+ * for a numerical solution technique for an initial value ODE problem.
+ */
 class AbstractIvpOdeSolver
 {
 protected :
+
     /**
-     * boolean indicating whether the solver quit due to the ODEs
+     * Boolean indicating whether the solver quit due to the ODEs
      * stopping event occuring
      */
     bool mStoppingEventOccurred;
 
-    /** if a stopping event occurred the time is stored here */
+    /** If a stopping event occurred the time is stored here */
     double mStoppingTime;
 
-
 public :
+
     /**
-     * Solves a system of ODEs using a specified one-step ODE solver
+     * Solves a system of ODEs using a specified one-step ODE solver and returns 
+     * the solution as an OdeSolution object.
      *
-     * @param pAbstractOdeSystem points to the concrete ODE system to be solved
-     * @param startTime the time at which the initial conditions are specified
-     * @param endTime the time to which the system should be solved and the solution
-     * returned
-     * @param timeStep the time interval to be used by the solver
-     * @param initialConditions a standard vector specifying the intial condition
-     * of each solution variable in the system.
-     *
+     * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
+     * @param rYValues  a standard vector specifying the intial condition of each 
+     *                  solution variable in the system (this can be the initial 
+     *                  conditions vector stored in the ODE system)
+     * @param startTime  the time at which the initial conditions are specified
+     * @param endTime  the time to which the system should be solved and the solution 
+     *                 returned
+     * @param timeStep  the time interval to be used by the solver
+     * @param timeSampling  the interval at which to sample the solution to the ODE system
+     * 
      * @return OdeSolution is an object containing an integer of the number of
      * equations, a stdAbstractOdeSystem::vector of times and a std::vector of std::vectors where
      * each of those vectors contains the solution for one variable of the ODE
      * system at those times.
-     *
      */
     virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
                               std::vector<double>& rYValues,
@@ -77,13 +79,37 @@ public :
                               double timeStep,
                               double timeSampling)=0;
 
+    /**
+     * Second version of Solve. Solves a system of ODEs using a specified one-step 
+     * ODE solver. This method does not return the solution and therefore does not 
+     * take in a sampling time. Instead, the mStateVariables component in the ODE 
+     * system object is updated.
+     *
+     * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
+     * @param rYValues  a standard vector specifying the intial condition of each 
+     *                  solution variable in the system (this can be the initial 
+     *                  conditions vector stored in the ODE system)
+     * @param startTime  the time at which the initial conditions are specified
+     * @param endTime  the time to which the system should be solved and the solution 
+     *                 returned
+     * @param timeStep  the time interval to be used by the solver
+     */
     virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem,
                        std::vector<double>& rYValues,
                        double startTime,
                        double endTime,
                        double timeStep)=0;
 
-
+    /**
+     * Solves a system of ODEs using a specified one-step ODE solver and update the 
+     * state variables.
+     *
+     * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
+     * @param startTime  the time at which the initial conditions are specified
+     * @param endTime  the time to which the system should be solved and the solution 
+     *                 returned
+     * @param timeStep  the time interval to be used by the solver
+     */
     virtual void SolveAndUpdateStateVariable(AbstractOdeSystem* pAbstractOdeSystem,
                                              double startTime,
                                              double endTime,
@@ -92,12 +118,10 @@ public :
         if ((pAbstractOdeSystem->rGetStateVariables().size()!=pAbstractOdeSystem->GetNumberOfStateVariables())
             || (pAbstractOdeSystem->rGetStateVariables().size()==0) )
         {
-            EXCEPTION("SolveAndUpdateStateVariable() called but the state variable vector in the ode system is not set up");
+            EXCEPTION("SolveAndUpdateStateVariable() called but the state variable vector in the ODE system is not set up");
         }
         Solve(pAbstractOdeSystem, pAbstractOdeSystem->rGetStateVariables(), startTime, endTime, timeStep);
     }
-
-
 
     /**
      * Determine whether the solver quit due to the ODE's stopping event
@@ -108,18 +132,29 @@ public :
         return mStoppingEventOccurred;
     }
 
+    /**
+     * Get the stopping time for the solver.
+     * 
+     * @return mStoppingTime.
+     */
     double GetStoppingTime()
     {
         return mStoppingTime;
     }
 
+    /**
+     * Constructor.
+     */
     AbstractIvpOdeSolver()
             : mStoppingEventOccurred(false)
     {}
 
-
+    /**
+     * Virtual destructor since we have virtual methods.
+     */
     virtual ~AbstractIvpOdeSolver()
     {}
+
 };
 
 #endif //_ABSTRACTIVPODESOLVER_HPP_

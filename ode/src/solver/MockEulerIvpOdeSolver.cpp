@@ -26,9 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
 #include "MockEulerIvpOdeSolver.hpp"
 
 MockEulerIvpOdeSolver::MockEulerIvpOdeSolver() : EulerIvpOdeSolver()
@@ -40,7 +37,6 @@ unsigned MockEulerIvpOdeSolver::GetCallCount()
 {
     return mCallCount;
 }
-
 
 void MockEulerIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
                                           std::vector<double>& rCurrentYValues,

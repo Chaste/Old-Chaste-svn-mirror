@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class DistributedVector
 {
 private:
+
     // Data global to all vectors.
     /** The first entry owned by the current processor. */
     static unsigned mLo;
@@ -173,9 +174,9 @@ public:
     class Stripe
     {
     public:
-        unsigned mStride;
-        unsigned mStripe;
-        double *mpVec;
+        unsigned mStride; /**< How many processors own parts of this vector. */
+        unsigned mStripe; /**< The number of this stripe within the vector starting from 0. */
+        double *mpVec;    /**< The local part of the underlying PETSc vector. */
 
        /**
         * Constructor.
@@ -192,11 +193,12 @@ public:
         }
 
        /**
-        * Access a particular element of the stripe if on this processor
+        * Access a particular element of the stripe if on this processor.
+        * For use in tests. Will throw a DistributedVectorException if 
+        * the specified element is not on this process.
+        *  
         * @param globalIndex index within the stripe
         * @return value of striped vector
-        * For use in tests.
-        * Will throw a DistributedVectorException if the specified element is not on this process.
         */
         double& operator[](unsigned globalIndex) throw (DistributedVectorException)
         {
@@ -228,12 +230,12 @@ public:
     class Chunk
     {
     public:
-        //unsigned mChunk;
-        unsigned mOffset;  /**< The start of this chunk within the locally-owned part of the vector. */
-        double *mpVec;
+        unsigned mOffset; /**< The start of this chunk within the locally-owned part of the vector. */
+        double *mpVec;    /**< The local part of the underlying PETSc vector. */
 
         /**
-         * Constructor
+         * Constructor.
+         * 
          * @param parallelVec chunked vector
          * @param chunk number of this chunk within the vector starting from 0
          */
@@ -245,11 +247,12 @@ public:
         }
 
        /**
-        * Access a particular element of the chunk if on this processor
+        * Access a particular element of the chunk if on this processor.
+        * For use in tests. Will throw a DistributedVectorException if 
+        * the specified element is not on this process.
+        * 
         * @param globalIndex index within the chunk
         * @return value of striped vector
-        * For use in tests.
-        * Will throw a DistributedVectorException if the specified element is not on this process.
         */
         double& operator[](unsigned globalIndex) throw (DistributedVectorException)
         {

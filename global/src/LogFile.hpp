@@ -67,22 +67,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class LogFile
 {
 private:
-    /** the static single instance */
+
+    /** The static single instance. */
     static LogFile* mpInstance;
-    /** whether a directory and filename has been set */
+
+    /** Whether a directory and filename has been set. */
     bool mFileSet;
-    /** the file to be written to */
+
+    /** The file to be written to. */
     out_stream mpOutStream;
 
+    /** The current current calendar time. */
     time_t mInitTime;
 
-    /** the level of logging required for this particular log file */
+    /** The level of logging required for this particular log file. */
     unsigned mLevel;
 
-    /** the max level of logging */
+    /** The max level of logging. */
     static const unsigned mMaxLoggingLevel = 2;
 
-    /** the precision with which to output data */
+    /** The precision with which to output data. */
     unsigned mPrecision;
 
     /**
@@ -91,11 +95,15 @@ private:
     LogFile();
 
 public:
+
     /**
      *  Get the single instance of the LogFile object.
      */
     static LogFile* Instance();
 
+    /**
+     *  Get the logging level.
+     */
     static unsigned Level();
 
     /**
@@ -116,7 +124,9 @@ public:
      */
     void Set(unsigned level, std::string directory, std::string fileName="log.txt");
 
-    /** Get the maximum allowed logging level */
+    /**
+     *  Get the maximum allowed logging level.
+     */
     static unsigned MaxLoggingLevel();
     
     /**
@@ -155,7 +165,9 @@ public:
 
     /**
      *  Overloaded << operator, to write to the log file, if one has been set, and
-     *  does nothing if not
+     *  does nothing if not.
+     * 
+     *  @param message the message to write to the log file
      */
     template <class T>
     LogFile& operator<<(T message)
@@ -170,7 +182,7 @@ public:
 };
 
 
-// define the log macro
+// Define the log macro
 #define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message << "\n"; }
 #define LOG_AND_COUT(level, message) {std::cout << message << std::endl << std::flush; LOG(level, message); }
 

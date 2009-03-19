@@ -26,14 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "TimeStepper.hpp"
 #include <cassert>
 #include <cmath>
 
-
-const double smidge=1e-10;
+const double smidge = 1e-10;
 
 OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
                                                std::vector<double>& rYValues,
@@ -106,7 +104,6 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     // And solve...
     InternalSolve(pOdeSystem, rYValues, mWorkingMemory, startTime, endTime, timeStep);
 }
-
 
 void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pOdeSystem,
                                                 std::vector<double>& rYValues,

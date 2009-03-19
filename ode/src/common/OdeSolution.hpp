@@ -44,25 +44,46 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class OdeSolution
 {
 private:
-    unsigned mNumberOfTimeSteps;    /**< Variable for the number of timesteps */
 
-    std::vector<double> mTimes; /**< A vector of times at each timestep. */
-    std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */
+    /** Variable for the number of timesteps. */
+    unsigned mNumberOfTimeSteps;
+
+    /** A vector of times at each timestep. */
+    std::vector<double> mTimes;
+
+    /** Solutions for each variable at each timestep. */
+    std::vector<std::vector<double> > mSolutions;
 
 public:
 
+    /**
+     * Get the number of timesteps.
+     * 
+     * @return mNumberOfTimeSteps
+     */
     unsigned GetNumberOfTimeSteps(void)
     {
         return mNumberOfTimeSteps;
     }
 
-    void SetNumberOfTimeSteps(unsigned num_timesteps)
+    /**
+     * Get the number of timesteps.
+     * 
+     * @param numTimeSteps the number of timesteps to use
+     */
+    void SetNumberOfTimeSteps(unsigned numTimeSteps)
     {
-        mNumberOfTimeSteps = num_timesteps;
-        mTimes.reserve(num_timesteps+1);
-        mSolutions.reserve(num_timesteps+1);
+        mNumberOfTimeSteps = numTimeSteps;
+        mTimes.reserve(numTimeSteps+1);
+        mSolutions.reserve(numTimeSteps);
     }
 
+    /**
+     * Get the values of a state variable with a given index in 
+     * the ODE system at each timestep.
+     * 
+     * @param index  the index of the state variable in the system
+     */
     std::vector<double> GetVariableAtIndex(unsigned index)
     {
         std::vector<double> answer;
@@ -74,37 +95,53 @@ public:
         return answer;
     }
 
+    /**
+     * Get the times at which the solution to the ODE system is stored.
+     * 
+     * @return mTimes.
+     */
     std::vector<double>& rGetTimes()
     {
         return mTimes;
     }
 
+    /**
+     * Get the values of the solution to the ODE system at each timestep.
+     * 
+     * @return mSolutions.
+     */
     std::vector<std::vector<double> >& rGetSolutions()
     {
         return mSolutions;
     }
 
-
     /**
-     *  Write the data to a file.
-     *   @param pOdeSystem The ode system solved to obtain these results (needed for variable
-     *    names and units).
+     * Write the data to a file.
+     * 
+     * @param directoryName  the directory in which to write the data to file
+     * @param baseResultsFilename  the name of the file in which to write the data
+     * @param pOdeSystem  pointer to the ODE system solved to obtain these results 
+     *                     (needed for state variable names and units)
+     * @param timeUnites  name of the units of time used
+     * @param stepsPerRow  the solution to the ODE system is written to file every 
+     *                    this number of timesteps (defaults to 1)
+     * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
     void WriteToFile(std::string directoryName,
                      std::string baseResultsFilename,
                      AbstractOdeSystem* pOdeSystem,
                      std::string timeUnits,
-                     unsigned stepPerRow = 1,
+                     unsigned stepsPerRow = 1,
                      bool cleanDirectory = true)
     {
-        assert(stepPerRow > 0);
-        assert(mTimes.size()>0);
-        assert(mTimes.size()==mSolutions.size());
+        assert(stepsPerRow > 0);
+        assert(mTimes.size() > 0);
+        assert(mTimes.size() == mSolutions.size());
 
         // Write data to a file using ColumnDataWriter
-        ColumnDataWriter writer(directoryName,baseResultsFilename,cleanDirectory);
+        ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory);
 
-        int time_var_id = writer.DefineUnlimitedDimension("Time",timeUnits);
+        int time_var_id = writer.DefineUnlimitedDimension("Time", timeUnits);
 
         // Either: the ODE system should have no names&units defined, or it should
         // the same number as the number of solutions per timestep.
@@ -115,7 +152,7 @@ public:
 
         std::vector<int> var_ids;
         var_ids.reserve(num_vars);
-        if(pOdeSystem->rGetVariableNames().size() > 0)
+        if (pOdeSystem->rGetVariableNames().size() > 0)
         {
             for (unsigned i=0; i<num_vars; i++)
             {
@@ -128,14 +165,14 @@ public:
             for (unsigned i=0; i<num_vars; i++)
             {
                 std::stringstream string_stream;
-                string_stream << "var_"<< i;
-                var_ids.push_back(writer.DefineVariable(string_stream.str(),""));
+                string_stream << "var_" << i;
+                var_ids.push_back(writer.DefineVariable(string_stream.str(), ""));
             }
         }
 
         writer.EndDefineMode();
 
-        for (unsigned i=0; i<mSolutions.size(); i+=stepPerRow)
+        for (unsigned i=0; i<mSolutions.size(); i+=stepsPerRow)
         {
             writer.PutVariable(time_var_id, mTimes[i]);
             for (unsigned j=0; j<var_ids.size(); j++)
