@@ -32,41 +32,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "Hdf5DataWriter.hpp"
 
-
-using std::string;
-
-/**
-* Constructs a new instance, setting the basename for output files and
-* destination directory.
-*
-*/
-Hdf5DataWriter::Hdf5DataWriter(string directory, string baseName, bool cleanDirectory) :
-        mDirectory(directory),
-        mBaseName(baseName),
-        mCleanDirectory(cleanDirectory),
-        mIsInDefineMode(true),
-        mIsFixedDimensionSet(false),
-        mIsUnlimitedDimensionSet(false),
-        mFileFixedDimensionSize(0U),
-        mDataFixedDimensionSize(0U),
-        mLo(0U),
-        mHi(0U),
-        mNumberOwned(0U),
-        mOffset(0U),
-        mIsDataComplete(true),
-        mNeedExtend(false),
-        mCurrentTimeStep(0)
+Hdf5DataWriter::Hdf5DataWriter(std::string directory, std::string baseName, bool cleanDirectory)
+    : mDirectory(directory),
+      mBaseName(baseName),
+      mCleanDirectory(cleanDirectory),
+      mIsInDefineMode(true),
+      mIsFixedDimensionSet(false),
+      mIsUnlimitedDimensionSet(false),
+      mFileFixedDimensionSize(0u),
+      mDataFixedDimensionSize(0u),
+      mLo(0u),
+      mHi(0u),
+      mNumberOwned(0u),
+      mOffset(0u),
+      mIsDataComplete(true),
+      mNeedExtend(false),
+      mCurrentTimeStep(0)
 {
     int my_rank;
 
     MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
     if (my_rank==0)
     {
-        mAmMaster=true;
+        mAmMaster = true;
     }
     else
     {
-        mAmMaster=false;
+        mAmMaster = false;
     }
 }
 
@@ -74,13 +66,6 @@ Hdf5DataWriter::~Hdf5DataWriter()
 {
 }
 
-/**
-*
-*  Define the fixed dimension, assuming complete data output (all the nodes)
-*
-*  @param dimensionSize The size of the dimension
-*
-*/
 void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
 {
     if (!mIsInDefineMode)
@@ -96,23 +81,15 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
         EXCEPTION("Fixed dimension already set");
     }
 
-    /* Work out the ownership details */
+    // Work out the ownership details
     mLo = DistributedVector::Begin().Global;
     mHi = DistributedVector::End().Global;
-    mNumberOwned=mHi-mLo;
-    mOffset=mLo;
+    mNumberOwned = mHi - mLo;
+    mOffset = mLo;
     mFileFixedDimensionSize = dimensionSize;
     mDataFixedDimensionSize = dimensionSize;
     mIsFixedDimensionSet = true;
 }
-
-/**
- *
- * Define the fixed dimension, assuming incomplete data ouput (subset of the nodes)
- *
- * @param nodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
- *
- */
 
 void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, long vecSize)
 {
@@ -136,33 +113,24 @@ void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, lo
     mFileFixedDimensionSize = vector_size;
     mIsDataComplete = false;
     mIncompleteNodeIndices = nodesToOuput;
+    mOffset = 0;
+    mNumberOwned = 0;
 
-    mOffset=0;
-    mNumberOwned=0;
-    //Compute the offset for writing the data
-    for (unsigned i=0;i<mIncompleteNodeIndices.size();i++)
+    // Compute the offset for writing the data
+    for (unsigned i=0; i<mIncompleteNodeIndices.size(); i++)
     {
         if (mIncompleteNodeIndices[i] < mLo)
         {
             mOffset++;
         }
-        else if(mIncompleteNodeIndices[i] < mHi)
+        else if (mIncompleteNodeIndices[i] < mHi)
         {
             mNumberOwned++;
         }
      }
 }
 
-/**
-*
-*  Define a variable.
-*
-*  @param variableName The name of the dimension
-*  @param variableUnits The physical units of the dimension
-*
-*  @return The identifier of the variable
-*/
-int Hdf5DataWriter::DefineVariable(string variableName, string variableUnits)
+int Hdf5DataWriter::DefineVariable(std::string variableName, std::string variableUnits)
 {
     if (!mIsInDefineMode)
     {
@@ -186,15 +154,15 @@ int Hdf5DataWriter::DefineVariable(string variableName, string variableUnits)
     new_variable.mVariableUnits = variableUnits;
     int variable_id;
 
-    //add the variable to the variable vector
+    // Add the variable to the variable vector
     mVariables.push_back(new_variable);
-    //use the index of the variable vector as the variable ID.
-    //this is ok since there is no way to remove variables.
-    variable_id = mVariables.size()-1;
+
+    // Use the index of the variable vector as the variable ID.
+    // This is ok since there is no way to remove variables.
+    variable_id = mVariables.size() - 1;
 
     return variable_id;
 }
-
 
 void Hdf5DataWriter::CheckVariableName(std::string name)
 {
@@ -245,7 +213,6 @@ void Hdf5DataWriter::EndDefineMode()
     mFileId = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, property_list_id);
     H5Pclose(property_list_id);
 
-
     /*
      *  Create "Data" dataset
      */
@@ -254,10 +221,10 @@ void Hdf5DataWriter::EndDefineMode()
     mDatasetDims[1] = mFileFixedDimensionSize;
     mDatasetDims[2] = mVariables.size();
 
-    hsize_t* max_dims=NULL;
+    hsize_t* max_dims = NULL;
     hsize_t dataset_max_dims[DATASET_DIMS]; // dataset max dimensions
 
-    hid_t cparms=H5P_DEFAULT;
+    hid_t cparms = H5P_DEFAULT;
 
     if (mIsUnlimitedDimensionSet)
     {
@@ -274,34 +241,35 @@ void Hdf5DataWriter::EndDefineMode()
 
     hid_t filespace = H5Screate_simple(DATASET_DIMS, mDatasetDims, max_dims);
 
-    // Create the dataset and close filespace.
+    // Create the dataset and close filespace
     mDatasetId = H5Dcreate(mFileId, "Data", H5T_NATIVE_DOUBLE, filespace, cparms);
     H5Sclose(filespace);
 
     // Create dataspace for the name, unit attribute
-    const unsigned MAX_STRING_SIZE=100;
+    const unsigned MAX_STRING_SIZE = 100;
     hsize_t columns[1] = {mVariables.size()};
     hid_t colspace = H5Screate_simple(1, columns, NULL);
 
-    //Create attribute for variable names
+    // Create attribute for variable names
     char* col_data = (char*) malloc(mVariables.size() * sizeof(char) * MAX_STRING_SIZE);
 
     char* col_data_offset = col_data;
     for (unsigned var=0; var<mVariables.size(); var++)
     {
-        std::string full_name = mVariables[var].mVariableName + "("+mVariables[var].mVariableUnits+")";
+        std::string full_name = mVariables[var].mVariableName + "(" + mVariables[var].mVariableUnits + ")";
         strcpy (col_data_offset, full_name.c_str());
         col_data_offset += sizeof(char) * MAX_STRING_SIZE;
     }
 
-    // create the type 'string'
+    // Create the type 'string'
     hid_t string_type = H5Tcopy(H5T_C_S1);
     H5Tset_size(string_type, MAX_STRING_SIZE );
-    hid_t attr = H5Acreate(mDatasetId, "Variable Details", string_type, colspace, H5P_DEFAULT  );
+    hid_t attr = H5Acreate(mDatasetId, "Variable Details", string_type, colspace, H5P_DEFAULT);
+
     // Write to the attribute
     H5Awrite(attr, string_type, col_data);
 
-    //Close dataspace & attribute
+    // Close dataspace & attribute
     free(col_data);
     H5Sclose(colspace);
     H5Aclose(attr);
@@ -309,7 +277,7 @@ void Hdf5DataWriter::EndDefineMode()
     // Create "boolean" attribute telling the data to be incomplete or not
     columns[0] = 1;
     colspace = H5Screate_simple(1, columns, NULL);
-    attr = H5Acreate(mDatasetId, "IsDataComplete", H5T_NATIVE_UINT, colspace, H5P_DEFAULT  );
+    attr = H5Acreate(mDatasetId, "IsDataComplete", H5T_NATIVE_UINT, colspace, H5P_DEFAULT);
 
     // Write to the attribute - note that the native boolean is not predictable
     unsigned is_data_complete= mIsDataComplete ? 1 : 0;
@@ -320,11 +288,11 @@ void Hdf5DataWriter::EndDefineMode()
 
     if (!mIsDataComplete)
     {
-        //We need to write a map
+        // We need to write a map
         // Create "unsigned" attribute with the map
         columns[0] = mFileFixedDimensionSize;
         colspace = H5Screate_simple(1, columns, NULL);
-        attr = H5Acreate(mDatasetId, "NodeMap", H5T_NATIVE_UINT, colspace, H5P_DEFAULT  );
+        attr = H5Acreate(mDatasetId, "NodeMap", H5T_NATIVE_UINT, colspace, H5P_DEFAULT);
 
         // Write to the attribute
         H5Awrite(attr, H5T_NATIVE_UINT, &mIncompleteNodeIndices[0]);
@@ -332,7 +300,6 @@ void Hdf5DataWriter::EndDefineMode()
         H5Sclose(colspace);
         H5Aclose(attr);
     }
-
 
     /*
      *  Create "Time" dataset
@@ -369,7 +336,6 @@ void Hdf5DataWriter::EndDefineMode()
         H5Aclose(unit_attr);
         H5Sclose(time_filespace);
     }
-
 }
 
 void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
@@ -387,7 +353,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
         EXCEPTION("Vector size doesn't match fixed dimension");
     }
 
-    //Make sure that everything is actually extended to the correct dimension.
+    // Make sure that everything is actually extended to the correct dimension.
     PossiblyExtend();
 
     // Define a dataset in memory for this process
@@ -397,7 +363,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
         hsize_t v_size[1] = {mNumberOwned};
         memspace = H5Screate_simple(1, v_size, NULL);
     }
-    // Select hyperslab in the file.
+    // Select hyperslab in the file
     hsize_t count[DATASET_DIMS] = {1, mNumberOwned, 1};
     hsize_t offset_dims[DATASET_DIMS] = {mCurrentTimeStep, mOffset, variableID};
     hid_t file_dataspace = H5Dget_space(mDatasetId);
@@ -417,7 +383,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     }
     else
     {
-        //Make a local copy of the data you own
+        // Make a local copy of the data you own
         double local_data[mNumberOwned];
         for (unsigned i=0;i<mNumberOwned;i++)
         {
@@ -446,7 +412,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
 
     int NUM_STRIPES=2;
 
-    // currently the method only works with consecutive columns, can be extended if needed.
+    // Currently the method only works with consecutive columns, can be extended if needed
     if (secondVariableID-firstVariableID != 1)
     {
         EXCEPTION("Columns should be consecutive. Try reordering them.");
@@ -460,7 +426,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
         EXCEPTION("Vector size doesn't match fixed dimension");
     }
 
-    //Make sure that everything is actually extended to the correct dimension.
+    // Make sure that everything is actually extended to the correct dimension
     PossiblyExtend();
 
     // Define a dataset in memory for this process
@@ -471,7 +437,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
         memspace = H5Screate_simple(1, v_size, NULL);
     }
 
-    // Select hyperslab in the file.
+    // Select hyperslab in the file
     hsize_t start[DATASET_DIMS] = {mCurrentTimeStep, mOffset, firstVariableID};
     hsize_t stride[DATASET_DIMS] = {1, 1, secondVariableID-firstVariableID};
     hsize_t block_size[DATASET_DIMS] = {1, mNumberOwned, 1};
@@ -480,7 +446,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     hid_t hyperslab_space = H5Dget_space(mDatasetId);
     H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, start, stride, number_blocks, block_size);
 
-    // Create property list for collective dataset write, and write!  Finally.
+    // Create property list for collective dataset write, and write! Finally.
     hid_t property_list_id = H5Pcreate(H5P_DATASET_XFER);
     H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
 
@@ -493,7 +459,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     }
     else
     {
-        //Make a local copy of the data you own
+        // Make a local copy of the data you own
         double local_data[mNumberOwned*NUM_STRIPES];
         for (unsigned i=0;i<mNumberOwned;i++)
         {
@@ -508,7 +474,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     VecRestoreArray(petscVector, &p_petsc_vector);
 
     H5Sclose(hyperslab_space);
-    if (mNumberOwned !=0)
+    if (mNumberOwned != 0)
     {
         H5Sclose(memspace);
     }
@@ -522,18 +488,18 @@ void Hdf5DataWriter::PutUnlimitedVariable(double value)
         EXCEPTION("Cannot write data while in define mode.");
     }
 
-    if(!mIsUnlimitedDimensionSet)
+    if (!mIsUnlimitedDimensionSet)
     {
         EXCEPTION("PutUnlimitedVariable() called but no unlimited dimension has been set");
     }
 
     // This data is only written by the master
-    if(!mAmMaster)
+    if (!mAmMaster)
     {
         return;
     }
 
-    //Make sure that everything is actually extended to the correct dimension.
+    // Make sure that everything is actually extended to the correct dimension.
     PossiblyExtend();
 
     hsize_t size[1] = {1};
@@ -551,12 +517,11 @@ void Hdf5DataWriter::PutUnlimitedVariable(double value)
     H5Sclose(memspace);
 }
 
-
 void Hdf5DataWriter::Close()
 {
     if (mIsInDefineMode)
     {
-        return; //Should this throw an exception?  Is it an error to begin defining a writer and then to attempt to close it properly?
+        return; // Should this throw an exception?  Is it an error to begin defining a writer and then to attempt to close it properly?
     }
     H5Dclose(mDatasetId);
 
@@ -567,7 +532,6 @@ void Hdf5DataWriter::Close()
 
     H5Fclose(mFileId);
 }
-
 
 void Hdf5DataWriter::DefineUnlimitedDimension(std::string variableName, std::string variableUnits)
 {
@@ -593,9 +557,9 @@ void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
         EXCEPTION("Trying to advance along an unlimited dimension without having defined any");
     }
 
-    // Extend the dataset.
+    // Extend the dataset
     mDatasetDims[0]++;
-    mNeedExtend=true;
+    mNeedExtend = true;
 
     mCurrentTimeStep++;
 }
@@ -607,5 +571,5 @@ void Hdf5DataWriter::PossiblyExtend()
         H5Dextend (mDatasetId, mDatasetDims);
         H5Dextend (mTimeDatasetId, mDatasetDims);
     }
-    mNeedExtend=false;
+    mNeedExtend = false;
 }

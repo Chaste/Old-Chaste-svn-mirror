@@ -34,11 +34,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestSimpleDataWriter : public CxxTest::TestSuite
 {
 public:
+
     void TestExceptions()
     {
         std::vector<std::vector<double> > empty_data;
 
-        // no data
+        // No data
         TS_ASSERT_THROWS_ANYTHING(SimpleDataWriter bad_writer("SimpleDataWriter", "bad1", empty_data));
 
         std::vector<double> t;
@@ -59,7 +60,7 @@ public:
         std::vector<double> x;
         std::vector<double> y;
 
-        for(unsigned i=0; i<4; i++)
+        for (unsigned i=0; i<4; i++)
         {
             t.push_back(i);
             x.push_back(2*i);
@@ -77,8 +78,7 @@ public:
 
         SimpleDataWriter writer3("SimpleDataWriter", "std_vecs3.dat", t, false);
 
-        // do the testing now so that to also check the directory wasn't cleaned
-        // in the second write
+        // Do the testing now so that to also check the directory wasn't cleaned in the second write
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "SimpleDataWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs1.dat  io/test/data/good_std_vec1.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs2.dat  io/test/data/good_std_vec2.dat").c_str()), 0);

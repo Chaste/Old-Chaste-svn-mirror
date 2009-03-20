@@ -31,14 +31,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+/**
+ * An abstract data reader class.
+ */
 class AbstractDataReader
 {
-
 public:
 
     virtual std::vector<double> GetValues(std::string variableName) = 0;
-    virtual std::vector<double> GetValues(std::string variableName,
-                                          int fixedDimension) = 0;
+    virtual std::vector<double> GetValues(std::string variableName, int fixedDimension) = 0;
+
+    /**
+     * Base class with virtual methods needs a virtual destructor.
+     */
     virtual ~AbstractDataReader()
     {}
 };

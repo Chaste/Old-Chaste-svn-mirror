@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 
-#include <string>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -49,10 +48,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 const int FILE_SUFFIX_WIDTH = 6;
 
-
+/**
+ * A concrete column data writer class.
+ */
 class ColumnDataWriter : public AbstractDataWriter
 {
 protected:
+
     OutputFileHandler mOutputFileHandler; ///< For opening data files.
 
     std::string mDirectory; /**< Directory output files will be stored in. */
@@ -91,28 +93,112 @@ protected:
     bool mHasPutVariable;
     bool mNeedAdvanceAlongUnlimitedDimension;
 
-    void CreateFixedDimensionFile(std::string filepath);
+    /**
+     * Create the output file and write out the header for it.
+     * 
+     * @param fileName
+     */
+    void CreateFixedDimensionFile(std::string fileName);
 
-    void CreateInfoFile(std::string filepath);
+    /**
+     * Creatd the info file.
+     * 
+     * @param fileName
+     */
+    void CreateInfoFile(std::string fileName);
 
-    void CheckVariableName(std::string name); /**< Check variable name is allowed, i.e. contains only alphanumeric & _, and isn't blank */
+    /**
+     * Check variable name is allowed, i.e. contains only alphanumeric & _, and isn't blank.
+     * 
+     * @param name variable name
+     */
+    void CheckVariableName(std::string name);
+
     void CheckUnitsName(std::string name); /**< Check units name is allowed, i.e. contains only alphanumeric & _ */
+
+    /**
+     * Advance along the unlimited dimension. Normally this will be called
+     * when all variables in a row have been input.
+     */
     void DoAdvanceAlongUnlimitedDimension();
 
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param directory  the directory in which to write the data to file
+     * @param baseName  the name of the file in which to write the data
+     * @param cleanDirectory  whether to clean the directory (defaults to true)
+     */
     ColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
+
+    /**
+     * Destructor. Closes any open files.
+     */
     virtual ~ColumnDataWriter();
+
+    /**
+     * Define the unlimited dimension, i.e. the dimension that increases as the simulation progresses.
+     *
+     * @param dimensionName The name of the unlimited dimension
+     * @param dimensionUnits The physical units of the unlimited dimension
+     *
+     * @return The identifier of the variable
+     */
     int DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits);
+
+    /**
+     * Define the fixed dimension.
+     *
+     * @param dimensionName The name of the dimension
+     * @param dimensionUnits The physical units of the dimension
+     * @param dimensionSize The size of the dimension
+     *
+     * @return The identifier of the variable
+     */
     int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
+
+    /**
+     * Define a variable.
+     *
+     * @param variableName The name of the dimension
+     * @param variableUnits The physical units of the dimension
+     * @param variableDimensions The dimensions along which this variable will be stored
+     *
+     * @return The identifier of the variable
+     */
     int DefineVariable(std::string variableName, std::string variableUnits);
+
+    /**
+     * End the define mode of the DataWriter.
+     */
     virtual void EndDefineMode();
+
+    /**
+     *  Dummy function for DoAdvanceAlongUnlimitedDimension.
+     */
     virtual void AdvanceAlongUnlimitedDimension();
 
+    /**
+     * Input the variable value to the output file or ancillary file
+     * 
+     * @param variableID
+     * @paramvariableValue
+     * @param dimensionPosition  The position in column (defaults to -1). This is required if 
+     *      there is a fixed dimension, and will be the position along that dimension
+     */
     virtual void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);
+
+    /**
+     * Close any open files.
+     */
     virtual void Close();
 
-    std::string GetOutputDirectory(void);
+    /**
+     * Return the full pathname of the directory where we're writing files.
+     */
+    std::string GetOutputDirectory();
 };
 
-#endif
+#endif //COLUMNDATAWRITER_HPP

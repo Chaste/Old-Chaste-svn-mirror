@@ -29,19 +29,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define DATAWRITERVARIABLE_HPP_
 
 /**
-* DataWriter variable object.
-*
-*
-*/
+ * DataWriter variable structure.
+ */
 #include <string>
 #include <vector>
 
 struct DataWriterVariable
 {
-    std::string mVariableName;
-    std::string mVariableUnits;
-    bool mVariesWithFixedDimension;
-    bool mVariesWithUnlimitedDimension;
+    std::string mVariableName;          /**< The name of the variable. */
+    std::string mVariableUnits;         /**< The units of the variable. */
+    bool mVariesWithFixedDimension;     /**< Whether the variable varies with fixed dimension. */
+    bool mVariesWithUnlimitedDimension; /**< Whether the variable varies with unlimited dimension. */
 };
 
 #endif //DATAWRITERVARIABLE_HPP_

@@ -34,12 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
-
+/**
+ * A concrete column data reader class.
+ */
 class ColumnDataReader : public AbstractDataReader
 {
-
 private:
-    std::map<std::string,int> mVariablesToColumns;
+
+    std::map<std::string, int> mVariablesToColumns;
     std::map<std::string, std::string> mVariablesToUnits;
     int mNumFixedDimensions;
     bool mHasUnlimitedDimension;
@@ -55,15 +57,35 @@ private:
 
     static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
     static const int SPACING = 2; /**< Space between columns (includes minus sign) */
+
 public:
 
-    ColumnDataReader(std::string filepath, std::string basename,
-                     bool make_absolute=true);
+    /**
+     * Read data from the given files into memory.
+     *
+     * @param directory  The directory the files are stored in
+     * @param baseName  The base name of the files to read (i.e. without the extensions)
+     * @param makeAbsolute  Whether to convert directory to an absolute path using the
+     *                      OutputFileHandler (defaults to true)
+     */
+    ColumnDataReader(std::string directory, std::string baseName, bool makeAbsolute=true);
+
+    /**
+     * Get the entries for a given variable.
+     * 
+     * @param variableName
+     */
     std::vector<double> GetValues(std::string variableName);
+
     std::vector<double> GetValues(std::string variableName, int fixedDimension);
+
     std::vector<double> GetUnlimitedDimensionValues();
     
-    /** Returns true if the data file has entries for the variableName. */
+    /**
+     * Get whether the data file has entries for a given variable.
+     * 
+     * @param variableName
+     */
     bool HasValues(const std::string& variableName);
     //std::vector<double> GetFixedDimensionValues();
 

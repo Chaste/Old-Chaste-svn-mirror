@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestHdf5DataReader : public CxxTest::TestSuite
 {
 private :
+
     std::string h5file_name;
     #define DATASETNAME "IntArray"
 
@@ -98,14 +99,12 @@ private :
          * Create a new dataset within the file using defined dataspace and
          * datatype and default dataset creation properties.
          */
-        dataset = H5Dcreate(file, DATASETNAME, datatype, dataspace,
-                H5P_DEFAULT);
+        dataset = H5Dcreate(file, DATASETNAME, datatype, dataspace, H5P_DEFAULT);
 
         /*
          * Write the data to the dataset using default transfer properties.
          */
-        status = H5Dwrite(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
-                  H5P_DEFAULT, data);
+        status = H5Dwrite(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
 
         /*
          * Close/release resources.
@@ -121,7 +120,6 @@ public :
 
     void TestSimpleReadDirectlyWithHdf5()
     {
-
         int const NX_SUB = 3;           /* hyperslab dimensions */
         int const NY_SUB = 4;
         int const NX = 7;           /* output buffer dimensions */
@@ -151,7 +149,6 @@ public :
         hsize_t      offset_out[3];         /* hyperslab offset in memory */
         int          i, j, k, status_n, rank;
 
-
         // Create the file it's gonna be read
         WriteDataTestSimpleReadDirectlyWithHdf5();
 
@@ -164,9 +161,7 @@ public :
             }
         }
 
-        /*
-         * Open the file and the dataset.
-         */
+        // Open the file and the dataset
         file = H5Fopen(h5file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
         dataset = H5Dopen(file, DATASETNAME);
 
@@ -189,9 +184,7 @@ public :
         //printf("rank %d, dimensions %lu x %lu \n", rank,
         //   (unsigned long)(dims_out[0]), (unsigned long)(dims_out[1]));
 
-        /*
-         * Define hyperslab in the dataset.
-         */
+        // Define hyperslab in the dataset
         offset[0] = 1;
         offset[1] = 2;
         count[0]  = NX_SUB;
@@ -199,17 +192,13 @@ public :
         status = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL,
                      count, NULL);
 
-        /*
-         * Define the memory dataspace.
-         */
+        // Define the memory dataspace
         dimsm[0] = NX;
         dimsm[1] = NY;
         dimsm[2] = NZ;
         memspace = H5Screate_simple(RANK_OUT,dimsm,NULL);
 
-        /*
-         * Define memory hyperslab.
-         */
+        // Define memory hyperslab
         offset_out[0] = 3;
         offset_out[1] = 0;
         offset_out[2] = 0;
@@ -250,10 +239,7 @@ public :
             }
         }
 
-
-        /*
-         * Close/release resources.
-         */
+        // Close/release resources
         H5Tclose(datatype);
         H5Dclose(dataset);
         H5Sclose(dataspace);
@@ -262,6 +248,7 @@ public :
     }
 
 private:
+
     const static unsigned number_nodes = 100;
 
     void WriteMultiStepData()
@@ -271,9 +258,9 @@ private:
         Hdf5DataWriter writer("hdf5_reader", "hdf5_test_complete_format", false);
         writer.DefineFixedDimension(number_nodes);
 
-        int node_id = writer.DefineVariable("Node","dimensionless");
-        int ik_id = writer.DefineVariable("I_K","milliamperes");
-        int ina_id = writer.DefineVariable("I_Na","milliamperes");
+        int node_id = writer.DefineVariable("Node", "dimensionless");
+        int ik_id = writer.DefineVariable("I_K", "milliamperes");
+        int ina_id = writer.DefineVariable("I_Na", "milliamperes");
         writer.DefineUnlimitedDimension("Time", "msec");
 
         writer.EndDefineMode();
@@ -289,7 +276,7 @@ private:
 
         for (unsigned time_step=0; time_step<10; time_step++)
         {
-            // write some values
+            // Write some values
             for (DistributedVector::Iterator index = DistributedVector::Begin();
                  index!= DistributedVector::End();
                  ++index)
@@ -302,7 +289,7 @@ private:
             distributed_vector_2.Restore();
             distributed_vector_3.Restore();
 
-            // write the vector
+            // Write the vector
             writer.PutVector(node_id, petsc_data_1);
             writer.PutVector(ik_id, petsc_data_2);
             writer.PutVector(ina_id, petsc_data_3);
@@ -320,8 +307,8 @@ private:
         writer.Close();
     }
 
-
 public:
+
     void TestMultiStepReader() throw (Exception)
     {
         WriteMultiStepData();
@@ -347,7 +334,7 @@ public:
             TS_ASSERT_EQUALS(i_k_values.size(), 10u);
             TS_ASSERT_EQUALS(i_na_values.size(), 10u);
 
-            for(unsigned i=0; i<node_values.size(); i++)
+            for (unsigned i=0; i<node_values.size(); i++)
             {
                 TS_ASSERT_DELTA( node_values[i], node_index, 1e-9);
                 TS_ASSERT_DELTA( i_k_values[i], i*1000 + 100 + node_index, 1e-9);
@@ -378,8 +365,7 @@ public:
             distributed_vector_2.Restore();
             distributed_vector_3.Restore();
 
-
-            // check values
+            // Check values
             for (DistributedVector::Iterator index = DistributedVector::Begin();
                  index!= DistributedVector::End();
                  ++index)
@@ -388,7 +374,6 @@ public:
                 TS_ASSERT_EQUALS(distributed_vector_2[index], time_step*1000 + 100 + index.Global);
                 TS_ASSERT_EQUALS(distributed_vector_3[index], time_step*1000 + 200 + index.Global);
             }
-
         }
 
         std::vector<double> unlimited_values = reader.GetUnlimitedDimensionValues();
@@ -411,16 +396,16 @@ public:
         Hdf5DataWriter writer("hdf5_reader", "hdf5_test_overtime_exceptions", false);
         writer.DefineFixedDimension(number_nodes);
 
-        writer.DefineVariable("Node","dimensionless");
-        writer.DefineVariable("I_K","milliamperes");
-        writer.DefineVariable("I_Na","milliamperes");
+        writer.DefineVariable("Node", "dimensionless");
+        writer.DefineVariable("I_K", "milliamperes");
+        writer.DefineVariable("I_Na", "milliamperes");
 
         writer.EndDefineMode();
         writer.Close();
 
         Hdf5DataReader reader("hdf5_reader", "hdf5_test_overtime_exceptions");
 
-        //Unlimited dimension has a default return value
+        // Unlimited dimension has a default return value
         std::vector<double> times = reader.GetUnlimitedDimensionValues();
         TS_ASSERT_EQUALS(times.size(),1U);
         TS_ASSERT_EQUALS(times[0],0.0);
@@ -441,9 +426,9 @@ public:
         Hdf5DataWriter writer("hdf5_reader", "hdf5_test_overtime_exceptions", false);
         writer.DefineFixedDimension(number_nodes);
 
-        writer.DefineVariable("Node","dimensionless");
-        writer.DefineVariable("I_K","milliamperes");
-        writer.DefineVariable("I_Na","milliamperes");
+        writer.DefineVariable("Node", "dimensionless");
+        writer.DefineVariable("I_K", "milliamperes");
+        writer.DefineVariable("I_Na", "milliamperes");
         writer.DefineUnlimitedDimension("Time", "msec");
 
         writer.EndDefineMode();
@@ -478,7 +463,7 @@ public:
         Hdf5DataReader reader("io/test/data","hdf5_test_full_format_incomplete", false);
 
         std::vector<std::string> variable_names=reader.GetVariableNames();
-        TS_ASSERT_EQUALS(variable_names.size(), 3U);
+        TS_ASSERT_EQUALS(variable_names.size(), 3u);
         TS_ASSERT_EQUALS(variable_names[0], "Node");
         TS_ASSERT_EQUALS(reader.GetUnit("Node"), "dimensionless");
         TS_ASSERT_EQUALS(variable_names[1], "I_K");
@@ -486,27 +471,27 @@ public:
         TS_ASSERT_EQUALS(variable_names[2], "I_Na");
         TS_ASSERT_EQUALS(reader.GetUnit("I_Na"), "milliamperes");
 
-        //Can't read into a PETSc Vec
+        // Can't read into a PETSc Vec
         Vec data=DistributedVector::CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
         VecDestroy(data);
 
-        //Can read one of the nodes that was written
-        std::vector<double> twenty_one=reader.GetVariableOverTime("Node", 21);
-        TS_ASSERT_EQUALS(twenty_one.size(), 10U);
+        // Can read one of the nodes that was written
+        std::vector<double> twenty_one = reader.GetVariableOverTime("Node", 21);
+        TS_ASSERT_EQUALS(twenty_one.size(), 10u);
         for (unsigned i=0; i<twenty_one.size(); i++)
         {
-            TS_ASSERT_EQUALS(twenty_one[i], 21U);
+            TS_ASSERT_EQUALS(twenty_one[i], 21u);
         }
-        //Can read more of the data
-        std::vector<double> Na_47=reader.GetVariableOverTime("I_Na", 47);
-        TS_ASSERT_EQUALS(Na_47.size(), 10U);
-        for (unsigned i=0; i<Na_47.size(); i++)
+        // Can read more of the data
+        std::vector<double> na_47 = reader.GetVariableOverTime("I_Na", 47);
+        TS_ASSERT_EQUALS(na_47.size(), 10u);
+        for (unsigned i=0; i<na_47.size(); i++)
         {
-            TS_ASSERT_EQUALS(Na_47[i], i*1000U + 200U + 47U);
+            TS_ASSERT_EQUALS(na_47[i], i*1000u + 200u + 47u);
         }
 
-        //Data not included
+        // Data not included
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 22));
     }
 };

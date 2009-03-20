@@ -36,19 +36,52 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ParallelColumnDataWriter  : public ColumnDataWriter
 {
 private:
-    bool mIsParallel;        /**< set to true in constructor if running in parallel*/
-    bool mAmMaster;          /**< set to true in constructor for process is the rank 0 process*/
-    Vec mConcentrated;       /**< Vector to hold concentrated copy of distributed vector on the master process*/
-    VecScatter mToMaster;    /**< variable holding information for concentrating a vector*/
+
+    bool mIsParallel;     /**< set to true in constructor if running in parallel*/
+    bool mAmMaster;       /**< set to true in constructor for process is the rank 0 process*/
+    Vec mConcentrated;    /**< Vector to hold concentrated copy of distributed vector on the master process*/
+    VecScatter mToMaster; /**< variable holding information for concentrating a vector*/
+
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param directory  the directory in which to write the data to file
+     * @param baseName  the name of the file in which to write the data
+     * @param cleanDirectory  whether to clean the directory (defaults to true)
+     */
     ParallelColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
+
+    /**
+     * Destructor.
+     */
     virtual ~ParallelColumnDataWriter();
+
     bool AmMaster() const;
     void PutVector(int variableID, Vec PetscVector);
     void PutVectorStripe(int variableId, DistributedVector::Stripe stripe);
+
+    /**
+     * Input the variable value to the output file or ancillary file
+     * 
+     * @param variableID
+     * @paramvariableValue
+     * @param dimensionPosition  The position in column (defaults to -1). This is required if 
+     *      there is a fixed dimension, and will be the position along that dimension
+     */
     void PutVariable(int variableID, double variableValue,long dimensionPosition = -1);
+
+    /**
+     * End the define mode of the DataWriter.
+     */
     void EndDefineMode();
+
     void AdvanceAlongUnlimitedDimension();
+
+    /**
+     * Close any open files.
+     */
     void Close();
 };
 

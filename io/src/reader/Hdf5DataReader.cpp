@@ -27,17 +27,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Hdf5DataReader.hpp"
 
-Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool make_absolute) :
-        mDirectory(directory),
-        mBaseName(baseName),
-        mIsUnlimitedDimensionSet(false),
-        mNumberTimesteps(1),
-        mIsDataComplete(true)
+Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool makeAbsolute) 
+    : mDirectory(directory),
+      mBaseName(baseName),
+      mIsUnlimitedDimensionSet(false),
+      mNumberTimesteps(1),
+      mIsDataComplete(true)
 {
     std::string results_dir;
 
     // Find out where files are really stored
-    if (make_absolute)
+    if (makeAbsolute)
     {
         OutputFileHandler output_file_handler(directory, false);
         results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -56,7 +56,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     // Open the file and the main dataset
     mFileId = H5Fopen(file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
-    if (mFileId <=0 )
+    if (mFileId <=0)
     {
         EXCEPTION("Hdf5DataReader could not open "+file_name);
     }
@@ -64,6 +64,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
 
     hid_t variables_dataspace = H5Dget_space(mVariablesDatasetId);
     mVariablesDatasetRank = H5Sget_simple_extent_ndims(variables_dataspace);
+
     // Get the dataset/dataspace dimensions
     hsize_t dataset_max_sizes[MAX_DATASET_RANK];
     H5Sget_simple_extent_dims(variables_dataspace, mVariablesDatasetSizes, dataset_max_sizes);
@@ -72,6 +73,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     {
         assert(mVariablesDatasetSizes[i] == dataset_max_sizes[i]);
     }
+
     // Check if an unlimited dimension has been defined
     if (dataset_max_sizes[0] == H5S_UNLIMITED)
     {
@@ -88,7 +90,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     // Get the attribute where the name of the variables are stored
     hid_t attribute_id = H5Aopen_name(mVariablesDatasetId, "Variable Details");
 
-    // Get attribute datatype, dataspace, rank, and dimensions.
+    // Get attribute datatype, dataspace, rank, and dimensions
     hid_t attribute_type  = H5Aget_type(attribute_id);
     hid_t attribute_space = H5Aget_space(attribute_id);
 
@@ -120,7 +122,6 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
         mVariableToUnit[column_name] = column_unit;
     }
 
-
     // Release all the identifiers
     H5Tclose(attribute_type);
     H5Sclose(attribute_space);
@@ -129,34 +130,33 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     // Free allocated memory
     free(string_array);
 
-    //Find out if it's incomplete data
+    // Find out if it's incomplete data
     attribute_id = H5Aopen_name(mVariablesDatasetId, "IsDataComplete");
     if (attribute_id < 0)
     {
-       //This is in the old format (before we added the IsDataComplete attribute).
-       //Just quit (leaving a nasty hdf5 error).
+       // This is in the old format (before we added the IsDataComplete attribute).
+       // Just quit (leaving a nasty hdf5 error).
        return;
     }
-
 
     attribute_type  = H5Aget_type(attribute_id);
     attribute_space = H5Aget_space(attribute_id);
     unsigned is_data_complete;
     H5Aread(attribute_id, attribute_type, &is_data_complete);
+
     // Release all the identifiers
     H5Tclose(attribute_type);
     H5Sclose(attribute_space);
     H5Aclose(attribute_id);
     mIsDataComplete = (is_data_complete == 1) ? true : false;
 
-
     if (is_data_complete)
     {
         return;
     }
 
-    //Incomplete data
-    //Read the vector thing
+    // Incomplete data
+    // Read the vector thing
     attribute_id = H5Aopen_name(mVariablesDatasetId, "NodeMap");
     attribute_type  = H5Aget_type(attribute_id);
     attribute_space = H5Aget_space(attribute_id);
@@ -172,9 +172,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     H5Tclose(attribute_type);
     H5Sclose(attribute_space);
     H5Aclose(attribute_id);
-
 }
-
 
 std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName, unsigned nodeIndex)
 {
@@ -233,7 +231,6 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
     return ret;
 }
 
-
 void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep)
 {
     if (!mIsDataComplete)
@@ -278,14 +275,12 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
     hid_t hyperslab_space = H5Dget_space(mVariablesDatasetId);
     H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, offset, NULL, count, NULL);
 
-
     double* p_petsc_vector;
     VecGetArray(data, &p_petsc_vector);
     herr_t err;
     err=H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, H5P_DEFAULT, p_petsc_vector);
     assert(err==0);
     VecRestoreArray(data, &p_petsc_vector);
-
 
     H5Sclose(hyperslab_space);
     H5Sclose(memspace);
@@ -300,7 +295,7 @@ std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()
     {
         //Fake it
         assert(mNumberTimesteps==1);
-        ret[0]=0.0;
+        ret[0] = 0.0;
         return ret;
     }
     // Define hyperslab in the dataset.
@@ -308,7 +303,6 @@ std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()
 
     // Define a simple memory dataspace
     hid_t memspace = H5Screate_simple(1, &mNumberTimesteps ,NULL);
-
 
     // Read data from hyperslab in the file into the hyperslab in memory
     H5Dread(mTimeDatasetId, H5T_NATIVE_DOUBLE, memspace, time_dataspace, H5P_DEFAULT, &ret[0]);
@@ -330,4 +324,29 @@ void Hdf5DataReader::Close()
     }
 
     H5Fclose(mFileId);
+}
+
+unsigned Hdf5DataReader::GetNumberOfRows()
+{
+    return mVariablesDatasetSizes[1];
+}
+
+std::vector<std::string> Hdf5DataReader::GetVariableNames()
+{
+    return mVariableNames;
+}
+
+std::string Hdf5DataReader::GetUnit(std::string variableName)
+{
+    return mVariableToUnit[variableName];
+}
+
+bool Hdf5DataReader::IsDataComplete()
+{
+    return mIsDataComplete;
+}
+
+std::vector<unsigned> Hdf5DataReader::GetIncompleteNodeMap()
+{
+    return mIncompleteNodeIndices;
 }

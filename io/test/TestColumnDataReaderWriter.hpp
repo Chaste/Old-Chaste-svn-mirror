@@ -25,10 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
+
 #ifndef _TESTCOLUMNDATAREADERWRITER_HPP_
 #define _TESTCOLUMNDATAREADERWRITER_HPP_
 
-//  MyTestSuite.h
 #include <cxxtest/TestSuite.h>
 
 #include "ColumnDataWriter.hpp"
@@ -41,6 +42,7 @@ class TestColumnDataReaderWriter : public CxxTest::TestSuite
 {
 
 private:
+
     ColumnDataWriter *mpTestWriter;
     ColumnDataReader *mpTestReader;
 
@@ -87,9 +89,9 @@ public:
     {
         // TS_TRACE("Completed test");
     }
-    void TestCreateColumnWriter(void)
+    void TestCreateColumnWriter()
     {
-        //create a new csvdata writer
+        // Create a new csvdata writer
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         //check that the output directory exists
         //use the Boost libraries for this check
@@ -98,47 +100,49 @@ public:
         delete mpTestWriter;
     }
 
-    void TestCreateColumnReader(void)
+    void TestCreateColumnReader()
     {
-        // file does not exist
+        // File does not exist
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("", "testdoesnotexist"));
-        // file contains corrupt data
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "testbad",
-                                                 false));
+
+        // File contains corrupt data
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "testbad", false));
+
         // .info file exists (unlimited) but _unlimited.dat file does not
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "UnlimitedMissing", false));
+
         // .info file exists (fixed dim) but .dat file does not
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "DatMissing", false));
-        delete mpTestReader;
 
+        delete mpTestReader;
     }
 
-    void TestDefineUnlimitedDimension( void )
+    void TestDefineUnlimitedDimension()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","m secs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e","msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "m secs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e", "msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("", "msecs"));
 
         delete mpTestWriter;
     }
 
-    void TestDefineFixedDimension( void )
+    void TestDefineFixedDimension()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimension.less", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node", "dimension.less", 5000));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("*Node*","dimensionless", 5000));
 
         delete mpTestWriter;
     }
 
-    void TestDefineVariable( void )
+    void TestDefineVariable()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         int ina_var_id = 0;
@@ -146,15 +150,15 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
 
-        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineVariable("Dummy",""));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineVariable("Dummy", ""));
 
         // Bad variable names/units
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milli amperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I   K","milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I.K","milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("","milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milli amperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I   K", "milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I.K", "milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("", "milliamperes"));
 
         TS_ASSERT_EQUALS(ina_var_id, 0);
         TS_ASSERT_EQUALS(ik_var_id, 1);
@@ -162,42 +166,39 @@ public:
         delete mpTestWriter;
     }
 
-    void TestEndDefineMode( void )
+    void TestEndDefineMode()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(0, 0, 0));
 
-        //ending define mode without having defined a dimension and a variable should raise an exception
+        // Ending define mode without having defined a dimension and a variable should raise an exception
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
 
         int ina_var_id = 0;
         int ik_var_id = 0;
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca", "milli amperes"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node", "dimensionless", 5000));
 
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testdefine.dat",
-                             "io/test/data/testdefine_good.dat"));
+        TS_ASSERT(filesMatch(output_dir + "testdefine.dat", "io/test/data/testdefine_good.dat"));
 
-        TS_ASSERT(filesMatch(output_dir + "testdefine.info",
-                             "io/test/data/testdefine_good.info"));
-
+        TS_ASSERT(filesMatch(output_dir + "testdefine.info", "io/test/data/testdefine_good.info"));
     }
 
-    void TestCantAddUnlimitedAfterEndDefine ( void )
+    void TestCantAddUnlimitedAfterEndDefine()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
         int ina_var_id = 0;
@@ -214,7 +215,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestPutVariableInUnlimitedFile( void )
+    void TestPutVariableInUnlimitedFile()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimited"));
         int time_var_id = 0;
@@ -255,24 +256,24 @@ public:
         }
 
         // Test for coverage
-        TS_ASSERT_THROWS_ANYTHING(values_ik = mpTestReader->GetValues("I_K",3));
+        TS_ASSERT_THROWS_ANYTHING(values_ik = mpTestReader->GetValues("I_K", 3));
         TS_ASSERT_THROWS_ANYTHING(mpTestReader->GetValues("BadVar"));
 
         delete mpTestReader;
     }
 
-    void TestPutNegativeVariable( void )
+    void TestPutNegativeVariable()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimitednegative"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
-        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"));
+        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
 
@@ -284,31 +285,27 @@ public:
         mpTestWriter->AdvanceAlongUnlimitedDimension();
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124));
 
-
-        //check that an incorrect var id causes an exception:
+        // Check that an incorrect var id causes an exception:
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(234, -33.124));
 
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testunlimitednegative.dat",
-                             "io/test/data/testunlimitednegative_good.dat"));
-
+        TS_ASSERT(filesMatch(output_dir + "testunlimitednegative.dat", "io/test/data/testunlimitednegative_good.dat"));
     }
 
-    void TestPutVariableInFixedFile( void )
+    void TestPutVariableInFixedFile()
     {
-
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testfixed"));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
-        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless"));
-        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node", "dimensionless"));
+        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(node_var_id, 0, -1));
@@ -325,11 +322,9 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testfixed.dat",
-                             "io/test/data/testfixed_good.dat"));
+        TS_ASSERT(filesMatch(output_dir + "testfixed.dat", "io/test/data/testfixed_good.dat"));
 
-        TS_ASSERT(filesMatch(output_dir + "testfixed.info",
-                             "io/test/data/testfixed_good.info"));
+        TS_ASSERT(filesMatch(output_dir + "testfixed.info", "io/test/data/testfixed_good.info"));
 
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("", "testfixed"));
 
@@ -343,13 +338,13 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1));
 
-        // check that get unlimited dimension values throws
+        // Check that get unlimited dimension values throws
         TS_ASSERT_THROWS_ANYTHING(std::vector<double> unlimited_values = mpTestReader->GetUnlimitedDimensionValues());
 
         delete mpTestReader;
     }
 
-    void TestPutNegativeVariableInFixedFile( void )
+    void TestPutNegativeVariableInFixedFile()
     {
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testfixed_negatives"));
@@ -357,11 +352,11 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
-        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless"));
-        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node", "dimensionless"));
+        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
 
@@ -371,6 +366,7 @@ public:
         mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3);
         mpTestWriter->AdvanceAlongUnlimitedDimension();
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(ica_var_id, -63.124,2));
+
         // Note: the above call to PutVariable will, in effect, execute AdvanceAlongUnlimitedDimension and
         //       therefore throw an exception, hence we have to repeat that call to PutVariable below
         mpTestWriter->PutVariable(ica_var_id, -63.124,2);
@@ -380,25 +376,23 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testfixed_negatives.dat",
-                             "io/test/data/testfixed_negatives_good.dat"));
+        TS_ASSERT(filesMatch(output_dir + "testfixed_negatives.dat", "io/test/data/testfixed_negatives_good.dat"));
     }
 
-    void TestPutVariableInFixedandUnlimitedFile( void )
+    void TestPutVariableInFixedandUnlimitedFile()
     {
-
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("","testfixedandunlimited"));
         int time_var_id = 0;
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
-        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
-        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
 
@@ -428,38 +422,39 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testfixedandunlimited"));
 
         std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
-        std::vector<double> ica_values = mpTestReader->GetValues("I_Ca",3);
-        for (int i=0; i < 2; i++)
+        std::vector<double> ica_values = mpTestReader->GetValues("I_Ca", 3);
+        for (int i=0; i<2; i++)
         {
             TS_ASSERT_DELTA(time_values[i],(i+1)*0.1,1e-3);
             TS_ASSERT_DELTA(ica_values[i],-33.124 - i * 2,1e-3);
         }
 
-        //check exception thrown if dimension is not given
+        // Check exception thrown if dimension is not given
         TS_ASSERT_THROWS_ANYTHING(ica_values = mpTestReader->GetValues("I_Ca"));
 
         delete mpTestReader;
     }
 
-
-    // this test is just to cover the line in ColumnDataWriter::PutVariable where
-    // the fixed and unlimited dimensions are both set and the unlimited parameter
-    // (ie time) is passed in negative
-    void TestNegativeWithFixedAndUnlimitedDefined( void )
+    /*
+     * This test is just to cover the line in ColumnDataWriter::PutVariable where 
+     * the fixed and unlimited dimensions are both set and the unlimited parameter 
+     * (i.e. time) is passed in negative.
+     */
+    void TestNegativeWithFixedAndUnlimitedDefined()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimitednegative2"));
 
         int time_var_id = 0;
         int node_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless", 4));
-        TS_ASSERT_THROWS_NOTHING( ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes") );
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
+        TS_ASSERT_THROWS_NOTHING( ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, -0.2));
 
-        // remember to delete - this closes the writer cleanly and means any data left
+        // Remember to delete - this closes the writer cleanly and means any data left
         // unwritten will be written to the datafile
         delete mpTestWriter;
     }

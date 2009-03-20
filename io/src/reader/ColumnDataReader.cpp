@@ -25,9 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 /**
 * Implementation file for ColumnDataReader class.
-*
 */
 
 #include <string>
@@ -47,19 +47,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 const int NOT_READ = -999;
 
-/**
- * Read data from the given files into memory.
- *
- * @param directory  The directory the files are stored in
- * @param basename  The base name of the files to read (i.e. without the extensions)
- * @param make_absolute  Whether to convert directory to an absolute path using the
- *      OutputFileHandler
- */
-ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
-                                   bool make_absolute)
+ColumnDataReader::ColumnDataReader(std::string directory, std::string baseName, bool makeAbsolute)
 {
     // Find out where files are really stored
-    if (make_absolute)
+    if (makeAbsolute)
     {
         OutputFileHandler output_file_handler(directory, false);
         directory = output_file_handler.GetOutputDirectoryFullPath();
@@ -72,9 +63,11 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
             directory = directory + "/";
         }
     }
+
     // Read in info file
-    mInfoFilename = directory + basename + ".info";
+    mInfoFilename = directory + baseName + ".info";
     std::ifstream infofile(mInfoFilename.c_str(), std::ios::in);
+
     // If it doesn't exist - throw exception
     if (!infofile.is_open())
     {
@@ -95,27 +88,31 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
         infofile.close();
         EXCEPTION("Couldn't read info file correctly");
     }
-    //Read in variables and associated them with a column number
+
+    // Read in variables and associated them with a column number
     std::string variables;
     std::string dataFilename;
     if (mHasUnlimitedDimension)
     {
         if (mNumFixedDimensions < 1)
         {
-            mDataFilename = directory + basename + ".dat";
+            mDataFilename = directory + baseName + ".dat";
         }
         else
         {
             std::stringstream suffix;
             suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << 0;
 
-            mDataFilename = directory + basename + "_" + suffix.str() + ".dat";
-            //the ancillary path needs to come from a single place that is
-            //used by both the reader & writer, otherwise all will be bad.
-            mAncillaryFilename = directory + basename + "_unlimited.dat";
-            //Extract the units and place into map
+            mDataFilename = directory + baseName + "_" + suffix.str() + ".dat";
+
+            // The ancillary path needs to come from a single place that is
+            // used by both the reader & writer, otherwise all will be bad.
+            mAncillaryFilename = directory + baseName + "_unlimited.dat";
+
+            // Extract the units and place into map
             std::ifstream ancillaryfile(mAncillaryFilename.c_str(),std::ios::in);
-            //If it doesn't exist - throw exception
+
+            // If it doesn't exist - throw exception
             if (!ancillaryfile.is_open())
             {
                 EXCEPTION("Couldn't open ancillary data file");
@@ -126,7 +123,7 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
             std::string dimension_unit, dimension_name, header;
             dimensionStream >> header;
 
-            //separate into variable name and units
+            // Separate into variable name and units
             int unitpos = header.find("(") + 1;
 
             dimension_name = header.substr(0,unitpos - 1);
@@ -138,11 +135,11 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
     }
     else
     {
-        mDataFilename = directory + basename + ".dat";
+        mDataFilename = directory + baseName + ".dat";
     }
 
     std::ifstream datafile(mDataFilename.c_str(),std::ios::in);
-    //If it doesn't exist - throw exception
+    // If it doesn't exist - throw exception
     if (!datafile.is_open())
     {
         EXCEPTION("Couldn't open data file");
@@ -152,10 +149,11 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
     std::stringstream variableStream(variables);
     std::string header, variable, unit;
     int column = 0;
+
     //Insert variables into map
     while (variableStream >> header)
     {
-        //separate into variable name and units
+        // Separate into variable name and units
         int unitpos = header.find("(") + 1;
 
         variable = header.substr(0,unitpos - 1);
@@ -165,16 +163,13 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
         mVariablesToUnits[variable] = unit;
 
         column++;
-
     }
     infofile.close();
     datafile.close();
 }
 
-
 std::vector<double> ColumnDataReader::GetValues(std::string variableName)
 {
-
     if (mNumFixedDimensions > 0)
     {
         EXCEPTION("Data file has fixed dimension which must be specified");
@@ -192,9 +187,7 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName)
     return mValues;
 }
 
-
-std::vector<double> ColumnDataReader::GetValues(std::string variableName,
-                                                int fixedDimension)
+std::vector<double> ColumnDataReader::GetValues(std::string variableName, int fixedDimension)
 {
     if (mNumFixedDimensions < 1)
     {
@@ -224,7 +217,7 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName,
                 break;
             }
 
-            //advance counter
+            // Advance counter
             std::string::size_type underscore_pos = datafile.rfind("_",datafile.length());
             std::stringstream suffix;
 
@@ -259,13 +252,13 @@ std::vector<double> ColumnDataReader::GetUnlimitedDimensionValues()
     }
     if (mNumFixedDimensions > 0)
     {
-        //read in from the ancillary file
-        ReadColumnFromFile(mAncillaryFilename,0);
+        // Read in from the ancillary file
+        ReadColumnFromFile(mAncillaryFilename, 0);
     }
     else
     {
-        //read the first column
-        ReadColumnFromFile(mDataFilename,0);
+        // Read the first column
+        ReadColumnFromFile(mDataFilename, 0);
     }
     return mValues;
 }
@@ -273,13 +266,13 @@ std::vector<double> ColumnDataReader::GetUnlimitedDimensionValues()
 void ColumnDataReader::ReadValueFromFile(std::string filename, int col, int row)
 {
     std::ifstream datafile(filename.c_str(),std::ios::in);
-    //If it doesn't exist - throw exception
+    // If it doesn't exist - throw exception
     if (!datafile.is_open())
     {
         EXCEPTION("Couldn't open data file");
     }
     std::string variable_values;
-    for (int i=0; i < row+1; i++)
+    for (int i=0; i<row+1; i++)
     {
         std::getline(datafile, variable_values);
     }
@@ -292,17 +285,20 @@ void ColumnDataReader::ReadValueFromFile(std::string filename, int col, int row)
 
 void ColumnDataReader::ReadColumnFromFile(std::string filename, int col)
 {
-    //Empty the values vector
+    // Empty the values vector
     mValues.clear();
-    //read in from the ancillary file
+
+    // Read in from the ancillary file
     std::ifstream datafile(filename.c_str(),std::ios::in);
     std::string value;
-    //we should have already checked that this file can be opened.
-    assert(datafile.is_open());
-    // the current variable becomes true just after reading the last line
-    bool end_of_file_reached=false;
 
-    //skip header line
+    // We should have already checked that this file can be opened.
+    assert(datafile.is_open());
+
+    // The current variable becomes true just after reading the last line
+    bool end_of_file_reached = false;
+
+    // Skip header line
     end_of_file_reached = std::getline(datafile, value).eof();
 
     while (!end_of_file_reached)
@@ -322,9 +318,8 @@ void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
     variable_stream >> d_value;
     if (variable_stream.fail())
     {
-        d_value=FLT_MAX;
+        d_value = FLT_MAX;
     }
-
 
     mValues.push_back(d_value);
 }
@@ -332,6 +327,5 @@ void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
 bool ColumnDataReader::HasValues(const std::string& variableName)
 {
     std::map<std::string, int>::iterator col = mVariablesToColumns.find(variableName);
-    
     return !(col == mVariablesToColumns.end());
 }

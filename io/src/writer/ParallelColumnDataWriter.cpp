@@ -25,14 +25,15 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "ParallelColumnDataWriter.hpp"
 #include "Exception.hpp"
 #include <iostream>
 
 ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory)
-        : ColumnDataWriter::ColumnDataWriter(directory, baseName, cleanDirectory)
+    : ColumnDataWriter::ColumnDataWriter(directory, baseName, cleanDirectory)
 {
-    mConcentrated=NULL;
+    mConcentrated = NULL;
 
     int num_procs, my_rank;
     MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
@@ -42,22 +43,21 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::s
     }
     else
     {
-        mIsParallel=true;
+        mIsParallel = true;
     }
 
     MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
     if (my_rank==0)
     {
-        mAmMaster=true;
+        mAmMaster = true;
     }
     else
     {
-        mAmMaster=false;
+        mAmMaster = false;
     }
 }
 
-void
-ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
+void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 {
     int size;
     VecGetSize(petscVector,&size);
@@ -103,17 +103,17 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 
 void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe stripe)
 {
-    // put the stripe into its own 'unstriped' vector
+    // Put the stripe into its own 'unstriped' vector
     Vec unstriped_petsc = DistributedVector::CreateVec();
     DistributedVector unstriped(unstriped_petsc);
     for (DistributedVector::Iterator index = DistributedVector::Begin();
          index!= DistributedVector::End();
          ++index)
         {
-            unstriped[index] =  stripe[index];
+            unstriped[index] = stripe[index];
         }
 
-    // put the unstriped vector
+    // Put the unstriped vector
     ParallelColumnDataWriter::PutVector(variableId, unstriped_petsc);
     VecDestroy(unstriped_petsc);
 }
@@ -142,11 +142,10 @@ void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,
 {
     if (mAmMaster)
     {
-        //Master process is allowed to write
+        // Master process is allowed to write
         ColumnDataWriter::PutVariable(variableID, variableValue, dimensionPosition);
     }
 }
-
 
 ParallelColumnDataWriter::~ParallelColumnDataWriter()
 {
@@ -158,11 +157,9 @@ ParallelColumnDataWriter::~ParallelColumnDataWriter()
     Close();
 }
 
-
-
 void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
 {
-    //Make sure that everyone has queued their messages
+    // Make sure that everyone has queued their messages
     MPI_Barrier(PETSC_COMM_WORLD);
 
 //    std::cout<<"In AdvanceAlongUnlimitedDimension mAmMaster="<< mAmMaster<<
@@ -188,5 +185,3 @@ void ParallelColumnDataWriter::Close()
         ColumnDataWriter::Close();
     }
 }
-
-

@@ -37,14 +37,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 
+/**
+ * A concrete HDF5 data reader class.
+ */
 class Hdf5DataReader
 {
 private:
+
     // defined in writer too, todo: define it once
-    const static unsigned MAX_DATASET_RANK=3;
+    const static unsigned MAX_DATASET_RANK = 3;
 
     std::string mDirectory; /**< Directory output files will be stored in. */
-    std::string mBaseName; /**< The base name for the output data files. */
+    std::string mBaseName;  /**< The base name for the output data files. */
 
     hid_t mFileId;
 
@@ -56,8 +60,8 @@ private:
     hid_t mTimeDatasetId;
     hsize_t mNumberTimesteps;
 
-    std::map<std::string, unsigned>    mVariableToColumnIndex;
-    std::vector<std::string>    mVariableNames;
+    std::map<std::string, unsigned> mVariableToColumnIndex;
+    std::vector<std::string> mVariableNames;
 
     std::map<std::string, std::string> mVariableToUnit;
 
@@ -66,7 +70,15 @@ private:
 
 public:
 
-    Hdf5DataReader(std::string directory, std::string baseName, bool make_absolute=true);
+    /**
+     * Read data from the given files into memory.
+     *
+     * @param directory  The directory the files are stored in
+     * @param baseName  The base name of the files to read (i.e. without the extensions)
+     * @param makeAbsolute  Whether to convert directory to an absolute path using the
+     *                      OutputFileHandler (defaults to true)
+     */
+    Hdf5DataReader(std::string directory, std::string baseName, bool makeAbsolute=true);
 
     std::vector<double> GetVariableOverTime(std::string variableName, unsigned nodeIndex);
 
@@ -74,30 +86,19 @@ public:
 
     std::vector<double> GetUnlimitedDimensionValues();
 
-    unsigned GetNumberOfRows()
-    {
-        return mVariablesDatasetSizes[1];
-    }
+    unsigned GetNumberOfRows();
 
-    std::vector<std::string> GetVariableNames()
-    {
-        return mVariableNames;
-    }
-    std::string GetUnit(std::string variableName)
-    {
-        return mVariableToUnit[variableName];
-    }
+    std::vector<std::string> GetVariableNames();
 
-    bool IsDataComplete()
-    {
-        return mIsDataComplete;
-    }
+    std::string GetUnit(std::string variableName);
 
-    std::vector<unsigned> GetIncompleteNodeMap()
-    {
-        return mIncompleteNodeIndices;
-    }
+    bool IsDataComplete();
 
+    std::vector<unsigned> GetIncompleteNodeMap();
+
+    /**
+     * Close any open files.
+     */
     void Close();
 
 };
