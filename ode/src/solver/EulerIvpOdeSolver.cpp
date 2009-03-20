@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 void EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                             double timeStep,
                                             double time,
-                                            std::vector<double>& currentYValues,
-                                            std::vector<double>& nextYValues)
+                                            std::vector<double>& rCurrentYValues,
+                                            std::vector<double>& rNextYValues)
 {
     // For each timestep in AbstractOneStepIvpSolver calculates a vector containing
     // the next Y value from the current one for each equation in the system.
@@ -45,11 +45,11 @@ void EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSyste
     const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
 
     // Yes, this looks weird, but it makes good use of memory!
-    pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, nextYValues);
+    pAbstractOdeSystem->EvaluateYDerivatives(time, rCurrentYValues, rNextYValues);
 
     for (unsigned i=0; i<num_equations; i++)
     {
-        // nextYValues contains dY/dt until here
-        nextYValues[i] = currentYValues[i] + timeStep*nextYValues[i];
+        // rNextYValues contains dY/dt until here
+        rNextYValues[i] = rCurrentYValues[i] + timeStep*rNextYValues[i];
     }
 }

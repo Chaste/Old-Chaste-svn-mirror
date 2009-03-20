@@ -157,34 +157,34 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
 void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                                   double timeStep,
                                                   double time,
-                                                  std::vector<double>& currentYValues,
-                                                  std::vector<double>& nextYValues)
+                                                  std::vector<double>& rCurrentYValues,
+                                                  std::vector<double>& rNextYValues)
 {
     const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
 
 
-    std::vector<double>& dy = nextYValues; // re-use memory (not that it makes much difference here!)
+    std::vector<double>& dy = rNextYValues; // re-use memory (not that it makes much difference here!)
 
-    pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, dy);
+    pAbstractOdeSystem->EvaluateYDerivatives(time, rCurrentYValues, dy);
 
     for (unsigned i=0; i<num_equations; i++)
     {
         mk1[i] = timeStep*dy[i];
-        myk2[i] = currentYValues[i] + 0.25*mk1[i];
+        myk2[i] = rCurrentYValues[i] + 0.25*mk1[i];
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time + 0.25*timeStep, myk2, dy);
     for (unsigned i=0; i<num_equations; i++)
     {
         mk2[i] = timeStep*dy[i];
-        myk3[i] = currentYValues[i] + 0.09375*mk1[i] + 0.28125*mk2[i];
+        myk3[i] = rCurrentYValues[i] + 0.09375*mk1[i] + 0.28125*mk2[i];
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time + 0.375*timeStep, myk3, dy);
     for (unsigned i=0; i<num_equations; i++)
     {
         mk3[i] = timeStep*dy[i];
-        myk4[i] = currentYValues[i] + m1932o2197*mk1[i] - m7200o2197*mk2[i]
+        myk4[i] = rCurrentYValues[i] + m1932o2197*mk1[i] - m7200o2197*mk2[i]
                     + m7296o2197*mk3[i];
     }
 
@@ -192,7 +192,7 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
     for (unsigned i=0;i<num_equations; i++)
     {
         mk4[i] = timeStep*dy[i];
-        myk5[i] = currentYValues[i] + m439o216*mk1[i] - 8*mk2[i]
+        myk5[i] = rCurrentYValues[i] + m439o216*mk1[i] - 8*mk2[i]
                     + m3680o513*mk3[i]- m845o4104*mk4[i];
     }
 
@@ -200,7 +200,7 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
     for (unsigned i=0; i<num_equations; i++)
     {
         mk5[i] = timeStep*dy[i];
-        myk6[i] = currentYValues[i] - m8o27*mk1[i] + 2*mk2[i] - m3544o2565*mk3[i]
+        myk6[i] = rCurrentYValues[i] - m8o27*mk1[i] + 2*mk2[i] - m3544o2565*mk3[i]
                         + m1859o4104*mk4[i] - 0.275*mk5[i];
     }
 
@@ -210,7 +210,7 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
         mk6[i] = timeStep*dy[i];
         mError[i] = (1/timeStep)*fabs(m1o360*mk1[i] - m128o4275*mk3[i]
                     - m2197o75240*mk4[i] + 0.02*mk5[i]+ m2o55*mk6[i]);
-        nextYValues[i] = currentYValues[i] + m25o216*mk1[i] + m1408o2565*mk3[i]
+        rNextYValues[i] = rCurrentYValues[i] + m25o216*mk1[i] + m1408o2565*mk3[i]
                         + m2197o4104*mk4[i] - 0.2*mk5[i];
     }
 }

@@ -58,32 +58,32 @@ private:
      * because they need to be member variables.
      */
 
-    double m1932o2197;
-    double m7200o2197;
-    double m7296o2197;
-    double m12o13;
-    double m439o216;
-    double m3680o513;
-    double m845o4104;
-    double m8o27;
-    double m3544o2565;
-    double m1859o4104;
-    double m1o360;
-    double m128o4275;
-    double m2197o75240;
-    double m2o55;
-    double m25o216;
-    double m1408o2565;
-    double m2197o4104;
+    double m1932o2197;  /**< Working memory: numerical value for the fraction 1932/2197.  */
+    double m7200o2197;  /**< Working memory: numerical value for the fraction 7200/2197.  */
+    double m7296o2197;  /**< Working memory: numerical value for the fraction 7296/2197.  */
+    double m12o13;      /**< Working memory: numerical value for the fraction 12/13.      */
+    double m439o216;    /**< Working memory: numerical value for the fraction 439/216.    */
+    double m3680o513;   /**< Working memory: numerical value for the fraction 3680/513.   */
+    double m845o4104;   /**< Working memory: numerical value for the fraction 845/4104.   */
+    double m8o27;       /**< Working memory: numerical value for the fraction 8/27.       */
+    double m3544o2565;  /**< Working memory: numerical value for the fraction 3544/2565.  */
+    double m1859o4104;  /**< Working memory: numerical value for the fraction 1859/4104.  */
+    double m1o360;      /**< Working memory: numerical value for the fraction 1/360.      */
+    double m128o4275;   /**< Working memory: numerical value for the fraction 128/4275.   */
+    double m2197o75240; /**< Working memory: numerical value for the fraction 2197/75240. */
+    double m2o55;       /**< Working memory: numerical value for the fraction 2/55.       */
+    double m25o216;     /**< Working memory: numerical value for the fraction 25/216.     */
+    double m1408o2565;  /**< Working memory: numerical value for the fraction 1408/2565.  */
+    double m2197o4104;  /**< Working memory: numerical value for the fraction 2197/4104.  */
  
     std::vector<double> mError; /**< Error expression, used to adjust the timestep in the RKF45 method. */
     
-    std::vector<double> mk1;  /**< Working memory: expression k1 in the RKF45 method. */
-    std::vector<double> mk2;  /**< Working memory: expression k2 in the RKF45 method. */
-    std::vector<double> mk3;  /**< Working memory: expression k3 in the RKF45 method. */
-    std::vector<double> mk4;  /**< Working memory: expression k4 in the RKF45 method. */
-    std::vector<double> mk5;  /**< Working memory: expression k5 in the RKF45 method. */
-    std::vector<double> mk6;  /**< Working memory: expression k6 in the RKF45 method. */
+    std::vector<double> mk1;  /**< Working memory: expression k1 in the RKF45 method.  */
+    std::vector<double> mk2;  /**< Working memory: expression k2 in the RKF45 method.  */
+    std::vector<double> mk3;  /**< Working memory: expression k3 in the RKF45 method.  */
+    std::vector<double> mk4;  /**< Working memory: expression k4 in the RKF45 method.  */
+    std::vector<double> mk5;  /**< Working memory: expression k5 in the RKF45 method.  */
+    std::vector<double> mk6;  /**< Working memory: expression k6 in the RKF45 method.  */
     std::vector<double> myk2; /**< Working memory: expression yk2 in the RKF45 method. */
     std::vector<double> myk3; /**< Working memory: expression yk3 in the RKF45 method. */
     std::vector<double> myk4; /**< Working memory: expression yk4 in the RKF45 method. */
@@ -125,13 +125,13 @@ protected:
      * @param timeStep  dt
      * @param time  the current time
      * @param rCurrentYValues  the current (initial) state
-     * @param nextYValues  the state at the next timestep
+     * @param rNextYValues  the state at the next timestep
      */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                      double timeStep,
                                      double time,
-                                     std::vector<double>& currentYValues,
-                                     std::vector<double>& nextYValues);
+                                     std::vector<double>& rCurrentYValues,
+                                     std::vector<double>& rNextYValues);
 
     /**
      * Use the error approximation of the last call to the CalculateNextYValue() 

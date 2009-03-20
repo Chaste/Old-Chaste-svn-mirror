@@ -50,13 +50,13 @@ protected:
      * @param timeStep  dt
      * @param time  the current time
      * @param rCurrentYValues  the current (initial) state
-     * @param nextYValues  the state at the next timestep
+     * @param rNextYValues  the state at the next timestep
      */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                              double timeStep,
                              double time,
-                             std::vector<double>& currentYValues,
-                             std::vector<double>& nextYValues);
+                             std::vector<double>& rCurrentYValues,
+                             std::vector<double>& rNextYValues);
 
 public:
 

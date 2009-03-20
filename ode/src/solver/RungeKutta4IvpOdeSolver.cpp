@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                                   double timeStep,
                                                   double time,
-                                                  std::vector<double>& currentYValues,
-                                                  std::vector<double>& nextYValues)
+                                                  std::vector<double>& rCurrentYValues,
+                                                  std::vector<double>& rNextYValues)
 {
     /*
      * Apply Runge-Kutta 4th order method for each timestep in AbstractOneStepIvpSolver.
@@ -56,33 +56,33 @@ void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
         yki.resize(num_equations);
     }
 
-    std::vector<double>& dy = nextYValues; // re-use memory
+    std::vector<double>& dy = rNextYValues; // re-use memory
 
-    pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, dy);
+    pAbstractOdeSystem->EvaluateYDerivatives(time, rCurrentYValues, dy);
     for (unsigned i=0; i<num_equations; i++)
     {
         k1[i] = timeStep*dy[i];
-        yki[i] = currentYValues[i] + 0.5*k1[i];
+        yki[i] = rCurrentYValues[i] + 0.5*k1[i];
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep, yki, dy);
     for (unsigned i=0; i<num_equations; i++)
     {
         k2[i] = timeStep*dy[i];
-        yki[i] = currentYValues[i] + 0.5*k2[i];
+        yki[i] = rCurrentYValues[i] + 0.5*k2[i];
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep, yki, dy);
     for (unsigned i=0; i<num_equations; i++)
     {
         k3[i] = timeStep*dy[i];
-        yki[i] = currentYValues[i] + k3[i];
+        yki[i] = rCurrentYValues[i] + k3[i];
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep, yki, dy);
     for (unsigned i=0; i<num_equations; i++)
     {
         k4[i] = timeStep*dy[i];
-        nextYValues[i] = currentYValues[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
+        rNextYValues[i] = rCurrentYValues[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
     }
 }

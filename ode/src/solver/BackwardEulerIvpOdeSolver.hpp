@@ -78,20 +78,20 @@ private:
      * @param timeStep  dt
      * @param time  the current time
      * @param rCurrentYValues  the current (initial) state
-     * @param currentGuess  current guess for the state at the next timestep
+     * @param rCurrentGuess  current guess for the state at the next timestep
      */
     void ComputeResidual(AbstractOdeSystem* pAbstractOdeSystem,
                          double timeStep,
                          double time,
-                         std::vector<double>& currentYValues,
-                         std::vector<double>& currentGuess)
+                         std::vector<double>& rCurrentYValues,
+                         std::vector<double>& rCurrentGuess)
     {
         std::vector<double> dy(mSizeOfOdeSystem);//For JC to optimize
-        pAbstractOdeSystem->EvaluateYDerivatives(time, currentGuess, dy);
+        pAbstractOdeSystem->EvaluateYDerivatives(time, rCurrentGuess, dy);
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
 
-            mResidual[i] = currentGuess[i] - timeStep * dy[i] - currentYValues[i];
+            mResidual[i] = rCurrentGuess[i] - timeStep * dy[i] - rCurrentYValues[i];
         }
     }
 
@@ -102,13 +102,13 @@ private:
      * @param timeStep  dt
      * @param time  the current time
      * @param rCurrentYValues  the current (initial) state
-     * @param currentGuess  current guess for the state at the next timestep
+     * @param rCurrentGuess  current guess for the state at the next timestep
      */
     void ComputeJacobian(AbstractOdeSystem* pAbstractOdeSystem,
                          double timeStep,
                          double time,
-                         std::vector<double>& currentYValues,
-                         std::vector<double>& currentGuess)
+                         std::vector<double>& rCurrentYValues,
+                         std::vector<double>& rCurrentGuess)
     {
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
@@ -123,15 +123,15 @@ private:
             // The ODE system has an analytic jacobian, so use that
             AbstractOdeSystemWithAnalyticJacobian *p_ode_system
             = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
-            p_ode_system->AnalyticJacobian(currentGuess, mJacobian, time, timeStep);
+            p_ode_system->AnalyticJacobian(rCurrentGuess, mJacobian, time, timeStep);
         }
         else
         {
             ComputeNumericalJacobian(pAbstractOdeSystem,
                                      timeStep,
                                      time,
-                                     currentYValues,
-                                     currentGuess);
+                                     rCurrentYValues,
+                                     rCurrentGuess);
         }
     }
 
@@ -196,13 +196,13 @@ private:
      * @param timeStep  dt
      * @param time  the current time
      * @param rCurrentYValues  the current (initial) state
-     * @param currentGuess  current guess for the state at the next timestep
+     * @param rCurrentGuess  current guess for the state at the next timestep
      */
     void ComputeNumericalJacobian(AbstractOdeSystem* pAbstractOdeSystem,
                                   double timeStep,
                                   double time,
-                                  std::vector<double>& currentYValues,
-                                  std::vector<double>& currentGuess)
+                                  std::vector<double>& rCurrentYValues,
+                                  std::vector<double>& rCurrentGuess)
     {
         std::vector<double> residual(mSizeOfOdeSystem);
         std::vector<double> residual_perturbed(mSizeOfOdeSystem);
@@ -210,7 +210,7 @@ private:
 
         double epsilon = mNumericalJacobianEpsilon;
 
-        ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, currentGuess);
+        ComputeResidual(pAbstractOdeSystem, timeStep, time, rCurrentYValues, rCurrentGuess);
         for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             residual[i] = mResidual[i];
@@ -220,19 +220,19 @@ private:
         {
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
-                guess_perturbed[i] = currentGuess[i];
+                guess_perturbed[i] = rCurrentGuess[i];
             }
 
             guess_perturbed[global_column] += epsilon;
 
-            ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, guess_perturbed);
+            ComputeResidual(pAbstractOdeSystem, timeStep, time, rCurrentYValues, guess_perturbed);
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 residual_perturbed[i] = mResidual[i];
             }
 
             // Compute residual_perturbed - residual
-            double one_over_eps=1.0/epsilon;
+            double one_over_eps = 1.0/epsilon;
             for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 mJacobian[i][global_column] = one_over_eps*(residual_perturbed[i] - residual[i]);
@@ -253,17 +253,16 @@ protected:
      * @param timeStep  dt
      * @param time  the current time
      * @param rCurrentYValues  the current (initial) state
-     * @param nextYValues  the state at the next timestep
+     * @param rNextYValues  the state at the next timestep
      */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                              double timeStep,
                              double time,
-                             std::vector<double>& currentYValues,
-                             std::vector<double>& nextYValues)
+                             std::vector<double>& rCurrentYValues,
+                             std::vector<double>& rNextYValues)
     {
         // check the size of the ode system matches the solvers expected
         assert(mSizeOfOdeSystem == pAbstractOdeSystem->GetNumberOfStateVariables());
-
 
         unsigned counter = 0;
 //        const double eps = 1e-6 * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
@@ -271,13 +270,13 @@ protected:
         double norm = 2*eps;
 
         std::vector<double> current_guess(mSizeOfOdeSystem);
-        current_guess.assign(currentYValues.begin(), currentYValues.end());
+        current_guess.assign(rCurrentYValues.begin(), rCurrentYValues.end());
 
         while (norm > eps)
         {
             // Calculate Jacobian and mResidual for current guess
-            ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, current_guess);
-            ComputeJacobian(pAbstractOdeSystem, timeStep, time, currentYValues, current_guess);
+            ComputeResidual(pAbstractOdeSystem, timeStep, time, rCurrentYValues, current_guess);
+            ComputeJacobian(pAbstractOdeSystem, timeStep, time, rCurrentYValues, current_guess);
 //            // Update norm (our style)
 //            norm = ComputeNorm(mResidual);
 
@@ -296,8 +295,7 @@ protected:
             counter++;
             assert(counter < 20); // avoid infinite loops
         }
-        nextYValues.assign(current_guess.begin(), current_guess.end());
-
+        rNextYValues.assign(current_guess.begin(), current_guess.end());
     }
 
 public:
