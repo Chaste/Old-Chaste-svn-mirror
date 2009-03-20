@@ -91,7 +91,7 @@ ReplicatableVector::~ReplicatableVector()
 
 // Vector interface methods
 
-unsigned ReplicatableVector::size(void)
+unsigned ReplicatableVector::size()
 {
     return mData.size();
 }

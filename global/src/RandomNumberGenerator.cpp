@@ -75,7 +75,7 @@ unsigned RandomNumberGenerator::randMod(unsigned base)
 /**
  * Generate a uniform random number in (0,1)
  */
-double RandomNumberGenerator::ranf(void)
+double RandomNumberGenerator::ranf()
 {
     mTimesCalled++;
     return (double)random() / RAND_MAX;
@@ -143,7 +143,7 @@ void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues
      THE DEFINITIONS OF THE CONSTANTS A(K), D(K), T(K) AND
      H(K) ARE ACCORDING TO THE ABOVEMENTIONED ARTICLE
 */
-double RandomNumberGenerator::StandardNormalRandomDeviate(void)
+double RandomNumberGenerator::StandardNormalRandomDeviate()
 {
     static double a[32] =
         {

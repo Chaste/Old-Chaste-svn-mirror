@@ -42,7 +42,7 @@ class TestOutputFileHandler : public CxxTest::TestSuite
 {
 public:
 
-    void TestHandler(void)
+    void TestHandler()
     {
         OutputFileHandler handler("");
         TS_ASSERT(handler.GetOutputDirectoryFullPath("").length() > 0);
@@ -92,7 +92,7 @@ public:
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
     }
 
-    void TestIsMaster(void)
+    void TestIsMaster()
     {
         // get an output file handler
         OutputFileHandler handler("");

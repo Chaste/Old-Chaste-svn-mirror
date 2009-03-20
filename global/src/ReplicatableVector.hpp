@@ -75,7 +75,7 @@ public:
     /**
      * Return the size of the vector.
      */
-    unsigned size(void);
+    unsigned size();
 
     /**
      * Resize the vector.

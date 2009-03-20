@@ -45,9 +45,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class RandomNumberGenerator
 {
 public:
-    double StandardNormalRandomDeviate(void);
+    double StandardNormalRandomDeviate();
     double NormalRandomDeviate(double mean, double sd);
-    double ranf(void);
+    double ranf();
     unsigned randMod(unsigned base);
     void Shuffle(unsigned num, std::vector<unsigned>& rValues);
 
