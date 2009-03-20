@@ -62,6 +62,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //   DECLARATION
 //////////////////////////////////////////////////////////////////////////
 
+/**
+ * A concrete tetrahedral mesh class.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
@@ -106,27 +109,91 @@ public:
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
     /**
-     * Return the volume of a mesh, calculated by adding the determinant of each element
+     * Return the volume of the mesh, calculated by adding the determinant of each element
      * and dividing by n!, where n is the element dimension.
      */
     double CalculateVolume();
+
+    /**
+     * Return the surface area of the mesh.
+     */
     double CalculateSurfaceArea();
 
-    void Translate(c_vector<double, SPACE_DIM> displacement);
-    void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
-    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
-    void Rotate(c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix);
-    void Rotate(c_vector<double,3> axis, double angle);
-    void RotateX(const double theta);
-    void RotateY(const double theta);
-    void RotateZ(const double theta);
-    /**Rotating a 2D mesh equates that rotation around the z-axis*/
-    void Rotate(double theta)
-    {
-        RotateZ(theta);
-    }
+    /**
+     * Translate the mesh given the displacement vector.
+     * This is the translation method that actually does the work.
+     * 
+     * @param transVec is a translation vector of the correct size
+     */
+    void Translate(c_vector<double, SPACE_DIM> transVec);
 
-    void RefreshMesh(void);
+    /**
+     * Translate the mesh given the coordinate displacements separately.
+     *  
+     * @param xMovement is the x-displacement (defaults to 0.0)
+     * @param yMovement is the y-displacement (defaults to 0.0)
+     * @param zMovement is the z-displacement (defaults to 0.0)
+     */
+    void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
+
+    /**
+     * Scale the mesh.
+     * 
+     * @param xFactor is the scale in the x-direction (defaults to 1.0)
+     * @param yFactor is the scale in the y-direction (defaults to 1.0)
+     * @param zFactor is the scale in the z-direction (defaults to 1.0)
+     */
+    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
+
+    /**
+     * Do a general mesh rotation with a positive determinant orthonormal rotation_matrix.
+     * This is the rotation method that actually does the work.
+     * 
+     * @param rotation_matrix is a Ublas rotation matrix of the correct form
+     */
+    void Rotate(c_matrix<double, SPACE_DIM, SPACE_DIM> rotationMatrix);
+
+    /**
+     * Do an angle axis rotation.
+     * 
+     * @param axis is the axis of rotation (does not need to be normalised)
+     * @param angle is the angle of rotation in radians
+     */
+    void Rotate(c_vector<double,3> axis, double angle);
+
+    /**
+     * Rotate the mesh about the x-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
+    void RotateX(const double theta);
+
+    /**
+     * Rotate the mesh about the y-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
+    void RotateY(const double theta);
+
+    /**
+     * Rotate the mesh about the z-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
+    void RotateZ(const double theta);
+
+    /**
+     * Rotating a 2D mesh equates that rotation around the z-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
+    void Rotate(double theta);
+
+    /**
+     * This method allows the mesh properties to be re-calculated after one
+     * or more nodes have been moved.
+     */
+    void RefreshMesh();
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes
@@ -346,7 +413,5 @@ public:
      */
     EdgeIterator EdgesEnd();
 };
-
-
 
 #endif //_TETRAHEDRALMESH_HPP_

@@ -70,12 +70,20 @@ public:
     MutableMesh();
     MutableMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
+    /**
+     * Destructor.
+     */
     virtual ~MutableMesh();
 
     void Clear();
 
+    /** Get the number of nodes that are actually in use. */
     unsigned GetNumNodes() const;
+
+    /** Get the number of elements that are actually in use. */
     unsigned GetNumElements() const;
+
+    /** Get the number of boundary elements that are actually in use. */
     unsigned GetNumBoundaryElements() const;
     ///should unsigned GetNumBoundaryNodes() be overloaded too??
     
@@ -89,14 +97,47 @@ public:
      */
     virtual unsigned AddNode(Node<SPACE_DIM> *pNewNode);
 
+    /**
+     *  Move the node with a particular index to a new point in space and
+      * verifies that the signed areas of the supporting Elements are positive.
+      * 
+      * @param index is the index of the node to be moved
+      * @param point is the new target location of the node
+      * @param concreteMove defaults to true.  Set to false to skip the signed area tests.
+      */
     virtual void SetNode(unsigned index, ChastePoint<SPACE_DIM> point, bool concreteMove=true);
+
+    /**
+     * Move one node to another (i.e. merges the nodes), refreshing/deleting elements as
+     * appropriate.
+     *
+     * @param index is the index of the node to be moved
+     * @param targetIndex is the index of the node to move to
+     * @param concreteMove defaults to true. Can be set to false if you just want to 
+     *                     check whether this will work. Set it to true if you're doing 
+     *                     the merger for real, in order to do all the bookkeeping.
+     */
     void MoveMergeNode(unsigned index, unsigned targetIndex, bool concreteMove=true);
 
 #define COVERAGE_IGNORE
+    /**
+     * Delete a node from the mesh by finding an appropriate neighbour node
+     * to merge it with.
+     *
+     * @param index is the index of the node to be deleted
+     */
     void DeleteNode(unsigned index);
 #undef COVERAGE_IGNORE
 
 #define COVERAGE_IGNORE
+    /**
+     * Mark a node as deleted. Note that this method DOES NOT deal with the
+     * associated elements and therefore should only be called immediately prior
+     * to a ReMesh() being called. (Thus saves work compared to DeleteNode()
+     * function and does not MoveMerge the node and elements).
+     *
+     * @param index The index of the node to delete
+     */
     void DeleteNodePriorToReMesh(unsigned index);
 #undef COVERAGE_IGNORE
 

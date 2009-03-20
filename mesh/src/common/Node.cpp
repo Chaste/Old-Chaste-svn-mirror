@@ -81,6 +81,7 @@ Node<SPACE_DIM>::Node(unsigned index, bool isBoundaryNode, double v1, double v2,
     CommonConstructor(index, isBoundaryNode);
 }
 
+
 //////////////////////////////////////////////////////////////////////////
 // Methods dealing with node location
 //////////////////////////////////////////////////////////////////////////
@@ -102,7 +103,6 @@ void Node<SPACE_DIM>::SetAsBoundaryNode(bool value)
 {
     mIsBoundaryNode = value;
 }
-
 
 template<unsigned SPACE_DIM>
 ChastePoint<SPACE_DIM> Node<SPACE_DIM>::GetPoint() const
@@ -135,7 +135,6 @@ bool Node<SPACE_DIM>::IsBoundaryNode() const
 {
     return mIsBoundaryNode;
 }
-
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -197,6 +196,7 @@ unsigned Node<SPACE_DIM>::GetNumBoundaryElements() const
 {
     return mBoundaryElementIndices.size();
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Methods dealing with some node flags (deleted, region)

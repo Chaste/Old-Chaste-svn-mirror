@@ -37,83 +37,127 @@ class BoundaryElement : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM
 {
 
 public:
-    BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
-        : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
-    {
-        RegisterWithNodes();
-    }
+
+    /**
+     * Constructor which takes in a vector of Nodes.
+     * 
+     * @param index  the index of the element in the mesh
+     * @param nodes  the nodes owned by the element
+     */
+    BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes);
 
     /**
      * Create a new boundary element from a Node.
-     * The element has ELEMENT_DIM=0 and
-     * SPACE_DIM identical to that of the node from which it is constructed.
+     * 
+     * The element has ELEMENT_DIM=0 and SPACE_DIM identical to 
+     * that of the node from which it is constructed.
+     * 
+     * @param index  the index of the element in the mesh
+     * @param pNode is a pointer to the node 
      */
-    BoundaryElement(unsigned index,
-                    Node<SPACE_DIM> *node)
-        : AbstractTetrahedralElement<ELEMENT_DIM,SPACE_DIM>(index)
-    {
-        assert (ELEMENT_DIM == 0);
+    BoundaryElement(unsigned index, Node<SPACE_DIM>* pNode);
 
-        // Store Node pointer
-        this->mNodes.push_back(node);
+    /** 
+     * Inform all nodes forming this element that they are in this element. 
+     */
+    void RegisterWithNodes();
+
+    /**
+     * Reset the index of this element in the mesh.
+     * 
+     * @param index
+     */
+    void ResetIndex(unsigned index);
+
+    /**
+     * Mark the element as deleted.
+     */
+    void MarkAsDeleted();
+
+    /**
+     * Update node at the given index
+     * 
+     * @param rIndex is an local index to which node to change
+     * @param pNode is a pointer to the replacement node
+     */
+    void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
+    : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+{
+    RegisterWithNodes();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement(unsigned index, Node<SPACE_DIM>* pNode)
+    : AbstractTetrahedralElement<ELEMENT_DIM,SPACE_DIM>(index)
+{
+    assert (ELEMENT_DIM == 0);
+
+    // Store Node pointer
+    this->mNodes.push_back(pNode);
 
 //        this->mJacobian(0,0) = 1.0;
 //        this->mInverseJacobian(0,0) = 1.0;
 //        this->mWeightedDirection(0) = 1.0;
 //        this->mJacobianDeterminant = 1.0;
 
-        RegisterWithNodes();
-    }
+    RegisterWithNodes();
+}
 
-    void RegisterWithNodes()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BoundaryElement<ELEMENT_DIM, SPACE_DIM>::RegisterWithNodes()
+{
+    for (unsigned i=0; i<this->mNodes.size(); i++)
     {
-        for (unsigned i=0; i<this->mNodes.size(); i++)
-        {
-            this->mNodes[i]->AddBoundaryElement(this->mIndex);
-        }
+        this->mNodes[i]->AddBoundaryElement(this->mIndex);
     }
+}
 
-    void ResetIndex(unsigned index)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BoundaryElement<ELEMENT_DIM, SPACE_DIM>::ResetIndex(unsigned index)
+{
+    for (unsigned i=0; i<this->GetNumNodes(); i++)
     {
-        for (unsigned i=0; i<this->GetNumNodes(); i++)
-        {
-            this->mNodes[i]->RemoveBoundaryElement(this->mIndex);
-        }
-        this->mIndex=index;
-        RegisterWithNodes();
+        this->mNodes[i]->RemoveBoundaryElement(this->mIndex);
     }
+    this->mIndex=index;
+    RegisterWithNodes();
+}
 
-    void MarkAsDeleted()
-    {
-        this->mIsDeleted = true;
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BoundaryElement<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
+{
+    this->mIsDeleted = true;
 //        this->mJacobianDeterminant = 0.0;
-        // Update nodes in this element so they know they are not contained by us
-        for (unsigned i=0; i<this->GetNumNodes(); i++)
-        {
-            this->mNodes[i]->RemoveBoundaryElement(this->mIndex);
-        }
-    }
-    /** Update node at the given index
-     *  @param rIndex is an local index to which node to change
-     *  @param pNode is a pointer to the replacement node
-     */
-    void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+    // Update nodes in this element so they know they are not contained by us
+    for (unsigned i=0; i<this->GetNumNodes(); i++)
     {
-        assert(rIndex < this->mNodes.size());
-
-        // Remove it from the node at this location
-        this->mNodes[rIndex]->RemoveBoundaryElement(this->mIndex);
-
-        // Update the node at this location
-        this->mNodes[rIndex] = pNode;
-
-        // Add element to this node
-        this->mNodes[rIndex]->AddBoundaryElement(this->mIndex);
+        this->mNodes[i]->RemoveBoundaryElement(this->mIndex);
     }
+}
 
-};
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BoundaryElement<ELEMENT_DIM, SPACE_DIM>::UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+{
+    assert(rIndex < this->mNodes.size());
 
+    // Remove it from the node at this location
+    this->mNodes[rIndex]->RemoveBoundaryElement(this->mIndex);
 
+    // Update the node at this location
+    this->mNodes[rIndex] = pNode;
+
+    // Add element to this node
+    this->mNodes[rIndex]->AddBoundaryElement(this->mIndex);
+}
 
 #endif //_BOUNDARYELEMENT_HPP_
-
