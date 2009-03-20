@@ -32,6 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 
+/**
+ * Exception class for use with the DistributedVector class.
+ */
 class DistributedVectorException
 {
     public:

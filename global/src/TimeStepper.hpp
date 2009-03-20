@@ -30,6 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TIMESTEPPER_HPP_
 #define TIMESTEPPER_HPP_
 
+/**
+ * A helper class that provides a robust way to deal with time loops.
+ * 
+ * An incremented integer counter is used to calculate the current time 
+ * and ensure that the correct end time.
+ */
 class TimeStepper
 {
 public:

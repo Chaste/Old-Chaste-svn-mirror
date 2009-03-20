@@ -38,6 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
 
+/**
+ * A special singleton class allowing one to generate different types of 
+ * random number in a globally consistent way.
+ */
 class RandomNumberGenerator
 {
 public:
