@@ -224,7 +224,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     }
     else
     {
-        EXCEPTION("Unable to read nodes per processor file "+nodesPerProcessorFile);
+        EXCEPTION("Unable to read nodes per processor file " + nodesPerProcessorFile);
     }
 
     unsigned sum = 0;

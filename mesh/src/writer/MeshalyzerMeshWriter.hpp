@@ -32,22 +32,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractMeshWriter.hpp"
 
-
+/**
+ * A concrete Meshalyzer mesh writer class.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MeshalyzerMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param rDirectory  the directory in which to write the mesh to file
+     * @param rBaseName  the base name of the files in which to write the mesh data
+     * @param clearOutputDir  whether to clean the directory (defaults to true)
+     * @param rSetCoolGraphics (defaults to false)
+     */
     MeshalyzerMeshWriter(const std::string &rDirectory,
                          const std::string &rBaseName,
                          const bool &rCleanDirectory=true,
                          const bool &rSetCoolGraphics=false);
+
+    /**
+     * Write mesh data to files.
+     */
     void WriteFiles();
+
+    /**
+     * Destructor.
+     */
     virtual ~MeshalyzerMeshWriter();
 
 };
 
 
-
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::string &rDirectory,
@@ -63,13 +84,13 @@ MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::st
 
     if (rSetCoolGraphics)
     {
-        this->mIndexFromZero=false;
-        this->mWriteMetaFile=true;
+        this->mIndexFromZero = false;
+        this->mWriteMetaFile = true;
     }
     else
     {
-        this->mIndexFromZero=true;
-        this->mWriteMetaFile=false;
+        this->mIndexFromZero = true;
+        this->mWriteMetaFile = false;
     }
 }
 
@@ -86,7 +107,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned num_nodes = this->GetNumNodes();
     *p_node_file << num_nodes << "\n";
 
-    //Write each node's data
+    // Write each node's data
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
@@ -107,7 +128,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     }
     p_node_file->close();
 
-    //Write Element file
+    // Write element file
     std::string element_file_name;
 
     if (SPACE_DIM == 3)
@@ -119,20 +140,19 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         element_file_name = this->mBaseName+".tri";
     }
 
-
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
 
-    //Write the element header
+    // Write the element header
     unsigned num_elements = this->GetNumElements();
 
     *p_element_file << num_elements << "\n";
 
-    //Write each element's data
+    // Write each element's data
     unsigned nodes_per_element = ELEMENT_DIM+1;
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->mElementData[item_num];
-        for (unsigned i=0;i<nodes_per_element;i++)
+        for (unsigned i=0; i<nodes_per_element;i++)
         {
             if (this->mIndexFromZero)
             {
@@ -150,17 +170,17 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     if (SPACE_DIM==3)
     {
-        //Write boundary face file
+        // Write boundary face file
         std::string face_file_name = this->mBaseName+".tri";
         out_stream p_face_file = this->mpOutputFileHandler->OpenOutputFile(face_file_name);
 
-        //Write the boundary face header
+        // Write the boundary face header
         unsigned num_faces = this->GetNumBoundaryFaces();
 
-        *p_face_file<< num_faces << "\n";
+        *p_face_file << num_faces << "\n";
 
-        //Write each face's data
-        double material_property= 0.0;
+        // Write each face's data
+        double material_property = 0.0;
         for (unsigned item_num=0; item_num<num_faces; item_num++)
         {
             std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
@@ -193,6 +213,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::~MeshalyzerMeshWriter()
-{}
+{
+}
 
 #endif //_MESHALYZERMESHWRITER_HPP_

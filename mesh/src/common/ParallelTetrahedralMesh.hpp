@@ -52,14 +52,14 @@ extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, 
 };
 #include "metis.h"
 
- 
+
 /**
  * \todo explicit instantiation
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
-    
+
     friend class TestParallelTetrahedralMesh;
 
 public:
@@ -70,36 +70,58 @@ public:
         METIS_BINARY,
         METIS_LIBRARY
     } PartitionType;            
-    
+
 private: 
 
+    /** The total number of elements in the mesh. */
     unsigned mTotalNumElements;
-    unsigned mTotalNumBoundaryElements; 
+
+    /** The total number of boundary elements in the mesh. */
+    unsigned mTotalNumBoundaryElements;
+
+    /** The total number of nodes in the mesh. */
     unsigned mTotalNumNodes;
-    
+
     std::vector<Node<SPACE_DIM>* > mHaloNodes;
-    
+
     std::map<unsigned, unsigned> mNodesMapping;
     std::map<unsigned, unsigned> mHaloNodesMapping;    
     std::map<unsigned, unsigned> mElementsMapping;
     std::map<unsigned, unsigned> mBoundaryElementsMapping;        
-    
+
     PartitionType mMetisPartitioning;
-        
+
 public:        
 
+    /**
+     * Constructor.
+     */
     ParallelTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
 
+    /**
+     * Destructor.
+     */
     virtual ~ParallelTetrahedralMesh();
 
+    /**
+     * Construct the mesh using a MeshReader.
+     * 
+     * @param rMeshReader the mesh reader
+     * @param cullInternalFaces whether to cull internal faces (defaults to false)
+     */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
     unsigned GetNumLocalNodes() const;
     unsigned GetNumLocalElements() const;
 
+    /** Get the total number of nodes in the mesh. */
     unsigned GetNumNodes() const;
-    unsigned GetNumElements() const;    
+
+    /** Get the total number of elements in the mesh. */
+    unsigned GetNumElements() const;
+
+    /** Get the total number of boundary elements in the mesh. */
     unsigned GetNumBoundaryElements() const;    
     
     void SetElementOwnerships(unsigned lo, unsigned hi);

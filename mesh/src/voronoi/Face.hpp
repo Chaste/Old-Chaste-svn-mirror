@@ -38,6 +38,7 @@ template <unsigned DIM>
 class Face
 {
 public:
+
     /**
      * The vertices of the face, in anticlockwise order. Each vertex must be distinct.
      */
@@ -118,15 +119,18 @@ public:
 };
 
 
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
 
 template <unsigned DIM>
 void Face<DIM>::Increment(typename std::vector< c_vector<double, DIM>* >::iterator& rIterator,
-                     Face<DIM>& rFace) const
+                          Face<DIM>& rFace) const
 {
     rIterator++;
     if (rIterator==rFace.mVertices.end() )
     {
-        rIterator=rFace.mVertices.begin();
+        rIterator = rFace.mVertices.begin();
     }
 };
 
@@ -156,7 +160,7 @@ bool Face<DIM>::operator==(Face<DIM>& otherFace)
     // check remanining vertices are equal
     while (this_iterator!=this_start)
     {
-        if (norm_2(**this_iterator - **other_iterator) >1e-10)
+        if (norm_2(**this_iterator - **other_iterator) > 1e-10)
         {
             return false;
         }
@@ -182,7 +186,7 @@ Face<DIM> Face<DIM>::operator-()
 {
    Face<DIM> reversed_face;
    typename std::vector< c_vector<double, DIM>* >::iterator this_iterator=mVertices.end();
-   while (this_iterator !=mVertices.begin())
+   while (this_iterator != mVertices.begin())
    {
        this_iterator--;
        reversed_face.mVertices.push_back(*this_iterator);
@@ -263,12 +267,10 @@ double Face<DIM>::ReturnPolarAngle(double x, double y) const
     return angle;
 };
 
-
-
 template <unsigned DIM>
 void Face<DIM>::OrderVerticesAntiClockwise()
 {
-     // Reorder mVertices Anticlockwise
+    // Reorder mVertices Anticlockwise
     std::vector< VertexAndAngle > vertices_and_angles;
 
     c_vector<double,DIM> centre = zero_vector<double>(DIM);
@@ -294,7 +296,7 @@ void Face<DIM>::OrderVerticesAntiClockwise()
 
     std::sort(vertices_and_angles.begin(), vertices_and_angles.end());
 
-    // create face
+    // Create face
     mVertices.clear();
     for ( typename std::vector< VertexAndAngle >::iterator vertex_iterator = vertices_and_angles.begin();
           vertex_iterator !=vertices_and_angles.end();
@@ -303,6 +305,5 @@ void Face<DIM>::OrderVerticesAntiClockwise()
         mVertices.push_back(vertex_iterator->mpVertex);
     }
 };
-
 
 #endif /*FACE_HPP_*/

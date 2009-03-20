@@ -97,15 +97,35 @@ protected:
             
 public:
 
+    /**
+     * Constructor.
+     */
     TetrahedralMesh();
+
+    /**
+     * Constructor which takes in a number of elements.
+     *
+     * @param numElements
+     */
     TetrahedralMesh(unsigned numElements);
     //TetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
     //virtual ~TetrahedralMesh();
 
+    /**
+     * Construct the mesh using a MeshReader.
+     * 
+     * @param rMeshReader the mesh reader
+     * @param cullInternalFaces whether to cull internal faces (defaults to false)
+     */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
+    /**
+     * Read in the number of nodes per processor from file.
+     * 
+     * @param nodesPerProcessorFile
+     */
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
     /**
@@ -198,45 +218,58 @@ public:
     /**
      * Permute the nodes so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly).
-     *
      */
     void PermuteNodes();
 
     /**
-      * Permute the nodes so that they appear in a different order in mNodes
-      * (and their mIndex's are altered accordingly) using Metis binaries.
-      *
-      * @param numProcs Number of processors (e.g. number of partitions)
-      */
+     * Permute the nodes so that they appear in a different order in mNodes
+     * (and their mIndex's are altered accordingly) using Metis binaries.
+     *
+     * @param numProcs Number of processors (e.g. number of partitions)
+     */
     void PermuteNodesWithMetisBinaries(unsigned numProcs);
 
     /**
-      * Permute the nodes so that they appear in a different order in mNodes
-      * (and their mIndex's are altered accordingly).
+     * Permute the nodes so that they appear in a different order in mNodes
+     * (and their mIndex's are altered accordingly).
+     * 
      * @param perm is a vector containing the new indices
      */
     void PermuteNodes(std::vector<unsigned>& perm);
 
+    /**
+     * Construct a linear grid on [0,width].
+     * 
+     * @param width
+     */
     void ConstructLinearMesh(unsigned width);
 
     /**
-     * Construct a rectangular grid on [0,width]x[0,height]
-     * diagonals can be staggered so that there is no prefered diffusion propagation
-     * direction.
+     * Construct a rectangular grid on [0,width]x[0,height].
+     * Diagonals can be staggered so that there is no preferred 
+     * diffusion propagation direction.
+     * 
+     * @param width
+     * @param height
+     * @param stagger whether the mesh should 'jumble' up the elements (defaults to true)
      */
     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
 
     /**
-     * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
-     * diagonals can be staggered so that there is no prefered diffusion propagation
+     * Construct a cuboid grid on [0,width]x[0,height]x[0,depth].
+     * Diagonals can be staggered so that there is no preferred diffusion propagation
      * direction.
      *
+     * @param width
+     * @param height
+     * @param depth
      * @param stagger whether the mesh should 'jumble' up the elements (defaults to false)
      */
     void ConstructCuboid(unsigned width, unsigned height, unsigned depth, bool stagger=false);
 
     /**
-     *  Returns the element index for the first element that is known to contain a test point
+     *  Returns the element index for the first element that is known to contain a test point.
+     * 
      *  @param testPoint
      *  @param strict Should the element returned contain the point in the interior and
      *  not on an edge/face/vertex (default = not strict)
@@ -337,7 +370,6 @@ public:
 
     void UnflagAllElements();
 
-
     /**
      *  Flag all elements not containing ANY of the given nodes
      */
@@ -349,7 +381,6 @@ public:
     virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;     
     virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
-
 
 //    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;    
 //    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;

@@ -43,11 +43,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshReader.hpp"
 #include "NodeMap.hpp"
 
-
+/**
+ * An abstract mesh writer class.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMeshWriter
 {
 protected:
+
     OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
 
@@ -61,43 +64,61 @@ protected:
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
     bool mWriteMetaFile;
+
 public:
-    /** Constructor */
+
+    /**
+     * Constructor.
+     * 
+     * @param rDirectory  the directory in which to write the mesh to file
+     * @param rBaseName  the base name of the files in which to write the mesh data
+     * @param clearOutputDir  whether to clean the directory (defaults to true)
+     */
     AbstractMeshWriter(const std::string &rDirectory,
                        const std::string &rBaseName,
-                       const bool clearOutputDir=true)
-            : mBaseName(rBaseName)
-    {
-        mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
-    }
-    /** Destructor */
-    virtual ~AbstractMeshWriter()
-    {
-        delete mpOutputFileHandler;
-    }
-    std::string GetOutputDirectory(void);
+                       const bool clearOutputDir=true);
+
+    /**
+     * Destructor.
+     */
+    virtual ~AbstractMeshWriter();
+
+    /**
+     * Return the full path to the directory where meshes will be written.
+     */
+    std::string GetOutputDirectory();
 
     void SetNextNode(std::vector<double> nextNode);
     virtual void SetNextElement(std::vector<unsigned> nextElement);
     void SetNextBoundaryFace(std::vector<unsigned> nextFace);
     void SetNextBoundaryEdge(std::vector<unsigned> nextEdge);
+
+    /**
+     * Write mesh data to files.
+     * This method must be overridden in concrete classes.
+     */
     virtual void WriteFiles()=0;
-    unsigned GetNumNodes()
-    {
-        return mNodeData.size();
-    }
-    unsigned GetNumElements()
-    {
-        return mElementData.size();
-    }
-    unsigned GetNumBoundaryFaces()
-    {
-        return mBoundaryFaceData.size();
-    }
-    unsigned GetNumBoundaryEdges()
-    {
-        return mBoundaryFaceData.size();
-    }
+
+    /**
+     * Get the number of nodes in the mesh.
+     */
+    unsigned GetNumNodes();
+
+    /**
+     * Get the number of elements in the mesh.
+     */
+    unsigned GetNumElements();
+
+    /**
+     * Get the number of boundary elements in the mesh.
+     */
+    unsigned GetNumBoundaryFaces();
+
+    /**
+     * Get the number of boundary faces in the mesh.
+     */
+    unsigned GetNumBoundaryEdges();
+
     void WriteFilesUsingMesh(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
@@ -105,13 +126,51 @@ public:
 };
 
 
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
 
-
-/**
- * Return the full path to the directory where meshes will be written.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::string AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetOutputDirectory(void)
+AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractMeshWriter(const std::string &rDirectory,
+                   const std::string &rBaseName,
+                   const bool clearOutputDir)
+    : mBaseName(rBaseName)
+{
+    mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
+}
+    
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::~AbstractMeshWriter()
+{
+    delete mpOutputFileHandler;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
+{
+    return mNodeData.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
+{
+    return mElementData.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryFaces()
+{
+    return mBoundaryFaceData.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryEdges()
+{
+    return mBoundaryFaceData.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::string AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetOutputDirectory()
 {
     return mpOutputFileHandler->GetOutputDirectoryFullPath();
 }

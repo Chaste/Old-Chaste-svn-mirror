@@ -43,8 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vtkDataCompressor.h>
 #include "AbstractMeshWriter.hpp"
 
-
-
 /**
  *  VtkWriter
  * 
@@ -63,30 +61,50 @@ private:
     void MakeVtkMesh();
 #endif //CHASTE_VTK
 public:
-    VtkWriter(const std::string &rDirectory,
-                const std::string &rBaseName,
-                const bool &rCleanDirectory=true);
+
+    /**
+     * Constructor.
+     * 
+     * @param rDirectory  the directory in which to write the mesh to file
+     * @param rBaseName  the base name of the files in which to write the mesh data
+     * @param clearOutputDir  whether to clean the directory (defaults to true)
+     */
+    VtkWriter(const std::string &rDirectory, const std::string &rBaseName, const bool &rCleanDirectory=true);
+
+    /**
+     * Write mesh data to files.
+     */
     void WriteFiles();
+
     void AddCellData(std::string name, std::vector<double> data);
     void AddPointData(std::string name, std::vector<double> data);
-    virtual ~VtkWriter()
-    {
-        mpVtkUnstructedMesh->Delete(); //Reference counted
-    }
+
+    /**
+     * Destructor.
+     */
+    virtual ~VtkWriter();
 };
 
 
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
 VtkWriter::VtkWriter(const std::string &rDirectory,
-                         const std::string &rBaseName,
-                         const bool &rCleanDirectory)
-        : AbstractMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
+                     const std::string &rBaseName,
+                     const bool &rCleanDirectory)
+    : AbstractMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
 {
-    this->mIndexFromZero=true;
+    this->mIndexFromZero = true;
     
-    //Dubious, since we shouldn't yet know what any details of the mesh are.
-    mpVtkUnstructedMesh=vtkUnstructuredGrid::New();
+    // Dubious, since we shouldn't yet know what any details of the mesh are.
+    mpVtkUnstructedMesh = vtkUnstructuredGrid::New();
 }
 
+VtkWriter::~VtkWriter()
+{
+    mpVtkUnstructedMesh->Delete(); // Reference counted
+}
 
 void VtkWriter::MakeVtkMesh()
 {
@@ -113,10 +131,8 @@ void VtkWriter::MakeVtkMesh()
         }
         mpVtkUnstructedMesh->InsertNextCell(p_tetra->GetCellType(), p_tetra_id_list);
         p_tetra->Delete(); //Reference counted
-    }
-    
+    }    
 }    
-
 
 void VtkWriter::WriteFiles()
 {

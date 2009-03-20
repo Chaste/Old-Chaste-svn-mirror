@@ -41,7 +41,7 @@ class TestPapillaryExtractor : public CxxTest::TestSuite
 {
 public:
 
-    void TestExtractor(void) throw(Exception)
+    void TestExtractor() throw(Exception)
     {
 //    	TrianglesMeshReader<3, 3> mesh_reader("/home/chaste/heart_data/heartT_renum_i");
 //		TetrahedralMesh<3,3> mesh;

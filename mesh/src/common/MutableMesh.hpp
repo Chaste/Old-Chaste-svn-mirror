@@ -41,24 +41,41 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 
+/**
+ * Mutable mesh class.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MutableMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
 
-    /// Indices of elements/nodes that have been deleted - these indices can be reused when adding
-    /// new elements/nodes
+    /**
+     * Indices of elements that have been marked as deleted.
+     * These indices can be reused when adding new nodes.
+     */
     std::vector<unsigned> mDeletedElementIndices;
-    std::vector<unsigned> mDeletedBoundaryElementIndices;
-    std::vector<unsigned> mDeletedNodeIndices;
-    bool mAddedNodes;
 
+    /**
+     * Indices of boundary elements that have been marked as deleted.
+     * These indices can be reused when adding new nodes.
+     */
+    std::vector<unsigned> mDeletedBoundaryElementIndices;
+
+    /**
+     * Indices of nodes that have been marked as deleted.
+     * These indices can be reused when adding new nodes.
+     */
+    std::vector<unsigned> mDeletedNodeIndices;
+
+    /** Whether any nodes have been added to the mesh. */
+    bool mAddedNodes;
 
 private:
 
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
-     * @param pointer to an element
+     * 
+     * @param pElement pointer to an element
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of the element, as a proportion of the circumsphere radius.
      */
@@ -67,7 +84,17 @@ private:
 #undef COVERAGE_IGNORE
 
 public:
+
+    /**
+     * Constructor.
+     */
     MutableMesh();
+
+    /**
+     * Constructor which takes in a vector of nodes.
+     * 
+     * @param nodes
+     */
     MutableMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
     /**
@@ -75,15 +102,24 @@ public:
      */
     virtual ~MutableMesh();
 
+    /**
+     *  Clear all the data in the mesh
+     */
     void Clear();
 
-    /** Get the number of nodes that are actually in use. */
+    /**
+     * Get the number of nodes that are actually in use.
+     */
     unsigned GetNumNodes() const;
 
-    /** Get the number of elements that are actually in use. */
+    /**
+     * Get the number of elements that are actually in use.
+     */
     unsigned GetNumElements() const;
 
-    /** Get the number of boundary elements that are actually in use. */
+    /**
+     * Get the number of boundary elements that are actually in use.
+     */
     unsigned GetNumBoundaryElements() const;
     ///should unsigned GetNumBoundaryNodes() be overloaded too??
     
@@ -191,7 +227,7 @@ public:
 #define COVERAGE_IGNORE     
     bool CheckVoronoi(double maxPenetration=0.0);    
 #undef COVERAGE_IGNORE
-};
 
+};
 
 #endif /*MUTABLEMESH_HPP_*/

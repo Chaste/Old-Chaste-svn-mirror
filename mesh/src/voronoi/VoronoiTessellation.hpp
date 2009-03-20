@@ -85,12 +85,15 @@ private:
 
 public:
 
-    /***
+    /**
      * Constructor. Create a tesselation of the given mesh which must be Delaunay
      * (see TetrahedralMesh::CheckVoronoi).
      */
     VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh);
 
+    /**
+     * Destructor.
+     */
     ~VoronoiTessellation();
 
     /***
@@ -116,6 +119,10 @@ public:
 };
 
 
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
 template<unsigned DIM>
 VoronoiTessellation<DIM>::VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh)
     : mrMesh(rMesh)
@@ -136,21 +143,21 @@ VoronoiTessellation<DIM>::VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh)
     Initialise(rMesh);
 };
 
-
 template<unsigned DIM>
 void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
 {
-    for(unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
+    for (unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
     {
-        // this edge is on the boundary
+        // This edge is on the boundary
         Face<DIM>* p_face = new Face<DIM>;
         mFaces.push_back(p_face);
     }
 
-
-    // loop over elements, for each element calculate circumcentre (=vertex), set that as a
-    // vertex for each node(=face in 2d) of that element. Also loop over mesh-edges of the element
-    // and add the vertex as a vertex for that vertex-edge
+    /*
+     * Loop over elements, for each element calculate circumcentre (=vertex), set that as a
+     * vertex for each node(=face in 2d) of that element. Also loop over mesh-edges of the 
+     * element and add the vertex as a vertex for that vertex-edge.
+     */
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_det;
     for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
@@ -190,7 +197,7 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
         }
         std::sort(vertices_and_angles.begin(), vertices_and_angles.end());
 
-        // create face
+        // Create face
         Face<DIM>* p_face = new Face<DIM>;
         for ( typename std::vector< VertexAndAngle >::iterator vertex_iterator = vertices_and_angles.begin();
               vertex_iterator !=vertices_and_angles.end();
@@ -199,13 +206,11 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
             p_face->mVertices.push_back(vertex_iterator->mpVertex);
         }
 
-
-        // add face to list of faces
+        // Add face to list of faces
         delete mFaces[i];
         mFaces[i] = p_face;
     }
 }
-
 
 template<unsigned DIM>
 void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
@@ -214,7 +219,7 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
     assert(DIM==3);
     #undef COVERAGE_IGNORE
 
-    // loop over each edge
+    // Loop over each edge
     for (typename TetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = mrMesh.EdgesBegin();
          edge_iterator != mrMesh.EdgesEnd();
          ++edge_iterator)
@@ -248,9 +253,9 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
             basis_vector2[2] = edge_vector[0]*basis_vector1[1] - edge_vector[1]*basis_vector1[0];
 
             std::vector< VertexAndAngle> vertices;
-            // loop over each element containg this edge
-            // the elements are those containing both nodes of the edge
 
+            // Loop over each element containg this edge
+            // the elements are those containing both nodes of the edge
             for (std::set< unsigned >::iterator element_index_iterator=edge_element_indices.begin();
                  element_index_iterator!=edge_element_indices.end();
                  element_index_iterator++)
@@ -268,10 +273,10 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
                 vertices.push_back(va);
             }
 
-            // sort vertices by angle
+            // Sort vertices by angle
             std::sort(vertices.begin(), vertices.end());
 
-            // create face
+            // Create face
             Face<DIM>* p_face = new Face<DIM>;
             for ( typename std::vector< VertexAndAngle >::iterator vertex_iterator = vertices.begin();
                   vertex_iterator !=vertices.end();
@@ -280,10 +285,9 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
                 p_face->mVertices.push_back(vertex_iterator->mpVertex);
             }
 
-            // add face to list of faces
+            // Add face to list of faces
             mFaces.push_back(p_face);
             // .. and appropriate elements
-
             if (!p_node_a->IsBoundaryNode())
             {
                 mVoronoiCells[p_node_a->GetIndex()].mFaces.push_back(p_face);
@@ -300,20 +304,17 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
     }
 }
 
-
-
-
 template<unsigned DIM>
 VoronoiTessellation<DIM>::~VoronoiTessellation()
 {
-    // delete faces
+    // Delete faces
     for (typename std::vector< Face<DIM>* >::iterator face_iterator=mFaces.begin();
          face_iterator!=mFaces.end();
          face_iterator++)
     {
         delete *face_iterator;
     }
-    // delete vertices
+    // Delete vertices
     for (typename std::vector< c_vector<double,DIM>* >::iterator vertex_iterator=mVertices.begin();
          vertex_iterator!=mVertices.end();
          vertex_iterator++)
@@ -325,7 +326,6 @@ VoronoiTessellation<DIM>::~VoronoiTessellation()
 template<unsigned DIM>
 void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 {
-
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_det;
     for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
@@ -440,7 +440,7 @@ double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
 #define COVERAGE_IGNORE
     assert(DIM==2);
 #undef COVERAGE_IGNORE
-    Face<DIM>& face= *(mFaces[index]);
+    Face<DIM>& face = *(mFaces[index]);
     assert(face.mVertices.size()>0);
 
     Face<DIM> normalised_face;
@@ -470,7 +470,7 @@ double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
     #define COVERAGE_IGNORE
     assert(DIM==2);
     #undef COVERAGE_IGNORE
-    Face<DIM>& face= *(mFaces[index]);
+    Face<DIM>& face = *(mFaces[index]);
     assert(face.mVertices.size()>0);
 
     Face<DIM> normalised_face;
