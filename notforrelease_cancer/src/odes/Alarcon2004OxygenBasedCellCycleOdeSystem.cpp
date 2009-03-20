@@ -76,7 +76,7 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(const CellMutati
     mMutationState = rMutationState;
 }
 
-Alarcon2004OxygenBasedCellCycleOdeSystem::~Alarcon2004OxygenBasedCellCycleOdeSystem(void)
+Alarcon2004OxygenBasedCellCycleOdeSystem::~Alarcon2004OxygenBasedCellCycleOdeSystem()
 {
     // Do nothing
 }
@@ -161,7 +161,7 @@ bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double tim
 }
 
 template<>
-void CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>::Initialise(void)
+void CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("Cdh1_APC_complexes");
     this->mVariableUnits.push_back("non_dim");

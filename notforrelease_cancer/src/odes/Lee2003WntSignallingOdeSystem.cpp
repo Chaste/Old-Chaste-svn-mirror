@@ -52,7 +52,7 @@ Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double wntStimulus)
     SetInitialConditionsComponent(7u, wntStimulus);
 }
 
-Lee2003WntSignallingOdeSystem::~Lee2003WntSignallingOdeSystem(void)
+Lee2003WntSignallingOdeSystem::~Lee2003WntSignallingOdeSystem()
 {
     // Do nothing
 }
@@ -138,7 +138,7 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
 
 
 template<>
-void CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>::Initialise(void)
+void CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("Dsh_active");
     this->mVariableUnits.push_back("nM");

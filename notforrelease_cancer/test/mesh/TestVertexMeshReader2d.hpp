@@ -39,7 +39,7 @@ public:
     /**
      * Check that input files are opened correctly.
      */
-    void TestFilesOpen(void) throw(Exception)
+    void TestFilesOpen() throw(Exception)
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
     }
@@ -50,7 +50,7 @@ public:
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing nodes) then an exception is thrown.
      */
-    void TestNodesDataRead(void) throw(Exception)
+    void TestNodesDataRead() throw(Exception)
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
@@ -71,7 +71,7 @@ public:
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing elements) then an exception is thrown.
      */
-    void TestElementsDataRead(void) throw(Exception)
+    void TestElementsDataRead() throw(Exception)
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         
@@ -121,7 +121,7 @@ public:
      * number is only stored as the index of the vector in which the coordinates
      * are stored.)
      */
-    void TestPermutedNodesFail(void) throw(Exception)
+    void TestPermutedNodesFail() throw(Exception)
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_permuted_nodes");
         TS_ASSERT_THROWS_ANYTHING(for(unsigned i=0;i<mesh_reader.GetNumNodes();i++){mesh_reader.GetNextNode();})
@@ -134,7 +134,7 @@ public:
      * values, checks that no errors are thrown for the remaining nodes and
      * that an error is thrown if we try to call the function too many times.
      */
-    void TestGetNextNode(void) throw(Exception)
+    void TestGetNextNode() throw(Exception)
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
@@ -164,7 +164,7 @@ public:
      * all of the elements and that an error is thrown if we try to call the
      * function too many times.
      */
-    void TestGetNextElementData(void) throw(Exception)
+    void TestGetNextElementData() throw(Exception)
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 

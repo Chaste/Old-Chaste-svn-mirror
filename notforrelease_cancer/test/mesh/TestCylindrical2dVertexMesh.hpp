@@ -40,7 +40,7 @@ class TestCylindrical2dVertexMesh : public CxxTest::TestSuite
 {
 public:
 
-    void TestMeshGenerator(void)
+    void TestMeshGenerator()
     {
         // Create non-periodic mesh
         VertexMesh<2,2> non_periodic_mesh(4, 4, 0.01, 2.0);
@@ -68,7 +68,7 @@ public:
     }
 
 
-    void TestMeshGetWidth(void)
+    void TestMeshGetWidth()
     {
         // Create mesh
         Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4, 0.01, 2.0);

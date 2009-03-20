@@ -50,7 +50,7 @@ class TestCellKillersNotForRelease : public AbstractCancerTestSuite
 {
 public:
 
-    void TestRadialSloughingCellKiller(void) throw(Exception)
+    void TestRadialSloughingCellKiller() throw(Exception)
     {
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -113,7 +113,7 @@ public:
         }
     }
 
-    void TestOxygenBasedCellKiller(void) throw(Exception)
+    void TestOxygenBasedCellKiller() throw(Exception)
     {
         // Set up
         CancerParameters::Instance()->SetHepaOneParameters();

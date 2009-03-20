@@ -120,7 +120,7 @@ private:
 
 public:
 
-    void TestExceptions(void)
+    void TestExceptions()
     {
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
 
@@ -149,7 +149,7 @@ public:
     // No death because the initial length is 21 and only cells
     // with position greater than 22 (=default crypt length)
     // are sloughed off.
-    void Test1dChainWithNoBirth(void) throw(Exception)
+    void Test1dChainWithNoBirth() throw(Exception)
     {
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -182,7 +182,7 @@ public:
 
     // Death because this test has a cell starting at the end of
     // the crypt.
-    void Test1dChainWithDeathAndNoBirth(void) throw(Exception)
+    void Test1dChainWithDeathAndNoBirth() throw(Exception)
     {
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();

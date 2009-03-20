@@ -114,7 +114,7 @@ public:
     }
     
     
-    void TestSimpleOxygenBasedCellCycleModel(void) throw(Exception)
+    void TestSimpleOxygenBasedCellCycleModel() throw(Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetHepaOneParameters();
@@ -384,7 +384,7 @@ public:
     }
     
     
-    void TestStochasticOxygenBasedCellCycleModel(void) throw(Exception)
+    void TestStochasticOxygenBasedCellCycleModel() throw(Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetHepaOneParameters();

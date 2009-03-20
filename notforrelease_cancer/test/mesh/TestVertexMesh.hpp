@@ -242,7 +242,7 @@ public:
     }
 
 
-    void TestMeshGetWidthAndWidthExtremes(void)
+    void TestMeshGetWidthAndWidthExtremes()
     {
         // Create mesh
         VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
@@ -333,7 +333,7 @@ public:
     }
     
 
-    void TestMeshConstructionFromMeshReader(void)
+    void TestMeshConstructionFromMeshReader()
     {
         // Create mesh
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
@@ -383,7 +383,7 @@ public:
     }
 
 
-    void TestMeshConstructionFromMeshReaderIndexedFromOne(void)
+    void TestMeshConstructionFromMeshReaderIndexedFromOne()
     {
         // Create mesh
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
@@ -1505,7 +1505,7 @@ public:
     }
 
 
-    void TestScale(void)
+    void TestScale()
     {
         // Create 2D mesh
         VertexMesh<2,2> mesh2d(3, 3, 0.01, 2.0);
@@ -1554,7 +1554,7 @@ public:
     }
 
 
-    void TestElementIncludesPointAndGetLocalIndexForElementEdgeClosestToPoint(void)
+    void TestElementIncludesPointAndGetLocalIndexForElementEdgeClosestToPoint()
     {
         // Make four nodes
         std::vector<Node<2>*> nodes;
@@ -1626,7 +1626,7 @@ public:
     }
 
 
-    void TestRemeshNodeOverlappingElement(void)
+    void TestRemeshNodeOverlappingElement()
     {
         /*
          * Make a small mesh consisting of three elements: 
@@ -1700,7 +1700,7 @@ public:
     }
 
 
-    void TestBoundaryNodes(void)
+    void TestBoundaryNodes()
     {
         // Create a mesh with just boundary nodes
         std::vector<Node<2>*> nodes;
@@ -1751,6 +1751,6 @@ public:
         }
     }
 
-};    
+};
 
 #endif /*TESTVERTEXMESH_HPP_*/
