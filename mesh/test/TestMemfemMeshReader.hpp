@@ -27,13 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-// TestMemfemMeshReader.hpp
-
-/**
- * Test suite for the MemfemMeshReader class.
- *
- */
-
 #ifndef _TESTMEMFEMMESHREADER_HPP_
 #define _TESTMEMFEMMESHREADER_HPP_
 
@@ -50,28 +43,27 @@ public:
      * Check that input files are opened correctly.
      *
      */
-    void TestFilesOpen(void)
+    void TestFilesOpen()
     {
-        MemfemMeshReader<3,3> *pMeshReader;
-        pMeshReader = new READER_3D(
-                              "mesh/test/data/Memfem_slab");
+        MemfemMeshReader<3,3>* pMeshReader;
+        pMeshReader = new READER_3D("mesh/test/data/Memfem_slab");
 
-        TS_ASSERT(pMeshReader->GetNumNodes() == 381U);
-        TS_ASSERT(pMeshReader->GetNumElements() == 1030U);
-        TS_ASSERT(pMeshReader->GetNumFaces() == 758U);
-        TS_ASSERT(pMeshReader->GetNumElementAttributes() == 0U);
+        TS_ASSERT_EQUALS(pMeshReader->GetNumNodes(), 381u);
+        TS_ASSERT_EQUALS(pMeshReader->GetNumElements(), 1030u);
+        TS_ASSERT_EQUALS(pMeshReader->GetNumFaces(), 758u);
+        TS_ASSERT_EQUALS(pMeshReader->GetNumElementAttributes(), 0u);
 
-        std::vector<unsigned> NextFace;
+        std::vector<unsigned> next_face;
 
-        NextFace = pMeshReader->GetNextFaceData().NodeIndices;
+        next_face = pMeshReader->GetNextFaceData().NodeIndices;
 
-        TS_ASSERT( NextFace[0] == 338  );
-        TS_ASSERT( NextFace[1] == 23 );
-        TS_ASSERT( NextFace[2] == 374 );
+        TS_ASSERT_EQUALS(next_face[0], 338u);
+        TS_ASSERT_EQUALS(next_face[1], 23u);
+        TS_ASSERT_EQUALS(next_face[2], 374u);
 
-        TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
+        TS_ASSERT_EQUALS(pMeshReader->GetMaxNodeIndex(), pMeshReader->GetNumNodes() - 1);
 
-        TS_ASSERT(pMeshReader->GetMinNodeIndex() == 0);
+        TS_ASSERT_EQUALS(pMeshReader->GetMinNodeIndex(), 0u);
 
         delete pMeshReader;
     }

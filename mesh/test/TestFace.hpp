@@ -41,36 +41,36 @@ public:
     void TestEquality()
     {
         c_vector<double, 3> vertex0;
-        vertex0(0)= -0.25*(1+DBL_EPSILON);
-        vertex0(1)=-0.2500;
-        vertex0(2)=1.2500;
+        vertex0(0) =  -0.25*(1+DBL_EPSILON);
+        vertex0(1) = -0.2500;
+        vertex0(2) = 1.2500;
         c_vector<double, 3> vertex1;
-        vertex1(0)= -0.2500;
-        vertex1(1)=-0.2500;
-        vertex1(2)=1.2500;
+        vertex1(0) =  -0.2500;
+        vertex1(1) = -0.2500;
+        vertex1(2) = 1.2500;
 
-        //Check that there really is a difference
-        TS_ASSERT_DIFFERS(norm_2(vertex0-vertex1),0.0);
+        // Check that there really is a difference
+        TS_ASSERT_DIFFERS(norm_2(vertex0-vertex1), 0.0);
         c_vector<double, 3> vertex2;
-        vertex2(0)=1.2500;
-        vertex2(1)=-0.2500;
-        vertex2(2)=-0.2500;
+        vertex2(0) = 1.2500;
+        vertex2(1) = -0.2500;
+        vertex2(2) = -0.2500;
         c_vector<double, 3> vertex3;
-        vertex3(0)= -0.2500;
-        vertex3(1)=1.2500;
-        vertex3(2)=-0.2500;
+        vertex3(0) =  -0.2500;
+        vertex3(1) = 1.2500;
+        vertex3(2) = -0.2500;
         c_vector<double, 3> vertex4;
-        vertex4(0)= 1.2500;
-        vertex4(1)=1.2500;
-        vertex4(2)=1.2500;
+        vertex4(0) =  1.2500;
+        vertex4(1) = 1.2500;
+        vertex4(2) = 1.2500;
         c_vector<double, 3> vertex5;
-        vertex5(0)= 1.0;
-        vertex5(1)=1.0;
-        vertex5(2)=1.0;
+        vertex5(0) =  1.0;
+        vertex5(1) = 1.0;
+        vertex5(2) = 1.0;
         c_vector<double, 3> vertex6;
-        vertex6(0)= 2.0;
-        vertex6(1)=2.0;
-        vertex6(2)=2.0;
+        vertex6(0) =  2.0;
+        vertex6(1) = 2.0;
+        vertex6(2) = 2.0;
 
         Face<3> face0;
         Face<3> face1;
@@ -123,20 +123,20 @@ public:
     void TestFace2D()
     {
         c_vector<double, 2> vertex0;
-        vertex0(0)=0.0;
-        vertex0(1)=0.0;
+        vertex0(0) = 0.0;
+        vertex0(1) = 0.0;
 
         c_vector<double, 2> vertex1;
-        vertex1(0)=1.0;
-        vertex1(1)=0.0;
+        vertex1(0) = 1.0;
+        vertex1(1) = 0.0;
 
         c_vector<double, 2> vertex2;
-        vertex2(0)=1.0;
-        vertex2(1)=1.0;
+        vertex2(0) = 1.0;
+        vertex2(1) = 1.0;
 
         c_vector<double, 2> vertex3;
-        vertex3(0)=0.0;
-        vertex3(1)=1.0;
+        vertex3(0) = 0.0;
+        vertex3(1) = 1.0;
 
         Face<2> face;
         face.mVertices.push_back(&vertex0);
@@ -147,16 +147,16 @@ public:
         TS_ASSERT_DELTA(face.GetPerimeter(),4.0,1e-12);
         TS_ASSERT_DELTA(face.GetArea(),1.0,1e-12);
 
-        //Test the reorder Method
+        // Test the reorder method
 
-        Face<2> reordered_face=-face;
+        Face<2> reordered_face = -face;
         TS_ASSERT_DIFFERS(reordered_face,face);
 
         reordered_face.OrderVerticesAntiClockwise();
 
         TS_ASSERT_EQUALS(reordered_face,face);
 
-        // cover an exception
+        // Cover an exception
         TS_ASSERT_THROWS_ANYTHING(face.ReturnPolarAngle(0,0));
     }
 };

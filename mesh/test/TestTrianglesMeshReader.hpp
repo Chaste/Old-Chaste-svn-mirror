@@ -54,7 +54,7 @@ public:
     /**
      * Check that input files are opened correctly.
      */
-    void TestFilesOpen(void) throw(Exception)
+    void TestFilesOpen() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
     }
@@ -64,11 +64,11 @@ public:
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing nodes) then an exception is thrown.
      */
-    void TestNodesDataRead(void) throw(Exception)
+    void TestNodesDataRead() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
 
-        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 543U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 543u);
         
         TrianglesMeshReader<2,2> mesh_reader2("mesh/test/data/baddata/bad_nodes_disk_522_elements");
 
@@ -78,26 +78,25 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextNode());                            
     }
 
-
     /**
      * Check that the elements are read correctly. Checks that the output vector
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing elements) then an exception is thrown.
      */
-    void TestElementsDataRead(void) throw(Exception)
+    void TestElementsDataRead() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
 
-        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 984U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 984u);
 
         ElementData data = mesh_reader.GetNextElementData();
         TS_ASSERT_EQUALS(data.NodeIndices.size(), 3u);
         TS_ASSERT_EQUALS(data.NodeIndices[0], 309u);
         TS_ASSERT_EQUALS(data.NodeIndices[1], 144u);
         TS_ASSERT_EQUALS(data.NodeIndices[2], 310u);
-        
         TS_ASSERT_EQUALS( mesh_reader.GetNumElementAttributes(), 0u);
-        for(unsigned i=1; i<mesh_reader.GetNumElements(); i++)
+
+        for (unsigned i=1; i<mesh_reader.GetNumElements(); i++)
         {
             ElementData data = mesh_reader.GetNextElementData();
             TS_ASSERT_EQUALS(data.AttributeValue, 0u);
@@ -111,21 +110,20 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextElementData());
     }
 
-
     /**
      * Check that the faces are read correctly. Checks that the output vector
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing faces) then an exception is thrown.
      */
-    void TestFacesDataRead(void) throw(Exception)
+    void TestFacesDataRead() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
 
-        // TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 1526U); // when all faces were read
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100U); // just boundary faces are read
-        
+        // TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 1526u); // when all faces were read
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100u); // just boundary faces are read        
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaceAttributes(), 1u);
-        for(unsigned i=1; i<mesh_reader.GetNumFaces(); i++)
+
+        for (unsigned i=1; i<mesh_reader.GetNumFaces(); i++)
         {
             ElementData data = mesh_reader.GetNextFaceData();
             TS_ASSERT_EQUALS(data.AttributeValue, 1u);
@@ -144,18 +142,18 @@ public:
      * for a given input file is the correct length and that if the input file
      * is corrupted (missing faces) then an exception is thrown.
      */
-    void TestFacesDataReadWithAttributes(void) throw(Exception)
+    void TestFacesDataReadWithAttributes() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_positive_flags");
 
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 92U); // just boundary faces are read
-        
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 92u); // just boundary faces are read
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaceAttributes(), 1u);
-        for(unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
+
+        for (unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
         {
             ElementData data = mesh_reader.GetNextFaceData();
             //Attributes are 1, 2, 3 or 4.
-            TS_ASSERT_LESS_THAN(0U, data.AttributeValue);
+            TS_ASSERT_LESS_THAN(0u, data.AttributeValue);
             TS_ASSERT_LESS_THAN(data.AttributeValue, 5u);
         }
     }
@@ -165,13 +163,12 @@ public:
      * as the previously considered (2-d) Triangles files. Checks that the
      * element output vector for a given input file is the correct length.
      */
-    void Test3dDataRead(void) throw(Exception)
+    void Test3dDataRead() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/slab_138_elements");
 
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 138U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 138u);
     }
-
 
     /**
      * Checks that nodes in the input data file are numbered sequentially.
@@ -179,26 +176,22 @@ public:
      * number is only stored as the index of the vector in which the coordinates
      * are stored.)
      */
-    void TestPermutedNodesFail(void) throw(Exception)
+    void TestPermutedNodesFail() throw(Exception)
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/baddata/permuted_nodes_disk_522_elements");
         TS_ASSERT_THROWS_ANYTHING(for(unsigned i=0;i<reader.GetNumNodes();i++){reader.GetNextNode();})
     }
-
 
     /**
      * Checks that elements have the correct number of nodes (i.e. one more
      * node than the dimension of the mesh). If quadratic basis functions are
      * required this should be dealt with elsewhere.
      */
-    void TestOrder2ElementsFail(void) throw(Exception)
+    void TestOrder2ElementsFail() throw(Exception)
     {
-        TrianglesMeshReader<2,2> *p_mesh_reader;
-        TS_ASSERT_THROWS_ANYTHING(
-            p_mesh_reader=new READER_2D(
-                            "mesh/test/data/baddata/disk_522_order_2_elements"));
+        TrianglesMeshReader<2,2>* p_mesh_reader;
+        TS_ASSERT_THROWS_ANYTHING(p_mesh_reader = new READER_2D("mesh/test/data/baddata/disk_522_order_2_elements"));
     }
-
 
     /**
      * Check that GetNextNode() returns the coordinates of the correct node.
@@ -206,25 +199,23 @@ public:
      * values, checks that no errors are thrown for the remaining nodes and
      * that an error is thrown if we try to call the function too many times.
      */
-    void TestGetNextNode(void) throw(Exception)
+    void TestGetNextNode() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
         std::vector<double> first_node;
-
         first_node = mesh_reader.GetNextNode();
 
-        TS_ASSERT_DELTA( first_node[0] ,  0.9980267283 , 1e-6 );
-        TS_ASSERT_DELTA( first_node[1] , -0.0627905195 , 1e-6 )
+        TS_ASSERT_DELTA(first_node[0],  0.9980267283, 1e-6);
+        TS_ASSERT_DELTA(first_node[1], -0.0627905195, 1e-6);
 
         std::vector<double> next_node;
-
         next_node = mesh_reader.GetNextNode();
 
-        TS_ASSERT_DELTA( next_node[0] , 1.0 , 1e-6 );
-        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA(next_node[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(next_node[1], 0.0, 1e-6);
 
-        for (int i = 0; i < 541; i++)
+        for (int i=0; i<541; i++)
         {
             TS_ASSERT_THROWS_NOTHING(next_node = mesh_reader.GetNextNode());
         }
@@ -232,14 +223,12 @@ public:
         TS_ASSERT_THROWS_ANYTHING(next_node = mesh_reader.GetNextNode());
     }
 
-
-
     /**
      * Check that GetNextElementData() works. Checks that no errors are thrown for
      * all of the elements and that an error is thrown if we try to call the
      * function too many times.
      */
-    void TestGetNextElementData(void) throw(Exception)
+    void TestGetNextElementData() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
@@ -253,13 +242,12 @@ public:
         TS_ASSERT_THROWS_ANYTHING(next_element = mesh_reader.GetNextElementData().NodeIndices);
     }
 
-
     /**
      * Check that GetNextEdgeData() works. Checks that no errors are thrown for
      * all of the edges and that an error is thrown if we try to call the
      * function too many times.
      */
-    void TestGetNextEdgeData(void) throw(Exception)
+    void TestGetNextEdgeData() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
@@ -268,7 +256,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextFaceData().NodeIndices);
         TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextFaceData().NodeIndices);
 
-        for (unsigned i = 2; i < mesh_reader.GetNumEdges(); i++)
+        for (unsigned i=2; i<mesh_reader.GetNumEdges(); i++)
         {
             TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextEdgeData().NodeIndices);
         }
@@ -276,72 +264,62 @@ public:
         TS_ASSERT_THROWS_ANYTHING(next_edge = mesh_reader.GetNextEdgeData().NodeIndices);
     }
 
-
     /**
      * Check that the 1D data are read correctly. Check that the output vector
      * for a given input file is the correct length.
      */
-    void Test1DMeshRead(void) throw(Exception)
+    void Test1DMeshRead() throw(Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/trivial_1d_mesh");
 
-        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 11U);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 10U);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 11U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 11u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 11u);
 
         // Determining boundary faces is no longer done by the MeshReader
         //TS_ASSERT_EQUALS( mesh_reader.GetNumBoundaryFaces(), 2);
     }
 
-
     void Test0DMeshIn1DSpaceFails() throw(Exception)
     {
-        TrianglesMeshReader<0,1> *p_mesh_reader;
-        TS_ASSERT_THROWS_ANYTHING(  p_mesh_reader=new READER_0D_IN_1D(
-                                                    "mesh/test/data/trivial_1d_mesh")
-                                 );
+        TrianglesMeshReader<0,1>* p_mesh_reader;
+        TS_ASSERT_THROWS_ANYTHING(p_mesh_reader = new READER_0D_IN_1D("mesh/test/data/trivial_1d_mesh"));
     }
-
 
     void Test1DMeshIn2DSpace() throw(Exception)
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");
-        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 100U);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 100U);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 100u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 100u);
 
-        //Note: don't test faces (end nodes), since they are culled later
+        // Note: don't test faces (end nodes), since they are culled later
         TrianglesMeshReader<1,2> mesh_reader2("mesh/test/data/semicircle_outline");
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 51U);
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 50U);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 51u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 50u);
     }
-
 
     void Test2DMeshIn3DSpace() throw(Exception)
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/slab_395_elements");
-
-        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 132U);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 224U);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 0U);
-
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 132u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 224u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 0u);
 
         TrianglesMeshReader<2,3> mesh_reader2("mesh/test/data/disk_in_3d");
-
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 312U);
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 522U);
-        // TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 833U); // when all faces were read
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U); // just boundary faces are read
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 312u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 522u);
+        // TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 833u); // when all faces were read
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 100u); // just boundary faces are read
     }
-
 
     void TestOtherExceptions() throw(Exception)
     {
-        // these should fail because SPACE_DIM doesn't match the dimension in the file   
+        // This should fail because SPACE_DIM doesn't match the dimension in the file   
         TS_ASSERT_THROWS_ANYTHING( READER_1D mesh_reader("mesh/test/data/disk_984_elements") );
     }
 
     ////////////////////////////////////////////////////////
-    // quadratic tests
+    // Quadratic tests
     ////////////////////////////////////////////////////////
     void TestReadingQuadraticMesh1d() throw(Exception)
     {
@@ -359,12 +337,11 @@ public:
         TS_ASSERT_EQUALS(next_element[1], 1u);   // right node
         TS_ASSERT_EQUALS(next_element[2], 11u);  // middle node
     
-        for(unsigned i=1; i<10; i++)
+        for (unsigned i=1; i<10; i++)
         {
         	next_element = mesh_reader.GetNextElementData().NodeIndices;
     		TS_ASSERT_EQUALS(next_element.size(), 3u);
         }
-        
     }    
     
     void TestReadingQuadraticMesh2d() throw(Exception)
@@ -384,7 +361,7 @@ public:
         TS_ASSERT_EQUALS(next_element[4], 83u); // opposite to 0
         TS_ASSERT_EQUALS(next_element[5], 81u); // opposite to 54
     
-        for(unsigned i=1; i<128; i++)
+        for (unsigned i=1; i<128; i++)
         {
         	next_element = mesh_reader.GetNextElementData().NodeIndices;
     		TS_ASSERT_EQUALS(next_element.size(), 6u);
@@ -401,7 +378,7 @@ public:
     
         TS_ASSERT_EQUALS(next_element.size(), 10u);
         
-        for(unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_EQUALS(next_element[i], i);
         }
@@ -411,12 +388,10 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
 
-        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 10U);
-        
-        TS_ASSERT_EQUALS( mesh_reader.GetNumElementAttributes(), 1U);
-        
-        
-        for(unsigned i=0; i<10; i++)
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+
+        for (unsigned i=0; i<10; i++)
         {
             ElementData next_element_info = mesh_reader.GetNextElementData();
             std::vector<unsigned> nodes = next_element_info.NodeIndices;

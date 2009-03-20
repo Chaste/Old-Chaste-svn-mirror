@@ -39,19 +39,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestReadingLargeTetrahedralMesh : public CxxTest::TestSuite
 {
 public:
-    // This test is mainly here for performance testing, to check that loading a
-    // (relatively) large mesh doesn't take too long.
-    // It's a nightly test because it takes 10 hours to run under MemoryTesting!
-    void TestLoadingLargeMesh(void)
+
+    /**
+     * This test is mainly here for performance testing, to check that loading a 
+     * (relatively) large mesh doesn't take too long.
+     * It's a nightly test because it takes 10 hours to run under MemoryTesting!
+     */
+    void TestLoadingLargeMesh()
     {
         TrianglesMeshReader<3,3> meshReader("heart/test/data/heart");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(meshReader);
 
-        // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 322267U);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 41812U);
+        // Check we have the right number of nodes, elements and boundary elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 322267u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 41812u);
     }
 };
 

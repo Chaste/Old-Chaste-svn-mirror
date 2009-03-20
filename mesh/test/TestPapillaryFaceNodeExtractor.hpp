@@ -46,7 +46,7 @@ public:
 //    	TrianglesMeshReader<3, 3> mesh_reader("/home/chaste/heart_data/heartT_renum_i");
 //		TetrahedralMesh<3,3> mesh;
 //		mesh.ConstructFromMeshReader(mesh_reader);
-//		TS_ASSERT_EQUALS(mesh.GetNumElements(), 24217344U);
+//		TS_ASSERT_EQUALS(mesh.GetNumElements(), 24217344u);
 		//TrianglesMeshReader<3, 3> mesh_reader("notforrelease/test/data/mbishop_rabbit_mesh/epi_n_hr.tri");
 		
 		//TrianglesMeshReader<3, 3> mesh_reader("notforrelease/test/data/mbishop_rabbit_mesh/rv_n_hr.tri");
@@ -147,7 +147,7 @@ double **gradients;
   for(int i=0;i<num_elements;i++)
     {
       // Checks to see if we're in a papillary element
-      if(nodes[i][4] == 6)
+      if (nodes[i][4] == 6)
         {
           // Defines coordinates of the centroid of the element
           x_c = 0.25*(coords[nodes[i][0]][0] + coords[nodes[i][1]][0] + coords[nodes[i][2]][0] + coords[nodes[i][3]][0]);
@@ -169,7 +169,7 @@ double **gradients;
               r_temp = sqrt( (x_c-x_f)*(x_c-x_f) + (y_c-y_f)*(y_c-y_f) + (z_c-z_f)*(z_c-z_f));
 
               // Checks to see if it is the smallest so far - if it is, update the current smallest distance
-              if(r_temp < r)
+              if (r_temp < r)
                 {
                   r = r_temp;
                   nearest_face = j;

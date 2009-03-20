@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestInventorVoronoiWriter : public CxxTest::TestSuite
 {
 public:
+
     void TestWriteTet() throw (Exception)
     {
 
@@ -59,22 +60,24 @@ public:
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
         MutableMesh<3,3> mesh(nodes);
-        Element<3,3> *p_element=mesh.GetElement(0);
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 0U);//Older tetgen
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 3U);//Older tetgen
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 2U);//Older tetgen
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 4U);//Older tetgen
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 1U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 4U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2U);
-        // Create Voronoi Tesselation
+        Element<3,3>* p_element = mesh.GetElement(0);
+
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 0u);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 3u);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 2u);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 4u);//Older tetgen
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 1u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 4u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2u);
+
+        // Create Voronoi tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
         InventorVoronoiWriter inventor_writer("InventorWriter", "SimpleTet");
         inventor_writer.Write(tessellation);
 
-        // then compare against known good file
+        // Then compare against known good file
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/SimpleTet.iv mesh/test/data/InventorWriter/SimpleTet.iv").c_str()), 0);
     }
@@ -83,7 +86,6 @@ public:
     {
         // Create mutable tetrahedral mesh which is Delaunay
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_136_elements");
-
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
@@ -95,14 +97,14 @@ public:
         InventorVoronoiWriter inventor_writer("InventorWriter", "Complex", false);
         inventor_writer.Write(tessellation);
 
-        // then compare against known good file
+        // Then compare against known good file
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/Complex.iv mesh/test/data/InventorWriter/Complex.iv").c_str()), 0);
     }
 
     void TestScaleAndWriteTet() throw (Exception)
     {
-        // Create conforming tetrahedral mesh which is Delauny
+        // Create a conforming tetrahedral mesh which is Delaunay
         std::vector<Node<3> *> nodes;
 
         nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
@@ -113,38 +115,37 @@ public:
 
         MutableMesh<3,3> mesh(nodes);
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
         InventorVoronoiWriter inventor_writer("InventorWriter", "ScaledSimpleTet");
 
-        // fail because scale factor is not between 0 and 1
-        TS_ASSERT_THROWS_ANYTHING(inventor_writer.ScaleAndWrite(tessellation,-1.0));
+        // These call throw exceptions because the scale factor is not between 0 and 1
+        TS_ASSERT_THROWS_ANYTHING(inventor_writer.ScaleAndWrite(tessellation, -1.0));
         TS_ASSERT_THROWS_ANYTHING(inventor_writer.ScaleAndWrite(tessellation, 2.0));
 
-        inventor_writer.ScaleAndWrite(tessellation,2.0/3.0);
+        inventor_writer.ScaleAndWrite(tessellation, 2.0/3.0);
 
-        // then compare against known good file
+        // Then compare against known good file
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/ScaledSimpleTet.iv mesh/test/data/InventorWriter/ScaledSimpleTet.iv").c_str()), 0);
     }
 
-    // note that this is a different mesh to the non-scaled 'Complex' test
+    // Note that this is a different mesh to the non-scaled 'Complex' test
     void TestScaleAndWriteComplex() throw (Exception)
     {
         // Create mutable tetrahedral mesh which is Delaunay
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_152_elements");
-
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
         InventorVoronoiWriter inventor_writer("InventorWriter", "ScaledComplex");
-        inventor_writer.ScaleAndWrite(tessellation,0.5);
+        inventor_writer.ScaleAndWrite(tessellation, 0.5);
 
-        // then compare against known good file
+        // Then compare against a known good file
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/ScaledComplex.iv mesh/test/data/InventorWriter/ScaledComplex.iv").c_str()), 0);
     }

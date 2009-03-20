@@ -50,26 +50,25 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateVolume()/expectedVolume, 1.0, errorTolerance);
     }
 
-    void TestCube(void)
+    void TestCube()
     {
         CheckVolume("mesh/test/data/cube_136_elements", 1.0, 1e-6);
     }
 
-    void TestCube2(void)
+    void TestCube2()
     {
         CheckVolume("mesh/test/data/cube_1626_elements", 1.0, 1e-6);
     }
 
-    void TestCylinderWithHole(void)
+    void TestCylinderWithHole()
     {
         CheckVolume("mesh/test/data/cylinder_with_hole_840_elements", (15*5*5-4.0/3.0)*M_PI, 5e-2);
     }
 
+    /** Calculate length of non-uniform mesh. */
     void TestCalculate1DLengthIn1DSpace()
     {
-        // Calculate length of non-uniform mesh
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_4_non_uniform_elements");
-
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -78,25 +77,20 @@ public:
         TS_ASSERT_DELTA(mesh_length, 1.0, 1.0e-5);
     }
 
-
+    /** Tests area calculation for a square 2D mesh. */
     void Test2DMeshArea()
-    {
-        // Tests area calculation for a square 2D mesh
+    {   
         TrianglesMeshReader<2,2> square_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
-
         TetrahedralMesh<2,2> mesh_square;
-
         mesh_square.ConstructFromMeshReader(square_mesh_reader);
 
         double mesh_square_area = mesh_square.CalculateVolume();
 
         TS_ASSERT_DELTA(mesh_square_area, 0.01, 1e-6);
 
-        // Tests area calculation for a annular 2D mesh
+        // Test area calculation for a annular 2D mesh
         TrianglesMeshReader<2,2> annuluar_mesh_reader("mesh/test/data/annulus_256_elements");
-
         TetrahedralMesh<2,2> mesh_annulus;
-
         mesh_annulus.ConstructFromMeshReader(annuluar_mesh_reader);
 
         double mesh_annulus_area = mesh_annulus.CalculateVolume();
@@ -104,20 +98,17 @@ public:
         TS_ASSERT_DELTA(mesh_annulus_area, 8.0*M_PI, 2e-1);
     }
 
-
-    void TestCubeSurfaceArea(void)
+    void TestCubeSurfaceArea()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-
         TetrahedralMesh<3,3> mesh;
-
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get a iterator over the boundary elements of the 3D mesh
         TetrahedralMesh<3, 3>::BoundaryElementIterator boundary_iter =
             mesh.GetBoundaryElementIteratorBegin();
 
-        double area=0.0;
+        double area = 0.0;
         c_vector<double,3> weighted_direction;
         double jacobian_det;
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
@@ -127,52 +118,49 @@ public:
             unsigned element_index = (*boundary_iter)->GetIndex();
             mesh.GetWeightedDirectionForBoundaryElement(element_index, weighted_direction, jacobian_det);
             TS_ASSERT_DELTA(jacobian_det, 1/8.0, 1e-6);
-            area+=jacobian_det/2.0;
+            area += jacobian_det/2.0;
             boundary_iter++;
 
         }
-        // It is a unit cube, 6 faces.
+        // It is a unit cube with six faces
         TS_ASSERT_DELTA(area, 6.0, 1e-6);
     }
 
-
-    void TestCubeSurfaceAreaMoreElements(void)
+    void TestCubeSurfaceAreaMoreElements()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-
         TetrahedralMesh<3,3> mesh;
-
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Get a iterator over the boundary elements of the 3D mesh
         TetrahedralMesh<3, 3>::BoundaryElementIterator boundary_iter =
             mesh.GetBoundaryElementIteratorBegin();
 
-        double area=0.0;
+        double area = 0.0;
         c_vector<double,3> weighted_direction;
         double jacobian_det;
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             mesh.GetWeightedDirectionForBoundaryElement((*boundary_iter)->GetIndex(), weighted_direction, jacobian_det);
-            area+= jacobian_det/2.0;
+            area += jacobian_det/2.0;
             boundary_iter++;
 
         }
-        // It is a unit cube, 6 faces.
+        // It is a unit cube with six faces
         TS_ASSERT_DELTA(area, 6.0, 1e-6);
     }
 
-    void TestDiskPerimeter(void)
+    void TestDiskPerimeter()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh;
-
         mesh.ConstructFromMeshReader(mesh_reader);
+
         // Get a iterator over the boundary elements of the 2D mesh
         TetrahedralMesh<2,2>::BoundaryElementIterator boundary_iter =
             mesh.GetBoundaryElementIteratorBegin();
 
-        double perimeter=0.0;
+        double perimeter = 0.0;
         c_vector<double,2> weighted_direction;
         double jacobian_det;        
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
@@ -180,23 +168,24 @@ public:
             mesh.GetWeightedDirectionForBoundaryElement((*boundary_iter)->GetIndex(), weighted_direction, jacobian_det);
             perimeter+= jacobian_det;
             boundary_iter++;
-
         }
+
         // It is a unit disk radius 1, perimeter 2Pi (approximated by triangles)
         TS_ASSERT_DELTA(perimeter, 2.0*M_PI, 2e-3);
     }
 
-    //Repeat the tests above
-    void TestSurfaceWithMethod(void)
+    /** Repeat the tests above. */
+    void TestSurfaceWithMethod()
     {
         TrianglesMeshReader<3,3> mesh_reader_1("mesh/test/data/cube_136_elements");
         TetrahedralMesh<3,3> mesh_1;
         mesh_1.ConstructFromMeshReader(mesh_reader_1);
-        TS_ASSERT_DELTA(mesh_1.CalculateSurfaceArea(),6.0,1e-6);
+        TS_ASSERT_DELTA(mesh_1.CalculateSurfaceArea(), 6.0, 1e-6);
+
         TrianglesMeshReader<3,3> mesh_reader_2("mesh/test/data/cube_1626_elements");
         TetrahedralMesh<3,3> mesh_2;
         mesh_2.ConstructFromMeshReader(mesh_reader_2);
-        TS_ASSERT_DELTA(mesh_2.CalculateSurfaceArea(),6.0,1e-6);
+        TS_ASSERT_DELTA(mesh_2.CalculateSurfaceArea(), 6.0, 1e-6);
 
         TrianglesMeshReader<2,2> mesh_reader_3("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh_3;
@@ -206,7 +195,7 @@ public:
         TrianglesMeshReader<1,1> mesh_reader_4("mesh/test/data/1D_0_to_1_200_elements");
         TetrahedralMesh<1,1> mesh_4;
         mesh_4.ConstructFromMeshReader(mesh_reader_4);
-        TS_ASSERT_DELTA(mesh_4.CalculateSurfaceArea(),0.0,1e-6);
+        TS_ASSERT_DELTA(mesh_4.CalculateSurfaceArea(), 0.0, 1e-6);
     }
 
 };

@@ -37,12 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestRemesh : public CxxTest::TestSuite
 {
-
 public:
 
-
-    // Test 3D remesh - very similar test to TestOperationOfTetgenMoveNodes above, but
-    // uses mesh.Remesh() instead of calling tetgen from here
+    /**
+     * Test 3D remesh - very similar test to TestOperationOfTetgenMoveNodes, 
+     * but uses mesh.Remesh() instead of calling tetgen from here.
+     */
     void TestRemesh3dMoveNodes() throw (Exception)
     {
         OutputFileHandler handler("");
@@ -59,6 +59,7 @@ public:
         {
             ChastePoint<3> point = mesh.GetNode(i)->GetPoint();
             ChastePoint<3> old_mesh_point = old_mesh.GetNode(i)->GetPoint();
+
             for (int j=0; j<3; j++)
             {
                 if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
@@ -76,9 +77,9 @@ public:
 
         double old_volume = mesh.CalculateVolume();
         TS_ASSERT_DELTA(1, old_volume, 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 375U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626U);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 375u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390u);
 
         NodeMap map(mesh.GetNumNodes());
         mesh.ReMesh(map);
@@ -94,7 +95,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             // The map turns out to be the identity map in this test
-            TS_ASSERT_EQUALS(map.GetNewIndex(i),i);
+            TS_ASSERT_EQUALS(map.GetNewIndex(i), i);
 
             const c_vector<double, 3> node_loc1 = mesh.GetNode(map.GetNewIndex(i))->rGetLocation();
             const c_vector<double, 3> node_loc2 = old_mesh.GetNode(i)->rGetLocation();
@@ -109,7 +110,6 @@ public:
         TS_ASSERT_DELTA(old_volume, new_volume, 1e-7);
     }
 
-
     void TestOperationOfTetgenMoveNodes() throw (Exception)
     {
         OutputFileHandler handler("");
@@ -121,6 +121,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             ChastePoint<3> point = mesh.GetNode(i)->GetPoint();
+
             for (int j=0; j<3; j++)
             {
                 if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
@@ -135,9 +136,9 @@ public:
 
         double volume = mesh.CalculateVolume();
         TS_ASSERT_DELTA(1, volume, 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 375U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626U);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 375u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390u);
 
         out_stream node_file = handler.OpenOutputFile("temp.node");
         (*node_file) << mesh.GetNumNodes() << "\t3\t0\t0\n";
@@ -180,17 +181,14 @@ public:
         }
     }
 
-
     void TestRemeshWithDeletions() throw (Exception)
     {
-        //#930 Consider removing this test when this is the only call to triangle binary.
-        //There are calls in QuadraticMesh, but they can be replaced by library calls.
+        // #930 Consider removing this test when this is the only call to triangle binary.
+        // There are calls in QuadraticMesh, but they can be replaced by library calls.
         OutputFileHandler handler("");
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-
         MutableMesh<2,2> mesh;
-
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double area = mesh.CalculateVolume();
@@ -232,23 +230,24 @@ public:
             }
         }
 
-        TS_ASSERT_EQUALS(new_index,mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(new_index, mesh.GetNumNodes());
 
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("") + "temp.";
         std::string command = "triangle -Qe " + full_name + "node" + " > /dev/null";
-        int return_value=system(command.c_str());
+        int return_value = system(command.c_str());
         TS_ASSERT(return_value == 0);
         if (return_value != 0)
         {
             TS_TRACE("Do you have triangle from http://www.cs.cmu.edu/~quake/triangle.html installed in your path?");
         }
+
         TrianglesMeshReader<2,2> mesh_reader2(full_name+"1");
         TetrahedralMesh<2,2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
-
         TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
 
         // Test to see whether triangle is renumbering the nodes
@@ -276,9 +275,7 @@ public:
     void TestRemeshWithMethod2D() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-
         MutableMesh<2,2> mesh;
-
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double area = mesh.CalculateVolume();
@@ -313,7 +310,6 @@ public:
 
     void TestRemeshWithMethod3D() throw (Exception)
     {
-
         // Create mutable tetrahedral mesh which is Delaunay
         std::vector<Node<3> *> nodes;
 
@@ -351,7 +347,6 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
     }
 
-
     void TestNodeMap()
     {
         NodeMap map(10);
@@ -376,7 +371,6 @@ public:
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
     }
 
-
     void TestReMeshFailsAfterEnoughDeletions() throw (Exception)
     {
         MutableMesh<2,2> mesh;
@@ -400,7 +394,6 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
     }
-
 
     void TestRawTriangleLibraryCall()
     {
@@ -437,12 +430,12 @@ public:
 
         triangulate((char*)"Qze", &in, &out, NULL);
 
-        TS_ASSERT_EQUALS(out.numberofpoints,            5);
-        TS_ASSERT_EQUALS(out.numberofpointattributes,   0);
-        TS_ASSERT_EQUALS(out.numberoftriangles,         4);
-        TS_ASSERT_EQUALS(out.numberofcorners,           3);
-        TS_ASSERT_EQUALS(out.numberoftriangleattributes,0);
-        TS_ASSERT_EQUALS(out.numberofedges,             8);
+        TS_ASSERT_EQUALS(out.numberofpoints,             5);
+        TS_ASSERT_EQUALS(out.numberofpointattributes,    0);
+        TS_ASSERT_EQUALS(out.numberoftriangles,          4);
+        TS_ASSERT_EQUALS(out.numberofcorners,            3);
+        TS_ASSERT_EQUALS(out.numberoftriangleattributes, 0);
+        TS_ASSERT_EQUALS(out.numberofedges,              8);
 
         // Free all allocated arrays, including those allocated by Triangle
         free(in.pointlist);
@@ -455,7 +448,6 @@ public:
         free(out.edgelist);
         free(out.edgemarkerlist);
     }
-
 
     void TestRemeshWithLibraryMethodSimple() throw (Exception)
     {
@@ -483,19 +475,17 @@ public:
 
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 10.0, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 22.0, 1e-6);
+
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 4u);
     }
 
-
     void TestRemeshWithLibraryMethod2D() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-
         MutableMesh<2,2> mesh;
-
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double area = mesh.CalculateVolume();

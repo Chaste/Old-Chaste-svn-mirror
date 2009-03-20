@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTVORONOITESSELLATION_HPP_
 #define TESTVORONOITESSELLATION_HPP_
 
-
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
@@ -47,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestVoronoiTessellation : public CxxTest::TestSuite
 {
 public:
+
     void TestReturnPolarAngle() throw (Exception)
     {
         // Create mutable tetrahedral mesh which is Delauny
@@ -55,7 +55,7 @@ public:
         nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
         nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
         nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
-        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
+        nodes.push_back(new Node<3>(4, false, 0.0,  0.0,  0.0));
 
         MutableMesh<3,3> mesh(nodes);
 
@@ -64,32 +64,32 @@ public:
 
         // Four cases to test:
         // x> 0, y>0
-        double angle = tessellation.ReturnPolarAngle(1.0,sqrt(3.0));
+        double angle = tessellation.ReturnPolarAngle(1.0, sqrt(3.0));
         TS_ASSERT_DELTA(angle, M_PI/3.0, 1e-7);
 
         // x> 0, y<0
-        angle = tessellation.ReturnPolarAngle(1.0,-sqrt(3.0));
+        angle = tessellation.ReturnPolarAngle(1.0, -sqrt(3.0));
         TS_ASSERT_DELTA(angle, -M_PI/3.0, 1e-7);
 
         // x< 0, y>0
-        angle = tessellation.ReturnPolarAngle(-1.0,sqrt(3.0));
+        angle = tessellation.ReturnPolarAngle(-1.0, sqrt(3.0));
         TS_ASSERT_DELTA(angle, 2.0*M_PI/3.0, 1e-7);
 
         // x< 0, y<0
-        angle = tessellation.ReturnPolarAngle(-1.0,-sqrt(3.0));
+        angle = tessellation.ReturnPolarAngle(-1.0, -sqrt(3.0));
         TS_ASSERT_DELTA(angle, -2.0*M_PI/3.0, 1e-7);
 
         // check boundary cases
-        angle = tessellation.ReturnPolarAngle(1.0,0.0);
+        angle = tessellation.ReturnPolarAngle(1.0, 0.0);
         TS_ASSERT_DELTA(angle, 0.0, 1e-7);
 
-        angle = tessellation.ReturnPolarAngle(0.0,1.0);
+        angle = tessellation.ReturnPolarAngle(0.0, 1.0);
         TS_ASSERT_DELTA(angle, M_PI/2.0, 1e-7);
 
-        angle = tessellation.ReturnPolarAngle(-1.0,0.0);
+        angle = tessellation.ReturnPolarAngle(-1.0, 0.0);
         TS_ASSERT_DELTA(angle, M_PI, 1e-7);
 
-        angle = tessellation.ReturnPolarAngle(0.0,-1.0);
+        angle = tessellation.ReturnPolarAngle(0.0, -1.0);
         TS_ASSERT_DELTA(angle, -M_PI/2.0, 1e-7);
 
         TS_ASSERT_EQUALS(tessellation.GetNumCells(), 5u);
@@ -105,55 +105,54 @@ public:
         nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
         nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
         nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
-        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
+        nodes.push_back(new Node<3>(4, false, 0.0,  0.0,  0.0));
 
         MutableMesh<3,3> mesh(nodes);
         
-        //Note that the Voronois tessellation is not unique for this 
-        //mesh since 4 points are co-spherical.  We need to check
-        //how the mesher is breaking ties.
-        Element<3,3> *p_element=mesh.GetElement(0);
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 3U);//Older tetgen
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 0U);//Older tetgen
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 2U);//Older tetgen
-        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 4U);//Older tetgen
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 4U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 1U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2U);
-        
+        // Note that the Voronois tessellation is not unique for this 
+        // mesh since 4 points are co-spherical.  We need to check
+        // how the mesher is breaking ties.
+        Element<3,3>* p_element = mesh.GetElement(0);
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 3u);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 0u);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 2u);//Older tetgen
+        //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 4u);//Older tetgen
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 4u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2u);
          
         // Create Voronoi Tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
         tessellation.GenerateVerticesFromElementCircumcentres();
 
-        TS_ASSERT_EQUALS(tessellation.GetNumVertices(),8u);
+        TS_ASSERT_EQUALS(tessellation.GetNumVertices(), 8u);
 
         c_vector<double,3> this_vertex = *(tessellation.GetVertex(2));
 
-        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
-        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[0],  1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1],  1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
 
 
         this_vertex = *(tessellation.mVertices[2]);
 
-        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
-        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[0],  1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1],  1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
 
         this_vertex = *(tessellation.mVertices[3]);
 
-        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[0],  1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
-        TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2],  1.5, 1e-7);
 
         this_vertex = *(tessellation.mVertices[0]);
 
         TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
-        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
-        TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1],  1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2],  1.5, 1e-7);
 
         this_vertex = *(tessellation.mVertices[1]);
 
@@ -167,34 +166,34 @@ public:
         // Create mutable tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
 
-        nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
-        nodes.push_back(new Node<3>(1, true,  1.0,  1.0,  0.0));
-        nodes.push_back(new Node<3>(2, true,  1.0,  0.0,  1.0));
-        nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
-        nodes.push_back(new Node<3>(4, false, 0.5,0.5,0.5));
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
 
         MutableMesh<3,3> mesh(nodes);
         //TrianglesMeshWriter<3,3> mesh_writer("","Simple_Delaunay_Tet");
         //mesh_writer.WriteFilesUsingMesh(mesh);
         TS_ASSERT(mesh.CheckVoronoi());
 
-        // create expected cell
+        // Create expected cell
         c_vector<double, 3> vertex1;
-        vertex1(0)= -0.2500;
-        vertex1(1)=-0.2500;
-        vertex1(2)=1.2500;
+        vertex1(0) = -0.2500;
+        vertex1(1) = -0.2500;
+        vertex1(2) = 1.2500;
         c_vector<double, 3> vertex2;
-        vertex2(0)=1.2500;
-        vertex2(1)=-0.2500;
-        vertex2(2)=-0.2500;
+        vertex2(0) = 1.2500;
+        vertex2(1) = -0.2500;
+        vertex2(2) = -0.2500;
         c_vector<double, 3> vertex3;
-        vertex3(0)= -0.2500;
-        vertex3(1)=1.2500;
-        vertex3(2)=-0.2500;
+        vertex3(0) = -0.2500;
+        vertex3(1) = 1.2500;
+        vertex3(2) = -0.2500;
         c_vector<double, 3> vertex4;
-        vertex4(0)= 1.2500;
-        vertex4(1)=1.2500;
-        vertex4(2)=1.2500;
+        vertex4(0) = 1.2500;
+        vertex4(1) = 1.2500;
+        vertex4(2) = 1.2500;
 
         Face<3> face1;
         face1.mVertices.push_back(&vertex2);
@@ -226,39 +225,40 @@ public:
         // Create Voronoi Tesselation
         VoronoiTessellation<3> tessellation(mesh);
 
-        // check tesellation is correct
+        // Check tesellation is correct
         for (unsigned cell_index=0; cell_index<mesh.GetNumNodes(); cell_index++)
         {
             if ( mesh.GetNode(cell_index)->IsBoundaryNode() )
             {
-                // for a boundary node we get a null cell
-                TS_ASSERT(tessellation.rGetCell(cell_index).mFaces.size()==0);
+                // For a boundary node we get a null cell
+                TS_ASSERT_EQUALS(tessellation.rGetCell(cell_index).mFaces.size(), 0u);
             }
             else
             {
-                // only node 4 is a non-boundary node
+                // Only node 4 is a non-boundary node
                 TS_ASSERT_EQUALS(cell_index, 4u);
-                // this gives the expected cell
+
+                // This gives the expected cell
                 TS_ASSERT_EQUALS(tessellation.rGetCell(cell_index), cell);
 
                 VoronoiCell cell = tessellation.rGetCell(cell_index);
-                // there will only be one non-boundary cell so we know what the position is.
-                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[0], 0.5,1e-5);
-                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[1], 0.5,1e-5);
-                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[2], 0.5,1e-5);
+
+                // There will only be one non-boundary cell so we know what the position is.
+                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[0], 0.5, 1e-5);
+                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[1], 0.5, 1e-5);
+                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[2], 0.5, 1e-5);
             }
         }
     }
 
-
     void TestTessellation2d() throw (Exception)
     {
         std::vector<Node<2> *> nodes;
-        nodes.push_back(new Node<2>(0, true,  0,  0));
-        nodes.push_back(new Node<2>(0, true,  0,  1));
-        nodes.push_back(new Node<2>(0, true,  1,  1));
-        nodes.push_back(new Node<2>(0, true,  1,  0));
-        nodes.push_back(new Node<2>(0, true,  0.5,0.5));
+        nodes.push_back(new Node<2>(0, true, 0,   0));
+        nodes.push_back(new Node<2>(0, true, 0,   1));
+        nodes.push_back(new Node<2>(0, true, 1,   1));
+        nodes.push_back(new Node<2>(0, true, 1,   0));
+        nodes.push_back(new Node<2>(0, true, 0.5, 0.5));
 
         MutableMesh<2,2> mesh(nodes);
 
@@ -269,50 +269,49 @@ public:
 
         Face<2> expected_face;
         c_vector<double, 2> vertex1;
-        vertex1(0)= 0.5;
-        vertex1(1)= 0.0;
+        vertex1(0) = 0.5;
+        vertex1(1) = 0.0;
         expected_face.mVertices.push_back(&vertex1);
         c_vector<double, 2> vertex2;
-        vertex2(0)= 1.0;
-        vertex2(1)= 0.5;
+        vertex2(0) = 1.0;
+        vertex2(1) = 0.5;
         expected_face.mVertices.push_back(&vertex2);
         c_vector<double, 2> vertex3;
-        vertex3(0)= 0.5;
-        vertex3(1)= 1.0;
+        vertex3(0) = 0.5;
+        vertex3(1) = 1.0;
         expected_face.mVertices.push_back(&vertex3);
         c_vector<double, 2> vertex4;
-        vertex4(0)= 0.0;
-        vertex4(1)= 0.5;
+        vertex4(0) = 0.0;
+        vertex4(1) = 0.5;
         expected_face.mVertices.push_back(&vertex4);
 
         TS_ASSERT_EQUALS(*(tessellation.GetFace(4)), expected_face);
-        TS_ASSERT_EQUALS( tessellation.GetFace(4)->GetNumVertices(), 4u);
+        TS_ASSERT_EQUALS(tessellation.GetFace(4)->GetNumVertices(), 4u);
 
         std::vector< c_vector<double, 2>*> vertices_of_face4 = tessellation.GetFace(4)->GetVertices();
         c_vector<double, 2> first_vertex_of_face4 = *(vertices_of_face4[0]);
-        TS_ASSERT_DELTA( first_vertex_of_face4(0), 0.5,1e-4);
-        //  Calculate length of voronoi edge between nodes 4 and 2
+        TS_ASSERT_DELTA( first_vertex_of_face4(0), 0.5, 1e-4);
 
+        // Calculate length of voronoi edge between nodes 4 and 2
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
-
         TS_ASSERT_EQUALS(tessellation.GetNumFaces(), 5u);
     }
 
     void TestTessellation2dComplex() throw (Exception)
     {
         std::vector<Node<2> *> nodes;
-        nodes.push_back(new Node<2>(0, true,  0,  0));
-        nodes.push_back(new Node<2>(0, true,  0,  1));
-        nodes.push_back(new Node<2>(0, true,  -1,  0));
-        nodes.push_back(new Node<2>(0, true,  1,  0));
-        nodes.push_back(new Node<2>(0, true,  0.5,-pow(3,0.5)/2.0));
-        nodes.push_back(new Node<2>(0, true,  -0.5,-pow(3,0.5)/2.0));
+        nodes.push_back(new Node<2>(0, true,  0.0, 0));
+        nodes.push_back(new Node<2>(0, true,  0.0, 1));
+        nodes.push_back(new Node<2>(0, true, -1.0, 0));
+        nodes.push_back(new Node<2>(0, true,  1.0, 0));
+        nodes.push_back(new Node<2>(0, true,  0.5, -pow(3,0.5)/2.0));
+        nodes.push_back(new Node<2>(0, true, -0.5, -pow(3,0.5)/2.0));
 
         MutableMesh<2,2> mesh(nodes);
 
         TS_ASSERT(mesh.CheckVoronoi());
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<2> tessellation(mesh);
 
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 1u), 1.0, 1e-6);
@@ -322,14 +321,11 @@ public:
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 5u), pow(3,-0.5), 1e-6);
 
         TS_ASSERT_DELTA(tessellation.GetFace(0)->GetArea(), pow(3, 0.5)/4.0+0.5, 1e-6);
-        TS_ASSERT_DELTA(tessellation.GetFace(0)->GetPerimeter(), 2.0 + pow(3, 0.5) , 1e-6);
-
+        TS_ASSERT_DELTA(tessellation.GetFace(0)->GetPerimeter(), 2.0 + pow(3, 0.5), 1e-6);
     }
-
 
     void TestOrderVerticesAntiClockwise()
     {
-
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, true,  0,  0));
         nodes.push_back(new Node<2>(0, true,  0,  1));
@@ -341,13 +337,11 @@ public:
 
         TS_ASSERT(mesh.CheckVoronoi());
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<2> tessellation(mesh);
 
         Face<2> original_face = *(tessellation.GetFace(0u));
-
         Face<2>* p_reordered_face = tessellation.mFaces[0];
-
 
         c_vector<double,2>* p_temp = p_reordered_face->mVertices[0];
 
@@ -366,11 +360,9 @@ public:
 
         //tessellation.OrderFaceVerticesAntiClockwise(0u);
 
-        TS_ASSERT_EQUALS(*p_reordered_face,original_face);
+        TS_ASSERT_EQUALS(*p_reordered_face, original_face);
 
         //TS_ASSERT_DIFFERS(original_face,original_face);
-
-
     }
 };
 
