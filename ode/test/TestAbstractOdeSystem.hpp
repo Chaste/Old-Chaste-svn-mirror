@@ -34,8 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <iostream>
-#include <vector>
-#include "AbstractOdeSystem.hpp"
+
 #include "Ode1.hpp"
 #include "Ode2.hpp"
 #include "Ode3.hpp"
@@ -43,44 +42,41 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanDerPolOde.hpp"
 
 // Tolerance for tests
-const double tol=0.01;
+const double tol = 0.01;
 
 
 class TestAbstractOdeSystem : public CxxTest::TestSuite
 {
 public:
 
-    void TestOdeSystemOne(void)
+    void TestOdeSystemOne()
     {
         // Test Ode1 class
         Ode1 ode1;
         // dy
         std::vector<double> dy(1);
         ode1.EvaluateYDerivatives(1.0, ode1.GetInitialConditions(),dy);
-        TS_ASSERT_DELTA(dy[0],1.0,tol);
+        TS_ASSERT_DELTA(dy[0], 1.0, tol);
     }
 
-
-    void TestOdeSystemTwo(void)
+    void TestOdeSystemTwo()
     {
         Ode2 ode2;
         std::vector<double> dy(1);
         ode2.EvaluateYDerivatives(2.0, ode2.GetInitialConditions(), dy);
-        TS_ASSERT_DELTA(dy[0],8.0,tol);
+        TS_ASSERT_DELTA(dy[0], 8.0, tol);
     }
 
-
-    void TestOdeSystemThree(void)
+    void TestOdeSystemThree()
     {
         Ode3 ode3;
         std::vector<double> dy(2);
         ode3.EvaluateYDerivatives(2.0, ode3.GetInitialConditions(), dy);
-        TS_ASSERT_DELTA(dy[0],8.0,tol);
-        TS_ASSERT_DELTA(dy[1],16.0,tol);
+        TS_ASSERT_DELTA(dy[0], 8.0, tol);
+        TS_ASSERT_DELTA(dy[1], 16.0, tol);
     }
 
-
-    void TestExceptions(void)
+    void TestExceptions()
     {
         Ode1 ode;
         TS_ASSERT_EQUALS(ode.GetNumberOfStateVariables(), 1u);
@@ -92,18 +88,17 @@ public:
         TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariables(v));
     }
 
-
-    void TestSetGetFunctionsInAbstractOdeSystem(void)
+    void TestSetGetFunctionsInAbstractOdeSystem()
     {
         TwoDimOdeSystem ode;
 
         std::vector<double> initial_conditions = ode.GetInitialConditions();
         std::vector<double> state_variables = ode.rGetStateVariables();
 
-        TS_ASSERT_DELTA( initial_conditions[0], 1.0, 1e-12 );
-        TS_ASSERT_DELTA( initial_conditions[1], 2.0, 1e-12 );
-        TS_ASSERT_DELTA( state_variables[0], 3.0, 1e-12 );
-        TS_ASSERT_DELTA( state_variables[1], 4.0, 1e-12 );
+        TS_ASSERT_DELTA(initial_conditions[0], 1.0, 1e-12);
+        TS_ASSERT_DELTA(initial_conditions[1], 2.0, 1e-12);
+        TS_ASSERT_DELTA(state_variables[0], 3.0, 1e-12);
+        TS_ASSERT_DELTA(state_variables[1], 4.0, 1e-12);
 
         std::vector<double> new_initial_conditions;
         new_initial_conditions.push_back(5.0);
@@ -119,15 +114,15 @@ public:
         initial_conditions = ode.GetInitialConditions();
         state_variables = ode.rGetStateVariables();
 
-        TS_ASSERT_DELTA( initial_conditions[0], 5.0, 1e-12 );
-        TS_ASSERT_DELTA( initial_conditions[1], 6.0, 1e-12 );
-        TS_ASSERT_DELTA( state_variables[0], 7.0, 1e-12 );
-        TS_ASSERT_DELTA( state_variables[1], 8.0, 1e-12 );
+        TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
+        TS_ASSERT_DELTA(initial_conditions[1], 6.0, 1e-12);
+        TS_ASSERT_DELTA(state_variables[0], 7.0, 1e-12);
+        TS_ASSERT_DELTA(state_variables[1], 8.0, 1e-12);
 
-        ode.SetInitialConditionsComponent(1,9.0);
+        ode.SetInitialConditionsComponent(1, 9.0);
         initial_conditions = ode.GetInitialConditions();
-        TS_ASSERT_DELTA( initial_conditions[0], 5.0, 1e-12 );
-        TS_ASSERT_DELTA( initial_conditions[1], 9.0, 1e-12 );
+        TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
+        TS_ASSERT_DELTA(initial_conditions[1], 9.0, 1e-12);
     }
 
     void TestReadSpecificStateVariable()
@@ -164,7 +159,5 @@ public:
         TS_ASSERT_EQUALS(state, "Test 2.\nState:\n\tx:0\n\tv:1\n");
     }
 };
-
-
 
 #endif //_TESTABSTRACTODESYSTEM_HPP_

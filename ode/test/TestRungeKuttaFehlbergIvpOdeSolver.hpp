@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestRungeKuttaFehlbergIvpOdeSolver: public CxxTest::TestSuite
 {
 public:
+
     void TestAdjustStepSize() throw(Exception)
     {
          RungeKuttaFehlbergIvpOdeSolver rkf_solver;
@@ -58,23 +59,20 @@ public:
 
          // Use default step size calculation
          double step_size_should_be = current_step_size*pow(tolerance/(2*error),0.25);
-         rkf_solver.AdjustStepSize(current_step_size, error,
-                                   tolerance, max_step_size, min_step_size);
+         rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size);
 
          TS_ASSERT_DELTA(current_step_size, step_size_should_be, 1e-7);
 
          // Make step size 1/10th
          error = 1e-1;
          step_size_should_be = 0.1*current_step_size;
-         rkf_solver.AdjustStepSize(current_step_size, error,
-                                   tolerance, max_step_size, min_step_size);
+         rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size);
          TS_ASSERT_DELTA(current_step_size, step_size_should_be, 1e-9);
 
          // Make step size 4 times bigger
          error = 1e-19;
          step_size_should_be = 4*current_step_size;
-         rkf_solver.AdjustStepSize(current_step_size, error,
-                                   tolerance, max_step_size, min_step_size);
+         rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size);
          TS_ASSERT_DELTA(current_step_size, step_size_should_be, 1e-9);
 
          // Ramp up step size up to maximum
@@ -83,23 +81,21 @@ public:
          for (unsigned i=0; i<4; i++)
          {
             // Multiplies step size by 4 each time
-            rkf_solver.AdjustStepSize(current_step_size, error,
-                                      tolerance, max_step_size, min_step_size);
+            rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size);
          }
 
          TS_ASSERT_DELTA(current_step_size, step_size_should_be, 1e-9);
 
-         // try to make step size too small
+         // Try to make step size too small
          error = 1e10;
          for (unsigned i=0; i<2; i++)
          {
             // Divides step size by 10 each time (still within acceptable bounds)
-            rkf_solver.AdjustStepSize(current_step_size, error,
-                                      tolerance, max_step_size, min_step_size);
+            rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size);
          }
+
          // Divides step size by 10 and causes it to fall over.
-         TS_ASSERT_THROWS_ANYTHING(rkf_solver.AdjustStepSize(current_step_size, error,
-                                   tolerance, max_step_size, min_step_size) );
+         TS_ASSERT_THROWS_ANYTHING(rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size));
     }
 
     void TestCalculateNextYValue() throw(Exception)
@@ -135,9 +131,7 @@ public:
         rkf_solver.myk5.reserve(number_of_variables);
         rkf_solver.myk6.reserve(number_of_variables);
 
-
-        rkf_solver.CalculateNextYValue(&ode, time_step, time,
-                                        current_y_values, next_y_values);
+        rkf_solver.CalculateNextYValue(&ode, time_step, time, current_y_values, next_y_values);
 
         TS_ASSERT_DELTA(current_y_values[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(next_y_values[0], 9.204873e-01, 1e-5);
@@ -182,7 +176,8 @@ public:
         {
             double time = solutions.rGetTimes()[i];
             double y = (time+1.0)*(time+1.0) - 0.5*exp(time);
-            // Tolerance set to 1e-5, so 2e-5 to pass here...
+
+            // Tolerance set to 1e-5, so 2e-5 to pass here
             TS_ASSERT_DELTA(solutions.rGetSolutions()[i][0], y, 2e-5);
         }
     }
@@ -191,9 +186,9 @@ public:
     {
         OdeThirdOrder ode_system;
 
-        double h_value=0.1;
+        double h_value = 0.1;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
 
         OdeSolution solutions;
@@ -221,9 +216,9 @@ public:
     {
         Ode4 ode_system;
 
-        double h_value=0.1;
+        double h_value = 0.1;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         OdeSolution solutions;
 
@@ -245,10 +240,10 @@ public:
     {
         Ode5 ode_system;
 
-        double h_value=0.1;
+        double h_value = 0.1;
         double end_time = 1.0;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         OdeSolution solutions;
 
@@ -270,9 +265,9 @@ public:
     {
         OdeThirdOrderWithEvents ode_system_with_events;
 
-        double h_value=0.1;
+        double h_value = 0.1;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         OdeSolution solutions;
 
@@ -286,20 +281,21 @@ public:
 //                " x = " << solutions.rGetSolutions()[i][0] << "\n" << std::flush;
 //        }
 
-        // final time should be pi/6 (?)
+        // Final time should be pi/6 (?)
         TS_ASSERT_DELTA( solutions.rGetTimes()[last], M_PI/6.0, h_value);
 
-        // penultimate y0 should be greater than -0.5
+        // Penultimate y0 should be greater than -0.5
         TS_ASSERT_LESS_THAN(-0.5,solutions.rGetSolutions()[last-1][0]);
-        // final y0 should be less than -0.5
+
+        // Final y0 should be less than -0.5
         TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[last][0], -0.5);
 
-        // solver should correctly state the stopping event occurred
+        // Solver should correctly state the stopping event occurred
         TS_ASSERT_EQUALS(rkf_solver.StoppingEventOccurred(), true);
 
         // Coverage of exceptions
         TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1, 1e-5));
-        TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last],M_PI/6.0, 2.0, 0.1));
+        TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1));
     }
 
     void TestRKFehlbergAnotherNonlinearEquationAnalytic() throw(Exception)
@@ -309,7 +305,7 @@ public:
         double h_value = 0.1;
         double end_time = 1.0;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         OdeSolution solutions;
 
@@ -334,7 +330,7 @@ public:
         double h_value = 1.0;
         double end_time = 100.0;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         OdeSolution solutions;
 
@@ -357,12 +353,9 @@ public:
 //        rabbit_file->close();
 
         // assert that we are within a [-2,2] in x and [-2,2] in y (on limit cycle)
-        TS_ASSERT_DELTA(numerical_solution[0],0,2);
-        TS_ASSERT_DELTA(numerical_solution[1],0,2);
-
-
+        TS_ASSERT_DELTA(numerical_solution[0], 0, 2);
+        TS_ASSERT_DELTA(numerical_solution[1], 0, 2);
     }
-
 
 };
 

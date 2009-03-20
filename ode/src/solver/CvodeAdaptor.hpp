@@ -30,9 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _CVODEADAPTOR_HPP_
 #define _CVODEADAPTOR_HPP_
 
-#include <vector>
-
-#include "AbstractOdeSystem.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 
@@ -127,15 +124,36 @@ typedef struct CvodeData_ {
 class CvodeAdaptor : public AbstractIvpOdeSolver
 {
 private:
+
+    /** Pointer to the CVODE memory block. */
     void* mpCvodeMem;
+
+    /** Initial conditions for the ODE solver. */
     N_Vector mInitialValues;
+
+    /** The CVODE data structure. */
     CvodeData mData;
+
+    /** Relative tolerance for the ODE solver. */
     double mRelTol;
+
+    /** Absolute tolerance for the ODE solver. */
     double mAbsTol;
+
+    /** The size of the previous timestep. */
     double mLastInternalStepSize;
+
+    /**
+     * The maximum number of steps to be taken by the solver 
+     * in its attempt to reach the next output time.
+     */
     long int mMaxSteps;
+
+    /** Whether to check for stopping events. */
     bool mCheckForRoots;
+
 protected:
+
     /**
      * Set up the CVODE data structures needed to solve the given system.
      */
@@ -157,46 +175,39 @@ protected:
     void CvodeError(int flag, const char * msg);
 
 public:
+
     /**
      * Default constructor.
-     *
      * Can optionally set relative and absolute tolerances.
+     * 
+     * @param relTol the relative tolerance for the solver (defaults to 1e-4)
+     * @param absTol the absolute tolerance for the solver (defaults to 1e-6)
      */
-    CvodeAdaptor(double relTol=1e-4, double absTol=1e-6)
-        : AbstractIvpOdeSolver(),
-          mpCvodeMem(NULL), mInitialValues(NULL),
-          mRelTol(relTol), mAbsTol(absTol),
-          mLastInternalStepSize(-0.0),
-          mMaxSteps(0),
-          mCheckForRoots(false)
-    {
-    }
+    CvodeAdaptor(double relTol=1e-4, double absTol=1e-6);
     
     /**
      * Set relative and absolute tolerances; both scalars.
      * If no parameters are given, tolerances will be reset to default values.
+     * 
+     * @param relTol the relative tolerance for the solver (defaults to 1e-4)
+     * @param absTol the absolute tolerance for the solver (defaults to 1e-6)
      */
-    void SetTolerances(double relTol=1e-4, double absTol=1e-6)
-    {
-        mRelTol = relTol;
-        mAbsTol = absTol;
-    }
-    double GetRelativeTolerance()
-    {
-        return mRelTol;
-    }
-    double GetAbsoluteTolerance()
-    {
-        return mAbsTol;
-    }
+    void SetTolerances(double relTol=1e-4, double absTol=1e-6);
+
+    /**
+     * Get the relative tolerance.
+     */
+    double GetRelativeTolerance();
+
+    /**
+     * Get the absolute tolerance.
+     */
+    double GetAbsoluteTolerance();
     
     /**
      * Get the last step size used internally by CVODE in the last Solve call
      */
-    double GetLastStepSize()
-    {
-        return mLastInternalStepSize;
-    }
+    double GetLastStepSize();
 
     /**
      * Solve the given ODE system, returning the solution at sampling intervals.
@@ -232,29 +243,26 @@ public:
                double startTime,
                double endTime,
                double maxStep);
-               
+
     /**
      * Make the solver check for stopping events using CVODE's rootfinding functionality.
      * 
      * By default we do not check.
      */
-    void CheckForStoppingEvents()
-    {
-        mCheckForRoots = true;
-    }
-    
+    void CheckForStoppingEvents();
+
     /**
      * Change the maximum number of steps to be taken by the solver
      * in its attempt to reach the next output time.  Default is 500.
      */
-    void SetMaxSteps(long int numSteps)
-    {
-        mMaxSteps = numSteps;
-    }
-    long int GetMaxSteps()
-    {
-        return mMaxSteps;
-    }
+    void SetMaxSteps(long int numSteps);
+
+    /**
+     * Get the maximum number of steps to be taken by the solver
+     * in its attempt to reach the next output time.
+     */
+    long int GetMaxSteps();
+
 };
 
 #endif // _CVODEADAPTOR_HPP_

@@ -27,13 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
-#include "AbstractIvpOdeSolver.hpp"
-#include "AbstractOdeSystem.hpp"
-#include "OdeSolution.hpp"
-
 #include <cmath>
 #include <cfloat>
-#include <vector>
 
 const double smidge = 1e-10;
 
@@ -258,12 +253,33 @@ void RungeKuttaFehlbergIvpOdeSolver::AdjustStepSize(double& rCurrentStepSize,
  * PUBLIC FUNCTIONS=============================================================
  */
 
+RungeKuttaFehlbergIvpOdeSolver::RungeKuttaFehlbergIvpOdeSolver()
+    : m1932o2197(1932.0/2197.0), // you need the .0 s - caused me no end of trouble.
+      m7200o2197(7200.0/2197.0),
+      m7296o2197(7296.0/2197.0),
+      m12o13(12.0/13.0),
+      m439o216(439.0/216.0),
+      m3680o513(3680.0/513.0),
+      m845o4104(845.0/4104.0),
+      m8o27(8.0/27.0),
+      m3544o2565(3544.0/2565.0),
+      m1859o4104(1859.0/4104.0),
+      m1o360(1.0/360.0),
+      m128o4275(128.0/4275.0),
+      m2197o75240(2197.0/75240.0),
+      m2o55(2.0/55.0),
+      m25o216(25.0/216.0),
+      m1408o2565(1408.0/2565.0),
+      m2197o4104(2197.0/4104.0)
+{
+}
+
 OdeSolution RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
-                                               std::vector<double>& rYValues,
-                                               double startTime,
-                                               double endTime,
-                                               double timeStep,
-                                               double tolerance)
+                                                  std::vector<double>& rYValues,
+                                                  double startTime,
+                                                  double endTime,
+                                                  double timeStep,
+                                                  double tolerance)
 {
     assert(rYValues.size()==pOdeSystem->GetNumberOfStateVariables());
     assert(endTime > startTime);
@@ -285,10 +301,10 @@ OdeSolution RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
 }
 
 void RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
-                                        std::vector<double>& rYValues,
-                                        double startTime,
-                                        double endTime,
-                                        double timeStep)
+                                           std::vector<double>& rYValues,
+                                           double startTime,
+                                           double endTime,
+                                           double timeStep)
 {
     assert(rYValues.size()==pOdeSystem->GetNumberOfStateVariables());
     assert(endTime > startTime);

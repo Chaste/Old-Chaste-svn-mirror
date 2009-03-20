@@ -55,7 +55,7 @@ public :
 };
 
 template<>
-void OdeSystemInformation<OdeThirdOrder>::Initialise(void)
+void OdeSystemInformation<OdeThirdOrder>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");

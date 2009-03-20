@@ -38,7 +38,6 @@ AbstractOdeSystem::AbstractOdeSystem(unsigned numberOfStateVariables)
 AbstractOdeSystem::~AbstractOdeSystem()
 {}
 
-// Default implementation - never stop.
 bool AbstractOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
 {
     return false;
@@ -60,4 +59,91 @@ std::string AbstractOdeSystem::DumpState(const std::string& message,
         res << "\t" << r_var_names[i] << ":" << Y[i] << "\n";
     }
     return res.str();
+}
+
+unsigned AbstractOdeSystem::GetNumberOfStateVariables() const
+{
+    return mNumberOfStateVariables;
+}
+
+void AbstractOdeSystem::SetInitialConditions(const std::vector<double>& rInitialConditions)
+{
+    if (rInitialConditions.size() != mNumberOfStateVariables)
+    {
+        EXCEPTION("The number of initial conditions must be that of the number of state variables");
+    }
+    assert(mpSystemInfo);
+    mpSystemInfo->SetInitialConditions(rInitialConditions);
+}
+
+void AbstractOdeSystem::SetInitialConditionsComponent(unsigned index, double initialCondition)
+{
+    if (index >= mNumberOfStateVariables)
+    {
+        EXCEPTION("Index is greater than the number of state variables");
+    }
+    assert(mpSystemInfo);
+    mpSystemInfo->SetInitialConditionsComponent(index, initialCondition);
+}
+
+std::vector<double> AbstractOdeSystem::GetInitialConditions() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetInitialConditions();
+}
+
+void AbstractOdeSystem::SetStateVariables(const std::vector<double>& rStateVariables)
+{
+    if ( mNumberOfStateVariables != rStateVariables.size() )
+    {
+        EXCEPTION("The size of the passed in vector must be that of the number of state variables");
+    }
+    mStateVariables = rStateVariables;
+}
+
+std::vector<double>& AbstractOdeSystem::rGetStateVariables()
+{
+    return mStateVariables;
+}
+
+std::vector<std::string>& AbstractOdeSystem::rGetVariableNames()
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->rGetVariableNames();
+}
+
+std::vector<std::string>& AbstractOdeSystem::rGetVariableUnits()
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->rGetVariableUnits();
+}
+
+double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)
+{
+    bool stop = CalculateStoppingEvent(time, rY);
+    return stop ? 0.0 : 1.0;
+}
+
+bool AbstractOdeSystem::GetUseAnalyticJacobian()
+{
+    return mUseAnalyticJacobian;
+}
+
+unsigned AbstractOdeSystem::GetStateVariableNumberByName(const std::string name)
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetStateVariableNumberByName(name);
+}
+
+double AbstractOdeSystem::GetStateVariableValueByNumber(unsigned varNumber) const
+{
+    assert(varNumber < mNumberOfStateVariables);
+    return mStateVariables[varNumber];
+}
+
+std::string AbstractOdeSystem::GetStateVariableUnitsByNumber(unsigned varNumber) const
+{
+    assert(varNumber < mNumberOfStateVariables);
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetStateVariableUnitsByNumber(varNumber);
 }

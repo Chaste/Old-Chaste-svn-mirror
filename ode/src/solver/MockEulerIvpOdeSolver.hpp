@@ -46,6 +46,17 @@ private:
 
 protected:
 
+    /**
+     * Method that actually performs the solving on behalf of the public Solve methods.
+     *
+     * @param pAbstractOdeSystem  the ODE system to solve
+     * @param rCurrentYValues  the current (initial) state; results will also be returned
+     *                         in here
+     * @param rWorkingMemory  working memory; same size as rCurrentYValues
+     * @param startTime  initial time
+     * @param endTime  time to solve to
+     * @param timeStep  dt
+     */
     virtual void InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
                                std::vector<double>& rCurrentYValues,
                                std::vector<double>& rWorkingMemory,

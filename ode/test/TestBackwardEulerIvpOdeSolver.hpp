@@ -50,12 +50,12 @@ public:
     {
         OdeThirdOrder ode_system;
 
-        double h_value=0.01;
+        double h_value = 0.01;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
 
-        // cover the SetEpsilonForNumericalJacobian() method
+        // Cover the SetEpsilonForNumericalJacobian() method
         backward_euler_solver.SetEpsilonForNumericalJacobian(1e-6);
 
         OdeSolution solutions;
@@ -77,18 +77,18 @@ public:
         analytical_solution[2] = 2*sin(2);
 
         double global_error_euler = 0.5*2*(exp(2)-1)*h_value;
-        TS_ASSERT_DELTA(numerical_solution[0],analytical_solution[0],global_error_euler);
-        TS_ASSERT_DELTA(numerical_solution[1],analytical_solution[1],global_error_euler);
-        TS_ASSERT_DELTA(numerical_solution[2],analytical_solution[2],global_error_euler);
+        TS_ASSERT_DELTA(numerical_solution[0], analytical_solution[0], global_error_euler);
+        TS_ASSERT_DELTA(numerical_solution[1], analytical_solution[1], global_error_euler);
+        TS_ASSERT_DELTA(numerical_solution[2], analytical_solution[2], global_error_euler);
     }
 
     void TestBackwardEulerNonlinearEquation()
     {
         Ode4 ode_system;
 
-        double h_value=0.01;
+        double h_value = 0.01;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
 
@@ -103,17 +103,17 @@ public:
         // The tests
         double analytical_solution = 1.0/(1.0+exp(-12.5));
 
-        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-4);
+        TS_ASSERT_DELTA(numerical_solution, analytical_solution, 1.0e-4);
     }
 
     void TestBackwardEulerAnotherNonlinearEquation()
     {
         Ode5 ode_system;
 
-        double h_value=0.01;
+        double h_value = 0.01;
         double end_time = 1.0;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
 
@@ -128,16 +128,16 @@ public:
         // The tests
         double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
 
-        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
+        TS_ASSERT_DELTA(numerical_solution, analytical_solution, 1.0e-3);
     }
 
     void TestBackwardEulerSystemOf3EquationsWithEvents()
     {
         OdeThirdOrderWithEvents ode_system_with_events;
 
-        double h_value=0.01;
+        double h_value = 0.01;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(ode_system_with_events.GetNumberOfStateVariables());
         OdeSolution solutions;
 
@@ -145,15 +145,16 @@ public:
         solutions = backward_euler_solver.Solve(&ode_system_with_events, state_variables, 0.0, 2.0, h_value, h_value);
         unsigned last = solutions.GetNumberOfTimeSteps();
 
-        // final time should be pi/6 (?)
+        // Final time should be pi/6 (?)
         TS_ASSERT_DELTA( solutions.rGetTimes()[last], 0.5236, 0.01);
 
-        // penultimate y0 should be greater than -0.5
+        // Penultimate y0 should be greater than -0.5
         TS_ASSERT_LESS_THAN(-0.5,solutions.rGetSolutions()[last-1][0]);
-        // final y0 should be less than -0.5
+
+        // Final y0 should be less than -0.5
         TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[last][0], -0.5);
 
-        // solver should correctly state the stopping event occurred
+        // Solver should correctly state the stopping event occurred
         TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccurred(), true);
     }
 
@@ -164,7 +165,7 @@ public:
         double h_value = 0.01;
         double end_time = 1.0;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
 
@@ -179,7 +180,7 @@ public:
         // The tests
         double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
 
-        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
+        TS_ASSERT_DELTA(numerical_solution, analytical_solution, 1.0e-3);
     }
 
     void TestBackwardEulerVanDerPolOde()
@@ -189,7 +190,7 @@ public:
         double h_value = 0.01;
         double end_time = 100.0;
 
-        //Euler solver solution worked out
+        // Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
 
@@ -211,10 +212,9 @@ public:
 //        rabbit_file->close();
 
         // assert that we are within a [-2,2] in x and [-2,2] in y (on limit cycle)
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][0],0,2);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][1],0,2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][0], 0, 2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][1], 0, 2);
     }
-
 
 };
 

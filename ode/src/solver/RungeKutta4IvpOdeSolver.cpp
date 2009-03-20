@@ -27,11 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RungeKutta4IvpOdeSolver.hpp"
-#include "AbstractIvpOdeSolver.hpp"
-#include "AbstractOdeSystem.hpp"
-#include "OdeSolution.hpp"
-
-#include <vector>
 
 void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                                   double timeStep,

@@ -53,7 +53,7 @@ public :
 };
 
 template<>
-void OdeSystemInformation<Ode3>::Initialise(void)
+void OdeSystemInformation<Ode3>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");

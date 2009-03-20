@@ -30,8 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTODESYSTEM_HPP_
 #define _ABSTRACTODESYSTEM_HPP_
 
-#include <vector>
-#include <string>
 #include <cassert>
 
 #include <boost/shared_ptr.hpp>
@@ -95,25 +93,14 @@ public:
      * 
      * @return mNumberOfStateVariables
      */
-    unsigned GetNumberOfStateVariables() const
-    {
-        return mNumberOfStateVariables;
-    }
+    unsigned GetNumberOfStateVariables() const;
 
     /**
      * Set the initial conditions for the ODE system.
      * 
      * @param rInitialConditions  vector containing initial values for the state variables
      */
-    void SetInitialConditions(const std::vector<double>& rInitialConditions)
-    {
-        if (rInitialConditions.size() != mNumberOfStateVariables)
-        {
-            EXCEPTION("The number of initial conditions must be that of the number of state variables");
-        }
-        assert(mpSystemInfo);
-        mpSystemInfo->SetInitialConditions(rInitialConditions);
-    }
+    void SetInitialConditions(const std::vector<double>& rInitialConditions);
 
     /**
      * Set the initial condition one state variable.
@@ -121,64 +108,34 @@ public:
      * @param index  the index of the state variable in the system
      * @param initialCondition  the initial value for the state variable
      */
-    void SetInitialConditionsComponent(unsigned index, double initialCondition)
-    {
-        if ( index >= mNumberOfStateVariables)
-        {
-            EXCEPTION("Index is greater than the number of state variables");
-        }
-        assert(mpSystemInfo);
-        mpSystemInfo->SetInitialConditionsComponent(index, initialCondition);
-    }
+    void SetInitialConditionsComponent(unsigned index, double initialCondition);
 
     /**
      * Get the initial conditions for the ODE system.
      */
-    std::vector<double> GetInitialConditions() const
-    {
-        assert(mpSystemInfo);
-        return mpSystemInfo->GetInitialConditions();
-    }
+    std::vector<double> GetInitialConditions() const;
 
     /**
      * Set the values of the state variables in the ODE system.
      * 
      * @param rStateVariables vector containing values for the state variables
      */
-    void SetStateVariables(const std::vector<double>& rStateVariables)
-    {
-        if ( mNumberOfStateVariables != rStateVariables.size() )
-        {
-            EXCEPTION("The size of the passed in vector must be that of the number of state variables");
-        }
-        mStateVariables = rStateVariables;
-    }
+    void SetStateVariables(const std::vector<double>& rStateVariables);
 
     /**
      * Get the values of the state variables in the ODE system.
      */
-    std::vector<double>& rGetStateVariables()
-    {
-        return mStateVariables;
-    }
+    std::vector<double>& rGetStateVariables();
 
     /**
      * Get the names of the state variables in the ODE system.
      */
-    std::vector<std::string>& rGetVariableNames()
-    {
-        assert(mpSystemInfo);
-        return mpSystemInfo->rGetVariableNames();
-    }
+    std::vector<std::string>& rGetVariableNames();
 
     /**
      * Get the units of the state variables in the ODE system.
      */
-    std::vector<std::string>& rGetVariableUnits()
-    {
-        assert(mpSystemInfo);
-        return mpSystemInfo->rGetVariableUnits();
-    }
+    std::vector<std::string>& rGetVariableUnits();
 
     /**
      *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
@@ -203,21 +160,14 @@ public:
      * @param time  the current time
      * @param rY  the current values of the state variables
      */
-    virtual double CalculateRootFunction(double time, const std::vector<double> &rY)
-    {
-        bool stop = CalculateStoppingEvent(time, rY);
-        return stop ? 0.0 : 1.0;
-    }
+    virtual double CalculateRootFunction(double time, const std::vector<double> &rY);
 
     /**
      * Get whether an analytic Jacobian is used.
      * 
      * @return mUseAnalyticJacobian
      */
-    bool GetUseAnalyticJacobian()
-    {
-        return mUseAnalyticJacobian;
-    }
+    bool GetUseAnalyticJacobian();
 
     /**
      * This method is used to establish a state variable's position within
@@ -230,11 +180,7 @@ public:
      * @return the state variable's position within the vector of state variables 
      *         associated with the ODE system.
      */
-    unsigned GetStateVariableNumberByName(const std::string name)
-    {
-        assert(mpSystemInfo);
-        return mpSystemInfo->GetStateVariableNumberByName(name);
-    }
+    unsigned GetStateVariableNumberByName(const std::string name);
 
     /**
      * Get the value of a state variable given its index in the ODE system.
@@ -244,11 +190,7 @@ public:
      * 
      * @return the current value of the state variable.
      */
-    double GetStateVariableValueByNumber(unsigned varNumber) const
-    {
-        assert(varNumber < mNumberOfStateVariables);
-        return mStateVariables[varNumber];
-    }
+    double GetStateVariableValueByNumber(unsigned varNumber) const;
 
     /**
      * Get the units of a state variable given its index in the ODE system.
@@ -257,12 +199,7 @@ public:
      *                   state variables associated with the ODE system.
      * @return the units of the state variable.
      */
-    std::string GetStateVariableUnitsByNumber(unsigned varNumber) const
-    {
-        assert(varNumber < mNumberOfStateVariables);
-        assert(mpSystemInfo);
-        return mpSystemInfo->GetStateVariableUnitsByNumber(varNumber);
-    }
+    std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
 
 protected:
 

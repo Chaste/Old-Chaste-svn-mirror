@@ -50,7 +50,7 @@ public :
 };
 
 template<>
-void OdeSystemInformation<TwoDimOdeSystem>::Initialise(void)
+void OdeSystemInformation<TwoDimOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");

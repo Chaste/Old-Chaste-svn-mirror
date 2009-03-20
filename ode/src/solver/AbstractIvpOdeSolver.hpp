@@ -29,10 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTIVPODESOLVER_HPP_
 #define _ABSTRACTIVPODESOLVER_HPP_
 
-#include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 
-#include <vector>
 
 /**
  * Abstract initial value problem ODE solver class. Sets up variables and functions 
@@ -113,47 +111,30 @@ public :
     virtual void SolveAndUpdateStateVariable(AbstractOdeSystem* pAbstractOdeSystem,
                                              double startTime,
                                              double endTime,
-                                             double timeStep)
-    {
-        if ((pAbstractOdeSystem->rGetStateVariables().size()!=pAbstractOdeSystem->GetNumberOfStateVariables())
-            || (pAbstractOdeSystem->rGetStateVariables().size()==0) )
-        {
-            EXCEPTION("SolveAndUpdateStateVariable() called but the state variable vector in the ODE system is not set up");
-        }
-        Solve(pAbstractOdeSystem, pAbstractOdeSystem->rGetStateVariables(), startTime, endTime, timeStep);
-    }
+                                             double timeStep);
 
     /**
      * Determine whether the solver quit due to the ODE's stopping event
      * triggering
      */
-    bool StoppingEventOccurred()
-    {
-        return mStoppingEventOccurred;
-    }
+    bool StoppingEventOccurred();
 
     /**
      * Get the stopping time for the solver.
      * 
      * @return mStoppingTime.
      */
-    double GetStoppingTime()
-    {
-        return mStoppingTime;
-    }
+    double GetStoppingTime();
 
     /**
      * Constructor.
      */
-    AbstractIvpOdeSolver()
-            : mStoppingEventOccurred(false)
-    {}
+    AbstractIvpOdeSolver();
 
     /**
      * Virtual destructor since we have virtual methods.
      */
-    virtual ~AbstractIvpOdeSolver()
-    {}
+    virtual ~AbstractIvpOdeSolver();
 
 };
 

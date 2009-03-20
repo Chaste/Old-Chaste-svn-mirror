@@ -27,20 +27,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/**
- * OdeSolution.  Sets us the class of ODE solutions, including a function that
- * allows us to save the output data to file.
- */
 #ifndef _ODESOLUTION_HPP_
 #define _ODESOLUTION_HPP_
 
-#include <vector>
 #include <fstream>
-#include <cassert>
+#include <sstream>
 #include "ColumnDataWriter.hpp"
 #include "AbstractOdeSystem.hpp"
-#include <sstream>
 
+/**
+ * An OdeSolution class that that allows us to save the output data to file.
+ */
 class OdeSolution
 {
 private:
@@ -61,22 +58,14 @@ public:
      * 
      * @return mNumberOfTimeSteps
      */
-    unsigned GetNumberOfTimeSteps(void)
-    {
-        return mNumberOfTimeSteps;
-    }
+    unsigned GetNumberOfTimeSteps();
 
     /**
      * Get the number of timesteps.
      * 
      * @param numTimeSteps the number of timesteps to use
      */
-    void SetNumberOfTimeSteps(unsigned numTimeSteps)
-    {
-        mNumberOfTimeSteps = numTimeSteps;
-        mTimes.reserve(numTimeSteps+1);
-        mSolutions.reserve(numTimeSteps);
-    }
+    void SetNumberOfTimeSteps(unsigned numTimeSteps);
 
     /**
      * Get the values of a state variable with a given index in 
@@ -84,36 +73,21 @@ public:
      * 
      * @param index  the index of the state variable in the system
      */
-    std::vector<double> GetVariableAtIndex(unsigned index)
-    {
-        std::vector<double> answer;
-        answer.reserve(mSolutions.size());
-        for (unsigned i=0; i<mSolutions.size(); i++)
-        {
-            answer.push_back(mSolutions[i][index]);
-        }
-        return answer;
-    }
+    std::vector<double> GetVariableAtIndex(unsigned index);
 
     /**
      * Get the times at which the solution to the ODE system is stored.
      * 
      * @return mTimes.
      */
-    std::vector<double>& rGetTimes()
-    {
-        return mTimes;
-    }
+    std::vector<double>& rGetTimes();
 
     /**
      * Get the values of the solution to the ODE system at each timestep.
      * 
      * @return mSolutions.
      */
-    std::vector<std::vector<double> >& rGetSolutions()
-    {
-        return mSolutions;
-    }
+    std::vector<std::vector<double> >& rGetSolutions();
 
     /**
      * Write the data to a file.
@@ -131,58 +105,8 @@ public:
                      std::string baseResultsFilename,
                      AbstractOdeSystem* pOdeSystem,
                      std::string timeUnits,
-                     unsigned stepsPerRow = 1,
-                     bool cleanDirectory = true)
-    {
-        assert(stepsPerRow > 0);
-        assert(mTimes.size() > 0);
-        assert(mTimes.size() == mSolutions.size());
-
-        // Write data to a file using ColumnDataWriter
-        ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory);
-
-        int time_var_id = writer.DefineUnlimitedDimension("Time", timeUnits);
-
-        // Either: the ODE system should have no names&units defined, or it should
-        // the same number as the number of solutions per timestep.
-        assert( pOdeSystem->rGetVariableNames().size()==0 ||
-                (pOdeSystem->rGetVariableNames().size()==mSolutions[0].size()) );
-
-        unsigned num_vars = mSolutions[0].size();
-
-        std::vector<int> var_ids;
-        var_ids.reserve(num_vars);
-        if (pOdeSystem->rGetVariableNames().size() > 0)
-        {
-            for (unsigned i=0; i<num_vars; i++)
-            {
-                var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
-                                                        pOdeSystem->rGetVariableUnits()[i]));
-            }
-        }
-        else
-        {
-            for (unsigned i=0; i<num_vars; i++)
-            {
-                std::stringstream string_stream;
-                string_stream << "var_" << i;
-                var_ids.push_back(writer.DefineVariable(string_stream.str(), ""));
-            }
-        }
-
-        writer.EndDefineMode();
-
-        for (unsigned i=0; i<mSolutions.size(); i+=stepsPerRow)
-        {
-            writer.PutVariable(time_var_id, mTimes[i]);
-            for (unsigned j=0; j<var_ids.size(); j++)
-            {
-                writer.PutVariable(var_ids[j], mSolutions[i][j]);
-            }
-            writer.AdvanceAlongUnlimitedDimension();
-        }
-        writer.Close();
-    }
+                     unsigned stepsPerRow=1,
+                     bool cleanDirectory=true);
 };
 
 #endif //_ODESOLUTION_HPP_

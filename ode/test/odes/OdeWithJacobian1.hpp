@@ -57,7 +57,7 @@ public :
 };
 
 template<>
-void OdeSystemInformation<OdeWithJacobian1>::Initialise(void)
+void OdeSystemInformation<OdeWithJacobian1>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");

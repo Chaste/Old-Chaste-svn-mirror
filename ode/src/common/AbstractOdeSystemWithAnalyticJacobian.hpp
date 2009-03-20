@@ -30,21 +30,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTODESYSTEMWITHANALYTICJACOBIAN_HPP_
 #define _ABSTRACTODESYSTEMWITHANALYTICJACOBIAN_HPP_
 
-#include <vector>
-
 #include "Exception.hpp"
 #include "AbstractOdeSystem.hpp"
 
 /**
- * Abstract Analytic Jacobian
+ * Abstract analytic Jacobian class.
  *
  * Represents an ODE system with an analytic Jacobian available,
  * which can be computed using the method AnalyticJacobian.
  */
 class AbstractOdeSystemWithAnalyticJacobian : public AbstractOdeSystem
 {
-protected:
-
 public:
 
     /**

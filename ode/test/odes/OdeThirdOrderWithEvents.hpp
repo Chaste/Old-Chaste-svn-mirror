@@ -59,7 +59,7 @@ public :
 };
 
 template<>
-void OdeSystemInformation<OdeThirdOrderWithEvents>::Initialise(void)
+void OdeSystemInformation<OdeThirdOrderWithEvents>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");

@@ -26,14 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+
 #ifndef _EULERIVPODESOLVER_HPP_
 #define _EULERIVPODESOLVER_HPP_
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
-#include "AbstractOdeSystem.hpp"
-#include "OdeSolution.hpp"
-
-#include <vector>
 
 /**
  * A concrete one step ODE solver class that employs the forward Euler 
@@ -68,7 +65,7 @@ public:
      * Constructor.
      */
     EulerIvpOdeSolver()
-    {};
+    {}
 
     /**
      * Destructor.

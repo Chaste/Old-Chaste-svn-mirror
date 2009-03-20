@@ -41,19 +41,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscException.hpp"
 
 // Tolerance for tests
-double tol=0.01;
+double tol = 0.01;
 
 
 class TestAbstractAnalyticJacobian : public CxxTest::TestSuite
 {
 public:
 
-    void TestJacobianOne(void)
+    void TestJacobianOne()
     {
-        // pointer to TestOde1 class
+        // Pointer to TestOde1 class
         OdeWithJacobian1 ode_system;
 
-        std::vector<double>  solution_guess(1);
+        std::vector<double> solution_guess(1);
         solution_guess[0] = 2.0;
 
         // Set up a Jacobian matrix for function to put values in
@@ -71,9 +71,9 @@ public:
         delete[] jacobian;
     }
 
-    void TestJacobianTwo(void)
+    void TestJacobianTwo()
     {
-        // pointer to TestOde1 class
+        // Pointer to TestOde1 class
         OdeWithJacobian2 ode_system;
 
         std::vector<double>  solution_guess(2);
@@ -98,12 +98,8 @@ public:
         delete[] jacobian[0];
         delete[] jacobian[1];
         delete[] jacobian;
-
-
     }
 
 };
-
-
 
 #endif //_TESTABSTRACTANALYTICJACOBIAN_HPP_

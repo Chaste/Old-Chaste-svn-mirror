@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+
 #ifndef _ODESYSTEMINFORMATION_HPP_
 #define _ODESYSTEMINFORMATION_HPP_
 
@@ -82,7 +83,7 @@ protected:
      * Developers should specialise this method to their ODE system.  For example,
  
 template<>
-void OdeSystemInformation<MyNewOdeSystem>::Initialise(void)
+void OdeSystemInformation<MyNewOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("Units 1");
@@ -91,7 +92,7 @@ void OdeSystemInformation<MyNewOdeSystem>::Initialise(void)
     this->mInitialised = true;
 }
      */
-    void Initialise(void);
+    void Initialise();
     
 public:
 
@@ -122,7 +123,7 @@ OdeSystemInformation<ODE_SYSTEM>::OdeSystemInformation()
 }
 
 template<class ODE_SYSTEM>
-void OdeSystemInformation<ODE_SYSTEM>::Initialise(void)
+void OdeSystemInformation<ODE_SYSTEM>::Initialise()
 {
     // does nothing; designed to be specialised
 }

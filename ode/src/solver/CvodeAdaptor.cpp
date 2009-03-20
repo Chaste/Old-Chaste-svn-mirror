@@ -28,16 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef CHASTE_CVODE
 
-#include <cassert>
-#include <vector>
-
-#include "AbstractOdeSystem.hpp"
+#include "CvodeAdaptor.hpp"
 #include "AbstractIvpOdeSolver.hpp"
-#include "Exception.hpp"
-#include "OdeSolution.hpp"
 #include "TimeStepper.hpp"
 
-#include "CvodeAdaptor.hpp"
 
 // CVODE headers
 #include <cvode/cvode.h>
@@ -228,7 +222,7 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     TimeStepper stepper(startTime, endTime, timeSampling);
     N_Vector yout = mInitialValues;
 
-    // Set up ode solution
+    // Set up ODE solution
     OdeSolution solutions;
     solutions.SetNumberOfTimeSteps(stepper.EstimateTimeSteps());
     solutions.rGetSolutions().push_back(rYValues);
@@ -323,8 +317,55 @@ void CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
 //    {
 //        std::cout << "Last internal dt was " << mLastInternalStepSize << std::endl;
 //    }
-    assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
+    assert(ierr == CV_SUCCESS);
+    ierr=ierr; // avoid unused var warning
     FreeCvodeMemory();
+}
+
+CvodeAdaptor::CvodeAdaptor(double relTol, double absTol)
+    : AbstractIvpOdeSolver(),
+      mpCvodeMem(NULL), mInitialValues(NULL),
+      mRelTol(relTol), mAbsTol(absTol),
+      mLastInternalStepSize(-0.0),
+      mMaxSteps(0),
+      mCheckForRoots(false)
+{
+}
+
+void CvodeAdaptor::SetTolerances(double relTol, double absTol)
+{
+    mRelTol = relTol;
+    mAbsTol = absTol;
+}
+
+double CvodeAdaptor::GetRelativeTolerance()
+{
+    return mRelTol;
+}
+
+double CvodeAdaptor::GetAbsoluteTolerance()
+{
+    return mAbsTol;
+}
+
+double CvodeAdaptor::GetLastStepSize()
+{
+    return mLastInternalStepSize;
+}
+
+void CvodeAdaptor::CheckForStoppingEvents()
+{
+    mCheckForRoots = true;
+}
+
+void CvodeAdaptor::SetMaxSteps(long int numSteps)
+{
+    mMaxSteps = numSteps;
+}
+
+long int CvodeAdaptor::GetMaxSteps()
+{
+    return mMaxSteps;
 }
 
 #endif // CHASTE_CVODE

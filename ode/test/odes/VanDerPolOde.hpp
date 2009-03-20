@@ -52,7 +52,7 @@ public :
 };
 
 template<>
-void OdeSystemInformation<VanDerPolOde>::Initialise(void)
+void OdeSystemInformation<VanDerPolOde>::Initialise()
 {
     this->mVariableNames.push_back("x");
     this->mVariableUnits.push_back("m");

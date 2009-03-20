@@ -58,7 +58,7 @@ public :
 };
 
 template<>
-void OdeSystemInformation<OdeSecondOrderWithEvents>::Initialise(void)
+void OdeSystemInformation<OdeSecondOrderWithEvents>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");

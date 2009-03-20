@@ -27,38 +27,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _ODE1_HPP_
-#define _ODE1_HPP_
+#include "AbstractIvpOdeSolver.hpp"
 
-#include "AbstractOdeSystem.hpp"
-#include "OdeSystemInformation.hpp"
-
-/**
- * dy/dt = 1, y(0) = 0.
- */
-class Ode1 : public AbstractOdeSystem
+AbstractIvpOdeSolver::AbstractIvpOdeSolver()
+    : mStoppingEventOccurred(false)
 {
-public:
-    Ode1() : AbstractOdeSystem(1) // 1 here is the number of variables
-    {
-        mpSystemInfo = OdeSystemInformation<Ode1>::Instance();
-        SetStateVariables(GetInitialConditions());
-    }
-
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
-    {
-        rDY[0]=1.0;
-    }
-};
-
-template<>
-void OdeSystemInformation<Ode1>::Initialise()
-{
-    this->mVariableNames.push_back("Variable 1");
-    this->mVariableUnits.push_back("Units 1");
-    this->mInitialConditions.push_back(0.0);
-    
-    this->mInitialised = true;
 }
 
-#endif //_ODE1_HPP_
+AbstractIvpOdeSolver::~AbstractIvpOdeSolver()
+{
+}
+
+void AbstractIvpOdeSolver::SolveAndUpdateStateVariable(AbstractOdeSystem* pAbstractOdeSystem,
+                                                       double startTime,
+                                                       double endTime,
+                                                       double timeStep)
+{
+    if (   (pAbstractOdeSystem->rGetStateVariables().size()!=pAbstractOdeSystem->GetNumberOfStateVariables())
+        || (pAbstractOdeSystem->rGetStateVariables().size()==0) )
+    {
+        EXCEPTION("SolveAndUpdateStateVariable() called but the state variable vector in the ODE system is not set up");
+    }
+    Solve(pAbstractOdeSystem, pAbstractOdeSystem->rGetStateVariables(), startTime, endTime, timeStep);
+}
+
+bool AbstractIvpOdeSolver::StoppingEventOccurred()
+{
+    return mStoppingEventOccurred;
+}
+
+double AbstractIvpOdeSolver::GetStoppingTime()
+{
+    return mStoppingTime;
+}

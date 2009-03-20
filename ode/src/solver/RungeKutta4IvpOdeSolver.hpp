@@ -30,10 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _RUNGEKUTTA4IVPODESOLVER_HPP_
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
-#include "AbstractOdeSystem.hpp"
-#include "OdeSolution.hpp"
-
-#include <vector>
 
 /**
  * A concrete one step ODE solver class that employs the Runge Kutta 
