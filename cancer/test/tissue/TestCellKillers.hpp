@@ -48,7 +48,7 @@ class TestCellKillers : public AbstractCancerTestSuite
 {
 public:
 
-    void TestRandomCellKiller(void) throw(Exception)
+    void TestRandomCellKiller() throw(Exception)
     {
         // Set up singleton classes
         CancerParameters* p_params = CancerParameters::Instance();
@@ -143,7 +143,7 @@ public:
     }
 
 
-    void TestSloughingCellKillerTopAndSides(void) throw(Exception)
+    void TestSloughingCellKillerTopAndSides() throw(Exception)
     {
         // Set up singleton classes
         CancerParameters* p_params = CancerParameters::Instance();
@@ -202,7 +202,7 @@ public:
     }
 
 
-    void TestSloughingCellKillerTopOnly(void) throw(Exception)
+    void TestSloughingCellKillerTopOnly() throw(Exception)
     {
         // Set up singleton classes
         CancerParameters* p_params = CancerParameters::Instance();

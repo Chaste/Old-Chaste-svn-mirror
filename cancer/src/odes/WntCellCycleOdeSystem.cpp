@@ -95,7 +95,7 @@ void WntCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationS
     mMutationState = rMutationState;
 }
 
-WntCellCycleOdeSystem::~WntCellCycleOdeSystem(void)
+WntCellCycleOdeSystem::~WntCellCycleOdeSystem()
 {
     // Do nothing
 }
@@ -286,7 +286,7 @@ double WntCellCycleOdeSystem::CalculateRootFunction(double time, const std::vect
 
 
 template<>
-void CellwiseOdeSystemInformation<WntCellCycleOdeSystem>::Initialise(void)
+void CellwiseOdeSystemInformation<WntCellCycleOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("pRb");
     this->mVariableUnits.push_back("non_dim");

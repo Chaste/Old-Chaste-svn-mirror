@@ -36,7 +36,7 @@ TysonNovak2001OdeSystem::TysonNovak2001OdeSystem()
     Init();
 }
 
-TysonNovak2001OdeSystem::~TysonNovak2001OdeSystem(void)
+TysonNovak2001OdeSystem::~TysonNovak2001OdeSystem()
 {
     // Do nothing
 }
@@ -237,7 +237,7 @@ double TysonNovak2001OdeSystem::CalculateRootFunction(double time, const std::ve
 }
 
 template<>
-void OdeSystemInformation<TysonNovak2001OdeSystem>::Initialise(void)
+void OdeSystemInformation<TysonNovak2001OdeSystem>::Initialise()
 {
     /*
      * Initialise state variables.

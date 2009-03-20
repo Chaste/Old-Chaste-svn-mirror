@@ -50,7 +50,7 @@ class TestOdeBasedCellCycleModels : public AbstractCancerTestSuite
 {
 public:
 
-    void TestTysonNovakCellCycleModel(void) throw(Exception)
+    void TestTysonNovakCellCycleModel() throw(Exception)
     {
         // Set up
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -137,7 +137,7 @@ public:
      * conditions, since the oscillatory solution computed using the Chaste
      * ODE solver is not stable.
      */
-    void TestTysonNovakCellCycleModelSolver(void) throw(Exception)
+    void TestTysonNovakCellCycleModelSolver() throw(Exception)
     {
         // Set up simulation time
         unsigned num_timesteps = 100000;
@@ -479,7 +479,7 @@ public:
     }
 
 
-    void TestWntCellCycleModelForAPCSingleHit(void) throw(Exception)
+    void TestWntCellCycleModelForAPCSingleHit() throw(Exception)
     {
         // Set up simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -536,7 +536,7 @@ public:
     }
 
 
-    void TestWntCellCycleModelForBetaCatSingleHit(void) throw(Exception)
+    void TestWntCellCycleModelForBetaCatSingleHit() throw(Exception)
     {
         // Set up simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -594,7 +594,7 @@ public:
     }
 
 
-    void TestWntCellCycleModelForAPCDoubleHit(void) throw(Exception)
+    void TestWntCellCycleModelForAPCDoubleHit() throw(Exception)
     {
         // Set up simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -651,7 +651,7 @@ public:
     }
 
 
-    void TestWntCellCycleModelForConstantWntStimulusHealthyCell(void) throw(Exception)
+    void TestWntCellCycleModelForConstantWntStimulusHealthyCell() throw(Exception)
     {
         // Set up simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();

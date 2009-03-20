@@ -62,7 +62,7 @@ protected:
      * Developers should specialise this method to their ODE system.  For example,
 
         template<>
-        void CellwiseOdeSystemInformation<MyNewOdeSystem>::Initialise(void)
+        void CellwiseOdeSystemInformation<MyNewOdeSystem>::Initialise()
         {
             this->mVariableNames.push_back("Variable_1");
             this->mVariableUnits.push_back("Units_1");
@@ -71,7 +71,7 @@ protected:
             this->mInitialised = true;
         }
      */
-    void Initialise(void);
+    void Initialise();
 };
 
 
@@ -82,7 +82,7 @@ CellwiseOdeSystemInformation<ODE_SYSTEM>::CellwiseOdeSystemInformation()
 }
 
 template<class ODE_SYSTEM>
-void CellwiseOdeSystemInformation<ODE_SYSTEM>::Initialise(void)
+void CellwiseOdeSystemInformation<ODE_SYSTEM>::Initialise()
 {
 }
 

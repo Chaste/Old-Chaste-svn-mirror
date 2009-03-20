@@ -113,7 +113,7 @@ public:
     }
 
 
-    void TestStochasticDurationGenerationBasedCellCycleModel(void) throw(Exception)
+    void TestStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
 

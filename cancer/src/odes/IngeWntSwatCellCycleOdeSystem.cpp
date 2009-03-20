@@ -152,7 +152,7 @@ void IngeWntSwatCellCycleOdeSystem::SetMutationState(const CellMutationState& rM
     mMutationState = rMutationState;
 }
 
-IngeWntSwatCellCycleOdeSystem::~IngeWntSwatCellCycleOdeSystem(void)
+IngeWntSwatCellCycleOdeSystem::~IngeWntSwatCellCycleOdeSystem()
 {
     // Do nothing
 }
@@ -397,7 +397,7 @@ double IngeWntSwatCellCycleOdeSystem::CalculateRootFunction(double time, const s
 
 
 template<>
-void CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>::Initialise(void)
+void CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("pRb");
     this->mVariableUnits.push_back("non_dim");
