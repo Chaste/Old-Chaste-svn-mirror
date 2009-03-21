@@ -33,9 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Element.hpp"
 #include "AbstractMeshReader.hpp"
 
-/**
- * Abstract base class for all meshes.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMesh
 {
@@ -45,145 +42,59 @@ private:
     virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0; 
     
 protected:  // Give access of these variables to subclasses
-
-    /** Vector of pointers to nodes in the mesh. */
     std::vector<Node<SPACE_DIM> *> mNodes;
-
-    /** Vector of pointers to boundary nodes in the mesh. */
     std::vector<Node<SPACE_DIM> *> mBoundaryNodes;
 
-    /** Vector of pointers to elements in the mesh. */
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
-
-    /** Vector of pointers to boundary elements in the mesh. */
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
-
-    /** Vectors containing the number of nodes owned by each processor. */
+    
     std::vector<unsigned> mNodesPerProcessor;
 
     std::vector<unsigned> mNodesPermutation;
-
-    /**
-     * If the mesh is constructed from file using a MeshReader, this member 
-     * variable stores the base name of these files.
-     */ 
+    
     std::string mMeshFileBaseName;
 
 public:
-
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
 
-    /**
-     * Constructor.
-     */
     AbstractMesh();
 
-    /**
-     * Virtual destructor, since this class has virtual methods.
-     */
     virtual ~AbstractMesh();
 
-    /**
-     * Get the number of nodes that are actually in use.
-     */
-    unsigned GetNumNodes() const;
+    virtual unsigned GetNumNodes() const;
+    virtual unsigned GetNumElements() const;
+    virtual unsigned GetNumBoundaryElements() const;
+    unsigned GetNumBoundaryNodes();// should this be overloaded and virtual too?
 
-    /**
-     * Get the number of elements that are actually in use.
-     */
-    unsigned GetNumElements() const;
-
-    /**
-     * Get the number of boundary elements that are actually in use. 
-     */
-    unsigned GetNumBoundaryElements() const;
-
-    /**
-     * Get the number of boundary nodes in the mesh.
-     * \todo should this be overloaded and virtual?
-     */
-    unsigned GetNumBoundaryNodes();
-
-    /**
-     * Get the total number of nodes (including those marked as deleted).
-     */
     unsigned GetNumAllNodes() const;
-
-    /**
-     * Get the total number of elements (including those marked as deleted).
-     */
     unsigned GetNumAllElements();
-
-    /**
-     * Get the total number of boundary elements (including those marked as deleted).
-     */
     unsigned GetNumAllBoundaryElements();
 
-    /** 
-     * Get the node with a given index in the mesh. 
-     *  
-     * @param index 
-     * @return a pointer to the node. 
-     */ 
-    Node<SPACE_DIM>* GetNode(unsigned index) const;    
-
-    /** 
-     * Get the element with a given index in the mesh. 
-     *  
-     * @param index 
-     * @return a pointer to the element. 
-     */ 
+    Node<SPACE_DIM> *GetNode(unsigned index) const;    
     Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
-
-    /** 
-     * Get the boundary element with a given index in the mesh. 
-     *  
-     * @param index 
-     * @return a pointer to the boundary element. 
-     */ 
     BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
-
+    
     /**
      * Sets the ownership of each element according to which nodes are owned by the
      * process.
-     * 
      * @param lo is the lowest node number owned by the process
      * @param hi is one higher than the highest node number owned by the process
      * ie. this process owns nodes [lo..hi)
      * and element is "owned" if one or more of its nodes are owned
      */
     virtual void SetElementOwnerships(unsigned lo, unsigned hi);
-
-    /**
-     * Construct the mesh using a MeshReader.
-     * This method must be overridden in concrete classes.
-     * 
-     * @param rMeshReader the mesh reader
-     * @param cullInternalFaces whether to cull internal faces (defaults to false)
-     */
+    
     virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                          bool cullInternalFaces=false)=0;
-
-    /**
-     * Read in the number of nodes per processor from file.
-     * 
-     * @param nodesPerProcessorFile
-     */
+    
     virtual void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
-    /**
-     * Get method for mNodesPerProcessor.
-     */
     std::vector<unsigned>& rGetNodesPerProcessor();
-
-    /**
-     * Permute the nodes so that they appear in a different order in mNodes
-     * (and their mIndex's are altered accordingly).
-     */
+    
     virtual void PermuteNodes();      
-
+    
     /**
      * Return a pointer to the first element in the mesh.
      */
@@ -220,22 +131,11 @@ public:
     virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
 
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
-
-    /**
-     * Get method for mMeshFileBaseName.
-     */ 
+    
     std::string GetMeshFileBaseName() const;
-
-    /**
-     * Get method for mNodesPermutation.
-     */ 
+    
     std::vector<unsigned>& rGetNodePermutation();
 };
-
-
-///////////////////////////////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////////////////////////////
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
@@ -260,7 +160,7 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, uns
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
-    : mMeshFileBaseName("")
+: mMeshFileBaseName("")
 {
 }
 
@@ -284,6 +184,8 @@ AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()
     }
 }
 
+
+/// Returns the number of nodes that are actually in use
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
@@ -320,6 +222,8 @@ unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
     return this->mBoundaryElements.size();
 }
 
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 {
@@ -352,6 +256,7 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::
 {
     NEVER_REACHED;
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()

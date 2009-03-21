@@ -55,6 +55,7 @@ MutableMesh<ELEMENT_DIM, SPACE_DIM>::~MutableMesh()
     Clear();
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
 {
@@ -66,7 +67,7 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
     }
     else
     {
-        unsigned index = mDeletedNodeIndices.back();
+        unsigned index=mDeletedNodeIndices.back();
         pNewNode->SetIndex(index);
         mDeletedNodeIndices.pop_back();
         delete this->mNodes[index];
@@ -100,6 +101,8 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
     return this->mElements.size() - mDeletedElementIndices.size();
 }
 
+
+/// Returns the number of nodes that are actually in use
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
@@ -112,7 +115,7 @@ void MutableMesh<1, 1>::RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint,
     assert(this->GetNode(boundaryNodeIndex)->IsBoundaryNode());
     double scaleFactor = updatedPoint[0] / this->GetNode(boundaryNodeIndex)->GetPoint()[0];
     double temp;
-    for (unsigned i=0; i<boundaryNodeIndex+1; i++)
+    for (unsigned i=0; i < boundaryNodeIndex+1; i++)
     {
         temp = scaleFactor * this->mNodes[i]->GetPoint()[0];
         ChastePoint<1> newPoint(temp);
@@ -121,6 +124,13 @@ void MutableMesh<1, 1>::RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint,
     this->RefreshMesh();
 }
 
+/**
+ *  SetNode moves the node with a particular index to a new point in space and
+  * verifies that the signed areas of the supporting Elements are positive
+  * @param index is the index of the node to be moved
+  * @param point is the new target location of the node
+  * @param concreteMove is set to false if we want to skip the signed area tests
+  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         ChastePoint<SPACE_DIM> point,
@@ -178,6 +188,13 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
     }
 }
 
+/**
+ * DeleteNode deletes a node from the mesh by finding an appropriate neighbour node
+ * to merge it with.
+ *
+ * @param index is the index of the node to be deleted
+ *
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
 {
@@ -214,6 +231,14 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
     MoveMergeNode(index, target_index);
 }
 
+/**
+ * This marks a node as deleted. Note that it DOES NOT deal with the
+ * associated elements and therefore should only be called immediately prior
+ * to a ReMesh() being called. (Thus saves work compared to DeleteNode()
+ * function and does not MoveMerge the node and elements).
+ *
+ * @param index The index of the node to delete
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index)
 {
@@ -225,6 +250,15 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index
     mDeletedNodeIndices.push_back(index);
 }
 
+/**
+ * MoveMergeNode moves one node to another (i.e. merges the nodes), refreshing/deleting elements as
+ * appropriate.
+ *
+ * @param index is the index of the node to be moved
+ * @param targetIndex is the index of the node to move to
+ * @param concreteMove can be set to false if you just want to check whether this will work.
+ *     Set it to true if you're doing the merger for real, in order to do all the bookkeeping.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         unsigned targetIndex,
@@ -353,6 +387,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         }
     }
 
+
     std::set<unsigned> shared_boundary_element_indices;
     std::set_intersection(this->mNodes[index]->rGetContainingBoundaryElementIndices().begin(),
                           this->mNodes[index]->rGetContainingBoundaryElementIndices().end(),
@@ -388,13 +423,14 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
     }
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     Element<ELEMENT_DIM,SPACE_DIM>* pElement,
     ChastePoint<SPACE_DIM> point)
 {
 
-    // Check that the point is in the element
+    //Check that the point is in the element
     if (pElement->IncludesPoint(point, true) == false)
     {
         EXCEPTION("RefineElement could not be started (point is not in element)");
@@ -421,7 +457,7 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
             mDeletedElementIndices.pop_back();
         }
 
-        Element<ELEMENT_DIM,SPACE_DIM>* p_new_element =
+        Element<ELEMENT_DIM,SPACE_DIM>* p_new_element=
             new Element<ELEMENT_DIM,SPACE_DIM>(*pElement, new_elt_index);
 
         // Second, update the node in the element with the new one
@@ -461,7 +497,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
 
     this->mNodes[index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(index);
-
     // Update the boundary node vector
     typename std::vector<Node<SPACE_DIM>*>::iterator b_node_iter
     = std::find(this->mBoundaryNodes.begin(), this->mBoundaryNodes.end(), this->mNodes[index]);
@@ -790,7 +825,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             }
     
             std::string binary_name;
-//            if (sizeof(long)==4)
+//            if(sizeof(long)==4)
 //            {
 //                // 32-bit machine
 //                binary_name = "./bin/tetgen";
@@ -860,59 +895,56 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPAC
     std::set< Element<ELEMENT_DIM,SPACE_DIM> *> neighbouring_elements;
     std::set<unsigned> neighbouring_nodes_indices;
 
-    // Form a set of neighbouring elements via the nodes
+    //Form a set of neighbouring elements via the nodes
     for (unsigned i = 0; i < num_nodes; i++)
     {
         Node<SPACE_DIM>* node = pElement->GetNode(i);
         neighbouring_elements_indices = node->rGetContainingElementIndices();
         ///\todo Should use a set union operation here
         for (std::set<unsigned>::const_iterator it = neighbouring_elements_indices.begin();
-              it != neighbouring_elements_indices.end();
-              ++it)
-        {
-            neighbouring_elements.insert(this->GetElement(*it));
-        }
+                 it != neighbouring_elements_indices.end(); ++it)
+            {
+                neighbouring_elements.insert(this->GetElement(*it));
+            }
     }
     neighbouring_elements.erase(pElement);
 
-    // For each neighbouring element find the supporting nodes
+    //For each neighbouring element find the supporting nodes
     typedef typename std::set<Element<ELEMENT_DIM,SPACE_DIM> *>::const_iterator ElementIterator;
 
     for (ElementIterator it = neighbouring_elements.begin();
          it != neighbouring_elements.end(); ++it)
     {
-        for (unsigned i=0; i<num_nodes; i++)
+        for (unsigned i = 0; i < num_nodes; i++)
         {
             neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));
         }
     }
-    // Remove the nodes that support this element
-    for (unsigned i=0; i<num_nodes; i++)
+    //Remove the nodes that support this element
+    for (unsigned i = 0; i < num_nodes; i++)
     {
         neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));
     }
 
-    // Get the circumsphere information
+    //Get the circumsphere information
     c_vector <double, ELEMENT_DIM+1> this_circum_centre;
     
     this_circum_centre = pElement->CalculateCircumsphere(this->mElementJacobians[pElement->GetIndex()], this->mElementInverseJacobians[pElement->GetIndex()]);
 
-    // Copy the actualy circumcentre into a smaller vector
+    //Copy the actualy circumcentre into a smaller vector
     c_vector <double, ELEMENT_DIM> circum_centre;
-    for (unsigned i=0; i<ELEMENT_DIM; i++)
+    for (unsigned i=0;i<ELEMENT_DIM;i++)
     {
-        circum_centre[i] = this_circum_centre[i];
+        circum_centre[i]=this_circum_centre[i];
     }
 
     for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
-         it != neighbouring_nodes_indices.end();
-         ++it)
+             it != neighbouring_nodes_indices.end(); ++it)
     {
         c_vector <double, ELEMENT_DIM> node_location = this->GetNode(*it)->rGetLocation();
 
-        // Calculate vector from circumcentre to node
+        // Calculate vector from circumcenter to node
         node_location -= circum_centre;
-
         // This is to calculate the squared distance betweeen them
         double squared_distance = inner_prod(node_location, node_location);
 
@@ -939,7 +971,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 {
     // Looping through all the elements in the mesh
-    for (unsigned i=0; i<this->mElements.size();i++)
+    for (unsigned i=0; i < this->mElements.size();i++)
     {
         // Check if the element is not deleted
         if (!this->mElements[i]->IsDeleted())

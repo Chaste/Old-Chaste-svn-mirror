@@ -40,51 +40,94 @@ class AbstractTetrahedralElement : public AbstractElement<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
     
-    void RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian);
+    void RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian)
+    {
+        if (this->mIsDeleted)
+        {
+            EXCEPTION("Attempting to Refresh a deleted element");
+        }
+        for (unsigned i=0; i<SPACE_DIM; i++)
+        {
+            for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0U (#186: pointless comparison of unsigned integer with zero)
+            {
+                rJacobian(i,j) = this->GetNodeLocation(j+1,i) - this->GetNodeLocation(0,i);
+            }
+        } 
+    } 
 
 public:
-
-    /**
-     * Constructor which takes in a vector of nodes.
-     * 
-     * @param index  the index of the element in the mesh
-     * @param rNodes  the nodes owned by the element
-     */
+    ///Main constructor
     AbstractTetrahedralElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
-     * Default constructor, which doesn't add any nodes: they must be added later.
-     * 
-     * @param index  the index of the element in the mesh (defaults to INDEX_IS_NOT_USED)
+     * Default constructor, which doesn't fill in any nodes.
+     * The nodes must be added later.
      */
     AbstractTetrahedralElement(unsigned index=INDEX_IS_NOT_USED)
         : AbstractElement<ELEMENT_DIM,SPACE_DIM>(index)
     {}
 
-    /**
-     * Virtual destructor, since this class has virtual methods.
-     */
     virtual ~AbstractTetrahedralElement()
     {}
 
-    void ZeroJacobianDeterminant();
-    void ZeroWeightedDirection();
+    void ZeroJacobianDeterminant(void);
+    void ZeroWeightedDirection(void);
 
-    /**
-     * Get the location of the centroid of the element.
-     */
-    c_vector<double, SPACE_DIM> CalculateCentroid() const;
+
+    c_vector<double, SPACE_DIM> CalculateCentroid() const
+    {
+        c_vector<double, SPACE_DIM> centroid=zero_vector<double>(SPACE_DIM);
+        for (unsigned i=0; i<=ELEMENT_DIM; i++)
+        {
+            centroid += this->mNodes[i]->rGetLocation();
+        }
+        return centroid/((double)(ELEMENT_DIM + 1));
+    }
 
 ///////////////////////////////////
     void CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove=true);
     void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove=true);
 
 
-    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian); //const    
+    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) //const
+    {
+        assert(ELEMENT_DIM==SPACE_DIM);        
+        CalculateJacobian(rJacobian, rJacobianDeterminant);
+        //CalculateJacobian should make sure that the determinant is not close to zero (or, in fact, negative)
+        assert(rJacobianDeterminant > 0.0);
+        rInverseJacobian = Inverse(rJacobian);
+    }
+    
 
 ///\todo Re-implement
     /** Get the volume of an element (or area in 2d, or length in 1d) */
-    double GetVolume(); //const?
+    double GetVolume(void) //const?
+    {
+        assert(SPACE_DIM == ELEMENT_DIM);
+        
+        if (this->mIsDeleted)
+        {
+            return 0.0;
+        }
+        
+        // Create Jacobian
+        ///\todo We don't want to create new data, calculation and throw the answer away
+        c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+        double determinant;
+        
+        CalculateJacobian(jacobian, determinant);
+        double scale_factor = 1.0;
+
+        if (ELEMENT_DIM == 2)
+        {
+            scale_factor = 2.0;  // both the volume of the canonical triangle is 0.5
+        }
+        else if (ELEMENT_DIM == 3)
+        {
+            scale_factor= 6.0; // both the volume of the canonical triangle is 1/6
+        }
+        return determinant/scale_factor;
+    }
 
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)
@@ -94,19 +137,27 @@ public:
      * @param pIndices where to store results: an unsigned array with ELEMENT_DIM+1 entries.
      *
      */
-    void GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices) const;
+    void GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices) const
+    {
+        for (unsigned local_index=0; local_index<ELEMENT_DIM+1; local_index++)
+        {
+            unsigned node = this->GetNodeGlobalIndex(local_index);
 
+            for (unsigned problem_index=0; problem_index<problemDim; problem_index++)
+            {
+                //std::cout << local_index*problemDim + problem_index << std::endl;
+                pIndices[local_index*problemDim + problem_index] = node*problemDim + problem_index;
+            }
+        }
+    }
 };
 
 
-///////////////////////////////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(unsigned index,
                                                                                const std::vector<Node<SPACE_DIM>*>& rNodes)
-    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
+        : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
     // Sanity checking
     unsigned total_nodes = ELEMENT_DIM+1;
@@ -127,7 +178,7 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
         }
         catch (Exception)
         {
-            // If the Jacobian is negative the orientation of the element is probably
+            // if the Jacobian is negative the orientation of the element is probably
             // wrong, so swap the last two nodes around.
     
             this->mNodes[total_nodes-1] = rNodes[total_nodes-2];
@@ -146,42 +197,9 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     assert(det > 0.0);
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian)
-{
-    if (this->mIsDeleted)
-    {
-        EXCEPTION("Attempting to Refresh a deleted element");
-    }
-    for (unsigned i=0; i<SPACE_DIM; i++)
-    {
-        for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0u (#186: pointless comparison of unsigned integer with zero)
-        {
-            rJacobian(i,j) = this->GetNodeLocation(j+1,i) - this->GetNodeLocation(0,i);
-        }
-    } 
-}
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateCentroid() const
-{
-    c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
-    for (unsigned i=0; i<=ELEMENT_DIM; i++)
-    {
-        centroid += this->mNodes[i]->rGetLocation();
-    }
-    return centroid/((double)(ELEMENT_DIM + 1));
-}
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) //const
-{
-    assert(ELEMENT_DIM==SPACE_DIM);        
-    CalculateJacobian(rJacobian, rJacobianDeterminant);
-    //CalculateJacobian should make sure that the determinant is not close to zero (or, in fact, negative)
-    assert(rJacobianDeterminant > 0.0);
-    rInverseJacobian = Inverse(rJacobian);
-}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)
@@ -206,7 +224,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_mat
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove)
 {
-    if (ELEMENT_DIM >= SPACE_DIM)
+    if(ELEMENT_DIM >= SPACE_DIM)
     {
         assert(ELEMENT_DIM == SPACE_DIM);
         EXCEPTION("WeightedDirection undefined for fully dimensional element");
@@ -227,28 +245,29 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
 //        refresh=true;
 //    }
 
-    // This code is only used when ELEMENT_DIM<SPACE_DIM
+
+    //This code is only used when ELEMENT_DIM<SPACE_DIM
     switch (ELEMENT_DIM)
     {
         case 0:
             // End point of a line
-            weighted_direction(0) = 1.0;
+            weighted_direction(0)=1.0;
             if (SPACE_DIM == 2)
             {
-                weighted_direction(1) = 0.0;
+                weighted_direction(1)=0.0;
             }
             break;
         case 1:
             // Linear edge in a 2D plane or in 3D
 
-            weighted_direction = matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(jacobian, 0);
+            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(jacobian,0);
             break;
         case 2:
             // Surface triangle in a 3d mesh
             assert(SPACE_DIM == 3);
-            weighted_direction(0) = -SubDeterminant(jacobian, 0, 2);
-            weighted_direction(1) =  SubDeterminant(jacobian, 1, 2);
-            weighted_direction(2) = -SubDeterminant(jacobian, 2, 2);
+            weighted_direction(0)=-SubDeterminant(jacobian,0,2);
+            weighted_direction(1)= SubDeterminant(jacobian,1,2);
+            weighted_direction(2)=-SubDeterminant(jacobian,2,2);
             break;
         default:
            ; // Not going to happen
@@ -270,50 +289,6 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
         rJacobianDeterminant = jacobian_determinant;
         rWeightedDirection = weighted_direction;
 //    }
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::GetVolume() //const?
-{
-    assert(SPACE_DIM == ELEMENT_DIM);
-    
-    if (this->mIsDeleted)
-    {
-        return 0.0;
-    }
-    
-    // Create Jacobian
-    ///\todo We don't want to create new data, calculation and throw the answer away
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
-    double determinant;
-    
-    CalculateJacobian(jacobian, determinant);
-    double scale_factor = 1.0;
-
-    if (ELEMENT_DIM == 2)
-    {
-        scale_factor = 2.0;  // both the volume of the canonical triangle is 0.5
-    }
-    else if (ELEMENT_DIM == 3)
-    {
-        scale_factor= 6.0; // both the volume of the canonical triangle is 1/6
-    }
-    return determinant/scale_factor;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices) const
-{
-    for (unsigned local_index=0; local_index<ELEMENT_DIM+1; local_index++)
-    {
-        unsigned node = this->GetNodeGlobalIndex(local_index);
-
-        for (unsigned problem_index=0; problem_index<problemDim; problem_index++)
-        {
-            //std::cout << local_index*problemDim + problem_index << std::endl;
-            pIndices[local_index*problemDim + problem_index] = node*problemDim + problem_index;
-        }
-    }
 }
 
 #endif //_ABSTRACTTETRAHEDRALELEMENT_HPP_

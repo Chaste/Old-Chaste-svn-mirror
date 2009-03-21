@@ -89,12 +89,12 @@ public:
         mLocation = location;
     }
 
-    c_vector<double, DIM>& rGetLocation()
+    c_vector<double, DIM>& rGetLocation(void)
     {
         return mLocation;
     }
 
-    const c_vector<double, DIM>& rGetLocation() const
+    const c_vector<double, DIM>& rGetLocation(void) const
     {
         return mLocation;
     }

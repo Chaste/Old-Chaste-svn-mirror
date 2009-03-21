@@ -41,13 +41,13 @@ ChasteCuboid::ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB) : m
 
 bool ChasteCuboid::DoesContain(const ChastePoint<3U>& rPointToCheck)
 {
-    bool inside = true;
+    bool inside=true;
     for (unsigned dim=0; dim<3; dim++)
     {
         if (rPointToCheck[dim] < mrPointA[dim] - 100*DBL_EPSILON
             || mrPointB[dim] + 100* DBL_EPSILON < rPointToCheck[dim])
         {
-            inside = false;
+            inside=false;
             break;
         }
     }
@@ -57,31 +57,33 @@ bool ChasteCuboid::DoesContain(const ChastePoint<3U>& rPointToCheck)
 bool ChasteCuboid::DoesContain(const ChastePoint<2U>& rPointToCheck)
 {
 //    EXCEPTION("Wrong argument type in ChasteCuboid::DoesContain. Can only be used in 3D");
-    bool inside = true;
+    bool inside=true;
     for (unsigned dim=0; dim<2; dim++)
     {
         if (rPointToCheck[dim] < mrPointA[dim] - 100*DBL_EPSILON
             || mrPointB[dim] + 100* DBL_EPSILON < rPointToCheck[dim])
         {
-            inside = false;
+            inside=false;
             break;
         }
     }
     return inside;
+
 }
 
 bool ChasteCuboid::DoesContain(const ChastePoint<1U>& rPointToCheck)
 {
 //    EXCEPTION("Wrong argument type in ChasteCuboid::DoesContain. Can only be used in 3D");
-    bool inside = true;
+    bool inside=true;
     for (unsigned dim=0; dim<1; dim++)
     {
         if (rPointToCheck[dim] < mrPointA[dim] - 100*DBL_EPSILON
             || mrPointB[dim] + 100* DBL_EPSILON < rPointToCheck[dim])
         {
-            inside = false;
+            inside=false;
             break;
         }
     }
     return inside;
+
 }

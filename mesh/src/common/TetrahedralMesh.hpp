@@ -62,9 +62,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //   DECLARATION
 //////////////////////////////////////////////////////////////////////////
 
-/**
- * A concrete tetrahedral mesh class.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
@@ -97,179 +94,82 @@ protected:
             
 public:
 
-    /**
-     * Constructor.
-     */
     TetrahedralMesh();
-
-    /**
-     * Constructor which takes in a number of elements.
-     *
-     * @param numElements
-     */
     TetrahedralMesh(unsigned numElements);
     //TetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
     //virtual ~TetrahedralMesh();
 
-    /**
-     * Construct the mesh using a MeshReader.
-     * 
-     * @param rMeshReader the mesh reader
-     * @param cullInternalFaces whether to cull internal faces (defaults to false)
-     */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
-    /**
-     * Read in the number of nodes per processor from file.
-     * 
-     * @param nodesPerProcessorFile
-     */
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
     /**
-     * Return the volume of the mesh, calculated by adding the determinant of each element
+     * Return the volume of a mesh, calculated by adding the determinant of each element
      * and dividing by n!, where n is the element dimension.
      */
     double CalculateVolume();
-
-    /**
-     * Return the surface area of the mesh.
-     */
     double CalculateSurfaceArea();
 
-    /**
-     * Translate the mesh given the displacement vector.
-     * This is the translation method that actually does the work.
-     * 
-     * @param transVec is a translation vector of the correct size
-     */
-    void Translate(c_vector<double, SPACE_DIM> transVec);
-
-    /**
-     * Translate the mesh given the coordinate displacements separately.
-     *  
-     * @param xMovement is the x-displacement (defaults to 0.0)
-     * @param yMovement is the y-displacement (defaults to 0.0)
-     * @param zMovement is the z-displacement (defaults to 0.0)
-     */
+    void Translate(c_vector<double, SPACE_DIM> displacement);
     void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
-
-    /**
-     * Scale the mesh.
-     * 
-     * @param xFactor is the scale in the x-direction (defaults to 1.0)
-     * @param yFactor is the scale in the y-direction (defaults to 1.0)
-     * @param zFactor is the scale in the z-direction (defaults to 1.0)
-     */
     void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
-
-    /**
-     * Do a general mesh rotation with a positive determinant orthonormal rotation_matrix.
-     * This is the rotation method that actually does the work.
-     * 
-     * @param rotation_matrix is a Ublas rotation matrix of the correct form
-     */
-    void Rotate(c_matrix<double, SPACE_DIM, SPACE_DIM> rotationMatrix);
-
-    /**
-     * Do an angle axis rotation.
-     * 
-     * @param axis is the axis of rotation (does not need to be normalised)
-     * @param angle is the angle of rotation in radians
-     */
+    void Rotate(c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix);
     void Rotate(c_vector<double,3> axis, double angle);
-
-    /**
-     * Rotate the mesh about the x-axis.
-     * 
-     * @param theta is the angle of rotation in radians
-     */
     void RotateX(const double theta);
-
-    /**
-     * Rotate the mesh about the y-axis.
-     * 
-     * @param theta is the angle of rotation in radians
-     */
     void RotateY(const double theta);
-
-    /**
-     * Rotate the mesh about the z-axis.
-     * 
-     * @param theta is the angle of rotation in radians
-     */
     void RotateZ(const double theta);
+    /**Rotating a 2D mesh equates that rotation around the z-axis*/
+    void Rotate(double theta)
+    {
+        RotateZ(theta);
+    }
 
-    /**
-     * Rotating a 2D mesh equates that rotation around the z-axis.
-     * 
-     * @param theta is the angle of rotation in radians
-     */
-    void Rotate(double theta);
-
-    /**
-     * This method allows the mesh properties to be re-calculated after one
-     * or more nodes have been moved.
-     */
-    void RefreshMesh();
+    void RefreshMesh(void);
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly).
+     *
      */
     void PermuteNodes();
 
     /**
-     * Permute the nodes so that they appear in a different order in mNodes
-     * (and their mIndex's are altered accordingly) using Metis binaries.
-     *
-     * @param numProcs Number of processors (e.g. number of partitions)
-     */
+      * Permute the nodes so that they appear in a different order in mNodes
+      * (and their mIndex's are altered accordingly) using Metis binaries.
+      *
+      * @param numProcs Number of processors (e.g. number of partitions)
+      */
     void PermuteNodesWithMetisBinaries(unsigned numProcs);
 
     /**
-     * Permute the nodes so that they appear in a different order in mNodes
-     * (and their mIndex's are altered accordingly).
-     * 
+      * Permute the nodes so that they appear in a different order in mNodes
+      * (and their mIndex's are altered accordingly).
      * @param perm is a vector containing the new indices
      */
     void PermuteNodes(std::vector<unsigned>& perm);
 
-    /**
-     * Construct a linear grid on [0,width].
-     * 
-     * @param width
-     */
     void ConstructLinearMesh(unsigned width);
 
     /**
-     * Construct a rectangular grid on [0,width]x[0,height].
-     * Diagonals can be staggered so that there is no preferred 
-     * diffusion propagation direction.
-     * 
-     * @param width
-     * @param height
-     * @param stagger whether the mesh should 'jumble' up the elements (defaults to true)
+     * Construct a rectangular grid on [0,width]x[0,height]
+     * diagonals can be staggered so that there is no prefered diffusion propagation
+     * direction.
      */
     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
 
     /**
-     * Construct a cuboid grid on [0,width]x[0,height]x[0,depth].
-     * Diagonals can be staggered so that there is no preferred diffusion propagation
+     * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
+     * diagonals can be staggered so that there is no prefered diffusion propagation
      * direction.
      *
-     * @param width
-     * @param height
-     * @param depth
      * @param stagger whether the mesh should 'jumble' up the elements (defaults to false)
      */
     void ConstructCuboid(unsigned width, unsigned height, unsigned depth, bool stagger=false);
 
     /**
-     *  Returns the element index for the first element that is known to contain a test point.
-     * 
+     *  Returns the element index for the first element that is known to contain a test point
      *  @param testPoint
      *  @param strict Should the element returned contain the point in the interior and
      *  not on an edge/face/vertex (default = not strict)
@@ -370,6 +270,7 @@ public:
 
     void UnflagAllElements();
 
+
     /**
      *  Flag all elements not containing ANY of the given nodes
      */
@@ -381,6 +282,7 @@ public:
     virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;     
     virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+
 
 //    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;    
 //    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
@@ -444,5 +346,7 @@ public:
      */
     EdgeIterator EdgesEnd();
 };
+
+
 
 #endif //_TETRAHEDRALMESH_HPP_

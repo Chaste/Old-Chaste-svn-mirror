@@ -39,15 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ChasteCuboid
 {
 private:
-
-    /** A vertex of the cuboid. */
     ChastePoint<3> mrPointA;
-
-    /** The space-diagonal opposite corner of mrPointA. */
     ChastePoint<3> mrPointB;
 
 public:
-
     /**
      * The cuboid is defined by any of its two space-diagonal opposite corners.
      *
@@ -56,27 +51,14 @@ public:
      */
     ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB);
 
-    /// \todo: use a templated definition of the method DoesContain
-
     /**
-     * Checks if a given 3D point is contained in the cuboid.
+     * Checks if a given point is contained in the cuboid.
      *
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
+    /// \todo: use a templated definition of the method 
     bool DoesContain(const ChastePoint<3U>& rPointToCheck);
-
-    /**
-     * Checks if a given 2D point is contained in the cuboid.
-     *
-     * @param rPointToCheck Point to be checked to be contained in the cuboid.
-     */
     bool DoesContain(const ChastePoint<2U>& rPointToCheck);
-
-    /**
-     * Checks if a given 1D point is contained in the cuboid.
-     *
-     * @param rPointToCheck Point to be checked to be contained in the cuboid.
-     */
     bool DoesContain(const ChastePoint<1U>& rPointToCheck);
 };
 

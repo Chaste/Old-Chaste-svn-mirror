@@ -33,41 +33,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralElement.hpp"
 #include <set>
 
-/**
- * A concrete tetrahedral element class.
- */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class Element : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>
 {
 
 public:
-
-    /**
-     * Constructor which takes in a vector of Nodes.
-     * 
-     * @param index  the index of the element in the mesh
-     * @param nodes  the nodes owned by the element
-     */
     Element(unsigned index, std::vector<Node<SPACE_DIM>*> nodes);
 
     /**
      * Copy constructor which allows a new index to be specified.
      * 
      * \todo this is rather dubious; a factory method might be better.
-     * 
-     * @param element  another element
-     * @param index  the index of the new element in the mesh
      */
     Element(const Element &element, const unsigned index);
-
-    /** 
-     * Inform all nodes forming this element that they are in this element. 
-     */ 
+    
     void RegisterWithNodes();
 
-    /**
-     * Mark the element as deleted.
-     */
     void MarkAsDeleted();
     
     /** Update node at the given index
@@ -76,11 +57,6 @@ public:
      */
     void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
 
-    /**
-     * Reset the index of this element in the mesh.
-     * 
-     * @param index
-     */
     void ResetIndex(unsigned index);
 
     /**
@@ -108,20 +84,13 @@ public:
      * This is normalised by dividing through by the Platonic ratio.
      */
     double CalculateQuality();
-
-    /**
-     * Calculate the interpolation weights at a test point.
-     * 
-     * @param testPoint
-     */
+    
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint);
-
+    
     /**
-     * Calculate the interpolation weights at a test point, but if we are 
-     * not within the element (one or more negative weights), we project 
-     * onto the element, rather than extrapolating from it.
-     * 
-     * @param testPoint
+     * Calculate the interpolation weights, but if we are not within
+     * the element (one or more negative weights), we project onto the
+     * element, rather than extrapolating from it.
      */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint);
     
@@ -131,4 +100,8 @@ public:
 
 };
 
-#endif //_ELEMENT_HPP_
+
+
+
+#endif //_BOUNDARYELEMENT_HPP_
+

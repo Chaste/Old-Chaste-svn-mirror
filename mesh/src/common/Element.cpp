@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+
 #include "Element.hpp"
 
 
@@ -42,11 +43,18 @@ Element<ELEMENT_DIM, SPACE_DIM>::Element(unsigned index, std::vector<Node<SPACE_
     RegisterWithNodes();
 }
 
+
+/**
+ * Copy constructor which allows a new index to be specified.
+ * 
+ * \todo this is rather dubious; a factory method might be better.
+ */
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Element<ELEMENT_DIM, SPACE_DIM>::Element(const Element &element, const unsigned index)
 {
     *this = element; 
-    this->mIndex = index;
+    this->mIndex=index;
 
     RegisterWithNodes();
 }
@@ -72,6 +80,10 @@ void Element<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
     }
 }
 
+/** Update node at the given index
+ *  @param rIndex is an local index to which node to change
+ *  @param pNode is a pointer to the replacement node
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Element<ELEMENT_DIM, SPACE_DIM>::UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
 {
@@ -97,10 +109,15 @@ void Element<ELEMENT_DIM, SPACE_DIM>::ResetIndex(unsigned index)
        this->mNodes[i]->RemoveElement(this->mIndex);
     }
     //std::cout << "\nResetIndex - done.\n" << std::flush;
-    this->mIndex = index;
+    this->mIndex=index;
     RegisterWithNodes();
 }
 
+/**
+ * Calculate the circumsphere/circumcircle of this element.
+ *
+ * @returns a vector containing x_centre, y_centre,...,radius^2
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphere()
 {
@@ -123,13 +140,13 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
 
     for (unsigned j=0; j<ELEMENT_DIM; j++)
     {
-        double squared_location = 0.0;
+        double squared_location=0.0;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
             //mJacobian(i,j) is the i-th component of j-th vertex (relative to vertex 0)
             squared_location += jacobian(i,j)*jacobian(i,j);
         }
-        rhs[j] = squared_location/2.0;
+        rhs[j]=squared_location/2.0;
     }
 
     c_vector <double, SPACE_DIM> centre;
@@ -144,6 +161,7 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
     circum[SPACE_DIM] = squared_radius;
 
     return circum;
+
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -163,13 +181,13 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
 
     for (unsigned j=0; j<ELEMENT_DIM; j++)
     {
-        double squared_location = 0.0;
+        double squared_location=0.0;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
             //mJacobian(i,j) is the i-th component of j-th vertex (relative to vertex 0)
             squared_location += rJacobian(i,j)*rJacobian(i,j);
         }
-        rhs[j] = squared_location/2.0;
+        rhs[j]=squared_location/2.0;
     }
 
     c_vector <double, SPACE_DIM> centre;
@@ -202,6 +220,11 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphereVolume()
     return 4.0*M_PI*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM])/3.0; //4*Pi*r^3/3
 }
 
+/**
+ * The quality of a triangle/tetrahedron is the ratio between the
+ * volume of the shape and the volume of its circumsphere.
+ * This is normalised by dividing through by the Platonic ratio.
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
 {
@@ -216,7 +239,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
     
     CalculateJacobian(jacobian, jacobian_determinant);    
 
-    c_vector<double, SPACE_DIM+1> circum = CalculateCircumsphere();
+    c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
     if (SPACE_DIM == 2)
     {
         /* Want Q=(Area_Tri / Area_Cir) / (Area_Equilateral_Tri / Area_Equilateral_Cir)
@@ -255,10 +278,10 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
 
     c_vector<double, SPACE_DIM+1> weights;
 
-    c_vector<double, SPACE_DIM> psi = CalculatePsi(testPoint);
+    c_vector<double, SPACE_DIM> psi=CalculatePsi(testPoint);
 
     //Copy 3 weights and compute the fourth weight
-    weights[0] = 1.0;
+    weights[0]=1.0;
     for (unsigned i=1; i<=SPACE_DIM; i++)
     {
         weights[0] -= psi[i-1];
@@ -267,6 +290,11 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
     return weights;
 }
 
+/**
+ * Calculate the interpolation weights, but if we are not within
+ * the element (one or more negative weights), we project onto the
+ * element, rather than extrapolating from it.
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint)
 {
@@ -278,16 +306,17 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
     // Check for negative weights and set them to zero.
     bool negative_weight = false;
     
-    for (unsigned i=0;i<=SPACE_DIM;i++)
+    for(unsigned i=0;i<=SPACE_DIM;i++)
     {
-        if (weights[i] < 0.0)
+        if(weights[i] < 0.0)
         {
             weights[i] = 0.0;
+            
             negative_weight = true;
         }   
     }
     
-    if (negative_weight == false)
+    if(negative_weight == false)
     {
         // If there are no negative weights, there is nothing to do.
         return weights;   
@@ -296,25 +325,26 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
     // Renormalise so that all weights add to 1.0.
     
     // Note that all elements of weights are now non-negative and so the l1-norm (sum of magnitudes) is equivalent to the sum of the elements of the vector 
-    double sum = norm_1(weights);
+    double sum = norm_1 (weights);
     
     assert(sum >= 1.0);
     
     weights = weights/sum;
     
     return weights;
+    
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(ChastePoint<SPACE_DIM> testPoint)
 {
-    // Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+    //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
     assert(ELEMENT_DIM == SPACE_DIM);
 
-    // Find the location with respect to node 0
-    c_vector<double, SPACE_DIM> test_location = testPoint.rGetLocation()-this->GetNodeLocation(0);
+    //Find the location with respect to node 0
+    c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
 
-    // Multiply by inverse Jacobian
+    //Multiply by inverse Jacobian
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
@@ -324,21 +354,22 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(Chaste
     return prod(inverse_jacobian, test_location);
 }
 
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict)
 {
-    // Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+    //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
     assert(ELEMENT_DIM == SPACE_DIM);
 
-    c_vector<double, SPACE_DIM+1> weights = CalculateInterpolationWeights(testPoint);
+    c_vector<double, SPACE_DIM+1> weights=CalculateInterpolationWeights(testPoint);
 
-    // If the point is in the simplex then all the weights should be positive
+    //If the point is in the simplex then all the weights should be positive
 
     for (unsigned i=0;i<=SPACE_DIM;i++)
     {
         if (strict)
         {
-            // Points can't be close to a face
+            //Points can't be close to a face
             if (weights[i] <= 2*DBL_EPSILON)
             {
                 return false;
@@ -346,7 +377,7 @@ bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(ChastePoint<SPACE_DIM> testP
         }
         else
         {
-            // Allow point to be close to a face
+            //Allow point to be close to a face
             if (weights[i] < -2*DBL_EPSILON)
             {
                 return false;
@@ -355,11 +386,6 @@ bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(ChastePoint<SPACE_DIM> testP
     }
     return true;
 }
-
-
-//////////////////////////////////////////////////////////////////////////
-// Explicit instantiation
-//////////////////////////////////////////////////////////////////////////
 
 template class Element<1,1>;
 template class Element<1,2>;

@@ -44,29 +44,16 @@ template<unsigned SPACE_DIM>
 class Node
 {
 private:
-
-    /** The index of this node within the mesh. */
     unsigned mIndex;
-
-    /** A region ID. */
     unsigned mRegion;
 
-    /** The location of this node within the mesh. */
     c_vector<double, SPACE_DIM> mLocation;
 
-    /** Whether this node is a boundary node. */
     bool mIsBoundaryNode;
-
-    /**
-     * Whether this node has been deleted, and hence 
-     * whether its location in the mesh can be re-used.
-     */
     bool mIsDeleted;
 
-    /** Set of indices of elements containing this node as a vertex. */
+    // Set of indices of elements containing this node as a vertex
     std::set<unsigned> mElementIndices;
-
-    /** Set of indices of boundary elements containing this node as a vertex. */
     std::set<unsigned> mBoundaryElementIndices;
 
     /**
@@ -75,91 +62,40 @@ private:
     void CommonConstructor(unsigned index, bool isBoundaryNode);
 
 public:
-
     /**
-     * There are many ways of creating a node, depending on how you wish to specify its
+     * There are many ways of creating a node, depending on how you wish to specify it's
      * spatial location.
-     */
-
-    /**
-     * Constructor which takes the node's location as a ChastePoint.
-     * 
-     * @param index  the index of the node in the mesh
-     * @param point  the location of the node in the mesh
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
      */
     Node(unsigned index, ChastePoint<SPACE_DIM> point, bool isBoundaryNode=false);
 
-    /**
-     * Constructor which takes the node's location as a std::vector.
-     * 
-     * @param index  the index of the node in the mesh
-     * @param coords  the location of the node in the mesh
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
-     */
     Node(unsigned index, std::vector<double> coords, bool isBoundaryNode=false);
 
-    /**
-     * Constructor which takes the node's location as a c_vector.
-     * 
-     * @param index  the index of the node in the mesh
-     * @param location  the location of the node in the mesh
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
-     */
     Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false);
 
-    /**
-     * Constructor which takes the coordinates if the node's location as separate input arguments.
-     * 
-     * @param index  the index of the node in the mesh
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
-     * @param v1 the x-coordinate of the node in the mesh (defaults to 0)
-     * @param v2 the x-coordinate of the node in the mesh (defaults to 0)
-     * @param v3 the x-coordinate of the node in the mesh (defaults to 0)
-     */
     Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0);
 
     /**
-     * Set the node's location.
-     * 
      * Note: setting the point in space is dangerous.
      * Jacobian and JacobianDeterminant of element need to be updated.
-     * 
-     * @param point  the new location of the node in the mesh
      */
     void SetPoint(ChastePoint<SPACE_DIM> point);
 
     /**
-     * Set the index of this node in the mesh.
      * This method should only be called during mesh generation.
-     * 
-     * @param index
      */
     void SetIndex(unsigned index);
 
-    /**
-     * Set whether this node is a boundary node.
-     * 
-     * @param value defaults to true
-     */
     void SetAsBoundaryNode(bool value=true);
 
-    /**
-     * Get the node's location as a ChastePoint.
-     */
     ChastePoint<SPACE_DIM> GetPoint() const;
 
     /**
-     * Get the node's location as a c_vector.
-     * 
      * The returned location may not be modified; if you want that functionality use
      * rGetModifiableLocation instead.
      */
     const c_vector<double, SPACE_DIM>& rGetLocation() const;
 
     /**
-     * Get the node's location as a c_vector.
-     * 
      * If you modify the returned location,
      * Jacobian and JacobianDeterminant of elements need to be updated.
      *
@@ -167,14 +103,8 @@ public:
      */
     c_vector<double, SPACE_DIM> &rGetModifiableLocation();
 
-    /**
-     * Get the index of this node in the mesh.
-     */
     unsigned GetIndex() const;
 
-    /**
-     * Get whether this node is a boundary node.
-     */
     bool IsBoundaryNode() const;
 
     /**
@@ -215,14 +145,8 @@ public:
      */
     std::set<unsigned> &rGetContainingBoundaryElementIndices();
 
-    /**
-     * Get the number of elements in the mesh that contain this node.
-     */
     unsigned GetNumContainingElements() const;
 
-    /**
-     * Get the number of boundary elements in the mesh that contain this node.
-     */
     unsigned GetNumBoundaryElements() const;
 
     /**
@@ -234,8 +158,6 @@ public:
 
     /**
      * Determine if a node lives within a flagged element.
-     * 
-     * @param rMesh the mesh
      */
     template <unsigned ELEMENT_DIM>
     bool IsFlagged(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
@@ -253,17 +175,9 @@ public:
         }
         return in_flagged_element;
     }
-
-    /**
-     * Set the node's region ID.
-     * 
-     * @param region
-     */ 
+    
     void SetRegion(unsigned region);
 
-    /**
-     * Get the node's region ID.
-     */
     unsigned GetRegion() const;
 
     /**
@@ -319,6 +233,7 @@ public:
             : mIndexIterator(indexIterator)
         {}
 
+ 
         const unsigned& operator*() const
         {
             return *mIndexIterator;
