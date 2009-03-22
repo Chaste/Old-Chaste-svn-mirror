@@ -30,13 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 
 
-/** Pointer to the single instance */
 RandomNumberGenerator* RandomNumberGenerator::mpInstance = NULL;
 
-/**
- * Return a pointer to the simulation time object.
- * The first time this is called the simulation time object is created.
- * */
 RandomNumberGenerator* RandomNumberGenerator::Instance()
 {
     if (mpInstance == NULL)
@@ -46,13 +41,6 @@ RandomNumberGenerator* RandomNumberGenerator::Instance()
     return mpInstance;
 }
 
-/**
- * Destroy the current RandomNumberGenerator instance.  The next call to
- * Instance will create a new instance and re-seed
- *
- * This method *must* be called before program exit, to avoid a memory
- * leak.
- */
 void RandomNumberGenerator::Destroy()
 {
     if (mpInstance)
@@ -62,41 +50,23 @@ void RandomNumberGenerator::Destroy()
     }
 }
 
-/**
- * Generate a random number modulo base (ie an integer
- * within the range 0,..,base-1)
- */
 unsigned RandomNumberGenerator::randMod(unsigned base)
 {
     mTimesCalled++;
     return (random()%base);
 }
 
-/**
- * Generate a uniform random number in (0,1)
- */
 double RandomNumberGenerator::ranf()
 {
     mTimesCalled++;
     return (double)random() / RAND_MAX;
 }
 
-/**
- * Generate a random number from a normal distribution with given
- * mean and standard deviation
- */
 double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
 {
     return sd * StandardNormalRandomDeviate() + mean;
 }
 
-
-/**
- *  Shuffle the integers 0,1,..,num-1, using the Knuth-algorithm 
- *  (also called the Fisher-Yates algorithm), a linear time unbiased method.
- *  The shuffled values are returned in rValues, which doesn't need to
- *  be correctly-sized when passed in. 
- */
 void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues)
 {
     rValues.resize(num);
@@ -114,7 +84,6 @@ void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues
         rValues[k] = temp;
     }
 }     
-
 
 /**
  *  Generate a random number from the normal distribution with mean 0

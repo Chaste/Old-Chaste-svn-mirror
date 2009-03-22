@@ -41,19 +41,19 @@ void ReplicatableVector::RemovePetscContext()
     if (mToAll != NULL)
     {
         VecScatterDestroy(mToAll);
-        mToAll=NULL;
+        mToAll = NULL;
     }
 
     if (mReplicated != NULL)
     {
         VecDestroy(mReplicated);
-        mReplicated=NULL;
+        mReplicated = NULL;
     }
 
     if (mDistributed != NULL)
     {
         VecDestroy(mDistributed);
-        mDistributed=NULL;
+        mDistributed = NULL;
     }
 }
 
@@ -98,7 +98,7 @@ unsigned ReplicatableVector::size()
 
 void ReplicatableVector::resize(unsigned size)
 {
-    //PETSc stuff will be out of date
+    // PETSc stuff will be out of date
     RemovePetscContext();
     mData.resize(size);
 }
@@ -114,7 +114,7 @@ double& ReplicatableVector::operator[](unsigned index)
 
 void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
 {
-    //Copy information into a PetSC vector
+    // Copy information into a PetSC vector
     if (mDistributed==NULL)
     {
         VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->size(), &mDistributed);
@@ -129,13 +129,13 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
     VecAssemblyBegin(mDistributed);
     VecAssemblyEnd(mDistributed);
 
-    //Now do the real replication
+    // Now do the real replication
     ReplicatePetscVector(mDistributed);
 }
 
 void ReplicatableVector::ReplicatePetscVector(Vec vec)
 {
-    //If the size has changed then we'll need to make a new context
+    // If the size has changed then we'll need to make a new context
     PetscInt isize;
     VecGetSize(vec, &isize);
     unsigned size=isize;
@@ -146,11 +146,11 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     }
     if (mReplicated == NULL)
     {
-        //This creates mReplicated (the scatter context) and mReplicated (to store values)
+        // This creates mReplicated (the scatter context) and mReplicated (to store values)
         VecScatterCreateToAll(vec, &mToAll, &mReplicated);
     }
 
-    //Replicate the data
+    // Replicate the data
 #if (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)
     VecScatterBegin(mToAll, vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd  (mToAll, vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD);
@@ -159,8 +159,8 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     VecScatterEnd  (vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
 #endif
 
-    //Information is now in mReplicated PETSc vector
-    //Copy into mData
+    // Information is now in mReplicated PETSc vector
+    // Copy into mData
     double *p_replicated;
     VecGetArray(mReplicated, &p_replicated);
     for (unsigned i=0; i<size; i++)

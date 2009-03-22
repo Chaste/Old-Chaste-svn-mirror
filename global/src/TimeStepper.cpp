@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cassert>
 
-const double smidge=1e-10;
+const double smidge = 1e-10;
 
 TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     : mStart(startTime),
@@ -60,9 +60,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     }
      */
 
-
-
-    mNextTime=CalculateNextTime();
+    mNextTime = CalculateNextTime();
 }
 
 double TimeStepper::CalculateNextTime() const
@@ -94,7 +92,7 @@ double TimeStepper::GetNextTime() const
 
 double TimeStepper::GetNextTimeStep() const
 {
-    double dt=mDt;
+    double dt = mDt;
     if (mNextTime == mEnd)
     {
         dt = mEnd - mTime;

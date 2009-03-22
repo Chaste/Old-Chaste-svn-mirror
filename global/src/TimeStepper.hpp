@@ -49,6 +49,9 @@ public:
      */
     TimeStepper(double startTime, double endTime, double dt);
 
+    /**
+     * Step forward one step in time and update member variables.
+     */
     void AdvanceOneTimeStep();
 
     /**
@@ -84,13 +87,26 @@ public:
     unsigned GetTimeStepsElapsed() const;
 
 private:
+
+    /** The start time. */
     double mStart;
+
+    /** The end time. */
     double mEnd;
+
+    /** The size of time step. */
     double mDt;
+
+    /** The number of time steps elapsed. */
     unsigned mTimeStep;
+
+    /** The current time. */
     double mTime;
+
+    /** What the time will be after the next time step. */
     double mNextTime;
 
+    /** Compute what the time will be after the next time step. */
     double CalculateNextTime() const;
 };
 

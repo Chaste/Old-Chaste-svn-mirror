@@ -34,21 +34,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include <iostream>
 
+/**
+ * Helper class for replicating a PETSc vector.
+ */
 class ReplicatableVector
 {
 private:
+
     /**
      * The wrapped vector.
      */
     std::vector<double> mData;
 
-    VecScatter mToAll;   /**< Variable holding information for replicating a PETSc vector*/
-    Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector*/
-    Vec mDistributed;    /**< Vector to hold data before replication*/
+    VecScatter mToAll;   /**< Variable holding information for replicating a PETSc vector. */
+    Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector. */
+    Vec mDistributed;    /**< Vector to hold data before replication. */
 
     void RemovePetscContext();
 
 public:
+
     /**
      * Default constructor.
      * Note that the vector will need to be resized before it can be used.

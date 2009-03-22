@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef RANDOMNUMBERGENERATORS_HPP_
 #define RANDOMNUMBERGENERATORS_HPP_
+
 #include <cmath>
 #include <ctime>
 #include <stdlib.h>
@@ -45,25 +46,81 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class RandomNumberGenerator
 {
 public:
+
+
+    /**
+     * Generate a random number from the normal distribution with mean 0
+     * and standard distribution 1.
+     */
     double StandardNormalRandomDeviate();
+
+    /**
+     * Generate a random number from a normal distribution with given
+     * mean and standard deviation.
+     * 
+     * @param mean the mean of the normal distribution from which the random number is drawn
+     * @param sd the standard deviation of the normal distribution from which the random number is drawn
+     */
     double NormalRandomDeviate(double mean, double sd);
+
+    /**
+     * Generate a uniform random number in (0,1).
+     */
     double ranf();
+
+    /**
+     * Generate a random number modulo base (ie an integer
+     * within the range 0,..,base-1),
+     * 
+     * @param base the order of the field of positive integers from which the random number is drawn
+     */
     unsigned randMod(unsigned base);
+
+    /**
+     * Shuffle the integers 0,1,..,num-1, using the Knuth-algorithm 
+     * (also called the Fisher-Yates algorithm), a linear time unbiased method.
+     * The shuffled values are returned in rValues, which doesn't need to
+     * be correctly-sized when passed in.
+     * 
+     * @param num
+     * @param rValues
+     */
     void Shuffle(unsigned num, std::vector<unsigned>& rValues);
 
-
+    /**
+     * Return a pointer to the random number generator object.
+     * The object is created the first time this method is called.
+     */
     static RandomNumberGenerator* Instance();
+
+    /**
+     * Destroy the current instance of the random number generator. 
+     * The next call to Instance will create a new instance and re-seed. 
+     * This method *must* be called before program exit, to avoid a memory
+     * leak.
+     */
     static void Destroy();
+
+    /**
+     * Reseed the random number generator.
+     * 
+     * @param seed the new seed
+     */
     void Reseed(int seed)
     {
         mSeed = seed;
         srandom(seed);
         mTimesCalled = 0;
     }
+    
 protected:
+
     /**
-      * @param seed Is the new seed which defaults to zero.
-      */
+     * Protected constructor.
+     * Use Instance() to access the random number generator.
+     * 
+     * @param seed the new seed which defaults to zero.
+     */
     RandomNumberGenerator()
     {
         mSeed = 0;
@@ -72,17 +129,27 @@ protected:
     }
 
 private:
+
+    /** The random number generator seed. */
     int mSeed;
+
+    /** The number of times the random number generator has been called. */
     unsigned mTimesCalled;
 
+    /** Pointer to the single instance. */
     static RandomNumberGenerator* mpInstance;
 
     friend class boost::serialization::access;
     /**
+     * Save the RandomNumberGenerator and its member variables.
+     * 
      * Serialization of a RandomNumberGenerator object must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
+     * 
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
@@ -91,6 +158,17 @@ private:
         archive & mSeed;
         archive & mTimesCalled;
     }
+    /**
+     * Load the RandomNumberGenerator and its member variables.
+     * 
+     * Serialization of a RandomNumberGenerator object must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     * 
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void load(Archive & archive, const unsigned int version)
     {
