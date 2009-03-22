@@ -15,8 +15,6 @@ of Chaste is required to make use of CellML models.
 Installing PyCml
 ================
 
-(but get from Chaste download site so generated code matches Chaste release)
-
 PyCml itself is a pure Python tool, but it does have two
 prerequisites: Amara and RNV.
 
