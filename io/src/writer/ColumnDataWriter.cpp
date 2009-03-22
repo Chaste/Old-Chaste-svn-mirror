@@ -368,7 +368,9 @@ void ColumnDataWriter::DoAdvanceAlongUnlimitedDimension()
 void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
 {
     if (mHasPutVariable)
+    {
         mNeedAdvanceAlongUnlimitedDimension = true;
+    }
 }
 
 void ColumnDataWriter::PutVariable(int variableID, double variableValue, long dimensionPosition)

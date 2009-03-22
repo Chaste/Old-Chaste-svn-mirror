@@ -44,29 +44,27 @@ class Hdf5DataReader
 {
 private:
 
-    // defined in writer too, todo: define it once
-    const static unsigned MAX_DATASET_RANK = 3;
+    const static unsigned MAX_DATASET_RANK = 3;             /**< Defined in HDF5 writer too. \todo: define it once */
 
-    std::string mDirectory; /**< Directory output files will be stored in. */
-    std::string mBaseName;  /**< The base name for the output data files. */
+    std::string mDirectory;                                 /**< Directory output files will be stored in. */
+    std::string mBaseName;                                  /**< The base name for the output data files. */
 
-    hid_t mFileId;
+    hid_t mFileId;                                          /**< The data file ID. */
 
-    hid_t mVariablesDatasetId;
-    unsigned mVariablesDatasetRank;
-    hsize_t mVariablesDatasetSizes[MAX_DATASET_RANK];
+    hid_t mVariablesDatasetId;                              /**< The variables data set ID. */
+    unsigned mVariablesDatasetRank;                         /**< The rank of the variables data set. */
+    hsize_t mVariablesDatasetSizes[MAX_DATASET_RANK];       /**< The sizes of each variable data set. */
 
-    bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
-    hid_t mTimeDatasetId;
-    hsize_t mNumberTimesteps;
+    bool mIsUnlimitedDimensionSet;                          /**< Is the unlimited dimension set */
+    hid_t mTimeDatasetId;                                   /**< The time data set ID. */
+    hsize_t mNumberTimesteps;                               /**< The number of time steps recorded in the data file. */
 
-    std::map<std::string, unsigned> mVariableToColumnIndex;
-    std::vector<std::string> mVariableNames;
+    std::vector<std::string> mVariableNames;                /**< The variable names. */
+    std::map<std::string, unsigned> mVariableToColumnIndex; /**< Map between variable names and data column numbers. */
+    std::map<std::string, std::string> mVariableToUnit;     /**< Map between variable names and variable units. */
 
-    std::map<std::string, std::string> mVariableToUnit;
-
-    bool mIsDataComplete;
-    std::vector<unsigned> mIncompleteNodeIndices;
+    bool mIsDataComplete;                                   /**< Whether the data file is complete. */
+    std::vector<unsigned> mIncompleteNodeIndices;           /**< Vector nodes for which the data file does not contain data. */
 
 public:
 
@@ -80,20 +78,53 @@ public:
      */
     Hdf5DataReader(std::string directory, std::string baseName, bool makeAbsolute=true);
 
+    /**
+     * Get the values of a given variable at each time step at a given node.
+     * 
+     * @param variableName  name of a variable in the data file
+     * @param nodeIndex the index of the node for which the data is obtained
+     */
     std::vector<double> GetVariableOverTime(std::string variableName, unsigned nodeIndex);
 
+    /**
+     * Get the values of a given variable at each node at a given time step.
+     * 
+     * @param data  Petsc vec to hold the data
+     * @param variableName  name of a variable in the data file
+     * @param timestep the time step for which the data is obtained (defaults to 0)
+     */
     void GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep=0);
 
+    /**
+     * Get the unlimited dimension values.
+     */
     std::vector<double> GetUnlimitedDimensionValues();
 
+    /**
+     * Get the number of rows in the data file.
+     */
     unsigned GetNumberOfRows();
 
+    /**
+     * Get the variable names.
+     */
     std::vector<std::string> GetVariableNames();
 
+    /**
+     * Get the units in which a given variable is measured.
+     * 
+     * @param variableName  name of a variable in the data file
+     */
     std::string GetUnit(std::string variableName);
 
+    /**
+     * Get method for mIsDataComplete.
+     */
     bool IsDataComplete();
 
+    /**
+     * Get method for mIncompleteNodeIndices.
+     */
     std::vector<unsigned> GetIncompleteNodeMap();
 
     /**

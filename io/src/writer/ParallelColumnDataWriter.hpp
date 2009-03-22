@@ -31,14 +31,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ColumnDataWriter.hpp"
 #include "DistributedVector.hpp"
+
 #include <petscvec.h>
 
+/**
+ * A parallelised column data writer class.
+ */
 class ParallelColumnDataWriter  : public ColumnDataWriter
 {
 private:
 
-    bool mIsParallel;     /**< set to true in constructor if running in parallel*/
-    bool mAmMaster;       /**< set to true in constructor for process is the rank 0 process*/
+    bool mIsParallel;     /**< Set to true in constructor if running in parallel*/
+    bool mAmMaster;       /**< Set to true in constructor for process is the rank 0 process*/
     Vec mConcentrated;    /**< Vector to hold concentrated copy of distributed vector on the master process*/
     VecScatter mToMaster; /**< variable holding information for concentrating a vector*/
 
@@ -70,13 +74,17 @@ public:
      * @param dimensionPosition  The position in column (defaults to -1). This is required if 
      *      there is a fixed dimension, and will be the position along that dimension
      */
-    void PutVariable(int variableID, double variableValue,long dimensionPosition = -1);
+    void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);
 
     /**
      * End the define mode of the DataWriter.
      */
     void EndDefineMode();
 
+    /**
+     * Advance along the unlimited dimension. Normally this will be called
+     * when all variables in a row have been input.
+     */
     void AdvanceAlongUnlimitedDimension();
 
     /**

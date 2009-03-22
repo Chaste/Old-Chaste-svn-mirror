@@ -38,7 +38,21 @@ class AbstractDataReader
 {
 public:
 
+    /**
+     * Get the entries for a given variable.
+     * This method must be implemented by each subclass.
+     * 
+     * @param variableName
+     */
     virtual std::vector<double> GetValues(std::string variableName) = 0;
+
+    /**
+     * Get the entries for a given variable with fixed dimension.
+     * This method must be implemented by each subclass.
+     * 
+     * @param variableName
+     * @param fixedDimension
+     */
     virtual std::vector<double> GetValues(std::string variableName, int fixedDimension) = 0;
 
     /**

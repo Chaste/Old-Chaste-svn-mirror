@@ -41,22 +41,43 @@ class ColumnDataReader : public AbstractDataReader
 {
 private:
 
-    std::map<std::string, int> mVariablesToColumns;
-    std::map<std::string, std::string> mVariablesToUnits;
-    int mNumFixedDimensions;
-    bool mHasUnlimitedDimension;
-    int mNumVariables;
-    std::string mInfoFilename;
-    std::string mDataFilename;
-    std::string mAncillaryFilename;
-    std::vector<double> mValues;
+    std::map<std::string, int> mVariablesToColumns;       /**< Map between variable names and data column numbers. */
+    std::map<std::string, std::string> mVariablesToUnits; /**< Map between variable names and variable units. */
+    int mNumFixedDimensions;                              /**< The number of fixed dimensions in data file. */
+    bool mHasUnlimitedDimension;                          /**< Whether the data file has an unlimited dimension. */
+    int mNumVariables;                                    /**< The number of variables in the data file. */
+    std::string mInfoFilename;                            /**< The name of the info file.*/
+    std::string mDataFilename;                            /**< The name of the data file.*/
+    std::string mAncillaryFilename;                       /**< The name of the ancillary file.*/
+    std::vector<double> mValues;                          /**< Vector to hold values for a variable.*/
 
+    /**
+     * Push back an entry from the data file into mValues.
+     * 
+     * @param line the line of the data file
+     * @param col  the column number
+     */
     void PushColumnEntryFromLine(std::string line, int col);
+
+    /**
+     * Read in a given column from a data file into mValues.
+     * 
+     * @param filename the file name
+     * @param col  the column number
+     */
     void ReadColumnFromFile(std::string filename, int col);
+
+    /**
+     * Push back an entry from a file into mValues.
+     * 
+     * @param filename the file name
+     * @param col  the column number
+     * @param row  the row number
+     */
     void ReadValueFromFile(std::string filename, int col, int row);
 
     static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
-    static const int SPACING = 2; /**< Space between columns (includes minus sign) */
+    static const int SPACING = 2;      /**< Space between columns (includes minus sign) */
 
 public:
 
@@ -77,8 +98,17 @@ public:
      */
     std::vector<double> GetValues(std::string variableName);
 
+    /**
+     * Get the entries for a given variable with fixed dimension.
+     * 
+     * @param variableName
+     * @param fixedDimension
+     */
     std::vector<double> GetValues(std::string variableName, int fixedDimension);
 
+    /**
+     * Get the entries for a given variable with unlimited dimension.
+     */
     std::vector<double> GetUnlimitedDimensionValues();
     
     /**

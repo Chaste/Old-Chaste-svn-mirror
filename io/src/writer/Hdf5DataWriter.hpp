@@ -44,7 +44,7 @@ class Hdf5DataWriter//  : public AbstractDataWriter
 {
 private:
 
-    bool mAmMaster;          /**< set to true in constructor for process is the rank 0 process*/
+    bool mAmMaster;          /**< Set to true in constructor for process is the rank 0 process*/
 
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
@@ -56,25 +56,38 @@ private:
     std::string mUnlimitedDimensionUnit;
     unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/
     unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/
-    unsigned mLo, mHi; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
-    unsigned mNumberOwned, mOffset; /**<  mNumberOwned=mHi-mLo;  mOffset=mLo; except with incomplete data*/
-    bool mIsDataComplete;
+    unsigned mLo; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
+    unsigned mHi; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
+    unsigned mNumberOwned; /**< mNumberOwned=mHi-mLo; except with incomplete data*/
+    unsigned mOffset; /**< mOffset=mLo; except with incomplete data*/
+    bool mIsDataComplete; /**< Whether the data file is complete. */
     bool mNeedExtend; /**< Used so that the data set is only extended when data is written*/
     std::vector<unsigned> mIncompleteNodeIndices;
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
 
-    void CheckVariableName(std::string name); /**< Check variable name is allowed, i.e. contains only alphanumeric & _, and isn't blank */
-    void CheckUnitsName(std::string name); /**< Check units name is allowed, i.e. contains only alphanumeric & _ */
+    /**
+     * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
+     * 
+     * @param name variable name
+     */
+    void CheckVariableName(std::string name);
 
-    hid_t mFileId;
-    hid_t mDatasetId;
-    hid_t mTimeDatasetId;
+    /**
+     * Check name of unit is allowed, i.e. contains only alphanumeric & _, and isn't blank.
+     * 
+     * @param name unit name
+     */
+    void CheckUnitsName(std::string name);
 
-    long mCurrentTimeStep;
+    hid_t mFileId; /**< The data file ID. */
+    hid_t mDatasetId; /**< The variables data set ID. */
+    hid_t mTimeDatasetId; /**< The time data set ID. */
 
-    const static unsigned DATASET_DIMS=3;
-    hsize_t mDatasetDims[DATASET_DIMS];
+    long mCurrentTimeStep; /**< The current time step. */
+
+    const static unsigned DATASET_DIMS=3; /**< Defined in HDF5 reader too. \todo: define it once */
+    hsize_t mDatasetDims[DATASET_DIMS]; /**< The sizes of each variable data set. */
 
 public:
 
@@ -103,6 +116,7 @@ public:
      * Define the fixed dimension, assuming incomplete data ouput (subset of the nodes).
      *
      * @param nodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
+     * @param vecSize
      */
     void DefineFixedDimension(std::vector<unsigned> nodesToOuput, long vecSize);
 
@@ -116,6 +130,10 @@ public:
      */
     void DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
 
+    /**
+     * Advance along the unlimited dimension. Normally this will be called
+     * when all variables in a row have been input.
+     */
     void AdvanceAlongUnlimitedDimension();
 
     /**

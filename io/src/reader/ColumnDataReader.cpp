@@ -150,7 +150,7 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string baseName, 
     std::string header, variable, unit;
     int column = 0;
 
-    //Insert variables into map
+    // Insert variables into map
     while (variableStream >> header)
     {
         // Separate into variable name and units
@@ -304,7 +304,7 @@ void ColumnDataReader::ReadColumnFromFile(std::string filename, int col)
     while (!end_of_file_reached)
     {
         end_of_file_reached = std::getline(datafile, value).eof();
-        this->PushColumnEntryFromLine(value,col);
+        this->PushColumnEntryFromLine(value, col);
     }
     datafile.close();
 }
@@ -312,7 +312,7 @@ void ColumnDataReader::ReadColumnFromFile(std::string filename, int col)
 void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
 {
     int startpos = col * (FIELD_WIDTH + SPACING) + SPACING - 1;
-    std::string value = line.substr(startpos,FIELD_WIDTH + 1);
+    std::string value = line.substr(startpos, FIELD_WIDTH + 1);
     std::stringstream variable_stream(value);
     double d_value;
     variable_stream >> d_value;

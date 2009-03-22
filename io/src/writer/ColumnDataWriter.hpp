@@ -55,7 +55,7 @@ class ColumnDataWriter : public AbstractDataWriter
 {
 protected:
 
-    OutputFileHandler mOutputFileHandler; ///< For opening data files.
+    OutputFileHandler mOutputFileHandler; /**< For opening data files. */
 
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
@@ -90,8 +90,8 @@ protected:
     int mAncillaryRowStartPosition; /**< The position of the ancillary file pointer when it's at the beginning of the current row*/
     int mAncillaryRowWidth; /**< The width in characters of a row in the ancillary file */
 
-    bool mHasPutVariable;
-    bool mNeedAdvanceAlongUnlimitedDimension;
+    bool mHasPutVariable; /**< Whether a variable value has been output to a file. */
+    bool mNeedAdvanceAlongUnlimitedDimension; /**< Whether we need to advance along the unlimited dimension. */
 
     /**
      * Create the output file and write out the header for it.
@@ -108,13 +108,18 @@ protected:
     void CreateInfoFile(std::string fileName);
 
     /**
-     * Check variable name is allowed, i.e. contains only alphanumeric & _, and isn't blank.
+     * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      * 
      * @param name variable name
      */
     void CheckVariableName(std::string name);
 
-    void CheckUnitsName(std::string name); /**< Check units name is allowed, i.e. contains only alphanumeric & _ */
+    /**
+     * Check name of unit is allowed, i.e. contains only alphanumeric & _, and isn't blank.
+     * 
+     * @param name unit name
+     */
+    void CheckUnitsName(std::string name);
 
     /**
      * Advance along the unlimited dimension. Normally this will be called
@@ -164,7 +169,7 @@ public:
      *
      * @param variableName The name of the dimension
      * @param variableUnits The physical units of the dimension
-     * @param variableDimensions The dimensions along which this variable will be stored
+     * @param variableUnits The dimensions along which this variable will be stored
      *
      * @return The identifier of the variable
      */
@@ -181,10 +186,10 @@ public:
     virtual void AdvanceAlongUnlimitedDimension();
 
     /**
-     * Input the variable value to the output file or ancillary file
+     * Input the variable value to the output file or ancillary file.
      * 
      * @param variableID
-     * @paramvariableValue
+     * @param variableValue
      * @param dimensionPosition  The position in column (defaults to -1). This is required if 
      *      there is a fixed dimension, and will be the position along that dimension
      */

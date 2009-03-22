@@ -58,7 +58,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
 
     if (mFileId <=0)
     {
-        EXCEPTION("Hdf5DataReader could not open "+file_name);
+        EXCEPTION("Hdf5DataReader could not open " + file_name);
     }
     mVariablesDatasetId = H5Dopen(mFileId, "Data");
 
@@ -69,7 +69,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     hsize_t dataset_max_sizes[MAX_DATASET_RANK];
     H5Sget_simple_extent_dims(variables_dataspace, mVariablesDatasetSizes, dataset_max_sizes);
 
-    for (unsigned i=1; i<MAX_DATASET_RANK; i++)  //Zero is excluded since it may be unlimited
+    for (unsigned i=1; i<MAX_DATASET_RANK; i++)  // Zero is excluded since it may be unlimited
     {
         assert(mVariablesDatasetSizes[i] == dataset_max_sizes[i]);
     }
@@ -178,7 +178,7 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
 {
     if (!mIsUnlimitedDimensionSet)
     {
-        EXCEPTION("The file does not contain time dependant data");
+        EXCEPTION("The file does not contain time dependent data");
     }
 
     unsigned actual_node_index=nodeIndex;
@@ -239,7 +239,7 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
     }
     if (!mIsUnlimitedDimensionSet && timestep!=0)
     {
-        EXCEPTION("The file does not contain time dependant data");
+        EXCEPTION("The file does not contain time dependent data");
     }
 
     std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(variableName);
@@ -293,12 +293,12 @@ std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()
 
     if (!mIsUnlimitedDimensionSet)
     {
-        //Fake it
+        // Fake it
         assert(mNumberTimesteps==1);
         ret[0] = 0.0;
         return ret;
     }
-    // Define hyperslab in the dataset.
+    // Define hyperslab in the dataset
     hid_t time_dataspace = H5Dget_space(mTimeDatasetId);
 
     // Define a simple memory dataspace

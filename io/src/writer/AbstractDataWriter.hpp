@@ -69,7 +69,6 @@ public:
      *
      * @param variableName The name of the dimension
      * @param variableUnits The physical units of the dimension
-     * @param variableDimensions The dimensions along which this variable will be stored
      *
      * @return The identifier of the variable
      */
@@ -92,7 +91,7 @@ public:
      * This method must be overridden in concrete classes.
      * 
      * @param variableID
-     * @paramvariableValue
+     * @param variableValue
      * @param dimensionPosition  The position in column (defaults to -1). This is required if 
      *      there is a fixed dimension, and will be the position along that dimension
      */
