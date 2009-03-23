@@ -249,7 +249,8 @@ public:
 
     /**
      * Set method for mWriteTissueAreas.
-     *
+     * \todo Extend this to 3D (possibly rename to SetWriteTissueVolumes?)
+     * 
      * @param writeTissueAreas  whether to output tissue area data
      */
     void SetWriteTissueAreas(bool writeTissueAreas);

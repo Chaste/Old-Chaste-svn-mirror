@@ -323,14 +323,15 @@ void MeshBasedTissue<DIM>::Update()
     Validate();
 
     // Tessellate if needed
-
-    CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-
-    if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() )
+    if (DIM==2)
     {
-        CreateVoronoiTessellation();
+        CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
+        if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() )
+        {
+            CreateVoronoiTessellation();
+        }
+        CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
     }
-    CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
 }
 
 template<unsigned DIM>
@@ -369,7 +370,6 @@ void MeshBasedTissue<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool follo
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 {
-    assert(DIM == 2);
     mWriteTissueAreas = writeTissueAreas;
 }
 
@@ -501,14 +501,25 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
 
     *mpElementFile << "\n";
 
-    if (mpVoronoiTessellation!=NULL)
+    if (DIM==2)
     {
-        // Write Voronoi data to file if required
-        if (mWriteVoronoiData)
+        if (mpVoronoiTessellation!=NULL)
         {
-            WriteVoronoiResultsToFile();
+            // Write Voronoi data to file if required
+            if (mWriteVoronoiData)
+            {
+                WriteVoronoiResultsToFile();
+            }
+    
+            // Write tissue area data to file if required
+            if (mWriteTissueAreas)
+            {
+                WriteTissueAreaResultsToFile();
+            }
         }
-
+    }
+    else if (DIM==3)
+    {
         // Write tissue area data to file if required
         if (mWriteTissueAreas)
         {
@@ -559,16 +570,19 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 
     double apoptotic_area = 0.0;
 
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
-         cell_iter != this->End();
-         ++cell_iter)
+    if (DIM==2)
     {
-        // Only bother calculating the cell area if it is apoptotic
-        if (cell_iter->GetCellType() == APOPTOTIC)
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+             cell_iter != this->End();
+             ++cell_iter)
         {
-            unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-            double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
-            apoptotic_area += cell_area;
+            // Only bother calculating the cell area if it is apoptotic
+            if (cell_iter->GetCellType() == APOPTOTIC)
+            {
+                unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+                double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
+                apoptotic_area += cell_area;
+            }
         }
     }
 

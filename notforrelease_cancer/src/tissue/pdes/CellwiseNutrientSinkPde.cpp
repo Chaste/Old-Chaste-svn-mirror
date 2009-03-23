@@ -76,4 +76,4 @@ c_matrix<double,DIM,DIM> CellwiseNutrientSinkPde<DIM>::ComputeDiffusionTerm(cons
 
 //template class CellwiseNutrientSinkPde<1>;
 template class CellwiseNutrientSinkPde<2>;
-//template class CellwiseNutrientSinkPde<3>;
+template class CellwiseNutrientSinkPde<3>;
