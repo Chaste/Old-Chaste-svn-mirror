@@ -397,18 +397,11 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         // Write cell variable data to file if required
         if ( outputCellVariables && dynamic_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()) )
         {
-            std::vector<double> proteins = (static_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()))->GetProteinConcentrations();
+            // Write location index corresponding to cell
+            *mpCellVariablesFile << locationIndex << " ";
 
-            // Loop over cell positions
-            /// \todo Note that the output format of mpCellVariablesFile has changed, it now
-            //        outputs the location index (either node index or vertex element index)
-            //        associated with the cell. This is so that this code works for vertex-
-            //        as well as cell-centre-based tissues (see #827).
-            for (unsigned i=0; i<DIM; i++)
-            {
-                *mpCellVariablesFile << locationIndex << " ";
-            }
-            // Loop over cell variables
+            // Write cell variables
+            std::vector<double> proteins = (static_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()))->GetProteinConcentrations();
             for (unsigned i=0; i<proteins.size(); i++)
             {
                 *mpCellVariablesFile << proteins[i] << " ";

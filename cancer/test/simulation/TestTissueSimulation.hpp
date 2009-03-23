@@ -89,7 +89,6 @@ private:
 
 public:
 
-
     void TestOutputStatistics() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
@@ -133,7 +132,7 @@ public:
         OutputFileHandler handler("TissueSimulationWritingProteins", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
 
-        NumericFileComparison comp_bcat(results_file,"cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat");
+        NumericFileComparison comp_bcat(results_file, "cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat");
         TS_ASSERT(comp_bcat.CompareFiles(1e-2));
 
         // Tidy up
