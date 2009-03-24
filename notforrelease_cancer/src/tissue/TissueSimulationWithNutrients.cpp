@@ -151,9 +151,13 @@ void TissueSimulationWithNutrients<DIM>::UseCoarseNutrientMesh(double coarseGrai
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)
 {
-    EXCEPTION("This method is only implemented in 2d");
+    EXCEPTION("This method is only implemented in 2D");
 }
 
+/**
+ * The CreateCoarseNutrientMesh method is currently only implemented in 2D, hence there 
+ * are two definitions to this method (one templated and one not).
+ */
 template<>
 void TissueSimulationWithNutrients<2>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)
 {

@@ -192,6 +192,7 @@ public:
 
         // Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
+        backward_euler_solver.ForceUseOfNumericalJacobian(); // coverage
         OdeSolution solutions;
 
         std::vector<double> state_variables = ode_system.GetInitialConditions();

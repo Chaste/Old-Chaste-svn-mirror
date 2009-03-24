@@ -683,6 +683,10 @@ void MeshBasedTissue<DIM>::CreateVoronoiTessellation()
     mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh);
 }
 
+/**
+ * The VoronoiTessellation class is only defined in 2D or 3D, hence there 
+ * are two definitions to this method (one templated and one not).
+ */
 template<>
 void MeshBasedTissue<1>::CreateVoronoiTessellation()
 {
