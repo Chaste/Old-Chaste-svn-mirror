@@ -118,6 +118,8 @@ protected:
     /**
      * Protected constructor.
      * Use Instance() to access the random number generator.
+     * 
+     * @param seed the new seed which defaults to zero.
      */
     RandomNumberGenerator()
     {
