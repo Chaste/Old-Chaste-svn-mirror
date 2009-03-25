@@ -50,6 +50,9 @@ private:
     Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector. */
     Vec mDistributed;    /**< Vector to hold data before replication. */
 
+    /**
+     * Clear data. Used in resize method and destructor.
+     */
     void RemovePetscContext();
 
 public:
@@ -61,13 +64,17 @@ public:
     ReplicatableVector();
 
     /**
-     *  Constructor taking in Petsc vector, which is immediately
-     *  replicated into the internal data
+     * Constructor taking in Petsc vector, which is immediately
+     * replicated into the internal data
+     * 
+     * @param vec a Petsc vector
      */
     ReplicatableVector(Vec vec);
 
     /**
      * Constructor to make a vector of given size.
+     * 
+     * @param size the size of the vector
      */
     ReplicatableVector(unsigned size);
 
@@ -91,6 +98,8 @@ public:
 
     /**
      * Access the vector.
+     * 
+     * @param index the index of the vector to return
      */
     double& operator[](unsigned index);
 
