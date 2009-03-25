@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "PdeConvergenceTester.hpp"

@@ -33,9 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "TimeStepper.hpp"
-#include <assert.h>
-#include <math.h>
-
+#include <cassert>
+#include <cmath>
 #include <cfloat>
 
 class TestTimeStepper : public CxxTest::TestSuite

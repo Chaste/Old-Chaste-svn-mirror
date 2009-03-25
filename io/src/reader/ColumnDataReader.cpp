@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <assert.h>
-#include <values.h>
+#include <cassert>
+#include <climits>
 #include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
