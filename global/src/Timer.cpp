@@ -31,3 +31,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 time_t Timer::StartTime;
 
+void Timer::Reset()
+{
+    StartTime = std::clock();
+}
+
+void Timer::Print(std::string message)
+{
+    double time = (std::clock() - StartTime)/(CLOCKS_PER_SEC+0.0); //0.0 is to ensure double division
+    std::cout << message << " time: " << time << "s\n" << std::flush;
+    LOG(2,"    " << message << " time: "<< time <<"s");
+}
+
+void Timer::PrintAndReset(std::string message)
+{
+    Print(message);
+    Reset();
+}

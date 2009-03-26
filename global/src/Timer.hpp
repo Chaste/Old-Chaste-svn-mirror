@@ -55,17 +55,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Timer
 {
 private:
+
     /** The start time. */
     static time_t StartTime;
 
 public:
+
     /** 
-     *  Reset the timer
+     *  Reset the timer.
      */
-    static void Reset()
-    {
-        StartTime = std::clock();
-    }
+    static void Reset();
 
     /**
      *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
@@ -73,12 +72,7 @@ public:
      * 
      *  @param message
      */ 
-    static void Print(std::string message)
-    {
-        double time = (std::clock() - StartTime)/(CLOCKS_PER_SEC+0.0); //0.0 is to ensure double division
-        std::cout << message << " time: " << time << "s\n" << std::flush;
-        LOG(2,"    " << message << " time: "<< time <<"s");
-    }
+    static void Print(std::string message);
 
     /**
      *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
@@ -86,12 +80,8 @@ public:
      * 
      *  @param message
      */
-    static void PrintAndReset(std::string message)
-    {
-        Print(message);
-        Reset();
-    }
-};
+    static void PrintAndReset(std::string message);
 
+};
 
 #endif /*TIMER_HPP_*/

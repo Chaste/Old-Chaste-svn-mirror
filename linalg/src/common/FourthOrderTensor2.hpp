@@ -45,29 +45,22 @@ using namespace boost::numeric::ublas;
  *  A class of fourth order tensors (ie tensors with four indices), over arbitrary dimension
  *
  */
-template <int DIM>
+template<unsigned DIM>
 class FourthOrderTensor2
 {
 private:
+
     std::vector<double> mData;
     unsigned mDimSqd;
     unsigned mDimCubed;
     unsigned mDimToFour;
 
 public:
-    FourthOrderTensor2()
-    {
-        // check dim>0 but <4
-        assert(DIM>0);
-        assert(DIM<4);
 
-        mDimSqd = DIM*DIM;
-        mDimCubed = DIM*DIM*DIM;
-        mDimToFour = DIM*DIM*DIM*DIM;
-
-        // allocate memory and zero entries
-        mData.resize(mDimToFour, 0.0);
-    }
+    /**
+     * Constructor.
+     */
+    FourthOrderTensor2();
 
     /**
      *  Set to be the inner product of another fourth order tensor and a matrix
@@ -81,122 +74,147 @@ public:
      *  ie. if component=2, X_{RQ} T_{MNPQ} is returned
      *
      */
-    void SetAsProduct(FourthOrderTensor2<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component)
-    {
-        Zero();
+    void SetAsProduct(FourthOrderTensor2<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component);
 
-        // messy repeated code but not sure how to do this neatly and efficiently..
-        switch (component)
-        {
-            case 0:
-            {
-                for(unsigned M=0; M<DIM; M++)
-                {
-                    for(unsigned N=0; N<DIM; N++)
-                    {
-                        for(unsigned P=0; P<DIM; P++)
-                        {
-                            for(unsigned Q=0; Q<DIM; Q++)
-                            {
-                                unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                                for(unsigned s=0; s<DIM; s++)
-                                {
-                                    mData[index] += matrix(M,s) * tensor(s,N,P,Q);
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case 1:
-            {
-                for(unsigned M=0; M<DIM; M++)
-                {
-                    for(unsigned N=0; N<DIM; N++)
-                    {
-                        for(unsigned P=0; P<DIM; P++)
-                        {
-                            for(unsigned Q=0; Q<DIM; Q++)
-                            {
-                                unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                                for(unsigned s=0; s<DIM; s++)
-                                {
-                                    mData[index] += matrix(N,s) * tensor(M,s,P,Q);
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case 2:
-            {
-                for(unsigned M=0; M<DIM; M++)
-                {
-                    for(unsigned N=0; N<DIM; N++)
-                    {
-                        for(unsigned P=0; P<DIM; P++)
-                        {
-                            for(unsigned Q=0; Q<DIM; Q++)
-                            {
-                                unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                                for(unsigned s=0; s<DIM; s++)
-                                {
-                                    mData[index] += matrix(P,s) * tensor(M,N,s,Q);
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case 3:
-            {
-                for(unsigned M=0; M<DIM; M++)
-                {
-                    for(unsigned N=0; N<DIM; N++)
-                    {
-                        for(unsigned P=0; P<DIM; P++)
-                        {
-                            for(unsigned Q=0; Q<DIM; Q++)
-                            {
-                                unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                                for(unsigned s=0; s<DIM; s++)
-                                {
-                                    mData[index] += matrix(Q,s) * tensor(M,N,P,s);
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            default:
-            {
-                EXCEPTION("Component not 0, 1, 2, or 3");
-            }
-        }
-    }
+    double& operator()(unsigned M, unsigned N, unsigned P, unsigned Q);
 
-    double& operator()(unsigned M, unsigned N, unsigned P, unsigned Q)
-    {
-        assert(M<DIM);
-        assert(N<DIM);
-        assert(P<DIM);
-        assert(Q<DIM);
+    void Zero();
 
-        unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-        return mData[index];
-    }
-
-    void Zero()
-    {
-        for(unsigned i=0; i<mDimToFour; i++)
-        {
-            mData[i] = 0.0;
-        }
-    }
 };
+
+template<unsigned DIM>
+FourthOrderTensor2<DIM>::FourthOrderTensor2()
+{
+    // check dim>0 but <4
+    assert(DIM>0);
+    assert(DIM<4);
+
+    mDimSqd = DIM*DIM;
+    mDimCubed = DIM*DIM*DIM;
+    mDimToFour = DIM*DIM*DIM*DIM;
+
+    // allocate memory and zero entries
+    mData.resize(mDimToFour, 0.0);
+}
+
+template<unsigned DIM>
+void FourthOrderTensor2<DIM>::SetAsProduct(FourthOrderTensor2<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component)
+{
+    Zero();
+
+    // messy repeated code but not sure how to do this neatly and efficiently..
+    switch (component)
+    {
+        case 0:
+        {
+            for(unsigned M=0; M<DIM; M++)
+            {
+                for(unsigned N=0; N<DIM; N++)
+                {
+                    for(unsigned P=0; P<DIM; P++)
+                    {
+                        for(unsigned Q=0; Q<DIM; Q++)
+                        {
+                            unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
+                            for(unsigned s=0; s<DIM; s++)
+                            {
+                                mData[index] += matrix(M,s) * tensor(s,N,P,Q);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case 1:
+        {
+            for(unsigned M=0; M<DIM; M++)
+            {
+                for(unsigned N=0; N<DIM; N++)
+                {
+                    for(unsigned P=0; P<DIM; P++)
+                    {
+                        for(unsigned Q=0; Q<DIM; Q++)
+                        {
+                            unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
+                            for(unsigned s=0; s<DIM; s++)
+                            {
+                                mData[index] += matrix(N,s) * tensor(M,s,P,Q);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case 2:
+        {
+            for(unsigned M=0; M<DIM; M++)
+            {
+                for(unsigned N=0; N<DIM; N++)
+                {
+                    for(unsigned P=0; P<DIM; P++)
+                    {
+                        for(unsigned Q=0; Q<DIM; Q++)
+                        {
+                            unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
+                            for(unsigned s=0; s<DIM; s++)
+                            {
+                                mData[index] += matrix(P,s) * tensor(M,N,s,Q);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case 3:
+        {
+            for(unsigned M=0; M<DIM; M++)
+            {
+                for(unsigned N=0; N<DIM; N++)
+                {
+                    for(unsigned P=0; P<DIM; P++)
+                    {
+                        for(unsigned Q=0; Q<DIM; Q++)
+                        {
+                            unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
+                            for(unsigned s=0; s<DIM; s++)
+                            {
+                                mData[index] += matrix(Q,s) * tensor(M,N,P,s);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        default:
+        {
+            EXCEPTION("Component not 0, 1, 2, or 3");
+        }
+    }
+}
+    
+template<unsigned DIM>
+double& FourthOrderTensor2<DIM>::operator()(unsigned M, unsigned N, unsigned P, unsigned Q)
+{
+    assert(M<DIM);
+    assert(N<DIM);
+    assert(P<DIM);
+    assert(Q<DIM);
+
+    unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
+    return mData[index];
+}
+
+template<unsigned DIM>
+void FourthOrderTensor2<DIM>::Zero()
+{
+    for(unsigned i=0; i<mDimToFour; i++)
+    {
+        mData[i] = 0.0;
+    }
+}
 
 #endif //_FOURTHORDERTENSOR2_HPP_

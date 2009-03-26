@@ -40,15 +40,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ProgressReporter
 {
 private:
-    /** Start time of the simulation */
-    double mStartTime;
-    /** End time of the simulation */
-    double mEndTime;
-    /** Progress status file */
-    out_stream mpFile; 
-    /** Last percentage that was written */
-    unsigned mLastPercentage;
-       
+
+    double mStartTime;        /**< Start time of the simulation */
+    double mEndTime;          /**< End time of the simulation */
+    out_stream mpFile;        /**< Progress status file */
+    unsigned mLastPercentage; /**< Last percentage that was written */
+
 public :
 
     /** 
@@ -58,31 +55,12 @@ public :
      * @param startTime the start time
      * @param endTime the end time
      */
-    ProgressReporter(std::string outputDirectory, double startTime, double endTime)
-        : mStartTime(startTime),
-          mEndTime(endTime)
-    {
-        assert(startTime < endTime);
-        
-        // note we make sure we don't delete anything in the output directory
-        OutputFileHandler handler(outputDirectory, false);
-        mpFile = handler.OpenOutputFile("progress_status.txt");
-
-        mLastPercentage = UINT_MAX;
-    }
+    ProgressReporter(std::string outputDirectory, double startTime, double endTime);
 
     /**
      * Destructor.
      */
-    ~ProgressReporter()
-    {
-        if (mLastPercentage!=100)
-        {
-            *mpFile << "100% completed" << std::endl;
-        }
-        *mpFile << "..done!" << std::endl;
-        mpFile->close();
-    }
+    ~ProgressReporter();
     
     /**
      * Calculates the percentage completed using the time given and the start and end
@@ -90,31 +68,17 @@ public :
      * 
      * @param currentTime the given time
      */
-    void Update(double currentTime)
-    {
-        unsigned percentage = (unsigned)( (currentTime - mStartTime)/(mEndTime - mStartTime)*100 );
-        if (mLastPercentage==UINT_MAX || percentage > mLastPercentage)
-        {
-            *mpFile << percentage << "% completed" << std::endl;
-            mLastPercentage = percentage;
-        }
-    }
+    void Update(double currentTime);
 
     /**
      * Print finalising message to file.
      */
-    void PrintFinalising()
-    {
-        *mpFile << "Finalising.." << std::endl;
-    }
+    void PrintFinalising();
 
     /**
      * Print initialising message to file.
      */
-    void PrintInitialising()
-    {
-        *mpFile << "Initialising.." << std::endl;
-    }
+    void PrintInitialising();
 
 };
 

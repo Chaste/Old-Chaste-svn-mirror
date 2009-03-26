@@ -32,6 +32,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 RandomNumberGenerator* RandomNumberGenerator::mpInstance = NULL;
 
+RandomNumberGenerator::RandomNumberGenerator()
+{
+    mSeed = 0;
+    mTimesCalled = 0;
+    srandom(0);
+}
+
 RandomNumberGenerator* RandomNumberGenerator::Instance()
 {
     if (mpInstance == NULL)
@@ -65,6 +72,13 @@ double RandomNumberGenerator::ranf()
 double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
 {
     return sd * StandardNormalRandomDeviate() + mean;
+}
+
+void RandomNumberGenerator::Reseed(int seed)
+{
+    mSeed = seed;
+    srandom(seed);
+    mTimesCalled = 0;
 }
 
 void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues)

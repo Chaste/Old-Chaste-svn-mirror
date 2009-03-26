@@ -106,12 +106,7 @@ public:
      * 
      * @param seed the new seed
      */
-    void Reseed(int seed)
-    {
-        mSeed = seed;
-        srandom(seed);
-        mTimesCalled = 0;
-    }
+    void Reseed(int seed);
     
 protected:
 
@@ -119,12 +114,7 @@ protected:
      * Protected constructor.
      * Use Instance() to access the random number generator.
      */
-    RandomNumberGenerator()
-    {
-        mSeed = 0;
-        mTimesCalled = 0;
-        srandom(0);
-    }
+    RandomNumberGenerator();
 
 private:
 
