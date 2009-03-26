@@ -62,15 +62,32 @@ public:
      */
     virtual ~ParallelColumnDataWriter();
 
+    /**
+     * Get whether it is the master process or not.
+     */
     bool AmMaster() const;
+
+    /**
+     * Write data for a given variable from a Petsc vector to the dataset.
+     * 
+     * @param variableID the variable
+     * @param petscVector the data
+     */
     void PutVector(int variableID, Vec PetscVector);
+
+    /**
+     * Write data for a given variable from a stripe to the dataset.
+     * 
+     * @param variableID the variable
+     * @param stripe the data
+     */
     void PutVectorStripe(int variableId, DistributedVector::Stripe stripe);
 
     /**
      * Input the variable value to the output file or ancillary file
      * 
      * @param variableID
-     * @paramvariableValue
+     * @param variableValue
      * @param dimensionPosition  The position in column (defaults to -1). This is required if 
      *      there is a fixed dimension, and will be the position along that dimension
      */

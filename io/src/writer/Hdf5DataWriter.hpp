@@ -52,8 +52,8 @@ private:
     bool mIsInDefineMode; /**< Is the DataWriter in define mode or not */
     bool mIsFixedDimensionSet; /**< Is the fixed dimension set */
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
-    std::string mUnlimitedDimensionName;
-    std::string mUnlimitedDimensionUnit;
+    std::string mUnlimitedDimensionName; /**< The name of the unlimited dimension. */
+    std::string mUnlimitedDimensionUnit; /**< The physical units of the unlimited dimension. */
     unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/
     unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/
     unsigned mLo; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
@@ -62,7 +62,7 @@ private:
     unsigned mOffset; /**< mOffset=mLo; except with incomplete data*/
     bool mIsDataComplete; /**< Whether the data file is complete. */
     bool mNeedExtend; /**< Used so that the data set is only extended when data is written*/
-    std::vector<unsigned> mIncompleteNodeIndices;
+    std::vector<unsigned> mIncompleteNodeIndices; /**< Vector of node indices for which the data file does not contain data. */
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
 
@@ -151,9 +151,33 @@ public:
      */
     virtual void EndDefineMode();
 
+    /**
+     * Extend the dataset to the correct to the correct dimensions if needed.
+     */
     void PossiblyExtend();
+
+    /**
+     * Write data for a given variable from a Petsc vector to the dataset.
+     * 
+     * @param variableID the variable
+     * @param petscVector the data
+     */
     void PutVector(int variableID, Vec petscVector);
+
+    /**
+     * Write data for two variables from a Petsc vector to the dataset.
+     * 
+     * @param firstVariableID the first variable
+     * @param secondVariableID the first variable
+     * @param petscVector the data
+     */
     void PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector);
+
+    /**
+     * Write a single value for the unlimited variable (e.g. time) to the dataset.
+     * 
+     * @param value the data
+     */
     void PutUnlimitedVariable(double value);
 
     /**

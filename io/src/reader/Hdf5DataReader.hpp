@@ -64,7 +64,7 @@ private:
     std::map<std::string, std::string> mVariableToUnit;     /**< Map between variable names and variable units. */
 
     bool mIsDataComplete;                                   /**< Whether the data file is complete. */
-    std::vector<unsigned> mIncompleteNodeIndices;           /**< Vector nodes for which the data file does not contain data. */
+    std::vector<unsigned> mIncompleteNodeIndices;           /**< Vector of node indices for which the data file does not contain data. */
 
 public:
 

@@ -39,9 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 
 template<class> struct pack;
+/** Argument pack for macros. */
 template<class T> struct pack<void (T)> {
     typedef T type;
-};  /**< Argument pack for macros. */
+};
 
 #define EXPORT_TEMPLATE_CLASS2(CLASS, E, S) \
     BOOST_CLASS_EXPORT( pack<void (CLASS< E,S >)>::type );

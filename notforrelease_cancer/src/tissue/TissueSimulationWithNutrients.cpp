@@ -157,6 +157,8 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
 /**
  * The CreateCoarseNutrientMesh method is currently only implemented in 2D, hence there 
  * are two definitions to this method (one templated and one not).
+ * 
+ * @param coarseGrainScaleFactor the ratio of the width of the coarse nutrient mesh to the initial width of the tissue
  */
 template<>
 void TissueSimulationWithNutrients<2>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)

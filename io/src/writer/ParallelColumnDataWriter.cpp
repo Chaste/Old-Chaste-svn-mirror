@@ -138,7 +138,7 @@ void ParallelColumnDataWriter::EndDefineMode()
  * 2) The master calls the equivalent method in the parent class after concentrating
  *      the data into a single Vec (ie. from the method PutVector() above).
  */
-void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
+void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue, long dimensionPosition)
 {
     if (mAmMaster)
     {
