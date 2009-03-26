@@ -118,7 +118,7 @@ def BuildTest(target, source, env):
        A dictionary mapping cpp file paths (relative to the Chaste root)
        to object file nodes.
      * env['RUNNER_EXE']
-       The test runner executable path.
+       The test runner executable (absolute) path.
      * env['TestBuilder']
        A callable for use in building the test runner executable.
        Should take keyword parameters target (filled by RUNNER_EXE)
@@ -154,7 +154,7 @@ def BuildTest(target, source, env):
         process(o)
     # Build the test itself
     runner = env['RUNNER_EXE']
-    print "Building", runner, "from", pns(source+objects)
+    #print "Building", runner, "from", pns(source+objects)
     env['TestBuilder'](target=runner, source=source+objects)
     return None
 

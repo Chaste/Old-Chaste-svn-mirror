@@ -123,6 +123,14 @@ if not use_chaste_libs:
         lambda target, source: env.Program(target, source,
                     LIBS=other_libs,
                     LIBPATH=other_libpaths)
+    def exe_name(exe_path):
+        """Figure out program prefix/suffix."""
+        pre = env.subst('$PROGPREFIX')
+        suf = env.subst('$PROGSUFFIX')
+        dirpath = os.path.dirname(exe_path)
+        name = os.path.basename(exe_path)
+        return os.path.join(dirpath, pre+name+suf)
+
 for testfile in testfiles:
     prefix = os.path.splitext(testfile)[0]
     #print toplevel_dir, 'test', prefix
@@ -130,12 +138,13 @@ for testfile in testfiles:
     runner_cpp = env.Test(prefix+'Runner.cpp', test_hpp)
     runner_exe = File(prefix+'Runner').abspath
     if use_chaste_libs:
-        env.Program(runner_exe, runner_cpp,
-                    LIBS = all_libs,
-                    LIBPATH = [libpath, '.'] + other_libpaths)
+        runner_exe = env.Program(runner_exe, runner_cpp,
+                                 LIBS = all_libs,
+                                 LIBPATH = [libpath, '.'] + other_libpaths)
     else:
         runner_obj = env.StaticObject(runner_cpp)
         runner_dummy = runner_exe+'.dummy'
+        runner_exe = File(exe_name(runner_exe))
         env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
         env.AlwaysBuild(runner_dummy)
         env.Depends(runner_exe, runner_dummy)

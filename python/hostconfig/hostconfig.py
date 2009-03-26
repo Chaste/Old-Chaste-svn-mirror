@@ -135,6 +135,8 @@ def do_petsc(version, optimised, profile=False, production=False, includes_only=
         libpaths.append(libpath)
         libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
                           'petscmat', 'petscvec', 'petsc'])
+        if sys.platform == 'cygwin':
+            libraries.extend(['gdi32', 'user32', 'advapi32', 'kernel32', 'dl'])
 
 def do_metis():
     """Add METIS include and library paths."""
