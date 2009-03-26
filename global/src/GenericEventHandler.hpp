@@ -43,6 +43,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  * Note: this class assume that, for any given concrete class, the last event
  * represents the total time, and thus wraps all other events.
+ * 
+ * The methods in this class are not implemented separately as then they would not be 
+ * inline, which could impact performance; we generally want timing routines to be very 
+ * lightweight.
  */
 template <unsigned NUM_EVENTS, class CONCRETE>
 class GenericEventHandler
