@@ -33,11 +33,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralElement.hpp"
 #include <set>
 
+/**
+ * A concrete element class which inherits from AbstractTetrahedralElement.
+ */ 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class Element : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>
 {
 
 public:
+
+    /**
+     * Constructor which takes in a vector of nodes. 
+     *  
+     * @param index  the index of the element in the mesh 
+     * @param nodes  the nodes owned by the element 
+     */
     Element(unsigned index, std::vector<Node<SPACE_DIM>*> nodes);
 
     /**
@@ -46,17 +56,31 @@ public:
      * \todo this is rather dubious; a factory method might be better.
      */
     Element(const Element &element, const unsigned index);
-    
+
+    /**
+     * Inform all nodes forming this element that they are in this element.
+     */
     void RegisterWithNodes();
 
+    /**
+     * Mark the element as having been removed from the mesh.
+     * Also notify nodes in the element that it has been removed.
+     */
     void MarkAsDeleted();
     
-    /** Update node at the given index
-     *  @param rIndex is an local index to which node to change
-     *  @param pNode is a pointer to the replacement node
+    /**
+     * Update node at the given index.
+     * 
+     * @param rIndex is an local index to which node to change
+     * @param pNode is a pointer to the replacement node
      */
     void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
 
+    /** 
+     * Reset the index of this boundary element in the mesh. 
+     *  
+     * @param index 
+     */
     void ResetIndex(unsigned index);
 
     /**
@@ -65,7 +89,7 @@ public:
      * @returns a vector containing x_centre, y_centre,...,radius^2
      */
     c_vector<double,SPACE_DIM+1> CalculateCircumsphere();
-    
+
     /**
      * Calculate the circumsphere/circumcircle of this element. 
      * 
@@ -84,24 +108,20 @@ public:
      * This is normalised by dividing through by the Platonic ratio.
      */
     double CalculateQuality();
-    
+
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint);
-    
+
     /**
      * Calculate the interpolation weights, but if we are not within
      * the element (one or more negative weights), we project onto the
      * element, rather than extrapolating from it.
      */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint);
-    
+
     c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint);
 
     bool IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict=false);
 
 };
 
-
-
-
-#endif //_BOUNDARYELEMENT_HPP_
-
+#endif //_ELEMENT_HPP_

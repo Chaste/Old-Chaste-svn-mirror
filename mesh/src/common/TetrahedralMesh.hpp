@@ -62,6 +62,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //   DECLARATION
 //////////////////////////////////////////////////////////////////////////
 
+/**
+ * A concrete tetrahedral mesh class.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
@@ -94,105 +97,204 @@ protected:
             
 public:
 
+    /**
+     * Constructor.
+     */
     TetrahedralMesh();
+
+    /**
+     * Constructor which takes in a number of elements.
+     * 
+     * @param numElements
+     */
     TetrahedralMesh(unsigned numElements);
     //TetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
     //virtual ~TetrahedralMesh();
 
+    /**
+     * Construct the mesh using a MeshReader.
+     * 
+     * @param rMeshReader the mesh reader
+     * @param cullInternalFaces whether to cull internal faces (defaults to false)
+     */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
+    /**
+     * Read in the number of nodes per processor from file.
+     * 
+     * @param nodesPerProcessorFile
+     */
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
     /**
-     * Return the volume of a mesh, calculated by adding the determinant of each element
+     * Return the volume of the mesh, calculated by adding the determinant of each element
      * and dividing by n!, where n is the element dimension.
      */
     double CalculateVolume();
+
+    /**
+     * Return the surface area of the mesh.
+     */
     double CalculateSurfaceArea();
 
+    /**
+     * Translate the mesh given the displacement vector.
+     * This is the translation method that actually does the work.
+     * 
+     * @param transVec is a translation vector of the correct size
+     */
     void Translate(c_vector<double, SPACE_DIM> displacement);
+
+    /**
+     * Translate the mesh given the coordinate displacements separately.
+     * 
+     * @param xMovement is the x-displacement (defaults to 0.0)
+     * @param yMovement is the y-displacement (defaults to 0.0)
+     * @param zMovement is the z-displacement (defaults to 0.0)
+     */
     void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
+
+    /**
+     * Scale the mesh.
+     * 
+     * @param xFactor is the scale in the x-direction (defaults to 1.0)
+     * @param yFactor is the scale in the y-direction (defaults to 1.0)
+     * @param zFactor is the scale in the z-direction (defaults to 1.0)
+     */
     void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
-    void Rotate(c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix);
+
+    /**
+     * Do a general mesh rotation with a positive determinant orthonormal rotation matrix.
+     * This is the rotation method that actually does the work.
+     * 
+     * @param rotationMatrix is a Ublas rotation matrix of the correct form
+     */
+    void Rotate(c_matrix<double , SPACE_DIM, SPACE_DIM> rotationMatrix);
+
+    /**
+     * Do an angle axis rotation.
+     * 
+     * @param axis is the axis of rotation (does not need to be normalised)
+     * @param angle is the angle of rotation in radians
+     */
     void Rotate(c_vector<double,3> axis, double angle);
+
+    /**
+     * Rotate the mesh about the x-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
     void RotateX(const double theta);
+
+    /**
+     * Rotate the mesh about the y-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
     void RotateY(const double theta);
+
+    /**
+     * Rotate the mesh about the z-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
     void RotateZ(const double theta);
-    /**Rotating a 2D mesh equates that rotation around the z-axis*/
+
+    /**
+     * Rotating a 2D mesh equates that rotation around the z-axis.
+     * 
+     * @param theta is the angle of rotation in radians
+     */
     void Rotate(double theta)
     {
         RotateZ(theta);
     }
 
+    /**
+     * This method allows the mesh properties to be re-calculated after 
+     * one or more nodes have been moved.
+     */
     void RefreshMesh(void);
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly).
-     *
      */
     void PermuteNodes();
 
     /**
-      * Permute the nodes so that they appear in a different order in mNodes
-      * (and their mIndex's are altered accordingly) using Metis binaries.
-      *
-      * @param numProcs Number of processors (e.g. number of partitions)
-      */
+     * Permute the nodes so that they appear in a different order in mNodes
+     * (and their mIndex's are altered accordingly) using Metis binaries.
+     *
+     * @param numProcs Number of processors (e.g. number of partitions)
+     */
     void PermuteNodesWithMetisBinaries(unsigned numProcs);
 
     /**
-      * Permute the nodes so that they appear in a different order in mNodes
-      * (and their mIndex's are altered accordingly).
+     * Permute the nodes so that they appear in a different order in mNodes
+     * (and their mIndex's are altered accordingly).
      * @param perm is a vector containing the new indices
      */
     void PermuteNodes(std::vector<unsigned>& perm);
 
+    /**
+     * Construct a 1D linear grid on [0,width]
+     * 
+     * @param width
+     */
     void ConstructLinearMesh(unsigned width);
 
     /**
-     * Construct a rectangular grid on [0,width]x[0,height]
-     * diagonals can be staggered so that there is no prefered diffusion propagation
-     * direction.
+     * Construct a 2D rectangular grid on [0,width]x[0,height].
+     * 
+     * Diagonals can be staggered so that there is no preferred 
+     * diffusion propagation direction.
+     * 
+     * @param width
+     * @param height
+     * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
      */
     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
 
     /**
-     * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
-     * diagonals can be staggered so that there is no prefered diffusion propagation
-     * direction.
+     * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
+     * 
+     * Diagonals can be staggered so that there is no preferred 
+     * diffusion propagation direction.
      *
-     * @param stagger whether the mesh should 'jumble' up the elements (defaults to false)
+     * @param stagger  whether the mesh should 'jumble' up the elements (defaults to false)
      */
     void ConstructCuboid(unsigned width, unsigned height, unsigned depth, bool stagger=false);
 
     /**
-     *  Returns the element index for the first element that is known to contain a test point
-     *  @param testPoint
-     *  @param strict Should the element returned contain the point in the interior and
-     *  not on an edge/face/vertex (default = not strict)
-     *  @param a set of guesses for the element (a set of element indices), to be checked
-     *  first for potential efficiency improvements. (default = empty set)
+     * Return the element index for the first element that is known to contain a test point
+     * 
+     * @param testPoint
+     * @param strict  Should the element returned contain the point in the interior and
+     *      not on an edge/face/vertex (default = not strict)
+     * @param testElements  a set of guesses for the element (a set of element indices), to be checked
+     *      first for potential efficiency improvements. (default = empty set)
      */
     unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict=false, std::set<unsigned> testElements=std::set<unsigned>());
 
     /**
-     *  Returns the element index for an element is closest to the testPoint
+     * Return the element index for an element is closest to the testPoint.
+     * 
      * "Closest" means that the minimum interpolation weights for the testPoint are
-     * maximised for this element
-     *  @param testPoint
-     *
+     * maximised for this element.
+     * 
+     * @param testPoint
      */
     unsigned GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint);
 
     /**
-     *  Returns all element indices for elements that are known to contain a test point
-     *  @param testPoint
+     * Return all element indices for elements that are known to contain a test point.
+     * 
+     * @param testPoint
      */
     std::vector<unsigned> GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint);
-
 
 //    /**
 //     * Sets the ownership of each element according to which nodes are owned by the
@@ -205,71 +307,66 @@ public:
 //    void SetElementOwnerships(unsigned lo, unsigned hi);
 
     /**
-     *  Clear all the data in the mesh
+     * Clear all the data in the mesh.
      */
     virtual void Clear();
 
     /**
-     *  Return the set of nodes which are on the boundary of the flagged region(s)
+     * Return the set of nodes which are on the boundary of the flagged region(s).
      */
     std::set<unsigned> CalculateBoundaryOfFlaggedRegion();
 
     /**
-     * Returns distance between two nodes
+     * Return the distance between two nodes.
+     * 
+     * N.B. This calls GetDistanceBetweenNodes which can be overridden 
+     * in daughter classes e.g. Cylindrical2dMesh.  Therefore the distance
+     * is not necessarily Euclidean
      *
      * @param indexA a node index
      * @param indexB a node index
      *
      * @return straight line distance between two nodes.
-     *
-     * N.B. This calls GetDistanceBetweenNodes which can be overridden 
-     * in daughter classes e.g. Cylindrical2dMesh.  Therefore the distance
-     * is not necessarily Euclidean
-     *
      */
     double GetDistanceBetweenNodes(unsigned indexA, unsigned indexB);
 
     /**
-     * Returns a vector between two points in space
-     *
+     * Return a vector between two points in space.
+     * 
+     * N.B. This can be overridden in daughter classes, e.g. Cylindrical2dMesh.
+     * 
      * @param rLocationA a c_vector of co-ordinates
      * @param rLocationB a c_vector of co-ordinates
      *
      * @return vector from location A to location B.
-     *
-     * N.B. This can be overridden in daughter classes
-     * e.g. Cylindrical2dMesh.
-     *
      */
     virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
 
     /**
-     * Calcuates the angle between the node at indexB and the x axis about
+     * Calcuate the angle between the node at indexB and the x axis about
      * the node at indexA. The angle returned is in the range (-pi,pi]
      */
     double GetAngleBetweenNodes(unsigned indexA, unsigned indexB);
 
     /**
-     * Calculates the `width' of any dimension of the mesh.
-     *
+     * Calculate the `width' of any dimension of the mesh.
+     * 
+     * N.B. Overwritten in Cylindrical2dMesh.
+     * 
      * @param rDimension a dimension (0,1 or 2)
      * @return The maximum distance between any nodes in this dimension.
-     *
-     * N.B. Overwritten in Cylindrical2dMesh
      */
     virtual double GetWidth(const unsigned& rDimension) const;
 
     /**
-     * Calculates the `width extremes' of any dimension of the mesh.
+     * Calculate the `width extremes' of any dimension of the mesh.
      *
      * @param rDimension a dimension (0,1 or 2)
      * @return The minimum and maximum co-ordinates of any node in this dimension.
-     *
      */
     c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
 
     void UnflagAllElements();
-
 
     /**
      *  Flag all elements not containing ANY of the given nodes
@@ -346,7 +443,5 @@ public:
      */
     EdgeIterator EdgesEnd();
 };
-
-
 
 #endif //_TETRAHEDRALMESH_HPP_

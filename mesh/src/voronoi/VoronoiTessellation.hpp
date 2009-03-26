@@ -37,6 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <vector>
 
+/**
+ * Voronoi tessellation class. For use in certain mesh-based tissue simulations.
+ */
 template<unsigned DIM>
 class VoronoiTessellation
 {
@@ -44,20 +47,17 @@ private:
     friend class TestVoronoiTessellation;
     friend class InventorVoronoiWriter;
 
+    /** A tetrahedral mesh. */
     TetrahedralMesh<DIM,DIM>& mrMesh;
-    /**
-     * Vertices correspond to elements of the mesh
-     */
-    std::vector< c_vector<double,DIM>* > mVertices;
-    /**
-     * Faces corespond to edges of the mesh
-     */
-    std::vector< Face<DIM>* > mFaces;
-    /**
-     * Cells correspond to nodes of the mesh
-     */
-    std::vector< VoronoiCell > mVoronoiCells;
 
+    /** Vertices correspond to elements of the mesh. */
+    std::vector< c_vector<double,DIM>* > mVertices;
+
+    /** Faces corespond to edges of the mesh. */
+    std::vector< Face<DIM>* > mFaces;
+
+    /** Cells correspond to nodes of the mesh. */
+    std::vector< VoronoiCell > mVoronoiCells;
 
     class VertexAndAngle
     {
@@ -82,12 +82,13 @@ private:
     void Initialise(TetrahedralMesh<2,2>& rMesh);
     void Initialise(TetrahedralMesh<3,3>& rMesh);
 
-
 public:
 
     /**
      * Constructor. Create a tesselation of the given mesh which must be Delaunay
      * (see TetrahedralMesh::CheckVoronoi).
+     * 
+     * @param rMesh a tetrahedral mesh
      */
     VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh);
 
@@ -96,24 +97,63 @@ public:
      */
     ~VoronoiTessellation();
 
-    /***
+    /**
      * Get a VoronoiCell.
      *
      * @param index The index of the cell is the index of the corresponding node in the original mesh.
      * If the corresponding node was on the boundary, this will return a cell with no faces.
      */
     const VoronoiCell& rGetCell(unsigned index) const;
+
+    /**
+     * Get the face of the VoronoiCell with a given index.
+     * 
+     * @param index  The index of the cell is the index of the corresponding node in the original mesh.
+     */
     const Face<DIM>* GetFace(unsigned index) const;
+
+    /**
+     * Get the number of faces in the tessellation.
+     */
     unsigned GetNumFaces();
 
+    /**
+     * Get the area of the face with a given index.
+     * 
+     * @param index
+     */
     double GetFaceArea(unsigned index) const;
+
+    /**
+     * Get the perimeter of the face with a given index.
+     * 
+     * @param index
+     */
     double GetFacePerimeter(unsigned index) const;
 
+    /**
+     * Get the length of the tessellation edge between two given nodes.
+     * 
+     * @param nodeIndex1
+     * @param nodeIndex2
+     */
     double GetEdgeLength(unsigned nodeIndex1, unsigned nodeIndex2) const;
 
+    /**
+     * Get the number of vertices in the tessellation.
+     */
     unsigned GetNumVertices();
+
+    /**
+     * Get the vertex with a given index.
+     * 
+     * @param index
+     */
     c_vector<double,DIM>* GetVertex(unsigned index);
 
+    /**
+     * Get the number of VoronoiCells in the tessellation.
+     */
     unsigned GetNumCells();
 
 };
@@ -252,7 +292,7 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<3,3>& rMesh)
             basis_vector2[1] = edge_vector[2]*basis_vector1[0] - edge_vector[0]*basis_vector1[2];
             basis_vector2[2] = edge_vector[0]*basis_vector1[1] - edge_vector[1]*basis_vector1[0];
 
-            std::vector< VertexAndAngle> vertices;
+            std::vector<VertexAndAngle> vertices;
 
             // Loop over each element containg this edge
             // the elements are those containing both nodes of the edge

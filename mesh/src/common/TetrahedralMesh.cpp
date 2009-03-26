@@ -202,7 +202,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     RefreshJacobianCachedData();
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
 {
@@ -292,14 +291,6 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
     return mesh_surface;
 }
 
-
-
-/**
- * Scale the mesh.
- * @param xFactor is the scale in the x-direction,
- * @param yFactor is the scale in the y-direction,
- * @param zFactor is the scale in the z-direction
- **/
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
     const double xScale,
@@ -325,12 +316,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
     RefreshMesh();
 }
 
-/**
- * Translate the mesh.
- * @param xMovement is the x-displacement,
- * @param yMovement is the y-displacement,
- * @param zMovement is the z-displacement,
- **/
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
     const double xMovement,
@@ -352,11 +337,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
     Translate(displacement);
 }
 
-
-/**
- * Translate mesh using the BOOST ublas library - this is the method that actually does the work
- * @param transVec is a translation vector of the correct size
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM> transVec)
 {
@@ -371,33 +351,20 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_D
     RefreshMesh();
 }
 
-
-
-
-/**
- * Do a general mesh rotation with an +ve determinant orthonormal rotation_matrix
- * This is the method that actually does the work
- * @param rotation_matrix is a Ublas rotation matrix of the correct form
- **/
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
-    c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix)
+    c_matrix<double , SPACE_DIM, SPACE_DIM> rotationMatrix)
 {
     unsigned num_nodes=this->GetNumAllNodes();
     for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
-        r_location = prod(rotation_matrix, r_location);
+        r_location = prod(rotationMatrix, r_location);
     }
 
     RefreshMesh();
 }
 
-/**
-* Do an angle axis rotation
-* @param axis is the axis of rotation (does not need to be normalised)
-* @param angle is the angle in radians
- **/
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(c_vector<double,3> axis, double angle)
 {
@@ -423,11 +390,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(c_vector<double,3> axis, do
     Rotate(rotation_matrix);
 }
 
-
-/**
- * Rotate the mesh about the x-axis
- * @param theta is the angle in radians
- */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateX(const double theta)
 {
@@ -444,11 +406,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateX(const double theta)
     Rotate(x_rotation_matrix);
 }
 
-
-/**
- * Rotate the mesh about the y-axis
- * @param theta is the angle in radians
- */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateY(const double theta)
 {
@@ -467,10 +424,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateY(const double theta)
     Rotate(y_rotation_matrix);
 }
 
-/**
- * Rotate the mesh about the z-axis
- * @param theta is the angle in radians
- */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateZ(const double theta)
 {
@@ -488,8 +441,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateZ(const double theta)
 
     Rotate(z_rotation_matrix);
 }
-
-
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
@@ -670,8 +621,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     PermuteNodes(permutation);
 
 }
-
-
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
@@ -1131,8 +1080,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
     RefreshJacobianCachedData();
 }
 
-
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
@@ -1268,8 +1215,6 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(unsigned in
     return angle;
 }
 
-
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
 {
@@ -1349,8 +1294,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FlagElementsNotContainingNodes(std
 
 
 //////////////////////////////////////////////////////////////////////////////
-//                          edge iterator class                           //
+//                          edge iterator class                             //
 //////////////////////////////////////////////////////////////////////////////
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::GetNodeA()
 {
@@ -1463,11 +1409,6 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<E
     return EdgeIterator(*this, this->GetNumAllElements());
 }
 
-/**
- * This method allows the mesh properties to be re-calculated after one
- * or more node have been moved.
- *
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 {    

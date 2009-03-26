@@ -32,11 +32,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTetrahedralElement.hpp"
 
+/**
+ * Concrete boundary element class which inherits from AbstractTetrahedralElement.
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BoundaryElement : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>
 {
 
 public:
+
+    /**
+     * Constructor which takes in a vector of nodes. 
+     *  
+     * @param index  the index of the element in the mesh 
+     * @param nodes  the nodes owned by the element 
+     */
     BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
         : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
     {
@@ -45,17 +55,21 @@ public:
 
     /**
      * Create a new boundary element from a Node.
-     * The element has ELEMENT_DIM=0 and
-     * SPACE_DIM identical to that of the node from which it is constructed.
+     * 
+     * The element has ELEMENT_DIM=0 and SPACE_DIM identical to 
+     * that of the node from which it is constructed.
+     * 
+     * @param index  the index of the element in the mesh
+     * @param pNode  a pointer to the node 
      */
     BoundaryElement(unsigned index,
-                    Node<SPACE_DIM> *node)
+                    Node<SPACE_DIM>* pNode)
         : AbstractTetrahedralElement<ELEMENT_DIM,SPACE_DIM>(index)
     {
         assert (ELEMENT_DIM == 0);
 
         // Store Node pointer
-        this->mNodes.push_back(node);
+        this->mNodes.push_back(pNode);
 
 //        this->mJacobian(0,0) = 1.0;
 //        this->mInverseJacobian(0,0) = 1.0;
@@ -65,6 +79,9 @@ public:
         RegisterWithNodes();
     }
 
+    /**
+     * Inform all nodes forming this element that they are in this element.
+     */
     void RegisterWithNodes()
     {
         for (unsigned i=0; i<this->mNodes.size(); i++)
@@ -73,6 +90,11 @@ public:
         }
     }
 
+    /** 
+     * Reset the index of this boundary element in the mesh. 
+     *  
+     * @param index 
+     */
     void ResetIndex(unsigned index)
     {
         for (unsigned i=0; i<this->GetNumNodes(); i++)
@@ -83,6 +105,10 @@ public:
         RegisterWithNodes();
     }
 
+    /**
+     * Mark the element as having been removed from the mesh.
+     * Also notify nodes in the element that it has been removed.
+     */
     void MarkAsDeleted()
     {
         this->mIsDeleted = true;
@@ -93,9 +119,12 @@ public:
             this->mNodes[i]->RemoveBoundaryElement(this->mIndex);
         }
     }
-    /** Update node at the given index
-     *  @param rIndex is an local index to which node to change
-     *  @param pNode is a pointer to the replacement node
+
+    /**
+     * Update node at the given index.
+     * 
+     * @param rIndex is an local index to which node to change
+     * @param pNode is a pointer to the replacement node
      */
     void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
     {
@@ -113,7 +142,4 @@ public:
 
 };
 
-
-
 #endif //_BOUNDARYELEMENT_HPP_
-

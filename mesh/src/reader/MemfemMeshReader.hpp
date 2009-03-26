@@ -68,8 +68,9 @@ public:
  * Typical use:
  *    AbstractMeshReader *pMeshReader=new MemfemMeshReader(
  *                        "pdes/tests/meshdata/Memfem_slab");
+ * 
+ * @param pathBaseName
  */
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseName)
 {
@@ -148,8 +149,9 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
  * Each string is expected to be 3 doubles (representing x,y,z)
  * Return value is a vector where each item is a vector of doubles which represents
  * position.  Indices are implicit in the vector.
+ * 
+ * @param rawData
  */
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(
     std::vector<std::string> rawData)
@@ -196,8 +198,11 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
  *  NB: Region markers are currently ignored.
  * Return value is a vector where each item is a vector of ints which represents
  * indices of nodes.
+ * 
+ * @param rawData
+ * @param dimensionOfObject
+ * @param readHeader
  */
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<unsigned> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
     std::vector<std::string> rawData,

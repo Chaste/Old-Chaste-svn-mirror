@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractElement.hpp"
 
 /**
- * This class defines an Element for use in the Finite Element Method.
+ * This abstract class defines a tetrahedral element for use in the Finite Element Method.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralElement : public AbstractElement<ELEMENT_DIM,SPACE_DIM>
@@ -56,24 +56,37 @@ protected:
     } 
 
 public:
-    ///Main constructor
+
+    /**
+     * Constructor which takes in a vector of nodes. 
+     *  
+     * @param index  the index of the element in the mesh 
+     * @param rNodes  the nodes owned by the element 
+     */
     AbstractTetrahedralElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
      * Default constructor, which doesn't fill in any nodes.
      * The nodes must be added later.
+     * 
+     * @param index  the index of the element in the mesh (defaults to INDEX_IS_NOT_USED)
      */
     AbstractTetrahedralElement(unsigned index=INDEX_IS_NOT_USED)
         : AbstractElement<ELEMENT_DIM,SPACE_DIM>(index)
     {}
 
+    /**
+     * Virtual destructor, since this class has virtual methods.
+     */
     virtual ~AbstractTetrahedralElement()
     {}
 
     void ZeroJacobianDeterminant(void);
     void ZeroWeightedDirection(void);
 
-
+    /**
+     * Get the location of the centroid of the element.
+     */
     c_vector<double, SPACE_DIM> CalculateCentroid() const
     {
         c_vector<double, SPACE_DIM> centroid=zero_vector<double>(SPACE_DIM);
@@ -153,7 +166,6 @@ public:
 };
 
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(unsigned index,
                                                                                const std::vector<Node<SPACE_DIM>*>& rNodes)
@@ -196,10 +208,6 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     // We want them anticlockwise.
     assert(det > 0.0);
 }
-
-
-
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)

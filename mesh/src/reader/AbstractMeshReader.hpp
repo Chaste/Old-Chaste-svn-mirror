@@ -134,6 +134,9 @@ public:
         return GetNextFaceData();
     }
 
+    /** 
+     * Get method for mMeshFileBaseName.
+     */
     virtual std::string GetMeshFileBaseName()
     { 
         return "";

@@ -45,11 +45,11 @@ public:
     std::vector< c_vector<double, DIM>* > mVertices;
 
 private:
+
     void Increment(typename std::vector< c_vector<double, DIM>* >::iterator& rIterator,
                    Face<DIM>& rFace) const;
 
 public:
-
 
     class VertexAndAngle
     {
@@ -61,7 +61,6 @@ public:
             return mAngle < other.mAngle;
         }
     };
-
 
     /**
      * Compare two faces for equality.

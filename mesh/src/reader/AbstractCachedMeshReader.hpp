@@ -59,7 +59,7 @@ class AbstractCachedMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DI
 protected:
     unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
     unsigned mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
-    unsigned mNumElementNodes; /** Is the number of nodes per element*/
+    unsigned mNumElementNodes; /**< Is the number of nodes per element*/
     unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
     unsigned mMaxFaceBdyMarker; /**< Is the maximum face (or edge) boundary marker */
 
@@ -93,9 +93,9 @@ public:
 
         mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
     }
-    virtual ~AbstractCachedMeshReader()
-    {}
 
+    virtual ~AbstractCachedMeshReader()
+    {} /**< Destructor. */
 
     unsigned GetNumElements() const
     {
@@ -129,11 +129,9 @@ public:
  * Reads an input file fileName, removes comments (indicated by a #) and blank
  * lines and returns a vector of strings. Each string corresponds to one line
  * of the input file.
- *
- *
+ * 
+ * @param fileName
  */
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataFromFile(std::string fileName)
 {

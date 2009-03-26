@@ -67,6 +67,11 @@ public:
  *                        "femlab_lshape_nodes.dat",
  *                        "femlab_lshape_elements.dat",
  *                        "femlab_lshape_edges.dat",);
+ * 
+ * @param pathBaseName
+ * @param nodeFileName
+ * @param elementFileName
+ * @param edgeFileName
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBaseName,
@@ -115,6 +120,8 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
  * Each string is expected to be a series of doubles.
  * Return value is a vector where each item is a vector of double which represents
  * position.  Indices are implicit in the vector.
+ * 
+ * @param rawData
  */
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -182,6 +189,9 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
  *  ( In 3-D: 3 indices for a face, 4 for a tetrahedron)
  * Return value is a vector where each item is a vector of ints which represents
  * indices of nodes.
+ * 
+ * @param rawData
+ * @param dimensionOfObject
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector < std::vector < unsigned > >

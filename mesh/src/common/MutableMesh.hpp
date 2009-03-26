@@ -41,23 +41,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 
+/**
+ * A concrete mutable mesh class.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MutableMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
 
-    /// Indices of elements/nodes that have been deleted - these indices can be reused when adding
-    /// new elements/nodes
+    /**
+     * Indices of elements that have been marked as deleted.
+     * These indices can be reused when adding new elements.
+     */
     std::vector<unsigned> mDeletedElementIndices;
-    std::vector<unsigned> mDeletedBoundaryElementIndices;
-    std::vector<unsigned> mDeletedNodeIndices;
-    bool mAddedNodes;
 
+    /**
+     * Indices of boundary elements that have been marked as deleted.
+     * These indices can be reused when adding new boundary elements.
+     */
+    std::vector<unsigned> mDeletedBoundaryElementIndices;
+
+    /**
+     * Indices of nodes that have been marked as deleted.
+     * These indices can be reused when adding new nodes.
+     */
+    std::vector<unsigned> mDeletedNodeIndices;
+
+    /** Whether any nodes have been added to the mesh. */
+    bool mAddedNodes;
 
 private:
 
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
+     * 
      * @param pointer to an element
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of the element, as a proportion of the circumsphere radius.
@@ -67,15 +84,40 @@ private:
 #undef COVERAGE_IGNORE
 
 public:
+
+    /**
+     * Constructor.
+     */
     MutableMesh();
+
+    /**
+     * Constructor which takes in a vector of nodes.
+     */
     MutableMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
+    /**
+     * Destructor.
+     */
     virtual ~MutableMesh();
 
+    /**
+     * Clear all the data in the mesh.
+     */
     void Clear();
 
+    /** 
+     * Get the number of nodes that are actually in use.
+     */
     unsigned GetNumNodes() const;
+
+    /** 
+     * Get the number of elements that are actually in use.
+     */
     unsigned GetNumElements() const;
+
+    /** 
+     * Get the number of boundary elements that are actually in use.
+     */
     unsigned GetNumBoundaryElements() const;
     ///should unsigned GetNumBoundaryNodes() be overloaded too??
     
@@ -89,14 +131,46 @@ public:
      */
     virtual unsigned AddNode(Node<SPACE_DIM> *pNewNode);
 
+    /**
+     * Move the node with a particular index to a new point in space and
+     * verifies that the signed areas of the supporting Elements are positive.
+     * 
+     * @param index is the index of the node to be moved
+     * @param point is the new target location of the node
+     * @param concreteMove is set to false if we want to skip the signed area tests
+     */
     virtual void SetNode(unsigned index, ChastePoint<SPACE_DIM> point, bool concreteMove=true);
+
+    /**
+     * Move one node to another (i.e. merges the nodes), refreshing/deleting 
+     * elements as appropriate.
+     *
+     * @param index is the index of the node to be moved
+     * @param targetIndex is the index of the node to move to
+     * @param concreteMove can be set to false if you just want to check whether this will work.
+     *     Set it to true if you're doing the merger for real, in order to do all the bookkeeping.
+     */
     void MoveMergeNode(unsigned index, unsigned targetIndex, bool concreteMove=true);
 
 #define COVERAGE_IGNORE
+    /**
+     * Delete a node from the mesh by finding an appropriate neighbour node
+     * to merge it with.
+     *
+     * @param index is the index of the node to be deleted
+     */
     void DeleteNode(unsigned index);
 #undef COVERAGE_IGNORE
 
 #define COVERAGE_IGNORE
+    /**
+     * Mark a node as deleted. Note that this method DOES NOT deal with the
+     * associated elements and therefore should only be called immediately prior
+     * to a ReMesh() being called. (Thus saves work compared to DeleteNode()
+     * function and does not MoveMerge the node and elements).
+     *
+     * @param index The index of the node to delete
+     */
     void DeleteNodePriorToReMesh(unsigned index);
 #undef COVERAGE_IGNORE
 
