@@ -29,6 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 #include <cmath>
 
+// Needed for g++ 3.4.4 on cygwin, at least
+#if __GNUC__ == 3
+#include <ieeefp.h>
+#endif
+
 //#include <iostream>
 #include "Exception.hpp"
 

@@ -410,7 +410,9 @@ if ARGUMENTS.get('exe', 0):
 
     if static_libs:
         libpath = '#lib'
-        env.Append(LINKFLAGS=' -static -pthread ')
+        env.Append(LINKFLAGS=' -static ')
+        if sys.platform != 'cygwin':
+            env.Append(LINKFLAGS='-pthread ')
     else:
         libpath = '#linklib'
     env.Replace(LIBPATH=[libpath] + other_libpaths)

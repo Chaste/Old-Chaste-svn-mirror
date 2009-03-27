@@ -51,5 +51,16 @@ public:
     
 };
 
+/**
+ * We need to specialise for the 0d case, because 0x0 matrices don't work.
+ */
+template<>
+class QuadraticBasisFunction<0>
+{
+public:
+    static double ComputeBasisFunction(const ChastePoint<0> &rPoint, unsigned basisIndex);
+    static void ComputeBasisFunctions(const ChastePoint<0> &rPoint, c_vector<double, 1>& rReturnValue);
+};
+
 #endif //_QUADRATICBASISFUNCTION_HPP_
 
