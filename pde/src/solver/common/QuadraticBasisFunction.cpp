@@ -353,7 +353,6 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivative
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////
 
-template class QuadraticBasisFunction<0>;
 template class QuadraticBasisFunction<1>;
 template class QuadraticBasisFunction<2>;
 template class QuadraticBasisFunction<3>;
