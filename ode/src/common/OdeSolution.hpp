@@ -61,7 +61,7 @@ public:
     unsigned GetNumberOfTimeSteps();
 
     /**
-     * Get the number of timesteps.
+     * Set the number of timesteps.
      * 
      * @param numTimeSteps the number of timesteps to use
      */
