@@ -30,11 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cassert>
 #include "OutputFileHandler.hpp"
+#include "Exception.hpp"
 
 
 /**
  *  This class creates a file ('progress_status.txt' in the specified directory
- *  and writes "n% completed" etc in the file when  *  n% of a simulation has 
+ *  and writes "n% completed" etc in the file when  *  n% of a simulation has
  *  been done, for integer n.
  */
 class ProgressReporter
@@ -48,9 +49,9 @@ private:
 
 public :
 
-    /** 
+    /**
      * Constuctor saves times and opens output file ('progress_status.txt').
-     * 
+     *
      * @param outputDirectory where to open the output file
      * @param startTime the start time
      * @param endTime the end time
@@ -61,11 +62,11 @@ public :
      * Destructor.
      */
     ~ProgressReporter();
-    
+
     /**
      * Calculates the percentage completed using the time given and the start and end
      * time and prints to file if another percent has been done.
-     * 
+     *
      * @param currentTime the given time
      */
     void Update(double currentTime);
