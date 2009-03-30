@@ -73,12 +73,12 @@ public:
      * @param variableID the variable
      * @param petscVector the data
      */
-    void PutVector(int variableID, Vec PetscVector);
+    void PutVector(int variableID, Vec petscVector);
 
     /**
      * Write data for a given variable from a stripe to the dataset.
      * 
-     * @param variableID the variable
+     * @param variableId the variable
      * @param stripe the data
      */
     void PutVectorStripe(int variableId, DistributedVector::Stripe stripe);
