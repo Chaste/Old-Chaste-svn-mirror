@@ -34,17 +34,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractNonlinearSolver.hpp"
 #include <vector>
 
+/**
+ * A solver class that uses Newton's method with damping.
+ */
 class SimpleNewtonNonlinearSolver : public AbstractNonlinearSolver
 {
 private :
-    double mLinearSolverRelativeTolerance;
-    double mTolerance;
-    bool mWriteStats;
+    double mLinearSolverRelativeTolerance;   /**< The linear solver relative tolerance. */
+    double mTolerance;                       /**< The tolerance (set to 1e-5 in constructor). */
+    bool mWriteStats;                        /**< Whether the solver writes details as it solves (set to false in constructor). */
 
-    std::vector<double> mTestDampingValues;
+    std::vector<double> mTestDampingValues;  /**< Vector of possible damping factors (set in the constructor). */
 
 public :
+
+    /**
+     * Constructor.
+     * 
+     * @param linearSolverRelativeTolerance defaults to 1e-6
+     */
     SimpleNewtonNonlinearSolver(double linearSolverRelativeTolerance = 1e-6);
+
+    /**
+     * Destructor.
+     */
     virtual ~SimpleNewtonNonlinearSolver();
 
     /**
@@ -97,10 +110,18 @@ public :
                       Vec initialGuess,
                       void *pContext);
 
-    /** Set a tolerance other than the default */
+    /**
+     * Set a tolerance other than the default.
+     * 
+     * @param tolerance
+     */
     void SetTolerance(double tolerance);
 
-    /** Call to set the solver to write details as it solves */
+    /**
+     * Call to set the solver to write details as it solves.
+     * 
+     * @param writeStats defaults to true
+     */
     void SetWriteStats(bool writeStats = true)
     {
         mWriteStats = writeStats;

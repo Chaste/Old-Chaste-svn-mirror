@@ -42,7 +42,7 @@ using namespace boost::numeric::ublas;
 /**
  *  FourthOrderTensor
  *
- *  A class of fourth order tensors (ie tensors with four indices), over arbitrary dimension
+ *  A class of fourth order tensors (i.e. tensors with four indices), over arbitrary dimension.
  *
  */
 template<unsigned DIM>
@@ -50,10 +50,10 @@ class FourthOrderTensor2
 {
 private:
 
-    std::vector<double> mData;
-    unsigned mDimSqd;
-    unsigned mDimCubed;
-    unsigned mDimToFour;
+    std::vector<double> mData;  /**< The components of the tensor. */
+    unsigned mDimSqd;           /**< The squared dimension, DIM^2. */
+    unsigned mDimCubed;         /**< The cubed dimension, DIM^3. */
+    unsigned mDimToFour;        /**< The fourth power of the dimension, DIM^4. */
 
 public:
 
@@ -76,11 +76,28 @@ public:
      */
     void SetAsProduct(FourthOrderTensor2<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component);
 
+    /**
+     * Access the MNPQ-component of the tensor.
+     * 
+     * @param M  first index
+     * @param N  second index
+     * @param P  third index
+     * @param Q  fourth index
+     */
     double& operator()(unsigned M, unsigned N, unsigned P, unsigned Q);
 
+    /**
+     * Set all components of the tensor to zero.
+     */
     void Zero();
 
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
 
 template<unsigned DIM>
 FourthOrderTensor2<DIM>::FourthOrderTensor2()
@@ -211,7 +228,7 @@ double& FourthOrderTensor2<DIM>::operator()(unsigned M, unsigned N, unsigned P, 
 template<unsigned DIM>
 void FourthOrderTensor2<DIM>::Zero()
 {
-    for(unsigned i=0; i<mDimToFour; i++)
+    for (unsigned i=0; i<mDimToFour; i++)
     {
         mData[i] = 0.0;
     }

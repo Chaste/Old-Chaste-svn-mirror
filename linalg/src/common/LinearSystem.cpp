@@ -26,11 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-/**
- * Linear System implementation.
- *
- */
 #include "LinearSystem.hpp"
 #include "PetscException.hpp"
 #include <iostream>
@@ -40,6 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 
 
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
    :mMatNullSpace(NULL),
@@ -66,13 +64,6 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     strcpy(mPcType, "jacobi");
 }
 
-/**
- * Create a linear system, where the size is based on the size of a given
- * PETSc vec.
- * The LHS & RHS vectors will be created by duplicating this vector's
- * settings.  This should avoid problems with using VecScatter on
- * bidomain simulation results.
- */
 LinearSystem::LinearSystem(Vec templateVector)
    :mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
@@ -96,13 +87,6 @@ LinearSystem::LinearSystem(Vec templateVector)
     
 }
 
-/**
- * Create a linear system which wraps the provided PETSc objects so we can
- * access them using our API.  Either of the objects may be NULL, but at
- * least one of them must not be.
- *
- * Useful for storing residuals and jacobians when solving nonlinear PDEs.
- */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     :mMatNullSpace(NULL),
     mDestroyMatAndVec(false),
@@ -180,13 +164,11 @@ void LinearSystem::AddToMatrixElement(PetscInt row, PetscInt col, double value)
     }
 }
 
-
 void LinearSystem::AssembleFinalLinearSystem()
 {
     AssembleFinalLhsMatrix();
     AssembleRhsVector();
 }
-
 
 void LinearSystem::AssembleIntermediateLinearSystem()
 {
@@ -200,7 +182,6 @@ void LinearSystem::AssembleFinalLhsMatrix()
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
 }
 
-
 void LinearSystem::AssembleIntermediateLhsMatrix()
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
@@ -212,8 +193,6 @@ void LinearSystem::AssembleRhsVector()
     VecAssemblyBegin(mRhsVector);
     VecAssemblyEnd(mRhsVector);
 }
-
-
 
 void LinearSystem::SetRhsVectorElement(PetscInt row, double value)
 {
@@ -274,12 +253,6 @@ void LinearSystem::ZeroMatrixRow(PetscInt row)
 
 }
 
-/**
- *  Zero the column of a matrix.
- *  Unfortunately there is no equivalent method in Petsc, so this has to be 
- *  done carefully to ensure that the sparsity structure of the matrix
- *  is not broken. Only owned entries which are non-zero are zeroed.
- */
 void LinearSystem::ZeroMatrixColumn(PetscInt col)
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
@@ -331,7 +304,6 @@ void LinearSystem::ZeroRhsVector()
     VecRestoreArray(mRhsVector, &p_rhs_vector_array);
 }
 
-
 void LinearSystem::ZeroLhsMatrix()
 {
     MatZeroEntries(mLhsMatrix);
@@ -343,8 +315,6 @@ void LinearSystem::ZeroLinearSystem()
     ZeroLhsMatrix();
 }
 
-
-
 unsigned LinearSystem::GetSize()
 {
     return (unsigned) mSize;
@@ -355,19 +325,12 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
     PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullBasis, &mMatNullSpace) );
 }
 
-/**
- * Get this process' ownership range of the contents of the system
- */
-void LinearSystem::GetOwnershipRange(PetscInt &lo, PetscInt &hi)
+void LinearSystem::GetOwnershipRange(PetscInt& lo, PetscInt& hi)
 {
     lo = mOwnershipRangeLo;
     hi = mOwnershipRangeHi;
 }
 
-/**
- * Return an element of the matrix.
- * May only be called for elements you own.
- */
 double LinearSystem::GetMatrixElement(PetscInt row, PetscInt col)
 {
     assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
@@ -383,10 +346,6 @@ double LinearSystem::GetMatrixElement(PetscInt row, PetscInt col)
     return ret_array[0];
 }
 
-/**
- * Return an element of the RHS vector.
- * May only be called for elements you own.
- */
 double LinearSystem::GetRhsVectorElement(PetscInt row)
 {
     assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
@@ -400,39 +359,27 @@ double LinearSystem::GetRhsVectorElement(PetscInt row)
     return answer;
 }
 
-/**
- * Get access to the rhs vector directly. Shouldn't generally need to be called.
- */
 Vec& LinearSystem::rGetRhsVector()
 {
     return mRhsVector;
 }
 
-/**
- * Get access to the lhs matrix directly. Shouldn't generally need to be called.
- */
 Mat& LinearSystem::rGetLhsMatrix()
 {
     return mLhsMatrix;
 }
 
-/**
- * Gets access to the dirichlet boundary conditions vector. 
- * 
- * Should only be used by the BoundaryConditionsContainer.
- */
 Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
 {
     return mDirichletBoundaryConditionsVector;   
 }
 
-/** Force PETSc to treat the matrix in this linear system as symmetric from now on
- */
 void LinearSystem::SetMatrixIsSymmetric()
 {
     MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
     MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
 }
+
 void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
 {
     mMatrixIsConstant=matrixIsConstant;
@@ -446,7 +393,6 @@ void LinearSystem::SetRelativeTolerance(double relativeTolerance)
     {
         KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
     }
-
 }
 
 void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
@@ -457,7 +403,6 @@ void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
     {
         KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
     }
-
 }
 
 void LinearSystem::SetKspType(const char *kspType)
@@ -619,7 +564,6 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 //    VecView(mRhsVector, viewer);
 //    PetscViewerFlush(viewer);
 //    PetscViewerDestroy(viewer);
-    
     
     try
     {

@@ -47,9 +47,11 @@ class LinearSystem
 	friend class TestLinearSystem;
 
 private:
-    Mat mLhsMatrix;
-    Vec mRhsVector;
-    PetscInt mSize;
+
+    Mat mLhsMatrix;  /**< The left-hand side matrix. */
+    Vec mRhsVector;  /**< The right-hand side vector. */
+    PetscInt mSize;  /**< The size of the linear system. */
+
     /** \todo
      * Verify claim that ownership range for Vec and Mat is same.
      * This should only matter for efficiency if the claim is false.
@@ -63,8 +65,8 @@ private:
     bool mDestroyMatAndVec;
 
     KSP mKspSolver;
-    bool mKspIsSetup; //Used by Solve method to track whether KSP has been used
-    double mNonZerosUsed; //Yes, it really is stored as a double.
+    bool mKspIsSetup;  /**< Used by Solve method to track whether KSP has been used. */
+    double mNonZerosUsed;  /**< Yes, it really is stored as a double. */
     bool mMatrixIsConstant;
     double mTolerance;
     bool mUseAbsoluteTolerance;
@@ -74,9 +76,46 @@ private:
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see boundary conditions container*/
     
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param lhsVectorSize
+     * @param matType defaults to MATMPIAIJ
+     */
     LinearSystem(PetscInt lhsVectorSize, MatType matType=(MatType) MATMPIAIJ);
+
+    /**
+     * Alternative constructor.
+     * 
+     * Create a linear system, where the size is based on the size of a given
+     * PETSc vec.
+     * 
+     * The LHS & RHS vectors will be created by duplicating this vector's
+     * settings.  This should avoid problems with using VecScatter on
+     * bidomain simulation results.
+     * 
+     * @param templateVector
+     */
     LinearSystem(Vec templateVector);
+
+    /**
+     * Alternative constructor.
+     * 
+     * Create a linear system which wraps the provided PETSc objects so we can
+     * access them using our API.  Either of the objects may be NULL, but at
+     * least one of them must not be.
+     *
+     * Useful for storing residuals and jacobians when solving nonlinear PDEs.
+     * 
+     * @param residualVector
+     * @param jacobianMatrix
+     */
     LinearSystem(Vec residualVector, Mat jacobianMatrix);
+
+    /**
+     * Destructor.
+     */
     ~LinearSystem();
 
 //    bool IsMatrixEqualTo(Mat testMatrix);
@@ -90,38 +129,167 @@ public:
     void AssembleIntermediateLhsMatrix();
     void AssembleRhsVector();
 
+    /**
+     * Force PETSc to treat the matrix in this linear system as symmetric from now on.
+     */
     void SetMatrixIsSymmetric();
+
+    /**
+     * Set mMatrixIsConstant.
+     * 
+     * @param matrixIsConstant
+     */
     void SetMatrixIsConstant(bool matrixIsConstant);
+
+    /**
+     * Set the relative tolerance.
+     * 
+     * @param relativeTolerance
+     */
     void SetRelativeTolerance(double relativeTolerance);
+
+    /**
+     * Set the absolute tolerance.
+     * 
+     * @param absoluteTolerance
+     */
     void SetAbsoluteTolerance(double absoluteTolerance);
+
     void SetKspType(const char*);
     void SetPcType(const char*);
+
+    /**
+     * Display the left-hand side matrix.
+     */
     void DisplayMatrix();
+
+    /**
+     * Display the right-hand side vector.
+     */
     void DisplayRhs();
+
+    /**
+     * Set all entries in a given row of a matrix to a certain value.
+     * 
+     * @param row
+     * @param value
+     */
     void SetMatrixRow(PetscInt row, double value);
+
+    /**
+     * Zero a row of the left-hand side matrix.
+     * 
+     * @param row
+     */
     void ZeroMatrixRow(PetscInt row);
+
+    /**
+     * Zero a column of the left-hand side matrix.
+     * 
+     * Unfortunately there is no equivalent method in Petsc, so this has to be 
+     * done carefully to ensure that the sparsity structure of the matrix
+     * is not broken. Only owned entries which are non-zero are zeroed.
+     * 
+     * @param col
+     */
     void ZeroMatrixColumn(PetscInt col);
+
+    /**
+     * Zero all entries of the left-hand side matrix.
+     */
     void ZeroLhsMatrix();
+
+    /**
+     * Zero all entries of the right-hand side vector.
+     */
     void ZeroRhsVector();
+
+    /**
+     * Zero all entries of the left-hand side matrix and right-hand side vector.
+     */
     void ZeroLinearSystem();
+
+    /**
+     * Solve the linear system.
+     * 
+     * @param lhsGuess  an optional initial guess for the solution (defaults to NULL)
+     */
     Vec Solve(Vec lhsGuess=NULL);
+
+    /**
+     * Set an element of the right-hand side vector to a given value.
+     * 
+     * @param row
+     * @param value
+     */
     void SetRhsVectorElement(PetscInt row, double value);
+
+    /**
+     * Add a value to an element of the right-hand side vector.
+     * 
+     * @param row
+     * @param value
+     */
     void AddToRhsVectorElement(PetscInt row, double value);
+
+    /**
+     * Get method for mSize.
+     */
     unsigned GetSize();
+
+    /**
+     * 
+     * @param nullbasis
+     * @param numberOfBases
+     */
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
+
+    /**
+     * Get access to the rhs vector directly. Shouldn't generally need to be called.
+     */
     Vec& rGetRhsVector();
+
+    /**
+     * Get access to the lhs matrix directly. Shouldn't generally need to be called.
+     */
     Mat& rGetLhsMatrix();
+
+    /**
+     * Gets access to the dirichlet boundary conditions vector. 
+     * 
+     * Should only be used by the BoundaryConditionsContainer.
+     */
     Vec& rGetDirichletBoundaryConditionsVector();
 
-
     // DEBUGGING CODE:
-    void GetOwnershipRange(PetscInt &lo, PetscInt &hi);
+    /**
+     * Get this process's ownership range of the contents of the system.
+     * 
+     * @param lo
+     * @param hi
+     */
+    void GetOwnershipRange(PetscInt& lo, PetscInt& hi);
+
+    /**
+     * Return an element of the matrix.
+     * May only be called for elements you own.
+     * 
+     * @param row
+     * @param col
+     */
     double GetMatrixElement(PetscInt row, PetscInt col);
+
+    /**
+     * Return an element of the RHS vector.
+     * May only be called for elements you own.
+     * 
+     * @param row
+     */
     double GetRhsVectorElement(PetscInt row);
 
-
-    /***
-     * Add multiple values to the matrix of linear system
+    /**
+     * Add multiple values to the matrix of linear system.
+     * 
      * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
      *  to index of the Petsc matrix of this linear system
      * @param smallMatrix Ublas matrix containing the values to be added
@@ -182,9 +350,9 @@ public:
         }
     };
 
-
-    /***
-     * Add multiple values to the RHS vector
+    /**
+     * Add multiple values to the RHS vector.
+     * 
      * @param vectorIndices mapping from index of the ublas vector (see param below)
      *  to index of the vector of this linear system
      * @param smallVector Ublas vector containing the values to be added
@@ -192,7 +360,7 @@ public:
      * N.B. Values which are not local (ie the row is not owned) will be skipped.
      */
     template<size_t VECTOR_SIZE>
-    void AddRhsMultipleValues(unsigned* VectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
+    void AddRhsMultipleValues(unsigned* vectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
     {
         PetscInt indices_owned[VECTOR_SIZE];
         PetscInt num_indices_owned=0;
@@ -200,7 +368,7 @@ public:
 
         for (unsigned row = 0; row<VECTOR_SIZE; row++)
         {
-            global_row = VectorIndices[row];
+            global_row = vectorIndices[row];
             if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
             {
                 indices_owned[num_indices_owned++] = global_row;
@@ -224,7 +392,7 @@ public:
         	
 	        for (unsigned row = 0; row<VECTOR_SIZE; row++)
     	    {
-	            global_row = VectorIndices[row];
+	            global_row = vectorIndices[row];
 	            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
 	            {
 	                values[num_values_owned++] = smallVector(row);
