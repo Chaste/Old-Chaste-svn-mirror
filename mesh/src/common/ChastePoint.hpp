@@ -36,11 +36,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 using namespace boost::numeric::ublas;
 
-
+/**
+ * A ChastePoint class, templated over spatial dimension.
+ */
 template<unsigned DIM>
 class ChastePoint
 {
 private:
+
+    /** The location of the Point. */
     c_vector<double, DIM> mLocation;
 
 public:
@@ -54,6 +58,10 @@ public:
      * rGetLocation method returns a reference to this vector.
      * Use of this method together with ublas operations
      * is the perfered way to use this class.
+     * 
+     * @param v1  the point's x-coordinate (defaults to 0)
+     * @param v2  the point's y-coordinate (defaults to 0)
+     * @param v3  the point's z-coordinate (defaults to 0)
      */
     ChastePoint(double v1=0, double v2=0, double v3=0)
     {
@@ -75,6 +83,8 @@ public:
      * Create a Point object.
      * This constructor takes a vector giving the coordinates of the point.
      * The length of the vector must be at least the dimension of the point.
+     * 
+     * @param coords  a std::vector storing the point's coordinates
      */
     ChastePoint(std::vector<double> coords)
     {
@@ -84,27 +94,49 @@ public:
         }
     }
 
+    /**
+     * Alternative constructor which takes in a c_vector.
+     * 
+     * @param location  a c_vector storing the point's coordinates
+     */
     ChastePoint(c_vector<double, DIM> location)
     {
         mLocation = location;
     }
 
+    /**
+     * Get the location of the Point.
+     */
     c_vector<double, DIM>& rGetLocation(void)
     {
         return mLocation;
     }
 
+    /**
+     * Get the location of the Point.
+     */
     const c_vector<double, DIM>& rGetLocation(void) const
     {
         return mLocation;
     }
 
+    /**
+     * Access the vector mLocation.
+     * 
+     * @param index the index of the vector to return
+     */
     double operator[] (unsigned i) const
     {
         assert(i<DIM);
         return mLocation(i);
     }
 
+    /**
+     * Set one of the coordinates of the Point.
+     * 
+     * @param i the index of the coordinate
+     * @param value the value of the coordinate
+     */
     void SetCoordinate(unsigned i, double value)
     {
         assert(i<DIM);
@@ -112,6 +144,9 @@ public:
     }
 };
 
+/**
+ * A  zero-dimensional ChastePoint class.
+ */
 template<>
 class ChastePoint<0>
 {
@@ -125,6 +160,11 @@ public:
     {
     }
 
+    /**
+     * Access the vector mLocation.
+     * 
+     * @param i the index of the vector to return
+     */
     double operator[] (unsigned i) const
     {
         EXCEPTION("Zero-dimensional point has no data");

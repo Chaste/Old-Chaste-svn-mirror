@@ -54,6 +54,9 @@ public:
      * Copy constructor which allows a new index to be specified.
      * 
      * \todo this is rather dubious; a factory method might be better.
+     * 
+     * @param element  an element to copy
+     * @param index the index of the new element
      */
     Element(const Element &element, const unsigned index);
 
@@ -97,9 +100,15 @@ public:
      * We want to use the jacobians computed before swapping the nodes.
 
      * @returns a vector containing x_centre, y_centre,...,radius^2
+     * 
+     * @param rJacobian  the Jacobian matrix
+     * @param rInverseJacobian  the inverse Jacobian matrix
      */
     c_vector<double,SPACE_DIM+1> CalculateCircumsphere(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian);     
-    
+
+    /**
+     * Get the volume of the circumsphere, or area of the circumcircle, of this element.
+     */
     double CalculateCircumsphereVolume();
 
     /**
@@ -109,17 +118,35 @@ public:
      */
     double CalculateQuality();
 
+    /**
+     * Calculate the interpolation weights at a given point.
+     * 
+     * @param testPoint  the point
+     */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint);
 
     /**
      * Calculate the interpolation weights, but if we are not within
      * the element (one or more negative weights), we project onto the
      * element, rather than extrapolating from it.
+     * 
+     * @param testPoint  the point
      */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint);
 
+    /**
+     * Calculate psi at a given point.
+     * 
+     * @param testPoint
+     */
     c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint);
 
+    /**
+     * Get whether a given point lies inside this element.
+     * 
+     * @param testPoint  the point
+     * @param strict  whether the point must not be too close to an edge/face (defaults to false)
+     */
     bool IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict=false);
 
 };

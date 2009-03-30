@@ -92,6 +92,8 @@ public:
 
     /**
      * Constructor which takes in a vector of nodes.
+     * 
+     * @param nodes  a vector of nodes
      */
     MutableMesh(std::vector<Node<SPACE_DIM> *> nodes);
 
@@ -127,9 +129,10 @@ public:
      * Add a node to the mesh.
      *
      * NB. After calling this one or more times, you must then call ReMesh
-     *
+     * 
+     * @param pNewNode  pointer to the new node
      */
-    virtual unsigned AddNode(Node<SPACE_DIM> *pNewNode);
+    virtual unsigned AddNode(Node<SPACE_DIM>* pNewNode);
 
     /**
      * Move the node with a particular index to a new point in space and
@@ -137,7 +140,7 @@ public:
      * 
      * @param index is the index of the node to be moved
      * @param point is the new target location of the node
-     * @param concreteMove is set to false if we want to skip the signed area tests
+     * @param concreteMove is set to false if we want to skip the signed area tests (defaults to true)
      */
     virtual void SetNode(unsigned index, ChastePoint<SPACE_DIM> point, bool concreteMove=true);
 
@@ -147,7 +150,7 @@ public:
      *
      * @param index is the index of the node to be moved
      * @param targetIndex is the index of the node to move to
-     * @param concreteMove can be set to false if you just want to check whether this will work.
+     * @param concreteMove can be set to false if you just want to check whether this will work (defaults to true).
      *     Set it to true if you're doing the merger for real, in order to do all the bookkeeping.
      */
     void MoveMergeNode(unsigned index, unsigned targetIndex, bool concreteMove=true);
@@ -174,7 +177,13 @@ public:
     void DeleteNodePriorToReMesh(unsigned index);
 #undef COVERAGE_IGNORE
 
-    unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, ChastePoint<SPACE_DIM> Point);
+    /**
+     * Refine an element at a given point.
+     * 
+     * @param pElement  pointer to the element
+     * @param point  a point located in the element 
+     */
+    unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, ChastePoint<SPACE_DIM> point);
 
     /**
      * Remove a boundary node, and update all the appropriate data structures.
@@ -190,38 +199,42 @@ public:
      */
     void DeleteBoundaryNodeAt(unsigned index);
 
+#define COVERAGE_IGNORE 
     /**
-     * Re-index a mesh so that it has no deleted elements or nodes
+     * Re-index a mesh so that it has no deleted elements or nodes.
+     * 
+     * @param map is a NodeMap which associates the indices of nodes in the old mesh
+     * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
-#define COVERAGE_IGNORE     
     void ReIndex(NodeMap& map);
 #undef COVERAGE_IGNORE
 
+#define COVERAGE_IGNORE
     /**
      * Re-mesh a mesh using triangle (via library calls) or tetgen
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
-#define COVERAGE_IGNORE
     virtual void ReMesh(NodeMap& map);
 #undef COVERAGE_IGNORE
 
+#define COVERAGE_IGNORE
     /**
      * Alternative version of remesh which takes no parameters does not require a NodeMap. Note: inherited
      * classes should overload ReMesh(NodeMap&)
      */
-#define COVERAGE_IGNORE
     void ReMesh();
 #undef COVERAGE_IGNORE
-    
+
+#define COVERAGE_IGNORE
     /**
      * Checks the entire mesh element by element and checks whether any neighbouring node
      * is inside the circumsphere of this element.
+     * 
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of an element that it is not a member of, as a proportion of the
      * circumsphere radius.
      */
-#define COVERAGE_IGNORE     
     bool CheckVoronoi(double maxPenetration=0.0);    
 #undef COVERAGE_IGNORE
 };

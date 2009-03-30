@@ -222,7 +222,7 @@ public:
     /**  
      * Add a node to this element.  
      *   
-     * @param pNode pointer to the new node  
+     * @param node pointer to the new node  \todo should be called pNode
      */ 
     void AddNode(Node<SPACE_DIM>* node)
     {

@@ -33,12 +33,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "Exception.hpp"
 
+/**
+ * Nodemap class used when remeshing. The map associates the indices of nodes 
+ * in the old mesh with indices of nodes in the new mesh.
+ */
 class NodeMap
 {
 private:
+
+    /** The map is stored as an ordered vector of node indices. */
     std::vector<unsigned> mMap;
 
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param size  the size of the NodeMap
+     */
     NodeMap(unsigned size)
     {
         // this used to be reserve, but this acts oddly:
@@ -47,11 +59,19 @@ public:
         mMap.resize(size);
     }
 
+    /**
+     * Resize the NodeMap.
+     * 
+     * @param size  the new size of the NodeMap
+     */
     void Resize(unsigned size)
     {
         mMap.resize(size);
     }
 
+    /**
+     * Reset the NodeMap to the identity map.
+     */
     void ResetToIdentity()
     {
         for (unsigned oldIndex=0; oldIndex<mMap.size(); oldIndex++)
@@ -59,21 +79,44 @@ public:
             mMap[oldIndex] = oldIndex;
         }
     }
+
+    /**
+     * Associate a given old index with a new index.
+     * 
+     * @param oldIndex  the old index of a node
+     * @param newIndex  the new index of a node
+     */
     void SetNewIndex(unsigned oldIndex, unsigned newIndex)
     {
         mMap[oldIndex] = newIndex;
     }
 
+    /**
+     * Mark a given old index as 'deleted' by associating it 
+     * with the new index UINT_MAX.
+     * 
+     * @param index  the old index of a node
+     */
     void SetDeleted(unsigned index)
     {
         mMap[index] = UINT_MAX;
     }
 
+    /**
+     * Get whether a given old index is marked as 'deleted'.
+     * 
+     * @param index  the old index of a node
+     */
     bool IsDeleted(unsigned index)
     {
         return (mMap[index]==UINT_MAX);
     }
 
+    /**
+     * Get the new index associated with a given old index.
+     * 
+     * @param oldIndex  the old index of a node
+     */
     unsigned GetNewIndex(unsigned oldIndex) const
     {
         if (mMap[oldIndex] == UINT_MAX)
@@ -83,6 +126,9 @@ public:
         return (unsigned) mMap[oldIndex];
     }
 
+    /**
+     * Get whether the NodeMap is the identity map.
+     */
     bool IsIdentityMap()
     {
         for(unsigned i=0; i<mMap.size(); i++)
@@ -95,6 +141,9 @@ public:
         return true;
     }
 
+    /**
+     * Get the size of the NodeMap.
+     */
     unsigned Size()
     {
         return mMap.size();

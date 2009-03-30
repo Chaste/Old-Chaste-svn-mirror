@@ -277,38 +277,62 @@ public:
     class ContainingElementIterator
     {
     public:
+        /**
+         * Constructor for a new ContainingElementIterator.
+         * 
+         * @param indexIterator  an index iterator
+         */    
         ContainingElementIterator(std::set<unsigned>::const_iterator indexIterator)
             : mIndexIterator(indexIterator)
         {}
-
+        /**
+         * Prefix dereference operator.
+         */
         const unsigned& operator*() const
         {
             return *mIndexIterator;
         }
-
+        /**
+         * Comparison not-equal-to.
+         *
+         * @param other ContainingElementIterator with which comparison is made
+         */
         bool operator!=(const ContainingElementIterator& other) const
         {
             return mIndexIterator != other.mIndexIterator;
         }
+        /**
+         * Comparison equal-to.
+         *
+         * @param other ContainingElementIterator with which comparison is made
+         */
         bool operator==(const ContainingElementIterator& other) const
         {
             return !operator!=(other);
         }
-
+        /**
+         * Prefix increment operator.
+         */
         ContainingElementIterator& operator++()
         {
             ++mIndexIterator;
             return *this;
         }
     private:
-        std::set<unsigned>::const_iterator mIndexIterator;
+        std::set<unsigned>::const_iterator mIndexIterator;  /**< Element index iterator. */
     };
 
+    /**
+     * Get a ContainingElementIterator pointing to the first containing element
+     */
     ContainingElementIterator ContainingElementsBegin() const
     {
         return ContainingElementIterator(mElementIndices.begin());
     }
 
+    /**
+     * Get a ContainingElementIterator pointing to one past the last containing element
+     */
     ContainingElementIterator ContainingElementsEnd() const
     {
         return ContainingElementIterator(mElementIndices.end());
@@ -320,39 +344,62 @@ public:
     class ContainingBoundaryElementIterator
     {
     public:
+        /**
+         * Constructor for a new ContainingBoundaryElementIterator.
+         * 
+         * @param indexIterator  an index iterator
+         */    
         ContainingBoundaryElementIterator(std::set<unsigned>::const_iterator indexIterator)
             : mIndexIterator(indexIterator)
         {}
-
- 
+        /**
+         * Prefix dereference operator.
+         */
         const unsigned& operator*() const
         {
             return *mIndexIterator;
         }
-
+        /**
+         * Comparison not-equal-to.
+         *
+         * @param other ContainingBoundaryElementIterator with which comparison is made
+         */
         bool operator!=(const ContainingBoundaryElementIterator& other) const
         {
             return mIndexIterator != other.mIndexIterator;
         }
+        /**
+         * Comparison equal-to.
+         *
+         * @param other ContainingBoundaryElementIterator with which comparison is made
+         */
         bool operator==(const ContainingBoundaryElementIterator& other) const
         {
             return !operator!=(other);
         }
-
+        /**
+         * Prefix increment operator.
+         */
         ContainingBoundaryElementIterator& operator++()
         {
             ++mIndexIterator;
             return *this;
         }
     private:
-        std::set<unsigned>::const_iterator mIndexIterator;
+        std::set<unsigned>::const_iterator mIndexIterator;  /**< Boundary element index iterator. */
     };
 
+    /**
+     * Get a ContainingBoundaryElementIterator pointing to the first containing boundary element
+     */
     ContainingBoundaryElementIterator ContainingBoundaryElementsBegin() const
     {
         return ContainingBoundaryElementIterator(mBoundaryElementIndices.begin());
     }
 
+    /**
+     * Get a ContainingBoundaryElementIterator pointing to one past the last containing boundary element
+     */
     ContainingBoundaryElementIterator ContainingBoundaryElementsEnd() const
     {
         return ContainingBoundaryElementIterator(mBoundaryElementIndices.end());

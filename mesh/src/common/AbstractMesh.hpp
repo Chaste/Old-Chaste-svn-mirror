@@ -41,10 +41,30 @@ class AbstractMesh
 {
 private:
 
+    /**
+     * Pure virtual solve node mapping method.
+     * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
+     * 
+     * @param index
+     */
     virtual unsigned SolveNodeMapping(unsigned index) const = 0;
-    virtual unsigned SolveElementMapping(unsigned index) const = 0;        
-    virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0; 
-    
+
+    /**
+     * Pure virtual solve element mapping method.
+     * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
+     * 
+     * @param index
+     */
+    virtual unsigned SolveElementMapping(unsigned index) const = 0;
+
+    /**
+     * Pure virtual solve boundary element mapping method.
+     * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
+     * 
+     * @param index
+     */
+    virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0;
+
 protected:  // Give access of these variables to subclasses
 
     /** Vector of pointers to nodes in the mesh. */
@@ -72,8 +92,11 @@ protected:  // Give access of these variables to subclasses
 
 public:
 
+    /** Definition of element Iterator type. */
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
+    /** Definition of boundary element Iterator type. */
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
+    /** Definition of boundary node Iterator type. */
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
 
     /** 
@@ -217,8 +240,23 @@ public:
      */
     BoundaryNodeIterator GetBoundaryNodeIteratorEnd() const;
 
+    /**
+     * Compute the inverse Jacobian for a given element in the mesh.
+     * 
+     * @param elementIndex index of an element
+     * @param rJacobian  the Jacobian matrix
+     * @param rJacobianDeterminant  the determinant of the Jacobian matrix
+     * @param rInverseJacobian  the inverse Jacobian matrix
+     */
     virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
 
+    /**
+     * Compute the weighted direction for a given boundary element.
+     * 
+     * @param elementIndex index of an element
+     * @param rWeightedDirection the weighted direction vector
+     * @param rJacobianDeterminant  the determinant of the Jacobian matrix
+     */
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
 
     /** 

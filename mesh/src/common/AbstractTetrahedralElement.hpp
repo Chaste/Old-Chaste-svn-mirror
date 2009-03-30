@@ -39,7 +39,12 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralElement : public AbstractElement<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
-    
+
+    /**
+     * Refresh the Jacobian for this element.
+     * 
+     * @param rJacobian  the Jacobian matrix
+     */
     void RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian)
     {
         if (this->mIsDeleted)
@@ -81,7 +86,14 @@ public:
     virtual ~AbstractTetrahedralElement()
     {}
 
+    /**
+     * \todo This method does not appear to be used anywhere - remove it?
+     */
     void ZeroJacobianDeterminant(void);
+
+    /**
+     * \todo This method does not appear to be used anywhere - remove it?
+     */
     void ZeroWeightedDirection(void);
 
     /**
@@ -97,11 +109,31 @@ public:
         return centroid/((double)(ELEMENT_DIM + 1));
     }
 
-///////////////////////////////////
+    /**
+     * Compute the Jacobian for this element.
+     * 
+     * @param rJacobian  the Jacobian matrix
+     * @param rJacobianDeterminant  the determinant of the Jacobian
+     * @param concreteMove \todo this argument is not used in the method - should it be removed? (defaults to true)
+     */
     void CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove=true);
+
+    /**
+     * Compute the weighted direction for this element.
+     * 
+     * @param rWeightedDirection  the weighted direction vector
+     * @param rJacobianDeterminant  the determinant of the Jacobian
+     * @param concreteMove \todo this argument is not used in the method - should it be removed? (defaults to true)
+     */
     void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove=true);
 
-
+    /**
+     * Compute the inverse Jacobian for this element.
+     * 
+     * @param rJacobian  the Jacobian matrix
+     * @param rJacobianDeterminant  the determinant of the Jacobian
+     * @param rInverseJacobian  the inverse Jacobian matrix
+     */
     void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) //const
     {
         assert(ELEMENT_DIM==SPACE_DIM);        

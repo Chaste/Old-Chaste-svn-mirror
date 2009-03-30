@@ -43,13 +43,6 @@ Element<ELEMENT_DIM, SPACE_DIM>::Element(unsigned index, std::vector<Node<SPACE_
     RegisterWithNodes();
 }
 
-
-/**
- * Copy constructor which allows a new index to be specified.
- * 
- * \todo this is rather dubious; a factory method might be better.
- */
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Element<ELEMENT_DIM, SPACE_DIM>::Element(const Element &element, const unsigned index)
 {
