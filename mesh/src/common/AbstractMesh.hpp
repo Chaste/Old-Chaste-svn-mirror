@@ -82,6 +82,7 @@ protected:  // Give access of these variables to subclasses
     /** Vector containing the number of nodes owned by each processor. */
     std::vector<unsigned> mNodesPerProcessor;
 
+    /** Vector containing node permutation information. */
     std::vector<unsigned> mNodesPermutation;
 
     /** 

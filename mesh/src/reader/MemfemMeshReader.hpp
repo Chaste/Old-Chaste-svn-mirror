@@ -69,7 +69,7 @@ public:
  *    AbstractMeshReader *pMeshReader=new MemfemMeshReader(
  *                        "pdes/tests/meshdata/Memfem_slab");
  * 
- * @param pathBaseName
+ * @param pathBaseName  the base name of the files from which to read the mesh data
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseName)

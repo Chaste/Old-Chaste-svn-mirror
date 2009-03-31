@@ -38,10 +38,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include "Exception.hpp"
 
+/**
+ * Helper structure that stores the nodes and any attribute value
+ * associated with an Element.
+ */
 struct ElementData 
 {
-    std::vector<unsigned> NodeIndices;
-    unsigned AttributeValue;
+    std::vector<unsigned> NodeIndices; /**< Vector of Node indices owned by the element. */
+    unsigned AttributeValue; /**< Attribute value associated with the element. */
 };
 
 /**

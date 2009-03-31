@@ -41,6 +41,12 @@ const static char* ELEMENTS_FILE_EXTENSION = ".ele";
 const static char* FACES_FILE_EXTENSION = ".face";
 const static char* EDGES_FILE_EXTENSION = ".edge";
 
+/**
+ * Concrete version of the AbstractCachedMeshReader class.
+ * Once constructed the public methods of the AbstractCachedMeshReader
+ * (std::vector<double> GetNextNode(); etc) can be called to interrogate the
+ * data.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>
 {
@@ -54,25 +60,32 @@ private:
     std::ifstream mElementsFile;
     std::ifstream mFacesFile;
 
-    unsigned mNumNodes;
-    unsigned mNumElements;
-    unsigned mNumFaces;
+    unsigned mNumNodes;             /**< Number of nodes in the mesh. */
+    unsigned mNumElements;          /**< Number of elements in the mesh. */
+    unsigned mNumFaces;             /**< Number of faces in the mesh. */
     
-    unsigned mNodesRead;
-    unsigned mElementsRead;
-    unsigned mFacesRead;
-    unsigned mBoundaryFacesRead;
+    unsigned mNodesRead;            /**< Number of nodes read in. */
+    unsigned mElementsRead;         /**< Number of elements read in. */
+    unsigned mFacesRead;            /**< Number of faces read in. */
+    unsigned mBoundaryFacesRead;    /**< Number of boundary faces read in. */
 
-    unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
-    unsigned mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
-    unsigned mNumElementNodes; /** Is the number of nodes per element*/
+    unsigned mNumNodeAttributes;    /**< Is the number of attributes stored at each node */
+    unsigned mMaxNodeBdyMarker;     /**< Is the maximum node boundary marker */
+    unsigned mNumElementNodes;      /** Is the number of nodes per element*/
     unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
-    unsigned mNumFaceAttributes; /**< Is the number of attributes stored for each face */
+    unsigned mNumFaceAttributes;    /**< Is the number of attributes stored for each face */
 
     unsigned mOrderOfElements;
     unsigned mNodesPerElement;
 
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param pathBaseName  the base name of the files from which to read the mesh data
+     * @param orderOfElements  defaults to 1
+     */
     TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements=1):
         mFilesBaseName(pathBaseName),
         mNumNodes(0),
@@ -157,7 +170,6 @@ public:
         mFacesRead=0;
         mBoundaryFacesRead=0;        
     } 
-
 
     /**< Returns a vector of the coordinates of each node in turn */
     std::vector<double> GetNextNode()

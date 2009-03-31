@@ -72,7 +72,15 @@ class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
 
 private:
+
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Serialize the mesh.
+     * 
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -86,15 +94,21 @@ private:
     unsigned SolveBoundaryElementMapping(unsigned index) const;    
 
 protected:
-    
+
     std::vector< c_vector<double, SPACE_DIM> > mElementWeightedDirections; 
-    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementJacobians;    
+
+    /** Vector storing the Jacobian matrix for each element in the mesh. */
+    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementJacobians;
+    
+    /** Vector storing the inverse Jacobian matrix for each element in the mesh. */
     std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
     std::vector<double> mElementJacobianDeterminants;
 
     std::vector< c_vector<double, SPACE_DIM> > mBoundaryElementWeightedDirections;
+
+    /** Vector storing the determinant of the Jacobian matrix for each boundary element in the mesh. */
     std::vector<double> mBoundaryElementJacobianDeterminants;
-            
+
 public:
 
     /**
@@ -143,7 +157,7 @@ public:
      * Translate the mesh given the displacement vector.
      * This is the translation method that actually does the work.
      * 
-     * @param transVec is a translation vector of the correct size
+     * @param displacement is a translation vector of the correct size
      */
     void Translate(c_vector<double, SPACE_DIM> displacement);
 
@@ -242,7 +256,7 @@ public:
     /**
      * Construct a 1D linear grid on [0,width]
      * 
-     * @param width
+     * @param width  width of the mesh (in the x-direction)
      */
     void ConstructLinearMesh(unsigned width);
 
@@ -252,8 +266,8 @@ public:
      * Diagonals can be staggered so that there is no preferred 
      * diffusion propagation direction.
      * 
-     * @param width
-     * @param height
+     * @param width  width of the mesh (in the x-direction)
+     * @param height  height of the mesh (in the y-direction)
      * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
      */
     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
@@ -263,7 +277,10 @@ public:
      * 
      * Diagonals can be staggered so that there is no preferred 
      * diffusion propagation direction.
-     *
+     * 
+     * @param width  width of the mesh (in the x-direction)
+     * @param height  height of the mesh (in the y-direction)
+     * @param depth  depth of the mesh (in the z-direction)
      * @param stagger  whether the mesh should 'jumble' up the elements (defaults to false)
      */
     void ConstructCuboid(unsigned width, unsigned height, unsigned depth, bool stagger=false);
@@ -296,7 +313,7 @@ public:
      */
     std::vector<unsigned> GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint);
 
-//    /**
+//    /*
 //     * Sets the ownership of each element according to which nodes are owned by the
 //     * process.
 //     * @param lo is the lowest node number owned by the process
@@ -344,7 +361,10 @@ public:
 
     /**
      * Calcuate the angle between the node at indexB and the x axis about
-     * the node at indexA. The angle returned is in the range (-pi,pi]
+     * the node at indexA. The angle returned is in the range (-pi,pi].
+     *
+     * @param indexA a node index
+     * @param indexB a node index
      */
     double GetAngleBetweenNodes(unsigned indexA, unsigned indexB);
 
@@ -366,10 +386,15 @@ public:
      */
     c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
 
+    /**
+     * Unflag all elements in the mesh.
+     */
     void UnflagAllElements();
 
     /**
-     *  Flag all elements not containing ANY of the given nodes
+     * Flag all elements not containing ANY of the given nodes
+     * 
+     * @param nodesList  List of nodes to check for
      */
     void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
 
@@ -390,7 +415,7 @@ public:
 //    double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const;
 
     /**
-     * Iterator over edges in the mesh, which correspond to springs between cells.
+     * Iterator over edges in the mesh.
      *
      * This class takes care of the logic to make sure that you consider each edge exactly once.
      */
@@ -406,6 +431,11 @@ public:
          */
         Node<SPACE_DIM>* GetNodeB();
 
+        /**
+         * Comparison not-equal-to.
+         * 
+         * @param other edge iterator with which comparison is made
+         */
         bool operator!=(const EdgeIterator& other);
 
         /**
@@ -414,7 +444,10 @@ public:
         EdgeIterator& operator++();
 
         /**
-         * Constructor for a new iterator.
+         * Constructor for a new edge iterator.
+         * 
+         * @param rMesh  The mesh
+         * @param elemIndex  An element index
          */
         EdgeIterator(TetrahedralMesh& rMesh, unsigned elemIndex);
 
@@ -422,13 +455,13 @@ public:
         /** Keep track of what edges have been visited */
         std::set<std::set<unsigned> > mEdgesVisited;
 
-        TetrahedralMesh& mrMesh;
+        TetrahedralMesh& mrMesh;   /**< The mesh. */
 
-        unsigned mElemIndex;
-        unsigned mNodeALocalIndex;
-        unsigned mNodeBLocalIndex;
-        unsigned mCellIndex;
-        unsigned mNodeIndex;
+        unsigned mElemIndex;       /**< Element index. */
+        unsigned mNodeALocalIndex; /**< Index of one node on the edge. */
+        unsigned mNodeBLocalIndex; /**< Index of the other node on the edge. */
+        unsigned mCellIndex;       /**< Cell index. \todo This doesn't appear to be used anywhere - remove it? */
+        unsigned mNodeIndex;       /**< Node index. \todo This doesn't appear to be used anywhere - remove it? */
         
     };
 

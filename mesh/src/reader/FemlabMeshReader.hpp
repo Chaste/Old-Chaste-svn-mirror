@@ -68,7 +68,7 @@ public:
  *                        "femlab_lshape_elements.dat",
  *                        "femlab_lshape_edges.dat",);
  * 
- * @param pathBaseName
+ * @param pathBaseName  the base name of the files from which to read the mesh data
  * @param nodeFileName
  * @param elementFileName
  * @param edgeFileName
@@ -123,7 +123,6 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
  * 
  * @param rawData
  */
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector < std::vector < double > >
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector < std::string >

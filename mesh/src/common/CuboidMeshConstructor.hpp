@@ -37,29 +37,59 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //const double mesh_width = 0.2; // cm
 
+/**
+ * Helper class for constructing cuboidal meshes.
+ */
 template<unsigned DIM>
 class CuboidMeshConstructor
 {
 private:
 
+    /**
+     * Construct a one-dimensional linear mesh.
+     * 
+     * @param rMesh  The mesh
+     * @param width  Width of the mesh
+     */
     void ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width)
     {
         rMesh.ConstructLinearMesh(width);
     }
+
+    /**
+     * Construct a two-dimensional rectangular mesh.
+     * 
+     * @param rMesh  The mesh
+     * @param width  Width of the mesh
+     */
     void ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width)
     {
         rMesh.ConstructRectangularMesh(width, width);
     }
+
+    /**
+     * Construct a three-dimensional cuboidal mesh.
+     * 
+     * @param rMesh  The mesh
+     * @param width  Width of the mesh
+     */
     void ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width)
     {
         rMesh.ConstructCuboid(width, width, width);
     }
 
 public:
-    double mMeshWidth;
-    unsigned NumElements;
-    unsigned NumNodes;
 
+    double mMeshWidth; /**< Width of the mesh. */
+    unsigned NumElements; /**< Number of elements in the mesh. \todo Should be mNumElements */
+    unsigned NumNodes; /**< Number of nodes in the mesh. \todo Should be mNumNodes  */
+
+    /**
+     * Construct the mesh.
+     * 
+     * @param meshNum  Index for the mesh
+     * @param meshWidth  Width of the mesh
+     */
     std::string Construct(unsigned meshNum, double meshWidth)
     {
         mMeshWidth=meshWidth;
@@ -92,6 +122,9 @@ public:
         return mesh_pathname;
     }
 
+    /**
+     * Get the width of the mesh.
+     */
     double GetWidth()
     {
         return mMeshWidth;
