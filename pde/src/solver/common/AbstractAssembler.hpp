@@ -104,9 +104,9 @@ protected:
      *   @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      *   @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      *   @param rX The point in space
-     *   @param u The unknown as a vector, u(i) = u_i
+     *   @param u The unknown as a vector, u(i) = u_i \todo should this be rU?
      *   @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
-     *
+     *   @param pElement Pointer to the element
      */
     virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -134,6 +134,7 @@ protected:
      *   @param rX The point in space
      *   @param u The unknown as a vector, u(i) = u_i
      *   @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     *   @param pElement Pointer to the element
      */
     virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -174,9 +175,6 @@ protected:
      *  @param rBElem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
-     *  @param currentSolutionOrGuess For the parabolic linear case, the solution at the current
-     *     timestep. NULL for the static linear case. In the nonlinear case, the current
-     *     guess.
      *  @param assembleVector a bool stating whether to assemble the load vector (in the
      *     linear case) or the residual vector (in the nonlinear case)
      *  @param assembleMatrix a bool stating whether to assemble the stiffness matrix (in

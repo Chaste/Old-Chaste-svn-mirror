@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  An incompressible, isotropic, hyperelastic material law with a polynomial form
  *
- *  W(I_1,I_2)  =  \Sigma_{0<p+q<=N}  alpha_{pq} (I_1-3)^p (I_2-3)^q   -  (pressure/2) C^{-1}
+ *  W(I_1,I_2)  =  Sigma_{0<p+q<=N}  alpha_{pq} (I_1-3)^p (I_2-3)^q   -  (pressure/2) C^{-1}
  *
  *  For example, if N=1, this reduces to the Mooney Rivlin law
  *     W(I_1,I_2)  =  alpha_{10} (I_1-3) +  alpha_{01} (I_2-3)   -  (pressure/2) C^{-1}

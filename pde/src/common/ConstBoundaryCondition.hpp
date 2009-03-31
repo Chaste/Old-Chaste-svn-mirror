@@ -37,6 +37,7 @@ template<unsigned SPACE_DIM>
 class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private:
+    /** The constant value of the boundary condition. */
     double mValue;
 
 public:
@@ -49,10 +50,10 @@ public:
     ConstBoundaryCondition(const double value);
 
     /**
-     * @param x The point at which this boundary condition is to be evaluated.
+     * @param rX The point at which this boundary condition is to be evaluated.
      * @return The constant value given in the constructor.
      */
-    double GetValue( const ChastePoint<SPACE_DIM>& ) const;
+    double GetValue(const ChastePoint<SPACE_DIM>& rX) const;
 };
 
 #endif //_CONSTBOUNDARYCONDITION_HPP_

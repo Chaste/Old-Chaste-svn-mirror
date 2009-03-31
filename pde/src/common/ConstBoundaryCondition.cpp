@@ -35,7 +35,7 @@ ConstBoundaryCondition<SPACE_DIM>::ConstBoundaryCondition(const double value)
 }
 
 template<unsigned SPACE_DIM>
-double ConstBoundaryCondition<SPACE_DIM>::GetValue( const ChastePoint<SPACE_DIM>& ) const
+double ConstBoundaryCondition<SPACE_DIM>::GetValue(const ChastePoint<SPACE_DIM>& rX) const
 {
     return mValue;
 }

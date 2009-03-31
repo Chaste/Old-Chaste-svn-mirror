@@ -58,7 +58,7 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 public:
-    /// Type of a read-only iterator over Neumann conditions
+    /** Type of a read-only iterator over Neumann conditions. */
     typedef typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         NeumannMapIterator;
 
@@ -97,6 +97,8 @@ public:
      *
      * @param pBoundaryNode Pointer to a node on the boundary.
      * @param pBoundaryCondition Pointer to the dirichlet boundary condition at that node.
+     * @param indexOfUnknown defaults to 0
+     * @param checkIfBoundaryNode defaults to true
      */
     void AddDirichletBoundaryCondition( const Node<SPACE_DIM> *  pBoundaryNode,
                                         const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition,
@@ -118,8 +120,9 @@ public:
      * Take care if using non-zero neumann boundary conditions in 1d. If applied at
      * the left hand end you need to multiply the value by -1 to get the right answer.
      *
-     * @param pBoundaryElement Pointer to an element on the boundary.
-     * @param pBoundaryCondition Pointer to the neumann boundary condition on that element.
+     * @param pBoundaryElement Pointer to an element on the boundary
+     * @param pBoundaryCondition Pointer to the neumann boundary condition on that element
+     * @param indexOfUnknown defaults to 0
      */
     void AddNeumannBoundaryCondition( const BoundaryElement<ELEM_DIM-1, SPACE_DIM> * pBoundaryElement,
                                       const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition,
@@ -130,7 +133,8 @@ public:
      * This function defines zero dirichlet boundary conditions on every boundary node
      * of the mesh.
      *
-     * @param pMesh Pointer to a mesh object, from which we extract the boundary.
+     * @param pMesh Pointer to a mesh object, from which we extract the boundary
+     * @param indexOfUnknown defaults to 0
      */
     void DefineZeroDirichletOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                            unsigned indexOfUnknown = 0);
@@ -139,8 +143,9 @@ public:
      * This function defines constant dirichlet boundary conditions on every boundary node
      * of the mesh.
      *
-     * @param pMesh Pointer to a mesh object, from which we extract the boundary.
+     * @param pMesh Pointer to a mesh object, from which we extract the boundary
      * @param value the value of the constant Dirichlet boundary condition
+     * @param indexOfUnknown defaults to 0
      */
     void DefineConstantDirichletOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                                double value,
@@ -151,7 +156,8 @@ public:
      * This function defines zero neumann boundary conditions on every boundary element
      * of the mesh.
      *
-     * @param pMesh Pointer to a mesh object, from which we extract the boundary.
+     * @param pMesh Pointer to a mesh object, from which we extract the boundary
+     * @param indexOfUnknown defaults to 0
      */
     void DefineZeroNeumannOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                          unsigned indexOfUnknown = 0);
@@ -181,7 +187,9 @@ public:
      * If the number of unknowns is greater than one, it is assumed the solution vector is
      * of the form (in the case of two unknowns u and v, and N nodes):
      * solnvec = (U_1, V_1, U_2, V_2, ...., U_N, V_N)
-     *
+     * 
+     * @param currentSolution
+     * @param residual
      */
     void ApplyDirichletToNonlinearResidual(const Vec currentSolution, Vec residual);
 
@@ -192,7 +200,8 @@ public:
      * If the number of unknowns is greater than one, it is assumed the solution vector is
      * of the form (in the case of two unknowns u and v, and N nodes):
      * solnvec = (U_1, V_1, U_2, V_2, ...., U_N, V_N)
-     *
+     * 
+     * @param jacobian
      */
     void ApplyDirichletToNonlinearJacobian(Mat jacobian);
 
@@ -217,6 +226,10 @@ public:
      * Obtain value of neumann boundary condition at a specified point in a given surface element
      *
      * It is up to the user to ensure that the point x is contained in the surface element.
+     * 
+     * @param pSurfaceElement
+     * @param x \todo should this be rX?
+     * @param indexOfUnknown defaults to 0
      */
     double GetNeumannBCValue(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
                              const ChastePoint<SPACE_DIM>& x,
@@ -228,6 +241,9 @@ public:
      *
      * \todo
      * This is a horrendously inefficient fix. Perhaps have flag in element object?
+     * 
+     * @param pSurfaceElement
+     * @param indexOfUnknown defaults to 0
      */
     bool HasNeumannBoundaryCondition(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
                                      unsigned indexOfUnknown = 0);

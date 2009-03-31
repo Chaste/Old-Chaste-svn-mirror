@@ -51,15 +51,25 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractFunctionalCalculator
 {
 private:
-    /** replicated store of the solution vector */
+    /** Replicated store of the solution vector. */
     ReplicatableVector mSolutionReplicated;
 
-    /** The integrand. Must be defined by the user */
+    /**
+     * Get the integrand. Must be defined by the user.
+     * 
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i 
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     */
     virtual double GetIntegrand(ChastePoint<SPACE_DIM> &rX,
                                 c_vector<double,PROBLEM_DIM> &rU,
                                 c_matrix<double,PROBLEM_DIM,SPACE_DIM> &rGradU)=0;
 
-    /** Compute the contribution to the integral from one element */
+    /**
+     * Compute the contribution to the integral from one element.
+     * 
+     * @param rElement The element
+     */
     double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement)
     {
         double result_on_element = 0;
@@ -124,12 +134,20 @@ private:
 
 
 public:
+
+    /**
+     * Destructor.
+     */
     virtual ~AbstractFunctionalCalculator()
     {
     }
 
-    /** Calculate the integral over the given mesh, using the given solution
-     *  vector on the mesh.
+    /**
+     * Calculate the integral over the given mesh, using the given solution
+     * vector on the mesh.
+     * 
+     * @param rMesh  The mesh
+     * @param solution  The solution vector
      */
     double Calculate(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
                      Vec solution)

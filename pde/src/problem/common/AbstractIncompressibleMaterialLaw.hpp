@@ -84,7 +84,7 @@ public :
      *
      *  @param F the deformation gradient
      *  @param pressure the pressure
-     *  @sigma sigma an empty matrix, which will be filled in with the Cauchy stress
+     *  @param sigma an empty matrix, which will be filled in with the Cauchy stress
      *
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
@@ -104,7 +104,7 @@ public :
      *
      *  @param F the deformation gradient
      *  @param pressure the pressure
-     *  @sigma S an empty matrix, which will be filled in with the stress
+     *  @param S an empty matrix, which will be filled in with the stress
      *
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
@@ -119,7 +119,7 @@ public :
      *
      *  @param C the Lagrange deformation tensor (C=F^T F), *not* F, and *not* E
      *  @param pressure the pressure
-     *  @sigma T an empty matrix, which will be filled in with the stress
+     *  @param T an empty matrix, which will be filled in with the stress
      *
      *  Note: to compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
@@ -131,6 +131,9 @@ public :
      */
     virtual double GetZeroStrainPressure()=0;
 
+    /**
+     * Destructor.
+     */
     virtual ~AbstractIncompressibleMaterialLaw();
 
     /**
