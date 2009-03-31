@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<class> struct pack;
 /** Argument pack for macros. */
 template<class T> struct pack<void (T)> {
-    typedef T type;
+    typedef T type; /**< Type definition. */
 };
 
 #define EXPORT_TEMPLATE_CLASS2(CLASS, E, S) \

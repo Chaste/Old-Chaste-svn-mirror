@@ -41,11 +41,37 @@ class AbstractNonlinearSolver
 {
 
 public:
+
+    /**
+     * Pure virtual Solve() method.
+     *
+     * @param pComputeResidual points to the function which
+     * computes the residual, it must take arguments SNES (a PETSc nonlinear solver
+     * object), Vec (current guess - a vector of the correct size), Vec (a Vec of the
+     * correct size in which the residual is returned), void* (a pointer to
+     * anything you may need to refer to when calculating the residual)
+     *
+     * @param pComputeJacobian points to
+     * the function which computes the Jacobian, it must take arguments SNES (a PETSc
+     * nonlinear solver * object), Mat* (a pointer to the Jacobian matrix) ,Mat* (a pointer
+     * to a preconditioner matrix), MatStructure* (points to the PETSc matrix type e.g. AIJ), void* (a pointer to
+     * anything you may need to refer to when calculating the residual).
+     *
+     * @param initialGuess A PETSc Vec of the correct size, containing initial guesses
+     * for the nonlinear solver.
+     *
+     * @param pContext [optional] A pointer to a class that may have to be used in the
+     *  ComputeResidual and ComputeJacobian functions
+     *
+     * @return Returns a PETSc Vec of the solution.
+     */
     virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec initialGuess,
                       void *pContext)=0;
-
+    /**
+     * Destructor.
+     */
     virtual ~AbstractNonlinearSolver()
     {}
 };
