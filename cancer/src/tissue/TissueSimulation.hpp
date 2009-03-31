@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * (doi:10.1046/j.0960-7722.2001.00216.x)
  *
  * Cells are represented by their centres in space, they are connected by
- * springs defined by the cells' Delaunay/Voronoi tesselation.
+ * springs defined by the cells' Delaunay/Voronoi tessellation.
  *
  * The spring lengths are governed by the equations
  * dr/dt = stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-s0)
