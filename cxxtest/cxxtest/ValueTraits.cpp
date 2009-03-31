@@ -130,6 +130,17 @@ namespace CxxTest
             s = numberToString( (unsigned)(t *= BASE) % BASE, s );
     }
 
+    void ValueTraits<const double>::nonFiniteNumber( double t )
+    {
+        char *s = _asString;
+        if ( t != t )
+            s = copyString( s, "nan" );
+        else if ( t == std::numeric_limits<double>::infinity() )
+            s = copyString( s, "-inf" );
+        else if ( t == -std::numeric_limits<double>::infinity() )
+            s = copyString( s, "inf" );
+    }
+
     char *ValueTraits<const double>::doubleToString( double t, char *s, unsigned skip, unsigned max )
     {
         return numberToString<double>( t, s, BASE, skip, max );

@@ -11,6 +11,7 @@
 //
 
 #include <cxxtest/Flags.h>
+#include <limits>
 
 #ifdef _CXXTEST_OLD_TEMPLATE_SYNTAX
 #   define CXXTEST_TEMPLATE_INSTANTIATION
@@ -312,8 +313,13 @@ namespace CxxTest
     public:
         ValueTraits( double t ) 
         {
-            ( requiredDigitsOnLeft( t ) > MAX_DIGITS_ON_LEFT ) ?
-                hugeNumber( t ) :
+            if ( ( t != t ) ||
+                 ( t == std::numeric_limits<double>::infinity() ) ||
+                 ( t == -std::numeric_limits<double>::infinity() ) )
+                nonFiniteNumber( t );
+            else if ( requiredDigitsOnLeft( t ) > MAX_DIGITS_ON_LEFT )
+                hugeNumber( t );
+            else
                 normalNumber( t );
         }
 
@@ -327,6 +333,7 @@ namespace CxxTest
         char *doNegative( double &t );
         void hugeNumber( double t );
         void normalNumber( double t );
+        void nonFiniteNumber( double t );
         char *doubleToString( double t, char *s, unsigned skip = 0, unsigned max = (unsigned)-1 );
     };
 
