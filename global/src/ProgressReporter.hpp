@@ -34,9 +34,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  This class creates a file ('progress_status.txt' in the specified directory
- *  and writes "n% completed" etc in the file when  *  n% of a simulation has
- *  been done, for integer n.
+ *  This class creates the file 'progress_status.txt' in the specified directory
+ *  and writes "n% completed" etc in the file when n% of a simulation has been 
+ *  done, for integer n.
+ * 
+ *  You can watch the progress of your simulation by doing one of 
+ *  a) watch tail <dir>/progress_status.txt
+ *  b) tail -f <dir>/progress_status.txt
  */
 class ProgressReporter
 {
