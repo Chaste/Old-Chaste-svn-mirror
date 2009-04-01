@@ -45,8 +45,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MultiStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "CellProperties.hpp"
 
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
@@ -725,6 +727,111 @@ public:
         // Check against validated data 
         // (the code for the mahajan model was generated from a CellML code known to be valid)
         CheckCellModelResults("Mahajan2008");
+     }
+     
+     void TestScaleFactorsForMahajanModel(void) throw(Exception)
+     {
+     	double end_time=300;
+     	double time_step=0.01;
+        double sampling_time=time_step;
+        
+        // Set stimulus
+        double magnitude_stimulus = -70.0;   // pA/pF
+        double duration_stimulus = 1.0;  // ms
+        double start_stimulus = 10.0;   // ms
+        double period=1000;//here, this is ms
+        RegularStimulus stimulus(magnitude_stimulus,
+                                  duration_stimulus,
+                                  period,
+                                  start_stimulus);
+       
+        EulerIvpOdeSolver forward_solver; //define the solver
+        Mahajan2008OdeSystem forward_model(&forward_solver, &stimulus);      
+        BackwardEulerIvpOdeSolver backward_solver(forward_model.GetNumberOfStateVariables());
+        
+        Mahajan2008OdeSystem epicardial_model(&backward_solver, &stimulus);
+        Mahajan2008OdeSystem endocardial_model(&backward_solver, &stimulus);
+        Mahajan2008OdeSystem midmyocardial_model(&backward_solver, &stimulus);
+        
+        epicardial_model.SetScaleFactorGks(1.0); 
+        epicardial_model.SetScaleFactorIto(1.0);
+        epicardial_model.SetScaleFactorGkr(1.0);   
+        
+        midmyocardial_model.SetScaleFactorGks(0.7); 
+        midmyocardial_model.SetScaleFactorIto(0.24);
+        midmyocardial_model.SetScaleFactorGkr(1.0);
+        
+        endocardial_model.SetScaleFactorGks(0.12); 
+        endocardial_model.SetScaleFactorIto(1.0);
+        endocardial_model.SetScaleFactorGkr(1.0);
+        
+        std::vector<double> state_variables_epi = epicardial_model.GetInitialConditions();
+        std::vector<double> state_variables_endo = endocardial_model.GetInitialConditions();
+        std::vector<double> state_variables_mid = midmyocardial_model.GetInitialConditions();
+        
+        const std::string mahajan_epi_file = "Mahajan_epi";
+        const std::string mahajan_mid_file = "Mahajan_mid";
+        const std::string mahajan_endo_file = "Mahajan_endo";
+        
+        // Solve and write to file
+       
+        OdeSolution epi_solution;
+        epi_solution = backward_solver.Solve(&epicardial_model, state_variables_epi, 0, end_time, time_step, sampling_time);
+        
+        epi_solution.WriteToFile("TestIonicModels",
+                              mahajan_epi_file,
+                              &epicardial_model,
+                              "ms",//time units
+                              100,//steps per row
+                              false);/*true cleans the directory*/
+                              
+        OdeSolution mid_solution;
+        mid_solution = backward_solver.Solve(&midmyocardial_model, state_variables_mid, 0, end_time, time_step, sampling_time);
+        
+        mid_solution.WriteToFile("TestIonicModels",
+                              mahajan_mid_file,
+                              &epicardial_model,
+                              "ms",//time units
+                              100,//steps per row
+                              false);/*true cleans the directory*/
+                              
+        OdeSolution endo_solution;
+        endo_solution = backward_solver.Solve(&endocardial_model, state_variables_endo, 0, end_time, time_step, sampling_time);
+        
+        endo_solution.WriteToFile("TestIonicModels",
+                              mahajan_endo_file,
+                              &midmyocardial_model,
+                              "ms",//time units
+                              100,//steps per row
+                              false);/*true cleans the directory*/
+                              
+                              
+        ColumnDataReader data_reader_epi("TestIonicModels", mahajan_epi_file);
+        ColumnDataReader data_reader_mid("TestIonicModels", mahajan_mid_file);
+        ColumnDataReader data_reader_endo("TestIonicModels", mahajan_endo_file);
+        
+        std::vector<double> times = data_reader_epi.GetValues("Time");      
+        std::vector<double> v_endo = data_reader_endo.GetValues("V");
+        std::vector<double> v_epi = data_reader_epi.GetValues("V");
+        std::vector<double> v_mid = data_reader_mid.GetValues("V");
+              
+        CellProperties  cell_properties_endo(v_endo, times);
+        CellProperties  cell_properties_epi(v_epi, times);
+        CellProperties  cell_properties_mid(v_mid, times);
+        
+        double epi_APD = cell_properties_epi.GetLastActionPotentialDuration(90);
+        double endo_APD = cell_properties_endo.GetLastActionPotentialDuration(90);
+        double mid_APD = cell_properties_mid.GetLastActionPotentialDuration(90);
+        
+        std::cout<<"\n"<<"Epicardial APD90 is "<<epi_APD; 
+        std::cout<<"\n"<<"Midmyocardial APD90 is "<<mid_APD;
+        std::cout<<"\n"<<"Endpcardial APD90 is "<<endo_APD<<"\n";
+        
+        //check that percentage increase from epi to mid and endo (roughly) matches results 
+        // from Idriss et al J Card Electr, 15:795-801. 2004, figure 4C for an adult rabbit
+        TS_ASSERT_DELTA((mid_APD-epi_APD)*100/epi_APD, 11.4, 2);
+        TS_ASSERT_DELTA((endo_APD-epi_APD)*100/epi_APD, 33.7, 2);
+        
      }
 
 
