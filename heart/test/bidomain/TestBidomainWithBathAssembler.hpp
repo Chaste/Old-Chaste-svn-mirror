@@ -365,14 +365,27 @@ public:
         
 	std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
 
+	unsigned node_50;
+	unsigned node_70;
+
+	// In sequential the permutation vector is empty
+	if (permutation.size() > 0)
+	  {
+	    node_50 = permutation[50];
+	    node_70 = permutation[70];
+	  }
+	else
+	  {
+	    node_50 = 50;
+	    node_70 = 70;
+	  }
+
         // a couple of hardcoded value
-	unsigned node_50 = permutation[50];
-	unsigned node_70 = permutation[70];
         TS_ASSERT_DELTA(sol_repl[2*node_50], 28.3912, 1e-3);
         TS_ASSERT_DELTA(sol_repl[2*node_70], 28.3912, 1e-3);
     }
 
-    void xTest2dBathInputFluxEqualsOutputFlux() throw (Exception)
+    void Test2dBathInputFluxEqualsOutputFlux() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(3.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dFluxCompare");
@@ -453,7 +466,7 @@ public:
         TS_ASSERT(ap_triggered); 
     }
     
-    void xTestMatrixBasedAssembledBath(void)
+    void TestMatrixBasedAssembledBath(void)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
                 
