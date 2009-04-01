@@ -124,7 +124,33 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
 {
     for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
     {
-        if(this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // ie is a bath node
+      /*
+       *  ZeroMatrixColumn and ZeroMatrixRow are collective operations so we need all the processors
+       * calling them. When using ParallelTetrahedralMesh the knowledge about which nodes are bath
+       * is distributed. Processors need to agree before zeroing.
+       */
+      unsigned is_node_bath;
+
+      try
+	{
+	  if (this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+	    {
+	      is_node_bath = 1;
+	    }
+	  else
+	    {
+	      is_node_bath = 0;
+	    }
+	}
+      catch(Exception& e)
+	{
+	  is_node_bath = 0;
+	}
+
+      unsigned is_node_bath_reduced;
+      MPI_Allreduce(&is_node_bath, &is_node_bath_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+     
+      if(is_node_bath_reduced > 0) // ie is a bath node
         {
             PetscInt index[1];
             index[0] = 2*i;
