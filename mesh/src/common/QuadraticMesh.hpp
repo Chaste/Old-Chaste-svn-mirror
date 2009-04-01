@@ -34,13 +34,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+/**
+ * A concrete quadratic mesh class that inherits from TetrahedralMesh.
+ */
 template<unsigned DIM>
 class QuadraticMesh : public TetrahedralMesh<DIM, DIM>
 {    
 private:
+
     /**
-     *  vector of bools, one for one node, saying whether the node is internal 
-     *  (if not, it is a vertex).
+     * Vector of bools, one for one node, saying whether the node is internal 
+     * (if not, it is a vertex).
      */
     std::vector<bool> mIsInternalNode;
 
@@ -48,36 +52,81 @@ private:
     unsigned mNumVertices;
 
     /**
-     *  Load a quadratic mesh from a file
+     * Load a quadratic mesh from a file.
+     * 
+     * @param fileName  the name of the file to load the mesh from
      */
     void LoadFromFile(const std::string& fileName);
     
     /**
-     *  This method adds the given node (defined by an element and a node index)
-     *  to the given boundary element, and also sets the node as a boundary
-     *  element and adds it to the std::vector of boundary elements
+     * This method adds the given node (defined by an element and a node index)
+     * to the given boundary element, and also sets the node as a boundary
+     * element and adds it to the std::vector of boundary elements.
+     * 
+     * @param pBoundaryElement  pointer to a boundary element in the mesh
+     * @param pElement  pointer to an element in the mesh
+     * @param internalNode  index of a node in the mesh
      */
     void AddNodeToBoundaryElement(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
                                   Element<DIM,DIM>* pElement,
                                   unsigned internalNode);
 
-    /** Given a face in an element (defined by giving an element and the opposite
-     *  node number to the face) that corresponds to a given boundary element,
-     *  this method adds in the face's internal nodes to the boundary element
-     *  (in the correct order).
+    /** 
+     * Given a face in an element (defined by giving an element and the opposite
+     * node number to the face) that corresponds to a given boundary element,
+     * this method adds in the face's internal nodes to the boundary element
+     * (in the correct order).
+     * 
+     * @param pBoundaryElement  pointer to a boundary element in the mesh
+     * @param pElement  pointer to an element in the mesh
+     * @param nodeIndexOppositeToFace  index of a node in the mesh
      */
     void AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
                                Element<DIM,DIM>* pElement,
                                unsigned nodeIndexOppositeToFace);
 
 
-    // Nasty helper method for AddNodeToBoundaryElement() in 3D. See cpp for comments
+    /**
+     * Nasty helper method for AddNodeToBoundaryElement() in 3D.
+     * 
+     * This method takes in the three vertices of a face which match the given boundary
+     * element, and figure out if the order of the nodes in the face is reversed in
+     * the boundary element (returned in the bool 'rReverse'). Also, the offset between
+     * the first node in the face (as given to this method) and the first node in
+     * the boundary element is computed (returned in the variable 'rOffset'). Offset
+     * should then be applied before reverse to match the face nodes to the boundary
+     * element nodes.
+     * 
+     * @param boundaryElemNode0
+     * @param boundaryElemNode1
+     * @param pElement
+     * @param node0
+     * @param node1
+     * @param node2
+     * @param rOffset
+     * @param rReverse
+     */
     void HelperMethod1(unsigned boundaryElemNode0, unsigned boundaryElemNode1,
                        Element<DIM,DIM>* pElement,
                        unsigned node0, unsigned node1, unsigned node2,
                        unsigned& rOffset,
                        bool& rReverse);
-    // Nasty helper method for AddNodeToBoundaryElement() in 3D. See cpp for comments
+    /**
+     * Nasty helper method for AddNodeToBoundaryElement() in 3D.
+     * 
+     * This method takes the three internal nodes for some face in some element,
+     * applies the given offset and reverse (see HelperMethod1) to them, to get 
+     * the ordered internal nodes which should given to the boundary element.
+     * It then calls AddNodeToBoundaryElement with each of the three internal nodes.
+     * 
+     * @param pBoundaryElement
+     * @param pElement
+     * @param internalNode0
+     * @param internalNode1
+     * @param internalNode2
+     * @param offset
+     * @param reverse
+     */
     void HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElement,
                        Element<DIM,DIM>* pElement,
                        unsigned internalNode0, unsigned internalNode1, unsigned internalNode2,
@@ -85,12 +134,16 @@ private:
                        bool reverse);
                        
     /** 
-     *  Helper method which runs triangle or tetgen and reads in the created mesh files
+     * Helper method which runs triangle or tetgen and reads in the created mesh files.
+     * 
+     * @param binary
+     * @param outputDir
+     * @param fileStem
      */                       
     void RunMesherAndReadMesh(std::string binary, std::string outputDir, std::string fileStem);                       
-    
-    
+
 public:
+
     /**
      * Constructs a new Quadratic Mesh
      * 
@@ -101,16 +154,28 @@ public:
     ///\todo: 1d constructor 
     
     /** 
-     *  Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)
-     *  with the given number of elements in each direction. This writes
-     *  a temporary node file and uses triangle to mesh this nodefile. 
+     * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)
+     * with the given number of elements in each direction. This writes
+     * a temporary node file and uses triangle to mesh this nodefile.
+     * 
+     * @param xEnd
+     * @param yEnd
+     * @param numElemX
+     * @param numElemY
      */
     QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY);
 
     /** 
-     *  Create a quadratic mesh on a cuboid (so 3D only!) from (0,0,0) to (xEnd,yEnd,zEnd)
-     *  with the given number of elements in each direction. This writes
-     *  a temporary node file and uses triangle to mesh this nodefile. 
+     * Create a quadratic mesh on a cuboid (so 3D only!) from (0,0,0) to (xEnd,yEnd,zEnd)
+     * with the given number of elements in each direction. This writes
+     * a temporary node file and uses triangle to mesh this nodefile.
+     *  
+     * @param xEnd
+     * @param yEnd
+     * @param zEnd
+     * @param numElemX
+     * @param numElemY
+     * @param numElemZ
      */
     QuadraticMesh(double xEnd, double yEnd, double zEnd,
                   unsigned numElemX, unsigned numElemY, unsigned numElemZ);

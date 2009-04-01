@@ -39,6 +39,12 @@ template<unsigned SPACE_DIM>
 class FunctionalBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private :
+
+    /**
+     * The function pointer used to determine the value of the boundary condition at a given point.
+     * 
+     * @param x  a point in space
+     */
     double (*mFunction)(const ChastePoint<SPACE_DIM>& x);
 
 public :
@@ -51,7 +57,12 @@ public :
      */
     FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& x));
 
-    double GetValue( const ChastePoint<SPACE_DIM>& x) const;
+    /**
+     * Get the value of the boundary condition at a given point.
+     * 
+     * @param x  a point in space
+     */
+    double GetValue(const ChastePoint<SPACE_DIM>& x) const;
   
 };
 

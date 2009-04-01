@@ -384,14 +384,6 @@ void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoun
 // two unpleasant helper methods for AddExtraBoundaryNodes()
 ///////////////////////////////////////////////////////////////////////////////
 
-/** This methods takes in the three vertices of a face which match the given boundary
- *  element, and figure out if the order of the nodes in the face is reversed in
- *  the boundary element (returned in the bool 'rReverse'). Also, the offset between
- *  the first node in the face (as given to this method) and the first node in
- *  the boundary element is computed (returned in the variable 'rOffset'). Offset
- *  should then be applied before reverse to match the face nodes to the boundary
- *  element nodes.
- */
 
 #define COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
 template<unsigned DIM>
@@ -445,13 +437,6 @@ void QuadraticMesh<DIM>::HelperMethod1(unsigned boundaryElemNode0, unsigned boun
 #undef COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
 
 
-
-/**
- *  This method takes the three internal nodes for some face in some element,
- *  applies the given offset and reverse (see HelperMethod1) to them, to get 
- *  the ordered internal nodes which should given to the boundary element.
- *  It then calls AddNodeToBoundaryElement with each of the three internal nodes.
- */
 #define COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
 template<unsigned DIM>
 void QuadraticMesh<DIM>::HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElement,

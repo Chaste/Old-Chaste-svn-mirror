@@ -143,6 +143,8 @@ public :
      *  Note that is a material law is scaled like this any dimensionally equivalent terms
      *  (eg gravity, tractions, active tensions) must also be scaled. Also, computed pressure
      *  will come out scaled.
+     * 
+     *  @param scaleFactor  the scale factor
      */
     virtual void ScaleMaterialParameters(double scaleFactor);
 };

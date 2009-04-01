@@ -120,7 +120,7 @@ public:
      * 
      *  @param level
      *  @param directory
-     *  @param fileName
+     *  @param fileName  the name of the file to write to, relative to the output directory
      */
     void Set(unsigned level, std::string directory, std::string fileName="log.txt");
 

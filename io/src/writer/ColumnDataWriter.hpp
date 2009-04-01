@@ -96,14 +96,14 @@ protected:
     /**
      * Create the output file and write out the header for it.
      * 
-     * @param fileName
+     * @param fileName  the name of the file to write to, relative to the output directory
      */
     void CreateFixedDimensionFile(std::string fileName);
 
     /**
-     * Creatd the info file.
+     * Create the info file.
      * 
-     * @param fileName
+     * @param fileName  the name of the file to create, relative to the output directory
      */
     void CreateInfoFile(std::string fileName);
 

@@ -52,13 +52,13 @@ class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>
 {
 private:
 
-    bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
+    bool mIndexFromZero;            /**< True if input data is numbered from zero, false otherwise */
 
-    std::string mFilesBaseName;
+    std::string mFilesBaseName;     /**< The base name for mesh files. */
 
-    std::ifstream mNodesFile;
-    std::ifstream mElementsFile;
-    std::ifstream mFacesFile;
+    std::ifstream mNodesFile;       /**< The nodes file for the mesh. */
+    std::ifstream mElementsFile;    /**< The elements file for the mesh. */
+    std::ifstream mFacesFile;       /**< The faces (edges) file for the mesh. */
 
     unsigned mNumNodes;             /**< Number of nodes in the mesh. */
     unsigned mNumElements;          /**< Number of elements in the mesh. */
@@ -69,14 +69,14 @@ private:
     unsigned mFacesRead;            /**< Number of faces read in. */
     unsigned mBoundaryFacesRead;    /**< Number of boundary faces read in. */
 
-    unsigned mNumNodeAttributes;    /**< Is the number of attributes stored at each node */
-    unsigned mMaxNodeBdyMarker;     /**< Is the maximum node boundary marker */
-    unsigned mNumElementNodes;      /** Is the number of nodes per element*/
-    unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
-    unsigned mNumFaceAttributes;    /**< Is the number of attributes stored for each face */
+    unsigned mNumNodeAttributes;    /**< Is the number of attributes stored at each node. */
+    unsigned mMaxNodeBdyMarker;     /**< Is the maximum node boundary marker. */
+    unsigned mNumElementNodes;      /** Is the number of nodes per element. */
+    unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element. */
+    unsigned mNumFaceAttributes;    /**< Is the number of attributes stored for each face. */
 
-    unsigned mOrderOfElements;
-    unsigned mNodesPerElement;
+    unsigned mOrderOfElements;      /**< The order of each element (1 for linear, 2 for quadratic). */
+    unsigned mNodesPerElement;      /**< The number of nodes contained in each element. */
 
 public:
 
@@ -84,7 +84,7 @@ public:
      * Constructor.
      * 
      * @param pathBaseName  the base name of the files from which to read the mesh data
-     * @param orderOfElements  defaults to 1
+     * @param orderOfElements  the order of each element: 1 for linear, 2 for quadratic (defaults to 1)
      */
     TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements=1):
         mFilesBaseName(pathBaseName),
@@ -122,7 +122,7 @@ public:
 
     }
     
-     /**< Returns the number of elements in the mesh */
+    /**< Returns the number of elements in the mesh */
     unsigned GetNumElements() const
     {
         return mNumElements;
@@ -322,7 +322,9 @@ public:
         return face_data;
     }
 
-    /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
+    /**
+     * Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()).
+     */
     ElementData GetNextEdgeData()
     {
         return GetNextFaceData();
@@ -331,13 +333,19 @@ public:
 
 private:
 
+    /**
+     * Open mesh files.
+     */
     void OpenFiles()
     {
         OpenNodeFile();
         OpenElementsFile();
         OpenFacesFile();
     }
-    
+
+    /**
+     * Open node file.
+     */
     void OpenNodeFile()
     {        
         // Nodes definition
@@ -348,7 +356,10 @@ private:
             EXCEPTION("Could not open data file: "+file_name);
         }
     }
-    
+
+    /**
+     * Open elements file
+     */
     void OpenElementsFile()
     {
         // Elements definition
@@ -380,6 +391,9 @@ private:
         }
     }
 
+    /**
+     * Open faces file.
+     */
     void OpenFacesFile()
     {        
         // Faces/edges definition
@@ -411,7 +425,10 @@ private:
             EXCEPTION("Could not open data file: "+file_name);
         }                        
     }
-    
+
+    /**
+     * Read the header from each mesh file.
+     */
     void ReadHeaders()
     {
         std::string buffer;
@@ -512,14 +529,23 @@ private:
         }        
         
     }
-    
+
+    /**
+     * Close mesh files.
+     */
     void CloseFiles()
     {
         mNodesFile.close();
         mElementsFile.close();
         mFacesFile.close();                
     }
-    
+
+    /**
+     * Read in the next line.
+     * 
+     * @param fileStream
+     * @param rawLine
+     */
     void GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
     {
         bool line_is_blank;
@@ -541,7 +567,10 @@ private:
         }
         while (line_is_blank);        
     }
-    
+
+    /**
+     * Get method for mFilesBaseName.
+     */
     std::string GetMeshFileBaseName()
     { 
         return mFilesBaseName;
