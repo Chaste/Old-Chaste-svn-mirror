@@ -57,26 +57,26 @@ private:
     /** Another parameter, which is a function of the above */
     double fast_sodium_current_E_Na;
 
-    /** 
+    /**
      *  Range-checking on the current values of the state variables. Make sure
      *  all gating variables have are within zero and one, and all concentrations
      *  are positive
      */
     void VerifyStateVariables();
-    
+
 public:
     // Constructor
     LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
                                AbstractStimulusFunction *pIntracellularStimulus);
-                               
+
     // Destructor
     ~LuoRudyIModel1991OdeSystem();
-        
+
     // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
     double GetIIonic();
-    
+
     double GetIntracellularCalciumConcentration();
 };
 

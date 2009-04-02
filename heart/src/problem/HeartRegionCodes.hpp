@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Codes that can be used to annotate regions of a cardiac mesh.
- * 
+ *
  * See Node::GetRegion, Node::SetRegion, AbstractElement::GetRegion, AbstractElement::SetRegion.
- * 
+ *
  * Note: these constants are set explicitly to be of type unsigned, so as to match
  * the above methods.  Hence why we use a class instead of an enum - you can't
  * (until C++0x) specify the underlying type of an enum.
@@ -41,7 +41,7 @@ class HeartRegionCode
 {
 public:
     /** This value is also the default region if none is specified (see Node.cpp and AbstractElement.cpp). */
-    static const unsigned TISSUE; 
+    static const unsigned TISSUE;
     static const unsigned BATH;
 
 private:

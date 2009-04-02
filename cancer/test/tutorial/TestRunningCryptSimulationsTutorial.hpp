@@ -39,17 +39,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * = Examples showing how to run crypt simulations on periodic meshes with different cell cycle models =
  *
  * EMPTYLINE
- *  
- * == Introduction ==
- * 
- * EMPTYLINE
- * 
- * In this tutorial we show how Chaste is used to run crypt simulations. 
- * Full details of the computational model can be found in the paper by 
- * van Leeuwen ''et al'' (to appear in Cell Prolif.)  
  *
- * The first thing to do is include the following header, which allows us 
- * to use certain methods in our test (this header file should be included 
+ * == Introduction ==
+ *
+ * EMPTYLINE
+ *
+ * In this tutorial we show how Chaste is used to run crypt simulations.
+ * Full details of the computational model can be found in the paper by
+ * van Leeuwen ''et al'' (to appear in Cell Prolif.)
+ *
+ * The first thing to do is include the following header, which allows us
+ * to use certain methods in our test (this header file should be included
  * in any Chaste test):
  */
 #include <cxxtest/TestSuite.h>
@@ -79,31 +79,31 @@ public:
      * EMPTYLINE
      *
      * In the first test, we run a simple crypt simulation, in which we use
-     * a cylindrical mesh, give each cell a fixed cell cycle model, and enforce 
+     * a cylindrical mesh, give each cell a fixed cell cycle model, and enforce
      * sloughing at the top of the crypt.
      */
     void TestCryptFixedCellCycle() throw(Exception)
     {
-        /* As in '''all''' tissue simulations, we must first set the start time. 
-         * In addition, it is advisable to reset the values of all model parameters. 
-         * {{{SimulationTime}}} and {{{CancerParameters}}} are ''singleton'' classes; this 
-         * means that one and only one of each of these objects is instantiated at 
-         * any time, and that that single object is accessible from anywhere in the 
-         * code. As a result, we do not need to keep passing round the current time or 
+        /* As in '''all''' tissue simulations, we must first set the start time.
+         * In addition, it is advisable to reset the values of all model parameters.
+         * {{{SimulationTime}}} and {{{CancerParameters}}} are ''singleton'' classes; this
+         * means that one and only one of each of these objects is instantiated at
+         * any time, and that that single object is accessible from anywhere in the
+         * code. As a result, we do not need to keep passing round the current time or
          * model parameter values.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
         CancerParameters::Instance()->Reset();
 
-        /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}. 
-         * To enforce periodicity at the left and right hand sides of the mesh, we 
+        /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
+         * To enforce periodicity at the left and right hand sides of the mesh, we
          * use a sublcass called {{{Cylindrical2dMesh}}}, which has extra methods for
          * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use
-         * the {{{HoneycombMeshGenerator}}}. This generates a honeycomb-shaped mesh, 
-         * in which all nodes are equidistant. Here the first and second arguments 
-         * define the size of the mesh - we have chosen a mesh that is 6 nodes (i.e. 
-         * cells) wide, and 9 nodes high. The third argument indicates that we require 
-         * a double layer of ghost nodes around the mesh (technically, just above 
+         * the {{{HoneycombMeshGenerator}}}. This generates a honeycomb-shaped mesh,
+         * in which all nodes are equidistant. Here the first and second arguments
+         * define the size of the mesh - we have chosen a mesh that is 6 nodes (i.e.
+         * cells) wide, and 9 nodes high. The third argument indicates that we require
+         * a double layer of ghost nodes around the mesh (technically, just above
          * and below the mesh, since it is periodic).
          */
         HoneycombMeshGenerator generator(6, 9, 2, true); // params are: cells across, cells up, thickness of ghost layer, whether to be cylindrical
@@ -112,19 +112,19 @@ public:
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
          * To do this, we can use a static method on the {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}}
-         * helper class. The {{{<2>}}} below denotes the dimension. We create an empty vector 
-         * of cells and pass this into the method along with the mesh. The third argument 
-         * 'true' indicates that the cells should be assigned random birth times, to avoid 
-         * synchronous division. The {{{cells}}} vector is populated once the method 
+         * helper class. The {{{<2>}}} below denotes the dimension. We create an empty vector
+         * of cells and pass this into the method along with the mesh. The third argument
+         * 'true' indicates that the cells should be assigned random birth times, to avoid
+         * synchronous division. The {{{cells}}} vector is populated once the method
          * {{{GenerateForCrypt}}} is called. */
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
-        /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices, 
-         * we can create a ''Tissue''. In general, this class associates a collection 
-         * of cells with a set of nodes or a mesh. For this test, because we have a 
-         * mesh and ghost nodes, we use aparticular type of tissue called a 
+        /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
+         * we can create a ''Tissue''. In general, this class associates a collection
+         * of cells with a set of nodes or a mesh. For this test, because we have a
+         * mesh and ghost nodes, we use aparticular type of tissue called a
          * {{{MeshBasedTissueWithGhostNodes}}}.
          */
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
@@ -148,14 +148,14 @@ public:
         simulator.SetOutputDirectory("CryptTutorialFixedCellCycle");
         simulator.SetEndTime(1);
         /* For longer simulations, you may not want to output the results
-         * every time step. In this case you can use the following method, 
-         * to print results every 10 time steps instead. As the time step 
-         * used by the simulator, is 30 s, this method will cause the 
+         * every time step. In this case you can use the following method,
+         * to print results every 10 time steps instead. As the time step
+         * used by the simulator, is 30 s, this method will cause the
          * simulator to print results every 5 min.
          */
         //simulator.SetSamplingTimestepMultiple(10);
 
-        /* Before running the simulation, we add a cell killer. This object 
+        /* Before running the simulation, we add a cell killer. This object
          * dictates conditions under which cells die. For this test, we use
          * a {{{SloughingCellKiller}}}, which kills cells above a certain height.
          */

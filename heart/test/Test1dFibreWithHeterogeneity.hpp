@@ -109,13 +109,13 @@ public:
     void TestFibreHeterogeneity()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
-        HeartConfig::Instance()->SetPdeTimeStep(0.01);        
+        HeartConfig::Instance()->SetPdeTimeStep(0.01);
         HeartConfig::Instance()->SetPrintingTimeStep(0.1);
         HeartConfig::Instance()->SetSimulationDuration(300.0);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("FibreWithHeterogeneity");
         HeartConfig::Instance()->SetOutputFilenamePrefix("Monodomain1d");
-        
+
         HeterogeneousCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
@@ -128,7 +128,7 @@ public:
 
 
         // write out results for node 20 (and 50 and 80)
-        
+
         Hdf5DataReader results_reader=monodomain_problem.GetDataReader();
 
         unsigned relevant_nodes[3]={20,50,80};
@@ -139,7 +139,7 @@ public:
             std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
 
             // Write out the time series for the node at third quadrant
-            OutputFileHandler results_handler("FibreWithHeterogeneity", false); 
+            OutputFileHandler results_handler("FibreWithHeterogeneity", false);
             if (results_handler.IsMaster())
             {
                 OutputFileHandler plot_file_handler("HeterogeneityPlots", false);

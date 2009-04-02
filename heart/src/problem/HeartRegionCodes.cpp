@@ -27,6 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "HeartRegionCodes.hpp"
 
-const unsigned HeartRegionCode::TISSUE = 0u; 
+const unsigned HeartRegionCode::TISSUE = 0u;
 const unsigned HeartRegionCode::BATH = 1u;
 

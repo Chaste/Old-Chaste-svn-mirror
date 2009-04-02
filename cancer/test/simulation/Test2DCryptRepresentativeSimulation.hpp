@@ -47,13 +47,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 
 /**
- * This class consists of a single test, in which a 2D model 
- * of a colorectal crypt with representative parameter values 
- * is loaded from an archive and simulated for a further period 
- * of time. 
- * 
- * This test is used for profiling, to establish the run time 
- * variation as the code is developed. Results can be seen at  
+ * This class consists of a single test, in which a 2D model
+ * of a colorectal crypt with representative parameter values
+ * is loaded from an archive and simulated for a further period
+ * of time.
+ *
+ * This test is used for profiling, to establish the run time
+ * variation as the code is developed. Results can be seen at
  * https://chaste.ediamond.ox.ac.uk/tests.py/profileHistory
  */
 class Test2DCryptRepresentativeSimulation : public CxxTest::TestSuite
@@ -67,34 +67,34 @@ public:
 
         // Directory in which the stored results were archived
         std::string test_to_load = "SteadyStateCrypt";
-        
+
         // Simulation time at which the stored results were archived
         double t = 150;
-        
+
         // Directory in which to store profiling results
         std::string test_to_profile = "CryptProfiling";
-        
+
         // How long to run the loaded crypt simulation for (in hours)
         double run_for = 10;
 
         // Create a new clean directory
         OutputFileHandler file_handler(test_to_profile,true);
-        
+
         // The archive must be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string test_data_directory = "cancer/test/data/" + test_to_load +"/";
         std::string command = "cp -Rf --remove-destination " + test_data_directory +"* "+ test_output_directory +"/" + test_to_profile + "/";
-        
+
         // Test that the above command was implemented successfully
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
-        
+
         // Load and run crypt simulation
         CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t+run_for); // start time + duration
-        p_simulator->Solve();   
-        
+        p_simulator->Solve();
+
         // Tidy up
         delete p_simulator;
         SimulationTime::Destroy();

@@ -237,7 +237,7 @@ public:
         Node<1>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
         TS_ASSERT_EQUALS(*elt_iter, 0u);
         TS_ASSERT_EQUALS(*b_elt_iter, 0u);
-    
+
         // There is only one boundary element at this end
         TS_ASSERT_EQUALS(++b_elt_iter, p_node->ContainingBoundaryElementsEnd());
 
@@ -249,11 +249,11 @@ public:
         double det;
         p_element->CalculateJacobian(jacobian, det);
         TS_ASSERT_DELTA(det, 0.1, 1e-6);
-        
+
         c_matrix<double, 1, 1> cached_jacobian;
         double cached_det;
         mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian, cached_det);
-                            
+
         TS_ASSERT_EQUALS(cached_det, det);
         TS_ASSERT_EQUALS(jacobian(0,0), cached_jacobian(0,0));
 
@@ -269,10 +269,10 @@ public:
         p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1u);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2u);
-        
+
         p_element->CalculateJacobian(jacobian, det);
-        
-        TS_ASSERT_DELTA(det, 0.1, 1e-6);        
+
+        TS_ASSERT_DELTA(det, 0.1, 1e-6);
 
         mesh.GetJacobianForElement(p_element->GetIndex(), cached_jacobian, cached_det);
 
@@ -1316,7 +1316,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1u);
 
-        //In the edge file for this test 
+        //In the edge file for this test
         // * All internal edges are marked with 0
         // * All external edges were marked as 1 by triangle
         // * The final edge marker has been edited from 1 to 2
@@ -1332,18 +1332,18 @@ public:
             }
         }
     }
-    
+
     void TestCuboidMeshConstructors()
     {
         CuboidMeshConstructor<1> constructor1;
 
         TrianglesMeshReader<1,1> mesh_reader1(constructor1.Construct(1, 1.0));
         TS_ASSERT_EQUALS(constructor1.GetWidth(), 1.0);
-        
+
         TetrahedralMesh<1,1> mesh1;
         mesh1.ConstructFromMeshReader(mesh_reader1);
         TS_ASSERT_EQUALS(mesh1.GetNumNodes(), 9u);
-        
+
         CuboidMeshConstructor<2> constructor2;
         TrianglesMeshReader<2,2> mesh_reader2(constructor2.Construct(1, 1.0));
         TetrahedralMesh<2,2> mesh2;
@@ -1364,16 +1364,16 @@ public:
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
             mesh.ConstructFromMeshReader(mesh_reader);
         }
-        
+
         std::string mesh_file_base_name = mesh.GetMeshFileBaseName();
         TrianglesMeshReader<3,3> mesh_reader(mesh_file_base_name);
-        
+
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), mesh.GetNumElements());
-        
+
         TetrahedralMesh<3,3> cuboid_mesh;
         cuboid_mesh.ConstructCuboid(7, 4, 5);
-        
-        TS_ASSERT_THROWS_ANYTHING(cuboid_mesh.GetMeshFileBaseName());        
+
+        TS_ASSERT_THROWS_ANYTHING(cuboid_mesh.GetMeshFileBaseName());
     }
 
 };

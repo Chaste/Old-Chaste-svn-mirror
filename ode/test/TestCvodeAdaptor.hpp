@@ -45,7 +45,7 @@ class OdeWithRootFunction : public OdeSecondOrderWithEvents
 {
 public :
     OdeWithRootFunction()
-        : OdeSecondOrderWithEvents() 
+        : OdeSecondOrderWithEvents()
     {
     }
 
@@ -62,16 +62,16 @@ private:
     bool mNice;
 public :
     ExceptionalOdeWithRootFunction()
-        : OdeSecondOrderWithEvents() 
+        : OdeSecondOrderWithEvents()
     {
         mNice = false;
     }
-    
+
     void BeNice()
     {
         mNice = true;
     }
-    
+
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
         rDY[0] =  rY[1];
@@ -100,41 +100,41 @@ private:
         Ode1 ode_system;
         OdeSolution solutions;
         CvodeAdaptor solver;
-        
+
         // Solving the ode problem.
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = solver.Solve(&ode_system, state_variables, startTime, endTime, endTime-startTime, samplingTime);
-        
+
         int num_timesteps = solutions.GetNumberOfTimeSteps();
-        
+
         // The number of timesteps should be (just about) equal to sim_time/sampling_time
         TS_ASSERT_DELTA(num_timesteps, (endTime-startTime)/samplingTime, 1);
 
         // also check the size of the data is correct
         TS_ASSERT_EQUALS(solutions.rGetSolutions().size(),
                          (unsigned) (num_timesteps+1));
-        
+
         int last = num_timesteps;
-        
+
         // Test the solution is correct
         double testvalue = solutions.rGetSolutions()[last][0];
-        
+
         // Exact solution of Ode1 is y=t-t0
         TS_ASSERT_DELTA(testvalue, endTime-startTime, 0.01);
-        
+
         // Test second version of Solve
         ode_system.SetStateVariables(ode_system.GetInitialConditions());
         state_variables = ode_system.rGetStateVariables();
         solver.Solve(&ode_system, state_variables, startTime, endTime, endTime-startTime);
         TS_ASSERT_DELTA(state_variables[0], endTime-startTime, 0.01);
-        
+
         // No stopping event was specified in the ODE, so check the
         // solver correctly states it didn't stop due to a
         // stopping event.
         TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), false);
     }
 #endif // CHASTE_CVODE
-    
+
 public:
     void TestBasics() throw (Exception)
     {
@@ -142,10 +142,10 @@ public:
         CvodeAdaptor solver;
         solver.SetMaxSteps(1000);
         TS_ASSERT_EQUALS(solver.GetMaxSteps(), 1000);
-        
+
         TS_ASSERT_DELTA(solver.GetRelativeTolerance(), 1e-4, 1e-12);
         TS_ASSERT_DELTA(solver.GetAbsoluteTolerance(), 1e-6, 1e-12);
-        
+
         solver.SetTolerances(1e-5, 1e-5);
         TS_ASSERT_DELTA(solver.GetRelativeTolerance(), 1e-5, 1e-12);
         TS_ASSERT_DELTA(solver.GetAbsoluteTolerance(), 1e-5, 1e-12);
@@ -155,29 +155,29 @@ public:
     void TestOnOde1() throw (Exception)
     {
 #ifdef CHASTE_CVODE
-    	HelperTestOde1(0.0, 2.0, 0.001);
+        HelperTestOde1(0.0, 2.0, 0.001);
         HelperTestOde1(1.0, 2.0, 0.01);
         HelperTestOde1(-1.0, 2.0, 2);
         HelperTestOde1(0.0, 0.4, 0.34);
 #endif // CHASTE_CVODE
     }
-    
+
     void TestGlobalError() throw (Exception)
     {
 #ifdef CHASTE_CVODE
         OdeFirstOrder ode_system;
-        
+
         double h_value = 0.01;
-        
+
         CvodeAdaptor solver;
         solver.SetMaxSteps(1000);
         OdeSolution solutions;
-        
+
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, 0.1);
         int last = solutions.GetNumberOfTimeSteps();
         double testvalue = solutions.rGetSolutions()[last][0];
-        
+
         // The tests
         double exact_solution = exp(2);
 
@@ -192,24 +192,24 @@ public:
     {
 #ifdef CHASTE_CVODE
         OdeSecondOrder ode_system;
-        
+
         double h_value = 0.01;
-        
+
         CvodeAdaptor solver;
         OdeSolution solutions;
-        
+
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, 0.1);
         int last = solutions.GetNumberOfTimeSteps();
-        
+
         double testvalue[2];
         testvalue[0] = solutions.rGetSolutions()[last][0];
         testvalue[1] = solutions.rGetSolutions()[last][1];
-        
+
         double exact_solution[2];
         exact_solution[0] = sin(2);
         exact_solution[1] = cos(2);
-        
+
         // TODO: Work this out properly
         double global_error = 1e-3;
 
@@ -217,7 +217,7 @@ public:
         TS_ASSERT_DELTA(testvalue[1], exact_solution[1], global_error);
 #endif // CHASTE_CVODE
     }
-    
+
     void TestWithStoppingEvent() throw (Exception)
     {
 #ifdef CHASTE_CVODE
@@ -259,7 +259,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
 #endif // CHASTE_CVODE
     }
-    
+
     void TestWithRootFunction() throw (Exception)
     {
 #ifdef CHASTE_CVODE
@@ -323,7 +323,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
 #endif // CHASTE_CVODE
     }
-    
+
 };
 
 #endif //_TESTCVODEADAPTOR_HPP_

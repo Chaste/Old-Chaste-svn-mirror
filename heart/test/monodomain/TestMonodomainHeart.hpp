@@ -122,14 +122,14 @@ public:
         double end_time = 100;        // ms
 
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetPrintingTimeStep(end_time/100);        
-        HeartConfig::Instance()->SetPdeTimeStep(pde_time_step);        
+        HeartConfig::Instance()->SetPrintingTimeStep(end_time/100);
+        HeartConfig::Instance()->SetPdeTimeStep(pde_time_step);
         HeartConfig::Instance()->SetOdeTimeStep(pde_time_step/4.0);
         HeartConfig::Instance()->SetSimulationDuration(end_time); //ms
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/heart"); // note that this is the full heart mesh (not fifthheart)
         HeartConfig::Instance()->SetOutputDirectory("MonoDg0Heart");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_Heart");
-        
+
         PointStimulusHeartCellFactory cell_factory;
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 
@@ -144,7 +144,7 @@ public:
         // a nearby node
         ///////////////////////////////////////////////////////////////////////
         Hdf5DataReader data_reader = monodomain_problem.GetDataReader();
-        
+
         // get the voltage values at stimulated node
         std::vector<double> voltage_values_at_node_37483 = data_reader.GetVariableOverTime("V", 37484-1);
         // get the voltage values at a nearby unstimulated node

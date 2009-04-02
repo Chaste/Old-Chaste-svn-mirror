@@ -28,16 +28,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-/* 
+/*
  * NOTE ON COMPILATION ERRORS:
- * 
- * This file won't compile with Intel icpc version 9.1.039, with error message: 
+ *
+ * This file won't compile with Intel icpc version 9.1.039, with error message:
  * "Terminate with:
   (0): internal error: backend signals"
  *
  * Try recompiling with icpc version 10.0.025.
  */
- 
+
 #include "NonlinearElasticityAssembler.hpp"
 
 #include "LinearBasisFunction.hpp"
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, 
+void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
                                                        bool assembleJacobian)
 {
     // Check we've actually been asked to do something!
@@ -60,7 +60,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     if (assembleJacobian)
     {
         this->mpLinearSystem->ZeroLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->ZeroLhsMatrix(); 
+        this->mpPreconditionMatrixLinearSystem->ZeroLhsMatrix();
     }
 
     // Get an iterator over the elements of the mesh
@@ -70,7 +70,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
     // the (element) preconditioner matrix: this is the same as the jacobian, but
     // with the mass matrix (ie \intgl phi_i phi_j) in the pressure-pressure block.
-    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem_precond; 
+    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem_precond;
     c_vector<double, STENCIL_SIZE> b_elem;
 
     ////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
         //{
         //    LOG_AND_COUT(1, "Element " << (*iter)->GetIndex() << " of " << this->mpQuadMesh->GetNumElements());
         //}
-        
+
         Element<DIM,DIM>& element = **iter;
 
         if (element.GetOwnership() == true)
@@ -106,7 +106,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
             if (assembleJacobian)
             {
                 this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
-                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_elem_precond); 
+                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_elem_precond);
             }
 
             if (assembleResidual)
@@ -117,10 +117,10 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 
         iter++;
     }
-    
+
     ////////////////////////////////////////////////////////////
     // loop over specified boundary elements and compute
-    // surface traction terms 
+    // surface traction terms
     ////////////////////////////////////////////////////////////
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
     c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE> a_boundary_elem;
@@ -148,7 +148,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
             if (assembleJacobian)
             {
                 this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
-                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem); 
+                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
             }
 
             if (assembleResidual)
@@ -158,7 +158,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 
             // some extra checking
             if (DIM==2)
-            {   
+            {
                 assert(8==BOUNDARY_STENCIL_SIZE);
                 assert(b_boundary_elem(6)==0);
                 assert(b_boundary_elem(7)==0);
@@ -178,7 +178,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 #endif
     if (assembleJacobian)
     {
-        this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix(); 
+        this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix();
     }
 
 
@@ -197,7 +197,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 #endif
     if (assembleJacobian)
     {
-        this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix(); 
+        this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix();
     }
 }
 
@@ -205,27 +205,27 @@ template<size_t DIM>
 void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
             Element<DIM, DIM>& rElement,
             c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
-            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond, 
+            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
             c_vector<double, STENCIL_SIZE>& rBElem,
             bool assembleResidual,
             bool assembleJacobian)
 {
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_determinant;
-    
+
     mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     if (assembleJacobian)
     {
         rAElem.clear();
-        rAElemPrecond.clear(); 
+        rAElemPrecond.clear();
     }
 
     if (assembleResidual)
     {
         rBElem.clear();
     }
-    
+
     ///////////////////////////////////////////////
     // Get the current displacement at the nodes
     ///////////////////////////////////////////////
@@ -266,8 +266,8 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         p_material_law = this->mMaterialLaws[rElement.GetIndex()];
         #undef COVERAGE_IGNORE
     }
-    
-    
+
+
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
     //// loop over Gauss points
@@ -285,7 +285,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
         QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
         QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
-        
+
 
         ////////////////////////////////////////////////////
         // get the body force, interpolating X if necessary
@@ -330,7 +330,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
             pressure += linear_phi(vertex_index)*element_current_pressures(vertex_index);
         }
 
-    
+
         ///////////////////////////////////////////////
         // calculate C, inv(C) and T
         ///////////////////////////////////////////////
@@ -368,7 +368,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
 
                 assert(node_index < NUM_NODES_PER_ELEMENT);
 
-                rBElem(index) +=  - this->mDensity 
+                rBElem(index) +=  - this->mDensity
                                   * body_force(spatial_dim)
                                   * quad_phi(node_index)
                                   * wJ;
@@ -384,7 +384,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                     }
                 }
             }
-            
+
             for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
             {
                 rBElem( NUM_NODES_PER_ELEMENT*DIM + vertex_index ) +=   linear_phi(vertex_index)
@@ -402,8 +402,8 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
             {
                 unsigned spatial_dim1 = index1%DIM;
                 unsigned node_index1 = (index1-spatial_dim1)/DIM;
-                
-                
+
+
                 for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
                 {
                     unsigned spatial_dim2 = index2%DIM;
@@ -443,7 +443,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                 for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
                 {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
-                    
+
                     for (unsigned M=0; M<DIM; M++)
                     {
                         for (unsigned N=0; N<DIM; N++)
@@ -454,7 +454,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                                        * linear_phi(vertex_index)
                                                        * wJ;
                         }
-                    }                 
+                    }
                 }
             }
 
@@ -476,32 +476,32 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                                  * wJ;
                     }
                 }
-                
+
                 /////////////////////////////////////////////////////
                 // Preconditioner matrix
-                // Fill the mass matrix (ie \intgl phi_i phi_j) in the 
-                // pressure-pressure block. Note, the rest of the 
+                // Fill the mass matrix (ie \intgl phi_i phi_j) in the
+                // pressure-pressure block. Note, the rest of the
                 // entries are filled in at the end
                 /////////////////////////////////////////////////////
-                for(unsigned vertex_index2=0; vertex_index2<NUM_VERTICES_PER_ELEMENT; vertex_index2++) 
-                { 
+                for(unsigned vertex_index2=0; vertex_index2<NUM_VERTICES_PER_ELEMENT; vertex_index2++)
+                {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
                     rAElemPrecond(index1,index2) +=   linear_phi(vertex_index)
-                                                    * linear_phi(vertex_index2) 
-                                                    * wJ; 
-                } 
+                                                    * linear_phi(vertex_index2)
+                                                    * wJ;
+                }
             }
         }
     }
 
 
-    if (assembleJacobian) 
-    { 
+    if (assembleJacobian)
+    {
         // Fill in the other blocks of the preconditioner matrix. (This doesn't
-        // effect the pressure-pressure block of the rAElemPrecond but the 
+        // effect the pressure-pressure block of the rAElemPrecond but the
         // pressure-pressure block of rAElem is zero
-        rAElemPrecond = rAElemPrecond + rAElem; 
-    } 
+        rAElemPrecond = rAElemPrecond + rAElem;
+    }
 }
 
 template<size_t DIM>
@@ -572,7 +572,7 @@ template<size_t DIM>
 void NonlinearElasticityAssembler<DIM>::FormInitialGuess()
 {
     this->mCurrentSolution.resize(this->mNumDofs, 0.0);
-    
+
     for(unsigned i=0; i<mpQuadMesh->GetNumElements(); i++)
     {
         double zero_strain_pressure;
@@ -586,7 +586,7 @@ void NonlinearElasticityAssembler<DIM>::FormInitialGuess()
             // heterogeneous
             zero_strain_pressure = this->mMaterialLaws[i]->GetZeroStrainPressure();
         }
-        
+
         // loop over vertices and set pressure solution to be zero-strain-pressure
         for(unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
         {
@@ -608,7 +608,7 @@ void NonlinearElasticityAssembler<DIM>::Initialise(std::vector<c_vector<double,D
 
     this->mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
     this->mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
-    
+
     FormInitialGuess();
 
     // compute the displacements at each of the fixed nodes, given the
@@ -713,7 +713,7 @@ std::vector<double>& NonlinearElasticityAssembler<DIM>::rGetPressures()
 {
     this->mPressures.clear();
     this->mPressures.resize(mpQuadMesh->GetNumVertices());
-    
+
     for (unsigned i=0; i<mpQuadMesh->GetNumVertices(); i++)
     {
         this->mPressures[i] = this->mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + i];

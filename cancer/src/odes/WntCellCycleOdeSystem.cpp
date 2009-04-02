@@ -32,7 +32,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
         : AbstractOdeSystem(9)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<WntCellCycleOdeSystem>);
-    
+
     /**
      * State variables.
      *
@@ -323,6 +323,6 @@ void CellwiseOdeSystemInformation<WntCellCycleOdeSystem>::Initialise()
     this->mVariableNames.push_back("Wnt");
     this->mVariableUnits.push_back("non_dim");
     this->mInitialConditions.push_back(NAN); // will be filled in later
-    
+
     this->mInitialised = true;
 }

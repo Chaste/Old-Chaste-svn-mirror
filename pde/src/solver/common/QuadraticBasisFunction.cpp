@@ -40,7 +40,7 @@ double QuadraticBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0> &rPo
 }
 
 /** Specialization for 0d */
-void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint, 
+void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint,
                                                       c_vector<double, 1>& rReturnValue)
 {
     rReturnValue(0) = ComputeBasisFunction(rPoint, 0);
@@ -49,7 +49,7 @@ void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoi
 
 /**
  * Compute a basis function at a point within an element.
- * 
+ *
  * @param rPoint The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
  * @param basisIndex Which basis function to compute. This is a local index
@@ -66,7 +66,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
     case 0:
         assert(basisIndex == 0);
         return 1.0;
-        break;          
+        break;
 
     case 1:
         x = rPoint[0];
@@ -85,7 +85,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
                 NEVER_REACHED;
         }
         break;
-        
+
     case 2:
         x = rPoint[0];
         y = rPoint[1];
@@ -101,7 +101,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
                 return 2.0*y*(y-0.5);
                 break;
             case 3: // the node opposite 0, which is (1/2,1/2)
-                return 4.0 * y * x;            
+                return 4.0 * y * x;
                 break;
             case 4: // the node opposite 1, which is (0,1/2)
                 return 4.0 * (1.0 - x - y) * y;
@@ -113,7 +113,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
                 NEVER_REACHED;
         }
         break;
-        
+
     case 3:
         x = rPoint[0];
         y = rPoint[1];
@@ -162,7 +162,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
 
 /**
  * Compute the derivative of a basis function at a point within an canonical element.
- * 
+ *
  * @param rPoint The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
  * @param basisIndex Which basis function to compute. This is a local index
@@ -175,7 +175,7 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
 {
     c_vector<double, ELEM_DIM> gradN;
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-    
+
     double x, y, z;
     switch(ELEM_DIM)
     {
@@ -196,7 +196,7 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 NEVER_REACHED;
         }
         break;
-        
+
     case 2:
         x = rPoint[0];
         y = rPoint[1];
@@ -216,7 +216,7 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 break;
             case 3:
                 gradN(0) = 4.0*y;
-                gradN(1) = 4.0*x;            
+                gradN(1) = 4.0*x;
                 break;
             case 4:
                 gradN(0) = -4.0*y;
@@ -230,7 +230,7 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 NEVER_REACHED;
         }
         break;
-        
+
     case 3:
         x = rPoint[0];
         y = rPoint[1];
@@ -267,17 +267,17 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 gradN(1) =  4.0*x;
                 gradN(2) =  0.0;
                 break;
-            case 6: 
+            case 6:
                 gradN(0) =  -4.0*y;
                 gradN(1) =  4.0-4.0*x-8.0*y-4.0*z;
-                gradN(2) =  -4.0*y; 
+                gradN(2) =  -4.0*y;
                 break;
             case 7:
                 gradN(0) =  -4.0*z;
                 gradN(1) =  -4.0*z;
                 gradN(2) =  4.0-4.0*x-4.0*y-8.0*z;
                 break;
-            case 8:   
+            case 8:
                 gradN(0) =  4.0*z;
                 gradN(1) =  0;
                 gradN(2) =  4.0*x;
@@ -288,23 +288,23 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
                 gradN(2) =  4.0*y;
                 break;
             default:
-                NEVER_REACHED;   
+                NEVER_REACHED;
         }
         break;
-    }    
+    }
     return gradN;
 }
 
 
 /**
  * Compute all basis functions at a point within an element.
- * 
+ *
  * @param rPoint The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
  * @param rReturnValue The values of the basis functions, in local index order.
- */ 
+ */
 template <unsigned ELEM_DIM>
-void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint, 
+void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint,
                                                              c_vector<double, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
@@ -320,7 +320,7 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<E
 
 /**
  * Compute the derivatives of all basis functions at a point within an element.
- * 
+ *
  * @param rPoint The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
  * @param rReturnValue The derivatives of the basis functions, in local index order. Each
@@ -344,7 +344,7 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Cha
  * Compute the derivatives of all basis functions at a point within an element.
  * This method will transform the results, for use within gaussian quadrature
  * for example.
- * 
+ *
  * @param point The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
  * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
@@ -359,7 +359,7 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivative
                                                                                   c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-    
+
     ComputeBasisFunctionDerivatives(rPoint, rReturnValue);
     rReturnValue = prod(trans(rInverseJacobian), rReturnValue);
 }

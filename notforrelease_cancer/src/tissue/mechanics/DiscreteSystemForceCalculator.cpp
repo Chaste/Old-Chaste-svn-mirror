@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "DiscreteSystemForceCalculator.hpp"
 
-DiscreteSystemForceCalculator::DiscreteSystemForceCalculator(MeshBasedTissue<2>& rTissue, 
+DiscreteSystemForceCalculator::DiscreteSystemForceCalculator(MeshBasedTissue<2>& rTissue,
                                                              std::vector<AbstractTwoBodyInteractionForce<2>*> forceCollection)
         : mrTissue(rTissue),
           mEpsilon(0.01)
@@ -168,7 +168,7 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
         {
             // Initialise a zero force vector between neighbouring nodes
             c_vector<double,2> force_between_nodes = zero_vector<double>(2);
-            
+
             // Iterate over vector of forces present and add up forces between nodes
             for (std::vector<AbstractTwoBodyInteractionForce<2>*>::iterator force_iter = mForceCollection.begin();
                  force_iter !=mForceCollection.end();
@@ -196,7 +196,7 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
 std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned index)
 {
     TetrahedralMesh<2,2>& r_mesh = mrTissue.rGetMesh();
-    
+
     std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
 
     std::vector<double> sampling_angles(4*neighbouring_node_indices.size());

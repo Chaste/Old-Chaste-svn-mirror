@@ -158,24 +158,24 @@ public:
      * might not get printed out. */
     void TestSimpleSimulation() throw(Exception)
     {
-        /* The {{{HeartConfig}}} class is used to set various parameters. It gets the default values 
+        /* The {{{HeartConfig}}} class is used to set various parameters. It gets the default values
          * from !ChasteDefaults.xml (in the base Chaste directory) (except the values in the 'Simulation' block of the XML file,
-         * which is only used by the Chaste executable). Parameters in this file can be re-set 
+         * which is only used by the Chaste executable). Parameters in this file can be re-set
          * with {{{HeartConfig}}} if the user wishes, and other paramters such as end time must be set
          * using {{{HeartConfig}}}. Let us begin by setting the end time (in ms), the mesh to use, and the
          * output directory and filename-prefix.
-         */ 
+         */
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/square_128_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainTutorial");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-        
+
         /* Next, we have to create a cell factory of the type we defined above. */
         PointStimulus2dCellFactory cell_factory;
 
         /* Now we create a problem class using (a pointer to) the cell factory. */
         BidomainProblem<2> bidomain_problem( &cell_factory );
- 
+
         /* This is enough setup to run a simulation: we could now call {{{Initialise()}}}
          * and {{{Solve()}}} to run... */
         // bidomain_problem.Initialise();
@@ -184,7 +184,7 @@ public:
         /* ..However, instead we show how to set a few more parameters. To set the conductivity values
          *  in the principal fibre, sheet and normal directions do the following.
          * Note that {{{Create_c_vector}}} is just a helper method for creating a {{{c_vector<double,DIM>}}}
-         * of the correct size (2, in this case). Make sure these methods are called before 
+         * of the correct size (2, in this case). Make sure these methods are called before
          * {{{Initialise()}}}.
          */
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
@@ -196,30 +196,30 @@ public:
         /* Now we call {{{Initialise()}}}... */
         bidomain_problem.Initialise();
 
-        /* The output will be written to /tmp/USER_NAME/testoutput/BidomainTutorial 
+        /* The output will be written to /tmp/USER_NAME/testoutput/BidomainTutorial
          * in hdf5 format. If you want visualise the results afterwards, call the
-         * following method now, and the mesh and output will be converted to meshalyzer 
+         * following method now, and the mesh and output will be converted to meshalyzer
          * format at the end of the simulation.
          */
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(); 
+        bidomain_problem.ConvertOutputToMeshalyzerFormat();
 
-        /* Now we call Solve() to run the simulation.  
+        /* Now we call Solve() to run the simulation.
          * Note that if you want to view the progress of longer simulations
-         * go to the the output directory and look at the file 
-         * {{{progress_status.txt}}}, which will say the percentage of the 
+         * go to the the output directory and look at the file
+         * {{{progress_status.txt}}}, which will say the percentage of the
          * simulation run. A useful linux command is therefore {{{watch tail progress_status.txt}}}
          * which will repeatedly display the last few lines of this file. */
         bidomain_problem.Solve();
 
         /* To now visualise the results, go to /tmp/USER_NAME/testoutput/BidomainTutorial/output,
          * where you should find the mesh and output, and run meshalyzer.
-         * 
+         *
          * EMPTYLINE
-         * 
-         * The easiest way to look at the resultant voltage values (for the last timestep - 
+         *
+         * The easiest way to look at the resultant voltage values (for the last timestep -
          * the data for the previous timesteps is written to file but not retained) is to
          * use a {{{ReplicatableVector}}}. {{{bidomain_problem.GetSolution())}}} returns a !PetSc vector
-         * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and we can create a 
+         * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and we can create a
          * {{{ReplicatableVector}}} for easy access to this !PetSc vector's data. (This won't be very
          * efficient with huge problems in parallel).
          */
@@ -250,16 +250,16 @@ public:
         }
     }
 
-    
+
     /*
      * EMPTYLINE
      *
      * == Running a bidomain simulation with an external bath, and electrodes ==
      *
      * EMPTYLINE
-     * 
+     *
      *  Now, we illustrate how to run a simulation with an external bath
-     *  and electrodes applying a boundary extracellular stimulus. Note that 
+     *  and electrodes applying a boundary extracellular stimulus. Note that
      *  currently, bath problems can only be solved on rectangular/cuboid
      *  domains.
      */
@@ -281,7 +281,7 @@ public:
 
         /* Bath problems seem to require decreased ODE timesteps.
          */
-        HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms                        
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms
 
         /* Next, use the {{{PlaneStimulusCellFactory}}} to define a set
          * of Luo-Rudy cells. This factory normally sets the X=0 cells to be
@@ -290,16 +290,16 @@ public:
          */
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,2> cell_factory(0.0);
 
-        /* 
+        /*
          * Now, we load up a rectangular mesh (in triangle/tetgen format), done as follows,
          * using {{{TrianglesMeshReader}}}.
          */
         TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         /* In bath problems, each element has an attribute which must be set
-         * to 0 (cardiac tissue) or 1 (bath). This can be done by having an 
+         * to 0 (cardiac tissue) or 1 (bath). This can be done by having an
          * extra column in the element file (see for example mesh/test/data/1D_0_to_1_10_elements_with_two_attributes.ele,
          * and note that the header in this file has 1 at the end to indicate that
          * the file defines an attribute for each element. We have read in a mesh
@@ -320,19 +320,19 @@ public:
         /* Now we define the electrodes. First define the magnitude of the electrodes
          * (ie the magnitude of the boundary extracellular stimulus), and the duration
          * it lasts for. Currently, electrodes switch on at time 0 and have constant magnitude
-         * until they are switched off. (Note that this test has a small range of 
+         * until they are switched off. (Note that this test has a small range of
          * magnitudes that will work, perhaps because the electrodes are close to the tissue).
          */
         //-1e4 is under thershold, -1.4e4 too high - crashes the cell model
         double magnitude = -1.1e4; // uA/cm^2
         double duration = 2; //ms
-        
+
         /* Electrodes work in two ways: the first electrode applies an input flux, and
          * the opposite electrode can either be grounded or apply an equal and opposite
          * flux (ie an output flux). The `false` here indicates the second electrode
          * is not grounded, ie has an equal and opposite flux. The "0, 0.0, 0.1" indicates
          * that the electrodes should be applied to the surfaces X=0.0 and X=0.1 (which
-         * must match the mesh provided) (so, for example, you should use "2, 0.0, 0.1" to 
+         * must match the mesh provided) (so, for example, you should use "2, 0.0, 0.1" to
          * apply electrodes to the surfaces Z=0.0 and Z=0.1, etc).
          */
         Electrodes<2> electrodes(mesh, false, 0, 0.0, 0.1, magnitude, duration);
@@ -342,32 +342,32 @@ public:
          * problem..
          */
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
-        
+
         /* ..set the mesh and electrodes.. */
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.SetElectrodes(electrodes);
-        
+
         /* ..and solve as before. */
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
-        
+
         /* The results can be visualised as before. '''Note:''' The voltage is only
          * defined at cardiac nodes (a node contained in ''any'' cardiac element), but
-         * for visualisation and computation a 'fake' value of ZERO is given for the 
+         * for visualisation and computation a 'fake' value of ZERO is given for the
          * voltage at bath nodes.
-         * 
+         *
          * EMPTYLINE
-         * 
+         *
          * Finally, we can check that an AP was induced in any of the cardiac
          * cells. We use a `ReplicatableVector` as before, and make sure we
-         * only check the voltage at cardiac cells. 
+         * only check the voltage at cardiac cells.
          */
         Vec solution = bidomain_problem.GetSolution(); // the Vs and phi_e's, as a PetSc vector
-        ReplicatableVector solution_repl(solution); 
-        
+        ReplicatableVector solution_repl(solution);
+
         bool ap_triggered = false;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             if (mesh.GetNode(i)->GetRegion()==HeartRegionCode::TISSUE)
             {

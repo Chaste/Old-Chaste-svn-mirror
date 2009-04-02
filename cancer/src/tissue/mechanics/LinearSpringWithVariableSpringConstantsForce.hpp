@@ -40,14 +40,14 @@ template<unsigned DIM>
 class LinearSpringWithVariableSpringConstantsForce : public GeneralisedLinearSpringForce<DIM>
 {
     friend class TestForces;
-    
+
 private :
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * Archive the object and its member variables.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -66,7 +66,7 @@ private :
     }
 
 protected :
-    
+
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
 
@@ -91,7 +91,7 @@ public :
      * Constructor.
      */
     LinearSpringWithVariableSpringConstantsForce();
-    
+
     /**
      * Destructor.
      */
@@ -99,7 +99,7 @@ public :
 
     /**
      * Set whether to use an edge-based spring constant.
-     * 
+     *
      * @param useEdgeBasedSpringConstant
      */
     void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
@@ -107,7 +107,7 @@ public :
     /**
      * Use different spring strengths depending on two cells:
      * Normal-normal, Normal-mutant, mutant-mutant
-     * 
+     *
      * @param useMutantSprings  whether to use mutant springs
      * @param mutantMutantMultiplier  the multiplier for springs connecting two mutant cells
      * @param normalMutantMultiplier  the multiplier for springs connecting a mutant cell with a normal cell
@@ -116,45 +116,45 @@ public :
 
     /**
      * Use the amount of beta-catenin on an edge to find spring constant.
-     * 
+     *
      * @param useBCatSprings whether to use beta-catenin-dependent spring stiffness
      */
     void SetBetaCateninSprings(bool useBCatSprings);
 
     /**
      * Set spring stiffness to be dependent on whether cells are apoptotic
-     * 
+     *
      * @param useApoptoticSprings whether to have apoptosis-dependent spring stiffness
      */
-    void SetApoptoticSprings(bool useApoptoticSprings);    
+    void SetApoptoticSprings(bool useApoptoticSprings);
 
     /**
-     * Return a multiplication factor for the spring constant, which 
-     * may depend on whether the given pair of neighbouring cells are 
-     * e.g. undergoing apoptosis, have mutations, or experience variable 
+     * Return a multiplication factor for the spring constant, which
+     * may depend on whether the given pair of neighbouring cells are
+     * e.g. undergoing apoptosis, have mutations, or experience variable
      * levels of beta catenin.
-     * 
+     *
      * @param nodeAGlobalIndex index of one neighbouring node
      * @param nodeBGlobalIndex index of the other neighbouring node
      * @param rTissue the tissue
      * @param isCloserThanRestLength whether the neighbouring nodes lie closer than the rest length of their connecting spring
-     * 
+     *
      * @return the multiplication factor.
-     */     
-    double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
-                                                      unsigned nodeBGlobalIndex, 
-                                                      AbstractTissue<DIM>& rTissue, 
+     */
+    double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex,
+                                                      unsigned nodeBGlobalIndex,
+                                                      AbstractTissue<DIM>& rTissue,
                                                       bool isCloserThanRestLength);
-    
+
     /**
      * Overridden AddForceContribution method.
-     * 
+     *
      * @param rForces reference to vector of forces on nodes
      * @param rTissue reference to the tissue
      */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);
- 
+
 };
 
 #include "TemplatedExport.hpp"

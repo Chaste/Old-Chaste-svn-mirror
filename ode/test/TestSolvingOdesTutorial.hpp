@@ -95,7 +95,7 @@ public:
 
 /* The following ''template specialisation'' defines the information for this
  * ODE system.  Note that we use the ODE system class that we have just defined
- * as a template parameter 
+ * as a template parameter
  */
 template<>
 void OdeSystemInformation<MyOde>::Initialise()
@@ -103,7 +103,7 @@ void OdeSystemInformation<MyOde>::Initialise()
     this->mVariableNames.push_back("y");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mInitialised = true;
 }
 
@@ -156,7 +156,7 @@ void OdeSystemInformation<MyOdeUsingStateVariables>::Initialise()
     this->mVariableNames.push_back("y");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1.0);
-    
+
     this->mInitialised = true;
 }
 
@@ -187,11 +187,11 @@ void OdeSystemInformation<My2dOde>::Initialise()
     this->mVariableNames.push_back("y");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1.0);
-    
+
     this->mVariableNames.push_back("dy/dt");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mInitialised = true;
 }
 

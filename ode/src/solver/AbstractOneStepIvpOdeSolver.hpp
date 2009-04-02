@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIvpOdeSolver.hpp"
 
 /**
- * Abstract one-step initial value problem ODE solver class. Sets up variables and functions 
+ * Abstract one-step initial value problem ODE solver class. Sets up variables and functions
  * for all the ODE solvers that only have one timestep.
 */
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
@@ -67,7 +67,7 @@ protected:
     /**
      * Calculate the solution to the ODE system at the next timestep.
      * Concrete subclasses should provide this method.
-     * 
+     *
      * @param pAbstractOdeSystem  the ODE system to solve
      * @param timeStep  dt
      * @param time  the current time
@@ -83,26 +83,26 @@ protected:
 public:
 
     /**
-     * Solves a system of ODEs using a specified one-step ODE solver and returns 
+     * Solves a system of ODEs using a specified one-step ODE solver and returns
      * the solution as an OdeSolution object.
-     * 
+     *
      * An example, which returns the solution every 0.1 seconds using dt=0.01:
      *
      *     MyOdeSystem ode;
      *     std::vector<double> init_cond = ode_system.GetInitialConditions();
      *     OdeSolution solution = solver.Solve(&ode, init_cond, 0, 1, 0.01, 0.1);
-     * 
-     * 
+     *
+     *
      * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
-     * @param rYValues  a standard vector specifying the intial condition of each 
-     *                  solution variable in the system (this can be the initial 
+     * @param rYValues  a standard vector specifying the intial condition of each
+     *                  solution variable in the system (this can be the initial
      *                  conditions vector stored in the ODE system)
      * @param startTime  the time at which the initial conditions are specified
-     * @param endTime  the time to which the system should be solved and the solution 
+     * @param endTime  the time to which the system should be solved and the solution
      *                 returned
      * @param timeStep  the time interval to be used by the solver
      * @param timeSampling  the interval at which to sample the solution to the ODE system
-     * 
+     *
      * @return OdeSolution is an object containing an integer of the number of
      * equations, a stdAbstractOdeSystem::vector of times and a std::vector of std::vectors where
      * each of those vectors contains the solution for one variable of the ODE
@@ -116,9 +116,9 @@ public:
                               double timeSampling);
 
     /**
-     * Second version of Solve. Solves a system of ODEs using a specified one-step 
-     * ODE solver. This method does not return the solution and therefore does not 
-     * take in a sampling time. Instead, the mStateVariables component in the ODE 
+     * Second version of Solve. Solves a system of ODEs using a specified one-step
+     * ODE solver. This method does not return the solution and therefore does not
+     * take in a sampling time. Instead, the mStateVariables component in the ODE
      * system object is updated.
      *
      * An example:
@@ -126,14 +126,14 @@ public:
      *     std::vector<double> init_cond = ode_system.GetInitialConditions();
      *     solver.Solve(&ode, init_cond, 0, 1, 0.01);
      *     state_variables = ode_system.rGetStateVariables(); // solution at t=1 found here
-     * 
-     * 
+     *
+     *
      * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
-     * @param rYValues  a standard vector specifying the intial condition of each 
-     *                  solution variable in the system (this can be the initial 
+     * @param rYValues  a standard vector specifying the intial condition of each
+     *                  solution variable in the system (this can be the initial
      *                  conditions vector stored in the ODE system)
      * @param startTime  the time at which the initial conditions are specified
-     * @param endTime  the time to which the system should be solved and the solution 
+     * @param endTime  the time to which the system should be solved and the solution
      *                 returned
      * @param timeStep  the time interval to be used by the solver
      */

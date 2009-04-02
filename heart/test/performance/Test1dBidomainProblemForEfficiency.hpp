@@ -46,10 +46,10 @@ public:
     void TestBidomainDg01WithNoOutput()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.00005));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.00005));               
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.00005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_1000_elements");
-                
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
@@ -57,7 +57,7 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
- 
+
         bidomain_problem.PrintOutput(false);
 
         try

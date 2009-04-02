@@ -65,13 +65,13 @@ private:
 
     /** Time to run the Solve() method up to */
     double mEndTime;
-    
+
     /** Mesh member. */
     MutableMesh<1,1> &mrMesh;
 
     /** Whether or not cell growth is simulated after cell division. */
     bool mIncludeVariableRestLength;
-    
+
     /** The maximum number of cells that will be in this simulation. */
     unsigned mMaxCells;
 
@@ -82,12 +82,12 @@ private:
     std::vector<TissueCell> mCells;
 
     /**
-     * This method handles the birth of a cell in 1D by splitting an existing 
+     * This method handles the birth of a cell in 1D by splitting an existing
      * element in two and placing a new node in the middle of it.
-     * 
+     *
      * @param pElement the existing element to split in two
      * @param time the current time
-     * 
+     *
      * @return the index of the new node.
      */
     unsigned AddNodeToElement(Element<1,1>* pElement, double time);
@@ -96,9 +96,9 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param rMesh refence to a 1D mesh
-     * @param cells vector of cells (defaulted to the empty vector, in which case SetIncludeRandomBirth() 
+     * @param cells vector of cells (defaulted to the empty vector, in which case SetIncludeRandomBirth()
      *        should be called for any birth to happen)
      */
     CryptSimulation1d(MutableMesh<1,1> &rMesh,
@@ -111,39 +111,39 @@ public:
 
     /**
      * Set method for mDt.
-     * 
+     *
      * @param dt the time step to use
      */
     void SetDt(double dt);
-    
+
     /**
      * Set method for mEndTime.
-     * 
+     *
      * @param endTime the end time to use
      */
     void SetEndTime(double endTime);
-    
+
     /**
      * Set method for mOutputDirectory.
-     * 
+     *
      * @param outputDirectory the output directory to use, relative to where Chaste output is stored
      */
     void SetOutputDirectory(std::string outputDirectory);
-    
+
     /**
      * Set method for mIncludeVariableRestLength.
-     * 
+     *
      * Call this before Solve() to simulate cell growth after cell division.
      */
     void SetIncludeVariableRestLength();
 
     /**
      * Set method for mMaxCells.
-     * 
+     *
      * @param maxCells
-     */    
+     */
     void SetMaxCells(unsigned maxCells);
-    
+
     /**
      * @return mCells.
      */

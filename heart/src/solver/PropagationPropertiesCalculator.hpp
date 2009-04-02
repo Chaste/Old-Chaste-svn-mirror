@@ -59,7 +59,7 @@ public:
      * @param globalNodeIndex  The cell at which to calculate.
      */
     double CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex);
-    
+
      /**
      * Calculate the maximum upstroke velocity at a single cell.
      * We return all the max upstroke velocities for all APs.
@@ -67,7 +67,7 @@ public:
      * @param globalNodeIndex  The cell at which to calculate.
      */
     std::vector<double> CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex);
-    
+
     /**
      * Calculate the conduction velocity between two cells, i.e. the time
      * taken for an AP to propagate from one to the other. It returns
@@ -83,19 +83,19 @@ public:
     double CalculateConductionVelocity(unsigned globalNearNodeIndex,
                                        unsigned globalFarNodeIndex,
                                        const double euclideanDistance);
-        
+
      /**
      * Calculate all the conduction velocities between two cells, i.e. the time
      * taken for all APs to propagate from one to the other. It returns a vector
-     * containing all the conduction velocities for each of the APs that 
-     * reached the two nodes (only the APs that reached both nodes). 
+     * containing all the conduction velocities for each of the APs that
+     * reached the two nodes (only the APs that reached both nodes).
      * Throws exceptions if an AP never reached one of the nodes.
      *
      * @param globalNearNodeIndex  The cell to measure from.
      * @param globalFarNodeIndex  The cell to measure to.
      * @param euclideanDistance  The distance the AP travels between the cells,
      *     along the tissue.
-     */                          
+     */
      std::vector<double> CalculateAllConductionVelocities(unsigned globalNearNodeIndex,
                                                           unsigned globalFarNodeIndex,
                                                           const double euclideanDistance);
@@ -116,7 +116,7 @@ public:
      * @param globalNodeIndex  The cell at which to calculate.
      */
     double CalculatePeakMembranePotential(unsigned globalNodeIndex);
-    
+
      /**
      * Calculate all the action potentials duration at a single cell.
      *

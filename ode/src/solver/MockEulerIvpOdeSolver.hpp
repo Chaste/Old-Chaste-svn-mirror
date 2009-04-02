@@ -33,8 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This 'mock' class is only used in testing. It is the same
- * as the EulerIvpOdeSolver class, but also keeps a count of 
- * how many times it has been called. This is useful to check 
+ * as the EulerIvpOdeSolver class, but also keeps a count of
+ * how many times it has been called. This is useful to check
  * ODE solving has been parallelised correctly.
  */
 class MockEulerIvpOdeSolver : public EulerIvpOdeSolver
@@ -73,7 +73,7 @@ public:
 
     /**
      * Get the number of times the ODE solver has been called.
-     * 
+     *
      * @return mCallCount.
      */
     unsigned GetCallCount();

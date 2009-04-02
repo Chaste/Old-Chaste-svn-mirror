@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCancerTestSuite.hpp"
 
 /**
- * This class contains tests for methods on classes 
+ * This class contains tests for methods on classes
  * inheriting from AbstractCellsGenerator.
  */
 class TestCellsGenerator : public AbstractCancerTestSuite
@@ -75,7 +75,7 @@ public:
         HoneycombMeshGenerator generator(6, 7, 2u, false);
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        // Set up cells 
+        // Set up cells
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
@@ -106,7 +106,7 @@ public:
         double y1 = 1.0;
         double y2 = 2.0;
         double y3 = 3.0;
-        
+
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, true, y0, y1, y2,y3 );
 
@@ -192,7 +192,7 @@ public:
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
     }
-    
+
     void TestTysonNovakCellCycleModelCellsGenerator() throw(Exception)
     {
         // Create mesh
@@ -206,7 +206,7 @@ public:
         std::vector<TissueCell> cells;
         TysonNovakCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
-        
+
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
     }
@@ -225,16 +225,16 @@ public:
         std::vector<TissueCell> cells;
         WntCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
-        
+
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
-        
+
         for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
     }
-    
+
     void TestSimpleWntCellCycleModelCellsGenerator() throw(Exception)
     {
         // Create mesh
@@ -245,7 +245,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells; 
+        std::vector<TissueCell> cells;
         SimpleWntCellCycleModelCellsGenerator<2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
 
@@ -257,8 +257,8 @@ public:
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
     }
-    
-    
+
+
     void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
     {
         // Create mesh

@@ -57,10 +57,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * and   I_ion is the ionic current                                     (uA/cm^2),
  *       I_intra_stim is the internal stimulus                          (uA/cm^3),
  *       I_extra_stim is the external stimulus                          (uA/cm^3).
- * 
- * Note: I_extra_stim can only be zero now. An extracellular stimulus can be applied 
+ *
+ * Note: I_extra_stim can only be zero now. An extracellular stimulus can be applied
  * as a boundary condition, in which case the units are uA/cm^2.
- * 
+ *
  */
 template <unsigned SPACE_DIM>
 class BidomainPde : public virtual AbstractCardiacPde<SPACE_DIM>
@@ -76,7 +76,7 @@ public:
      * Constructor sets up extracellular conductivity tensors.
      */
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
-    
+
     ~BidomainPde();
 
 //    void SetExtracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pExtracellularTensors)

@@ -50,9 +50,9 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
     }
     else // bath element
     {
-         
+
         ///\todo: the conductivity here is hardcoded to be 7!   also see hardcoded value in TS_ASSERT in Test1dProblemOnlyBathGroundedOneSide
-        double bath_cond=HeartConfig::Instance()->GetBathConductivity(); 
+        double bath_cond=HeartConfig::Instance()->GetBathConductivity();
         const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = bath_cond*identity_matrix<double>(SPACE_DIM);
 
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
@@ -108,7 +108,7 @@ c_vector<double,2*(ELEMENT_DIM+1)>
         //vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
 
         // u(0) = voltage
-        //noalias(slice_V) = zero_vector<double>(ELEMENT_DIM+1); 
+        //noalias(slice_V) = zero_vector<double>(ELEMENT_DIM+1);
         //noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
 
         return ret;
@@ -132,24 +132,24 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
       unsigned is_node_bath;
 
       try
-	{
-	  if (this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH)
-	    {
-	      is_node_bath = 1;
-	    }
-	  else
-	    {
-	      is_node_bath = 0;
-	    }
-	}
+    {
+      if (this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+        {
+          is_node_bath = 1;
+        }
+      else
+        {
+          is_node_bath = 0;
+        }
+    }
       catch(Exception& e)
-	{
-	  is_node_bath = 0;
-	}
+    {
+      is_node_bath = 0;
+    }
 
       unsigned is_node_bath_reduced;
       MPI_Allreduce(&is_node_bath, &is_node_bath_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-     
+
       if(is_node_bath_reduced > 0) // ie is a bath node
         {
             PetscInt index[1];
@@ -166,7 +166,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
                 Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
                 MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
             }
-            
+
             if(assembleVector)
             {
                 // zero rhs vector entry
@@ -184,7 +184,7 @@ BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathAssembler(
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)
     : BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
-{        
+{
 }
 
 /////////////////////////////////////////////////////////////////////

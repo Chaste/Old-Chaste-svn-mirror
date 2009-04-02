@@ -39,14 +39,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestParallelTetrahedralMesh : public CxxTest::TestSuite
 {
-    
+
 public:
 
     // ticket #922: 1D parallel meshes not supported (!). Since culling internal faces is mandatory here and there's not a parallel implementation of that yet
     void dontTestConstructFromMeshReader1D()
-    {        
+    {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
-        
+
         ParallelTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -64,7 +64,7 @@ public:
             }
             catch(Exception& e)
             {
-                // I don't own this element do I?               
+                // I don't own this element do I?
             }
         }
     }
@@ -76,7 +76,7 @@ public:
          * a ParallelTetrahedralMesh create the same geometry from the same file.
          */
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        
+
         ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::DUMB); // No reordering
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -106,34 +106,34 @@ public:
 
         try
         {
-            mesh.GetInverseJacobianForElement(0, jacobian, jacobian_determinant, inverse_jacobian);        
+            mesh.GetInverseJacobianForElement(0, jacobian, jacobian_determinant, inverse_jacobian);
             mesh.GetElement(0)->CalculateInverseJacobian(element_jacobian, element_jacobian_determinant, element_inverse_jacobian);
-        
+
             TS_ASSERT_EQUALS(element_jacobian_determinant, jacobian_determinant);
-        
+
             for (unsigned row=0; row<2; row++)
             {
                 for (unsigned col=0; col<2; col++)
                 {
-                    TS_ASSERT_EQUALS(element_inverse_jacobian(row,col), inverse_jacobian(row,col));                
-                }            
+                    TS_ASSERT_EQUALS(element_inverse_jacobian(row,col), inverse_jacobian(row,col));
+                }
             }
         }
         catch(Exception& e)
         {
-            // I don't own this element do I?                           
+            // I don't own this element do I?
         }
-            
+
         c_vector<double, 2> direction;
         c_vector<double, 2> element_direction;
-        
+
         try
         {
             mesh.GetWeightedDirectionForBoundaryElement(0, direction, jacobian_determinant);
             mesh.GetBoundaryElement(0)->CalculateWeightedDirection(element_direction, element_jacobian_determinant);
-            
+
             TS_ASSERT_EQUALS(element_jacobian_determinant, jacobian_determinant);
-            
+
             for (unsigned row=0; row<2; row++)
             {
                 TS_ASSERT_EQUALS(element_direction(row), direction(row));
@@ -141,51 +141,51 @@ public:
         }
         catch(Exception& e)
         {
-            // I don't own this boundary element do I?                           
+            // I don't own this boundary element do I?
         }
-    
-        mesh_reader.Reset();        
+
+        mesh_reader.Reset();
         TetrahedralMesh<2,2> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
-        
-        for (ParallelTetrahedralMesh<2,2>::ElementIterator it=mesh.GetElementIteratorBegin(); 
-             it!=mesh.GetElementIteratorEnd(); 
+
+        for (ParallelTetrahedralMesh<2,2>::ElementIterator it=mesh.GetElementIteratorBegin();
+             it!=mesh.GetElementIteratorEnd();
              ++it)
         {
             Element<2,2>* p_para_element = *it;
             unsigned element_index = p_para_element->GetIndex();
 
-            Element<2,2>* p_sequ_element = seq_mesh.GetElement(element_index);            
+            Element<2,2>* p_sequ_element = seq_mesh.GetElement(element_index);
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
 
             for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
             {
-                TS_ASSERT_EQUALS(p_para_element->GetNodeGlobalIndex(node_local_index), 
-                                 p_sequ_element->GetNodeGlobalIndex(node_local_index));                                 
+                TS_ASSERT_EQUALS(p_para_element->GetNodeGlobalIndex(node_local_index),
+                                 p_sequ_element->GetNodeGlobalIndex(node_local_index));
 
-                TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[0], 
-                                 p_sequ_element->GetNode(node_local_index)->GetPoint()[0]);                                 
+                TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[0],
+                                 p_sequ_element->GetNode(node_local_index)->GetPoint()[0]);
             }
         }
 
-        for (ParallelTetrahedralMesh<2,2>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin(); 
-             it!=mesh.GetBoundaryElementIteratorEnd(); 
+        for (ParallelTetrahedralMesh<2,2>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin();
+             it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
             BoundaryElement<1,2>* p_para_boundary_element = *it;
             unsigned boundary_element_index = p_para_boundary_element->GetIndex();
 
-            BoundaryElement<1,2>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);            
+            BoundaryElement<1,2>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
             TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
 
             for (unsigned node_local_index=0; node_local_index < p_para_boundary_element->GetNumNodes(); node_local_index++)
             {
-                TS_ASSERT_EQUALS(p_para_boundary_element->GetNodeGlobalIndex(node_local_index), 
-                                 p_sequ_boundary_element->GetNodeGlobalIndex(node_local_index));                                 
+                TS_ASSERT_EQUALS(p_para_boundary_element->GetNodeGlobalIndex(node_local_index),
+                                 p_sequ_boundary_element->GetNodeGlobalIndex(node_local_index));
 
-                TS_ASSERT_EQUALS(p_para_boundary_element->GetNode(node_local_index)->GetPoint()[0], 
-                                 p_sequ_boundary_element->GetNode(node_local_index)->GetPoint()[0]);                                 
-            }            
+                TS_ASSERT_EQUALS(p_para_boundary_element->GetNode(node_local_index)->GetPoint()[0],
+                                 p_sequ_boundary_element->GetNode(node_local_index)->GetPoint()[0]);
+            }
         }
     }
 
@@ -193,7 +193,7 @@ public:
     {
         /*
          * In this test we let METIS reorder the ParallelTetrahedralMesh. We want to check that although
-         * the indices of the nodes have changed, the location of the nodes is consistent with a 
+         * the indices of the nodes have changed, the location of the nodes is consistent with a
          * TetrahedralMesh representation of the same mesh.
          */
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -209,53 +209,53 @@ public:
         TetrahedralMesh<3,3> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (ParallelTetrahedralMesh<3,3>::ElementIterator it=mesh.GetElementIteratorBegin(); 
-             it!=mesh.GetElementIteratorEnd(); 
+        for (ParallelTetrahedralMesh<3,3>::ElementIterator it=mesh.GetElementIteratorBegin();
+             it!=mesh.GetElementIteratorEnd();
              ++it)
         {
             Element<3,3>* p_para_element = *it;
             unsigned element_index = p_para_element->GetIndex();
-            
-            Element<3,3>* p_sequ_element = seq_mesh.GetElement(element_index);            
+
+            Element<3,3>* p_sequ_element = seq_mesh.GetElement(element_index);
 
             // The elements have the same index and the nodes are located in the same position.
-            TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());            
+            TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
             for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
             {
                 for (unsigned dim=0; dim<3; dim++)
                 {
-                    TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[dim], 
+                    TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[dim],
                                      p_sequ_element->GetNode(node_local_index)->GetPoint()[dim]);
-                }                                 
+                }
             }
         }
 
-        for (ParallelTetrahedralMesh<3,3>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin(); 
-             it!=mesh.GetBoundaryElementIteratorEnd(); 
+        for (ParallelTetrahedralMesh<3,3>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin();
+             it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
             BoundaryElement<2,3>* p_para_boundary_element = *it;
             unsigned boundary_element_index = p_para_boundary_element->GetIndex();
-            
-            BoundaryElement<2,3>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);            
+
+            BoundaryElement<2,3>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
 
             // The boundary elements have the same index and the nodes are located in the same position.
-            TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());            
+            TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
             for (unsigned node_local_index=0; node_local_index < p_para_boundary_element->GetNumNodes(); node_local_index++)
             {
                 for (unsigned dim=0; dim<3; dim++)
                 {
-                    TS_ASSERT_EQUALS(p_para_boundary_element->GetNode(node_local_index)->GetPoint()[dim], 
+                    TS_ASSERT_EQUALS(p_para_boundary_element->GetNode(node_local_index)->GetPoint()[dim],
                                      p_sequ_boundary_element->GetNode(node_local_index)->GetPoint()[dim]);
-                }                                 
-            }            
+                }
+            }
         }
     }
 
     void TestEverythingIsAssignedMetisLibrary()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);        
+        ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
@@ -276,18 +276,18 @@ public:
                 {
                     unsigned node_index = mesh.GetNode(node_id)->GetIndex();
                     TS_ASSERT_EQUALS(node_id, node_index);
-    
+
                     nodes_owned[node_index] = 1;
                 }
                 catch(Exception& e)
                 {
-                    nodes_owned[node_id] = 0;               
+                    nodes_owned[node_id] = 0;
                 }
             }
 
-            // Combine all the local maps by adding them up in the master process                
-            unsigned nodes_reduction[num_global_nodes];        
-            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+            // Combine all the local maps by adding them up in the master process
+            unsigned nodes_reduction[num_global_nodes];
+            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
 
             // Make sure every node is owned at least by one processor
             if (PetscTools::AmMaster())
@@ -313,18 +313,18 @@ public:
                 {
                     unsigned element_index = mesh.GetElement(element_id)->GetIndex();
                     TS_ASSERT_EQUALS(element_id, element_index);
-    
+
                     elements_owned[element_index] = 1;
                 }
                 catch(Exception& e)
                 {
-                    elements_owned[element_id] = 0;               
+                    elements_owned[element_id] = 0;
                 }
             }
 
-            // Combine all the local maps by adding them up in the master process                
-            unsigned elements_reduction[num_global_elements];        
-            MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+            // Combine all the local maps by adding them up in the master process
+            unsigned elements_reduction[num_global_elements];
+            MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
 
             // Make sure every element is owned at least by one processor
             if (PetscTools::AmMaster())
@@ -350,18 +350,18 @@ public:
                 {
                     unsigned b_element_index = mesh.GetElement(b_element_id)->GetIndex();
                     TS_ASSERT_EQUALS(b_element_id, b_element_index);
-    
+
                     b_elements_owned[b_element_index] = 1;
                 }
                 catch(Exception& e)
                 {
-                    b_elements_owned[b_element_id] = 0;               
+                    b_elements_owned[b_element_id] = 0;
                 }
             }
 
-            // Combine all the local maps by adding them up in the master process                
-            unsigned b_elements_reduction[num_global_b_elements];        
-            MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+            // Combine all the local maps by adding them up in the master process
+            unsigned b_elements_reduction[num_global_b_elements];
+            MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
 
             // Make sure every boundary element is owned at least by one processor
             if (PetscTools::AmMaster())
@@ -377,7 +377,7 @@ public:
     void TestEverythingIsAssignedMetisBinary()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_BINARY);        
+        ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_BINARY);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
@@ -398,18 +398,18 @@ public:
                 {
                     unsigned node_index = mesh.GetNode(node_id)->GetIndex();
                     TS_ASSERT_EQUALS(node_id, node_index);
-    
+
                     nodes_owned[node_index] = 1;
                 }
                 catch(Exception& e)
                 {
-                    nodes_owned[node_id] = 0;               
+                    nodes_owned[node_id] = 0;
                 }
             }
 
-            // Combine all the local maps by adding them up in the master process                
-            unsigned nodes_reduction[num_global_nodes];        
-            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+            // Combine all the local maps by adding them up in the master process
+            unsigned nodes_reduction[num_global_nodes];
+            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
 
             // Make sure every node is owned at least by one processor
             if (PetscTools::AmMaster())
@@ -419,7 +419,7 @@ public:
                     TS_ASSERT(nodes_reduction[node_id] > 0);
                 }
             }
-        }        
+        }
 
         /*
          * All elements have been assigned
@@ -435,18 +435,18 @@ public:
                 {
                     unsigned element_index = mesh.GetElement(element_id)->GetIndex();
                     TS_ASSERT_EQUALS(element_id, element_index);
-    
+
                     elements_owned[element_index] = 1;
                 }
                 catch(Exception& e)
                 {
-                    elements_owned[element_id] = 0;               
+                    elements_owned[element_id] = 0;
                 }
             }
 
-            // Combine all the local maps by adding them up in the master process                
-            unsigned elements_reduction[num_global_elements];        
-            MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+            // Combine all the local maps by adding them up in the master process
+            unsigned elements_reduction[num_global_elements];
+            MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
 
             // Make sure every element is owned at least by one processor
             if (PetscTools::AmMaster())
@@ -472,18 +472,18 @@ public:
                 {
                     unsigned b_element_index = mesh.GetElement(b_element_id)->GetIndex();
                     TS_ASSERT_EQUALS(b_element_id, b_element_index);
-    
+
                     b_elements_owned[b_element_index] = 1;
                 }
                 catch(Exception& e)
                 {
-                    b_elements_owned[b_element_id] = 0;               
+                    b_elements_owned[b_element_id] = 0;
                 }
             }
 
-            // Combine all the local maps by adding them up in the master process                
-            unsigned b_elements_reduction[num_global_b_elements];        
-            MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);        
+            // Combine all the local maps by adding them up in the master process
+            unsigned b_elements_reduction[num_global_b_elements];
+            MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
 
             // Make sure every boundary element is owned at least by one processor
             if (PetscTools::AmMaster())
@@ -513,7 +513,7 @@ public:
             }
             catch(Exception& e)
             {
-                // I don't own this element do I?               
+                // I don't own this element do I?
             }
         }
 
@@ -529,7 +529,7 @@ public:
             }
             catch(Exception& e)
             {
-                // I don't own this element do I?               
+                // I don't own this element do I?
             }
         }
     }
@@ -537,12 +537,12 @@ public:
     void TestMetisPartitioning()
     {
         EXIT_IF_SEQUENTIAL;
-        
+
         {
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-            ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);        
+            ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);
             mesh.ConstructFromMeshReader(mesh_reader);
-            
+
             // Check that each processor owns the number of nodes corresponding to its METIS partition
             std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
             TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
@@ -550,9 +550,9 @@ public:
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_LIBRARY);        
+            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_LIBRARY);
             mesh.ConstructFromMeshReader(mesh_reader);
-            
+
             // Check that each processor owns the number of nodes corresponding to its METIS partition
             std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
             TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
@@ -560,9 +560,9 @@ public:
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_BINARY);        
+            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_BINARY);
             mesh.ConstructFromMeshReader(mesh_reader);
-            
+
             // Check that each processor owns the number of nodes corresponding to its METIS partition
             std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
             TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
@@ -570,9 +570,9 @@ public:
     }
 
     /*
-     *  This test creates a ParallelTetrahedralMesh, dumps it to disc (permuted), opens the newly 
+     *  This test creates a ParallelTetrahedralMesh, dumps it to disc (permuted), opens the newly
      * created file, and checks if it is consistent with the object in memory.
-     */    
+     */
     void TestWritingPermutedMesh()
     {
         EXIT_IF_SEQUENTIAL
@@ -589,25 +589,25 @@ public:
             {
                 trivial_permutation = false;
                 break;
-            }            
+            }
         }
 
         TS_ASSERT_EQUALS(trivial_permutation, false);
 
         mesh_reader.Reset();
-        std::string filename = "PermutedMesh";     
+        std::string filename = "PermutedMesh";
         TrianglesMeshWriter<3,3> mesh_writer("", filename);
         mesh_writer.WriteFilesUsingMeshReader(mesh_reader, mesh.rGetNodePermutation());
 
-        std::string output_dir = mesh_writer.GetOutputDirectory();        
-        TrianglesMeshReader<3,3> permuted_mesh_reader(output_dir+filename);                
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<3,3> permuted_mesh_reader(output_dir+filename);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             try
             {
                 std::vector<double> file_coordinates = permuted_mesh_reader.GetNextNode();
-                ChastePoint<3> mem_coordinates = mesh.GetNode(node_index)->GetPoint(); 
+                ChastePoint<3> mem_coordinates = mesh.GetNode(node_index)->GetPoint();
 
                 for (unsigned coord_index=0; coord_index<file_coordinates.size(); coord_index++)
                 {
@@ -616,7 +616,7 @@ public:
             }
             catch(Exception& e)
             {
-            }            
+            }
         }
 
         for (unsigned element_index=0; element_index<mesh.GetNumElements(); element_index++)
@@ -624,8 +624,8 @@ public:
             try
             {
                 ElementData file_nodes = permuted_mesh_reader.GetNextElementData();
-                Element<3,3>* p_mem_element = mesh.GetElement(element_index); 
-                
+                Element<3,3>* p_mem_element = mesh.GetElement(element_index);
+
                 for (unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
                 {
                     TS_ASSERT_EQUALS(file_nodes.NodeIndices[node_index], p_mem_element->GetNode(node_index)->GetIndex());
@@ -633,7 +633,7 @@ public:
             }
             catch(Exception& e)
             {
-            }                
+            }
         }
 
         for (unsigned face_index=0; face_index<mesh.GetNumElements(); face_index++)
@@ -641,8 +641,8 @@ public:
             try
             {
                 ElementData file_nodes = permuted_mesh_reader.GetNextFaceData();
-                BoundaryElement<2,3>* p_mem_face = mesh.GetBoundaryElement(face_index); 
-                
+                BoundaryElement<2,3>* p_mem_face = mesh.GetBoundaryElement(face_index);
+
                 for (unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
                 {
                     TS_ASSERT_EQUALS(file_nodes.NodeIndices[node_index], p_mem_face->GetNode(node_index)->GetIndex());
@@ -650,9 +650,9 @@ public:
             }
             catch(Exception& e)
             {
-            }               
+            }
         }
     }
-    
+
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

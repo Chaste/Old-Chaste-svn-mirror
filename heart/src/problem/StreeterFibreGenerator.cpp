@@ -282,7 +282,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     GetNodesAtSurface(mEpiFile, mEpiSurface);
     GetNodesAtSurface(mRVFile, mRVSurface);
     GetNodesAtSurface(mLVFile, mLVSurface);
-    
+
     CheckVentricleAlignment();
 
     // Compute the distance map of each surface
@@ -423,11 +423,11 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
         c_matrix<double, SPACE_DIM+1, SPACE_DIM> temp;
         c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian, inverse_jacobian;
-        double jacobian_det;               
+        double jacobian_det;
         mrMesh.GetInverseJacobianForElement(element_index, jacobian, jacobian_det, inverse_jacobian);
         noalias(temp) = prod (basis_functions, inverse_jacobian);
         noalias(grad_ave_wall_thickness) = prod(elem_nodes_ave_thickness, temp);
-        
+
         grad_ave_wall_thickness /= norm_2(grad_ave_wall_thickness);
 
         if (logInfo)
@@ -442,9 +442,9 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
          *  Computed as the cross product with the x-axis (assuming base-apex axis is x). The output vector is not normal,
          * since the angle between them may be != 90, normalise it.
          */
-        c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, Create_c_vector(1.0, 0.0, 0.0));           
+        c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, Create_c_vector(1.0, 0.0, 0.0));
         fibre_direction /= norm_2(fibre_direction);
-        
+
         /*
          *  Longitude direction (w in Streeter paper)
          */
@@ -465,21 +465,21 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
          *               ( u(1) v(1) w(1) )
          *   (u, v, w) = ( u(2) v(2) w(2) )
          *               ( u(3) v(3) w(3) )
-         * 
+         *
          *  The following matrix defines a rotation about the u axis
-         * 
+         *
          *                 ( 1        0           0      ) (u')
          *   R = (u, v, w) ( 0    cos(alpha) -sin(alpha) ) (v')
          *                 ( 0    sin(alpha)  cos(alpha) ) (w')
          *
          *  The rotated basis is computed like:
-         * 
+         *
          *                                             ( 1        0           0      )
          *  (u, v_r, w_r ) = R * (u, v, w) = (u, v, w) ( 0    cos(alpha) -sin(alpha) )
          *                                             ( 0    sin(alpha)  cos(alpha) )
-         * 
+         *
          *  Which simplifies to:
-         * 
+         *
          *   v_r =  v*cos(alpha) + w*sin(alpha)
          *   w_r = -v*sin(alpha) + w*cos(alpha)
          */
@@ -506,7 +506,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
          */
         *p_fibre_file << rotated_fibre_direction[0]     << " " << rotated_fibre_direction[1]     << " "  << rotated_fibre_direction[2]     << " "
                       << grad_ave_wall_thickness[0]     << " " << grad_ave_wall_thickness[1]     << " "  << grad_ave_wall_thickness[2]     << " "
-                      << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << std::endl;            
+                      << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << std::endl;
     }
 
     p_fibre_file->close();
@@ -563,7 +563,7 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
 
     //If these assertions trip then it means that the heart is not aligned correctly.
     //See the comment above the method signature.
-    
+
     //Check that LV average is not inside the RV interval
     assert(average_y_lv < min_y_rv  || average_y_lv > max_y_rv);
 

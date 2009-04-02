@@ -89,7 +89,7 @@ double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
             average_damping_constant += CancerParameters::Instance()->GetDampingConstantNormal()/((double) num_containing_elements);
         }
     }
-         
+
     return average_damping_constant;
 }
 
@@ -102,7 +102,7 @@ double VertexBasedTissue<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>
     // Find the indices of the elements owned by each node
     std::set<unsigned> elements_containing_nodeA = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> elements_containing_nodeB = pNodeB->rGetContainingElementIndices();
-    
+
     // Find common elements
     std::set<unsigned> shared_elements;
     std::set_intersection(elements_containing_nodeA.begin(),
@@ -110,7 +110,7 @@ double VertexBasedTissue<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>
                           elements_containing_nodeB.begin(),
                           elements_containing_nodeB.end(),
                           std::inserter(shared_elements, shared_elements.begin()));
-    
+
     // Check that the nodes have a common edge
     assert(shared_elements.size() > 0);
 
@@ -239,7 +239,7 @@ unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
             it = this->mCells.erase(it);
             --it;
         }
-    } 
+    }
     return num_removed;
 }
 
@@ -344,7 +344,7 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     {
         cell_target_area *= 0.5*(1 + cell_age/g1_duration);
     }
-    
+
     return cell_target_area;
 }
 

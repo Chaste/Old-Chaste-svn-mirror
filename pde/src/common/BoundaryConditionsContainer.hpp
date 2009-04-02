@@ -70,7 +70,7 @@ private:
     NeumannMapIterator mLastNeumannCondition[PROBLEM_DIM];
 
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
-    
+
     /** A zero bc, used for other unknowns in ApplyNeumannBoundaryCondition */
     ConstBoundaryCondition<SPACE_DIM>* mpZeroBoundaryCondition;
 
@@ -187,7 +187,7 @@ public:
      * If the number of unknowns is greater than one, it is assumed the solution vector is
      * of the form (in the case of two unknowns u and v, and N nodes):
      * solnvec = (U_1, V_1, U_2, V_2, ...., U_N, V_N)
-     * 
+     *
      * @param currentSolution
      * @param residual
      */
@@ -200,7 +200,7 @@ public:
      * If the number of unknowns is greater than one, it is assumed the solution vector is
      * of the form (in the case of two unknowns u and v, and N nodes):
      * solnvec = (U_1, V_1, U_2, V_2, ...., U_N, V_N)
-     * 
+     *
      * @param jacobian
      */
     void ApplyDirichletToNonlinearJacobian(Mat jacobian);
@@ -226,7 +226,7 @@ public:
      * Obtain value of neumann boundary condition at a specified point in a given surface element
      *
      * It is up to the user to ensure that the point x is contained in the surface element.
-     * 
+     *
      * @param pSurfaceElement
      * @param x \todo should this be rX?
      * @param indexOfUnknown defaults to 0
@@ -241,7 +241,7 @@ public:
      *
      * \todo
      * This is a horrendously inefficient fix. Perhaps have flag in element object?
-     * 
+     *
      * @param pSurfaceElement
      * @param indexOfUnknown defaults to 0
      */

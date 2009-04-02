@@ -39,43 +39,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Mahajan2008OdeSystem : public AbstractCardiacCell
 {
 private:
-    /** Scale factor for Gks*/ 
+    /** Scale factor for Gks*/
     double mScaleFactorGks;
     /** Scale factor for Gto*/
     double mScaleFactorIto;
     /** Scale factor for Gkr*/
-    double mScaleFactorGkr;	
+    double mScaleFactorGkr;
 public:
-    Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver, 
+    Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
                          AbstractStimulusFunction* pIntracellularStimulus);
-    
+
     ~Mahajan2008OdeSystem();
-    
+
     /**
      * verify the state variables
      */
     void VerifyGatingVariables();
-    
+
      /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
      */
     void SetScaleFactorGks(double sfgks);
-    
+
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
      */
     void SetScaleFactorIto(double sfito);
-    
+
     /**
      * Set the scale factor for Gkr (might be useful for simulating LQT2)
      */
     void SetScaleFactorGkr(double sfgkr);
-    
+
     /**
      * Calculates the ionic current
      */
     double GetIIonic();
-    
+
     /**
      * Evaluate the derivatives of the state variables
      */

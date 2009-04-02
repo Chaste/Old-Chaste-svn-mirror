@@ -55,25 +55,25 @@ public:
         double lam2 = 1+b*X(1);
         double invlam1 = 1.0/lam1;
         double invlam2 = 1.0/lam2;
-        
+
         c_vector<double,3> body_force;
         body_force(0) = a;
         body_force(1) = b;
         body_force(2) = 2*X(2)*invlam1*invlam2*( a*a*invlam1*invlam1 + b*b*invlam2*invlam2 );
-    
+
         return -2*c1*body_force;
     }
 
     static c_vector<double,3> GetTraction(c_vector<double,3>& X)
     {
         c_vector<double,3> traction = zero_vector<double>(3);
-    
+
         double lam1 = 1+a*X(0);
         double lam2 = 1+b*X(1);
 
         double invlam1 = 1.0/lam1;
         double invlam2 = 1.0/lam2;
-        
+
         double Z = X(2);
 
         if( fabs(X(0)-1)<1e-6 )
@@ -122,22 +122,22 @@ double ThreeDimensionalModelProblem::c1 = 0.1;
 
 /**
  *  Solve 3D nonlinear elasticity problem with an exact solution.
- * 
- *  For full details see Pathmanathan, Gavaghan, Whiteley "A comparison of numerical 
- *  methods used in finite element modelling of soft tissue deformation", J. Strain 
+ *
+ *  For full details see Pathmanathan, Gavaghan, Whiteley "A comparison of numerical
+ *  methods used in finite element modelling of soft tissue deformation", J. Strain
  *  Analysis, to appear.
- *  
+ *
  *  We solve a 3d problem on a cube with a Neo-Hookean material, assuming the solution
  *  will be
  *    x = X+aX^2/2
  *    y = Y+bY^2/2
  *    z = Z/(1+aX)(1+bY)
- *    with p=2c (c the material parameter), 
- *  which, note, has been constructed to be an incompressible. We assume displacement 
+ *    with p=2c (c the material parameter),
+ *  which, note, has been constructed to be an incompressible. We assume displacement
  *  boundary conditions on X=0 and traction boundary conditions on the remaining 5 surfaces.
  *  It is then possible to determine the body force and surface tractions required for
  *  this deformation, and they are defined in the above class.
- * 
+ *
  */
 class TestNonlinearElasticityAssemblerLong : public CxxTest::TestSuite
 {
@@ -149,35 +149,35 @@ public:
         unsigned num_elem_each_dir = 5;
         QuadraticMesh<3> mesh(1.0, 1.0, 1.0, num_elem_each_dir, num_elem_each_dir, num_elem_each_dir);
 
-        // Neo-Hookean material law 
+        // Neo-Hookean material law
         MooneyRivlinMaterialLaw<3> law(ThreeDimensionalModelProblem::c1, 0.0);
 
         // Define displacement boundary conditions
         std::vector<unsigned> fixed_nodes;
-        std::vector<c_vector<double,3> > locations;        
+        std::vector<c_vector<double,3> > locations;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double X = mesh.GetNode(i)->rGetLocation()[0];
             double Y = mesh.GetNode(i)->rGetLocation()[1];
             double Z = mesh.GetNode(i)->rGetLocation()[2];
-            
+
             // if X=0
             if( fabs(X)<1e-6)
             {
                 fixed_nodes.push_back(i);
                 c_vector<double,3> new_position;
                 new_position(0) = 0.0;
-                new_position(1) = Y + Y*Y*ThreeDimensionalModelProblem::b/2.0; 
+                new_position(1) = Y + Y*Y*ThreeDimensionalModelProblem::b/2.0;
                 new_position(2) = Z/((1+X*ThreeDimensionalModelProblem::a)*(1+Y*ThreeDimensionalModelProblem::b));
                 locations.push_back(new_position);
             }
         }
         assert(fixed_nodes.size()==(2*num_elem_each_dir+1)*(2*num_elem_each_dir+1));
-        
+
         // Define traction boundary conditions
         // on all boundary elems that are not on X=0
         std::vector<BoundaryElement<2,3>*> boundary_elems;
-        for(TetrahedralMesh<3,3>::BoundaryElementIterator iter 
+        for(TetrahedralMesh<3,3>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
@@ -188,22 +188,22 @@ public:
                 boundary_elems.push_back(p_element);
             }
         }
-        assert(boundary_elems.size()==10*num_elem_each_dir*num_elem_each_dir); 
+        assert(boundary_elems.size()==10*num_elem_each_dir*num_elem_each_dir);
 
-        NonlinearElasticityAssembler<3> assembler(&mesh, &law, 
+        NonlinearElasticityAssembler<3> assembler(&mesh, &law,
                                                   zero_vector<double>(3), /*body force-overwritten by functional definiton below*/
-                                                  1.0 /*density*/, "nonlin_elas_3d", 
+                                                  1.0 /*density*/, "nonlin_elas_3d",
                                                   fixed_nodes, &locations);
 
         // set the body force and traction functions
         assembler.SetFunctionalBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
         assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
-        
+
         assembler.Solve();
-        
-        // compare        
+
+        // compare
         std::vector<c_vector<double,3> >& r_solution = assembler.rGetDeformedPosition();
-        
+
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double X = mesh.GetNode(i)->rGetLocation()[0];

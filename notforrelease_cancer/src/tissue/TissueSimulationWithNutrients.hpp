@@ -154,9 +154,9 @@ private :
 
     /**
      * Find the index of the coarse mesh element containing a given cell.
-     * 
+     *
      * @param rCell the cell
-     * 
+     *
      * @return the element index.
      */
     unsigned FindElementContainingCell(TissueCell& rCell);
@@ -173,9 +173,9 @@ private :
 
     /**
      *  Create a coarse mesh on which to solve the nutrient PDE.
-     * 
+     *
      * \todo currently only works in 2D (see #737)
-     * 
+     *
      * @param coarseGrainScaleFactor the ratio of the width of the coarse nutrient mesh to the initial width of the tissue
      */
     void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
@@ -187,7 +187,7 @@ private :
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
-     * 
+     *
      * Writes out special information about the mesh to the visualizer.
      */
     void WriteVisualizerSetupFile();
@@ -211,7 +211,7 @@ public:
                                    AveragedSinksPde<DIM>* pAveragedSinksPde=NULL,
                                    bool deleteTissueAndForceCollection=false,
                                    bool initialiseCells=true);
-                     
+
     /**
      * Destructor
      *
@@ -224,7 +224,7 @@ public:
      * A small hack until we fully archive this class -
      * needed to set the PDE after loading a simulation
      * from an archive.
-     * 
+     *
      * @param pPde pointer to the PDE object
      */
     void SetPde(AbstractLinearEllipticPde<DIM,DIM>* pPde);
@@ -233,7 +233,7 @@ public:
      * A small hack until we fully archive this class -
      * needed to set the PDE after loading a simulation
      * from an archive.
-     * 
+     *
      * @param pAveragedSinksPde pointer to the PDE object
      */
     void SetAveragedSinksPde(AveragedSinksPde<DIM>* pAveragedSinksPde);

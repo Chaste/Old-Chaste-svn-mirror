@@ -62,7 +62,7 @@ AxisymmetricConductivityTensors<SPACE_DIM>::AxisymmetricConductivityTensors()
 template<unsigned SPACE_DIM>
 void AxisymmetricConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<double, 3> constantConductivities)
 {
-    //assert(SPACE_DIM == 3);//Otherwise constructor would have thrown 
+    //assert(SPACE_DIM == 3);//Otherwise constructor would have thrown
     if (constantConductivities[1] != constantConductivities[2])
     {
         EXCEPTION("Axisymmetric media defined: transversal and normal conductivities should have the same value");
@@ -105,7 +105,7 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
         // reserve() allocates all the memory at once, more efficient than relying
         // on the automatic reallocation scheme.
         this->mTensors.reserve(this->mNumElements);
-        
+
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
 
         for (unsigned element_index=0; element_index<this->mNumElements; element_index++)
@@ -127,12 +127,12 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
              *  g_l = laminar/transverse conductivity (constant or element specific)
              *  g_n = normal conductivity (constant or element specific)
              *
-             * 
+             *
              *  For axisymmetric anisotropic media (g_l = g_n) we can simplify previous expression to
-             * 
-             * 
-             *  tensor = g_l * I + (g_f - g_l) * a_f * a_f' 
-             * 
+             *
+             *
+             *  tensor = g_l * I + (g_f - g_l) * a_f * a_f'
+             *
              */
 
             if (this->mUseNonConstantConductivities)
@@ -148,9 +148,9 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
                 {
                     assert(this->mConstantConductivities(dim) != DBL_MAX);
                     conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);
-                }                                       
+                }
             }
-            
+
 
             if (this->mUseFibreOrientation)
             {

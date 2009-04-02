@@ -79,7 +79,7 @@ public:
 
     /** Tests area calculation for a square 2D mesh. */
     void Test2DMeshArea()
-    {   
+    {
         TrianglesMeshReader<2,2> square_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
         TetrahedralMesh<2,2> mesh_square;
         mesh_square.ConstructFromMeshReader(square_mesh_reader);
@@ -162,7 +162,7 @@ public:
 
         double perimeter = 0.0;
         c_vector<double,2> weighted_direction;
-        double jacobian_det;        
+        double jacobian_det;
         while (boundary_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             mesh.GetWeightedDirectionForBoundaryElement((*boundary_iter)->GetIndex(), weighted_direction, jacobian_det);

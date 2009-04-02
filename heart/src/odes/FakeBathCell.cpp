@@ -41,7 +41,7 @@ FakeBathCell::FakeBathCell(AbstractIvpOdeSolver *pSolver,
 FakeBathCell::~FakeBathCell()
 {
 }
-    
+
 void FakeBathCell::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
 }
@@ -64,6 +64,6 @@ void OdeSystemInformation<FakeBathCell>::Initialise(void)
     //this->mVariableNames.push_back("Fake voltage");
     //this->mVariableUnits.push_back("mV");
     //this->mInitialConditions.push_back(0.0);
-    
+
     this->mInitialised = true;
 }

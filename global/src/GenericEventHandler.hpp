@@ -40,12 +40,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A generic base class providing the functionality for timing various events.
  * Subclasses provide the event codes and names; see HeartEventHandler for an example.
- * 
+ *
  * Note: this class assume that, for any given concrete class, the last event
  * represents the total time, and thus wraps all other events.
- * 
- * The methods in this class are not implemented separately as then they would not be 
- * inline, which could impact performance; we generally want timing routines to be very 
+ *
+ * The methods in this class are not implemented separately as then they would not be
+ * inline, which could impact performance; we generally want timing routines to be very
  * lightweight.
  */
 template <unsigned NUM_EVENTS, class CONCRETE>
@@ -62,27 +62,27 @@ private:
     {
         return clock();
     }
-    
+
     /**
      * Convert a CPU clock tick count to milliseconds.
-     * 
+     *
      * @param clockTicks
      */
     inline static double ConvertTicksToMilliseconds(double clockTicks)
     {
         return clockTicks/(CLOCKS_PER_SEC/1000.0);
     }
-    
+
     /**
      * Convert a CPU clock tick count to seconds.
-     * 
+     *
      * @param clockTicks
      */
     inline static double ConvertTicksToSeconds(double clockTicks)
     {
         return clockTicks/(CLOCKS_PER_SEC);
     }
-    
+
     /** Make sure the vectors are the right length */
     inline static void CheckVectorSizes()
     {
@@ -112,7 +112,7 @@ public:
 
     /**
      * Record the start of an event.
-     * 
+     *
      * @param event
      */
     static void BeginEvent(unsigned event) throw (Exception)
@@ -140,12 +140,12 @@ public:
 
     /**
      * Record the ending of an event.
-     * 
+     *
      * @param event
      */
     static void EndEvent(unsigned event)
     {
-        assert(event<NUM_EVENTS); 
+        assert(event<NUM_EVENTS);
         if (!mEnabled)
         {
             return;
@@ -164,13 +164,13 @@ public:
         //std::cout << PetscTools::GetMyRank()<<": Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
 
-    /** 
-     * Get the time (in milliseconds) accounted so far to the given event. 
-     * 
-     * Will automatically determine if the event is currently ongoing or not. 
-     * 
+    /**
+     * Get the time (in milliseconds) accounted so far to the given event.
+     *
+     * Will automatically determine if the event is currently ongoing or not.
+     *
      * @param event
-     */ 
+     */
     static double GetElapsedTime(unsigned event)
     {
         assert(event<NUM_EVENTS);
@@ -193,21 +193,21 @@ public:
 
     /**
      * Print a report on the timed events and reset the handler.
-     * 
+     *
      * Assumes all events have ended.
-     * 
+     *
      * If there is a collection of processes then the report will include an
      * average and maximum over all CPUs.
      */
     static void Report()
     {
         CheckVectorSizes();
-        
+
         if (!mEnabled)
         {
             EXCEPTION("Asked to report on a disabled event handler.  Check for contributory errors above.");
         }
-        
+
         const unsigned top_event = NUM_EVENTS-1;
         double total = ConvertTicksToSeconds(mCpuTime[top_event]);
         for (unsigned turn=0; turn<PetscTools::NumProcs(); turn++)
@@ -230,12 +230,12 @@ public:
                 std::cout << "(seconds) \n";
             }
         }
-        
+
         // If there is a collection of processes then report an average
         if (!PetscTools::IsSequential())
         {
             double total_cpu_time[NUM_EVENTS];
-            MPI_Reduce(&mCpuTime[0], total_cpu_time, NUM_EVENTS, MPI_DOUBLE, 
+            MPI_Reduce(&mCpuTime[0], total_cpu_time, NUM_EVENTS, MPI_DOUBLE,
                        MPI_SUM, 0, PETSC_COMM_WORLD);
             if (PetscTools::AmMaster())
             {
@@ -249,7 +249,7 @@ public:
                 }
                 std::cout << "(seconds) \n";
             }
-                
+
             double max_cpu_time[NUM_EVENTS];
             MPI_Reduce(&mCpuTime[0], max_cpu_time, NUM_EVENTS, MPI_DOUBLE,
                        MPI_MAX, 0, PETSC_COMM_WORLD);
@@ -269,7 +269,7 @@ public:
         std::cout.flush();
         PetscTools::Barrier();
         std::cout.flush();
-        
+
         Reset();
     }
 
@@ -314,7 +314,7 @@ public:
         CheckVectorSizes();
         mEnabled = false;
     }
-    
+
     /** Check whether the event handler is enabled. */
     static bool IsEnabled()
     {

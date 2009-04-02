@@ -102,17 +102,17 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
 
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
-    
+
     //The size of each vector is the number of APs that reached that node
     unsigned aps_near_node = near_cell_props.GetMaxUpstrokeVelocities().size();
     unsigned aps_far_node = far_cell_props.GetMaxUpstrokeVelocities().size();
-    
+
     //If empty, no AP reached the node and no conduction velocity will be calculated
     if (aps_near_node == 0 || aps_far_node == 0)
     {
         EXCEPTION("AP never reached one of the nodes");
     }
-    
+
     //if the same number of APs reached both nodes, get the last one...
     if (aps_near_node == aps_far_node)
     {
@@ -120,7 +120,7 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
         t_far = far_cell_props.GetTimeAtLastMaxUpstrokeVelocity();
     }
     //...otherwise get the one with the smallest value, which is the last AP to reach both nodes
-    //This prevents possible calculation of negative conduction velocities 
+    //This prevents possible calculation of negative conduction velocities
     //for repeated stimuli
     else if (aps_near_node > aps_far_node)
     {
@@ -144,24 +144,24 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
     std::vector<double> t_far;
     std::vector<double> conduction_velocities;
     unsigned number_of_aps = 0;
-    
+
     std::vector<double> near_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNearNodeIndex);
     std::vector<double> far_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalFarNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
 
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
-    
+
     t_near = near_cell_props.GetTimesAtMaxUpstrokeVelocity();
     t_far = far_cell_props.GetTimesAtMaxUpstrokeVelocity();
-    
+
     //If empty, no AP reached the node and no conduction velocity will be calculated
     if (t_near.size() == 0 || t_far.size() == 0)
     {
         EXCEPTION("AP never reached one of the nodes");
     }
-    
-    //Check the node where the least number of aps is reached. 
+
+    //Check the node where the least number of aps is reached.
     //We will calculate only where AP reached both nodes
     if (t_near.size() > t_far.size())
     {

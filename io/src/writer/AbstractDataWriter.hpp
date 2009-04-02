@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 /**
- * An abstract base class for data output. 
+ * An abstract base class for data output.
  * Loosely based on NetCDF api.
  */
 class AbstractDataWriter
@@ -43,7 +43,7 @@ public:
     /**
      * Define the fixed dimension.
      * This method must be overridden in concrete classes.
-     * 
+     *
      * @param dimensionName The name of the dimension
      * @param dimensionUnits The physical units of the dimension
      * @param dimensionSize The size of the dimension
@@ -55,7 +55,7 @@ public:
     /**
      * Define the unlimited dimension, i.e. the dimension that increases as the simulation progresses.
      * This method must be overridden in concrete classes.
-     * 
+     *
      * @param dimensionName The name of the unlimited dimension
      * @param dimensionUnits The physical units of the unlimited dimension
      *
@@ -89,10 +89,10 @@ public:
     /**
      * Input the variable value to the output file or ancillary file
      * This method must be overridden in concrete classes.
-     * 
+     *
      * @param variableID
      * @param variableValue
-     * @param dimensionPosition  The position in column (defaults to -1). This is required if 
+     * @param dimensionPosition  The position in column (defaults to -1). This is required if
      *      there is a fixed dimension, and will be the position along that dimension
      */
     virtual void PutVariable(int variableID, double variableValue, long dimensionPosition=-1) = 0;

@@ -41,7 +41,7 @@
 #include "ChasteParameters.hpp"
 
 // time_type
-// 
+//
 
 const time_type::unit::type& time_type::unit::
 default_value ()
@@ -75,7 +75,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // dimensionless_type
-// 
+//
 
 const dimensionless_type::unit::type& dimensionless_type::unit::
 default_value ()
@@ -109,7 +109,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // conductivity_type
-// 
+//
 
 const conductivity_type::unit::type& conductivity_type::unit::
 default_value ()
@@ -143,7 +143,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // stimulus_strength_type
-// 
+//
 
 const stimulus_strength_type::unit::type& stimulus_strength_type::unit::
 default_value ()
@@ -177,7 +177,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // inverse_length_type
-// 
+//
 
 const inverse_length_type::unit::type& inverse_length_type::unit::
 default_value ()
@@ -211,7 +211,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // capacitance_type
-// 
+//
 
 const capacitance_type::unit::type& capacitance_type::unit::
 default_value ()
@@ -245,7 +245,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // location_type
-// 
+//
 
 const location_type::Cuboid::type& location_type::
 Cuboid () const
@@ -303,7 +303,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // domain_type
-// 
+//
 
 domain_type::
 domain_type (_xsd_domain_type v)
@@ -328,7 +328,7 @@ domain_type (const domain_type& v,
 domain_type& domain_type::
 operator= (_xsd_domain_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_domain_type_literals_[v]);
 
   return *this;
@@ -336,7 +336,7 @@ operator= (_xsd_domain_type v)
 
 
 // ionic_models_available_type
-// 
+//
 
 ionic_models_available_type::
 ionic_models_available_type (_xsd_ionic_models_available_type v)
@@ -361,7 +361,7 @@ ionic_models_available_type (const ionic_models_available_type& v,
 ionic_models_available_type& ionic_models_available_type::
 operator= (_xsd_ionic_models_available_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ionic_models_available_type_literals_[v]);
 
   return *this;
@@ -369,7 +369,7 @@ operator= (_xsd_ionic_models_available_type v)
 
 
 // ionic_model_region_type
-// 
+//
 
 const ionic_model_region_type::IonicModel::type& ionic_model_region_type::
 IonicModel () const
@@ -421,7 +421,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // ionic_models_type
-// 
+//
 
 const ionic_models_type::Default::type& ionic_models_type::
 Default () const
@@ -467,7 +467,7 @@ Region (const Region::container& Region)
 
 
 // media_type
-// 
+//
 
 media_type::
 media_type (_xsd_media_type v)
@@ -492,7 +492,7 @@ media_type (const media_type& v,
 media_type& media_type::
 operator= (_xsd_media_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_media_type_literals_[v]);
 
   return *this;
@@ -500,7 +500,7 @@ operator= (_xsd_media_type v)
 
 
 // point_type
-// 
+//
 
 const point_type::x::type& point_type::
 x () const
@@ -558,7 +558,7 @@ z (const z::type& z)
 
 
 // box_type
-// 
+//
 
 const box_type::LowerCoordinates::type& box_type::
 LowerCoordinates () const
@@ -610,7 +610,7 @@ UpperCoordinates (::std::auto_ptr< UpperCoordinates::type > UpperCoordinates)
 
 
 // stimulus_type
-// 
+//
 
 const stimulus_type::Strength::type& stimulus_type::
 Strength () const
@@ -710,7 +710,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // cell_heterogeneity_type
-// 
+//
 
 const cell_heterogeneity_type::ScaleFactorGks::type& cell_heterogeneity_type::
 ScaleFactorGks () const
@@ -810,7 +810,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // conductivity_heterogeneity_type
-// 
+//
 
 const conductivity_heterogeneity_type::IntracellularConductivities::container& conductivity_heterogeneity_type::
 IntracellularConductivities () const
@@ -898,7 +898,7 @@ Location (::std::auto_ptr< Location::type > Location)
 
 
 // slab_type
-// 
+//
 
 const slab_type::x::type& slab_type::
 x () const
@@ -974,7 +974,7 @@ inter_node_space (const inter_node_space::type& inter_node_space)
 
 
 // sheet_type
-// 
+//
 
 const sheet_type::x::type& sheet_type::
 x () const
@@ -1032,7 +1032,7 @@ inter_node_space (const inter_node_space::type& inter_node_space)
 
 
 // fibre_type
-// 
+//
 
 const fibre_type::x::type& fibre_type::
 x () const
@@ -1072,7 +1072,7 @@ inter_node_space (const inter_node_space::type& inter_node_space)
 
 
 // load_mesh_type
-// 
+//
 
 const load_mesh_type::name::type& load_mesh_type::
 name () const
@@ -1124,7 +1124,7 @@ conductivity_media (::std::auto_ptr< conductivity_media::type > conductivity_med
 
 
 // mesh_type
-// 
+//
 
 const mesh_type::Slab::container& mesh_type::
 Slab () const
@@ -1278,7 +1278,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // conductivities_type
-// 
+//
 
 const conductivities_type::longi::type& conductivities_type::
 longi () const
@@ -1366,7 +1366,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // time_steps_type
-// 
+//
 
 const time_steps_type::ode::type& time_steps_type::
 ode () const
@@ -1454,7 +1454,7 @@ unit (::std::auto_ptr< unit::type > unit)
 
 
 // ksp_use_type
-// 
+//
 
 ksp_use_type::
 ksp_use_type (_xsd_ksp_use_type v)
@@ -1479,7 +1479,7 @@ ksp_use_type (const ksp_use_type& v,
 ksp_use_type& ksp_use_type::
 operator= (_xsd_ksp_use_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ksp_use_type_literals_[v]);
 
   return *this;
@@ -1487,7 +1487,7 @@ operator= (_xsd_ksp_use_type v)
 
 
 // ksp_tolerances_type
-// 
+//
 
 const ksp_tolerances_type::KSPRelative::container& ksp_tolerances_type::
 KSPRelative () const
@@ -1539,7 +1539,7 @@ KSPAbsolute (const KSPAbsolute::container& KSPAbsolute)
 
 
 // ksp_solver_type
-// 
+//
 
 ksp_solver_type::
 ksp_solver_type (_xsd_ksp_solver_type v)
@@ -1564,7 +1564,7 @@ ksp_solver_type (const ksp_solver_type& v,
 ksp_solver_type& ksp_solver_type::
 operator= (_xsd_ksp_solver_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ksp_solver_type_literals_[v]);
 
   return *this;
@@ -1572,7 +1572,7 @@ operator= (_xsd_ksp_solver_type v)
 
 
 // ksp_preconditioner_type
-// 
+//
 
 ksp_preconditioner_type::
 ksp_preconditioner_type (_xsd_ksp_preconditioner_type v)
@@ -1597,7 +1597,7 @@ ksp_preconditioner_type (const ksp_preconditioner_type& v,
 ksp_preconditioner_type& ksp_preconditioner_type::
 operator= (_xsd_ksp_preconditioner_type v)
 {
-  static_cast< ::xml_schema::string& > (*this) = 
+  static_cast< ::xml_schema::string& > (*this) =
   ::xml_schema::string (_xsd_ksp_preconditioner_type_literals_[v]);
 
   return *this;
@@ -1605,7 +1605,7 @@ operator= (_xsd_ksp_preconditioner_type v)
 
 
 // simulation_type
-// 
+//
 
 const simulation_type::SpaceDimension::container& simulation_type::
 SpaceDimension () const
@@ -1752,7 +1752,7 @@ IonicModels (::std::auto_ptr< IonicModels::type > IonicModels)
 }
 
 // simulation_type::Stimuli::_xsd_Stimuli_::Stimuli
-// 
+//
 
 const simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container& simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::
 Stimulus () const
@@ -1804,7 +1804,7 @@ Stimuli (::std::auto_ptr< Stimuli::type > Stimuli)
 }
 
 // simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities
-// 
+//
 
 const simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container& simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::
 CellHeterogeneity () const
@@ -1856,7 +1856,7 @@ CellHeterogeneities (::std::auto_ptr< CellHeterogeneities::type > CellHeterogene
 }
 
 // simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities
-// 
+//
 
 const simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container& simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::
 ConductivityHeterogeneity () const
@@ -1969,7 +1969,7 @@ OutputFilenamePrefix (::std::auto_ptr< OutputFilenamePrefix::type > OutputFilena
 
 
 // physiological_type
-// 
+//
 
 const physiological_type::IntracellularConductivities::container& physiological_type::
 IntracellularConductivities () const
@@ -2123,7 +2123,7 @@ Capacitance (::std::auto_ptr< Capacitance::type > Capacitance)
 
 
 // numerical_type
-// 
+//
 
 const numerical_type::TimeSteps::container& numerical_type::
 TimeSteps () const
@@ -2247,7 +2247,7 @@ KSPPreconditioner (::std::auto_ptr< KSPPreconditioner::type > KSPPreconditioner)
 
 
 // chaste_parameters_type
-// 
+//
 
 const chaste_parameters_type::Simulation::type& chaste_parameters_type::
 Simulation () const
@@ -2329,7 +2329,7 @@ Numerical (::std::auto_ptr< Numerical::type > Numerical)
 //
 
 // time_type::unit
-// 
+//
 
 const time_type::unit::type time_type::unit::default_value_ (
   ::std::basic_string< char > ("ms"), 0, 0, 0);
@@ -2409,7 +2409,7 @@ _clone (::xml_schema::flags f,
 //
 
 // dimensionless_type::unit
-// 
+//
 
 const dimensionless_type::unit::type dimensionless_type::unit::default_value_ (
   ::std::basic_string< char > ("dimensionless"), 0, 0, 0);
@@ -2489,7 +2489,7 @@ _clone (::xml_schema::flags f,
 //
 
 // conductivity_type::unit
-// 
+//
 
 const conductivity_type::unit::type conductivity_type::unit::default_value_ (
   ::std::basic_string< char > ("mS/cm"), 0, 0, 0);
@@ -2569,7 +2569,7 @@ _clone (::xml_schema::flags f,
 //
 
 // stimulus_strength_type::unit
-// 
+//
 
 const stimulus_strength_type::unit::type stimulus_strength_type::unit::default_value_ (
   ::std::basic_string< char > ("uA/cm^3"), 0, 0, 0);
@@ -2649,7 +2649,7 @@ _clone (::xml_schema::flags f,
 //
 
 // inverse_length_type::unit
-// 
+//
 
 const inverse_length_type::unit::type inverse_length_type::unit::default_value_ (
   ::std::basic_string< char > ("1/cm"), 0, 0, 0);
@@ -2729,7 +2729,7 @@ _clone (::xml_schema::flags f,
 //
 
 // capacitance_type::unit
-// 
+//
 
 const capacitance_type::unit::type capacitance_type::unit::default_value_ (
   ::std::basic_string< char > ("uF/cm^2"), 0, 0, 0);
@@ -2809,7 +2809,7 @@ _clone (::xml_schema::flags f,
 //
 
 // location_type::unit
-// 
+//
 
 const location_type::unit::type location_type::unit::default_value_ (
   ::std::basic_string< char > ("cm"), 0, 0, 0);
@@ -4508,7 +4508,7 @@ _clone (::xml_schema::flags f,
 //
 
 // mesh_type::unit
-// 
+//
 
 const mesh_type::unit::type mesh_type::unit::default_value_ (
   ::std::basic_string< char > ("cm"), 0, 0, 0);
@@ -4684,7 +4684,7 @@ _clone (::xml_schema::flags f,
 //
 
 // conductivities_type::unit
-// 
+//
 
 const conductivities_type::unit::type conductivities_type::unit::default_value_ (
   ::std::basic_string< char > ("mS/cm"), 0, 0, 0);
@@ -4838,7 +4838,7 @@ _clone (::xml_schema::flags f,
 //
 
 // time_steps_type::unit
-// 
+//
 
 const time_steps_type::unit::type time_steps_type::unit::default_value_ (
   ::std::basic_string< char > ("ms"), 0, 0, 0);
@@ -6402,7 +6402,7 @@ ChasteParameters (const ::xercesc::DOMDocument& d,
                   const ::xsd::cxx::tree::properties< char >&)
 {
   ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
-    (f & ::xml_schema::flags::keep_dom) 
+    (f & ::xml_schema::flags::keep_dom)
     ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
     : 0);
 

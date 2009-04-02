@@ -86,7 +86,7 @@ public:
 
     /**
      * Default constructor, variables are set by abstract classes.
-     * 
+     *
      * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
     Alarcon2004OxygenBasedCellCycleModel(unsigned dimension);
@@ -123,51 +123,51 @@ public:
                                          const CellMutationState& rMutationState);
 
     /**
-     * Resets the oxygen-based model to the start of the cell cycle 
-     * (this model does not cycle naturally). Cells are given a new 
-     * birth time and cell cycle proteins are reset. Note that the 
+     * Resets the oxygen-based model to the start of the cell cycle
+     * (this model does not cycle naturally). Cells are given a new
+     * birth time and cell cycle proteins are reset. Note that the
      * oxygen concentration maintains its current value.
-     * 
+     *
      * Should only be called by the TissueCell Divide() method.
      */
     virtual void ResetForDivision();
 
     /**
-     * Returns a new Alarcon2004OxygenBasedCellCycleModel, created with 
+     * Returns a new Alarcon2004OxygenBasedCellCycleModel, created with
      * the correct initial conditions.
      *
-     * This method should be called just after the parent cell cycle model 
+     * This method should be called just after the parent cell cycle model
      * has been reset.
-     * 
+     *
      * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Initialise the cell cycle model at the start of a simulation.
-     * 
+     *
      * This overridden method sets up a new ODE system.
      */
     void Initialise();
-    
+
     /**
      * Solve the ODEs up to the current time and return whether a stopping event occurred.
-     * 
+     *
      * @param currentTime the current time
      * @return whether a stopping event occured
      */
     bool SolveOdeToTime(double currentTime);
-    
+
     /**
      * Get the time at which the ODE stopping event occured.
-     * 
+     *
      * @return the stopping event time
      */
     double GetOdeStopTime();
 
     /**
      * Get the spatial dimension.
-     * 
+     *
      * @return mDimension
      */
     unsigned GetDimension();
@@ -201,9 +201,9 @@ inline void load_construct_data(
     Archive & ar, Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
     /**
-     * Invoke inplace constructor to initialise an instance of Alarcon2004OxygenBasedCellCycleModel. 
-     * It doesn't actually matter what values we pass to our standard constructor, 
-     * provided they are valid parameter values, since the state loaded later 
+     * Invoke inplace constructor to initialise an instance of Alarcon2004OxygenBasedCellCycleModel.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
      */
 

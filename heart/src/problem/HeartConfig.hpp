@@ -44,7 +44,7 @@ class HeartConfig
 {
 private:
     void CheckTimeSteps() const;
-    
+
 public:
     /**
      * Call this method to access the global parameters holder.
@@ -68,23 +68,23 @@ public:
     ionic_models_available_type GetDefaultIonicModel() const;
     void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
                               std::vector<ionic_models_available_type>& ionicModels) const;
-    
-    
+
+
     bool GetIsMeshProvided() const;
     bool GetCreateMesh() const;
     bool GetCreateSlab() const;
     bool GetCreateSheet() const;
-    bool GetCreateFibre() const;    
+    bool GetCreateFibre() const;
     bool GetLoadMesh() const;
-     
+
     void GetSlabDimensions(c_vector<double, 3>& slabDimensions) const;
     void GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const;
-    void GetFibreLength(c_vector<double, 1>& fibreLength) const;    
+    void GetFibreLength(c_vector<double, 1>& fibreLength) const;
     double GetInterNodeSpace() const;
-    
+
     std::string GetMeshName() const;
     media_type GetConductivityMedia() const;
-        
+
     void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
                                 std::vector<double>& scaleFactorGks,
@@ -99,13 +99,13 @@ public:
 
     // Physiological
     void GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const;
-    void GetIntracellularConductivities(c_vector<double, 2>& intraConductivities) const;    
+    void GetIntracellularConductivities(c_vector<double, 2>& intraConductivities) const;
     void GetIntracellularConductivities(c_vector<double, 1>& intraConductivities) const;
-        
+
     void GetExtracellularConductivities(c_vector<double, 3>& extraConductivities) const;
-    void GetExtracellularConductivities(c_vector<double, 2>& extraConductivities) const;    
+    void GetExtracellularConductivities(c_vector<double, 2>& extraConductivities) const;
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
-    
+
     double GetBathConductivity() const;
 
     double GetSurfaceAreaToVolumeRatio() const;
@@ -144,21 +144,21 @@ public:
                                         std::vector< c_vector<double,3> >& cornerB,
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities);
-    
+
     void SetOutputDirectory(std::string outputDirectory);
-    void SetOutputFilenamePrefix(std::string outputFilenamePrefix);    
+    void SetOutputFilenamePrefix(std::string outputFilenamePrefix);
 
     // Physiological
     void SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities);
     void SetIntracellularConductivities(const c_vector<double, 2>& intraConductivities);
     void SetIntracellularConductivities(const c_vector<double, 1>& intraConductivities);
-        
+
     void SetExtracellularConductivities(const c_vector<double, 3>& extraConductivities);
     void SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities);
     void SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities);
-    
+
     void SetBathConductivity(double bathConductivity);
-    
+
     void SetSurfaceAreaToVolumeRatio(double ratio);
     void SetCapacitance(double capacitance);
 

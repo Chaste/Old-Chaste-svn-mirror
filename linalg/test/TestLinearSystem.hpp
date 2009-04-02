@@ -153,9 +153,9 @@ public:
             ls.AssembleFinalLinearSystem();
             TS_ASSERT_EQUALS(ls.GetMatrixElement(lo, 1), 0.0);
         }
-        
+
     }
-    
+
     void TestZeroingLinearSystemByColumn()
     {
         LinearSystem ls(5);
@@ -164,15 +164,15 @@ public:
             ls.SetMatrixElement(i, i, 3.0);
         }
         ls.SetMatrixElement(0, 1, 4.0);
-        
+
         ls.AssembleFinalLinearSystem();
-        
+
         for (unsigned col=0; col<5; col++)
         {
             ls.ZeroMatrixColumn(col);
         }
-        ls.AssembleFinalLinearSystem();        
-        
+        ls.AssembleFinalLinearSystem();
+
         int lo, hi;
         ls.GetOwnershipRange(lo, hi);
         for (int row=lo; row<hi; row++)
@@ -183,14 +183,14 @@ public:
                 TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), 0);
             }
         }
-        
+
         MatInfo info;
         double num_nonzeros;
 
         MatGetInfo(ls.rGetLhsMatrix(),MAT_GLOBAL_SUM,&info);
 
         num_nonzeros = info.nz_used;
-        
+
         TS_ASSERT_EQUALS(int(num_nonzeros),6);
     }
 
@@ -564,37 +564,37 @@ public:
 
 
     }
-    
+
     void TestGetSetKSP() throw (Exception)
     {
-    	/////////////////////////
-    	// Set relative tolerance before first solve
-    	/////////////////////////
+        /////////////////////////
+        // Set relative tolerance before first solve
+        /////////////////////////
         LinearSystem ls = LinearSystem(5);
-		ls.SetRelativeTolerance(1e-3);
-		ls.SetKspType("cg");
-		ls.SetPcType("jacobi");
-		ls.AssembleFinalLinearSystem();
-		Vec solution_vector;
+        ls.SetRelativeTolerance(1e-3);
+        ls.SetKspType("cg");
+        ls.SetPcType("jacobi");
+        ls.AssembleFinalLinearSystem();
+        Vec solution_vector;
         solution_vector = ls.Solve();
         VecDestroy(solution_vector);
-		PetscReal rtol, atol, dtol;
-		int maxits;
-		KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
-		TS_ASSERT_EQUALS(rtol, 1e-3);
-		// others should be their petsc defaults
-		TS_ASSERT_EQUALS(atol, 1e-50);
-		TS_ASSERT_EQUALS(dtol, 10000.0); 
-		TS_ASSERT_EQUALS(maxits, 10000);
-		
-		KSPType solver;
-		PCType pc;
-		PC prec;
-		KSPGetType(ls.mKspSolver, &solver);
-		KSPGetPC(ls.mKspSolver, &prec);
-		PCGetType(prec, &pc);
-		TS_ASSERT( strcmp(solver,"cg")==0 );
-		TS_ASSERT( strcmp(pc,"jacobi")==0 );
+        PetscReal rtol, atol, dtol;
+        int maxits;
+        KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
+        TS_ASSERT_EQUALS(rtol, 1e-3);
+        // others should be their petsc defaults
+        TS_ASSERT_EQUALS(atol, 1e-50);
+        TS_ASSERT_EQUALS(dtol, 10000.0);
+        TS_ASSERT_EQUALS(maxits, 10000);
+
+        KSPType solver;
+        PCType pc;
+        PC prec;
+        KSPGetType(ls.mKspSolver, &solver);
+        KSPGetPC(ls.mKspSolver, &prec);
+        PCGetType(prec, &pc);
+        TS_ASSERT( strcmp(solver,"cg")==0 );
+        TS_ASSERT( strcmp(pc,"jacobi")==0 );
         ls.SetKspType("gmres");
         ls.SetPcType("ilu");
         //Test that we can change the solver type after its first use
@@ -602,69 +602,69 @@ public:
         PCGetType(prec, &pc);
         TS_ASSERT( strcmp(solver,"gmres")==0 );
         TS_ASSERT( strcmp(pc,"ilu")==0 );
-        
-		
-		/////////////////////////////////
-		// Set relative tolerance after first solve
-		/////////////////////////////////
-		ls.SetRelativeTolerance(1e-4);
-		KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
-		TS_ASSERT_EQUALS(rtol, 1e-4);
-		TS_ASSERT_EQUALS(atol, 1e-50);
-		TS_ASSERT_EQUALS(dtol, 10000.0); 
-		TS_ASSERT_EQUALS(maxits, 10000);
-		
+
+
+        /////////////////////////////////
+        // Set relative tolerance after first solve
+        /////////////////////////////////
+        ls.SetRelativeTolerance(1e-4);
+        KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
+        TS_ASSERT_EQUALS(rtol, 1e-4);
+        TS_ASSERT_EQUALS(atol, 1e-50);
+        TS_ASSERT_EQUALS(dtol, 10000.0);
+        TS_ASSERT_EQUALS(maxits, 10000);
+
         /////////////////////////////////
         // Set abs tolerance before first solve
         //////////////////////////////////
-		LinearSystem ls2 = LinearSystem(5);
-		ls2.SetAbsoluteTolerance(1e-3);
-    	ls2.AssembleFinalLinearSystem();
-		Vec solution_vector2;
+        LinearSystem ls2 = LinearSystem(5);
+        ls2.SetAbsoluteTolerance(1e-3);
+        ls2.AssembleFinalLinearSystem();
+        Vec solution_vector2;
         solution_vector2 = ls2.Solve();
         VecDestroy(solution_vector2);
         KSPGetTolerances(ls2.mKspSolver, &rtol, &atol, &dtol, &maxits);
-		TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
-		TS_ASSERT_EQUALS(atol, 1e-3);
-		TS_ASSERT_EQUALS(dtol, 10000.0); 
-		TS_ASSERT_EQUALS(maxits, 10000);
-		
-		///////////////////////////////////
-		// Set abs tolerance after first solve
-		////////////////////////////////////
-		ls2.SetAbsoluteTolerance(1e-2);
-	    Vec solution_vector3;
+        TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
+        TS_ASSERT_EQUALS(atol, 1e-3);
+        TS_ASSERT_EQUALS(dtol, 10000.0);
+        TS_ASSERT_EQUALS(maxits, 10000);
+
+        ///////////////////////////////////
+        // Set abs tolerance after first solve
+        ////////////////////////////////////
+        ls2.SetAbsoluteTolerance(1e-2);
+        Vec solution_vector3;
         solution_vector3 = ls2.Solve();
         VecDestroy(solution_vector3);
-		KSPGetTolerances(ls2.mKspSolver, &rtol, &atol, &dtol, &maxits);
-		TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
-		TS_ASSERT_EQUALS(atol, 1e-2);
-		TS_ASSERT_EQUALS(dtol, 10000.0); 
-		TS_ASSERT_EQUALS(maxits, 10000);
-		
+        KSPGetTolerances(ls2.mKspSolver, &rtol, &atol, &dtol, &maxits);
+        TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
+        TS_ASSERT_EQUALS(atol, 1e-2);
+        TS_ASSERT_EQUALS(dtol, 10000.0);
+        TS_ASSERT_EQUALS(maxits, 10000);
+
     }
-    
+
     // this test should be the last in the suite
     void TestSetFromOptions()
     {
         LinearSystem ls = LinearSystem(5);
         PetscOptionsSetValue("-ksp_type", "gmres");
         PetscOptionsSetValue("-pc_type", "jacobi");
-    	ls.AssembleFinalLinearSystem();
-        
+        ls.AssembleFinalLinearSystem();
+
         ls.SetKspType("cg"); //Not really -- see above
         ls.SetPcType("ilu"); //Not really -- see above
         Vec solution_vector3;
         solution_vector3 = ls.Solve();
         VecDestroy(solution_vector3);
-        
+
         KSPType solver;
         PCType pc;
         PC prec;
         KSPGetType(ls.mKspSolver, &solver);
         KSPGetPC(ls.mKspSolver, &prec);
         PCGetType(prec, &pc);
-        
+
         TS_ASSERT( strcmp(solver,"gmres")==0 );
         TS_ASSERT( strcmp(pc,"jacobi")==0 );
     }

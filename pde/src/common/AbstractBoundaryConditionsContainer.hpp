@@ -75,10 +75,10 @@ public:
      * Return whether any Dirichlet conditions are defined.
      */
     bool HasDirichletBoundaryConditions();
-    
+
 
     void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>());
-    
+
 
     /**
      * Obtain value of dirichlet boundary condition at specified node
@@ -88,7 +88,7 @@ public:
      * at the same time
      */
     double GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode, unsigned indexOfUnknown = 0);
- 
+
     /**
      * Test if there is a Dirichlet boundary condition defined on the given node.
      *

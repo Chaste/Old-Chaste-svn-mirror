@@ -78,11 +78,11 @@ private:
 
     /**
      * Actually calculate APD.
-     * 
+     *
      * APD is taken to be the time from when the threshold is crossed to the time
-     * voltage reaches back to a value of 
+     * voltage reaches back to a value of
      * RestingPotential+'percentage'*(amplitude-resting).
-     * 
+     *
      * @param percentage  The percentage of the amplitude to calculate for.
      * @param rOnsets  A vector containg the times at which the upstroke crosses the threshold.
      * @param rRestingPotentials  A vector containg the resting potentials of all APs.
@@ -113,14 +113,14 @@ public:
     {
         return mMaxUpstrokeVelocities;
     }
-    
+
      /**
      * Returns the maximum upstroke velocity for the last AP.
      * If only one incomplete AP is generated, it returns the maximal upstroke so far.
      * If the threshold is never crossed, it throws an exception.
      */
     double GetLastMaxUpstrokeVelocity();
-    
+
     /**
     * Returns the time at which the maximum upstroke velocity occured for all APs.
     */
@@ -134,7 +134,7 @@ public:
     * If the threshold is never crossed, it throws an exception.
     */
     double GetTimeAtLastMaxUpstrokeVelocity();
-    
+
     /**
      * Returns the cycle lengths for all APs.
      */
@@ -142,7 +142,7 @@ public:
     {
         return mCycleLengths;
     }
-    
+
     /**
      * Returns the peak potentials for all APs.
      */
@@ -163,21 +163,21 @@ public:
 
     /**
      * Returns all the action potentials durations
-     * 
-     * @param percentage is the repolarisation percentage that 
+     *
+     * @param percentage is the repolarisation percentage that
      * the APD will be calculated for. e.g. percentage = 90 for APD90.
      */
     std::vector<double> GetAllActionPotentialDurations(const double percentage);
-  
+
      /**
      * Returns the amplitude of the last action potential generated.
      * Throws an exception if no AP is generated.
-     * 
-     * @param percentage is the repolarisation percentage that 
+     *
+     * @param percentage is the repolarisation percentage that
      * the APD will be calculated for. e.g. percentage = 90 for APD90.
-     */  
+     */
     double GetLastActionPotentialDuration(const double percentage);
-    
+
      /**
      * Returns the amplitude of all the action potentials calculated.
      */

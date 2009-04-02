@@ -99,7 +99,7 @@ public :
         command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/bidomain_Phi_e.dat "
                          + "heart/test/data/Bidomain1d/bidomain_Phi_e.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
- 
+
        // compare the time information file
         command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/bidomain_times.info "
                          + "heart/test/data/Bidomain1d/bidomain_times.info";

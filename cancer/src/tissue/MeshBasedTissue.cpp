@@ -510,7 +510,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
             {
                 WriteVoronoiResultsToFile();
             }
-    
+
             // Write tissue area data to file if required
             if (mWriteTissueAreas)
             {
@@ -684,7 +684,7 @@ void MeshBasedTissue<DIM>::CreateVoronoiTessellation()
 }
 
 /**
- * The VoronoiTessellation class is only defined in 2D or 3D, hence there 
+ * The VoronoiTessellation class is only defined in 2D or 3D, hence there
  * are two definitions to this method (one templated and one not).
  */
 template<>

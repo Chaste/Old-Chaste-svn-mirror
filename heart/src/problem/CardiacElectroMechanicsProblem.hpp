@@ -69,14 +69,14 @@ struct ElementAndWeights
 /**
  *  CardiacElectroMechanicsProblem
  *
- *  For solving full electro-mechanical problems. 
+ *  For solving full electro-mechanical problems.
  *
- *  Solves a monodomain problem (diffusion plus cell models) on a (fine) electrics 
- *  mesh, and a mechanics problem (finite elasticity plus NHS cell models) on a coarse 
+ *  Solves a monodomain problem (diffusion plus cell models) on a (fine) electrics
+ *  mesh, and a mechanics problem (finite elasticity plus NHS cell models) on a coarse
  *  mesh. An implicit scheme (Jon Whiteley's algorithm) be be used.
  *
- *  For solving problems on regular grids use CardiacElectroMechProbRegularGeom  
- * 
+ *  For solving problems on regular grids use CardiacElectroMechProbRegularGeom
+ *
  *  The implicit algorithm:
  *
  *  Store the position in the electrics mesh of each quad point in the mechanics mesh
@@ -90,9 +90,9 @@ struct ElementAndWeights
  *       - integrate NHS models implicity for active tension
  *       - use this active tension in computing the stress for that guess of the deformation
  *  end
- * 
- *  Note: invC is not used in the monodomain equations (code added but commented 
- *  out) we have shown that this does not affect the mechanics results (might 
+ *
+ *  Note: invC is not used in the monodomain equations (code added but commented
+ *  out) we have shown that this does not affect the mechanics results (might
  *  affect the electrics).
  */
 template<unsigned DIM>
@@ -156,14 +156,14 @@ protected :
     /** Nodes for which the deformation is fixed to zero */
     std::vector<unsigned> mFixedNodes;
 
-    /** 
+    /**
      *  Determine which node is closest to the watched location
      */
     void DetermineWatchedNodes();
 
 
     /**
-     *  Write info (x, y, V, and Ca) for the watched node. Note: the Ca is written, 
+     *  Write info (x, y, V, and Ca) for the watched node. Note: the Ca is written,
      *  but this ASSUMES LUO-RUDY IS USED
      */
     void WriteWatchedLocationData(double time, Vec voltage);
@@ -187,8 +187,8 @@ public :
     virtual ~CardiacElectroMechanicsProblem();
 
     /**
-     *  Initialise the class. Calls ConstructMeshes() and 
-     *  ConstructMechanicsAssembler(). Initialises the MonodomainProblem 
+     *  Initialise the class. Calls ConstructMeshes() and
+     *  ConstructMechanicsAssembler(). Initialises the MonodomainProblem
      *  and sets up the electrics mesh to mechanics mesh data.
      */
     void Initialise();
@@ -210,11 +210,11 @@ public :
      *
      *  The watched file will have rows that look like:
      *  time x_pos y_pos [z_pos] voltage Ca_i_conc.
-     *  
+     *
      *  NOTE: for the Calcium - assumes LUO_RUDY IS USED
      */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
-    
+
     /** Get the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 };

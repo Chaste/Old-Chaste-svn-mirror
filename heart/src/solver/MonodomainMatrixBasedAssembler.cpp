@@ -70,7 +70,7 @@ c_vector<double, DIM> MonodomainRhsMatrixAssembler<DIM>::ComputeVectorSurfaceTer
     ChastePoint<DIM> &rX )
 {
     #define COVERAGE_IGNORE
-    NEVER_REACHED; 
+    NEVER_REACHED;
     return zero_vector<double>(DIM);
     #undef COVERAGE_IGNORE
 }
@@ -85,7 +85,7 @@ MonodomainRhsMatrixAssembler<DIM>::MonodomainRhsMatrixAssembler(AbstractMesh<DIM
     // this needs to be set up, though no boundary condition values are used in the matrix
     this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,1>;
     this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
-    
+
     //This linear system needs a distribution from the DistributedVector class
     Vec temp_vec=DistributedVector::CreateVec();
     this->mpLinearSystem = new LinearSystem(temp_vec);
@@ -145,7 +145,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
 {
     // copy V to z
-    VecCopy(currentSolution, this->mVectorForMatrixBasedRhsAssembly);  
+    VecCopy(currentSolution, this->mVectorForMatrixBasedRhsAssembly);
 
     // set up a vector which has the nodewise force term (ie A*I_ionic+I_stim)
     Vec force_term_at_nodes = DistributedVector::CreateVec();
@@ -153,16 +153,16 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
     VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
     double *p_force_term;
     VecGetArray(force_term_at_nodes, &p_force_term);
-    for (int global_index=lo; global_index<hi; global_index++) 
+    for (int global_index=lo; global_index<hi; global_index++)
     {
         unsigned local_index = global_index - lo;
         const Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(global_index);
         p_force_term[local_index] = this->mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*p_node, 0.0);
     }
     VecRestoreArray(force_term_at_nodes, &p_force_term);
-    VecAssemblyBegin(force_term_at_nodes); 
-    VecAssemblyEnd(force_term_at_nodes); 
-    
+    VecAssemblyBegin(force_term_at_nodes);
+    VecAssemblyEnd(force_term_at_nodes);
+
     double one=1.0;
     double scaling=  this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
                     *this->mDtInverse;
@@ -172,13 +172,13 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
     VecAXPBY(&one, &scaling, force_term_at_nodes, this->mVectorForMatrixBasedRhsAssembly);
 #else
     // VecAXPBY(y,a,b,x) does y = ax + by
-    VecAXPBY(this->mVectorForMatrixBasedRhsAssembly, 
+    VecAXPBY(this->mVectorForMatrixBasedRhsAssembly,
              one,
-             scaling, 
-             force_term_at_nodes); 
+             scaling,
+             force_term_at_nodes);
 #endif
-   
-    VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly); 
+
+    VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
     VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
     VecDestroy(force_term_at_nodes);
 }

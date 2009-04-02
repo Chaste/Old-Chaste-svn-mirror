@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 
-/** 
+/**
  *  A simple class which takes in a mesh and a quadrature rule, and collects
  *  are the quadrature points (in physical space ie several for each element)
  *  together in one data structure, for access.
@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class QuadraturePointsGroup
 {
-private :    
+private :
     /** The quadrature points in physical space */
     std::vector<c_vector<double,DIM> > data;
     /** Number of elements in given mesh */
@@ -53,7 +53,7 @@ private :
     unsigned mNumQuadPointsPerElement;
 
 public :
-    /** 
+    /**
      *  Constructor takes in a mesh and a rule and computes and stores all
      *  the quad points in physical space
      */
@@ -68,10 +68,10 @@ public :
 
     /** Number of elements in the mesh that was given in the constructor */
     unsigned GetNumElements() const;
-    
+
     /** Number of quad points per element in the rule that was given in the constructor */
     unsigned GetNumQuadPointsPerElement() const;
-    
+
     /** Total size, ie total number of quad points, ie num_elem times num_quad_points_per_elem */
     unsigned Size() const;
 };

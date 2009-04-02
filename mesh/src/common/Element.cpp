@@ -46,7 +46,7 @@ Element<ELEMENT_DIM, SPACE_DIM>::Element(unsigned index, std::vector<Node<SPACE_
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Element<ELEMENT_DIM, SPACE_DIM>::Element(const Element &element, const unsigned index)
 {
-    *this = element; 
+    *this = element;
     this->mIndex=index;
 
     RegisterWithNodes();
@@ -128,7 +128,7 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
-    
+
     CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
 
     for (unsigned j=0; j<ELEMENT_DIM; j++)
@@ -168,7 +168,7 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
      * where (x,y,z) is the circumcentre
      *
      */
-     
+
     assert(ELEMENT_DIM == SPACE_DIM);
     c_vector <double, ELEMENT_DIM> rhs;
 
@@ -226,11 +226,11 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
     {
         return 1.0;
     }
-    
+
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
     double jacobian_determinant;
-    
-    CalculateJacobian(jacobian, jacobian_determinant);    
+
+    CalculateJacobian(jacobian, jacobian_determinant);
 
     c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
     if (SPACE_DIM == 2)
@@ -298,34 +298,34 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
 
     // Check for negative weights and set them to zero.
     bool negative_weight = false;
-    
+
     for(unsigned i=0;i<=SPACE_DIM;i++)
     {
         if(weights[i] < 0.0)
         {
             weights[i] = 0.0;
-            
+
             negative_weight = true;
-        }   
+        }
     }
-    
+
     if(negative_weight == false)
     {
         // If there are no negative weights, there is nothing to do.
-        return weights;   
+        return weights;
     }
-    
+
     // Renormalise so that all weights add to 1.0.
-    
-    // Note that all elements of weights are now non-negative and so the l1-norm (sum of magnitudes) is equivalent to the sum of the elements of the vector 
+
+    // Note that all elements of weights are now non-negative and so the l1-norm (sum of magnitudes) is equivalent to the sum of the elements of the vector
     double sum = norm_1 (weights);
-    
+
     assert(sum >= 1.0);
-    
+
     weights = weights/sum;
-    
+
     return weights;
-    
+
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -341,9 +341,9 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(Chaste
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
-    
+
     CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
-    
+
     return prod(inverse_jacobian, test_location);
 }
 

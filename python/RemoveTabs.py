@@ -48,6 +48,6 @@ for root, dirs, files in os.walk(chaste_dir):
             command = "sed -i 's/\\t/    /g' " + file_name
             print "Checking " + file_name
             os.system(command)
-            ##### for removing trailing whitespace
-	    ##command = " sed -i 's/[ \\t]*$//' " + file_name
-            ##os.system(command)
+            ### for removing trailing whitespace
+            command = " sed -i 's/[ \\t]*$//' " + file_name
+            os.system(command)

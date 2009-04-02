@@ -68,14 +68,14 @@ private:
 
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
-     * 
+     *
      * @param name variable name
      */
     void CheckVariableName(std::string name);
 
     /**
      * Check name of unit is allowed, i.e. contains only alphanumeric & _, and isn't blank.
-     * 
+     *
      * @param name unit name
      */
     void CheckUnitsName(std::string name);
@@ -93,7 +93,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param directory  the directory in which to write the data to file
      * @param baseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
@@ -158,7 +158,7 @@ public:
 
     /**
      * Write data for a given variable from a Petsc vector to the dataset.
-     * 
+     *
      * @param variableID the variable
      * @param petscVector the data
      */
@@ -166,7 +166,7 @@ public:
 
     /**
      * Write data for two variables from a Petsc vector to the dataset.
-     * 
+     *
      * @param firstVariableID the first variable
      * @param secondVariableID the first variable
      * @param petscVector the data
@@ -175,7 +175,7 @@ public:
 
     /**
      * Write a single value for the unlimited variable (e.g. time) to the dataset.
-     * 
+     *
      * @param value the data
      */
     void PutUnlimitedVariable(double value);

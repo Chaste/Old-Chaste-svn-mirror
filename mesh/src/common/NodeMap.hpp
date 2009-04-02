@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- * Nodemap class used when remeshing. The map associates the indices of nodes 
+ * Nodemap class used when remeshing. The map associates the indices of nodes
  * in the old mesh with indices of nodes in the new mesh.
  */
 class NodeMap
@@ -48,7 +48,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param size  the size of the NodeMap
      */
     NodeMap(unsigned size)
@@ -61,7 +61,7 @@ public:
 
     /**
      * Resize the NodeMap.
-     * 
+     *
      * @param size  the new size of the NodeMap
      */
     void Resize(unsigned size)
@@ -82,7 +82,7 @@ public:
 
     /**
      * Associate a given old index with a new index.
-     * 
+     *
      * @param oldIndex  the old index of a node
      * @param newIndex  the new index of a node
      */
@@ -92,9 +92,9 @@ public:
     }
 
     /**
-     * Mark a given old index as 'deleted' by associating it 
+     * Mark a given old index as 'deleted' by associating it
      * with the new index UINT_MAX.
-     * 
+     *
      * @param index  the old index of a node
      */
     void SetDeleted(unsigned index)
@@ -104,7 +104,7 @@ public:
 
     /**
      * Get whether a given old index is marked as 'deleted'.
-     * 
+     *
      * @param index  the old index of a node
      */
     bool IsDeleted(unsigned index)
@@ -114,7 +114,7 @@ public:
 
     /**
      * Get the new index associated with a given old index.
-     * 
+     *
      * @param oldIndex  the old index of a node
      */
     unsigned GetNewIndex(unsigned oldIndex) const

@@ -65,7 +65,7 @@ public:
 
         double end_time = 1000.0; //One second in milliseconds
 
-                            
+
         HeartConfig::Instance()->SetOdeTimeStep(0.002); // 0.005 leads to NaNs.
 
         EulerIvpOdeSolver solver;

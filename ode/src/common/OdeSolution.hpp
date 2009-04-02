@@ -55,49 +55,49 @@ public:
 
     /**
      * Get the number of timesteps.
-     * 
+     *
      * @return mNumberOfTimeSteps
      */
     unsigned GetNumberOfTimeSteps();
 
     /**
      * Set the number of timesteps.
-     * 
+     *
      * @param numTimeSteps the number of timesteps to use
      */
     void SetNumberOfTimeSteps(unsigned numTimeSteps);
 
     /**
-     * Get the values of a state variable with a given index in 
+     * Get the values of a state variable with a given index in
      * the ODE system at each timestep.
-     * 
+     *
      * @param index  the index of the state variable in the system
      */
     std::vector<double> GetVariableAtIndex(unsigned index);
 
     /**
      * Get the times at which the solution to the ODE system is stored.
-     * 
+     *
      * @return mTimes.
      */
     std::vector<double>& rGetTimes();
 
     /**
      * Get the values of the solution to the ODE system at each timestep.
-     * 
+     *
      * @return mSolutions.
      */
     std::vector<std::vector<double> >& rGetSolutions();
 
     /**
      * Write the data to a file.
-     * 
+     *
      * @param directoryName  the directory in which to write the data to file
      * @param baseResultsFilename  the name of the file in which to write the data
-     * @param pOdeSystem  pointer to the ODE system solved to obtain these results 
+     * @param pOdeSystem  pointer to the ODE system solved to obtain these results
      *                     (needed for state variable names and units)
      * @param timeUnits  name of the units of time used
-     * @param stepsPerRow  the solution to the ODE system is written to file every 
+     * @param stepsPerRow  the solution to the ODE system is written to file every
      *                    this number of timesteps (defaults to 1)
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      */

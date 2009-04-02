@@ -78,7 +78,7 @@ private :
 
     /**
      * Fix up the mappings between node indices and 3D locations.
-     * 
+     *
      * @param rTissue the tissue
      */
     void UpdateNode3dLocationMap(AbstractTissue<2>& rTissue);
@@ -120,7 +120,7 @@ public :
 
     /**
      * Set mIncludeWntChemotaxis.
-     * 
+     *
      * @param includeWntChemotaxis whether to include Wnt-dependent chemotaxis
      */
     void SetWntChemotaxis(bool includeWntChemotaxis);

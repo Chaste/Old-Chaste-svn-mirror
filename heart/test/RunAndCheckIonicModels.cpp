@@ -77,31 +77,31 @@ void CheckCellModelResults(std::string baseResultsFilename)
     ColumnDataReader data_reader("TestIonicModels", baseResultsFilename);
     std::vector<double> times = data_reader.GetValues("Time");
     std::vector<double> voltages;
-    
+
     //Rather Ugly, we can't currently guarantee what the name of the voltage column is,
     //hence we try to cover the most common possibilities
-    if (data_reader.HasValues("V")) 
+    if (data_reader.HasValues("V"))
     {
         voltages = data_reader.GetValues("V");
     }
     else //data_reader.HasValues("membrane__V")
     {
-        voltages = data_reader.GetValues("membrane__V");   
+        voltages = data_reader.GetValues("membrane__V");
     }
-    
+
     ColumnDataReader valid_reader("heart/test/data", baseResultsFilename+"ValidData",
                                   false);
     std::vector<double> valid_times = valid_reader.GetValues("Time");
     std::vector<double> valid_voltages;
-    
+
     if (valid_reader.HasValues("V"))
     {
         valid_voltages = valid_reader.GetValues("V");
     }
     else //valid_reader.HasValues("membrane__V")
     {
-        valid_voltages = valid_reader.GetValues("membrane__V");   
-    } 
+        valid_voltages = valid_reader.GetValues("membrane__V");
+    }
 
     TS_ASSERT_EQUALS(times.size(), valid_times.size());
     for (unsigned i=0; i<valid_times.size(); i++)

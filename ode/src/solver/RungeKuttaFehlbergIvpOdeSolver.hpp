@@ -32,15 +32,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOneStepIvpOdeSolver.hpp"
 
 /**
- * A concrete one step ODE solver class that employs the Runge Kutta 
+ * A concrete one step ODE solver class that employs the Runge Kutta
  * Fehlberg adaptive solver (RKF45).
- * 
- * This solver is good for problems where you need to be able to 
- * guarantee the accuracy of the answer as it is specified via the 
+ *
+ * This solver is good for problems where you need to be able to
+ * guarantee the accuracy of the answer as it is specified via the
  * tolerance parameter.
  *
- * The solver should also be reasonably fast as it increases the 
- * timestep when the solutions are changing slowly, whilst maintaining 
+ * The solver should also be reasonably fast as it increases the
+ * timestep when the solutions are changing slowly, whilst maintaining
  * accuracy.
  */
 class RungeKuttaFehlbergIvpOdeSolver : public AbstractIvpOdeSolver
@@ -71,9 +71,9 @@ private:
     double m25o216;     /**< Working memory: numerical value for the fraction 25/216.     */
     double m1408o2565;  /**< Working memory: numerical value for the fraction 1408/2565.  */
     double m2197o4104;  /**< Working memory: numerical value for the fraction 2197/4104.  */
- 
+
     std::vector<double> mError; /**< Error expression, used to adjust the timestep in the RKF45 method. */
-    
+
     std::vector<double> mk1;  /**< Working memory: expression k1 in the RKF45 method.  */
     std::vector<double> mk2;  /**< Working memory: expression k2 in the RKF45 method.  */
     std::vector<double> mk3;  /**< Working memory: expression k3 in the RKF45 method.  */
@@ -116,7 +116,7 @@ protected:
     /**
      * Calculate the solution to the ODE system at the next timestep.
      * Updates the mError vector with current error.
-     * 
+     *
      * @param pAbstractOdeSystem  the ODE system to solve
      * @param timeStep  dt
      * @param time  the current time
@@ -130,7 +130,7 @@ protected:
                                      std::vector<double>& rNextYValues);
 
     /**
-     * Use the error approximation of the last call to the CalculateNextYValue() 
+     * Use the error approximation of the last call to the CalculateNextYValue()
      * method to change the time step appropriately.
      *
      * @param rCurrentStepSize  the current step size being used (returns answer via this reference)
@@ -153,20 +153,20 @@ public:
     RungeKuttaFehlbergIvpOdeSolver();
 
     /**
-     * Solves a system of ODEs using a specified one-step ODE solver and returns 
+     * Solves a system of ODEs using a specified one-step ODE solver and returns
      * the solution as an OdeSolution object.
      *
      * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
-     * @param rYValues  a standard vector specifying the intial condition of each 
-     *                  solution variable in the system (this can be the initial 
+     * @param rYValues  a standard vector specifying the intial condition of each
+     *                  solution variable in the system (this can be the initial
      *                  conditions vector stored in the ODE system)
      * @param startTime  the time at which the initial conditions are specified
-     * @param endTime  the time to which the system should be solved and the solution 
+     * @param endTime  the time to which the system should be solved and the solution
      *                 returned
      * @param timeStep  the time interval to be used by the solver
      * @param ignoredSamplingTime  the interval at which to sample the solution to the ODE system
      *                             (ignored in this class as the timestep is variable)
-     * 
+     *
      * @return OdeSolution is an object containing an integer of the number of
      * equations, a stdAbstractOdeSystem::vector of times and a std::vector of std::vectors where
      * each of those vectors contains the solution for one variable of the ODE
@@ -180,17 +180,17 @@ public:
                               double ignoredSamplingTime);
 
     /**
-     * Second version of Solve. Solves a system of ODEs using a specified one-step 
-     * ODE solver. This method does not return the solution and therefore does not 
-     * take in a sampling time. Instead, the mStateVariables component in the ODE 
+     * Second version of Solve. Solves a system of ODEs using a specified one-step
+     * ODE solver. This method does not return the solution and therefore does not
+     * take in a sampling time. Instead, the mStateVariables component in the ODE
      * system object is updated.
      *
      * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
-     * @param rYValues  a standard vector specifying the intial condition of each 
-     *                  solution variable in the system (this can be the initial 
+     * @param rYValues  a standard vector specifying the intial condition of each
+     *                  solution variable in the system (this can be the initial
      *                  conditions vector stored in the ODE system)
      * @param startTime  the time at which the initial conditions are specified
-     * @param endTime  the time to which the system should be solved and the solution 
+     * @param endTime  the time to which the system should be solved and the solution
      *                 returned
      * @param timeStep  the time interval to be used by the solver
      */

@@ -47,7 +47,7 @@ public:
         TS_ASSERT_EQUALS(PetscTools::GetMyRank(), 0u);
         TS_ASSERT_EQUALS(PetscTools::NumProcs(), 1u);
         TS_ASSERT(PetscTools::AmMaster());
-        
+
         // This should be a no-op.  We can't check that, but just make sure it runs.
         PetscTools::Barrier();
     }

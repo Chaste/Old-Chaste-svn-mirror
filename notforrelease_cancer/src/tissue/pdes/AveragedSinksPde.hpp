@@ -54,7 +54,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param rTissue reference to the tissue
      * @param coefficient the coefficient of consumption of nutrient by cells
      */
@@ -62,27 +62,27 @@ public:
 
     /**
      * Set up the source terms.
-     * 
+     *
      * @param rCoarseMesh reference to the coarse mesh
      */
     void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh);
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.
-     * 
+     *
      * @param x The point in space
-     * 
+     *
      * @return the constant in u part of the source term, i.e g(x) in
      *  Div(D Grad u)  +  f(x)u + g(x) = 0.
      */
     double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x);
-    
+
     /**
      * Overridden ComputeLinearInUCoeffInSourceTerm() method.
-     * 
+     *
      * @param x The point in space
      * @param pElement the element
-     * 
+     *
      * @return the coefficient of u in the linear part of the source term, i.e f(x) in
      *  Div(D Grad u)  +  f(x)u + g(x) = 0.
      */
@@ -90,9 +90,9 @@ public:
 
     /**
      * Overridden ComputeDiffusionTerm() method.
-     * 
+     *
      * @param x The point in space at which the diffusion term is computed
-     * 
+     *
      * @return a matrix.
      */
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& x);

@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class represents a fake cell for use within the bath of a bidomain simulation.
- * 
+ *
  * Note that only a portion of the normal functionality of a cardiac cell is
  * actually redefined in this class.  If further calls to cardiac cells are later
  * added to the simulation process, additional overrides may need to be added here.
@@ -53,7 +53,7 @@ public:
      * Destructor; does nothing.
      */
     ~FakeBathCell();
-    
+
     /**
      * This method is pure in a base class, so we need it, but we never use it.
      * It has an empty body.

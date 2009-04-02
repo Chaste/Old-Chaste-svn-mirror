@@ -39,13 +39,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  MonodomainRhsMatrixAssembler
- * 
+ *
  *  This class only exists to construct a matrix, the matrix which is used
  *  to assemble the RHS in monodomain problems. Therefore, although it inherits
- *  from the assembler hierachy, it is not an assembler for any particular 
+ *  from the assembler hierachy, it is not an assembler for any particular
  *  PDE problem, it is just used to assemble one matrix. Therefore only
  *  ConstructMatrixTerm is properly implemented.
- * 
+ *
  *  The matrix that is constructed is in fact the mass matrix:
  *  A_ij = integral phi_i phi_j dV, where phi_k is the k-th basis function
  */
@@ -58,7 +58,7 @@ public:
     static const unsigned S_DIM = DIM;
     static const unsigned P_DIM = 1u;
 
-public: 
+public:
     /**
      *  Integrand in matrix definition integral (see class documentation)
      */
@@ -85,7 +85,7 @@ public:
 
     /**
      *  The term arising from boundary conditions to be added to the element
-     *  stiffness vector - except this class is only used for constructing a matrix 
+     *  stiffness vector - except this class is only used for constructing a matrix
      *  so this is never called.
      */
     virtual c_vector<double, DIM> ComputeVectorSurfaceTerm(
@@ -99,9 +99,9 @@ public:
      * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
      */
     MonodomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
-    
+
     ~MonodomainRhsMatrixAssembler();
-    
+
     /**
      *  Get a pointer to the matrix
      */
@@ -126,7 +126,7 @@ struct AssemblerTraits<MonodomainRhsMatrixAssembler<DIM> >
 
 /**
  *  MonodomainMatrixBasedAssembler
- *  
+ *
  *  This class makes use of the functionality in its parent, AbstractDynamicAssemblerMixin,
  *  for specifying a constant matrix B and time-dependent vector z such that the finite element
  *  RHS vector b (in Ax=b) satisfies Bz=b, and therefore b can be constructed very quickly each
@@ -136,7 +136,7 @@ struct AssemblerTraits<MonodomainRhsMatrixAssembler<DIM> >
  *  and z = CA V^{m}/dt - A I_ionic - Istim
  *  where V is the vector of voltages are the last timestep, and I_ionic and I_stim are
  *  nodewise vectors of ionic currents and stimulus currents (and C is the capacitance and
- *  A surface-area-to-volume ratio). 
+ *  A surface-area-to-volume ratio).
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainMatrixBasedAssembler
@@ -144,7 +144,7 @@ class MonodomainMatrixBasedAssembler
 {
 protected:
     MonodomainRhsMatrixAssembler<SPACE_DIM>* mpMonodomainRhsMatrixAssembler;
-    
+
 public:
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
@@ -155,9 +155,9 @@ public:
                                    unsigned numQuadPoints = 2);
 
     ~MonodomainMatrixBasedAssembler();
-    
+
     /**
-     *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See class 
+     *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See class
      *  documentation.
      */
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);

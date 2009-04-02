@@ -54,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshReader.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class AbstractCachedMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> 
+class AbstractCachedMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
     unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
@@ -129,7 +129,7 @@ public:
  * Reads an input file fileName, removes comments (indicated by a #) and blank
  * lines and returns a vector of strings. Each string corresponds to one line
  * of the input file.
- * 
+ *
  * @param fileName
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

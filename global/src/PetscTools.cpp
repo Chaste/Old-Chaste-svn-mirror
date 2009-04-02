@@ -44,11 +44,11 @@ void PetscTools::ResetCache()
     if (is_there)
     {
         mPetscIsInitialised = true;
-        
+
         PetscInt num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         mNumProcessors = (unsigned) num_procs;
-        
+
         PetscInt my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         mRank = (unsigned) my_rank;
@@ -226,7 +226,7 @@ void PetscTools::DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
 
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
                           type, &view);
-    MatView(rMat, view); 
+    MatView(rMat, view);
     PetscViewerDestroy(view);
 }
 
@@ -241,7 +241,7 @@ void PetscTools::DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
                           type, &view);
-    VecView(rVec, view); 
+    VecView(rVec, view);
     PetscViewerDestroy(view);
 }
 
@@ -256,7 +256,7 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
 
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
                           type, &view);
-    MatLoad(view, MATMPIAIJ, &rMat); 
+    MatLoad(view, MATMPIAIJ, &rMat);
     PetscViewerDestroy(view);
 }
 
@@ -271,7 +271,7 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
                           type, &view);
-    VecLoad(view, VECMPI, &rVec); 
+    VecLoad(view, VECMPI, &rVec);
     PetscViewerDestroy(view);
 }
 

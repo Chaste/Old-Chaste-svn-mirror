@@ -140,7 +140,7 @@ public:
         std::set<unsigned> node_indices;
         std::set<unsigned> location_indices_set;
         std::set<unsigned> ghost_node_indices;
-        
+
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             node_indices.insert(p_mesh->GetNode(i)->GetIndex());
@@ -149,7 +149,7 @@ public:
         {
             location_indices_set.insert(location_indices[i]);
         }
-    
+
         std::set_difference(node_indices.begin(), node_indices.end(),
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
@@ -218,7 +218,7 @@ public:
         std::set<unsigned> node_indices;
         std::set<unsigned> location_indices_set;
         std::set<unsigned> ghost_node_indices;
-        
+
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             node_indices.insert(p_mesh->GetNode(i)->GetIndex());
@@ -227,7 +227,7 @@ public:
         {
             location_indices_set.insert(location_indices[i]);
         }
-    
+
         std::set_difference(node_indices.begin(), node_indices.end(),
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
@@ -298,7 +298,7 @@ public:
         std::set<unsigned> node_indices;
         std::set<unsigned> location_indices_set;
         std::set<unsigned> ghost_node_indices;
-        
+
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             node_indices.insert(p_mesh->GetNode(i)->GetIndex());
@@ -307,7 +307,7 @@ public:
         {
             location_indices_set.insert(location_indices[i]);
         }
-    
+
         std::set_difference(node_indices.begin(), node_indices.end(),
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
@@ -378,7 +378,7 @@ public:
         std::set<unsigned> node_indices;
         std::set<unsigned> location_indices_set;
         std::set<unsigned> ghost_node_indices;
-        
+
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             node_indices.insert(p_mesh->GetNode(i)->GetIndex());
@@ -387,7 +387,7 @@ public:
         {
             location_indices_set.insert(location_indices[i]);
         }
-    
+
         std::set_difference(node_indices.begin(), node_indices.end(),
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));

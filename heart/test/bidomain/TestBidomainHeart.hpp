@@ -84,9 +84,9 @@ private:
         HeartConfig::Instance()->Reset();
         //The conductivities were in the Metis test (not the plain test)
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                
-        
-        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);                
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);
         HeartConfig::Instance()->SetSimulationDuration(100.0);  //ms
 
         HeartConfig::Instance()->SetKSPSolver("symmlq");
@@ -102,7 +102,7 @@ public:
 
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/halfheart");
         HeartConfig::Instance()->SetOutputDirectory("BiDg0Heart");
-        
+
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
 

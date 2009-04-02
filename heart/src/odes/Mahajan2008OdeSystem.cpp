@@ -11,35 +11,35 @@
 #include "AbstractStimulusFunction.hpp"
 #include "Mahajan2008OdeSystem.hpp"
 
-Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver, 
+Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
                                         AbstractStimulusFunction* pIntracellularStimulus)
         : AbstractCardiacCell(pSolver, 26, 0, pIntracellularStimulus)
     {
         // Time units: ms
-        // 
+        //
         mpSystemInfo = OdeSystemInformation<Mahajan2008OdeSystem>::Instance();
         mScaleFactorGks = 1.0;
         mScaleFactorIto = 1.0;
         mScaleFactorGkr = 1.0;
         Init();
     }
-    
+
     Mahajan2008OdeSystem::~Mahajan2008OdeSystem(void)
     {
     }
-  
-  	void Mahajan2008OdeSystem::SetScaleFactorGks(double sfgks)
-	{
-	    mScaleFactorGks=sfgks;
-	}
-	void Mahajan2008OdeSystem::SetScaleFactorIto(double sfito)
-	{
-	    mScaleFactorIto=sfito;
-	}
-	void Mahajan2008OdeSystem::SetScaleFactorGkr(double sfgkr)
-	{
-	    mScaleFactorGkr=sfgkr;
-	}  
+
+      void Mahajan2008OdeSystem::SetScaleFactorGks(double sfgks)
+    {
+        mScaleFactorGks=sfgks;
+    }
+    void Mahajan2008OdeSystem::SetScaleFactorIto(double sfito)
+    {
+        mScaleFactorIto=sfito;
+    }
+    void Mahajan2008OdeSystem::SetScaleFactorGkr(double sfgkr)
+    {
+        mScaleFactorGkr=sfgkr;
+    }
  //   void Mahajan2008OdeSystem::VerifyGatingVariables()
  //   {}
 
@@ -86,7 +86,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         // Units: uM; Initial value: 0.226941113355
         double var_Ca__Ca_i = rY[22];
         // Units: uM; Initial value: 0.256752008084
-        
+
         const double var_Environment__R = 8.314472;
         const double var_Environment__T = 308.0;
         const double var_Environment__F = 96.4853415;
@@ -194,10 +194,10 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         double var_INa__ena = var_reversal_potentials__ena;
         double var_INa__xina = var_INa__gna * var_INa__xh * var_INa__xj * var_INa__xm * var_INa__xm * var_INa__xm * (var_INa__V - var_INa__ena);
         double var_cell__xina = var_INa__xina;
-        
+
         return var_cell__xik1+var_cell__xito+var_cell__xiNaK+var_cell__xiNaCa+var_cell__xica+var_cell__xina+var_cell__xikr+var_cell__xiks;
     }
-    
+
     void Mahajan2008OdeSystem::EvaluateYDerivatives(
             double var_Environment__time,
             const std::vector<double> &rY,
@@ -258,8 +258,8 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         // Units: uM; Initial value: 22.171689894953
         double var_Ca__trops = rY[25];
         // Units: uM; Initial value: 19.864701949854
-        
-        
+
+
         // Mathematics
         const double var_Environment__R = 8.314472;
         const double var_Environment__T = 308.0;
@@ -506,7 +506,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         double var_Ca__jd = (var_Ca__Ca_submem - var_Ca__Ca_i) / var_Ca__taud;
         double var_Ca__jNaCa = var_INaCa__jNaCa;
         double var_Ca__jca = var_ICaL__jca;
-        
+
         double d_dt_cell__V;
         if (mSetVoltageDerivativeToZero)
         {
@@ -516,7 +516,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         {
             d_dt_cell__V = var_cell__Itotal;
         }
-        
+
         double d_dt_INa__xh = (var_INa__ah * (1.0 - var_INa__xh)) - (var_INa__bh * var_INa__xh);
         double d_dt_INa__xj = (var_INa__aj * (1.0 - var_INa__xj)) - (var_INa__bj * var_INa__xj);
         double d_dt_INa__xm = (var_INa__am * (1.0 - var_INa__xm)) - (var_INa__bm * var_INa__xm);
@@ -542,7 +542,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         double d_dt_Ca__Ca_NSR = var_Ca__dCa_JSR;
         double d_dt_Ca__tropi = var_Ca__xbi;
         double d_dt_Ca__trops = var_Ca__xbs;
-        
+
         rDY[0] = 1.0*d_dt_cell__V;
         rDY[1] = 1.0*d_dt_INa__xm;
         rDY[2] = 1.0*d_dt_INa__xh;
@@ -570,14 +570,14 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         rDY[24] = 1.0*d_dt_Ca__tropi;
         rDY[25] = 1.0*d_dt_Ca__trops;
     }
-    
+
 
 
 template<>
 void OdeSystemInformation<Mahajan2008OdeSystem>::Initialise(void)
 {
     // Time units: ms
-    // 
+    //
     this->mVariableNames.push_back("V");
     this->mVariableUnits.push_back("mV");
     this->mInitialConditions.push_back(-87.169816169406);

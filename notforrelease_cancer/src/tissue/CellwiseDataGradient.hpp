@@ -47,7 +47,7 @@ public:
 
     /**
      * Compute the gradients at the nodes.
-     * 
+     *
      * This is done by averaging the gradients at all the containing (non-ghost)
      * elements for that node. Note that the gradients are piecewise constant-
      * constant in each element
@@ -56,9 +56,9 @@ public:
 
     /**
      * Get the gradient at a given node. Not set up for ghost nodes.
-     * 
-     * @param nodeIndex 
-     * 
+     *
+     * @param nodeIndex
+     *
      * @return the gradient at the node.
      */
     c_vector<double, DIM>& rGetGradient(unsigned nodeIndex);

@@ -80,7 +80,7 @@ public:
 
     /**
      * Get the values of a given variable at each time step at a given node.
-     * 
+     *
      * @param variableName  name of a variable in the data file
      * @param nodeIndex the index of the node for which the data is obtained
      */
@@ -88,7 +88,7 @@ public:
 
     /**
      * Get the values of a given variable at each node at a given time step.
-     * 
+     *
      * @param data  Petsc vec to hold the data
      * @param variableName  name of a variable in the data file
      * @param timestep the time step for which the data is obtained (defaults to 0)
@@ -112,7 +112,7 @@ public:
 
     /**
      * Get the units in which a given variable is measured.
-     * 
+     *
      * @param variableName  name of a variable in the data file
      */
     std::string GetUnit(std::string variableName);

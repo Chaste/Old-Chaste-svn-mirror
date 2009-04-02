@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Represents the Alarcon et al. (2004) system of ODEs (see ticket #461).
  * [doi:10.1016/j.jtbi.2004.04.016]
- * 
+ *
  * Here the cell mutation state HEALTHY corresponds to a 'normal' state, while
  * LABELLED corresponds to a 'cancer' state.
  *
@@ -150,7 +150,7 @@ public:
      *
      * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS.
-     * 
+     *
      * @return whether or not stopping conditions have been met
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);

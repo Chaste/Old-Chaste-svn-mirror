@@ -40,13 +40,13 @@ template<unsigned DIM>
 class CardiacElectroMechProbRegularGeom : public CardiacElectroMechanicsProblem<DIM>
 {
 public:
-    /** 
+    /**
      *  Constructor
      *  @param width Width and height of the square.
      *  @param numMechanicsElementsEachDir Num elements in each direction in the mechanics mesh.
      *  @param numElectricsElementsEachDir Num elements in each direction in the electrics mesh
      */
-    CardiacElectroMechProbRegularGeom(double width, 
+    CardiacElectroMechProbRegularGeom(double width,
                                       unsigned numMechanicsElementsEachDir,
                                       unsigned numElectricsElementsEachDir,
                                       AbstractCardiacCellFactory<DIM>* pCellFactory,
@@ -55,11 +55,11 @@ public:
                                       double nhsOdeTimeStep,
                                       std::string outputDirectory = "")
         : CardiacElectroMechanicsProblem<DIM>(NULL, NULL, std::vector<unsigned>(), // all these set below
-                                              pCellFactory, endTime, 
+                                              pCellFactory, endTime,
                                               numElecTimeStepsPerMechTimestep,
                                               nhsOdeTimeStep, outputDirectory)
     {
-        assert(DIM==2); // the below assumes DIM==2 
+        assert(DIM==2); // the below assumes DIM==2
 
         assert(width > 0.0);
         assert(numMechanicsElementsEachDir > 0);
@@ -75,7 +75,7 @@ public:
         this->mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,numMechanicsElementsEachDir,numMechanicsElementsEachDir);
         LOG(2, "Width of meshes is " << width);
         LOG(2, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->GetNumNodes() << "\n");
-        
+
         // fix the nodes on x=0
         this->mFixedNodes.clear();
         for(unsigned i=0; i<this->mpMechanicsMesh->GetNumNodes(); i++)
@@ -86,11 +86,11 @@ public:
             }
         }
 
-        LOG(2, "Fixed the " << this->mFixedNodes.size() << " nodes on x=0"); 
+        LOG(2, "Fixed the " << this->mFixedNodes.size() << " nodes on x=0");
     }
 
     ~CardiacElectroMechProbRegularGeom()
-    { 
+    {
         delete this->mpElectricsMesh;
         delete this->mpMechanicsMesh;
     }

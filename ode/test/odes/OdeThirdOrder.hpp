@@ -60,15 +60,15 @@ void OdeSystemInformation<OdeThirdOrder>::Initialise()
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mVariableNames.push_back("Variable 2");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1.0);
-    
+
     this->mVariableNames.push_back("Variable 3");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mInitialised = true;
 }
 

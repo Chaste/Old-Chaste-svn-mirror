@@ -37,8 +37,8 @@ FixedDurationGenerationBasedCellCycleModel::FixedDurationGenerationBasedCellCycl
     : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation)
 {
 }
-    
-    
+
+
 AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new FixedDurationGenerationBasedCellCycleModel(mG1Duration, mGeneration);

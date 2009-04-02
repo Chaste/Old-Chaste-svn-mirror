@@ -436,8 +436,8 @@ public:
     }
 
     /*
-     * This test is just to cover the line in ColumnDataWriter::PutVariable where 
-     * the fixed and unlimited dimensions are both set and the unlimited parameter 
+     * This test is just to cover the line in ColumnDataWriter::PutVariable where
+     * the fixed and unlimited dimensions are both set and the unlimited parameter
      * (i.e. time) is passed in negative.
      */
     void TestNegativeWithFixedAndUnlimitedDefined()

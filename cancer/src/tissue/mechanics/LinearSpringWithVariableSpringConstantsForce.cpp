@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSpringConstantsForce()
    : GeneralisedLinearSpringForce<DIM>()
-{    
+{
     // Edge-based springs
     mUseEdgeBasedSpringConstant = false;
 
@@ -84,19 +84,19 @@ void LinearSpringWithVariableSpringConstantsForce<DIM>::SetApoptoticSprings(bool
 
 template<unsigned DIM>
 double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstantMultiplicationFactor(
-    unsigned nodeAGlobalIndex, 
+    unsigned nodeAGlobalIndex,
     unsigned nodeBGlobalIndex,
-    AbstractTissue<DIM>& rTissue, 
+    AbstractTissue<DIM>& rTissue,
     bool isCloserThanRestLength)
 {
     double multiplication_factor = GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
                                                                                                             nodeBGlobalIndex,
                                                                                                             rTissue,
                                                                                                             isCloserThanRestLength);
-    
+
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
-    
+
     if (mUseEdgeBasedSpringConstant)
     {
         assert(rTissue.HasMesh());
@@ -197,7 +197,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
             multiplication_factor *= 1.0 / (( 1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*CancerParameters::Instance()->GetSpringStiffness());
         }
     }
-    
+
     return multiplication_factor;
 }
 

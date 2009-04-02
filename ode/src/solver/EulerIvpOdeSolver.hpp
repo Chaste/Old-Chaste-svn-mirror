@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOneStepIvpOdeSolver.hpp"
 
 /**
- * A concrete one step ODE solver class that employs the forward Euler 
+ * A concrete one step ODE solver class that employs the forward Euler
  * method. This numerical method is explicit.
  */
 class EulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
@@ -42,11 +42,11 @@ protected:
 
     /**
      * Calculate the solution to the ODE system at the next timestep.
-     * 
+     *
      * A usage example:
      *     EulerIvpOdeSolver mySolver;
      *     OdeSolution solution = mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, TimeStep, SamplingTime);
-     * 
+     *
      * @param pAbstractOdeSystem  the ODE system to solve
      * @param timeStep  dt
      * @param time  the current time

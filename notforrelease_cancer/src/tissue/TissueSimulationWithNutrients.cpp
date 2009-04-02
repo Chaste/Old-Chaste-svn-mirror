@@ -56,7 +56,7 @@ TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue
       mNumRadialIntervals(0), // 'unset' value
       mpCoarseNutrientMesh(NULL)
 {
-    // We must be using a mesh-based tissue   
+    // We must be using a mesh-based tissue
     assert(dynamic_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue)) != NULL);
 
     // We must not have any ghost nodes
@@ -155,9 +155,9 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
 }
 
 /**
- * The CreateCoarseNutrientMesh method is currently only implemented in 2D, hence there 
+ * The CreateCoarseNutrientMesh method is currently only implemented in 2D, hence there
  * are two definitions to this method (one templated and one not).
- * 
+ *
  * @param coarseGrainScaleFactor the ratio of the width of the coarse nutrient mesh to the initial width of the tissue
  */
 template<>

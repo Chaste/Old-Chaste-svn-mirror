@@ -49,11 +49,11 @@ class DelayedTotalStimCellFactory : public AbstractCardiacCellFactory<1>
 private:
     // define a new stimulus
     SimpleStimulus* mpIntraStimulus;
- 
+
 public:
     DelayedTotalStimCellFactory(double mag) : AbstractCardiacCellFactory<1>()
     {
-        mpIntraStimulus = new SimpleStimulus(  mag, 0.1, 0.1); 
+        mpIntraStimulus = new SimpleStimulus(  mag, 0.1, 0.1);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -72,19 +72,19 @@ class TestBidomainProblem : public CxxTest::TestSuite
 public:
     void tearDown()
     {
-        HeartConfig::Reset();   
+        HeartConfig::Reset();
     }
 
     // first test doesn't use matrix based assembly..
     void TestBidomainDg01DPinned()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("bidomainDg01d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
-                
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
@@ -106,7 +106,7 @@ public:
         bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
 
         // switch off matrix-based assembly (just to test old method). Note: switching this off
-        // is VERY inefficient 
+        // is VERY inefficient
         bidomain_problem.UseMatrixBasedRhsAssembly(false);
 
         try
@@ -175,17 +175,17 @@ public:
     void TestBidomainDg01DAveragePhiEOverDifferentRows()
     {
         HeartEventHandler::Disable();
-        
+
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("bidomainDg01d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
-        
+
         // Final values to test against have been produced with ksp_rtol=1e-9
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-8);
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
@@ -277,7 +277,7 @@ public:
             TS_ASSERT_EQUALS (ierr, MPI_SUCCESS)
 
             TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
-            
+
             bidomain_problem.Initialise();
         }
 
@@ -306,12 +306,12 @@ public:
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("Monodomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
-            
+
         Vec monodomain_results;
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
@@ -345,10 +345,10 @@ public:
 
         // keep the intra conductivity to be the same as monodomain
         // and the extra conductivity to be very large in comparison
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1));        
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1));
         HeartConfig::Instance()->SetOutputDirectory("Bidomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain1d");
-        
+
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
         bidomain_problem.Initialise();
@@ -395,13 +395,13 @@ public:
     {
         HeartEventHandler::Disable();
 
-        HeartConfig::Instance()->SetPrintingTimeStep(0.1);        
+        HeartConfig::Instance()->SetPrintingTimeStep(0.1);
         HeartConfig::Instance()->SetPdeTimeStep(0.01);
         HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("Bidomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_testPrintTimes");
-   
+
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
@@ -451,7 +451,7 @@ public:
         // Now check that we can turn off output printing
         // Output should be the same as above: printing every 10th time step
         // because even though we set to print every time step...
-        HeartConfig::Instance()->SetPrintingTimeStep(1);        
+        HeartConfig::Instance()->SetPrintingTimeStep(1);
         // ...we have output turned off
         p_bidomain_problem->PrintOutput(false);
 
@@ -470,16 +470,16 @@ public:
         delete p_bidomain_problem;
         HeartEventHandler::Enable();
     }
-    
+
     void TestBidomainFallsOverProducesOutput()
     {
         HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainFallsOver");
         HeartConfig::Instance()->SetOutputFilenamePrefix("res");
-         
-        //Something happens at 0.1ms        
-        
+
+        //Something happens at 0.1ms
+
         //DelayedTotalStimCellFactory bidomain_cell_factory(-6e5); //Normal stimulus
         DelayedTotalStimCellFactory bidomain_cell_factory(-6e6); //Takes sodium out of range
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
@@ -488,7 +488,7 @@ public:
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-        
+
         //Test for regular output
         Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
         std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
@@ -497,28 +497,28 @@ public:
         TS_ASSERT_DELTA( times[1], 0.01,  1e-12);
         //TS_ASSERT_DELTA( times.back(), 0.3,  1e-12);//For normal stimulation
         TS_ASSERT_DELTA( times.back(), 0.20,  1e-12);//For over stimulation
-        
+
         //Make sure that there's time for the files to be written
         //(most files are only written by the master)
         PetscTools::Barrier();
-        
+
         //Test for post-processed output
         OutputFileHandler handler("");
-        
+
         std::string files[6] = {"res_mesh.pts","res_mesh.tri","res_parameters.xml",
                                 "res_Phi_e.dat","res_V.dat","res_times.info"};
-                          
+
         for(unsigned i=0; i<6; i++)
         {
             std::string filename =   handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
                                    + files[i];
-        
+
             std::ifstream file(filename.c_str());
             TS_ASSERT(file.is_open());
             file.close();
         }
     }
-    
+
 
     void TestBidomainProblemExceptions() throw (Exception)
     {
@@ -542,12 +542,12 @@ public:
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
         HeartConfig::Instance()->SetOutputDirectory("temp");
         HeartConfig::Instance()->SetOutputFilenamePrefix("temp");
-        
+
         //Exception causes by relative tolerance and no clamping
-        HeartConfig::Instance()->SetUseRelativeTolerance(2e-3); 
+        HeartConfig::Instance()->SetUseRelativeTolerance(2e-3);
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);
-        
+
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;
         too_large.push_back(4358743);
@@ -565,7 +565,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Orthotropic);
         HeartConfig::Instance()->SetOutputDirectory("OrthotropicBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("ortho3d");
-                
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory;
 
         ///////////////////////////////////////////////////////////////////
@@ -583,7 +583,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Axisymmetric);
         HeartConfig::Instance()->SetOutputDirectory("AxisymmetricBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("axi3d");
-                
+
         BidomainProblem<3> axisymmetric_bido( &cell_factory);
 
         axisymmetric_bido.Initialise();

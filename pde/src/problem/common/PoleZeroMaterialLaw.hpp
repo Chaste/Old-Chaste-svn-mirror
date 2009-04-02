@@ -79,7 +79,7 @@ protected :
     void SetParameters(std::vector<std::vector<double> > k,
                        std::vector<std::vector<double> > a,
                        std::vector<std::vector<double> > b);
-  
+
 
 public :
     /**

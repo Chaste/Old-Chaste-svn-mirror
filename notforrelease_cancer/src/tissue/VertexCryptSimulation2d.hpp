@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * A 2D vertex-based crypt simulation object.  
+ * A 2D vertex-based crypt simulation object.
  */
 class VertexCryptSimulation2d : public TissueSimulation<2>
 {
@@ -67,7 +67,7 @@ private :
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
-     * 
+     *
      * Writes out special information about the mesh to the visualizer.
      */
     void WriteVisualizerSetupFile();
@@ -82,18 +82,18 @@ public :
      *  @param deleteTissueAndForceCollection Whether to delete the tissue and force collection on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    VertexCryptSimulation2d(AbstractTissue<2>& rTissue,                      
+    VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
                       std::vector<AbstractForce<2>*> forceCollection,
                       bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
 
     /**
      * Overridden ApplyTissueBoundaryConditions() method.
-     * 
-     * If an instance of WntConcentration is not set up, then stem cells at the 
-     * bottom of the crypt are pinned. Any cell that has moved below the bottom 
+     *
+     * If an instance of WntConcentration is not set up, then stem cells at the
+     * bottom of the crypt are pinned. Any cell that has moved below the bottom
      * of the crypt is moved back up.
-     * 
+     *
      * @param rOldLocations the node locations at the previous time step
      */
     void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
@@ -110,7 +110,7 @@ public :
      *       void WriteBetaCatenin(double time);
      *       void SetupSolve();
      *       void PostSolve();
-     *       void AfterSolve(); 
+     *       void AfterSolve();
      * See also #923.
      */
 

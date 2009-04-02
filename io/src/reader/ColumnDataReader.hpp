@@ -53,7 +53,7 @@ private:
 
     /**
      * Push back an entry from the data file into mValues.
-     * 
+     *
      * @param line the line of the data file
      * @param col  the column number
      */
@@ -61,7 +61,7 @@ private:
 
     /**
      * Read in a given column from a data file into mValues.
-     * 
+     *
      * @param filename the file name
      * @param col  the column number
      */
@@ -69,7 +69,7 @@ private:
 
     /**
      * Push back an entry from a file into mValues.
-     * 
+     *
      * @param filename the file name
      * @param col  the column number
      * @param row  the row number
@@ -93,14 +93,14 @@ public:
 
     /**
      * Get the entries for a given variable.
-     * 
+     *
      * @param variableName
      */
     std::vector<double> GetValues(std::string variableName);
 
     /**
      * Get the entries for a given variable with fixed dimension.
-     * 
+     *
      * @param variableName
      * @param fixedDimension
      */
@@ -110,10 +110,10 @@ public:
      * Get the entries for a given variable with unlimited dimension.
      */
     std::vector<double> GetUnlimitedDimensionValues();
-    
+
     /**
      * Get whether the data file has entries for a given variable.
-     * 
+     *
      * @param variableName
      */
     bool HasValues(const std::string& variableName);

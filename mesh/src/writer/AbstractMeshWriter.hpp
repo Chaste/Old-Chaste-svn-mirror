@@ -69,7 +69,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param rDirectory  the directory in which to write the mesh to file
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param clearOutputDir  whether to clean the directory (defaults to true)
@@ -138,7 +138,7 @@ AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractMeshWriter(const std::string
 {
     mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
 }
-    
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::~AbstractMeshWriter()
 {
@@ -300,7 +300,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     }
     else
     {
-        mNodeData.resize(rMeshReader.GetNumNodes());        
+        mNodeData.resize(rMeshReader.GetNumNodes());
         for (unsigned i=0; i<rMeshReader.GetNumNodes();i++)
         {
             assert(rNodePermutation[i] < rMeshReader.GetNumNodes());
@@ -310,26 +310,26 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
         for (unsigned i=0; i<rMeshReader.GetNumElements();i++)
         {
             ElementData element = rMeshReader.GetNextElementData();
-            
+
             for(unsigned local_index=0; local_index<element.NodeIndices.size(); local_index++)
             {
                 unsigned old_index = element.NodeIndices[local_index];
                 element.NodeIndices[local_index] = rNodePermutation[old_index];
             }
-            
+
             SetNextElement(element.NodeIndices);
         }
-        
+
         for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
         {
             ElementData face = rMeshReader.GetNextFaceData();
-            
+
             for(unsigned local_index=0; local_index<face.NodeIndices.size(); local_index++)
             {
                 unsigned old_index = face.NodeIndices[local_index];
                 face.NodeIndices[local_index] = rNodePermutation[old_index];
             }
-            
+
             SetNextBoundaryFace(face.NodeIndices);
         }
         WriteFiles();

@@ -40,14 +40,14 @@ class DiscreteSystemForceCalculator
 
 private:
 
-    /** 
+    /**
      * Reference to tissue.
      */
     MeshBasedTissue<2>& mrTissue;
-    
+
     /** The mechanics used to determine the new location of the cells. */
     std::vector<AbstractTwoBodyInteractionForce<2>*> mForceCollection;
-    
+
     /**
      * Small parameter, used in GetSamplingAngles().
      */
@@ -58,9 +58,9 @@ private:
 
     /**
      * Given a node index, returns the set of neighbouring node indices.
-     * 
+     *
      * @param index the node index
-     * 
+     *
      * @return the set of neighbouring node indices.
      */
     std::set<unsigned> GetNeighbouringNodeIndices(unsigned index);
@@ -68,10 +68,10 @@ private:
     /**
      * Given a node index and angle of intersecting line in the range (-pi,pi],
      * returns the tangential and normal forces.
-     * 
+     *
      * @param index the node index
      * @param theta the angle of intersection
-     * 
+     *
      * @return the vector of tangential and normal forces.
      */
     std::vector<double> CalculateFtAndFn(unsigned index, double theta);
@@ -80,9 +80,9 @@ private:
      * Given a node index, returns a vector of sampling angles in the range (-pi,pi]
      * that can be used by GetExtremalAngles() to find the locations of local extrema
      * of the normal force.
-     * 
+     *
      * @param index
-     * 
+     *
      * @return the vector of sampling angles.
      */
     std::vector<double> GetSamplingAngles(unsigned index);
@@ -91,11 +91,11 @@ private:
      * Given a node index and two sampling angles, finds the location of
      * the root of the tangential force in the interval between the two
      * angles. There is no guarantee that this will lie in (-pi,pi].
-     * 
+     *
      * @param index the node index
      * @param angle1 the first sampling angle
      * @param angle2 the second sampling angle
-     * 
+     *
      * @return the local extremum.
      */
     double GetLocalExtremum(unsigned index, double angle1, double angle2);
@@ -104,19 +104,19 @@ private:
      * Given a vector of sampling angles in the range (-pi,pi], returns a vector
      * of extremal angles, i.e. angles at which local extrema of the normal force
      * occur, again in the range (-pi,pi].
-     * 
+     *
      * @param index the node index
      * @param samplingAngles the vector of sampling angles
-     * 
+     *
      * @return the vector of extremal angles.
      */
     std::vector<double> GetExtremalAngles(unsigned index, std::vector<double> samplingAngles);
 
 public:
 
-    /** 
+    /**
      * Constructor.
-     * 
+     *
      * @param rTissue reference to the tissue
      * @param forceCollection vector of force laws present
      */
@@ -129,7 +129,7 @@ public:
 
     /**
      * Write results to file.
-     * 
+     *
      * @param simulationOutputDirectory the output directory, relative to where Chaste output is stored
      */
     void WriteResultsToFile(std::string simulationOutputDirectory);

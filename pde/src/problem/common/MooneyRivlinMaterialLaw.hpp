@@ -62,13 +62,13 @@ private :
 
 public :
     double Get_dW_dI1(double I1, double I2);
-    
+
     double Get_dW_dI2(double I1, double I2);
-    
+
     double Get_d2W_dI1(double I1, double I2);
-    
+
     double Get_d2W_dI2(double I1, double I2);
-    
+
     double Get_d2W_dI1I2(double I1, double I2);
 
     double GetC1();

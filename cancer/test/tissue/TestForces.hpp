@@ -172,7 +172,7 @@ public:
         linear_force.UseCutoffPoint(dist-0.1);
 
         // Coverage
-        TS_ASSERT_DELTA(linear_force.GetCutoffPoint(), dist-0.1, 1e-4); 
+        TS_ASSERT_DELTA(linear_force.GetCutoffPoint(), dist-0.1, 1e-4);
 
         force_on_spring = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),
                                                                    p_element->GetNodeGlobalIndex(0),

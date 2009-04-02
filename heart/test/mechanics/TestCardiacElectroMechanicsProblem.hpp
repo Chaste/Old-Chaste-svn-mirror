@@ -55,7 +55,7 @@ public:
                                                      &cell_factory,
                                                      1.0, /* end time */
                                                      100, /* 100*0.01ms mech dt */
-                                                     0.01,/* nhs ode timestep */ 
+                                                     0.01,/* nhs ode timestep */
                                                      "");
 
         c_vector<double,2> pos;
@@ -79,7 +79,7 @@ public:
         //TS_ASSERT_THROWS_ANYTHING(problem2.Initialise());
         //// ... but the exception causes a segmentation fault and had to be replaced
         //// with an assert(0);
-    }  
+    }
 
 
     void Test2dOneMechanicsElement() throw(Exception)
@@ -99,10 +99,10 @@ public:
         c_vector<double,2> pos;
         pos(0) = 0.05;
         pos(1) = 0.0;
-        
+
         problem.SetWatchedPosition(pos);
         problem.Solve();
- 
+
         // test by checking the length of the tissue against hardcoded value
         std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
         TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0497, 1e-4);
@@ -111,7 +111,7 @@ public:
         std::string watched = handler.GetOutputDirectoryFullPath() + "watched.txt";
         std::string command = "diff " + handler.GetOutputDirectoryFullPath() + "watched.txt heart/test/data/good_watched.txt";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        
+
         // check electrics output was written
         command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
@@ -127,7 +127,7 @@ public:
 //        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 //        CardiacElectroMechanicsProblem<2> implicit_problem(1.0   /* width*/
 //                                                           5,    /* mech mesh size*/
-//                                                           96,   /* elec elem each dir 
+//                                                           96,   /* elec elem each dir
 //                                                           &cell_factory,
 //                                                           0.05, /* end time */
 //                                                           1,    /* 0.01ms mech dt */

@@ -166,7 +166,7 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
     else
     {
         EXCEPTION("Location index input argument does not correspond to a TissueCell");
-    } 
+    }
 }
 
 template<unsigned DIM>

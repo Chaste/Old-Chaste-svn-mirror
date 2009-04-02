@@ -98,10 +98,10 @@ void OdeSystemInformation<FitzHughNagumo1961OdeSystem>::Initialise(void)
     this->mVariableNames.push_back("V");
     this->mVariableUnits.push_back("mV");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mVariableNames.push_back("w");
     this->mVariableUnits.push_back("");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mInitialised = true;
 }

@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
- * 
+ *
  * It is subclassed for different types of cell model.
  */
 template<unsigned DIM>
@@ -53,21 +53,21 @@ public:
      * @return a pointer to a new cell cycle model (should be implemented in subclasses)
      */
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
-    
+
     /**
      * Return the typical cell cycle duration for a transit cell, in hours.
      * Used when giving cells random ages - the ages will follow a uniform
      * distribution with this value as the upper limit.
      */
     virtual double GetTypicalTransitCellCycleTime()=0;
-    
+
     /**
      * Return the typical cell cycle duration for a stem cell, in hours.
      * Used when giving cells random ages - the ages will follow a uniform
      * distribution with this value as the upper limit.
      */
     virtual double GetTypicalStemCellCycleTime()=0;
-    
+
     /**
      * Whether cells are able to fully differentiate.
      * Defaults to false unless overridden.
@@ -76,7 +76,7 @@ public:
 
     /**
      * Destructor.
-     */    
+     */
     virtual ~AbstractCellsGenerator()
     {}
 
@@ -130,10 +130,10 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
     #define COVERAGE_IGNORE
     assert(DIM==2);
     #undef COVERAGE_IGNORE
-    
+
     RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
-    unsigned num_cells = rMesh.GetNumNodes();    
+    unsigned num_cells = rMesh.GetNumNodes();
     if (!locationIndices.empty())
     {
         num_cells = locationIndices.size();

@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/split_member.hpp>
 
 /**
- * A special singleton class allowing one to generate different types of 
+ * A special singleton class allowing one to generate different types of
  * random number in a globally consistent way.
  */
 class RandomNumberGenerator
@@ -57,7 +57,7 @@ public:
     /**
      * Generate a random number from a normal distribution with given
      * mean and standard deviation.
-     * 
+     *
      * @param mean the mean of the normal distribution from which the random number is drawn
      * @param sd the standard deviation of the normal distribution from which the random number is drawn
      */
@@ -71,17 +71,17 @@ public:
     /**
      * Generate a random number modulo base (ie an integer
      * within the range 0,..,base-1),
-     * 
+     *
      * @param base the order of the field of positive integers from which the random number is drawn
      */
     unsigned randMod(unsigned base);
 
     /**
-     * Shuffle the integers 0,1,..,num-1, using the Knuth-algorithm 
+     * Shuffle the integers 0,1,..,num-1, using the Knuth-algorithm
      * (also called the Fisher-Yates algorithm), a linear time unbiased method.
      * The shuffled values are returned in rValues, which doesn't need to
      * be correctly-sized when passed in.
-     * 
+     *
      * @param num
      * @param rValues
      */
@@ -94,8 +94,8 @@ public:
     static RandomNumberGenerator* Instance();
 
     /**
-     * Destroy the current instance of the random number generator. 
-     * The next call to Instance will create a new instance and re-seed. 
+     * Destroy the current instance of the random number generator.
+     * The next call to Instance will create a new instance and re-seed.
      * This method *must* be called before program exit, to avoid a memory
      * leak.
      */
@@ -103,11 +103,11 @@ public:
 
     /**
      * Reseed the random number generator.
-     * 
+     *
      * @param seed the new seed
      */
     void Reseed(int seed);
-    
+
 protected:
 
     /**
@@ -130,12 +130,12 @@ private:
     friend class boost::serialization::access;
     /**
      * Save the RandomNumberGenerator and its member variables.
-     * 
+     *
      * Serialization of a RandomNumberGenerator object must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -148,12 +148,12 @@ private:
     }
     /**
      * Load the RandomNumberGenerator and its member variables.
-     * 
+     *
      * Serialization of a RandomNumberGenerator object must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
-     * 
+     *
      * @param archive
      * @param version
      */

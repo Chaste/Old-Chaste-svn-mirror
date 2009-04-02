@@ -45,7 +45,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param numberOfStateVariables  the number of state variables in the ODE system (defaults to 0)
      */
     AbstractOdeSystemWithAnalyticJacobian(unsigned numberOfStateVariables = 0)

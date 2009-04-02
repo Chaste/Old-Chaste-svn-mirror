@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Constructor for RegularStimulus
- * 
+ *
  * @param magnitudeOfStimulus  The size of the stimulus
  * @param duration  How long the square wave is applied for
  * @param period  The time between square waves being applied

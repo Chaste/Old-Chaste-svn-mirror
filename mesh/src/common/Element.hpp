@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A concrete element class which inherits from AbstractTetrahedralElement.
- */ 
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class Element : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>
 {
@@ -43,18 +43,18 @@ class Element : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>
 public:
 
     /**
-     * Constructor which takes in a vector of nodes. 
-     *  
-     * @param index  the index of the element in the mesh 
-     * @param nodes  the nodes owned by the element 
+     * Constructor which takes in a vector of nodes.
+     *
+     * @param index  the index of the element in the mesh
+     * @param nodes  the nodes owned by the element
      */
     Element(unsigned index, std::vector<Node<SPACE_DIM>*> nodes);
 
     /**
      * Copy constructor which allows a new index to be specified.
-     * 
+     *
      * \todo this is rather dubious; a factory method might be better.
-     * 
+     *
      * @param element  an element to copy
      * @param index the index of the new element
      */
@@ -70,19 +70,19 @@ public:
      * Also notify nodes in the element that it has been removed.
      */
     void MarkAsDeleted();
-    
+
     /**
      * Update node at the given index.
-     * 
+     *
      * @param rIndex is an local index to which node to change
      * @param pNode is a pointer to the replacement node
      */
     void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
 
-    /** 
-     * Reset the index of this boundary element in the mesh. 
-     *  
-     * @param index 
+    /**
+     * Reset the index of this boundary element in the mesh.
+     *
+     * @param index
      */
     void ResetIndex(unsigned index);
 
@@ -94,17 +94,17 @@ public:
     c_vector<double,SPACE_DIM+1> CalculateCircumsphere();
 
     /**
-     * Calculate the circumsphere/circumcircle of this element. 
-     * 
+     * Calculate the circumsphere/circumcircle of this element.
+     *
      * After reconstructing a cylindrical 2d mesh, the jacobian data of the periodic elements is not valid anymore.
      * We want to use the jacobians computed before swapping the nodes.
 
      * @returns a vector containing x_centre, y_centre,...,radius^2
-     * 
+     *
      * @param rJacobian  the Jacobian matrix
      * @param rInverseJacobian  the inverse Jacobian matrix
      */
-    c_vector<double,SPACE_DIM+1> CalculateCircumsphere(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian);     
+    c_vector<double,SPACE_DIM+1> CalculateCircumsphere(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian);
 
     /**
      * Get the volume of the circumsphere, or area of the circumcircle, of this element.
@@ -120,7 +120,7 @@ public:
 
     /**
      * Calculate the interpolation weights at a given point.
-     * 
+     *
      * @param testPoint  the point
      */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint);
@@ -129,21 +129,21 @@ public:
      * Calculate the interpolation weights, but if we are not within
      * the element (one or more negative weights), we project onto the
      * element, rather than extrapolating from it.
-     * 
+     *
      * @param testPoint  the point
      */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint);
 
     /**
      * Calculate psi at a given point.
-     * 
+     *
      * @param testPoint
      */
     c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint);
 
     /**
      * Get whether a given point lies inside this element.
-     * 
+     *
      * @param testPoint  the point
      * @param strict  whether the point must not be too close to an edge/face (defaults to false)
      */

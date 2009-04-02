@@ -75,10 +75,10 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_20_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoNoStim");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainNoStimLR91_1d");
-        
+
         ZeroStimulusCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
-        
+
         monodomain_problem.Initialise();
 
         monodomain_problem.Solve();

@@ -85,7 +85,7 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
         this->mpLinearSystem->SetRelativeTolerance(HeartConfig::Instance()->GetRelativeTolerance());
     }
     this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
-    this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());        
+    this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
 }
 
 

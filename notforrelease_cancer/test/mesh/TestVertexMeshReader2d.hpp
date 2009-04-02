@@ -43,8 +43,8 @@ public:
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
     }
-    
-    
+
+
     /**
      * Check that the nodes are read correctly. Checks that the output vector
      * for a given input file is the correct length and that if the input file
@@ -74,9 +74,9 @@ public:
     void TestElementsDataRead() throw(Exception)
     {
         VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
-        
+
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
-        
+
         // Read element 0 from file
         VertexElementData data = mesh_reader.GetNextElementData();
 
@@ -86,7 +86,7 @@ public:
         TS_ASSERT_EQUALS(data.NodeIndices[2], 2u);
         TS_ASSERT_EQUALS(data.NodeIndices[3], 3u);
         TS_ASSERT_EQUALS(data.NodeIndices[4], 4u);
-        
+
         // Read element 1 from file
         VertexElementData data2 = mesh_reader.GetNextElementData();
 
@@ -94,9 +94,9 @@ public:
         TS_ASSERT_EQUALS(data2.NodeIndices[0], 2u);
         TS_ASSERT_EQUALS(data2.NodeIndices[1], 5u);
         TS_ASSERT_EQUALS(data2.NodeIndices[2], 6u);
-        
+
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0u);
-        
+
         mesh_reader.Reset();
         for (unsigned i=1; i<mesh_reader.GetNumElements(); i++)
         {
@@ -109,11 +109,11 @@ public:
         // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
 
-        // Reads element 2 from file when expecting number 1                            
+        // Reads element 2 from file when expecting number 1
         TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextElementData());
 
     }
-    
+
 
     /**
      * Checks that nodes in the input data file are numbered sequentially.

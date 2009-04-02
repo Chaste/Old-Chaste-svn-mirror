@@ -154,7 +154,7 @@ void SetConductivities(BidomainProblem<DIM>& rProblem)
         conductivities[i] = 1.75;
     }
     HeartConfig::Instance()->SetIntracellularConductivities(conductivities);
-    
+
     for (unsigned i=0; i<DIM; i++)
     {
         conductivities[i] = 7.0;
@@ -222,7 +222,7 @@ public:
             CuboidMeshConstructor<DIM> constructor;
 
             assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
-            //Otherwise we can't take the timestep down to machine precision without generating thousands of output files            
+            //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, 0.04);
             HeartConfig::Instance()->SetSimulationDuration(8.0);
             HeartConfig::Instance()->SetOutputDirectory ("Convergence");
@@ -233,7 +233,7 @@ public:
 
             TetrahedralMesh<DIM, DIM> mesh;
             TrianglesMeshReader<DIM, DIM> mesh_reader(constructor.Construct(this->MeshNum, mMeshWidth) );
-            mesh.ConstructFromMeshReader(mesh_reader); 
+            mesh.ConstructFromMeshReader(mesh_reader);
 
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
 
@@ -274,7 +274,7 @@ public:
             if (mUseKspAbsoluteTolerance)
             {
                 HeartConfig::Instance()->SetUseAbsoluteTolerance(this->mKspTolerance);
-                
+
 //                cardiac_problem.SetLinearSolverAbsoluteTolerance(this->mKspTolerance);
             }
             else

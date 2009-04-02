@@ -111,7 +111,7 @@ public:
         }
     }
 
-/////// Alternative version of Solve which uses damping factors - may be 
+/////// Alternative version of Solve which uses damping factors - may be
 /////// needed in the future if a system which is difficult to solve and
 /////// Newton diverges. THINK THIS IS NOT CURRENTLY WORKING - compare
 /////// with above solve before use.
@@ -127,7 +127,7 @@ public:
 ////        {
 ////            assert(!isnan(mResidual[i]));
 ////        }
-////        
+////
 ////        double norm = ComputeNorm(mResidual);
 ////
 ////        std::vector<double> damping_values;
@@ -145,8 +145,8 @@ public:
 ////
 ////            // Solve Newton linear system
 ////            SolveLinearSystem();
-////        
-////            // go through all the possible damping values and 
+////
+////            // go through all the possible damping values and
 ////            // choose the one which gives the smallest residual-norm
 ////            double best_damping_value = 1;
 ////            double best_residual_norm = DBL_MAX;
@@ -168,16 +168,16 @@ public:
 ////                    best_residual_norm = test_vec_residual_norm;
 ////                }
 ////            }
-////            
+////
 ////            // check best residual norm was smaller than previous
 ////            // norm
 ////            assert(best_residual_norm < norm);
-////            
+////
 ////            // apply update
 ////            for (unsigned i=0; i<SIZE; i++)
 ////            {
 ////                rCurrentGuess[i] -= best_damping_value*mUpdate[i];
-////            }            
+////            }
 ////            norm = best_residual_norm;
 ////            rCell.ComputeResidual(rCurrentGuess, mResidual);
 ////

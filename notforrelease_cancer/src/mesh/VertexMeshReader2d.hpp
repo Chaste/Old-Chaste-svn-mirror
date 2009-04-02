@@ -48,7 +48,7 @@ struct VertexElementData
 /**
  * A mesh reader class for 2D vertex-based meshes.
  */
-class VertexMeshReader2d 
+class VertexMeshReader2d
 {
 private:
 
@@ -109,7 +109,7 @@ private:
 
     /**
      * Get the next line from a given file stream.
-     * 
+     *
      * @param fileStream the file stream
      * @param rawLine the raw line (may contain comments)
      */
@@ -119,11 +119,11 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param pathBaseName the base name for results files
      */
     VertexMeshReader2d(std::string pathBaseName);
-    
+
     /**
      * Destructor.
      */

@@ -42,10 +42,10 @@ class BoundaryElement : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM
 public:
 
     /**
-     * Constructor which takes in a vector of nodes. 
-     *  
-     * @param index  the index of the element in the mesh 
-     * @param nodes  the nodes owned by the element 
+     * Constructor which takes in a vector of nodes.
+     *
+     * @param index  the index of the element in the mesh
+     * @param nodes  the nodes owned by the element
      */
     BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
         : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
@@ -55,12 +55,12 @@ public:
 
     /**
      * Create a new boundary element from a Node.
-     * 
-     * The element has ELEMENT_DIM=0 and SPACE_DIM identical to 
+     *
+     * The element has ELEMENT_DIM=0 and SPACE_DIM identical to
      * that of the node from which it is constructed.
-     * 
+     *
      * @param index  the index of the element in the mesh
-     * @param pNode  a pointer to the node 
+     * @param pNode  a pointer to the node
      */
     BoundaryElement(unsigned index,
                     Node<SPACE_DIM>* pNode)
@@ -90,10 +90,10 @@ public:
         }
     }
 
-    /** 
-     * Reset the index of this boundary element in the mesh. 
-     *  
-     * @param index 
+    /**
+     * Reset the index of this boundary element in the mesh.
+     *
+     * @param index
      */
     void ResetIndex(unsigned index)
     {
@@ -122,7 +122,7 @@ public:
 
     /**
      * Update node at the given index.
-     * 
+     *
      * @param rIndex is an local index to which node to change
      * @param pNode is a pointer to the replacement node
      */

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestStreeterFibreGenerator : public CxxTest::TestSuite
 {
 public:
-  
+
     void TestSimpleOrthotropic() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");

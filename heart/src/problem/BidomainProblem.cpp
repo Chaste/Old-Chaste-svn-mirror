@@ -51,25 +51,25 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
         // Initialize all nodes to be bath nodes
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
-	  try
-	    {
-	      this->mpMesh->GetNode(i)->SetRegion(HeartRegionCode::BATH);
-	    }
-	  catch(Exception& e)
-	    {
-	    }
+      try
+        {
+          this->mpMesh->GetNode(i)->SetRegion(HeartRegionCode::BATH);
         }
-    
+      catch(Exception& e)
+        {
+        }
+        }
+
         bool any_bath_element_found = false;
-    
+
         // Set nodes that are part of a heart element to be heart nodes
         //for (unsigned i=0; i<this->mpMesh->GetNumElements(); i++)
         for(typename AbstractMesh<DIM,DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
             it != this->mpMesh->GetElementIteratorEnd();
             ++it)
         {
-	  Element<DIM, DIM>& r_element = *(*it);
-        
+      Element<DIM, DIM>& r_element = *(*it);
+
             if (r_element.GetRegion() == HeartRegionCode::TISSUE)
             {
                 for (unsigned j=0; j<r_element.GetNumNodes(); j++)
@@ -83,7 +83,7 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
                 any_bath_element_found = true;
             }
         }
-        
+
         if (!any_bath_element_found)
         {
             EXCEPTION("No bath element found");
@@ -113,7 +113,7 @@ Vec BidomainProblem<DIM>::CreateInitialCondition()
         }
         ic.Restore();
     }
-    
+
     return init_cond;
 }
 
@@ -146,7 +146,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
                                                             this->mpBoundaryConditionsContainer,
                                                             2);
         }
-            
+
     }
     else
     {
@@ -158,7 +158,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
                                                     this->mpBoundaryConditionsContainer,
                                                     2);
         }
-        else 
+        else
         {
             mpAssembler
                 = new BidomainMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
@@ -186,12 +186,12 @@ template<unsigned DIM>
 BidomainProblem<DIM>::BidomainProblem(
             AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath)
     : AbstractCardiacProblem<DIM, 2>(pCellFactory),
-      mpBidomainPde(NULL), 
+      mpBidomainPde(NULL),
       mRowForAverageOfPhiZeroed(INT_MAX),
       mHasBath(hasBath),
-      mpElectrodes(NULL)    
+      mpElectrodes(NULL)
 {
-    mFixedExtracellularPotentialNodes.resize(0); 
+    mFixedExtracellularPotentialNodes.resize(0);
 }
 
 template<unsigned DIM>
@@ -229,7 +229,7 @@ void BidomainProblem<DIM>::WriteInfo(double time)
 
     for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
     {
-        double v=voltage_replicated[2*i];            
+        double v=voltage_replicated[2*i];
         double phi=voltage_replicated[2*i+1];
 
         #define COVERAGE_IGNORE
@@ -288,8 +288,8 @@ void BidomainProblem<DIM>::PreSolveChecks()
             // phi_e is not bounded, so it'd be wrong to use a relative tolerance
             if (HeartConfig::Instance()->GetUseRelativeTolerance())
             {
-                EXCEPTION("Bidomain external voltage is not bounded in this simulation - use KSP *absolute* tolerance");                      
-            }    
+                EXCEPTION("Bidomain external voltage is not bounded in this simulation - use KSP *absolute* tolerance");
+            }
         }
     }
 }
@@ -312,7 +312,7 @@ template<unsigned DIM>
 void BidomainProblem<DIM>::OnEndOfTimestep(double time)
 {
     if( (mpElectrodes!=NULL) && (mpElectrodes->SwitchOff(time)) )
-    {        
+    {
         // at the moment mpBcc should exist and therefore
         // mpDefaultBcc should be null
         assert(this->mpBoundaryConditionsContainer!=NULL);
@@ -321,7 +321,7 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         //// Note we don't have to call delete this->mpBoundaryConditionsContainer
         //// as the Electrodes class deletes the original bcc (which is natural
         //// because normally bccs are set up in tests
-        
+
         // set up default boundary conditions container - no Neumann fluxes
         // or Dirichlet fixed nodes
         if(this->mpDefaultBoundaryConditionsContainer==NULL)
@@ -333,11 +333,11 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
             }
         }
         // Note, no point calling SetBoundaryConditionsContainer() as the
-        // assembler has already been created..        
-        mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer);             
+        // assembler has already been created..
+        mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer);
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler (and so the deletion
-        // works later) 
+        // works later)
         this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;
     }
 }

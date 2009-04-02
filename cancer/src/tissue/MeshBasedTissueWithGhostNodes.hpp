@@ -60,7 +60,7 @@ private:
      *
      * Note also that member data related to writers is not saved - output must
      * be set up again by the caller after a restart.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -145,7 +145,7 @@ public:
      */
     std::set<unsigned> GetGhostNodeIndices();
 
-	/**
+    /**
      * Update the GhostNode positions using the spring force model with rest length=1.
      * Forces are applied to ghost nodes from connected ghost and normal nodes.
      *

@@ -41,7 +41,7 @@ SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(double g1Durati
 }
 
 
-SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(unsigned dimension) 
+SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(unsigned dimension)
     : mTimeSpentInG1Phase(0.0),
       mCurrentHypoxicDuration(0.0),
       mDimension(dimension)
@@ -92,7 +92,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
                 oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
                 break;
             }
-    
+
             default:
                 NEVER_REACHED;
         }

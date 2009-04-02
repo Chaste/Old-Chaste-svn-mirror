@@ -77,7 +77,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Serialize the mesh.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -85,21 +85,21 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
        // Don't do anything - this is just so subclasses can archive member variables.
-    }        
+    }
 
 //    std::vector<unsigned> mNodesPerProcessor;
 
     unsigned SolveNodeMapping(unsigned index) const;
     unsigned SolveElementMapping(unsigned index) const;
-    unsigned SolveBoundaryElementMapping(unsigned index) const;    
+    unsigned SolveBoundaryElementMapping(unsigned index) const;
 
 protected:
 
-    std::vector< c_vector<double, SPACE_DIM> > mElementWeightedDirections; 
+    std::vector< c_vector<double, SPACE_DIM> > mElementWeightedDirections;
 
     /** Vector storing the Jacobian matrix for each element in the mesh. */
     std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementJacobians;
-    
+
     /** Vector storing the inverse Jacobian matrix for each element in the mesh. */
     std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
     std::vector<double> mElementJacobianDeterminants;
@@ -118,7 +118,7 @@ public:
 
     /**
      * Constructor which takes in a number of elements.
-     * 
+     *
      * @param numElements
      */
     TetrahedralMesh(unsigned numElements);
@@ -128,7 +128,7 @@ public:
 
     /**
      * Construct the mesh using a MeshReader.
-     * 
+     *
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
@@ -137,7 +137,7 @@ public:
 
     /**
      * Read in the number of nodes per processor from file.
-     * 
+     *
      * @param nodesPerProcessorFile
      */
     void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
@@ -156,14 +156,14 @@ public:
     /**
      * Translate the mesh given the displacement vector.
      * This is the translation method that actually does the work.
-     * 
+     *
      * @param displacement is a translation vector of the correct size
      */
     void Translate(c_vector<double, SPACE_DIM> displacement);
 
     /**
      * Translate the mesh given the coordinate displacements separately.
-     * 
+     *
      * @param xMovement is the x-displacement (defaults to 0.0)
      * @param yMovement is the y-displacement (defaults to 0.0)
      * @param zMovement is the z-displacement (defaults to 0.0)
@@ -172,7 +172,7 @@ public:
 
     /**
      * Scale the mesh.
-     * 
+     *
      * @param xFactor is the scale in the x-direction (defaults to 1.0)
      * @param yFactor is the scale in the y-direction (defaults to 1.0)
      * @param zFactor is the scale in the z-direction (defaults to 1.0)
@@ -182,14 +182,14 @@ public:
     /**
      * Do a general mesh rotation with a positive determinant orthonormal rotation matrix.
      * This is the rotation method that actually does the work.
-     * 
+     *
      * @param rotationMatrix is a Ublas rotation matrix of the correct form
      */
     void Rotate(c_matrix<double , SPACE_DIM, SPACE_DIM> rotationMatrix);
 
     /**
      * Do an angle axis rotation.
-     * 
+     *
      * @param axis is the axis of rotation (does not need to be normalised)
      * @param angle is the angle of rotation in radians
      */
@@ -197,28 +197,28 @@ public:
 
     /**
      * Rotate the mesh about the x-axis.
-     * 
+     *
      * @param theta is the angle of rotation in radians
      */
     void RotateX(const double theta);
 
     /**
      * Rotate the mesh about the y-axis.
-     * 
+     *
      * @param theta is the angle of rotation in radians
      */
     void RotateY(const double theta);
 
     /**
      * Rotate the mesh about the z-axis.
-     * 
+     *
      * @param theta is the angle of rotation in radians
      */
     void RotateZ(const double theta);
 
     /**
      * Rotating a 2D mesh equates that rotation around the z-axis.
-     * 
+     *
      * @param theta is the angle of rotation in radians
      */
     void Rotate(double theta)
@@ -227,7 +227,7 @@ public:
     }
 
     /**
-     * This method allows the mesh properties to be re-calculated after 
+     * This method allows the mesh properties to be re-calculated after
      * one or more nodes have been moved.
      */
     void RefreshMesh(void);
@@ -255,17 +255,17 @@ public:
 
     /**
      * Construct a 1D linear grid on [0,width]
-     * 
+     *
      * @param width  width of the mesh (in the x-direction)
      */
     void ConstructLinearMesh(unsigned width);
 
     /**
      * Construct a 2D rectangular grid on [0,width]x[0,height].
-     * 
-     * Diagonals can be staggered so that there is no preferred 
+     *
+     * Diagonals can be staggered so that there is no preferred
      * diffusion propagation direction.
-     * 
+     *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
@@ -274,10 +274,10 @@ public:
 
     /**
      * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
-     * 
-     * Diagonals can be staggered so that there is no preferred 
+     *
+     * Diagonals can be staggered so that there is no preferred
      * diffusion propagation direction.
-     * 
+     *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param depth  depth of the mesh (in the z-direction)
@@ -287,7 +287,7 @@ public:
 
     /**
      * Return the element index for the first element that is known to contain a test point
-     * 
+     *
      * @param testPoint
      * @param strict  Should the element returned contain the point in the interior and
      *      not on an edge/face/vertex (default = not strict)
@@ -298,17 +298,17 @@ public:
 
     /**
      * Return the element index for an element is closest to the testPoint.
-     * 
+     *
      * "Closest" means that the minimum interpolation weights for the testPoint are
      * maximised for this element.
-     * 
+     *
      * @param testPoint
      */
     unsigned GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint);
 
     /**
      * Return all element indices for elements that are known to contain a test point.
-     * 
+     *
      * @param testPoint
      */
     std::vector<unsigned> GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint);
@@ -335,8 +335,8 @@ public:
 
     /**
      * Return the distance between two nodes.
-     * 
-     * N.B. This calls GetDistanceBetweenNodes which can be overridden 
+     *
+     * N.B. This calls GetDistanceBetweenNodes which can be overridden
      * in daughter classes e.g. Cylindrical2dMesh.  Therefore the distance
      * is not necessarily Euclidean
      *
@@ -349,9 +349,9 @@ public:
 
     /**
      * Return a vector between two points in space.
-     * 
+     *
      * N.B. This can be overridden in daughter classes, e.g. Cylindrical2dMesh.
-     * 
+     *
      * @param rLocationA a c_vector of co-ordinates
      * @param rLocationB a c_vector of co-ordinates
      *
@@ -370,9 +370,9 @@ public:
 
     /**
      * Calculate the `width' of any dimension of the mesh.
-     * 
+     *
      * N.B. Overwritten in Cylindrical2dMesh.
-     * 
+     *
      * @param rDimension a dimension (0,1 or 2)
      * @return The maximum distance between any nodes in this dimension.
      */
@@ -393,7 +393,7 @@ public:
 
     /**
      * Flag all elements not containing ANY of the given nodes
-     * 
+     *
      * @param nodesList  List of nodes to check for
      */
     void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
@@ -401,17 +401,17 @@ public:
     void RefreshJacobianCachedData();
 
     virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant) const;
-    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;     
+    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
     virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
 
 
-//    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;    
+//    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;
 //    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
 //    void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const;
-//    double GetJacobianDeterminantForElement(unsigned elementIndex) const;    
+//    double GetJacobianDeterminantForElement(unsigned elementIndex) const;
 //
-//    void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const;       
+//    void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const;
 //    double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const;
 
     /**
@@ -433,7 +433,7 @@ public:
 
         /**
          * Comparison not-equal-to.
-         * 
+         *
          * @param other edge iterator with which comparison is made
          */
         bool operator!=(const EdgeIterator& other);
@@ -445,7 +445,7 @@ public:
 
         /**
          * Constructor for a new edge iterator.
-         * 
+         *
          * @param rMesh  The mesh
          * @param elemIndex  An element index
          */
@@ -462,7 +462,7 @@ public:
         unsigned mNodeBLocalIndex; /**< Index of the other node on the edge. */
         unsigned mCellIndex;       /**< Cell index. \todo This doesn't appear to be used anywhere - remove it? */
         unsigned mNodeIndex;       /**< Node index. \todo This doesn't appear to be used anywhere - remove it? */
-        
+
     };
 
     /**

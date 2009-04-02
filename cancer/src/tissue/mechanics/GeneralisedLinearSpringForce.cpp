@@ -36,9 +36,9 @@ GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
 }
 
 template<unsigned DIM>
-double GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
-                                                                                     unsigned nodeBGlobalIndex, 
-                                                                                     AbstractTissue<DIM>& rTissue, 
+double GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex,
+                                                                                     unsigned nodeBGlobalIndex,
+                                                                                     AbstractTissue<DIM>& rTissue,
                                                                                      bool isCloserThanRestLength)
 {
     return 1.0;
@@ -50,8 +50,8 @@ GeneralisedLinearSpringForce<DIM>::~GeneralisedLinearSpringForce()
 }
 
 template<unsigned DIM>
-c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, 
-                                                                                    unsigned nodeBGlobalIndex, 
+c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,
+                                                                                    unsigned nodeBGlobalIndex,
                                                                                     AbstractTissue<DIM>& rTissue)
 {
     // We should only ever calculate the force between two distinct nodes
@@ -66,7 +66,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     if (rTissue.HasMesh())
     {
         // We use the mesh method GetVectorFromAtoB() to compute the direction of the unit vector
-        // along the line joining the two nodes, rather than simply subtract their positions, 
+        // along the line joining the two nodes, rather than simply subtract their positions,
         // because this method can be overloaded, e.g. to enforce a periodic boundary in Cylindrical2dMesh
         unit_difference = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
     }
@@ -82,8 +82,8 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     unit_difference /= distance_between_nodes;
 
-    // If mUseCutoffPoint has been set, then there is zero force between 
-    // two nodes located a distance apart greater than mUseCutoffPoint 
+    // If mUseCutoffPoint has been set, then there is zero force between
+    // two nodes located a distance apart greater than mUseCutoffPoint
     if (this->mUseCutoffPoint)
     {
         if (distance_between_nodes >= this->mCutoffPoint)
@@ -136,7 +136,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
-    // If either of the cells has begun apoptosis, then the length of the spring 
+    // If either of the cells has begun apoptosis, then the length of the spring
     // connecting them decreases linearly with time
     if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
@@ -154,17 +154,17 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     assert(rest_length<=1.0+1e-12);
 
     bool is_closer_than_rest_length = true;
-    
+
     if (distance_between_nodes - rest_length >0)
     {
         is_closer_than_rest_length = false;
     }
-           
-    // Although in this class the 'spring constant' is a constant parameter, in 
+
+    // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
     double multiplication_factor = 1.0;
     multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
-    
+
     if (rTissue.HasMesh())
     {
         return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
@@ -207,10 +207,10 @@ void GeneralisedLinearSpringForce<DIM>::AddForceContribution(std::vector<c_vecto
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-    
+
             // Calculate the force between nodes
             c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
-    
+
             // Add the force contribution to each node
             rForces[nodeB_global_index] -= force;
             rForces[nodeA_global_index] += force;
@@ -223,19 +223,19 @@ void GeneralisedLinearSpringForce<DIM>::AddForceContribution(std::vector<c_vecto
         {
             // Iterate over nodes
             for (unsigned node_b_index=node_a_index+1; node_b_index<rTissue.GetNumNodes(); node_b_index++)
-            {                
-                // Calculate the force between nodes    
+            {
+                // Calculate the force between nodes
                 c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
                 for (unsigned j=0; j<DIM; j++)
                 {
                     assert(!isnan(force[j]));
                 }
-         
+
                 // Add the force contribution to each node
                 rForces[node_a_index] += force;
-                rForces[node_b_index] -= force;                
+                rForces[node_b_index] -= force;
             }
-        }        
+        }
     }
 }
 

@@ -57,7 +57,7 @@ void OdeSystemInformation<Ode1>::Initialise()
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("Units 1");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mInitialised = true;
 }
 

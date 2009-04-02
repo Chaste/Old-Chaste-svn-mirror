@@ -41,27 +41,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestElectrodes : public CxxTest::TestSuite
 {
-public: 
+public:
     void TestElectrodeGrounded2dAndSwitchOff() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ParallelTetrahedralMesh<2,2> mesh;
-	mesh.ConstructFromMeshReader(mesh_reader);
+    mesh.ConstructFromMeshReader(mesh_reader);
 
-	/// \todo: this should be implicitely done in ParallelTetrahedralMesh.
-	std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
-	if (r_nodes_per_processor.size() > 0)
-	{
-	  DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
-	}
+    /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
+    std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
+    if (r_nodes_per_processor.size() > 0)
+    {
+      DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
+    }
 
         double magnitude = 543.324;
-        double duration = 2.0; //ms        
+        double duration = 2.0; //ms
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
-        
+
         BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
-        
-        for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter 
+
+        for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -72,11 +72,11 @@ public:
                 TS_ASSERT_DELTA(value,magnitude,1e-12);
             }
         }
-        
+
         unsigned num_grounded_nodes = 0u;
-	for(DistributedVector::Iterator node_it = DistributedVector::Begin();
-	    node_it != DistributedVector::End();
-	    ++node_it)
+    for(DistributedVector::Iterator node_it = DistributedVector::Begin();
+        node_it != DistributedVector::End();
+        ++node_it)
         {
             Node<2>* p_node = mesh.GetNode(node_it.Global);
             if (p_bcc->HasDirichletBoundaryCondition(p_node, 1))
@@ -88,11 +88,11 @@ public:
             }
         }
 
-	unsigned num_grounded_nodes_reduced;
-	int mpi_ret = MPI_Allreduce(&num_grounded_nodes, &num_grounded_nodes_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-	assert(mpi_ret == MPI_SUCCESS);
+    unsigned num_grounded_nodes_reduced;
+    int mpi_ret = MPI_Allreduce(&num_grounded_nodes, &num_grounded_nodes_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+    assert(mpi_ret == MPI_SUCCESS);
         TS_ASSERT_EQUALS(num_grounded_nodes_reduced, 11u);
-        
+
         TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration));
         TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,duration));
 
@@ -110,22 +110,22 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ParallelTetrahedralMesh<2,2> mesh;
-	mesh.ConstructFromMeshReader(mesh_reader);
+    mesh.ConstructFromMeshReader(mesh_reader);
 
-	/// \todo: this should be implicitely done in ParallelTetrahedralMesh.
-	std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
-	if (r_nodes_per_processor.size() > 0)
-	{
-	  DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
-	}
-        
+    /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
+    std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
+    if (r_nodes_per_processor.size() > 0)
+    {
+      DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
+    }
+
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,duration);
-        
+
         BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
-        
-        for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter 
+
+        for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -133,31 +133,31 @@ public:
             if ( fabs((*iter)->CalculateCentroid()[0] - 0.0) < 1e-6 )
             {
                 double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
-                
+
                 TS_ASSERT_DELTA(value,magnitude,1e-12);
             }
-                
+
 
             if ( fabs((*iter)->CalculateCentroid()[0] - 10.0) < 1e-6 )
             {
                 double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
                 TS_ASSERT_DELTA(value,-magnitude,1e-12);
             }
-        }            
+        }
     }
 
     void TestElectrodeGrounded3d() throw (Exception)
     {
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(10,10,10);
-        
+
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,true,1,0,10,magnitude,duration);
-        
+
         BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
-        
-        for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter 
+
+        for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -165,7 +165,7 @@ public:
             if ( fabs((*iter)->CalculateCentroid()[1] - 0.0) < 1e-6 )
             {
                 double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
-                
+
                 TS_ASSERT_DELTA(value,magnitude,1e-12);
             }
         }
@@ -184,19 +184,19 @@ public:
         }
         TS_ASSERT_EQUALS(num_grounded_nodes, 121u);
     }
-    
+
     void TestElectrodeUngrounded3d() throw (Exception)
     {
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(10,10,10);
-        
+
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,false,1,0,10,magnitude,duration);
-        
+
         BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
-        
-        for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter 
+
+        for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -204,20 +204,20 @@ public:
             if ( fabs((*iter)->CalculateCentroid()[1] - 0.0) < 1e-6 )
             {
                 double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
-                
+
                 TS_ASSERT_DELTA(value,magnitude,1e-12);
             }
-                
+
 
             if ( fabs((*iter)->CalculateCentroid()[1] - 10.0) < 1e-6 )
             {
                 double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
                 TS_ASSERT_DELTA(value,-magnitude,1e-12);
             }
-        }            
+        }
     }
 };
-  
+
 
 
 #endif /*TESTELECTRODES_HPP_*/

@@ -56,7 +56,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoDg03dWithFaceStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_3dWithFaceStimulus");
-                
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-600.0*1000);
 
         MonodomainProblem<3> monodomain_problem(&cell_factory);

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CancerEventHandler.hpp"
 
 /**
- * This class consists of a single test for the CancerEventHandler 
+ * This class consists of a single test for the CancerEventHandler
  * class.
  */
 class TestCancerEventHandler : public CxxTest::TestSuite
@@ -42,7 +42,7 @@ public:
     void TestEvents() throw(Exception)
     {
         CancerEventHandler::BeginEvent(CancerEventHandler::EVERYTHING);
-        
+
         CancerEventHandler::BeginEvent(CancerEventHandler::SETUP);
         for (unsigned i=0; i<1000000; i++)
         {
@@ -74,28 +74,28 @@ public:
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
-        }        
+        }
         CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::FORCE);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
-        }        
+        }
         CancerEventHandler::EndEvent(CancerEventHandler::FORCE);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::POSITION);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
-        }        
+        }
         CancerEventHandler::EndEvent(CancerEventHandler::POSITION);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
         for (unsigned i=0; i<10000000; i++)
         {
             // do nothing
-        }        
+        }
         CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
 
         CancerEventHandler::EndEvent(CancerEventHandler::EVERYTHING);

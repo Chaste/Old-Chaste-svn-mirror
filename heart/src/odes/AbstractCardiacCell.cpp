@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                                          unsigned numberOfStateVariables,
-                                         unsigned voltageIndex,	
+                                         unsigned voltageIndex,
                                          AbstractStimulusFunction* intracellularStimulus)
     : AbstractOdeSystem(numberOfStateVariables),
       mVoltageIndex(voltageIndex)
@@ -133,12 +133,12 @@ double AbstractCardiacCell::GetIntracellularCalciumConcentration()
 
 /*
  *  METHODS NEEDED BY FAST CARDIAC CELLS
- */    
+ */
 void AbstractCardiacCell::SetState(CellModelState state)
 {
     EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
 }
-    
+
 void AbstractCardiacCell::SetSlowValues(const std::vector<double> &rSlowValues)
 {
     EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");

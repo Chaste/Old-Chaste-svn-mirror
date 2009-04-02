@@ -50,7 +50,7 @@ class TestNeumannStimulus : public CxxTest::TestSuite
 public:
     void tearDown()
     {
-        HeartConfig::Reset();   
+        HeartConfig::Reset();
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
@@ -62,10 +62,10 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoNeumannConst");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-                
+
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.Initialise();
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
@@ -110,14 +110,14 @@ public:
     {
         // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
-        HeartConfig::Instance()->SetSimulationDuration(2); //ms        
+        HeartConfig::Instance()->SetSimulationDuration(2); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoNeumannSquare");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-        
+
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.Initialise();
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
@@ -164,13 +164,13 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
-		HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BiNeuman1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-                
+
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
-      
+
         bidomain_problem.Initialise();
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
@@ -215,7 +215,7 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[2*9], -46.0072, atol);
         TS_ASSERT_DELTA(voltage_replicated[2*10], -64.1003, atol);
     }
-    
+
     void TestBidomain2d() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75));
@@ -224,7 +224,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_200_elements");
         HeartConfig::Instance()->SetOutputDirectory("BiNeuman2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-                
+
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         BidomainProblem<2> bidomain_problem( &cell_factory );
 
@@ -274,12 +274,12 @@ public:
         // check some voltages
         DistributedVector solution(bidomain_problem.GetSolution());
         DistributedVector::Stripe voltage(solution, 0);
-        
+
         double atol=2.0;
 
-        for (DistributedVector::Iterator node_index = DistributedVector::Begin(); 
+        for (DistributedVector::Iterator node_index = DistributedVector::Begin();
              node_index != DistributedVector::End();
-             ++node_index)  
+             ++node_index)
         {
             double x = r_mesh.GetNode(node_index.Global)->rGetLocation()[0];
 
@@ -307,10 +307,10 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoNeumannConst");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-                
+
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.Initialise();
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 

@@ -40,13 +40,13 @@ class TenTusscher2006OdeSystem : public AbstractCardiacCell
 {
 private:
 
-    /** Scale factor for Gks*/ 
+    /** Scale factor for Gks*/
     double mScaleFactorGks;
     /** Scale factor for Gto*/
     double mScaleFactorIto;
     /** Scale factor for Gkr*/
     double mScaleFactorGkr;
-    
+
     //////////////////////////////////////////////////////////////
     //Constants for the TenTusscher2006 model, values for epicardial cell.
     //////////////////////////////////////////////////////////////
@@ -179,37 +179,37 @@ private:
 public:
     /**
      * Constructor
-     */ 
+     */
     TenTusscher2006OdeSystem(AbstractIvpOdeSolver *pSolver,
                                AbstractStimulusFunction *pIntracellularStimulus);
 
     /**
      * Destructor
-     */ 
+     */
     ~TenTusscher2006OdeSystem();
 
     /**
      *  This method will compute the RHS of the TenTusscher model
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
      */
     void SetScaleFactorGks(double sfgks);
-    
+
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
      */
     void SetScaleFactorIto(double sfito);
-    
+
     /**
      * Set the scale factor for Gkr (might be useful for simulating LQT2)
      */
     void SetScaleFactorGkr(double sfgkr);
-    
+
      /**
-     * Returns the ionic current 
+     * Returns the ionic current
      */
     double GetIIonic();
 

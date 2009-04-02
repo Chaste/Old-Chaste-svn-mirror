@@ -135,10 +135,10 @@ public:
         PapillaryFibreCalculator calculator(mesh);
         std::vector<c_vector<double,3> > fibre_orientations = calculator.CalculateFibreOrientations();
 
-        // Not very well defined for a cube (since it's so well structured that there are zero 
+        // Not very well defined for a cube (since it's so well structured that there are zero
         // eigenvectors in the smoothed tensors) but necessary to test coverage.
         // Nightly test TestPapillaryFibreCalculatorLong.hpp is a better one if you want to understand it!
-        
+
         ///\todo There may still be a sign issue between flapack and MKL
         TS_ASSERT_DELTA(fabs(fibre_orientations[0](0)), 0.7056, 1e-4);
         TS_ASSERT_DELTA(fabs(fibre_orientations[0](1)), 0.0641, 1e-4);

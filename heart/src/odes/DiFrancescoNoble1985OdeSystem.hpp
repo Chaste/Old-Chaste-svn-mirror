@@ -48,7 +48,7 @@ private:
     static const double R=8314.472; //J/(kmol*Kelvin)
     static const double T=310; //Kelvin
     static const double F=96485.3415; //C/mol
-    
+
     //conductances and the likes
     static const double g_fna = 3; //microS
     static const double g_fk = 3; //microS
@@ -88,26 +88,26 @@ private:
     double Vi, Vup, Vrel, Ve;
     double Vcell;
     double RToNF;
-    /** 
+    /**
      *  Range-checking on the current values of the state variables. Make sure
      *  all gating variables have are within zero and one, and all concentrations
      *  are positive
      */
     void VerifyStateVariables();
-    
+
 public:
     // Constructor
     DiFrancescoNoble1985OdeSystem(AbstractIvpOdeSolver *pSolver,
                          AbstractStimulusFunction *pIntracellularStimulus);
-                               
+
     // Destructor
     ~DiFrancescoNoble1985OdeSystem();
-        
+
     // This method will compute the RHS of the Difrancesco-Noble model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
     double GetIIonic();
-    
+
 };
 
 #endif // _DIFRANCESCONOBLE_HPP_

@@ -37,12 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * An abstract class which provides access to information about a particular
  * ODE system *class* (as opposed to an instance).
- * 
+ *
  * The information available includes:
  *  - names of state variables
  *  - units of state variables
  *  - suggested initial conditions
- * 
+ *
  * This class requires a subclass defining the Initialise method in order to set
  * up the information.  Developers may do this by defining their own subclass, but
  * the most convenient method is likely to be to use the OdeSystemInformation
@@ -55,23 +55,23 @@ protected:
 
     /** State variable names */
     std::vector<std::string> mVariableNames;
-    
+
     /** State variable units */
     std::vector<std::string> mVariableUnits;
-    
+
     /** Suggested initial conditions */
     std::vector<double> mInitialConditions;
-    
+
     /** Whether a 'real' Initialise method has been called */
     bool mInitialised;
 
     /**
      * Initialise the ODE system information.
-     * 
+     *
      * This must be provided by subclasses.
      */
     virtual void Initialise()=0;
-    
+
 public:
 
     /**
@@ -86,49 +86,49 @@ public:
 
     /**
      * Set the suggested initial conditions to use.
-     * 
+     *
      * @param rInitialConditions  vector containing initial values for the state variables
      */
     void SetInitialConditions(const std::vector<double>& rInitialConditions);
-    
+
     /**
      * Set a single component of the suggested initial conditions to use.
-     * 
+     *
      * @param index  the index of the state variable in the system
      * @param initialCondition  the initial value for the state variable
      */
     void SetInitialConditionsComponent(unsigned index, double initialCondition) throw(std::out_of_range);
-    
+
     /**
      * Get a copy of the suggested initial conditions.
      */
     std::vector<double> GetInitialConditions() const;
-    
+
     /**
      * Get the variable names vector.
      */
     std::vector<std::string>& rGetVariableNames();
-    
+
     /**
      * Get the variable units vector.
      */
     std::vector<std::string>& rGetVariableUnits();
-    
+
     /**
      * This method is used to establish a state varible's position within
      * the vector of state variables of an ODE system. This number can
      * then be used with the method GetStateVariableUnitsByNumber.
      *
      * @param rName  the name of a state variable
-     * @return the state variable's position within the vector of state 
+     * @return the state variable's position within the vector of state
      *         variables associated with the ODE system.
      */
     unsigned GetStateVariableNumberByName(const std::string& rName) const;
-    
+
     /**
      * Get the units of a state variable given its index in the ODE system.
-     * 
-     * @param varNumber  a state variable's position within the vector of 
+     *
+     * @param varNumber  a state variable's position within the vector of
      *                   state variables associated with the ODE system.
      * @return the units of the state variable.
      */

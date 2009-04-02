@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOneStepIvpOdeSolver.hpp"
 
 /**
- * A concrete one step ODE solver class that employs the Runge Kutta 
+ * A concrete one step ODE solver class that employs the Runge Kutta
  * 2nd order solver.
  */
 class RungeKutta2IvpOdeSolver : public AbstractOneStepIvpOdeSolver
@@ -41,7 +41,7 @@ protected:
 
     /**
      * Calculate the solution to the ODE system at the next timestep.
-     * 
+     *
      * @param pAbstractOdeSystem  the ODE system to solve
      * @param timeStep  dt
      * @param time  the current time

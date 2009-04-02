@@ -164,8 +164,8 @@ public:
 
         distributed_vector.Restore();
         distributed_vector_striped.Restore();
-		distributed_vector_chunked.Restore();
-        
+        distributed_vector_chunked.Restore();
+
         //READ VECTOR
         // calculate my range
         PetscInt petsc_lo, petsc_hi;
@@ -188,14 +188,14 @@ public:
 
             TS_ASSERT_EQUALS(linear[global_index], -1.0);
             TS_ASSERT_EQUALS(quadratic[global_index], local_index+1);
-            
+
             TS_ASSERT_EQUALS(p_chunked[local_index], -1.0);
             TS_ASSERT_EQUALS(p_chunked[ (hi - lo) + local_index], global_index+1);
-            
+
             TS_ASSERT_EQUALS(linear_chunk[global_index], -1.0);
             TS_ASSERT_EQUALS(quadratic_chunk[global_index], global_index+1);
         }
-        
+
         //Read item 2 from the distributed vectors (for coverage)
         if (lo<=2 && 2<hi)
         {

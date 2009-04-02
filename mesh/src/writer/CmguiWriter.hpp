@@ -37,7 +37,7 @@ static const char CmguiNodeFileHeader[] = " #Fields=1\n\
    x.  Value index= 1, #Derivatives= 0\n\
    y.  Value index= 2, #Derivatives= 0\n\
    z.  Value index= 3, #Derivatives= 0\n";
-   
+
 static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*simplex*simplex\n\
  #Scale factor sets= 0\n\
  #Nodes= 4\n\
@@ -89,11 +89,11 @@ static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*
 
 /**
  *  CmguiWriter
- * 
+ *
  *  Writes a mesh in Cmgui (the visualisation frontend of CMISS) format. Creates an exnode
  *  file and a exelem file. Note that the lines and faces are not written in the exelem
  *  file, so to load the data in Cmgui, you must use 'generate_faces_and_lines', i.e.
- * 
+ *
  *  gfx read node <base_file>
  *  gfx read elem <base_file> generate_faces_and_lines
  *  gfx cr win
@@ -135,7 +135,7 @@ void CmguiWriter::WriteFiles()
     {
         std::vector<double> current_item = this->mNodeData[item_num];
 
-        *p_node_file << "Node:\t" << item_num+1 << "\t"; 
+        *p_node_file << "Node:\t" << item_num+1 << "\t";
         for (unsigned i=0;i<3;i++)
         {
             *p_node_file << current_item[i] << "\t";
@@ -160,7 +160,7 @@ void CmguiWriter::WriteFiles()
     {
         std::vector<unsigned> current_element = this->mElementData[item_num];
 
-        *p_elem_file << "Element:\t" << item_num+1 << " 0 0 Nodes:\t"; 
+        *p_elem_file << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
         for (unsigned i=0; i<4; i++)
         {
             *p_elem_file << current_element[i]+1 << "\t";
@@ -169,7 +169,7 @@ void CmguiWriter::WriteFiles()
         *p_elem_file << "\n";
     }
     p_elem_file->close();
-    
+
 }
 
 #endif /*CMGUIWRITER_HPP_*/

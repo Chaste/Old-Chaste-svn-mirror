@@ -33,10 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChastePoint.hpp"
 
 template <unsigned ELEM_DIM>
-class QuadraticBasisFunction 
+class QuadraticBasisFunction
 {
 public:
-                                                                         
+
     static double ComputeBasisFunction(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
     static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
 
@@ -46,9 +46,9 @@ public:
 
     static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
                                                            const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
-                                                           c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue);                                                                         
-    
-    
+                                                           c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue);
+
+
 };
 
 /**

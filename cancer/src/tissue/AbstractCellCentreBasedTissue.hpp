@@ -43,7 +43,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Serialize the facade.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -59,7 +59,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param rCells a vector of cells
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
@@ -75,19 +75,19 @@ public:
     /**
      * Overridden GetLocationOfCellCentre() method.
      * Find where a given cell is in space.
-     * 
+     *
      * @param pCell pointer to the cell
-     * 
+     *
      * @return the location of the node corresponding to this cell.
      */
     c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell);
 
     /**
      * Get a pointer to the node corresponding to a given cell.
-     * 
+     *
      * @param pCell pointer to the cell
-     * 
-     * @return address of the node 
+     *
+     * @return address of the node
      */
     Node<DIM>* GetNodeCorrespondingToCell(TissueCell* pCell);
 
@@ -97,7 +97,7 @@ public:
      * @param rNewCell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
-     * 
+     *
      * @returns address of cell as it appears in the cell list
      */
     TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
@@ -106,7 +106,7 @@ public:
      * Overridden IsCellAssociatedWithADeletedNode() method.
      *
      * @param rCell the cell
-     * 
+     *
      * @return whether a given cell is associated with a deleted node.
      */
     bool IsCellAssociatedWithADeletedNode(TissueCell& rCell);

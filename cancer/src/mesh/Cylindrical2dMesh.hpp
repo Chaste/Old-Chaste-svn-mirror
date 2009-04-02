@@ -198,7 +198,7 @@ private:
      *
      * The remaining member variables are re-initialised before being used
      * by each ReMesh() call so they do not need to be archived.
-     * 
+     *
      * @param archive
      * @param version
      */

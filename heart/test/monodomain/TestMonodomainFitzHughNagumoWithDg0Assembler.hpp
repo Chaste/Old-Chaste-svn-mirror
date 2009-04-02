@@ -78,7 +78,7 @@ public:
 
     void tearDown()
     {
-        HeartConfig::Reset();   
+        HeartConfig::Reset();
     }
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
@@ -90,7 +90,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("FhnWithEdgeStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
-         
+
         FhnEdgeStimulusCellFactory cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
@@ -117,9 +117,9 @@ public:
         need_initialisation = true;
 
         // Test the RHS of the mesh
-        for (DistributedVector::Iterator node_index = DistributedVector::Begin(); 
+        for (DistributedVector::Iterator node_index = DistributedVector::Begin();
              node_index != DistributedVector::End();
-             ++node_index)          
+             ++node_index)
         {
             if (monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint()[0] == 0.1)
             {

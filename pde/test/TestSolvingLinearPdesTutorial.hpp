@@ -200,7 +200,7 @@ public:
         /* Now we create Neumann boundary conditions for the ''surface elements'' on x=1 and y=1. Note that
          * Dirichlet boundary conditions are defined on nodes, whereas Neumann boundary conditions are
          * defined on surface elements. Note also that the natural boundary condition statement for this
-         * PDE is (D grad u).n = g(x) (where n is the outward-facing surface normal), and g(x) is a prescribed 
+         * PDE is (D grad u).n = g(x) (where n is the outward-facing surface normal), and g(x) is a prescribed
          * function, ''not'' something like du/dn=g(x). Hence the boundary condition we are specifying is
          * (D grad u).n = 0.
          *
@@ -347,8 +347,8 @@ public:
          */
         Vec solution = assembler.Solve();
         ReplicatableVector solution_repl(solution);
-        
-        /* '''Important note''': for efficiency reasons, we assume the matrix that is set up when 
+
+        /* '''Important note''': for efficiency reasons, we assume the matrix that is set up when
          * solving parabolic equations with the finite element method is constant and only thus
          * needs to be assembled in the first timestep. If you end up solving a more complicated
          * PDE with (for example) time-dependent diffusion tensors where the matrix is not constant

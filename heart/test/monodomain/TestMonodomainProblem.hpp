@@ -53,19 +53,19 @@ class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
     SimpleStimulus *mpStimulus;
-    unsigned mFoundMiddlePoint;        
+    unsigned mFoundMiddlePoint;
 
 
 public:
     PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>(), mFoundMiddlePoint(0)
-    {        
+    {
         mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         ChastePoint<2> location = mpMesh->GetNode(node)->GetPoint();
-        
+
         if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.05)<1e-6)
         {
             mFoundMiddlePoint++;
@@ -76,13 +76,13 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
-    
+
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
     {
         unsigned found_middle_point_reduced;
         MPI_Allreduce(&mFoundMiddlePoint, &found_middle_point_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         assert(found_middle_point_reduced == 1); // Only 1 cell should be stimulated
-    }    
+    }
 
     ~PointStimulus2dCellFactory(void)
     {
@@ -97,7 +97,7 @@ class TestMonodomainProblem : public CxxTest::TestSuite
 public:
     void tearDown()
     {
-        HeartConfig::Reset();   
+        HeartConfig::Reset();
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
@@ -105,10 +105,10 @@ public:
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-         
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -135,7 +135,7 @@ public:
 
         // cover get pde
         monodomain_problem.GetPde();
-        
+
         // check a progress report exists
         TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1d/").c_str()), 0);
     }
@@ -150,7 +150,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -185,7 +185,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -219,7 +219,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dWithEdgeStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
-       
+
         static double test_tolerance=1e-10;
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
 
@@ -230,7 +230,7 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-         
+
         monodomain_problem.Solve();
 
         // test whether voltages and gating variables are in correct ranges
@@ -252,7 +252,7 @@ public:
         need_initialisation = true;
 
         // Test the RHS of the mesh
-        
+
         ///\todo - now this is a parallel mesh we should use an iterator on the local nodes and not replicate the voltage
         for (unsigned i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
@@ -263,7 +263,7 @@ public:
                     // x = 0 is where the stimulus has been applied
                     // x = 0.1cm is the other end of the mesh and where we want to
                     //       to test the value of the nodes
-    
+
                     if (need_initialisation)
                     {
                         probe_voltage = voltage_replicated[i];
@@ -278,12 +278,12 @@ public:
                         // triangles aligned in the same direction.
                         TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
                     }
-    
-    
+
+
                     // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
                     // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
                     // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
-    
+
                     // test the RHS edge voltages
                     // hardcoded result that looks accurate - this is a test to see
                     // that nothing has changeed
@@ -293,7 +293,7 @@ public:
             }
             catch (Exception e)
             {
-                //Skipping node which we don't own                
+                //Skipping node which we don't own
             }
         }
 
@@ -309,7 +309,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dWithPointStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulus");
-        
+
         // To time the solve
         time_t start,end;
         double dif;
@@ -323,7 +323,7 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-        
+
         monodomain_problem.Solve();
 
         // To time the solve
@@ -341,23 +341,23 @@ public:
          * during the upstroke.
          */
         DistributedVector voltage(monodomain_problem.GetSolution());
-        
+
         // corners -> 0, 10, 110, 120
         // hardcoded result to check against
         // assumes endtime = 1.3
         unsigned corners_checked=0;
         for (DistributedVector::Iterator node_index = DistributedVector::Begin();
              node_index!= DistributedVector::End();
-             ++node_index)        
+             ++node_index)
         {
             ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();
-            
+
             if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 0
             {
                 TS_ASSERT_DELTA(voltage[node_index.Global], -34.3481, 1e-3);
                 corners_checked++;
             }
-                
+
             if (fabs(location[0]-0.1)<1e-6 && fabs(location[1]-0.0)<1e-6) // Corner 10
             {
                 TS_ASSERT_DELTA(voltage[node_index.Global], -34.3481, 1e-3);
@@ -376,9 +376,9 @@ public:
                 corners_checked++;
             }
         }
-        
+
         unsigned corners_checked_reduced;
-        MPI_Allreduce(&corners_checked, &corners_checked_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);                
+        MPI_Allreduce(&corners_checked, &corners_checked_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         TS_ASSERT(corners_checked_reduced==4);
 
 
@@ -388,16 +388,16 @@ public:
         unsigned edges_checked=0;
         for (DistributedVector::Iterator node_index = DistributedVector::Begin();
              node_index!= DistributedVector::End();
-             ++node_index)        
+             ++node_index)
         {
             ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();
-            
+
             if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.0)<1e-6) // Node 5
             {
                 TS_ASSERT_DELTA(voltage[node_index.Global], 34.6692, 1e-3);
                 edges_checked++;
             }
-                
+
             if (fabs(location[0]-0.0)<1e-6 && fabs(location[1]-0.05)<1e-6) // Node 55
             {
                 TS_ASSERT_DELTA(voltage[node_index.Global], 34.6692, 1e-3);
@@ -416,25 +416,25 @@ public:
                 edges_checked++;
             }
         }
-        
+
         unsigned edges_checked_reduced;
-        MPI_Allreduce(&edges_checked, &edges_checked_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);                
-        TS_ASSERT(edges_checked_reduced==4);            
+        MPI_Allreduce(&edges_checked, &edges_checked_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        TS_ASSERT(edges_checked_reduced==4);
     }
-    
+
     // Same as TestMonodomainProblem1D, but uses NO matrix based assembly.
     void TestMonodomainWithNoMatrixBasedAssembly() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetPrintingTimeStep(1); //ms
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");        
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dMatrixBasedRhs");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-         
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-        
+
         // switch off matrix based assembly
         monodomain_problem.UseMatrixBasedRhsAssembly(false);
 
@@ -472,14 +472,14 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("mono_testPrintTimes");
-        
+
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
 
         p_monodomain_problem->Initialise();
         p_monodomain_problem->SetWriteInfo();
-        
+
         p_monodomain_problem->Solve();
 
 
@@ -487,7 +487,7 @@ public:
         //Hdf5DataReader data_reader1("MonoProblem1d", "mono_testPrintTimes");
         Hdf5DataReader data_reader1= p_monodomain_problem->GetDataReader();
         delete p_monodomain_problem;
-        
+
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
 
         TS_ASSERT_EQUALS( times.size(), 4u);
@@ -495,19 +495,19 @@ public:
         TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
         TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
-        
-        
+
+
     }
 
     void TestMonodomainWithMeshInMemoryToMeshalyzer() throw(Exception)
     {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSimulationDuration(0.1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("Monodomain2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
-             
+
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
@@ -526,7 +526,7 @@ public:
         //Clean previous output
         OutputFileHandler handler("Monodomain2d/output", true);
         PetscTools::Barrier();
-        
+
         //Need to find pts, tri, transmembrane, xml
         std::string test_file_names[4]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat", "monodomain2d_parameters.xml"};
         for (unsigned i=0; i<4; i++)
@@ -534,14 +534,14 @@ public:
             std::string compare_command = "cmp -s ";
             compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
             compare_command += " ";
-            compare_command += "heart/test/data/Monodomain2d/"; 
+            compare_command += "heart/test/data/Monodomain2d/";
             compare_command += test_file_names[i];
             TS_ASSERT_EQUALS(system(compare_command.c_str()), 512);//Not there
         }
-         
+
         // now solve
         monodomain_problem.Solve();
-        
+
         PetscTools::Barrier();
         //Need to find pts, tri, transmebrane, xml
         for (unsigned i=0; i<4; i++)
@@ -549,30 +549,30 @@ public:
             std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
             compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
             compare_command += " ";
-            compare_command += "heart/test/data/Monodomain2d/"; 
+            compare_command += "heart/test/data/Monodomain2d/";
             compare_command += test_file_names[i];
             TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
         }
-        
+
     }
 
     void TestMonodomainProblemCreates1DGeometry()
     {
         HeartConfig::Instance()->SetSpaceDimension(1);
-        HeartConfig::Instance()->SetFibreLength(1, 0.01);          
+        HeartConfig::Instance()->SetFibreLength(1, 0.01);
         HeartConfig::Instance()->SetSimulationDuration(5.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory(-600 * 5000);
-             
+
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.Solve();
-        
+
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
@@ -586,20 +586,20 @@ public:
     void TestMonodomainProblemCreates2DGeometry()
     {
         HeartConfig::Instance()->SetSpaceDimension(2);
-        HeartConfig::Instance()->SetSheetDimensions(0.3, 0.3, 0.01);          
+        HeartConfig::Instance()->SetSheetDimensions(0.3, 0.3, 0.01);
         HeartConfig::Instance()->SetSimulationDuration(4.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-600 * 5000);
-             
+
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.Solve();
-        
+
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
@@ -613,20 +613,20 @@ public:
     void TestMonodomainProblemCreates3DGeometry()
     {
         HeartConfig::Instance()->SetSpaceDimension(3);
-        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.01);          
+        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.01);
         HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain3d");
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-600 * 5000);
-             
+
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
         monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
         monodomain_problem.Initialise();
-        
+
         monodomain_problem.Solve();
-        
+
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
@@ -640,7 +640,7 @@ public:
     void TestMonodomainProblemExceptions() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -650,7 +650,7 @@ public:
         // Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
 
-        // Throws because initialise hasn't been called 
+        // Throws because initialise hasn't been called
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
 
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
@@ -658,8 +658,8 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("");
 
         monodomain_problem.Initialise();
-        
-        //Throws because the HDF5 slab isn't on the disk 
+
+        //Throws because the HDF5 slab isn't on the disk
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetDataReader());
 
         // throw because end time is negative
@@ -667,7 +667,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         HeartConfig::Instance()->SetSimulationDuration( 1.0); //ms
 
-        // throws because output dir and filename are both ""        
+        // throws because output dir and filename are both ""
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
     }
 };

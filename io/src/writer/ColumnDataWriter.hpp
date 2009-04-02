@@ -95,28 +95,28 @@ protected:
 
     /**
      * Create the output file and write out the header for it.
-     * 
+     *
      * @param fileName  the name of the file to write to, relative to the output directory
      */
     void CreateFixedDimensionFile(std::string fileName);
 
     /**
      * Create the info file.
-     * 
+     *
      * @param fileName  the name of the file to create, relative to the output directory
      */
     void CreateInfoFile(std::string fileName);
 
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
-     * 
+     *
      * @param name variable name
      */
     void CheckVariableName(std::string name);
 
     /**
      * Check name of unit is allowed, i.e. contains only alphanumeric & _, and isn't blank.
-     * 
+     *
      * @param name unit name
      */
     void CheckUnitsName(std::string name);
@@ -131,7 +131,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param directory  the directory in which to write the data to file
      * @param baseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
@@ -187,10 +187,10 @@ public:
 
     /**
      * Input the variable value to the output file or ancillary file.
-     * 
+     *
      * @param variableID
      * @param variableValue
-     * @param dimensionPosition  The position in column (defaults to -1). This is required if 
+     * @param dimensionPosition  The position in column (defaults to -1). This is required if
      *      there is a fixed dimension, and will be the position along that dimension
      */
     virtual void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);

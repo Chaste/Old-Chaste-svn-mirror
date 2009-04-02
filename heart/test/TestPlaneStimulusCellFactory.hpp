@@ -49,10 +49,10 @@ public:
         for (unsigned node_num=0; node_num<mesh.GetNumNodes(); node_num++)
         {
             Node<3>* p_node=mesh.GetNode(node_num);
-            
+
             HeartConfig::Instance()->SetOdeTimeStep(0.01);
             AbstractCardiacCell* p_cell1=cell_factory1.CreateCardiacCellForTissueNode(node_num);
-            
+
             HeartConfig::Instance()->SetOdeTimeStep(0.001);
             AbstractCardiacCell* p_cell2=cell_factory2.CreateCardiacCellForTissueNode(node_num);
             // compute 1 second

@@ -66,7 +66,7 @@ protected:
 public:
     /**
      * Create a cell object for the given node.
-     * 
+     *
      * The default implementation checks whether the node is in the bath (in which
      * case a pointer to a (unique) fake cell is returned) and if not, calls
      * CreateCardiacCellForTissueNode (which must be defined by subclasses).
@@ -96,11 +96,11 @@ public:
      * Destructor: free solver, zero stimulus and fake bath cell.
      */
     virtual ~AbstractCardiacCellFactory();
-    
+
     void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     AbstractMesh<SPACE_DIM,SPACE_DIM>* GetMesh();
-    
+
 };
 
 #endif /*ABSTRACTCARDIACCELLFACTORY_HPP_*/

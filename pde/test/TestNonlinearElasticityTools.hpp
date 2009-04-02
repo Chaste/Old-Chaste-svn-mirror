@@ -40,9 +40,9 @@ public:
     void TestGetNodesByComponentValue() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0,2.0,10,10);
-        std::vector<unsigned> indices 
+        std::vector<unsigned> indices
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
-          
+
         TS_ASSERT_EQUALS(indices.size(), 21u);
         for(unsigned i=0; i<indices.size(); i++)
         {
@@ -53,16 +53,16 @@ public:
         TetrahedralMesh<3,3> mesh3d;
         mesh3d.ConstructFromMeshReader(reader);
         mesh3d.Scale(0.3423244,1.343244325,6.23435);
-        
-        std::vector<unsigned> indices3d 
+
+        std::vector<unsigned> indices3d
           = NonlinearElasticityTools<3>::GetNodesByComponentValue(mesh3d,2,6.23435);
-        
+
         TS_ASSERT_EQUALS(indices3d.size(), 13u);
         for(unsigned i=0; i<indices3d.size(); i++)
         {
             TS_ASSERT_DELTA(mesh3d.GetNode(indices3d[i])->rGetLocation()[2], 6.23435, 1e-12);
         }
-        
+
         TS_ASSERT_THROWS_ANYTHING(NonlinearElasticityTools<3>::GetNodesByComponentValue(mesh3d,2,6.234));
     }
 };

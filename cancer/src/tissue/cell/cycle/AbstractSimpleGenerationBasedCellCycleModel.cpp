@@ -60,8 +60,8 @@ void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
 void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
 {
     /*
-     * If the parent cell is a stem cell then its generation was reset 
-     * to zero when ResetForDivision() was called. The daughter cell's 
+     * If the parent cell is a stem cell then its generation was reset
+     * to zero when ResetForDivision() was called. The daughter cell's
      * generation must therefore be incremented here.
      */
     if (mGeneration == 0)
@@ -69,7 +69,7 @@ void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
         mGeneration = 1;
     }
     /*
-     * In generation-based cell cycle models, the daughter cell 
+     * In generation-based cell cycle models, the daughter cell
      * is always of type transit or differentiated.
      */
     mpCell->SetCellType(TRANSIT);

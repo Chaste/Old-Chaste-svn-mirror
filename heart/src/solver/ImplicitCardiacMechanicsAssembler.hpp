@@ -41,11 +41,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Implicit Cardiac Mechanics Assembler
- * 
+ *
  *  Solves cardiac mechanics implicitly (together with the NHS cell
  *  models for determining the active tension), taking in the intracellular
  *  Calcium concentration. See CardiacElectroMechanicsProblem documentation
- *  for more detail. 
+ *  for more detail.
  */
 template<unsigned DIM>
 class ImplicitCardiacMechanicsAssembler : public NonlinearElasticityAssembler<DIM>
@@ -56,23 +56,23 @@ private:
     static const unsigned STENCIL_SIZE = NonlinearElasticityAssembler<DIM>::STENCIL_SIZE;
     static const unsigned NUM_NODES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_NODES_PER_ELEMENT;
     static const unsigned NUM_VERTICES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_VERTICES_PER_ELEMENT;
-    /** 
-     *  The NHS cell systems (with their own implicit solvers, which take in 
+    /**
+     *  The NHS cell systems (with their own implicit solvers, which take in
      *  [Ca]_i and return Ta. Note the indexing: the i-th entry corresponds to
      *  the i-th global quad point, when looping over elements and then
      *  quad points */
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems;
-    
+
     /** The stretch ratio (in the fibre direction) at the last timestep.
-     *  Note the indexing: the i-th entry corresponds to the i-th global 
-     *  quad point, when looping over elements and then quad points 
-     */ 
+     *  Note the indexing: the i-th entry corresponds to the i-th global
+     *  quad point, when looping over elements and then quad points
+     */
     std::vector<double> mLambdaLastTimeStep;
-    
-    /** The current stretch ratio (in the fibre direction). Note the indexing: 
-     *  the i-th entry corresponds to the i-th global quad point, when looping 
-     *  over elements and then quad points 
-     */ 
+
+    /** The current stretch ratio (in the fibre direction). Note the indexing:
+     *  the i-th entry corresponds to the i-th global quad point, when looping
+     *  over elements and then quad points
+     */
     std::vector<double> mLambda;
 
     /** Current time */
@@ -84,10 +84,10 @@ private:
 
     /** Whether the material law was passed in or the default used */
     bool mAllocatedMaterialLawMemory;
-    
+
     /** Total number of quad points in the (mechanics) mesh */
     unsigned mTotalQuadPoints;
-    
+
 public:
     /**
      *  Constructor
@@ -102,19 +102,19 @@ public:
                                       std::vector<unsigned>& rFixedNodes,
                                       AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
 
-    /** 
+    /**
      *  Destructor just deletes memory if it was allocated
      */
     ~ImplicitCardiacMechanicsAssembler();
-    
+
     /** Get the total number of quad points in the mesh */
     unsigned GetTotalNumQuadPoints();
-    
+
     /** Get the quadrature rule used in the elements */
     GaussianQuadratureRule<DIM>* GetQuadratureRule();
 
     /**
-     *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we 
+     *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we
      *  would set the active tension as the forcing quantity; the implicit algorithm
      *  takes in the Calcium concentration and solves for the active tension implicitly
      *  together with the mechanics.
@@ -123,9 +123,9 @@ public:
 
     /**
      *  Get lambda (the stretch ratio).
-     *  NOTE: the i-th entry of this vector is assumed to be the i-th quad point 
-     *  obtained by looping over cells in the obvious way and then looping over 
-     *  quad points. These quad points, in the same order, can be obtained by 
+     *  NOTE: the i-th entry of this vector is assumed to be the i-th quad point
+     *  obtained by looping over cells in the obvious way and then looping over
+     *  quad points. These quad points, in the same order, can be obtained by
      *  using the QuadraturePointsGroup class.
      */
     std::vector<double>& rGetLambda();
@@ -143,7 +143,7 @@ public:
 private:
 
     /**
-     *  Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and 
+     *  Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
      *  the lack of the body force term in the residual, the bits where this is
      *  different to the base class AssembleOnElement are restricted to two bits
      *  (see code): calculating Ta implicitly and using it to compute the stress,
@@ -160,7 +160,7 @@ private:
 
 //// THE FOLLOWING IS IF THE MONODOMAIN EQUATIONS ARE ADJUSTED TO USE inverse(C)
 //// (still the dealii version though)
-//// 
+////
 ////  *** DO NOT DELETE ***
 ////
 ////

@@ -130,14 +130,14 @@ public:
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), nodes.size());
         TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), cells.size());
-        
+
         // For coverage, test that tissue constructor with 3rd argument locationIndices throws
         // an exception when the size of locationIndices does not equal the number of cells
         std::vector<unsigned> location_indices;
         location_indices.push_back(0);
         location_indices.push_back(1);
         location_indices.push_back(2);
-        
+
         TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> node_based_tissue(nodes, cells, location_indices));
     }
 

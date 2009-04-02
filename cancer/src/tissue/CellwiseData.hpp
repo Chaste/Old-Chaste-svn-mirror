@@ -72,7 +72,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the member variables.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -114,17 +114,17 @@ public:
 
     /**
      * Get the value of CellwiseData for a given cell and variable number.
-     * 
+     *
      * @param pCell pointer to a TissueCell
      * @param variableNumber the index of CellwiseData whose value is required (defaults to zero)
-     * 
+     *
      * @return the value of CellwiseData.
      */
     double GetValue(TissueCell* pCell, unsigned variableNumber=0);
 
     /**
      *  Set the value for a given node and variable number.
-     * 
+     *
      * @param value the value to set
      * @param pNode pointer to the Node
      * @param variableNumber the index of CellwiseData whose value is set (defaults to zero)
@@ -133,7 +133,7 @@ public:
 
     /**
      *  Set the Tissue. Must be called before GetValue().
-     * 
+     *
      * @param rTissue reference to the Tissue
      */
     void SetTissue(MeshBasedTissue<DIM>& rTissue);
@@ -146,7 +146,7 @@ public:
     /**
      *  Set the number of variables to be stored per cell. The constructor
      *  assumes 1 variable so only really needs to be called if numVars > 1.
-     * 
+     *
      * @param numNodes number of nodes in the tissue
      * @param numVars number of variables
      */
@@ -154,7 +154,7 @@ public:
 
     /**
      *  Force the data to return given values for all cells (only for testing).
-     * 
+     *
      * @param values vector of CellwiseData values
      */
     void SetConstantDataForTesting(std::vector<double> values);

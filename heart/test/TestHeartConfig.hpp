@@ -104,11 +104,11 @@ public :
 
         c_vector<double, 3> slab_dimensions;
         HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
-        
+
         TS_ASSERT_EQUALS(slab_dimensions[0], 4.0);
         TS_ASSERT_EQUALS(slab_dimensions[1], 0.1);
         TS_ASSERT_EQUALS(slab_dimensions[2], 2.0);
-        
+
         double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
         TS_ASSERT_EQUALS(inter_node_space, 0.1);
 
@@ -150,7 +150,7 @@ public :
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
-        
+
         c_vector<double, 3> extra_conductivities;
         HeartConfig::Instance()->GetExtracellularConductivities(extra_conductivities);
         TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]);
@@ -167,9 +167,9 @@ public :
         TS_ASSERT_EQUALS(extra_conductivities[0], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
-        
+
          TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 7.0);
-        
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 1.0);
@@ -198,21 +198,21 @@ public :
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteParametersFullFormat.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         HeartConfig::Instance()->Reset();
-    }    
-    
+    }
+
     void TestGetIsMeshProvided()
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), false);
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetLoadMesh())
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateMesh())
-        
+
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), true);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsMeshProvided(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetLoadMesh(), true);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateMesh(), false);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateMesh(), false);
     }
-    
+
     void Test2dProblems()
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParameters2D.xml");
@@ -251,12 +251,12 @@ public :
 
         c_vector<double, 2> sheet_dimensions;
         HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
-        
+
         TS_ASSERT_EQUALS(sheet_dimensions[0], 4.0);
         TS_ASSERT_EQUALS(sheet_dimensions[1], 0.1);
-        
+
         double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
-        TS_ASSERT_EQUALS(inter_node_space, 0.1);                
+        TS_ASSERT_EQUALS(inter_node_space, 0.1);
     }
 
     void Test1dProblems()
@@ -272,15 +272,15 @@ public :
         c_vector<double, 3> slab_dimensions;
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions));
         c_vector<double, 2> sheet_dimensions;
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions));        
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions));
 
         c_vector<double, 1> fibre_length;
         HeartConfig::Instance()->GetFibreLength(fibre_length);
-        
+
         TS_ASSERT_EQUALS(fibre_length[0], 4.0);
-        
+
         double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
-        TS_ASSERT_EQUALS(inter_node_space, 0.1);                
+        TS_ASSERT_EQUALS(inter_node_space, 0.1);
     }
 
 
@@ -295,13 +295,13 @@ public :
 
         HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::LuoRudyIBackwardEuler);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::LuoRudyIBackwardEuler);
-        
+
         HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::MahajanShiferaw);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::MahajanShiferaw);
-        
+
         HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::HodgkinHuxley);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::HodgkinHuxley);
-        
+
         HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::tenTusscher2006);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::tenTusscher2006);
 
@@ -314,7 +314,7 @@ public :
         std::vector< c_vector<double,3> > cornerB;
         std::vector< c_vector<double,3> > intraConductivities;
         std::vector< c_vector<double,3> > extraConductivities;
-        
+
         cornerA.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
         cornerB.push_back( Create_c_vector( 1.0,  1.0,  1.0) );
         intraConductivities.push_back( Create_c_vector(2.5, 2.5, 2.5) );
@@ -324,8 +324,8 @@ public :
         cornerB.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
         intraConductivities.push_back( Create_c_vector(1.0, 0.5, 0.4) );
         extraConductivities.push_back( Create_c_vector(7.0, 6.5, 6.4) );
-        
-        HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);        
+
+        HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);
 
         TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
 
@@ -344,8 +344,8 @@ public :
         TS_ASSERT(!conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)));
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.5);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.5);
-        
-        TS_ASSERT(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)));        
+
+        TS_ASSERT(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)));
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
@@ -355,7 +355,7 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "NewSimulation");
 
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(-6.0, -5.0, -4.0));
-        
+
         c_vector<double, 3> intra;
         HeartConfig::Instance()->GetIntracellularConductivities(intra);
         TS_ASSERT_EQUALS(intra[0], -6.0);
@@ -368,7 +368,7 @@ public :
         TS_ASSERT_EQUALS(extra[0], -3.0);
         TS_ASSERT_EQUALS(extra[1], -2.0);
         TS_ASSERT_EQUALS(extra[2], -1.0);
-        
+
         HeartConfig::Instance()->SetBathConductivity(150);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 150);
 
@@ -391,12 +391,12 @@ public :
 
         HeartConfig::Instance()->SetPrintingTimeStep(0.4);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimeStep(), 0.4);
-        
+
         // Test code to check consistency among TimeSteps
         // throws because argument is negative
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.1,0.1);
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdeTimeStep(0.2));
-        
+
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(-0.1, 0.1, 0.1));
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1, -0.1, 0.1));
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1, 0.1, -0.1));
@@ -405,10 +405,10 @@ public :
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.1));
          //Throws when printing step is not a multiple of pde time step
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
-        
+
         // Throws because ode time step is bigger than pde time step
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
-        
+
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
@@ -421,8 +421,8 @@ public :
         //Check that relative tolerance is disabled
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance() == false);
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetRelativeTolerance());
-        
-       
+
+
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
@@ -430,7 +430,7 @@ public :
         //Check that absolute tolerance is disabled
         TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance() == false);
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetAbsoluteTolerance());
- 
+
         HeartConfig::Instance()->SetKSPSolver("cg");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg")==0);
 
@@ -453,12 +453,12 @@ public :
 
         HeartConfig::Instance()->SetKSPPreconditioner("hypre");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "hypre")==0);
-        
+
         HeartConfig::Instance()->SetKSPPreconditioner("none");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);
-        
+
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
-        
+
 
      }
     void TestWrite() throw(Exception)
@@ -469,14 +469,14 @@ public :
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(1.1,2.2,4.4);
         HeartConfig::Instance()->Write("Xml","test.xml");
-        
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
         HeartConfig::Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
         //Reload the other XML
         HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath("Xml")+"test.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
-        
+
     }
     /**
      *  The following test is aimed at checking that the ChasteParameters.xml file,
@@ -488,12 +488,12 @@ public :
         HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
     }
     void TestExceptions() throw (Exception)
-    { 
+    {
         //We might want to remove SetDefaultsFile()
         HeartConfig::Instance()->Reset();
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml")); 
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml")); 
-        //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml")); 
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"));
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml"));
+        //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml"));
     }
 };
 

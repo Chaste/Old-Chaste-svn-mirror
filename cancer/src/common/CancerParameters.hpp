@@ -197,7 +197,7 @@ public:
      */
     double GetCellBoundaryAdhesionEnergyParameter();
 
-	/**
+    /**
      * Set mStemCellG1Duration.
      */
     void SetStemCellG1Duration(double);
@@ -549,13 +549,13 @@ private:
      * For use in vertex-based models.
      */
     double mDeformationEnergyParameter;
-    
+
     /**
      * Cell membrane energy parameter.
      * For use in vertex-based models.
      */
     double mMembraneSurfaceEnergyParameter;
-        
+
     /**
      * Cell-cell adhesion energy parameter.
      * For use in vertex-based models.
@@ -568,13 +568,13 @@ private:
      */
     double mCellBoundaryAdhesionEnergyParameter;
 
-	/** Needed for serialization. */
+    /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * As with other singleton classes, ensure the instance of this
      * class is serialized directly before being serialized via a
      * pointer.
-     * 
+     *
      * @param archive
      * @param version
      */

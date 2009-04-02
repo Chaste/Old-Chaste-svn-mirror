@@ -31,24 +31,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
                        bool groundSecondElectrode,
-                       unsigned index, 
-                       double lowerValue, 
-                       double upperValue, 
-                       double magnitude, 
-                       double duration)                        
-{        
+                       unsigned index,
+                       double lowerValue,
+                       double upperValue,
+                       double magnitude,
+                       double duration)
+{
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);
     mEndTime = 0.0 + duration; // currently start time = 0 is hardcoded here
     mAreActive = true; // switch electrodes on!
-    
+
     // check min x_i = a and max x_i = b, where i = index
     double local_min = DBL_MAX;
     double local_max = -DBL_MIN;
     for (DistributedVector::Iterator node_it = DistributedVector::Begin();
-	 node_it != DistributedVector::End();
-	 ++node_it)
+     node_it != DistributedVector::End();
+     ++node_it)
     {
          double value = rMesh.GetNode(node_it.Global)->rGetLocation()[index];
          if(value < local_min)
@@ -63,7 +63,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
 
     double global_min;
     double global_max;
-    
+
     int mpi_ret = MPI_Allreduce(&local_min, &global_min, 1, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
     assert(mpi_ret == MPI_SUCCESS);
     mpi_ret = MPI_Allreduce(&local_max, &global_max, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
@@ -77,7 +77,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
     {
         EXCEPTION("Maximum value of coordinate is not the value given");
     }
-    
+
     mpBoundaryConditionsContainer = new BoundaryConditionsContainer<DIM,DIM,2>;
 
     ConstBoundaryCondition<DIM>* p_bc_flux_in = new ConstBoundaryCondition<DIM>(magnitude);
@@ -85,7 +85,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
 
     // loop over boundary elements and add a non-zero phi_e boundary condition (ie extracellular
     // stimulus) if (assuming index=0, etc) x=lowerValue (where x is the x-value of the centroid)
-    for (typename AbstractMesh<DIM,DIM>::BoundaryElementIterator iter 
+    for (typename AbstractMesh<DIM,DIM>::BoundaryElementIterator iter
             = rMesh.GetBoundaryElementIteratorBegin();
        iter != rMesh.GetBoundaryElementIteratorEnd();
        iter++)
@@ -94,7 +94,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
         {
             mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_in,  1);
         }
-        
+
         if (!mGroundSecondElectrode)
         {
             if ( fabs((*iter)->CalculateCentroid()[index] - upperValue) < 1e-6 )
@@ -103,30 +103,30 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
             }
         }
     }
-    
-    // set up mGroundedNodes using opposite surface is second electrode is 
+
+    // set up mGroundedNodes using opposite surface is second electrode is
     // grounded
     if (mGroundSecondElectrode)
     {
         ConstBoundaryCondition<DIM>* p_zero_bc = new ConstBoundaryCondition<DIM>(0.0);
-    
-        for (unsigned i=0; i<rMesh.GetNumNodes(); i++)	  
+
+        for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
         {
-	  try
-	    {
-	      if (fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
-		{
+      try
+        {
+          if (fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
+        {
                 mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(rMesh.GetNode(i), p_zero_bc, 1);
-		}
-	    }
-	  catch(Exception& e)
-	    {
-	    }
         }
-        
+        }
+      catch(Exception& e)
+        {
+        }
+        }
+
         //Unused boundary conditions will not be deleted by the b.c. container
         delete p_bc_flux_out;
-    }     
+    }
 }
 
 /////////////////////////////////////////////////////////////////////

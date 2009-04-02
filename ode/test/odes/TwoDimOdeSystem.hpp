@@ -55,11 +55,11 @@ void OdeSystemInformation<TwoDimOdeSystem>::Initialise()
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1);
-    
+
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(2);
-    
+
     this->mInitialised = true;
 }
 

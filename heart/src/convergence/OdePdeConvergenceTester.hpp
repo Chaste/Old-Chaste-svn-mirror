@@ -49,7 +49,7 @@ public:
     bool GiveUpConvergence()
     {
         assert( this->PdeTimeStep == this->OdeTimeStep);
-        
+
         return this->OdeTimeStep<=1e-8;
     }
 

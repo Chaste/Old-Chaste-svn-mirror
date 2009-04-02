@@ -123,15 +123,15 @@ public:
     Cylindrical2dMesh* GetCylindricalMesh();
 
     /**
-     * Returns the indices of the nodes in the mesh which correspond to 
-     * real cells. This information needs to be passed in when constructing 
+     * Returns the indices of the nodes in the mesh which correspond to
+     * real cells. This information needs to be passed in when constructing
      * a MeshBasedTissueWithGhostNodes.
-     * 
+     *
      * @return indices of nodes
      */
     std::vector<unsigned> GetCellLocationIndices();
 
-    /** 
+    /**
      * @param radius the radius of the circular mesh
      * @return a honeycomb mesh constructed to be roughly circular.
      */

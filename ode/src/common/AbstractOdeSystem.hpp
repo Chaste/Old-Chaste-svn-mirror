@@ -90,21 +90,21 @@ public:
 
     /**
      * Get the number of state variables in the ODE system.
-     * 
+     *
      * @return mNumberOfStateVariables
      */
     unsigned GetNumberOfStateVariables() const;
 
     /**
      * Set the initial conditions for the ODE system.
-     * 
+     *
      * @param rInitialConditions  vector containing initial values for the state variables
      */
     void SetInitialConditions(const std::vector<double>& rInitialConditions);
 
     /**
      * Set the initial condition one state variable.
-     * 
+     *
      * @param index  the index of the state variable in the system
      * @param initialCondition  the initial value for the state variable
      */
@@ -117,7 +117,7 @@ public:
 
     /**
      * Set the values of the state variables in the ODE system.
-     * 
+     *
      * @param rStateVariables vector containing values for the state variables
      */
     void SetStateVariables(const std::vector<double>& rStateVariables);
@@ -144,19 +144,19 @@ public:
      *
      *  After each timestep the solver will call this method on the ODE to see if
      *  it should stop there. By default, false is returned here.
-     * 
+     *
      * @param time  the current time
      * @param rY  the current values of the state variables
      */
     virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
-    
+
     /**
      * An alternative approach to stopping events; currently only useful with CVODE.
      * CVODE can search for roots (zeros) of this function while solving the ODE system,
      * and home in on them to find sign transitions to high precision.
-     * 
+     *
      * The default implementation here fakes a root function using CalculateStoppingEvent.
-     * 
+     *
      * @param time  the current time
      * @param rY  the current values of the state variables
      */
@@ -164,7 +164,7 @@ public:
 
     /**
      * Get whether an analytic Jacobian is used.
-     * 
+     *
      * @return mUseAnalyticJacobian
      */
     bool GetUseAnalyticJacobian();
@@ -176,26 +176,26 @@ public:
      * GetStateVariableUnitsByNumber.
      *
      * @param name  the name of a state variable.
-     * 
-     * @return the state variable's position within the vector of state variables 
+     *
+     * @return the state variable's position within the vector of state variables
      *         associated with the ODE system.
      */
     unsigned GetStateVariableNumberByName(const std::string name);
 
     /**
      * Get the value of a state variable given its index in the ODE system.
-     * 
-     * @param varNumber  a state variable's position within the vector of 
+     *
+     * @param varNumber  a state variable's position within the vector of
      *                   state variables associated with the ODE system.
-     * 
+     *
      * @return the current value of the state variable.
      */
     double GetStateVariableValueByNumber(unsigned varNumber) const;
 
     /**
      * Get the units of a state variable given its index in the ODE system.
-     * 
-     * @param varNumber  a state variable's position within the vector of 
+     *
+     * @param varNumber  a state variable's position within the vector of
      *                   state variables associated with the ODE system.
      * @return the units of the state variable.
      */
@@ -207,9 +207,9 @@ protected:
      * Used to include extra debugging information in exception messages.
      * For example,
      *      EXCEPTION(DumpState("Gating variable out of range"));
-     * 
+     *
      * @param message  the exception message
-     * @param Y  the values of the state variables (optional input argument) 
+     * @param Y  the values of the state variables (optional input argument)
      */
     std::string DumpState(const std::string& message,
                           std::vector<double> Y = std::vector<double>());

@@ -52,10 +52,10 @@ public:
         Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4, 0.01, 2.0);
 
         // The periodic mesh should have the same number of elements but fewer nodes
-		TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumElements(), 16u);
         TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumNodes(), 40u);
-		
-		// Create a vertex mesh writer with cylindrical mesh
+
+        // Create a vertex mesh writer with cylindrical mesh
         VertexMeshWriter<2,2> vertex_mesh_writer("TestCylindrical2dVertexMesh", "cylindrical_vertex_mesh");
         vertex_mesh_writer.WriteFilesUsingMesh(cylindrical_vertex_mesh);
 
@@ -115,7 +115,7 @@ public:
         // Test a periodic calculation
         c_vector<double, 2> node16_location = mesh.GetNode(16)->rGetLocation();
         vector = mesh.GetVectorFromAtoB(node16_location, node19_location);
-        
+
         TS_ASSERT_DELTA(vector[0], -1.1547, 1e-4);
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
     }
@@ -210,21 +210,21 @@ public:
     {
         // Create mesh
         Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40u);
-                
+
         // Test area and perimeter calculations for  all  elements
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             TS_ASSERT_DELTA(mesh.GetAreaOfElement(i), 0.8660, 1e-4);
             TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(i), 3.4641, 1e-4);
         }
-        
+
         // Test centroid calculations for nonperiodic element
         c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
         TS_ASSERT_DELTA(centroid(0), 1.4433, 1e-4);
         TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
-        
+
         // Test centroid calculations for periodic element
         centroid = mesh.GetCentroidOfElement(7);
         TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
@@ -244,18 +244,18 @@ public:
         // Create mesh
         unsigned num_cells_across = 4;
         unsigned num_cells_up = 7;
-        
+
         Cylindrical2dVertexMesh* const p_mesh = new Cylindrical2dVertexMesh(num_cells_across, num_cells_up, 0.01, 2.0);
 
         double crypt_width = num_cells_across*sqrt(3.0)/2.0;
 
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
-         * This is because the serialization library only allows you to save 
+         * This is because the serialization library only allows you to save
          * tracked objects while the compiler considers them const, to prevent
-         * the objects changing during the save, and so object tracking leading 
-         * to wrong results. For example, A is saved once via pointer, then 
-         * changed, then saved again.  The second save notes that A was saved 
+         * the objects changing during the save, and so object tracking leading
+         * to wrong results. For example, A is saved once via pointer, then
+         * changed, then saved again.  The second save notes that A was saved
          * before, so doesn't write its data again, and the change is lost.
          */
         {
@@ -293,7 +293,7 @@ public:
 
             // Compare the loaded mesh against the original
 
-            // Compare width            
+            // Compare width
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), crypt_width, 1e-7);
 
             // Compare nodes
@@ -326,20 +326,20 @@ public:
                     TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
                 }
             }
-            
+
             // Tidy up
             delete p_mesh;
             delete p_mesh2;
         }
     }
 
-    
+
     void TestCylindricalReMesh() throw (Exception)
     {
         // Create mesh
         unsigned num_cells_across = 6;
         unsigned num_cells_up = 12;
-        
+
         Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
 
         // Remesh
@@ -359,7 +359,7 @@ public:
         // Create mesh
         unsigned num_cells_across = 6;
         unsigned num_cells_up = 12;
-        
+
         Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
         unsigned num_old_nodes = mesh.GetNumNodes();
         unsigned num_old_elements = num_cells_across*num_cells_up;

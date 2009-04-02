@@ -42,23 +42,23 @@ private:
     /* Paramters */
 
     /** mS/cm2 */
-    static const double leakage_current_g_L = 0.3;    
+    static const double leakage_current_g_L = 0.3;
     /** uF/cm2 */
-    static const double membrane_Cm = 1.0;    
+    static const double membrane_Cm = 1.0;
     /** mV */
-    static const double membrane_E_R = -75.0;   
+    static const double membrane_E_R = -75.0;
     /** mS/cm2 */
-    static const double potassium_channel_g_K = 36.0;  
+    static const double potassium_channel_g_K = 36.0;
     /** mS/cm2 */
-    static const double sodium_channel_g_Na = 120.0;   
-    
+    static const double sodium_channel_g_Na = 120.0;
+
 public:
     // Constructor
     HodgkinHuxleySquidAxon1952OriginalOdeSystem(AbstractIvpOdeSolver *pOdeSolver,
                                                 AbstractStimulusFunction *pIntracellularStimulus);
     // Destructor
     ~HodgkinHuxleySquidAxon1952OriginalOdeSystem();
-        
+
     // This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
     double GetIIonic();

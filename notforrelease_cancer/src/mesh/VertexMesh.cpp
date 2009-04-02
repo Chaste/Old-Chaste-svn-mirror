@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes, 
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
                                                double cellRearrangementThreshold,
                                                double edgeDivisionThreshold)
@@ -48,13 +48,13 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
         Node<SPACE_DIM>* temp_node = nodes[node_index];
         mNodes.push_back(temp_node);
     }
-    
+
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
         VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertexElements[elem_index];
         mElements.push_back(temp_vertex_element);
     }
-    
+
     SetupVertexElementsOwnedByNodes();
 }
 
@@ -84,10 +84,10 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
     assert(edgeDivisionThreshold > 0.0);
 
     if (SPACE_DIM==2)
-    {    
+    {
         assert(numAcross > 1);
         unsigned node_index = 0;
-        
+
         // Create the nodes
         for (unsigned j=0; j<=2*numUp+1; j++)
         {
@@ -100,7 +100,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                         if (i%3 != 2)
                         {
                             Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
-                            
+
                             if (j==0 || j==2*numUp || i==1 || i==3*numAcross || i==3*numAcross+1)
                             {
                                 p_node->SetAsBoundaryNode(true);
@@ -111,7 +111,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                     }
                 }
             }
-            else 
+            else
             {
                 for (unsigned i=0; i<=3*numAcross+1; i+=2)
                 {
@@ -130,20 +130,20 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                     }
                 }
             }
-        }  
-        
-        // Create the elements. The array node_indices contains the 
+        }
+
+        // Create the elements. The array node_indices contains the
         // global node indices from bottom left, going anticlockwise.
-        
+
         unsigned node_indices[6];
         unsigned element_index;
-        
+
         for (unsigned j=0; j<numUp; j++)
         {
             for (unsigned i=0; i<numAcross; i++)
             {
                 element_index = j*numAcross + i;
-                
+
                 if (numAcross%2==0) // numAcross is even
                 {
                     if (j == 0)     // bottom row
@@ -155,9 +155,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                         else // odd
                         {
                             node_indices[0] = numAcross+i;
-                        }                                           
-                    }                       
-                    else    // not on the bottom row 
+                        }
+                    }
+                    else    // not on the bottom row
                     {
                          if (i%2 == 0) // even
                         {
@@ -166,9 +166,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                         else // odd
                         {
                             node_indices[0] = (2*numAcross+1)+(2*j-1)*(numAcross+1)+i;
-                        }                        
+                        }
                     }
-                        
+
                 }
                 else // numAcross is odd
                 {
@@ -186,18 +186,18 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 node_indices[3] = node_indices[0] + 2*numAcross + 3;
                 node_indices[4] = node_indices[0] + 2*numAcross + 2;
                 node_indices[5] = node_indices[0] + numAcross + 1;
-                 
+
                 if ((j==numUp-1)&&(i%2 == 1))
                 {
-                    // On top row and its an odd column nodes 
+                    // On top row and its an odd column nodes
                     node_indices[3] -= 1;
                     node_indices[4] -= 1;
                 }
-                  
+
                 if ((j==0)&&(i%2 == 0)&&(numAcross%2==0))
                 {
                     // On bottom row and its an even column and there is
-                    // an even number of columns in total, (i.e. the very bottom) 
+                    // an even number of columns in total, (i.e. the very bottom)
                     node_indices[2] -= 1;
                     node_indices[3] -= 1;
                     node_indices[4] -= 1;
@@ -205,7 +205,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 }
 
                 std::vector<Node<SPACE_DIM>*> element_nodes;
-                
+
                 for (int i=0; i<6; i++)
                 {
                    element_nodes.push_back(mNodes[node_indices[i]]);
@@ -213,7 +213,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(element_index, element_nodes);
                 mElements.push_back(p_element);
             }
-        }  
+        }
     }
 }
 
@@ -275,7 +275,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     mDeletedNodeIndices.clear();
     mDeletedElementIndices.clear();
     mAddedNodes = false;
-    
+
     for (unsigned i=0; i<mElements.size(); i++)
     {
         delete mElements[i];
@@ -307,7 +307,7 @@ c_vector<double, 2> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const u
 
     double max = -1e200;
     double min = 1e200;
-    
+
     for (unsigned i=0; i<GetNumNodes(); i++)
     {
         if (!mNodes[i]->IsDeleted())
@@ -368,7 +368,7 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 {
     #define COVERAGE_IGNORE
@@ -378,11 +378,11 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
     c_vector<double, SPACE_DIM> first_node;
-        
-    
+
+
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node;
-  
+
     unsigned num_nodes_in_element = p_element->GetNumNodes();
 
     double element_area = 0;
@@ -392,8 +392,8 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
         // Find locations of current node and anticlockwise node
         current_node = p_element->GetNodeLocation(local_index);
         anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
-  
-        element_area += 0.5*(current_node[0]*anticlockwise_node[1] 
+
+        element_area += 0.5*(current_node[0]*anticlockwise_node[1]
                            - anticlockwise_node[0]*current_node[1]);
     }
 
@@ -401,7 +401,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>    
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
 {
     #define COVERAGE_IGNORE
@@ -440,7 +440,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
 
     c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
     c_vector<double, SPACE_DIM> current_node;
-    c_vector<double, SPACE_DIM> anticlockwise_node; 
+    c_vector<double, SPACE_DIM> anticlockwise_node;
 
     double temp_centroid_x = 0;
     double temp_centroid_y = 0;
@@ -454,7 +454,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
         anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
 
         temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
-        temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);               
+        temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
     }
 
     double vertex_area = GetAreaOfElement(index);
@@ -463,7 +463,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
     centroid(0) = centroid_coefficient*temp_centroid_x;
     centroid(1) = centroid_coefficient*temp_centroid_y;
 
-    return centroid;        
+    return centroid;
 }
 
 
@@ -477,9 +477,9 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientO
     unsigned num_nodes_in_element = pElement->GetNumNodes();
     unsigned next_local_index = (localIndex+1)%num_nodes_in_element;
 
-    // We add an extra localIndex-1 in the line below as otherwise this term can be negative, which breaks the % operator    
-    unsigned previous_local_index = (num_nodes_in_element+localIndex-1)%num_nodes_in_element;       
-    
+    // We add an extra localIndex-1 in the line below as otherwise this term can be negative, which breaks the % operator
+    unsigned previous_local_index = (num_nodes_in_element+localIndex-1)%num_nodes_in_element;
+
     c_vector<double, SPACE_DIM> previous_node_location = pElement->GetNodeLocation(previous_local_index);
     c_vector<double, SPACE_DIM> next_node_location = pElement->GetNodeLocation(next_local_index);
     c_vector<double, SPACE_DIM> difference_vector = GetVectorFromAtoB(previous_node_location, next_node_location);
@@ -554,7 +554,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGrad
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>  
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElement(unsigned index)
 {
     #define COVERAGE_IGNORE
@@ -613,13 +613,13 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
     c_vector<double, 3> moments = CalculateMomentsOfElement(index);
 
-    double largest_eigenvalue, discriminant;            
+    double largest_eigenvalue, discriminant;
 
     discriminant = sqrt((moments(0) - moments(1))*(moments(0) - moments(1)) + 4.0*moments(2)*moments(2));
 
-    // This is always the largest eigenvalue as both eigenvalues are real as it is a 
+    // This is always the largest eigenvalue as both eigenvalues are real as it is a
     // symmetric matrix
-    largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;       
+    largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;
 
     if (fabs(discriminant) < 1e-10)
     {
@@ -628,11 +628,11 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
         short_axis(1) = sqrt(1.0 - short_axis(0)*short_axis(0));
     }
     else
-    {                      
+    {
         if (moments(2) == 0.0)
         {
              short_axis(0) = 0.0;
-             short_axis(1) = 1.0;                       
+             short_axis(1) = 1.0;
         }
         else
         {
@@ -642,9 +642,9 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
             double length_short_axis = norm_2(short_axis);
 
             short_axis /= length_short_axis;
-        }     
+        }
     }
-    return short_axis;        
+    return short_axis;
 }
 
 
@@ -689,7 +689,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pNewElement)
 {
     unsigned new_element_index = pNewElement->GetIndex();
-    
+
     if (new_element_index == mElements.size())
     {
         mElements.push_back(pNewElement);
@@ -700,7 +700,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DI
     }
     mAddedElements = true;
     pNewElement->RegisterWithNodes();
-    
+
     return pNewElement->GetIndex();
 }
 
@@ -723,7 +723,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsigned ind
     for (unsigned i=0; i<this->mElements[index]->GetNumNodes(); i++)
     {
         Node<SPACE_DIM>* p_node = this->mElements[index]->GetNode(i);
-        
+
         if (p_node->rGetContainingElementIndices().size()==1)
         {
             p_node->MarkAsDeleted();
@@ -743,7 +743,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
     // Find the indices of the elements owned by each node
     std::set<unsigned> elements_containing_nodeA = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> elements_containing_nodeB = pNodeB->rGetContainingElementIndices();
-    
+
     // Find common elements
     std::set<unsigned> shared_elements;
     std::set_intersection(elements_containing_nodeA.begin(),
@@ -751,7 +751,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
                           elements_containing_nodeB.begin(),
                           elements_containing_nodeB.end(),
                           std::inserter(shared_elements, shared_elements.begin()));
-    
+
     // Check that the nodes have a common edge
     assert(shared_elements.size() > 0);
 
@@ -760,13 +760,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
 
     // Update the node location
     c_vector<double, SPACE_DIM> new_node_position = pNodeA->rGetLocation() + 0.5*GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
-    ChastePoint<SPACE_DIM> point(new_node_position);    
+    ChastePoint<SPACE_DIM> point(new_node_position);
     p_new_node->SetPoint(new_node_position);
-    
+
     // Add node to mesh
     mNodes.push_back(p_new_node);
 
-    // Iterate over common elements    
+    // Iterate over common elements
     for (std::set<unsigned>::iterator iter=shared_elements.begin();
          iter!=shared_elements.end();
          ++iter)
@@ -774,11 +774,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
         // Find which node has the lower local index in this element
         unsigned local_indexA = GetElement(*iter)->GetNodeLocalIndex(pNodeA->GetIndex());
         unsigned local_indexB = GetElement(*iter)->GetNodeLocalIndex(pNodeB->GetIndex());
-        
+
         unsigned index = local_indexB;
         if ( (local_indexA == 0) || (local_indexB == 0) || (local_indexB > local_indexA) )
         {
-            index = local_indexA;                 
+            index = local_indexA;
         }
         if ( (local_indexA == 0) && (local_indexB == GetElement(*iter)->GetNumNodes()-1))
         {
@@ -802,7 +802,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
 
     // Make sure the map is big enough
     elementMap.Resize(GetNumAllElements());
-    
+
     if (SPACE_DIM==2)
     {
         // Remove deleted elements
@@ -856,13 +856,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
          * We do not need to call Clear() and remove all current data, since
          * cell birth, rearrangement and death result only in local remeshing
          * of a vertex-based mesh.
-         * 
+         *
          * Instead, we should now remove any deleted nodes and elements.
-         * 
-         * We should then construct any new nodes, including boundary nodes; 
+         *
+         * We should then construct any new nodes, including boundary nodes;
          * then new elements; then new edges.
-         * 
-         * Finally (or should this be at the start?), we should perform any 
+         *
+         * Finally (or should this be at the start?), we should perform any
          * cell rearrangements.
          */
 
@@ -876,14 +876,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
 
             // Loop over elements
             for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
-            {                
+            {
                 if (!recheck_mesh)
                 {
                     unsigned num_nodes = mElements[elem_index]->GetNumNodes();
                     assert(num_nodes > 0); // if not element should be deleted
-                    
+
                     unsigned new_num_nodes = num_nodes;
-                    
+
                     // Loop over element vertices
                     for (unsigned local_index=0; local_index<num_nodes; local_index++)
                     {
@@ -891,7 +891,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                         Node<SPACE_DIM>* p_current_node = mElements[elem_index]->GetNode(local_index);
                         unsigned local_index_plus_one = (local_index+1)%new_num_nodes; /// \todo Should use iterators to tidy this up
                         Node<SPACE_DIM>* p_anticlockwise_node = mElements[elem_index]->GetNode(local_index_plus_one);
-                        
+
                         // Find distance between nodes
                         double distance_between_nodes = GetDistanceBetweenNodes(p_current_node->GetIndex(), p_anticlockwise_node->GetIndex());
 
@@ -900,7 +900,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                         {
                             // Identify the type of node swap/merge needed then call method to perform swap/merge
                             IdentifySwapType(p_current_node, p_anticlockwise_node);
-                            
+
                             recheck_mesh = true;
                             break;
                         }
@@ -919,7 +919,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& elementMap)
                 }
             }
         }
-               
+
         // ... end of element rearrangement code
 
         // areas and perimeters of elements are sorted in PerformT1Swap() method
@@ -977,8 +977,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndices(unsigned nodeIndex)
 {
     // Create a set of neighbouring node indices
-    std::set<unsigned> neighbouring_node_indices; 
-    
+    std::set<unsigned> neighbouring_node_indices;
+
     // Find the indices of the elements owned by this node
     std::set<unsigned> containing_elem_indices = GetNode(nodeIndex)->rGetContainingElementIndices();
 
@@ -989,17 +989,17 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndice
     {
         // Find the local index of this node in this element
         unsigned local_index = GetElement(*elem_iter)->GetNodeLocalIndex(nodeIndex);
-        
+
         // Find the global indices of the preceding and successive nodes in this element
         unsigned num_nodes = GetElement(*elem_iter)->GetNumNodes();
         unsigned previous_local_index = (local_index - 1)%num_nodes;
         unsigned next_local_index = (local_index + 1)%num_nodes;
-        
+
         // Add the global indices of these two nodes to the set of neighbouring node indices
         neighbouring_node_indices.insert(GetElement(*elem_iter)->GetNodeGlobalIndex(previous_local_index));
         neighbouring_node_indices.insert(GetElement(*elem_iter)->GetNodeGlobalIndex(next_local_index));
     }
-    
+
     return neighbouring_node_indices;
 }
 
@@ -1011,10 +1011,10 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAls
 
     // Create a set of neighbouring node indices
     std::set<unsigned> neighbouring_node_indices_not_in_this_element;
-    
+
     // Get the indices of this node's neighbours
     std::set<unsigned> node_neighbours = GetNeighbouringNodeIndices(nodeIndex);
-    
+
     // Get the indices of the nodes contained in this element
     std::set<unsigned> node_indices_in_this_element;
     for (unsigned local_index=0; local_index<GetElement(elemIndex)->GetNumNodes(); local_index++)
@@ -1033,7 +1033,7 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAls
             neighbouring_node_indices_not_in_this_element.insert(*iter);
         }
     }
-    
+
     return neighbouring_node_indices_not_in_this_element;
 }
 
@@ -1049,23 +1049,23 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
-    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();    
-    
+    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
+
     // Form the set union
     std::set<unsigned> all_indices, temp_set;
-    std::set_union(nodeA_elem_indices.begin(), nodeA_elem_indices.end(), 
-                   nodeB_elem_indices.begin(), nodeB_elem_indices.end(), 
+    std::set_union(nodeA_elem_indices.begin(), nodeA_elem_indices.end(),
+                   nodeB_elem_indices.begin(), nodeB_elem_indices.end(),
                    std::inserter(temp_set, temp_set.begin()));
     all_indices.swap(temp_set); // temp_set will be deleted
-    
+
     if (all_indices.size()==1) // nodes are only in one elment hence on boundary so merge nodes
     {
         /*
-         * Looks like 
-         * 
+         * Looks like
+         *
          *    A   B
          * ---o---o---
-         * 
+         *
          * on the boundray of the tissue
          */
         PerformNodeMerge(pNodeA, pNodeB, all_indices);
@@ -1075,35 +1075,35 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
         if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
         {
             /*
-             * Looks like 
-             * 
+             * Looks like
+             *
              *    A   B
              * ---o---o---
-             * 
-             * on an internal edge  
+             *
+             * on an internal edge
              */
-             PerformNodeMerge(pNodeA, pNodeB, all_indices); 
+             PerformNodeMerge(pNodeA, pNodeB, all_indices);
         }
         else
         {
             /*
-             * Looks like 
+             * Looks like
              *
              * Outside
              *         /
              *   --o--o (2)
              *     (1) \
-             * 
-             * Here we employ a PartialT1Swap 
+             *
+             * Here we employ a PartialT1Swap
              */
              PerformT1Swap(pNodeA, pNodeB, all_indices);
         }
     }
-    else if (all_indices.size()==3) // nodes are contained in three elments 
+    else if (all_indices.size()==3) // nodes are contained in three elments
     {
        /*
-        * Looks like  
-        * 
+        * Looks like
+        *
         *     A  B             A  B
         *   \                       /
         *    \  (1)           (1)  /
@@ -1111,24 +1111,24 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
         *    /  (2)           (2)  \
         *   /                       \
         *
-        * Perform a PartialT1Swap 
+        * Perform a PartialT1Swap
         */
         PerformT1Swap(pNodeA, pNodeB, all_indices);
     }
-    else if (all_indices.size()==4) // Correct set up for T1Swap 
+    else if (all_indices.size()==4) // Correct set up for T1Swap
     {
         /*
          * Looks like this
-         * 
+         *
          *   \(1)/
          *    \ / Node A
          * (2) |   (4)     elements in Brackets
          *    / \ Node B
          *   /(3)\
-         * 
+         *
          * Perform a T1Swap
-         * 
-         */  
+         *
+         */
         PerformT1Swap(pNodeA, pNodeB, all_indices);
     }
     else
@@ -1141,26 +1141,26 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA, 
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA,
                                                           Node<SPACE_DIM>* pNodeB,
                                                           std::set<unsigned> elementsContainingNodes)
 {
     c_vector<double, SPACE_DIM> node_midpoint = pNodeA->rGetLocation() + 0.5*GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
-    
+
     if (pNodeA->GetIndex() < pNodeB->GetIndex())
     {
         // Remove node B
         c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
         r_nodeA_location = node_midpoint;
-    
+
         for (std::set<unsigned>::const_iterator it = elementsContainingNodes.begin();
              it != elementsContainingNodes.end();
              ++it)
         {
             unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
             assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-        
-            mElements[*it]->DeleteNode(nodeB_local_index); 
+
+            mElements[*it]->DeleteNode(nodeB_local_index);
         }
     }
     else
@@ -1168,15 +1168,15 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
         // Remove node A
         c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
         r_nodeB_location = node_midpoint;
-    
+
         for (std::set<unsigned>::const_iterator it = elementsContainingNodes.begin();
              it != elementsContainingNodes.end();
              ++it)
         {
             unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
             assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-        
-            mElements[*it]->DeleteNode(nodeA_local_index); 
+
+            mElements[*it]->DeleteNode(nodeA_local_index);
         }
     }
 }
@@ -1192,68 +1192,68 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
     assert(SPACE_DIM == 2); // only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
-    
+
     /*
      * Restructure elements - remember to update nodes and elements.
-     * 
+     *
      * We need to implement the following changes:
-     * 
+     *
      * The element whose index was in nodeA_elem_indices but not nodeB_elem_indices,
      * and the element whose index was in nodeB_elem_indices but not nodeA_elem_indices,
-     * should now both contain nodes A and B. 
-     * 
-     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
-     * node C lies inside, should now only contain node A. 
-     * 
-     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which 
+     * should now both contain nodes A and B.
+     *
+     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which
+     * node C lies inside, should now only contain node A.
+     *
+     * The element whose index was in nodeA_elem_indices and nodeB_elem_indices, and which
      * node D lies inside, should now only contain node B.
-     * 
-     * Iterate over all elements involved and identify which element they are 
+     *
+     * Iterate over all elements involved and identify which element they are
      * in the diagram then update the nodes as necessary.
-     * 
+     *
      *   \(1)/
      *    \ / Node A
      * (2) |   (4)     elements in brackets
      *    / \ Node B
      *   /(3)\
-     * 
-     */  
+     *
+     */
 
     /*
-     * Compute the locations of two new nodes C, D, placed on either side of the 
-     * edge E_old formed by nodes current_node and anticlockwise_node, such 
-     * that the edge E_new formed by the new nodes is the perpendicular bisector 
+     * Compute the locations of two new nodes C, D, placed on either side of the
+     * edge E_old formed by nodes current_node and anticlockwise_node, such
+     * that the edge E_new formed by the new nodes is the perpendicular bisector
      * of E_old, with |E_new| 'just larger' than mThresholdDistance.
      */
-          
+
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
-    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();  
+    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
 
     double distance_between_nodes_CD = 2*mCellRearrangementThreshold;
 
     c_vector<double, SPACE_DIM> nodeA_location = pNodeA->rGetLocation();
     c_vector<double, SPACE_DIM> nodeB_location = pNodeB->rGetLocation();
 
-    c_vector<double, SPACE_DIM> a_to_b = GetVectorFromAtoB(nodeA_location, nodeB_location);    
+    c_vector<double, SPACE_DIM> a_to_b = GetVectorFromAtoB(nodeA_location, nodeB_location);
     c_vector<double, SPACE_DIM> perpendicular_vector;
     perpendicular_vector(0) = -a_to_b(1);
     perpendicular_vector(1) = a_to_b(0);
 
-    c_vector<double, SPACE_DIM> c_to_d = distance_between_nodes_CD / norm_2(a_to_b) * perpendicular_vector;    
+    c_vector<double, SPACE_DIM> c_to_d = distance_between_nodes_CD / norm_2(a_to_b) * perpendicular_vector;
     c_vector<double, SPACE_DIM> nodeC_location = nodeA_location + 0.5*a_to_b - 0.5*c_to_d;
     c_vector<double, SPACE_DIM> nodeD_location = nodeC_location + c_to_d;
 
     /*
      * Move node A to C and node B to D
      */
-     
+
     c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
     r_nodeA_location = nodeC_location;
-    
+
     c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
     r_nodeB_location = nodeD_location;
-    
+
     for (std::set<unsigned>::const_iterator it = elementsContainingNodes.begin();
          it != elementsContainingNodes.end();
          ++it)
@@ -1261,71 +1261,71 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
         if (nodeA_elem_indices.find(*it) == nodeA_elem_indices.end()) // not in nodeA_elem_indices so element 3
         {
             /*
-             * In this case the element index was not in 
-             * nodeA_elem_indices, so this element 
+             * In this case the element index was not in
+             * nodeA_elem_indices, so this element
              * does not contain node A. Therefore we must add node A
              * (which has been moved to node C) to this element.
              *
-             * Locate local index of node B in element then add node A after 
-             * in anticlockwise direction. 
-             */  
-            
+             * Locate local index of node B in element then add node A after
+             * in anticlockwise direction.
+             */
+
             unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
             assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-    
+
             mElements[*it]->AddNode(nodeB_local_index, pNodeA);
         }
         else if (nodeB_elem_indices.find(*it) == nodeB_elem_indices.end()) // not in nodeB_elem_indices so element 1
         {
             /*
-             * In this case the element index was not in 
+             * In this case the element index was not in
              * nodeB_elem_indices, so this element
              * does not contain node B. Therefore we must add node B
              * (which has been moved to node D) to this element.
              *
-             * Locate local index of node A in element then add node B after 
-             * in anticlockwise direction. 
-             */  
+             * Locate local index of node A in element then add node B after
+             * in anticlockwise direction.
+             */
             unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
             assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-            mElements[*it]->AddNode(nodeA_local_index, pNodeB); 
-        }    
+            mElements[*it]->AddNode(nodeA_local_index, pNodeB);
+        }
         else
         {
             /*
              * In this case the element index was in both nodeB_elem_indices and nodeB_elem_indices
-             * so is element 2 or 4 
+             * so is element 2 or 4
              */
-            
+
             /*
-             * Locate local index of nodeA and nodeB and use the oredering to 
+             * Locate local index of nodeA and nodeB and use the oredering to
              * identify the element if nodeB_index > nodeA_index then element 4
-             * and if nodeA_index > nodeB_index then element 2 
-             */  
+             * and if nodeA_index > nodeB_index then element 2
+             */
             unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
             assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-            
+
             unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
             assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-     
+
             unsigned nodeB_local_index_plus_one = (nodeB_local_index + 1)%(mElements[*it]->GetNumNodes());
-            
+
             if (nodeA_local_index == nodeB_local_index_plus_one)
             {
                 /*
-                 * In this case the local index of nodeA is the local index of 
+                 * In this case the local index of nodeA is the local index of
                  * nodeB plus one so we are in element 2 so we remove nodeB
                  */
-                 mElements[*it]->DeleteNode(nodeB_local_index); 
+                 mElements[*it]->DeleteNode(nodeB_local_index);
             }
             else
             {
                 assert(nodeB_local_index == (nodeA_local_index + 1)%(mElements[*it]->GetNumNodes())); // as A and B are next to each other
                 /*
-                 * In this case the local index of nodeA is the local index of 
+                 * In this case the local index of nodeA is the local index of
                  * nodeB minus one so we are in element 4 so we remove nodeA
-                 */             
-                 mElements[*it]->DeleteNode(nodeA_local_index); 
+                 */
+                 mElements[*it]->DeleteNode(nodeA_local_index);
             }
         }
     }
@@ -1355,13 +1355,13 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
     unsigned num_nodes = pElement->GetNumNodes();
 
-    // Store if the node is on the side of the short axis which the long axis points to 
+    // Store if the node is on the side of the short axis which the long axis points to
     bool is_on_left[num_nodes];
-    
+
     for (unsigned i=0; i<num_nodes; i++)
     {
-        c_vector<double, SPACE_DIM> node_location_from_centroid = pElement->GetNodeLocation(i) - centroid; 
-        
+        c_vector<double, SPACE_DIM> node_location_from_centroid = pElement->GetNodeLocation(i) - centroid;
+
         if (inner_prod(node_location_from_centroid, long_axis) >= 0)
         {
             is_on_left[i] = true;
@@ -1373,7 +1373,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     }
 
     std::vector<unsigned> intersecting_nodes;
-        
+
     for (unsigned i=0; i<num_nodes-1; i++)
     {
         if (is_on_left[i]!=is_on_left[i+1])
@@ -1393,7 +1393,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         #undef COVERAGE_IGNORE
     }
 
-    std::vector<unsigned> new_node_global_indices;  
+    std::vector<unsigned> new_node_global_indices;
 
     for (unsigned i=0; i<intersecting_nodes.size(); i++)
     {
@@ -1408,16 +1408,16 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         {
             position_b = pElement->GetNodeLocation(0);
         }
-        
+
         c_vector<double, SPACE_DIM> a_to_b = GetVectorFromAtoB(position_a, position_b);
-        
+
         /*
-         * Let the first one on edge be a and the second one be b, 
-         * then we are interested in position_a + alpha * a_to_b 
+         * Let the first one on edge be a and the second one be b,
+         * then we are interested in position_a + alpha * a_to_b
          */
 
         double determinant = a_to_b[0]*short_axis[1] - a_to_b[1]*short_axis[0];
-         
+
         double alpha = (centroid[0]*a_to_b[1] - position_a[0]*a_to_b[1]
                         -centroid[1]*a_to_b[0] + position_a[1]*a_to_b[0])/determinant;
 
@@ -1433,20 +1433,20 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     for (unsigned i=0; i<intersecting_nodes.size(); i++)
     {
         // Get pointers to the nodes forming the edge into which one new node will be inserted
-        
-        /* 
+
+        /*
          * Note that when we use the first entry of intersecting_nodes to add a node,
-         * we change the local index of the second entry of intersecting_nodes in 
+         * we change the local index of the second entry of intersecting_nodes in
          * pElement, so must account for this by moving one entry further on.
          */
 
-        Node<SPACE_DIM>* p_node_A = pElement->GetNode((intersecting_nodes[i]+i)%pElement->GetNumNodes());         
+        Node<SPACE_DIM>* p_node_A = pElement->GetNode((intersecting_nodes[i]+i)%pElement->GetNumNodes());
         Node<SPACE_DIM>* p_node_B = pElement->GetNode((intersecting_nodes[i]+i+1)%pElement->GetNumNodes());
 
         // Find the indices of the elements owned by each node on the edge into which one new node will be inserted
         std::set<unsigned> elems_containing_node1 = p_node_A->rGetContainingElementIndices();
         std::set<unsigned> elems_containing_node2 = p_node_B->rGetContainingElementIndices();
-    
+
         // Find common elements
         std::set<unsigned> shared_elements;
         std::set_intersection(elems_containing_node1.begin(),
@@ -1467,19 +1467,19 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
             unsigned index = local_indexB;
             if (local_indexB > local_indexA)
             {
-                index = local_indexA;                 
+                index = local_indexA;
             }
             if ( (local_indexA == 0) && (local_indexB == GetElement(*iter)->GetNumNodes()-1))
             {
                 index = local_indexB;
             }
-    		if ( (local_indexB == 0) && (local_indexA == GetElement(*iter)->GetNumNodes()-1))
+            if ( (local_indexB == 0) && (local_indexA == GetElement(*iter)->GetNumNodes()-1))
             {
                 index = local_indexA;
             }
 
             // Add new node to this element
-            GetElement(*iter)->AddNode(index, GetNode(new_node_global_indices[i]));    		
+            GetElement(*iter)->AddNode(index, GetNode(new_node_global_indices[i]));
         }
     }
 
@@ -1500,10 +1500,10 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
     // Sort nodeA and nodeB such that nodeBIndex>nodeAindex
     assert(nodeBIndex!=nodeAIndex);
-    
+
     unsigned node1Index;
     unsigned node2Index;
-    
+
     if (nodeAIndex < nodeBIndex)
     {
         node1Index = nodeAIndex;
@@ -1515,10 +1515,10 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         node2Index = nodeAIndex;
     }
 
-    // Copy element  
+    // Copy element
     std::vector<Node<SPACE_DIM>*> nodes_elem;
     unsigned num_nodes = pElement->GetNumNodes(); // store this as it changes when you delete nodes from element
-    
+
     for (unsigned i=0; i<num_nodes; i++)
     {
         nodes_elem.push_back(pElement->GetNode(i));
@@ -1533,14 +1533,14 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     {
         new_element_index = mDeletedElementIndices.back();
         mDeletedElementIndices.pop_back();
-        delete mElements[new_element_index];        
+        delete mElements[new_element_index];
     }
 
     AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
 
-    // Remove nodes  # < node1 and # > node2 from pElement  
+    // Remove nodes  # < node1 and # > node2 from pElement
     // Remove nodes node1 < # < node2 from new_element
-    
+
     for (unsigned i=num_nodes; i>0; i--)
     {
         if (i-1<node1Index || i-1>node2Index)
@@ -1562,7 +1562,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
     // Store numbers of nodes and elements
     unsigned num_nodes = rMeshReader.GetNumNodes();
     unsigned num_elements = rMeshReader.GetNumElements();
-    
+
     // Reserve memory for nodes
     mNodes.reserve(num_nodes);
 
@@ -1598,13 +1598,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
 
         VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
         mElements.push_back(p_element);
-    
+
         if (rMeshReader.GetNumElementAttributes() > 0)
         {
             assert(rMeshReader.GetNumElementAttributes() == 1);
             unsigned attribute_value = element_data.AttributeValue;
             p_element->SetRegion(attribute_value);
-        }        
+        }
     }
 }
 
@@ -1662,15 +1662,15 @@ bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<dou
         c_vector<double, SPACE_DIM> vector_a_to_b = GetVectorFromAtoB(vertexA, vertexB);
 
         // Pathological case - test point coincides with vertexA or vertexB
-        if (    (norm_2(vector_a_to_point) < DBL_EPSILON) 
+        if (    (norm_2(vector_a_to_point) < DBL_EPSILON)
              || (norm_2(vector_b_to_point) < DBL_EPSILON) )
         {
             return false;
         }
-        
+
         // Pathological case - ray coincides with horizontal edge
         if ( (fabs(vector_a_to_b[1]) < DBL_EPSILON) &&
-             (fabs(vector_a_to_point[1]) < DBL_EPSILON) && 
+             (fabs(vector_a_to_point[1]) < DBL_EPSILON) &&
              (fabs(vector_b_to_point[1]) < DBL_EPSILON) )
         {
             if ( (vector_a_to_point[0]>0) != (vector_b_to_point[0]>0) )
@@ -1681,7 +1681,7 @@ bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<dou
 
         /// \todo Need to carefully check all pathological cases (see #933)
 
-        // Non-pathological case        
+        // Non-pathological case
         if ( (vertexA[1]>y) != (vertexB[1]>y) )
         {
             if (x < vertexA[0] + vector_a_to_b[0]*vector_a_to_point[1]/vector_a_to_b[1])

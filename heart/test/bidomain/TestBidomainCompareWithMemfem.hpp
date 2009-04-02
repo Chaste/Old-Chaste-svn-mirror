@@ -78,13 +78,13 @@ public:
     void TestBidomainCompareWithMemfemBasic()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.19, 0.19, 1.79));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));                        
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         HeartConfig::Instance()->SetSimulationDuration(50.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/memfem_mesh/simple");
         HeartConfig::Instance()->SetOutputDirectory("Bidomain3d_CompareWithMemfem");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
-        
+
         BidomainPointStimulusCellFactory bidomain_cell_factory;
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );

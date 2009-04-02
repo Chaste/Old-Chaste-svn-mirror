@@ -93,7 +93,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(tissue.rGetCellUsingLocationIndex(0)); // real cell
         TS_ASSERT_THROWS_ANYTHING(tissue.rGetCellUsingLocationIndex(mesh.GetNumNodes()-1u)); // ghost node
-        
+
         // Now we label a real cell's node as a ghost
         ghost_node_indices.insert(1u);
 

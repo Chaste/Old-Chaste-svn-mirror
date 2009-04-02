@@ -57,9 +57,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mSize = lhsVectorSize;
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
-    
-    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna 
-    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...        
+
+    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
+    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
 }
@@ -80,11 +80,11 @@ LinearSystem::LinearSystem(Vec templateVector)
 
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, (MatType) MATMPIAIJ, local_size, local_size);
 
-    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna 
-    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...    
+    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
+    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
-    
+
 }
 
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
@@ -117,11 +117,11 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     }
     assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
 
-    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna 
-    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...        
+    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
+    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
-    
+
 }
 
 LinearSystem::~LinearSystem()
@@ -131,21 +131,21 @@ LinearSystem::~LinearSystem()
         VecDestroy(mRhsVector);
         MatDestroy(mLhsMatrix);
     }
-    
+
     if (mMatNullSpace)
     {
         MatNullSpaceDestroy(mMatNullSpace);
     }
-    
+
     if (mKspIsSetup)
     {
         KSPDestroy(mKspSolver);
     }
-    
+
     if(mDirichletBoundaryConditionsVector)
     {
         VecDestroy(mDirichletBoundaryConditionsVector);
-    }    
+    }
 }
 
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
@@ -270,23 +270,23 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
         if (GetMatrixElement(row, col) != 0.0)
         {
             nonzero_rows.push_back(row);
-        }    
+        }
     }
 
-    // set those rows to be zero by calling MatSetValues    
+    // set those rows to be zero by calling MatSetValues
     unsigned size = nonzero_rows.size();
     PetscInt* rows = new PetscInt[size];
     PetscInt cols[1];
     double* zeros = new double[size];
-    
+
     cols[0] = col;
-    
+
     for (unsigned i=0; i<size; i++)
     {
         rows[i] = nonzero_rows[i];
-        zeros[i] = 0.0;        
+        zeros[i] = 0.0;
     }
-    
+
     MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
     delete [] rows;
     delete [] zeros;
@@ -371,7 +371,7 @@ Mat& LinearSystem::rGetLhsMatrix()
 
 Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
 {
-    return mDirichletBoundaryConditionsVector;   
+    return mDirichletBoundaryConditionsVector;
 }
 
 void LinearSystem::SetMatrixIsSymmetric()
@@ -418,7 +418,7 @@ void LinearSystem::SetKspType(const char *kspType)
 void LinearSystem::SetPcType(const char *pcType)
 {
     strcpy(mPcType, pcType);
-	if (mKspIsSetup)
+    if (mKspIsSetup)
     {
         PC prec;
         KSPGetPC(mKspSolver, &prec);
@@ -469,10 +469,10 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
 
         // set ksp and pc types
-		KSPSetType(mKspSolver, mKspType);
+        KSPSetType(mKspSolver, mKspType);
         KSPGetPC(mKspSolver, &prec);
- 
-        
+
+
         // Turn off pre-conditioning if the system size is very small
        if (mSize <= 4)
         {
@@ -564,7 +564,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 //    VecView(mRhsVector, viewer);
 //    PetscViewerFlush(viewer);
 //    PetscViewerDestroy(viewer);
-    
+
     try
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);

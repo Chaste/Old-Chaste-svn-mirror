@@ -41,9 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerIvpOdeSolver.hpp"
 
 /**
- * This class contains tests for Alarcon2004OxygenBasedCellCycleOdeSystem, 
- * a system of ODEs that are used by the cell cycle model 
- * Alarcon2004OxygenBasedCellCycleModel to determine when a cell is ready 
+ * This class contains tests for Alarcon2004OxygenBasedCellCycleOdeSystem,
+ * a system of ODEs that are used by the cell cycle model
+ * Alarcon2004OxygenBasedCellCycleModel to determine when a cell is ready
  * to divide.
  */
 class TestAlarcon2004OxygenBasedCellCycleOdeSystem : public CxxTest::TestSuite
@@ -51,17 +51,17 @@ class TestAlarcon2004OxygenBasedCellCycleOdeSystem : public CxxTest::TestSuite
 public:
 
     /**
-     * Test derivative calculations (correct values calculated using Matlab). 
+     * Test derivative calculations (correct values calculated using Matlab).
      */
     void TestAlarcon2004Equations()
     {
         // Set up
         double time = 0.0;
         double oxygen_concentration = 1.0;
-        
+
         Alarcon2004OxygenBasedCellCycleOdeSystem normal_system(oxygen_concentration, HEALTHY);
         Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system(oxygen_concentration, LABELLED);
-        
+
         std::vector<double> initial_conditions = normal_system.GetInitialConditions();
 
         std::vector<double> normal_derivs(initial_conditions.size());
@@ -81,7 +81,7 @@ public:
         TS_ASSERT_DELTA(normal_derivs[3], 1.50000000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs[4], -5.4060000000, 1e-5);
         TS_ASSERT_DELTA(normal_derivs[5], 0.00000000000, 1e-5);
-        
+
         // Cancer cell
         TS_ASSERT_DELTA(cancer_derivs[0], 455.630699088, 1e-5);
         TS_ASSERT_DELTA(cancer_derivs[1], 1.83600000000, 1e-5);
@@ -91,9 +91,9 @@ public:
         TS_ASSERT_DELTA(cancer_derivs[5], 0.00000000000, 1e-5);
 
         /**
-         * Again test derivatives are correct initially, but for 
-         * different initial conditions (corresponding to a low 
-         * oxygen concentration). The usual initial condition for 
+         * Again test derivatives are correct initially, but for
+         * different initial conditions (corresponding to a low
+         * oxygen concentration). The usual initial condition for
          * z is zero, so we need to change it to see any difference.
          */
         oxygen_concentration = 0.1;
@@ -131,27 +131,27 @@ public:
 
     /**
      * Test two ODE solvers with this ODE system (correct values calculated using the Matlab solver ode15s).
-     * 
-     */ 
+     *
+     */
     void TestAlarcon2004Solver() throw(Exception)
     {
         // Set up
         double oxygen_concentration = 1.0;
         Alarcon2004OxygenBasedCellCycleOdeSystem alarcon_system(oxygen_concentration, HEALTHY);
-        
+
         // Create ODE solvers
         RungeKutta4IvpOdeSolver rk4_solver;
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         BackwardEulerIvpOdeSolver back_solver(6);
 
-        // Set up for solver      
+        // Set up for solver
         OdeSolution solutions;
         std::vector<double> initial_conditions = alarcon_system.GetInitialConditions();
         double start_time = 0.0;
         double end_time = 0.0;
         double elapsed_time = 0.0;
         double h_value = 1e-4; // maximum tolerance
-        
+
         // Solve the ODE system using a Runge Kutta fourth order solver
         start_time = std::clock();
         solutions = rk4_solver.Solve(&alarcon_system, initial_conditions, 0.0, 10.0, h_value, h_value);
@@ -161,7 +161,7 @@ public:
 
         // Reset maximum tolerance for Runge Kutta Fehlber solver
         h_value = 1e-1;
-        
+
         // Solve the ODE system using a Runge Kutta Fehlber solver
         initial_conditions = alarcon_system.GetInitialConditions();
         start_time = std::clock();

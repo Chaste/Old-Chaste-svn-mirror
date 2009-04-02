@@ -117,7 +117,7 @@ public:
      *  been set (ie Close() wasn't called the last time a log was used).
      *
      *  The directory is never cleaned.
-     * 
+     *
      *  @param level
      *  @param directory
      *  @param fileName  the name of the file to write to, relative to the output directory
@@ -128,11 +128,11 @@ public:
      *  Get the maximum allowed logging level.
      */
     static unsigned MaxLoggingLevel();
-    
+
     /**
-     *  Set the precision to write data (the 'decimal precision', look up 
+     *  Set the precision to write data (the 'decimal precision', look up
      *  documentation for std::setprecision()).
-     * 
+     *
      *  @param precision
      */
     void SetPrecision(unsigned precision);
@@ -148,7 +148,7 @@ public:
 
     /**
      *  Write the elapsed time since the simulation began (since the log file was created).
-     * 
+     *
      *  @param pre a string (eg spacings) to write before the elapsed time line.
      */
     void WriteElapsedTime(std::string pre="");
@@ -166,7 +166,7 @@ public:
     /**
      *  Overloaded << operator, to write to the log file, if one has been set, and
      *  does nothing if not.
-     * 
+     *
      *  @param message the message to write to the log file
      */
     template <class T>

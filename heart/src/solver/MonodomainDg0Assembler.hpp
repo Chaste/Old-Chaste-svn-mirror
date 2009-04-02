@@ -97,7 +97,7 @@ protected:
 
     virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime);
 
-    
+
     void InitialiseForSolve(Vec initialSolution);
 
 

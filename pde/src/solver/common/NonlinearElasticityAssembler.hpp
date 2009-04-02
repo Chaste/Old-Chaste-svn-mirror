@@ -28,16 +28,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NONLINEARELASTICITYASSEMBLER_HPP_
 #define NONLINEARELASTICITYASSEMBLER_HPP_
 
-/* 
+/*
  * NOTE ON COMPILATION ERRORS:
- * 
- * This file won't compile with Intel icpc version 9.1.039, with error message: 
+ *
+ * This file won't compile with Intel icpc version 9.1.039, with error message:
  * "Terminate with:
   (0): internal error: backend signals"
  *
  * Try recompiling with icpc version 10.0.025.
  */
- 
+
 
 //todos:
 //factor out Dof handling?
@@ -49,26 +49,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GaussianQuadratureRule.hpp"
 
 /**
- *  Finite elasticity assembler. Solves static incompressible nonlinear elasticity 
+ *  Finite elasticity assembler. Solves static incompressible nonlinear elasticity
  *  problems with arbitrary material laws and a body force.
- *  
+ *
  *  Uses quadratic-linear bases (for displacement and pressure), and is therefore
- *  outside the assembler hierachy. 
- * 
+ *  outside the assembler hierachy.
+ *
  *  Currently only works with fixed nodes BCs (ie zerodisplacement) and zero-surface
  *  tractions on the rest of the boundary.
- */ 
+ */
 template<size_t DIM>
 class NonlinearElasticityAssembler : public AbstractNonlinearElasticityAssembler<DIM>
 {
     friend class TestNonlinearElasticityAssembler;
-    
+
 protected:
     static const size_t NUM_VERTICES_PER_ELEMENT = DIM+1;
     static const size_t NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
-    static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT; 
+    static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT;
     static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
-    static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM; 
+    static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
 
     /**
      *  The mesh to be solved on. Requires 6 nodes per triangle (or 10 per tetrahedron)
@@ -82,8 +82,8 @@ protected:
 
     GaussianQuadratureRule<DIM>* mpQuadratureRule;
     GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
-    
-    /** 
+
+    /**
      *  Assemble residual or jacobian on an element, using the current solution
      *  stored in mCurrrentSolution. The ordering assumed is (in 2d)
      *  rBelem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
@@ -94,7 +94,7 @@ protected:
                                    c_vector<double, STENCIL_SIZE>& rBElem,
                                    bool assembleResidual,
                                    bool assembleJacobian);
-    
+
     /**
      *  Compute the term from the surface integral of s*phi, where s is
      *  a specified non-zero surface traction (ie Neumann boundary condition)
@@ -116,11 +116,11 @@ protected:
      *  [0 0 0 0 ... 0 0 p1 p2 .. pM]
      *  where p_i are such that T is zero (depends on material law).
      *
-     *  In a homogeneous problem, all p_i are the same. 
-     *  In a heterogeneous problem, p for a given vertex is the 
-     *  zero-strain-pressure for ONE of the elements containing that 
+     *  In a homogeneous problem, all p_i are the same.
+     *  In a heterogeneous problem, p for a given vertex is the
+     *  zero-strain-pressure for ONE of the elements containing that
      *  vertex (which element containing the vertex is reached LAST). In
-     *  this case the initial guess will be close but not exactly the 
+     *  this case the initial guess will be close but not exactly the
      *  solution given zero body force.
      */
     void FormInitialGuess();
@@ -128,7 +128,7 @@ protected:
     /**
      *  Assemble the residual vector (using the current solution stored
      *  in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
-     *  or Jacobian matrix (using the current solution stored in 
+     *  or Jacobian matrix (using the current solution stored in
      *  mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
      */
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
@@ -137,7 +137,7 @@ protected:
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations);
 
 public:
-    /** 
+    /**
      *  Constructor taking in mesh, material law (assuming homogeniety at the moment)
      *  body force, density, the fixed nodes (all the fixed nodes, including non-vertices),
      *  and the output directory.
@@ -149,7 +149,7 @@ public:
                                  std::string outputDirectory,
                                  std::vector<unsigned>& fixedNodes,
                                  std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
-    
+
     /** Variant constructor taking a vector of material laws */
     NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
                                  std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
@@ -161,7 +161,7 @@ public:
 
     /** Destructor frees memory for quadrature rules */
     ~NonlinearElasticityAssembler();
-    
+
     /**
      *  Specify traction boundary conditions (if this is not called zero surface
      *  tractions are assumed. This method takes in a list of boundary elements
@@ -176,9 +176,9 @@ public:
       */
     void SetFunctionalTractionBoundaryCondition(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
                                                 c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
-    
+
     std::vector<double>& rGetPressures();
-    
+
     /**
      *  Get the deformed position. Note returnvalue[i](j) = x_j for node i
      */

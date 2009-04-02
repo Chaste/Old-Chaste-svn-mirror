@@ -33,7 +33,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
         : AbstractOdeSystem(6)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>);
-    
+
     /**
      * State variables
      *
@@ -65,7 +65,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
         mxThreshold = 0.04; // should this be 0.004??
         myThreshold = 0.05;
     }
-    
+
     // Cell-specific initial conditions
     SetInitialConditionsComponent(3u, mMstar/2.0);
     SetInitialConditionsComponent(5u, oxygenConcentration);
@@ -186,6 +186,6 @@ void CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>::Ini
     this->mVariableNames.push_back("O2");
     this->mVariableUnits.push_back("non_dim");
     this->mInitialConditions.push_back(NAN); // will be filled in later
-    
+
     this->mInitialised = true;
 }

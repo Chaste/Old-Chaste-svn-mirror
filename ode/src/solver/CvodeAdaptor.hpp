@@ -45,10 +45,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The CVODE solvers require the RHS of the ODE system to be defined
  * by a function of this type.  We use pData to access the Chaste ODE system,
  * and call EvaluateYDerivatives appropriately.
- * 
+ *
  * Note that this requires copying the state variable and derivatives vectors,
  * and thus introduces a slight overhead.
- * 
+ *
  * @param t  the current time
  * @param y  the current state variable values
  * @param ydot  to be filled in with the derivatives
@@ -61,16 +61,16 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pData);
  * CVODE root-finder function adaptor.
  *
  * Adapt the Chaste AbstractOdeSystem::CalculateStoppingEvent method for use by CVODE.
- * 
+ *
  * This function computes a vector-valued function g(t, y) such that the roots of the
  * components g_i(t, y) are to be found during the integration.
- * 
+ *
  * Unfortunately, AbstractOdeSystem::CalculateStoppingEvent returns a boolean value,
  * so we have to cheat in the definition of g.
- * 
+ *
  * Note that this function requires copying the state variable vector, and thus
  * introduces a slight overhead.
- * 
+ *
  * @param t  the current time
  * @param y  the current state variable values
  * @param pGOut  pointer to array to be filled in with the g_i(t, y) values
@@ -114,10 +114,10 @@ typedef struct CvodeData_ {
  *
  * The timeStep parameters of the abstract class are here used to specify
  * *maximum* steps, since the solver is adaptive.
- * 
+ *
  * Note that a call to Solve will initialise the CVODE solver, and free its
  * working memory when done.  There is thus a non-trivial overhead involved.
- * 
+ *
  * \todo Add an option to just initialise once, and assume subsequent Solve
  *   calls are continuing from where we left off.
  */
@@ -144,7 +144,7 @@ private:
     double mLastInternalStepSize;
 
     /**
-     * The maximum number of steps to be taken by the solver 
+     * The maximum number of steps to be taken by the solver
      * in its attempt to reach the next output time.
      */
     long int mMaxSteps;
@@ -168,7 +168,7 @@ protected:
 
     /**
      * Report an error from CVODE.
-     * 
+     *
      * This will (probably) never be called, since we supply an error handler function
      * which throws an exception.
      */
@@ -179,16 +179,16 @@ public:
     /**
      * Default constructor.
      * Can optionally set relative and absolute tolerances.
-     * 
+     *
      * @param relTol the relative tolerance for the solver (defaults to 1e-4)
      * @param absTol the absolute tolerance for the solver (defaults to 1e-6)
      */
     CvodeAdaptor(double relTol=1e-4, double absTol=1e-6);
-    
+
     /**
      * Set relative and absolute tolerances; both scalars.
      * If no parameters are given, tolerances will be reset to default values.
-     * 
+     *
      * @param relTol the relative tolerance for the solver (defaults to 1e-4)
      * @param absTol the absolute tolerance for the solver (defaults to 1e-6)
      */
@@ -203,7 +203,7 @@ public:
      * Get the absolute tolerance.
      */
     double GetAbsoluteTolerance();
-    
+
     /**
      * Get the last step size used internally by CVODE in the last Solve call
      */
@@ -211,7 +211,7 @@ public:
 
     /**
      * Solve the given ODE system, returning the solution at sampling intervals.
-     * 
+     *
      * @param pOdeSystem  the ODE system to solve
      * @param rYValues  the initial state variable values
      *   (note: this vector will also be used as working memory)
@@ -230,7 +230,7 @@ public:
 
     /**
      * Solve the given ODE system, storing the final result in rYValues.
-     * 
+     *
      * @param pOdeSystem  the ODE system to solve
      * @param rYValues  the initial state variable values; will be filled in with
      *   the final values on return
@@ -246,7 +246,7 @@ public:
 
     /**
      * Make the solver check for stopping events using CVODE's rootfinding functionality.
-     * 
+     *
      * By default we do not check.
      */
     void CheckForStoppingEvents();

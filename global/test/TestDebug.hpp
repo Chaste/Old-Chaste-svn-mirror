@@ -41,15 +41,15 @@ public:
         TRACE("Some trace");
         //Note that these macros do nothing in NDEBUG -- we should ensure that the variables get used anyway.
         double use_vars=0.0;
-        
+
         unsigned my_var = 3141;
         PRINT_VARIABLE(my_var);
         use_vars += (double) my_var;
-        
+
         double another_var = 2.81;
         PRINT_VARIABLES(my_var, another_var);
         use_vars += another_var;
-        
+
         double cancer_curing_constant = 0.053450242435;
         PRINT_3_VARIABLES(my_var, another_var, cancer_curing_constant);
         use_vars += cancer_curing_constant;
@@ -59,22 +59,22 @@ public:
         use_vars += heart_disease_ending_constant;
 
         TRACE("\n\n\n");
-        
+
         for(unsigned i=0; i<10; i++)
         {
             HOW_MANY_TIMES_HERE("inside for loop");
-            
+
             for(unsigned j=0; j<2; j++)
             {
                 HOW_MANY_TIMES_HERE("nested loop");
             }
         }
-        
+
         for(unsigned j=0; j<10 /*change to 11 and it should quit*/; j++)
         {
             QUIT_AFTER_N_VISITS(11);
         }
-        
+
         std::cout << "\n\n\n";
 
         for(unsigned j=0; j<3; j++)

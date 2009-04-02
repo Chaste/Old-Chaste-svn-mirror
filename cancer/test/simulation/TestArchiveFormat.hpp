@@ -65,17 +65,17 @@ public:
      * - To do this re-run TestGenerateSteadyStateCrypt.hpp
      * - Archives produced can then be copied to cancer/test/data/<test below>/archive/
      *
-     * Note that when updating the archive, you can run TestGenerateSteadyStateCrypt.hpp 
+     * Note that when updating the archive, you can run TestGenerateSteadyStateCrypt.hpp
      * with build=GccOpt to speed up the test.
      */
     void TestLoadArchive() throw (Exception)
     {
         // Set start time
         SimulationTime::Instance()->SetStartTime(0.0);
-        
+
         // Directory in which the stored results were archived
         std::string test_to_profile = "SteadyStateCrypt";
-        
+
         // Simulation time at which the stored results were archived
         double t = 150;
 
@@ -87,11 +87,11 @@ public:
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string test_data_directory = "cancer/test/data/" + test_to_profile +"/";
         std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";
- 
+
         // Test that the above command was implemented successfully
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
-        
+
         // Load and run crypt simulation
         CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t + 1);
@@ -127,7 +127,7 @@ public:
         TS_ASSERT_DELTA(p_inst->GetApoptoticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
-        
+
         // Tidy up
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();

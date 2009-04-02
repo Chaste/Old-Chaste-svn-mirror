@@ -84,7 +84,7 @@ protected:
 
     BidomainPde<SPACE_DIM>* mpBidomainPde;
 
-	HeartConfig* mpConfig;
+    HeartConfig* mpConfig;
 
     // quantities to be interpolated
     double mIionic;

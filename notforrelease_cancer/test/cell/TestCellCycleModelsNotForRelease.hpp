@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * This class contains tests for methods on cell 
+ * This class contains tests for methods on cell
  * cycle models that are not yet ready for release.
  */
 class TestCellCycleModelsNotForRelease : public AbstractCancerTestSuite
@@ -112,8 +112,8 @@ public:
         // Tidy up
         CellwiseData<1>::Destroy();
     }
-    
-    
+
+
     void TestSimpleOxygenBasedCellCycleModel() throw(Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
@@ -267,8 +267,8 @@ public:
         // Tidy up
         CellwiseData<3>::Destroy();
     }
-    
-    
+
+
     void TestStochasticDivisionRuleCellCycleModel() throw(Exception)
     {
         // Set up the simulation time
@@ -382,14 +382,14 @@ public:
         cell7.InitialiseCellCycleModel();
         TS_ASSERT_EQUALS(p_cycle_model7->GetGeneration(), 0u);
     }
-    
-    
+
+
     void TestStochasticOxygenBasedCellCycleModel() throw(Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetHepaOneParameters();
 
-        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration 
+        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration
         // are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
@@ -563,7 +563,7 @@ public:
             // Create cell cycle model and associated cell
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel(3);
             TissueCell cell(STEM, HEALTHY, p_cell_model);
-            
+
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
 
@@ -576,9 +576,9 @@ public:
             // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // Archive cell
-            TissueCell* const p_cell = &cell;            
+            TissueCell* const p_cell = &cell;
             output_arch << p_cell;
 
             // Tidy up
@@ -727,8 +727,8 @@ public:
             TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12);
         }
     }
-    
-    
+
+
     void TestArchiveStochasticOxygenBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
@@ -747,7 +747,7 @@ public:
             // Create cell cycle model and associated cell
             StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel(3);
             TissueCell cell(STEM, HEALTHY, p_cell_model);
-            
+
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetBirthTime(-1.0);
 
@@ -756,9 +756,9 @@ public:
             // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // Archive cell
-            TissueCell* const p_cell = &cell;            
+            TissueCell* const p_cell = &cell;
             output_arch << p_cell;
 
             // Tidy up
@@ -799,7 +799,7 @@ public:
             delete p_cell;
         }
     }
-    
+
 };
 
 #endif /*TESTCELLCYCLEMODELSNOTFORRELEASE_HPP_*/

@@ -96,13 +96,13 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
         Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
         this->mElements.push_back(p_element);
-    
+
         if (rMeshReader.GetNumElementAttributes() > 0)
         {
             assert(rMeshReader.GetNumElementAttributes() == 1);
             unsigned attribute_value = element_data.AttributeValue;
             p_element->SetRegion(attribute_value);
-        }        
+        }
     }
 
 
@@ -112,7 +112,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     {
         ElementData face_data = rMeshReader.GetNextFaceData();
         std::vector<unsigned> node_indices = face_data.NodeIndices;
-        
+
         bool is_boundary_face = true;
 
         // Determine if this is a boundary face
@@ -160,7 +160,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             {
                 is_boundary_face = false;
             }
-            
+
             // in 1D QUADRATICS, all nodes are faces, so internal nodes which don't have any
             // containing elements must also be unmarked as a boundary face
             if( (ELEMENT_DIM==1) && (containing_element_indices.size()==0))
@@ -188,17 +188,17 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             // The added elements will be deleted in our destructor
             BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
             this->mBoundaryElements.push_back(p_boundary_element);
-            
+
             if (rMeshReader.GetNumFaceAttributes() > 0)
             {
                 assert(rMeshReader.GetNumFaceAttributes() == 1);
                 unsigned attribute_value = face_data.AttributeValue;
                 p_boundary_element->SetRegion(attribute_value);
-            }         
+            }
             actual_face_index++;
         }
     }
-    
+
     RefreshJacobianCachedData();
 }
 
@@ -272,14 +272,14 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
 
     double mesh_surface = 0.0;
     typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator it = this->GetBoundaryElementIteratorBegin();
-    
+
     c_vector<double,SPACE_DIM> element_w_dir;
     double element_determinant;
-    
+
     while (it != this->GetBoundaryElementIteratorEnd())
     {
-        GetWeightedDirectionForBoundaryElement( (*it)->GetIndex(), element_w_dir, element_determinant );       
-        mesh_surface += element_determinant; 
+        GetWeightedDirectionForBoundaryElement( (*it)->GetIndex(), element_w_dir, element_determinant );
+        mesh_surface += element_determinant;
         it++;
     }
 
@@ -650,7 +650,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width
             this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(node_index-1, nodes) );
         }
     }
-    
+
     RefreshJacobianCachedData();
 }
 
@@ -748,7 +748,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
             this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
         }
     }
-    
+
     RefreshJacobianCachedData();
 }
 
@@ -1076,7 +1076,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
             }//i
         }//j
     }//k
-    
+
     RefreshJacobianCachedData();
 }
 
@@ -1411,7 +1411,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<E
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
-{    
+{
     for (unsigned i=0; i<this->mElements.size();i++)
     {
         if (!this->mElements[i]->IsDeleted())
@@ -1475,26 +1475,26 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
     {
         this->mElementWeightedDirections.resize(this->GetNumAllElements());
     }
-    
+
     this->mBoundaryElementWeightedDirections.resize(this->GetNumAllBoundaryElements());
-    
+
     this->mElementJacobianDeterminants.resize(this->GetNumAllElements());
     this->mBoundaryElementJacobianDeterminants.resize(this->GetNumAllBoundaryElements());
-    
+
     // Update caches
     if (ELEMENT_DIM == SPACE_DIM)
     {
-        for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();    
+        for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();
               it != this->GetElementIteratorEnd();
               it++)
-        { 
+        {
             unsigned index=(*it)->GetIndex();
-            (*it)->CalculateInverseJacobian(this->mElementJacobians[index], this->mElementJacobianDeterminants[index], this->mElementInverseJacobians[index]);            
-        }        
+            (*it)->CalculateInverseJacobian(this->mElementJacobians[index], this->mElementJacobianDeterminants[index], this->mElementInverseJacobians[index]);
+        }
     }
     else
     {
-        for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();    
+        for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();
               it != this->GetElementIteratorEnd();
               it++)
         {
@@ -1502,18 +1502,18 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
              (*it)->CalculateWeightedDirection(this->mElementWeightedDirections[index], this->mElementJacobianDeterminants[index]);
         }
     }
-    
-    
 
-    for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator itb = this->GetBoundaryElementIteratorBegin();    
+
+
+    for ( typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator itb = this->GetBoundaryElementIteratorBegin();
           itb != this->GetBoundaryElementIteratorEnd();
           itb++)
     {
         unsigned index = (*itb)->GetIndex();
-        (*itb)->CalculateWeightedDirection(this->mBoundaryElementWeightedDirections[index], this->mBoundaryElementJacobianDeterminants[index]);        
-    }    
+        (*itb)->CalculateWeightedDirection(this->mBoundaryElementWeightedDirections[index], this->mBoundaryElementJacobianDeterminants[index]);
+    }
 
-    
+
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1528,8 +1528,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianForElement(unsigned ele
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const
 {
-    assert(ELEMENT_DIM == SPACE_DIM);    
-    assert(elementIndex < this->mElementInverseJacobians.size());    
+    assert(ELEMENT_DIM == SPACE_DIM);
+    assert(elementIndex < this->mElementInverseJacobians.size());
     rInverseJacobian = this->mElementInverseJacobians[elementIndex];
     rJacobian = this->mElementJacobians[elementIndex];
     rJacobianDeterminant = this->mElementJacobianDeterminants[elementIndex];
@@ -1538,11 +1538,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(unsig
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const
 {
-    assert(ELEMENT_DIM < SPACE_DIM);    
-    assert(elementIndex < this->mElementWeightedDirections.size());    
+    assert(ELEMENT_DIM < SPACE_DIM);
+    assert(elementIndex < this->mElementWeightedDirections.size());
     rWeightedDirection = this->mElementWeightedDirections[elementIndex];
     rJacobianDeterminant = this->mElementJacobianDeterminants[elementIndex];
-}    
+}
 
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 //double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForElement(unsigned elementIndex) const
@@ -1556,10 +1556,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForElement(uns
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const
 {
-    assert(elementIndex < this->mBoundaryElementWeightedDirections.size());    
+    assert(elementIndex < this->mBoundaryElementWeightedDirections.size());
     rWeightedDirection = this->mBoundaryElementWeightedDirections[elementIndex];
     rJacobianDeterminant = this->mBoundaryElementJacobianDeterminants[elementIndex];
-}    
+}
 
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 //double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const

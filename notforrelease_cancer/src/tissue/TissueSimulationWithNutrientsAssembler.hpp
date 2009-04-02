@@ -51,13 +51,13 @@ class TissueSimulationWithNutrientsAssembler
 
 private:
 
-    /** 
+    /**
      * The constant in u part of the source term, interpolated onto
      *  the current point
      */
     double mConstantInUSourceTerm;
 
-    /** 
+    /**
      * The linear in u part of the source term, interpolated onto
      *  the current point
      */
@@ -68,7 +68,7 @@ protected:
     /**
      *  The SimpleLinearEllipticAssembler version of this method is
      *  overloaded using the interpolated source term.
-     * 
+     *
      * @param rPhi
      * @param rGradPhi
      * @param rX
@@ -87,7 +87,7 @@ protected:
     /**
      *  The SimpleLinearEllipticAssembler version of this method is
      *  overloaded using the interpolated source term.
-     * 
+     *
      * @param rPhi
      * @param rGradPhi
      * @param rX
@@ -110,7 +110,7 @@ protected:
 
     /**
      * Overridden ResetInterpolatedQuantities() method.
-     * 
+     *
      * @param phiI
      * @param pNode
      */
@@ -120,7 +120,7 @@ public:
 
     /**
      * Constructor stores the mesh and PDE and boundary conditions.
-     * 
+     *
      * @param pMesh
      * @param pPde
      * @param pBoundaryConditions

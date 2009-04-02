@@ -237,7 +237,7 @@ protected:
     {}
 
     /**
-     *  Can be overloaded if the user needs to edit the linear system after the boundary 
+     *  Can be overloaded if the user needs to edit the linear system after the boundary
      *  conditions have been added by before it is solved
      */
     virtual void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix)
@@ -283,15 +283,15 @@ protected:
 
 
     /**
-     *  Apply Neumann boundary conditions to the RHS vector by looping over 
+     *  Apply Neumann boundary conditions to the RHS vector by looping over
      *  surface elements (though actually looping over the boundary condition
      *  objects).
-     * 
-     *  Note for PROBLEM_DIM>1. We assume that if an element has a boundary 
-     *  condition on any unknown there is a boundary condition on unknown 0. 
-     *  This can be so for any problem by adding zero constant conditions 
-     *  where required although this is a bit inefficient. Proper solution 
-     *  involves changing BCC to have a map of arrays boundary conditions 
+     *
+     *  Note for PROBLEM_DIM>1. We assume that if an element has a boundary
+     *  condition on any unknown there is a boundary condition on unknown 0.
+     *  This can be so for any problem by adding zero constant conditions
+     *  where required although this is a bit inefficient. Proper solution
+     *  involves changing BCC to have a map of arrays boundary conditions
      *  rather than an array of maps.
      */
     void ApplyNeummanBoundaryConditions()
@@ -319,7 +319,7 @@ protected:
         }
         HeartEventHandler::EndEvent(HeartEventHandler::NEUMANN_BCS);
     }
-    
+
 public:
 
     /**

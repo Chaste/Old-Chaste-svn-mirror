@@ -27,7 +27,7 @@ public:
         mpSystemInfo = OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Instance();
         Init();
     }
-    
+
     /**
      * Alternative constructor with the same signature as forwards Euler models.
      */
@@ -698,7 +698,7 @@ void OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Initialise(void)
     this->mVariableNames.push_back("Ca_SR");
     this->mVariableUnits.push_back("micromolar");
     this->mInitialConditions.push_back(320);
-    
+
     this->mInitialised = true;
 }
 

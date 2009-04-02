@@ -97,7 +97,7 @@ public:
 
         TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumElements(), 260u);
         TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumElementAttributes(), 0u);
-        
+
         delete mpFemlabMeshReader;
     }
 

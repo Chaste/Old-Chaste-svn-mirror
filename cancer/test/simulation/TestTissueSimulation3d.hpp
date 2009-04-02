@@ -94,12 +94,12 @@ public:
         }
 
         MeshBasedTissue<3> tissue(mesh,cells);
-        
+
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>* > force_collection;
         force_collection.push_back(&linear_force);
-        
+
         TissueSimulation<3> simulator(tissue, force_collection);
 
         unsigned num_births = simulator.DoCellBirth();
@@ -127,12 +127,12 @@ public:
         cells.push_back(cell);
 
         MeshBasedTissue<3> tissue(mesh,cells);
-        
+
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>* > force_collection;
         force_collection.push_back(&linear_force);
-        
+
         TissueSimulation<3> simulator(tissue, force_collection);
 
         TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth","StartMesh");
@@ -172,13 +172,13 @@ public:
             cells.push_back(cell);
         }
 
-        MeshBasedTissue<3> tissue(mesh,cells);        
-        
+        MeshBasedTissue<3> tissue(mesh,cells);
+
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>* > force_collection;
         force_collection.push_back(&linear_force);
-        
+
         TissueSimulation<3> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
 
@@ -219,7 +219,7 @@ public:
         for (unsigned i=0; i<num_nodes; i++)
         {
             c_vector<double, 3> node_location = mesh.GetNode(i)->rGetLocation();
-            
+
             unsigned min_spatial_dimension;
             if (width <= height && width <= depth)
             {
@@ -236,7 +236,7 @@ public:
                     min_spatial_dimension = depth;
                 }
             }
-            
+
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
@@ -247,7 +247,7 @@ public:
             if ( norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
             {
                 location_indices.push_back(i);
-                cells.push_back(cell);                
+                cells.push_back(cell);
             }
         }
 
@@ -256,13 +256,13 @@ public:
         TS_ASSERT_EQUALS(location_indices.size(), 8u);
 
         // Test Save with a MeshBasedTissueWithGhostNodes
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);        
-                
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
+
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<3>*> force_collection;
         force_collection.push_back(&linear_force);
-        
+
         TissueSimulation<3> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
         simulator.SetEndTime(0.1);
@@ -292,7 +292,7 @@ public:
 
     void TestLoadOf3DSimulation() throw (Exception)
     {
-        {   
+        {
             // With ghost nodes - 56 ghosts 8 real cells.
             TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();

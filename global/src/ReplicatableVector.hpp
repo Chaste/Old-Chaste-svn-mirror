@@ -66,14 +66,14 @@ public:
     /**
      * Constructor taking in Petsc vector, which is immediately
      * replicated into the internal data
-     * 
+     *
      * @param vec a Petsc vector
      */
     ReplicatableVector(Vec vec);
 
     /**
      * Constructor to make a vector of given size.
-     * 
+     *
      * @param size the size of the vector
      */
     ReplicatableVector(unsigned size);
@@ -98,7 +98,7 @@ public:
 
     /**
      * Access the vector.
-     * 
+     *
      * @param index the index of the vector to return
      */
     double& operator[](unsigned index);

@@ -50,7 +50,7 @@ AbstractCardiacPde<SPACE_DIM>::AbstractCardiacPde(
     assert(pCellFactory!=NULL);
     assert(pCellFactory->GetMesh()!=NULL);
 
-    std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();        
+    std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();
 
     // check number of processor agrees with definition in mesh
     if((r_nodes_per_processor.size() != 0) && (r_nodes_per_processor.size() != PetscTools::NumProcs()) )
@@ -83,7 +83,7 @@ AbstractCardiacPde<SPACE_DIM>::AbstractCardiacPde(
 
     mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
-    
+
     mpConfig = HeartConfig::Instance();
 
     if (mpConfig->GetIsMeshProvided() && mpConfig->GetLoadMesh())
@@ -92,9 +92,9 @@ AbstractCardiacPde<SPACE_DIM>::AbstractCardiacPde(
         {
             case media_type::Orthotropic:
                 mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
-                mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".ortho");                
+                mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".ortho");
                 break;
-                
+
             case media_type::Axisymmetric:
                 mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".axi");
@@ -102,27 +102,27 @@ AbstractCardiacPde<SPACE_DIM>::AbstractCardiacPde(
 
             case media_type::NoFibreOrientation:
                 /// \todo: Create a class defining constant tensors to be used when no fibre orientation is provided
-                mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;                
+                mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
                 break;
-                
+
             default :
-                NEVER_REACHED;                              
-        }           
+                NEVER_REACHED;
+        }
     }
     else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
     {
         // See previous todo.
-    mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;        
+    mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
     }
 
-    c_vector<double, SPACE_DIM> intra_conductivities;           
-    mpConfig->GetIntracellularConductivities(intra_conductivities);         
+    c_vector<double, SPACE_DIM> intra_conductivities;
+    mpConfig->GetIntracellularConductivities(intra_conductivities);
 
-    // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep 
+    // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep
     // a pointer to it and we don't want it to go out of scope before Init() is called
-    unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();                      
-    std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities(num_elements); 
-            
+    unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();
+    std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities(num_elements);
+
     if (mpConfig->GetConductivityHeterogeneitiesProvided())
     {
         std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
@@ -144,7 +144,7 @@ AbstractCardiacPde<SPACE_DIM>::AbstractCardiacPde(
                 }
                 else
                 {
-                    hetero_intra_conductivities[element_index] = intra_conductivities;                      
+                    hetero_intra_conductivities[element_index] = intra_conductivities;
                 }
             }
         }
@@ -152,11 +152,11 @@ AbstractCardiacPde<SPACE_DIM>::AbstractCardiacPde(
         mpIntracellularConductivityTensors->SetNonConstantConductivities(&hetero_intra_conductivities);
     }
     else
-    {               
+    {
         mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
     }
 
-    mpIntracellularConductivityTensors->Init();        
+    mpIntracellularConductivityTensors->Init();
 }
 
 template <unsigned SPACE_DIM>

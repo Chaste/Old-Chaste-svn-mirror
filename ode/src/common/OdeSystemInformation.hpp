@@ -36,11 +36,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A concrete implementation of AbstractOdeSystemInformation, that uses templates
  * to provide an implementation for any ODE system class.
- * 
+ *
  * All ODE system developers need to do is provide a specialisation of the
  * Initialise method of this class, and set mpSystemInfo in their constructor:
  *   mpSystemInfo = OdeSystemInformation<CLASS>::Instance();
- * 
+ *
  * This class contains all the machinery to make it a singleton, hence providing
  * exactly one instance per value of the template parameter.
  */
@@ -51,17 +51,17 @@ private:
 
     /**
      * The single instance of this class, for this ODE_SYSTEM.
-     * 
+     *
      * \todo see if using weak_ptr would work and give funkier semantics
      *   (automatically destroy the singleton when no ODE systems were using it)
      */
     static boost::shared_ptr<OdeSystemInformation<ODE_SYSTEM> > mpInstance;
-    
+
 protected:
 
     /**
      * Default constructor.
-     * 
+     *
      * Not user accessible - to obtain an instance of this class use the Instance
      * method.
      */
@@ -76,24 +76,24 @@ protected:
      * Overloaded assignement operator.
      */
     OdeSystemInformation& operator= (const OdeSystemInformation<ODE_SYSTEM>&);
-    
+
     /**
      * Generic implementation of Initialise, which does nothing.
-     * 
+     *
      * Developers should specialise this method to their ODE system.  For example,
- 
+
 template<>
 void OdeSystemInformation<MyNewOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("Units 1");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mInitialised = true;
 }
      */
     void Initialise();
-    
+
 public:
 
     /**

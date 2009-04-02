@@ -58,7 +58,7 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
 c_vector<double,2> MyTraction(c_vector<double,2>& X)
 {
     c_vector<double,2> traction = zero_vector<double>(2);
-    
+
     double lam = 1+ALPHA*X(0);
     if(X(0)==1)
     {
@@ -96,46 +96,46 @@ public:
         ExponentialMaterialLaw<2> law(2,3);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
-        
-        NonlinearElasticityAssembler<2> assembler(&mesh, 
-                                                  &law, 
+
+        NonlinearElasticityAssembler<2> assembler(&mesh,
+                                                  &law,
                                                   zero_vector<double>(2),
                                                   1.0,
                                                   "",
                                                   fixed_nodes);
         assembler.AssembleSystem(true, true);
-        
-        ///////////////////////////////////////////////////////////////////    
+
+        ///////////////////////////////////////////////////////////////////
         // test whether residual vector is currently zero (as
         // current solution should have been initialised to u=0, p=p0
-        ///////////////////////////////////////////////////////////////////    
+        ///////////////////////////////////////////////////////////////////
         ReplicatableVector rhs_vec(assembler.mpLinearSystem->rGetRhsVector());
         TS_ASSERT_EQUALS( (int)rhs_vec.size(), 2*289+81 );
         for(unsigned i=0; i<rhs_vec.size(); i++)
         {
             TS_ASSERT_DELTA(rhs_vec[i], 0.0, 1e-12);
         }
-        
-        ///////////////////////////////////////////////////////////////////    
+
+        ///////////////////////////////////////////////////////////////////
         // compute numerical jacobian and compare with analytic jacobian
         // (about u=0, p=p0)
-        ///////////////////////////////////////////////////////////////////    
+        ///////////////////////////////////////////////////////////////////
         unsigned num_dofs = rhs_vec.size();
         double h = 1e-6;
-        
+
         int lo, hi;
         MatGetOwnershipRange(assembler.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
-        
+
         for(unsigned j=0; j<num_dofs; j++)
         {
-            assembler.mCurrentSolution.clear(); 
+            assembler.mCurrentSolution.clear();
             assembler.FormInitialGuess();
             assembler.mCurrentSolution[j] += h;
 
             assembler.AssembleSystem(true, false);
-            
+
             ReplicatableVector perturbed_rhs( assembler.mpLinearSystem->rGetRhsVector() );
-            
+
             for(unsigned i=0; i<num_dofs; i++)
             {
                 if((lo<=(int)i) && ((int)i<hi))
@@ -144,7 +144,7 @@ public:
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
                     if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
-                        // relative error                     
+                        // relative error
                         TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
                     }
                     else
@@ -159,32 +159,32 @@ public:
 
         //////////////////////////////////////////////////////////
         // compare numerical and analytic jacobians again, this
-        // time using a non-zero displacement, u=lambda x, v = mu y 
+        // time using a non-zero displacement, u=lambda x, v = mu y
         // (lambda not equal to 1/nu), p = p0.
         //////////////////////////////////////////////////////////
         double lambda = 1.2;
         double mu = 1.0/1.3;
 
-        assembler.mCurrentSolution.clear(); 
+        assembler.mCurrentSolution.clear();
         assembler.FormInitialGuess();
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             assembler.mCurrentSolution[2*i]   = (lambda-1)*mesh.GetNode(i)->rGetLocation()[0];
             assembler.mCurrentSolution[2*i+1] = (mu-1)*mesh.GetNode(i)->rGetLocation()[1];
         }
-        
+
         assembler.AssembleSystem(true, true);
         ReplicatableVector rhs_vec2(assembler.mpLinearSystem->rGetRhsVector());
 
         h=1e-8; // needs to be smaller for this one
-                
+
         for(unsigned j=0; j<num_dofs; j++)
         {
             assembler.mCurrentSolution[j] += h;
             assembler.AssembleSystem(true, false);
-            
+
             ReplicatableVector perturbed_rhs( assembler.mpLinearSystem->rGetRhsVector() );
-            
+
             for(unsigned i=0; i<num_dofs; i++)
             {
                 if((lo<=(int)i) && ((int)i<hi))
@@ -193,7 +193,7 @@ public:
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec2[i])/h;
                     if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
-                        // relative error                     
+                        // relative error
                         TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
                     }
                     else
@@ -208,14 +208,14 @@ public:
     }
 #endif
 
-    
+
     // A test where the solution should be zero displacement
     // It mainly tests that the initial guess was set up correctly to
     // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
     void TestWithZeroDisplacement() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
-        
+
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
 
         double c1 = 3.0;
@@ -262,11 +262,11 @@ public:
             TS_ASSERT_DELTA(r_pressures[i], 2*c1, 1e-6);
         }
     }
-    
+
     void TestSettingUpHeterogeneousProblem() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
-        
+
         // two element quad mesh on the square
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
 
@@ -275,7 +275,7 @@ public:
         std::vector<AbstractIncompressibleMaterialLaw<2>*> laws;
         laws.push_back(&law_1);
         laws.push_back(&law_2);
-        
+
         std::vector<unsigned> fixed_nodes;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -285,22 +285,22 @@ public:
             }
         }
 
-        NonlinearElasticityAssembler<2> assembler(&mesh, 
-                                                  laws, 
+        NonlinearElasticityAssembler<2> assembler(&mesh,
+                                                  laws,
                                                   zero_vector<double>(2),
                                                   1.0,
                                                   "",
                                                   fixed_nodes);
-                                                  
+
         TS_ASSERT_EQUALS(assembler.mMaterialLaws.size(), 2u);
         TS_ASSERT_DELTA(assembler.mMaterialLaws[0]->GetZeroStrainPressure(), 2.0, 1e-6);
         TS_ASSERT_DELTA(assembler.mMaterialLaws[1]->GetZeroStrainPressure(), 10.0, 1e-6);
-        
-        unsigned num_nodes = 9; 
+
+        unsigned num_nodes = 9;
         // pressure for node 0 (in elem 0)
-        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 0], 2.0, 1e-6); 
+        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 0], 2.0, 1e-6);
         // pressure for node 3 (in elem 1)
-        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 3], 10.0, 1e-6); 
+        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 3], 10.0, 1e-6);
     }
 
     void TestSolve() throw(Exception)
@@ -313,7 +313,7 @@ public:
         c_vector<double,2> body_force;
         body_force(0) = 0.06;
         body_force(1) = 0.0;
-        
+
         std::vector<unsigned> fixed_nodes;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -322,26 +322,26 @@ public:
                 fixed_nodes.push_back(i);
             }
         }
-        
-        NonlinearElasticityAssembler<2> assembler(&mesh, 
-                                                  &law, 
+
+        NonlinearElasticityAssembler<2> assembler(&mesh,
+                                                  &law,
                                                   body_force,
                                                   1.0,
                                                   "simple_nonlin_elas",
                                                   fixed_nodes);
-                                                  
+
         assembler.Solve();
-        
+
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
-        
+
         double xend = 1.17199;
         double yend = 0.01001;
-        
+
         ///////////////////////////////////////////////////////////
-        // compare the solution at the corners with the values 
+        // compare the solution at the corners with the values
         // obtained using the dealii finite elasticity assembler
-        //        
-        // Results have been visually checked to see they agree 
+        //
+        // Results have been visually checked to see they agree
         // (they do, virtually or completely overlapping.
         ///////////////////////////////////////////////////////////
 
@@ -350,7 +350,7 @@ public:
         assert( fabs(mesh.GetNode(0)->rGetLocation()[1] - 0) < 1e-9 );
         TS_ASSERT_DELTA( r_solution[0](0), 0.0, 1e-6 );
         TS_ASSERT_DELTA( r_solution[0](1), 0.0, 1e-6 );
-        
+
         // top lhs corner should still be at (0,1)
         assert( fabs(mesh.GetNode(3)->rGetLocation()[0] - 0) < 1e-9 );
         assert( fabs(mesh.GetNode(3)->rGetLocation()[1] - 1) < 1e-9 );
@@ -373,23 +373,23 @@ public:
 
 
     /**
-     *  Solve a problem with non-zero dirichlet boundary conditions 
+     *  Solve a problem with non-zero dirichlet boundary conditions
      *  and non-zero tractions. THIS TEST COMPARES AGAINST AN EXACT SOLUTION.
-     * 
-     *  Choosing the deformation x=X/lambda, y=lambda*Y, with a 
+     *
+     *  Choosing the deformation x=X/lambda, y=lambda*Y, with a
      *  Mooney-Rivlin material, then
-     *   F = [1/lam 0; 0 lam], T = [2*c1-p*lam^2, 0; 0, 2*c1-p/lam^2], 
+     *   F = [1/lam 0; 0 lam], T = [2*c1-p*lam^2, 0; 0, 2*c1-p/lam^2],
      *   sigma = [2*c1/lam^2-p, 0; 0, 2*c1*lam^2-p].
      *  Choosing p=2*c1*lam^2, then sigma = [2*c1/lam^2-p 0; 0 0].
-     *  The surface tractions are then 
+     *  The surface tractions are then
      *   TOP and BOTTOM SURFACE: 0
-     *   RHS: s = SN = J*invF*sigma*N = [lam 0; 0 1/lam]*sigma*[1,0] 
+     *   RHS: s = SN = J*invF*sigma*N = [lam 0; 0 1/lam]*sigma*[1,0]
      *          = [2*c1(1/lam-lam^3), 0]
-     * 
-     *  So, we have to specify displacement boundary conditions (y=lam*Y) on 
+     *
+     *  So, we have to specify displacement boundary conditions (y=lam*Y) on
      *  the LHS (X=0), and traction bcs (s=the above) on the RHS (X=1), and can
-     *  compare the computed displacement and pressure against the true solution.  
-     * 
+     *  compare the computed displacement and pressure against the true solution.
+     *
      */
     void TestSolveWithNonZeroBoundaryConditions() throw(Exception)
     {
@@ -399,10 +399,10 @@ public:
         double c1 = 0.02;
         c_vector<double,2> body_force = zero_vector<double>(2);
         unsigned num_elem = 5;
-        
+
         QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
         MooneyRivlinMaterialLaw<2> law(c1);
-        
+
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,2> > locations;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -416,13 +416,13 @@ public:
                 locations.push_back(new_position);
             }
         }
-        
+
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         std::vector<c_vector<double,2> > tractions;
         c_vector<double,2> traction;
         traction(0) = 2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
         traction(1) = 0;
-        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter 
+        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
@@ -436,8 +436,8 @@ public:
         }
         assert(boundary_elems.size()==num_elem);
 
-        NonlinearElasticityAssembler<2> assembler(&mesh, 
-                                                  &law, 
+        NonlinearElasticityAssembler<2> assembler(&mesh,
+                                                  &law,
                                                   body_force,
                                                   1.0,
                                                   "nonlin_elas_non_zero_bcs",
@@ -445,34 +445,34 @@ public:
                                                   &locations);
 
         assembler.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
-                                                  
+
         assembler.Solve();
-        
+
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
-        
+
         for(unsigned i=0; i<fixed_nodes.size(); i++)
         {
             unsigned index = fixed_nodes[i];
             TS_ASSERT_DELTA(r_solution[index](0), locations[i](0), 1e-8);
             TS_ASSERT_DELTA(r_solution[index](1), locations[i](1), 1e-8);
         }
-        
+
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double exact_x = (1.0/lambda)*mesh.GetNode(i)->rGetLocation()[0];
             double exact_y = lambda*mesh.GetNode(i)->rGetLocation()[1];
-            
+
             TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-5 );
             TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-5 );
         }
-        
+
         for(unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
             TS_ASSERT_DELTA( assembler.rGetPressures()[i], 2*c1*lambda*lambda, 1e-6 );
-        } 
+        }
     }
 
-    /** 
+    /**
      *  Test with functional (rather than constant) body force and surface traction, against a known
      *  solution. Since a non-zero body force is used here and a known solution, this is the MOST
      *  IMPORTANT TEST.
@@ -486,7 +486,7 @@ public:
      *  s = 2c[lam-1/lam, -Y*alpha/(lam^2)] on X=1
      *  s = 2c[0, lam - 1/lam]              on Y=0
      *  s = 2c[Y*alpha/lam^2, 1/lam - lam]  on Y=1
-     * 
+     *
      */
     void TestWithFunctionalData() throw(Exception)
     {
@@ -499,7 +499,7 @@ public:
         QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
 
         MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
-        
+
         std::vector<unsigned> fixed_nodes;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -510,7 +510,7 @@ public:
         }
 
         std::vector<BoundaryElement<1,2>*> boundary_elems;
-        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter 
+        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
@@ -524,8 +524,8 @@ public:
         }
         assert(boundary_elems.size()==3*num_elem);
 
-        NonlinearElasticityAssembler<2> assembler(&mesh, 
-                                                  &law, 
+        NonlinearElasticityAssembler<2> assembler(&mesh,
+                                                  &law,
                                                   body_force,
                                                   1.0,
                                                   "nonlin_elas_functional_data",
@@ -533,13 +533,13 @@ public:
 
         assembler.SetFunctionalBodyForce(MyBodyForce);
         assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
-        
+
         assembler.Solve();
-        
+
         TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u);
-        
+
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
-	
+
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double X = mesh.GetNode(i)->rGetLocation()[0];
@@ -551,7 +551,7 @@ public:
             TS_ASSERT_DELTA(r_solution[i](0), exact_x, 1e-4);
             TS_ASSERT_DELTA(r_solution[i](1), exact_y, 1e-4);
         }
-        
+
         for(unsigned i=0; i<assembler.rGetPressures().size(); i++)
         {
             TS_ASSERT_DELTA( assembler.rGetPressures()[i]/(2*MATERIAL_PARAM), 1.0, 1e-3);

@@ -360,7 +360,7 @@ unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time
     }
     ChastePoint<1> new_point(left_position + displacement);
     assert(displacement <= element_length);
-    
+
     return mrMesh.RefineElement(pElement, new_point);
 }
 

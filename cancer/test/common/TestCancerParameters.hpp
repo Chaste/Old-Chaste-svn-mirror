@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CancerParameters.hpp"
 
 /**
- * This class contains tests for methods on the 
+ * This class contains tests for methods on the
  * CancerParameters singleton class.
  */
 class TestCancerParameters : public CxxTest::TestSuite
@@ -217,7 +217,7 @@ public:
         // Create an ouput archive
         {
             CancerParameters* p_inst1 = CancerParameters::Instance();
-            
+
             // Change the cancer parameter values
             p_inst1->SetSDuration(4.0);
             p_inst1->SetG2Duration(3.0);

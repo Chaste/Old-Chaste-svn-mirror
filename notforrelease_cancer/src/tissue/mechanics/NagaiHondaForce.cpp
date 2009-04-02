@@ -50,30 +50,30 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
 
     // Helper variable that is a static cast of the tissue
     VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
-    
+
     // Iterate over vertices in the tissue
     for (unsigned node_index=0; node_index<p_tissue->GetNumNodes(); node_index++)
     {
         // Compute the force on this node
-        
+
         /*
          * The force on this Node is given by the gradient of the total free
          * energy of the Tissue, evaluated at the position of the vertex. This
-         * free energy is the sum of the free energies of all TissueCells in 
+         * free energy is the sum of the free energies of all TissueCells in
          * the tissue. The free energy of each TissueCell is comprised of three
          * parts - a cell deformation energy, a membrane surface tension energy
          * and an adhesion energy.
-         * 
-         * Note that since the movement of this Node only affects the free energy 
-         * of the three TissueCells containing it, we can just consider the 
-         * contributions to the free energy gradient from each of these three 
+         *
+         * Note that since the movement of this Node only affects the free energy
+         * of the three TissueCells containing it, we can just consider the
+         * contributions to the free energy gradient from each of these three
          * TissueCells.
          */
 
         c_vector<double, DIM> deformation_contribution = zero_vector<double>(DIM);
         c_vector<double, DIM> membrane_surface_tension_contribution = zero_vector<double>(DIM);
         c_vector<double, DIM> adhesion_contribution = zero_vector<double>(DIM);
-             
+
         // Find the indices of the elements owned by this node
         std::set<unsigned> containing_elem_indices = p_tissue->GetNode(node_index)->rGetContainingElementIndices();
 
@@ -143,8 +143,8 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
 
             /******** End of adhesion force calculation *************/
         }
-         
-        c_vector<double, DIM> force_on_node = deformation_contribution + 
+
+        c_vector<double, DIM> force_on_node = deformation_contribution +
                                               membrane_surface_tension_contribution +
                                               adhesion_contribution;
 

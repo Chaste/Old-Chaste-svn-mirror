@@ -42,7 +42,7 @@ StochasticDivisionRuleCellCycleModel::StochasticDivisionRuleCellCycleModel(bool 
 {
 }
 
-       
+
 void StochasticDivisionRuleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
@@ -80,9 +80,9 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
     /**
      * If dealing with a stem cell, we may have symmetric division.
      * We therefore neglect the possibility of de-differentiation.
-     * 
+     *
      * NB. This code must be implemented before the call to
-     * AbstractSimpleCellCycleModel::ResetForDivision(), because 
+     * AbstractSimpleCellCycleModel::ResetForDivision(), because
      * that method sets the G1 duration based on the cell type.
      */
     if (mpCell->GetCellType() == STEM)

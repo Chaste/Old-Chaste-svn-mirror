@@ -38,42 +38,42 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTTUMOURSPHEROIDTUTORIAL_HPP_
 /*
  * = An example showing how to run tumour spheroid simulations =
- * 
+ *
  * EMPTYLINE
- * 
+ *
  * == Introduction ==
- * 
+ *
  * EMPTYLINE
- * 
+ *
  * In this tutorial we show how Chaste is used to run discrete tumour
- * spheroid simulations. Like crypt simulations, tumour spheroid simulations 
- * include cell cycle models and force laws to determine how cells divide and 
- * move. In tumour spheroid simulations, however, these are also coupled to a 
- * system of partial differential equations that determine the concentration 
- * of specified nutrients (e.g. oxygen) throughout the tissue. Also, unlike 
- * in crypt simulation, the tissue grows substantially as the tissue simulation 
+ * spheroid simulations. Like crypt simulations, tumour spheroid simulations
+ * include cell cycle models and force laws to determine how cells divide and
+ * move. In tumour spheroid simulations, however, these are also coupled to a
+ * system of partial differential equations that determine the concentration
+ * of specified nutrients (e.g. oxygen) throughout the tissue. Also, unlike
+ * in crypt simulation, the tissue grows substantially as the tissue simulation
  * progresses.
  *
- * In summary, the main differences between this tutorial and the crypt simulation 
+ * In summary, the main differences between this tutorial and the crypt simulation
  * tutorials are
- * 
- *  * a PDE is defined, to be used in the simulation, and 
+ *
+ *  * a PDE is defined, to be used in the simulation, and
  *  * a non-periodic mesh is used.
  *
  * EMPTYLINE
  *
  * == The test ==
- * 
+ *
  * EMPTYLINE
- *  
- * The first thing to do is include the following header, which allows us 
- * to use certain methods in our test (this header file should be included 
+ *
+ * The first thing to do is include the following header, which allows us
+ * to use certain methods in our test (this header file should be included
  * in any Chaste test):
  */
 #include <cxxtest/TestSuite.h>
 /* This header file defines a helper class for generating a suitable mesh: */
 #include "HoneycombMeshGenerator.hpp"
-/* These are the classes that will be used in these tests (note that we use a 
+/* These are the classes that will be used in these tests (note that we use a
  * tissue simulation subclass called {{{TissueSimulationWithNutrients}}}):
  */
 #include "TissueSimulationWithNutrients.hpp"
@@ -81,7 +81,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
-/* !PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is 
+/* !PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is
  * a suite of data structures and routines that are used in the finite element
  * PDE solvers, which is how we solve the nutrient PDE(s).
  */
@@ -124,7 +124,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /*.. then create a cell, and giving a particular cell cycle model
-             * - {{{SimpleOxygenBasedCellCycleModel}}}.  The cell cycle model is 
+             * - {{{SimpleOxygenBasedCellCycleModel}}}.  The cell cycle model is
              * parameterised by the dimension of the problem. The index of the node that
              * this cell is related to also needs to be given. */
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
@@ -175,16 +175,16 @@ public:
 
         /* We must now create one or more force laws, which determine the mechanics of
          * the tissue. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring. Since this 
-         * model was first proposed in the context of crypt modelling by Meineke ''et al'' 
-         * (Cell Prolif. 34:253-266, 2001), we call this object a 
-         * {{{GeneralisedLinearSpringForce}}}. We pass a pointer to this force into a vector. 
-         * Note that we have called the method {{{UseCutoffPoint}}} on the 
-         * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force 
-         * laws - this modifies the force law so that two neighbouring cells do not impose 
-         * a force on each other if they are located more than 3 units (=3 cell widths) 
-         * away from each other. This modification is necessary when no ghost nodes are used, 
-         * for example to avoid artificially large forces between cells that lie close together 
+         * neighbour that can be represented as a linear overdamped spring. Since this
+         * model was first proposed in the context of crypt modelling by Meineke ''et al''
+         * (Cell Prolif. 34:253-266, 2001), we call this object a
+         * {{{GeneralisedLinearSpringForce}}}. We pass a pointer to this force into a vector.
+         * Note that we have called the method {{{UseCutoffPoint}}} on the
+         * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
+         * laws - this modifies the force law so that two neighbouring cells do not impose
+         * a force on each other if they are located more than 3 units (=3 cell widths)
+         * away from each other. This modification is necessary when no ghost nodes are used,
+         * for example to avoid artificially large forces between cells that lie close together
          * on the spheroid boundary.
          */
         GeneralisedLinearSpringForce<2> linear_force;
@@ -196,7 +196,7 @@ public:
          * The simulator object for these problems is
          * {{{TissueSimulationWithNutrients}}}. We pass in the tissue, the
          * mechanics system, and the PDE.
-         */       
+         */
         TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
 
         /* As with {{{CryptSimulation2d}}} (which inherits from the same base class

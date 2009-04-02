@@ -566,7 +566,7 @@ void OdeSystemInformation<FoxModel2002Modified>::Initialise(void)
     this->mVariableNames.push_back("Ca_SR");
     this->mVariableUnits.push_back("micromolar");
     this->mInitialConditions.push_back(320);
-    
+
     this->mInitialised = true;
 }
 

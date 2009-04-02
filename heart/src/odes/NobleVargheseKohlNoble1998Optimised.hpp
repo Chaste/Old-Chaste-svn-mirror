@@ -251,7 +251,7 @@ public:
         return y1 + (y2-y1)*factor;
     }
 
-    
+
 protected:
     CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables(const CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables&);
     CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables& operator= (const CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables&);
@@ -457,16 +457,16 @@ private:
     static CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables *mpInstance;
     // Lookup tables
     double _lookup_table_0[17001][32];
-    
+
 };
 
 CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables* CML_noble_varghese_kohl_noble_1998_basic_pe_lut_LookupTables::mpInstance = NULL;
 
 class CML_noble_varghese_kohl_noble_1998_basic_pe_lut : public AbstractCardiacCell
 {
-    // 
+    //
     // Settable parameters and readable variables
-    // 
+    //
     double var_membrane__i_K1;
     double var_membrane__i_to;
     double var_membrane__i_Kr;
@@ -629,7 +629,7 @@ public:
         // Units: millimolar; Initial value: 1.4e-5
         double var_intracellular_calcium_concentration__Ca_ds = rY[17];
         // Units: millimolar; Initial value: 1.88e-5
-        
+
         // Lookup table indexing
 #define COVERAGE_IGNORE
         if (var_membrane__V>69.9999 || var_membrane__V<-100.0001)
@@ -639,7 +639,7 @@ public:
         double _offset_0_over_table_step = _offset_0 * 100.0;
         unsigned _table_index_0 = (unsigned) floor(_offset_0_over_table_step);
         double _factor_0 = _offset_0_over_table_step - _table_index_0;
-        
+
         double var_reversal_potentials__E_K = 26.7137606597 * log(4.0 / var_intracellular_potassium_concentration__K_i);
         double var_time_independent_potassium_current__i_K1 = (0.142857142857 * (var_membrane__V - var_reversal_potentials__E_K)) / (1.0 + exp((((var_membrane__V - var_reversal_potentials__E_K) - 10.0) * 96485.3415 * 1.25) * 3.87974901066e-07));
         var_membrane__i_K1 = var_time_independent_potassium_current__i_K1;
@@ -676,20 +676,20 @@ public:
         var_membrane__i_Ca_L_Ca_ds = var_L_type_Ca_channel__i_Ca_L_Ca_ds;
         double var_calcium_background_current__i_b_Ca = 0.00025 * (var_membrane__V - (13.3568803298 * log(2.0 / var_intracellular_calcium_concentration__Ca_i)));
         var_membrane__i_b_Ca = var_calcium_background_current__i_b_Ca;
-        
-        /** \todo we need to 
+
+        /** \todo we need to
          *  + Check this scaling
          *  + Ask JonC to amend PyCml if necessary
          *  + Check other cell models
-         * 
+         *
          * The return value has to be scaled to match the units required by the mono/bidomain equations.
          * The cell model ionic current is in nano Amps, we require micro Amps/cm^2. The cell density factor
-         * was calculated using the Cm=0.000095microF from the cell model and Cm=1.0microF/cm^2 from the 
+         * was calculated using the Cm=0.000095microF from the cell model and Cm=1.0microF/cm^2 from the
          * mono/bidomain equations.
          */
         double value_in_nA =  var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_Ca_L_K_cyt+var_membrane__i_Ca_L_K_ds+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_p_Na+var_membrane__i_Ca_L_Na_cyt+var_membrane__i_Ca_L_Na_ds+var_membrane__i_NaCa_cyt+var_membrane__i_NaCa_ds+var_membrane__i_Ca_L_Ca_cyt+var_membrane__i_Ca_L_Ca_ds+var_membrane__i_b_Ca;
         double value_in_microA = 0.001*value_in_nA;
-        double value_in_microA_per_cm_squared = value_in_microA/0.000095;   
+        double value_in_microA_per_cm_squared = value_in_microA/0.000095;
         return value_in_microA_per_cm_squared;
     }
 
@@ -745,8 +745,8 @@ public:
         // Units: millimolar; Initial value: 0.0005555
         double var_intracellular_calcium_concentration__Ca_Trop = rY[21];
         // Units: millimolar; Initial value: 0.0003542
-        
-        
+
+
         // Lookup table indexing
 #define COVERAGE_IGNORE
         if (var_membrane__V>69.9999 || var_membrane__V<-100.0001)
@@ -756,7 +756,7 @@ public:
         double _offset_0_over_table_step = _offset_0 * 100.0;
         unsigned _table_index_0 = (unsigned) floor(_offset_0_over_table_step);
         double _factor_0 = _offset_0_over_table_step - _table_index_0;
-        
+
         // Mathematics
         double var_reversal_potentials__E_K = 26.7137606597 * log(4.0 / var_intracellular_potassium_concentration__K_i);
         double var_time_independent_potassium_current__i_K1 = (0.142857142857 * (var_membrane__V - var_reversal_potentials__E_K)) / (1.0 + exp((((var_membrane__V - var_reversal_potentials__E_K) - 10.0) * 96485.3415 * 1.25) * 3.87974901066e-07));
@@ -836,7 +836,7 @@ public:
         double d_dt_intracellular_calcium_concentration__Ca_ds = (( -1.0 * var_L_type_Ca_channel__i_Ca_L_Ca_ds) * 3.15913730084) - (var_intracellular_calcium_concentration__Ca_ds * 10.0);
         double d_dt_intracellular_calcium_concentration__Ca_up = (49.0 * var_sarcoplasmic_reticulum_calcium_pump__i_up) - var_calcium_translocation__i_trans;
         double d_dt_intracellular_calcium_concentration__Ca_rel = (0.1 * var_calcium_translocation__i_trans) - var_calcium_release__i_rel;
-        
+
         rDY[0] = 0.001*d_dt_membrane__V;
         rDY[1] = 0.001*d_dt_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1;
         rDY[2] = 0.001*d_dt_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2;
@@ -867,7 +867,7 @@ template<>
 void OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic_pe_lut>::Initialise(void)
 {
     // Time units: second
-    // 
+    //
     this->mVariableNames.push_back("membrane__V");
     this->mVariableUnits.push_back("millivolt");
     this->mInitialConditions.push_back(-92.849333);
@@ -955,7 +955,7 @@ void OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic_pe_lut>::Init
     this->mVariableNames.push_back("intracellular_calcium_concentration__Ca_Trop");
     this->mVariableUnits.push_back("millimolar");
     this->mInitialConditions.push_back(0.0003542);
-    
+
     this->mInitialised = true;
 }
 

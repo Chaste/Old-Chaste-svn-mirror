@@ -46,11 +46,11 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                                                  double edgeDivisionThreshold)
     : VertexMesh<2,2>(cellRearrangementThreshold, edgeDivisionThreshold)
     {
-	mWidth = 3*0.5*numAcross/(sqrt(3));   // This accounts for numAcross Elements 
+    mWidth = 3*0.5*numAcross/(sqrt(3));   // This accounts for numAcross Elements
     mAddedNodes = true;
     assert(numAcross > 1);
     assert(numAcross%2==0); // numAcross should be even.
-    
+
     unsigned node_index = 0;
     // Create the nodes
     for (unsigned j=0; j<=2*numUp+1; j++)
@@ -70,7 +70,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                 }
             }
         }
-        else 
+        else
         {
             for (unsigned i=0; i<=3*numAcross-1; i+=2)
             {
@@ -85,19 +85,19 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                 }
             }
         }
-    }  
-    
-    // Create the elements. The array node_indices contains the 
+    }
+
+    // Create the elements. The array node_indices contains the
     // global node indices from bottom left, going anticlockwise.
     unsigned node_indices[6];
     unsigned element_index;
-    
+
     for (unsigned j=0; j<numUp; j++)
     {
         for (unsigned i=0; i<numAcross; i++)
         {
             element_index = j*numAcross + i;
-        
+
             if (i%2 == 0) // even
             {
                 node_indices[0] = 2*j*(numAcross)+i;
@@ -105,23 +105,23 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
             else // odd
             {
                 node_indices[0] = (2*j+1)*(numAcross)+i;
-            }                        
-        
+            }
+
             node_indices[1] = node_indices[0] + 1;
-	        node_indices[2] = node_indices[0] + numAcross + 1;
-	        node_indices[3] = node_indices[0] + 2*numAcross + 1;
-	        node_indices[4] = node_indices[0] + 2*numAcross;
-	        node_indices[5] = node_indices[0] + numAcross;
-            
+            node_indices[2] = node_indices[0] + numAcross + 1;
+            node_indices[3] = node_indices[0] + 2*numAcross + 1;
+            node_indices[4] = node_indices[0] + 2*numAcross;
+            node_indices[5] = node_indices[0] + numAcross;
+
             if (i==numAcross-1) // on far right
             {
-	            node_indices[1] = node_indices[0] - (numAcross-1);
-	            node_indices[2] = node_indices[0] + 1;
-	            node_indices[3] = node_indices[0] + (numAcross-1) + 2;
-	        }
-            
+                node_indices[1] = node_indices[0] - (numAcross-1);
+                node_indices[2] = node_indices[0] + 1;
+                node_indices[3] = node_indices[0] + (numAcross-1) + 2;
+            }
+
             std::vector<Node<2>*> element_nodes;
-            
+
             for (int i=0; i<6; i++)
             {
                element_nodes.push_back(mNodes[node_indices[i]]);
@@ -232,14 +232,14 @@ double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
         anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
 
         /*
-         * In order to calculate the area we map the origin to (x[0],y[0]) 
+         * In order to calculate the area we map the origin to (x[0],y[0])
          * then use GetVectorFromAtoB() to get node cooordiantes
          */
-        
+
         transformed_current_node = GetVectorFromAtoB(first_node, current_node);
         transformed_anticlockwise_node = GetVectorFromAtoB(first_node, anticlockwise_node);
 
-        element_area += 0.5*(transformed_current_node[0]*transformed_anticlockwise_node[1] 
+        element_area += 0.5*(transformed_current_node[0]*transformed_anticlockwise_node[1]
                            - transformed_anticlockwise_node[0]*transformed_current_node[1]);
     }
 
@@ -271,7 +271,7 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
         next_node_location = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
 
         /*
-         * In order to calculate the centroid we map the origin to (x[0],y[0]) 
+         * In order to calculate the centroid we map the origin to (x[0],y[0])
          * then use  GetVectorFromAtoB() to get node cooordiantes
          */
 
@@ -279,7 +279,7 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
         transformed_anticlockwise_node = GetVectorFromAtoB(first_node, next_node_location);
 
         temp_centroid_x += (transformed_current_node[0]+transformed_anticlockwise_node[0])*(transformed_current_node[0]*transformed_anticlockwise_node[1]-transformed_current_node[1]*transformed_anticlockwise_node[0]);
-        temp_centroid_y += (transformed_current_node[1]+transformed_anticlockwise_node[1])*(transformed_current_node[0]*transformed_anticlockwise_node[1]-transformed_current_node[1]*transformed_anticlockwise_node[0]);               
+        temp_centroid_y += (transformed_current_node[1]+transformed_anticlockwise_node[1])*(transformed_current_node[0]*transformed_anticlockwise_node[1]-transformed_current_node[1]*transformed_anticlockwise_node[0]);
     }
 
     double vertex_area = GetAreaOfElement(index);
@@ -287,8 +287,8 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
 
     transformed_centroid(0) = centroid_coefficient*temp_centroid_x;
     transformed_centroid(1) = centroid_coefficient*temp_centroid_y;
-    
+
     centroid = transformed_centroid + first_node;
-    
-    return centroid;        
+
+    return centroid;
 }

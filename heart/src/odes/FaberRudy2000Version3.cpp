@@ -30,7 +30,7 @@ public:
         mScaleFactorGks=1.0;
         mScaleFactorIto=0.0;
         mScaleFactorGkr=1.0;
-        
+
         Init();
     }
 
@@ -49,7 +49,7 @@ public:
         assert(sfito>=0.0);
         mScaleFactorIto=sfito;
     }
-    
+
     void SetScaleFactorGkr(double sfgkr)
     {
         assert(sfgkr>=0.0);

@@ -72,7 +72,7 @@ private:
      *
      * Note also that member data related to writers is not saved - output must
      * be set up again by the caller after a restart.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -130,13 +130,13 @@ public:
 
     /**
      * Get the adhesion parameter for the edge between two given nodes.
-     * 
+     *
      * \todo This method should be changed/overridden if we require differential adhesion
      * \todo Check parameter value validity (#861)
-     * 
+     *
      * @param pNodeA one node
      * @param pNodeB the other node
-     * 
+     *
      * @return the adhesion parameter for this edge.
      */
     double GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB);
@@ -175,13 +175,13 @@ public:
     /**
      * Overridden GetLocationOfCellCentre() method.
      * Find where a given cell is in space.
-     * 
+     *
      * \todo If required, we could come up with a more clever definition of cell location
-     *       for a VertexTissue (for example, there is no guarantee of convexity so the 
+     *       for a VertexTissue (for example, there is no guarantee of convexity so the
      *       centre of mass may lie outside the element)
-     * 
+     *
      * @param pCell pointer to the cell
-     * 
+     *
      * @return the location of the centre of mass of the element corresponding to this cell.
      */
     c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell);
@@ -207,7 +207,7 @@ public:
 
     /**
      * Overridden UpdateNodeLocations() method.
-     * 
+     *
      * @param rNodeForces a vector containing the force on each node in the tissue
      * @param dt the time step
      */
@@ -225,9 +225,9 @@ public:
 
     /**
      * Get a pointer to the element corresponding to a given TissueCell.
-     * 
+     *
      * @param pCell pointer to the cell
-     * 
+     *
      * @return pointer to the element.
      */
     VertexElement<DIM, DIM>* GetElementCorrespondingToCell(TissueCell* pCell);
@@ -270,15 +270,15 @@ public:
      */
     void Update();
 
-    /** 
-     * Get the target area of a given cell. This grows linearly from 
-     * 0.5*A to A during the G1 phase of the cell cycle, then remains 
-     * at A for the rest of the cell cycle, where A denotes the cancer 
+    /**
+     * Get the target area of a given cell. This grows linearly from
+     * 0.5*A to A during the G1 phase of the cell cycle, then remains
+     * at A for the rest of the cell cycle, where A denotes the cancer
      * parameter mMatureCellTargetArea.
-     * 
+     *
      * @param rCell the cell
      * @return the cell's target area
-     */ 
+     */
     double GetTargetAreaOfCell(const TissueCell& rCell);
 
     /**

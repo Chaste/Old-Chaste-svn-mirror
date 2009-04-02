@@ -82,22 +82,22 @@ protected:
      *  the voltage at node j and phi_j is the extracellular potential at node j.
      */
     const unsigned mStride;
-    
+
     HeartConfig* mpConfig;
 
     /**
      * Whether we need to replicate the caches.
-     * 
+     *
      * When doing matrix-based RHS assembly, we only actually need information from
-     * cells/nodes local to the processor, so replicating the caches is an 
+     * cells/nodes local to the processor, so replicating the caches is an
      * unnecessary communication overhead.
-     * 
+     *
      * Defaults to true.
      */
     bool mDoCacheReplication;
     /**
      * This is to mark the conventional assembly on the first time step.
-     * 
+     *
      * \todo maybe we don't want the conventional assembly even in the first time step.
      */
     bool mDoOneCacheReplication;
@@ -106,19 +106,19 @@ public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.
      * It creates all the cell objects, and sets up the conductivities.
-     * 
+     *
      * \todo tidy up using extract method refactoring?
-     * 
+     *
      * @param pCellFactory  factory to use to create cells.
      * @param stride  determines how to access V_m in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1);
 
     virtual ~AbstractCardiacPde();
-    
+
     /**
      * Set whether or not to replicate the caches across all processors.
-     * 
+     *
      * See also mDoCacheReplication.
      */
     void SetCacheReplication(bool doCacheReplication);

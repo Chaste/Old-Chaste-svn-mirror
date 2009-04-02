@@ -169,7 +169,7 @@ void NodeBasedTissue<DIM>::Update()
 
     std::map<unsigned,TissueCell*> old_map = this->mLocationCellMap;
     mNodes.clear();
-    
+
     // Clear maps
     this->mLocationCellMap.clear();
     this->mCellLocationMap.clear();

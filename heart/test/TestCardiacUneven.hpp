@@ -49,18 +49,18 @@ class TestCardiacUneven : public CxxTest::TestSuite
 public:
     void tearDown()
     {
-        HeartConfig::Reset();   
+        HeartConfig::Reset();
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainTwoUnevenProcessors()
     {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonodomainUneven");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-                        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
 
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -115,12 +115,12 @@ public:
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestBidomainTwoUnevenProcessors()
     {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainUneven");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
-                        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
 
         BidomainProblem<1> bidomain_problem( &cell_factory );

@@ -50,7 +50,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param rDirectory reference to the output directory, relative to where Chaste output is stored
      * @param rBaseName reference to the base name for results files
      * @param clearOutputDir whether to clear the output directory prior to writing files
@@ -66,7 +66,7 @@ public:
 
     /**
      * Write files using a mesh.
-     * 
+     *
      * @param rMesh reference to the vertex-based mesh
      */
     void WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);

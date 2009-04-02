@@ -41,17 +41,17 @@ class IngeWntSwatCellCycleModelCellsGenerator : public AbstractCellsGenerator<DI
 private:
 
     /**
-     * Hypothesis number (1 or 2), concerning the nature of the 
+     * Hypothesis number (1 or 2), concerning the nature of the
      * interactions modelled by the cell cycle ODE system.
      */
     unsigned mHypothesis;
-    
+
 public:
 
     /**
      * Constructor.
-     * 
-     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the 
+     *
+     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the
      * interactions modelled by the cell cycle ODE system
      */
     IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis);
@@ -65,7 +65,7 @@ public:
      * @return default cell cycle time for a transit cell.
      */
     double GetTypicalTransitCellCycleTime();
-    
+
     /**
      * @return default cell cycle time for a transit cell.
      */

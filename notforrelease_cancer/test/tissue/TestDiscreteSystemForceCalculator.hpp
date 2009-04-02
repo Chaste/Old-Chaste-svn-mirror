@@ -236,13 +236,13 @@ public:
         // Run a simulation to generate some results.viz<other things> files
         // so the visualizer can display the results.vizstress file.
         // (These lines are not actually necessary for generating results.vizstress)
-        
+
         // This doesn't look very neat, but we need to pass in a std::vector of
         // AbstractForces to TissueSimulation, compared with a std::vector of
         // AbstractTwoBodyInteractionForces to DiscreteSystemForceCalculator
         std::vector<AbstractForce<2>*> abstract_force_collection;
         abstract_force_collection.push_back(&force);
-        
+
         TissueSimulation<2> simulator(tissue, abstract_force_collection);
         simulator.SetEndTime(0.05);
         simulator.SetOutputDirectory(output_directory);

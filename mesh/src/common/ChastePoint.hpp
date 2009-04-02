@@ -58,7 +58,7 @@ public:
      * rGetLocation method returns a reference to this vector.
      * Use of this method together with ublas operations
      * is the perfered way to use this class.
-     * 
+     *
      * @param v1  the point's x-coordinate (defaults to 0)
      * @param v2  the point's y-coordinate (defaults to 0)
      * @param v3  the point's z-coordinate (defaults to 0)
@@ -83,7 +83,7 @@ public:
      * Create a Point object.
      * This constructor takes a vector giving the coordinates of the point.
      * The length of the vector must be at least the dimension of the point.
-     * 
+     *
      * @param coords  a std::vector storing the point's coordinates
      */
     ChastePoint(std::vector<double> coords)
@@ -96,7 +96,7 @@ public:
 
     /**
      * Alternative constructor which takes in a c_vector.
-     * 
+     *
      * @param location  a c_vector storing the point's coordinates
      */
     ChastePoint(c_vector<double, DIM> location)
@@ -122,7 +122,7 @@ public:
 
     /**
      * Access the vector mLocation.
-     * 
+     *
      * @param i the index of the vector to return
      */
     double operator[] (unsigned i) const
@@ -133,7 +133,7 @@ public:
 
     /**
      * Set one of the coordinates of the Point.
-     * 
+     *
      * @param i the index of the coordinate
      * @param value the value of the coordinate
      */
@@ -155,7 +155,7 @@ public:
     /**
      * Create a zero-dimensional Point object.
      * There are 3 optional arguments, which should not be used.
-     * 
+     *
      * @param v1  the point's x-coordinate (defaults to 0)
      * @param v2  the point's y-coordinate (defaults to 0)
      * @param v3  the point's z-coordinate (defaults to 0)
@@ -166,7 +166,7 @@ public:
 
     /**
      * Access the vector mLocation.
-     * 
+     *
      * @param i the index of the vector to return
      */
     double operator[] (unsigned i) const

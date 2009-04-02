@@ -43,7 +43,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     {
         std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
         mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, parent_protein_concs[8], rMutationState);// Wnt pathway is reset in a couple of lines
-        
+
         // Set the model to be the same as the parent cell
         mpOdeSystem->rGetStateVariables() = parent_protein_concs;
     }
@@ -83,7 +83,7 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel(
     assert(mpCell!=NULL);
 
     /**
-     * We call a cheeky version of the constructor which makes the new cell 
+     * We call a cheeky version of the constructor which makes the new cell
      * cycle model the same as the old one - not a dividing copy at this time,
      * unless the parent cell has just divided.
      */
@@ -169,9 +169,9 @@ double IngeWntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
 
 double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
 {
-    return mpOdeSystem->rGetStateVariables()[16] + 
-           mpOdeSystem->rGetStateVariables()[17] +  
-           mpOdeSystem->rGetStateVariables()[18] + 
+    return mpOdeSystem->rGetStateVariables()[16] +
+           mpOdeSystem->rGetStateVariables()[17] +
+           mpOdeSystem->rGetStateVariables()[18] +
            mpOdeSystem->rGetStateVariables()[19];
 }
 

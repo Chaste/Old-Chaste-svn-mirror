@@ -34,23 +34,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 /**
- * A force law employed by Meineke et al (2001) in their off-lattice 
- * model of the intestinal crypt. 
- * 
- * The force law is that of an linear overdamped spring. 
+ * A force law employed by Meineke et al (2001) in their off-lattice
+ * model of the intestinal crypt.
+ *
+ * The force law is that of an linear overdamped spring.
  */
 template<unsigned DIM>
 class GeneralisedLinearSpringForce : public AbstractTwoBodyInteractionForce<DIM>
 {
     friend class TestForces;
-    
+
 private :
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
      * Archive the object.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -68,33 +68,33 @@ public :
      * Constructor.
      */
     GeneralisedLinearSpringForce();
-    
+
     /**
      * Destructor.
-     */  
+     */
     ~GeneralisedLinearSpringForce();
 
     /**
-     * Return a multiplication factor for the spring constant, which 
+     * Return a multiplication factor for the spring constant, which
      * returns a default value of 1.
-     * 
-     * This method is overridden in a subclass. 
-     * 
+     *
+     * This method is overridden in a subclass.
+     *
      * @param nodeAGlobalIndex index of one neighbouring node
      * @param nodeBGlobalIndex index of the other neighbouring node
      * @param rTissue the tissue
      * @param isCloserThanRestLength whether the neighbouring nodes lie closer than the rest length of their connecting spring
-     * 
+     *
      * @return the multiplication factor.
      */
-    virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex, 
+    virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex,
                                                               unsigned nodeBGlobalIndex,
-                                                              AbstractTissue<DIM>& rTissue, 
+                                                              AbstractTissue<DIM>& rTissue,
                                                               bool isCloserThanRestLength);
-    
+
     /**
      * Overridden CalculateForceBetweenNodes() method.
-     * 
+     *
      * Calculates the force between two nodes.
      *
      * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
@@ -102,21 +102,21 @@ public :
      * @param nodeAGlobalIndex index of one neighbouring node
      * @param nodeBGlobalIndex index of the other neighbouring node
      * @param rTissue the tissue
-     * 
+     *
      * @return The force exerted on Node A by Node B.
      */
-    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, 
+    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,
                                                      unsigned nodeBGlobalIndex,
-                                                     AbstractTissue<DIM>& rTissue);  
+                                                     AbstractTissue<DIM>& rTissue);
     /**
      * Overridden AddForceContribution() method.
-     * 
+     *
      * @param rForces reference to vector of forces on nodes
      * @param rTissue reference to the tissue
      */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);
- 
+
 };
 
 #include "TemplatedExport.hpp"

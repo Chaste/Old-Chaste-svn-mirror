@@ -461,7 +461,7 @@ public:
         {
             delete nodes[i];
         }
-        
+
         element.SetRegion(3);
         TS_ASSERT_EQUALS(element.GetRegion(), 3u);
     }
@@ -841,7 +841,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_corner_element, new_point));
 
         // Testing the JacobianDeterminant of the element that has changed
-        p_corner_element->CalculateJacobian(jacobian, det);        
+        p_corner_element->CalculateJacobian(jacobian, det);
         TS_ASSERT_DELTA(det, 0.0125, 1e-6);
 
         // Testing invariants

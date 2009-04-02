@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  A cell killer that randomly kills cells based on the user set probability.
- * 
+ *
  *  The probability passed into the constructor will be the probability
  *  of any cell dying whenever TestAndLabelCellsForApoptosis() is called.
  *
@@ -56,12 +56,12 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /** Archive the object and its member variables.
-     * 
+     *
      * Serialization of singleton objects must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -69,7 +69,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);
-   
+
         // Make sure the random number generator is archived
         RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
         archive & *p_random_generator;
@@ -80,7 +80,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param pTissue pointer to the tissue
      * @param probabilityOfDeath probability that a cell is labelled for apoptosis
      */
@@ -92,8 +92,8 @@ public:
     double GetDeathProbability() const;
 
     /**
-     * Overridden method to test a given cell for apoptosis. 
-     * 
+     * Overridden method to test a given cell for apoptosis.
+     *
      * @param rCell the cell to test for apoptosis
      */
     void TestAndLabelSingleCellForApoptosis(TissueCell& rCell);

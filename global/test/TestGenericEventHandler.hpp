@@ -36,7 +36,7 @@ class AnEventHandler : public GenericEventHandler<3, AnEventHandler>
 {
 public:
     static const char* EventName[3];
-    
+
     typedef enum
     {
         TEST1=0,
@@ -115,7 +115,7 @@ public:
         TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST1), 0.0);
         TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 0.0);
         TS_ASSERT_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST3), 0.0);
-        
+
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         long dummy = 1;
         for (unsigned i=0; i<1e9; i++)

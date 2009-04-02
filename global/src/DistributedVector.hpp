@@ -73,7 +73,7 @@ public:
 
     /**
      * Set the problem size specifying distribution over local processor.
-     * 
+     *
      * @param size
      * @param local
      */
@@ -81,14 +81,14 @@ public:
 
     /**
      * Set the problem size.
-     * 
+     *
      * @param size
      */
     static void SetProblemSize(unsigned size);
 
     /**
      * Set the problem with an existing PETSc vector -- must have stride=1.
-     * 
+     *
      * @param vec
      */
     static void SetProblemSize(Vec vec);
@@ -100,7 +100,7 @@ public:
 
     /**
      * Test if the given global index is owned by the current process, i.e. is local to it.
-     * 
+     *
      * @param globalIndex
      */
     static bool IsGlobalIndexLocal(unsigned globalIndex);
@@ -112,7 +112,7 @@ public:
 
     /**
      * Create a striped PETSc vector of size: stride * problem size
-     * 
+     *
      * @param stride
      */
     static Vec CreateVec(unsigned stride);
@@ -155,8 +155,8 @@ public:
 
         /**
          * Compare two indices for inequality.
-         * 
-         * @param other 
+         *
+         * @param other
          */
         bool operator!=(const Iterator& other);
 
@@ -180,7 +180,7 @@ public:
 
        /**
         * Constructor.
-        * 
+        *
         * @param parallelVec striped vector
         * @param stripe number of this stripe within the vector starting from 0
         */
@@ -194,9 +194,9 @@ public:
 
        /**
         * Access a particular element of the stripe if on this processor.
-        * For use in tests. Will throw a DistributedVectorException if 
+        * For use in tests. Will throw a DistributedVectorException if
         * the specified element is not on this process.
-        *  
+        *
         * @param globalIndex index within the stripe
         * @return value of striped vector
         */
@@ -235,7 +235,7 @@ public:
 
         /**
          * Constructor.
-         * 
+         *
          * @param parallelVec chunked vector
          * @param chunk number of this chunk within the vector starting from 0
          */
@@ -248,9 +248,9 @@ public:
 
        /**
         * Access a particular element of the chunk if on this processor.
-        * For use in tests. Will throw a DistributedVectorException if 
+        * For use in tests. Will throw a DistributedVectorException if
         * the specified element is not on this process.
-        * 
+        *
         * @param globalIndex index within the chunk
         * @return value of striped vector
         */
@@ -258,8 +258,8 @@ public:
         {
             if (mLo<=globalIndex && globalIndex <mHi)
             {
-            	//localIndex = globalIndex - mLo
-            	return mpVec[mOffset + globalIndex - mLo];
+                //localIndex = globalIndex - mLo
+                return mpVec[mOffset + globalIndex - mLo];
             }
             throw DistributedVectorException();
          }

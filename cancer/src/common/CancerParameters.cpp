@@ -118,7 +118,7 @@ void CancerParameters::Reset()
 
     mWntChemotaxisStrength = 100.0;
     mSymmetricDivisionProbability = 0.0;
-    
+
     mAreaBasedDampingConstantParameter = 0.1;
 
     mMatureCellTargetArea = 1.0;

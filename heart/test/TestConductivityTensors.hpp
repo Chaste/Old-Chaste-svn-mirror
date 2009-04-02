@@ -78,7 +78,7 @@ public:
     void TestTensorException() throw (Exception)
     {
         c_vector<double, 1> constant_conductivities_1d(Create_c_vector(2.1));
-        c_vector<double, 2> constant_conductivities_2d(Create_c_vector(2.1, 0.8)); 
+        c_vector<double, 2> constant_conductivities_2d(Create_c_vector(2.1, 0.8));
         c_vector<double, 3> constant_conductivities_3d(Create_c_vector(2.1, 0.8, 0.0));
 
         OrthotropicConductivityTensors<1> ortho_1d_tensors;
@@ -95,7 +95,7 @@ public:
         // Transversal and longitudinal conductivities should have the same value
         AxisymmetricConductivityTensors<3> axi_3d_tensor;
         TS_ASSERT_THROWS_ANYTHING( axi_3d_tensor.SetConstantConductivities(Create_c_vector(0.5,0.25,0.15)) );
-        
+
     }
 
     void TestFibreOrientationFileExceptions() throw (Exception)
@@ -137,7 +137,7 @@ public:
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,2), constant_conductivities[2]);
         }
     }
-    
+
     void TestCompareOrthotropicAxisymmetricTensors()
     {
         c_vector<double, 3> constant_conductivities(Create_c_vector(7.0,3.5,3.5));
@@ -164,7 +164,7 @@ public:
             TS_ASSERT_DELTA(ortho_tensors[tensor_index](2,1), axi_tensors[tensor_index](2,1), 1e-5);
             TS_ASSERT_DELTA(ortho_tensors[tensor_index](2,2), axi_tensors[tensor_index](2,2), 1e-5);
         }
-        
+
     }
 
     void TestFibreOrientationAxisymmetric3D()

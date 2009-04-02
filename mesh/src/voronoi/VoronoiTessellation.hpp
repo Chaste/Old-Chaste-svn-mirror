@@ -87,7 +87,7 @@ public:
     /**
      * Constructor. Create a tessellation of the given mesh which must be Delaunay
      * (see TetrahedralMesh::CheckVoronoi).
-     * 
+     *
      * @param rMesh a tetrahedral mesh
      */
     VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh);
@@ -107,7 +107,7 @@ public:
 
     /**
      * Get the face of the VoronoiCell with a given index.
-     * 
+     *
      * @param index  The index of the cell is the index of the corresponding node in the original mesh.
      */
     const Face<DIM>* GetFace(unsigned index) const;
@@ -119,21 +119,21 @@ public:
 
     /**
      * Get the area of the face with a given index.
-     * 
+     *
      * @param index
      */
     double GetFaceArea(unsigned index) const;
 
     /**
      * Get the perimeter of the face with a given index.
-     * 
+     *
      * @param index
      */
     double GetFacePerimeter(unsigned index) const;
 
     /**
      * Get the length of the tessellation edge between two given nodes.
-     * 
+     *
      * @param nodeIndex1
      * @param nodeIndex2
      */
@@ -146,7 +146,7 @@ public:
 
     /**
      * Get the vertex with a given index.
-     * 
+     *
      * @param index
      */
     c_vector<double,DIM>* GetVertex(unsigned index);
@@ -195,7 +195,7 @@ void VoronoiTessellation<DIM>::Initialise(TetrahedralMesh<2,2>& rMesh)
 
     /*
      * Loop over elements, for each element calculate circumcentre (=vertex), set that as a
-     * vertex for each node(=face in 2d) of that element. Also loop over mesh-edges of the 
+     * vertex for each node(=face in 2d) of that element. Also loop over mesh-edges of the
      * element and add the vertex as a vertex for that vertex-edge.
      */
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;

@@ -287,11 +287,11 @@ public:
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         CmguiWriter writer("TestCmguiWriter", "cube_2mm_12_elements");
-        
+
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exnode mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exelem").c_str()), 0);
@@ -299,25 +299,25 @@ public:
 
     void TestVtkWriter() throw(Exception)
     {
-#ifdef CHASTE_VTK 
-// Requires  "sudo aptitude install libvtk5-dev" or similar 
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         VtkWriter writer("TestVtkWriter", "cube_2mm_12_elements");
-        
+
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
-#endif //CHASTE_VTK 
+#endif //CHASTE_VTK
     }
 
     void TestVtkWriterWithData() throw(Exception)
     {
-#ifdef CHASTE_VTK 
-// Requires  "sudo aptitude install libvtk5-dev" or similar 
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
         TrianglesMeshReader<3,3> reader("heart/test/data/HeartDecimation_173nodes");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
@@ -346,49 +346,49 @@ public:
 
         // Only compare the first 531 bytes for now (the offsets and stuff seem to be changing)
         TS_ASSERT_EQUALS(system(("cmp -n 531 " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
-#endif //CHASTE_VTK 
+#endif //CHASTE_VTK
     }
-    
+
     void TestWriteFilesUsingMeshReaderPermuted()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-     
+
         unsigned num_nodes = mesh_reader.GetNumNodes();
-     
+
         std::vector<unsigned> permutation;
-        
+
         for (unsigned index=0; index<num_nodes; index++)
         {
             permutation.push_back(num_nodes - index - 1);
         }
-     
+
         std::string filename = "MeshReaderPermuted";
-     
+
         TrianglesMeshWriter<1,1> mesh_writer("", filename);
         mesh_writer.WriteFilesUsingMeshReader(mesh_reader, permutation);
 
-        std::string output_dir = mesh_writer.GetOutputDirectory();        
+        std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<1,1> permuted_mesh_reader(output_dir + filename);
-                
+
         // This mesh is made of 11 points located spaced 0.1cm each
         mesh_reader.Reset();
         for (unsigned index=0; index<num_nodes; index++)
         {
             std::vector<double> original_node = mesh_reader.GetNextNode();
             TS_ASSERT_DELTA(original_node[0], 0.1*index, 1e-6);
-            
+
             std::vector<double> permuted_node = permuted_mesh_reader.GetNextNode();
             TS_ASSERT_DELTA(permuted_node[0], 1.0 - 0.1*index, 1e-6);
         }
-        
+
         for (unsigned elem_index=0; elem_index<mesh_reader.GetNumElements(); elem_index++)
         {
             ElementData original_element = mesh_reader.GetNextElementData();
             ElementData permuted_element = permuted_mesh_reader.GetNextElementData();
-            
+
             for (unsigned local_node_index=0; local_node_index<original_element.NodeIndices.size(); local_node_index++)
             {
-                unsigned original_global_node_index = original_element.NodeIndices[local_node_index]; 
+                unsigned original_global_node_index = original_element.NodeIndices[local_node_index];
                 TS_ASSERT_EQUALS(permuted_element.NodeIndices[local_node_index],
                                  permutation[original_global_node_index]);
             }

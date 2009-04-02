@@ -139,16 +139,16 @@ public:
         // Solve
         ///////////////////////////////////////////////////////////////////////
         double end_time = 10.0;        // ms
-        
+
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetPrintingTimeStep(end_time/100);        
-        HeartConfig::Instance()->SetPdeTimeStep(0.01);        
-        HeartConfig::Instance()->SetOdeTimeStep(0.01/3.0);                                
-        HeartConfig::Instance()->SetSimulationDuration(end_time); 
+        HeartConfig::Instance()->SetPrintingTimeStep(end_time/100);
+        HeartConfig::Instance()->SetPdeTimeStep(0.01);
+        HeartConfig::Instance()->SetOdeTimeStep(0.01/3.0);
+        HeartConfig::Instance()->SetSimulationDuration(end_time);
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/HeartApex"); // note that this is the full heart mesh (not fifthheart)
         HeartConfig::Instance()->SetOutputDirectory("MonoDg0HeartApex");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_HeartApex");
-        
+
         PointStimulusHeartCellFactory cell_factory;
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 

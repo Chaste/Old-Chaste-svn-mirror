@@ -58,7 +58,7 @@ private:
     bool mIsBoundaryNode;
 
     /**
-     * Whether this node has been deleted, and hence 
+     * Whether this node has been deleted, and hence
      * whether its location in the mesh can be re-used.
      */
     bool mIsDeleted;
@@ -71,7 +71,7 @@ private:
 
     /**
      * Extraction of commonality between the constructors.
-     * 
+     *
      * @param index  the index of the node in the mesh
      * @param isBoundaryNode  whether the node is a boundary node
      */
@@ -84,64 +84,64 @@ public:
      * spatial location.
      */
 
-    /** 
-     * Constructor which takes the node's location as a ChastePoint. 
-     *  
-     * @param index  the index of the node in the mesh 
-     * @param point  the location of the node in the mesh 
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false) 
-     */ 
+    /**
+     * Constructor which takes the node's location as a ChastePoint.
+     *
+     * @param index  the index of the node in the mesh
+     * @param point  the location of the node in the mesh
+     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
+     */
     Node(unsigned index, ChastePoint<SPACE_DIM> point, bool isBoundaryNode=false);
 
-    /** 
-     * Constructor which takes the node's location as a std::vector. 
-     *  
-     * @param index  the index of the node in the mesh 
-     * @param coords  the location of the node in the mesh 
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false) 
-     */ 
+    /**
+     * Constructor which takes the node's location as a std::vector.
+     *
+     * @param index  the index of the node in the mesh
+     * @param coords  the location of the node in the mesh
+     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
+     */
     Node(unsigned index, std::vector<double> coords, bool isBoundaryNode=false);
 
-    /** 
-     * Constructor which takes the node's location as a c_vector. 
-     *  
-     * @param index  the index of the node in the mesh 
-     * @param location  the location of the node in the mesh 
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false) 
+    /**
+     * Constructor which takes the node's location as a c_vector.
+     *
+     * @param index  the index of the node in the mesh
+     * @param location  the location of the node in the mesh
+     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
      */
     Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false);
 
-    /** 
-     * Constructor which takes the coordinates if the node's location as separate input arguments. 
-     *  
-     * @param index  the index of the node in the mesh 
-     * @param isBoundaryNode  whether the node is a boundary node (defaults to false) 
-     * @param v1 the x-coordinate of the node in the mesh (defaults to 0) 
-     * @param v2 the x-coordinate of the node in the mesh (defaults to 0) 
-     * @param v3 the x-coordinate of the node in the mesh (defaults to 0) 
-     */ 
+    /**
+     * Constructor which takes the coordinates if the node's location as separate input arguments.
+     *
+     * @param index  the index of the node in the mesh
+     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
+     * @param v1 the x-coordinate of the node in the mesh (defaults to 0)
+     * @param v2 the x-coordinate of the node in the mesh (defaults to 0)
+     * @param v3 the x-coordinate of the node in the mesh (defaults to 0)
+     */
     Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0);
 
     /**
      * Set the node's location.
-     * 
+     *
      * Note: setting the point in space is dangerous.
      * Jacobian and JacobianDeterminant of element need to be updated.
-     * 
+     *
      * @param point
      */
     void SetPoint(ChastePoint<SPACE_DIM> point);
 
-    /** 
-     * Set the index of this node in the mesh. 
-     *  
-     * @param index 
+    /**
+     * Set the index of this node in the mesh.
+     *
+     * @param index
      */
     void SetIndex(unsigned index);
 
     /**
      * Set whether this node is a boundary node.
-     * 
+     *
      * @param value
      */
     void SetAsBoundaryNode(bool value=true);
@@ -153,7 +153,7 @@ public:
 
     /**
      * Get the node's location as a c_vector.
-     * 
+     *
      * The returned location may not be modified; if you want that functionality use
      * rGetModifiableLocation instead.
      */
@@ -161,7 +161,7 @@ public:
 
     /**
      * Get the node's location as a c_vector.
-     * 
+     *
      * If you modify the returned location,
      * Jacobian and JacobianDeterminant of elements need to be updated.
      *
@@ -169,12 +169,12 @@ public:
      */
     c_vector<double, SPACE_DIM> &rGetModifiableLocation();
 
-    /** 
+    /**
      * Get the index of this node in the mesh.
      */
     unsigned GetIndex() const;
 
-    /** 
+    /**
      * Get whether this node is a boundary node.
      */
     bool IsBoundaryNode() const;
@@ -239,7 +239,7 @@ public:
 
     /**
      * Determine if a node lives within a flagged element.
-     * 
+     *
      * @param rMesh
      */
     template <unsigned ELEMENT_DIM>
@@ -259,15 +259,15 @@ public:
         return in_flagged_element;
     }
 
-    /** 
-     * Set the node's region ID. 
-     *  
-     * @param region 
-     */  
+    /**
+     * Set the node's region ID.
+     *
+     * @param region
+     */
     void SetRegion(unsigned region);
 
-    /** 
-     * Get the node's region ID. 
+    /**
+     * Get the node's region ID.
      */
     unsigned GetRegion() const;
 
@@ -279,9 +279,9 @@ public:
     public:
         /**
          * Constructor for a new ContainingElementIterator.
-         * 
+         *
          * @param indexIterator  an index iterator
-         */    
+         */
         ContainingElementIterator(std::set<unsigned>::const_iterator indexIterator)
             : mIndexIterator(indexIterator)
         {}
@@ -346,9 +346,9 @@ public:
     public:
         /**
          * Constructor for a new ContainingBoundaryElementIterator.
-         * 
+         *
          * @param indexIterator  an index iterator
-         */    
+         */
         ContainingBoundaryElementIterator(std::set<unsigned>::const_iterator indexIterator)
             : mIndexIterator(indexIterator)
         {}

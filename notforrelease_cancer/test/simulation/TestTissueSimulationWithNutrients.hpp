@@ -959,7 +959,7 @@ public:
 
         // Tidy up
         CellwiseData<3>::Destroy();
-        
+
         delete p_killer;
     }
 

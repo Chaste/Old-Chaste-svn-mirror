@@ -132,7 +132,7 @@ public :
 
                 double integral=0;
                 double jacobian_determinant;
-                c_matrix<double, 1, 1> jacobian; 
+                c_matrix<double, 1, 1> jacobian;
                 element.CalculateJacobian(jacobian, jacobian_determinant);
 
                 // This assumes linear basis functions in 1d

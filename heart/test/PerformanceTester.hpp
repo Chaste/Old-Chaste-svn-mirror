@@ -80,7 +80,7 @@ public:
     void Run()
     {
         HeartConfig::Instance()->SetOdeTimeStep(this->OdeTimeStep);
-        HeartConfig::Instance()->SetSimulationDuration(SimTime);        
+        HeartConfig::Instance()->SetSimulationDuration(SimTime);
         HeartConfig::Instance()->SetUseAbsoluteTolerance(KspAtol);
 
         // Create the meshes on which the test will be based
@@ -114,8 +114,8 @@ public:
 
         assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );
 
-        HeartConfig::Instance()->SetPdeTimeStep(PdeTimeStep);       
-        HeartConfig::Instance()->SetPrintingTimeStep(PrintingTimeStep);        
+        HeartConfig::Instance()->SetPdeTimeStep(PdeTimeStep);
+        HeartConfig::Instance()->SetPrintingTimeStep(PrintingTimeStep);
 
         cardiac_problem.Initialise();
 

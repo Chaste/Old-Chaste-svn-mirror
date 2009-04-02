@@ -47,8 +47,8 @@ public:
 
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
         MooneyRivlinMaterialLaw<2> law(0.02);
-        
-        std::vector<unsigned> fixed_nodes 
+
+        std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"",fixed_nodes,&law);
@@ -68,28 +68,28 @@ public:
         assembler.mNextTime = 0.01;
         assembler.mOdeTimestep = 0.01;
 
-   
-        ///////////////////////////////////////////////////////////////////    
+
+        ///////////////////////////////////////////////////////////////////
         // compute numerical jacobian and compare with analytic jacobian
         // (about u=0, p=p0)
-        ///////////////////////////////////////////////////////////////////    
+        ///////////////////////////////////////////////////////////////////
         assembler.AssembleSystem(true, true);
         ReplicatableVector rhs_vec(assembler.mpLinearSystem->rGetRhsVector());
         unsigned num_dofs = rhs_vec.size();
         double h = 1e-6;
         int lo, hi;
         MatGetOwnershipRange(assembler.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
-        
+
         for(unsigned j=0; j<num_dofs; j++)
         {
-            assembler.mCurrentSolution.clear(); 
+            assembler.mCurrentSolution.clear();
             assembler.FormInitialGuess();
             assembler.mCurrentSolution[j] += h;
 
             assembler.AssembleSystem(true, false);
-            
+
             ReplicatableVector perturbed_rhs( assembler.mpLinearSystem->rGetRhsVector() );
-            
+
             for(unsigned i=0; i<num_dofs; i++)
             {
                 if((lo<=(int)i) && ((int)i<hi))
@@ -98,7 +98,7 @@ public:
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
                     if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
-                        // relative error                     
+                        // relative error
                         TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
                     }
                     else
@@ -110,13 +110,13 @@ public:
             }
         }
         MPI_Barrier(PETSC_COMM_WORLD);
-                
+
         // coverage - test default material law works ok
         ImplicitCardiacMechanicsAssembler<2> another_assembler(&mesh,"",fixed_nodes);
         c_matrix<double,2,2> F = zero_matrix<double>(2,2);
-        F(0,0)=F(1,1)=1.1; 
+        F(0,0)=F(1,1)=1.1;
         double pressure = 1;
-        c_matrix<double,2,2> S;        
+        c_matrix<double,2,2> S;
         another_assembler.mMaterialLaws[0]->Compute1stPiolaKirchoffStress(F,pressure,S);
         TS_ASSERT_DELTA(S(0,0), 1.5805, 1e-3);
     }
@@ -130,8 +130,8 @@ public:
 
         QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
         MooneyRivlinMaterialLaw<2> law(0.02);
-        
-        std::vector<unsigned> fixed_nodes 
+
+        std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
@@ -142,18 +142,18 @@ public:
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0002);
         assembler.SetIntracellularCalciumConcentrations(calcium_conc);
 
-        assembler.Solve(0,0.1,0.01); 
+        assembler.Solve(0,0.1,0.01);
 
         TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 0u);
     }
-    
+
 
     // This test compares against the deprecated explicit CardiacMechanicsAssembler
     // in the dealii folder. The implicit and explicit assemblers could be compared
     // by solving with the implicit for given Ca, finding the Ta (at each node)
     // which corresponds to this Ca, then checking the implicit solution gives zero
-    // residual in the explicit assembler with those Ta's. 
-    // 
+    // residual in the explicit assembler with those Ta's.
+    //
     // There is no Chaste explicit cardiac mechanics assembler, so can't do the same
     // here. Instead we do exactly the same implicit solve as in TestCompareWithExplicit
     // in dealii/test/TestImplicitCardiacMechanicsAssembler.hpp (see r4395 say),
@@ -181,12 +181,12 @@ public:
         assembler.SetIntracellularCalciumConcentrations(calcium_conc);
 
         assembler.Solve(0,0.01,0.01);
-        
+
         // Visually compared results, they are identical to the dealii results
-        // Hardcoded value for (1,1) node 
+        // Hardcoded value for (1,1) node
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](0),  0.98822 /*dealii*/, 5e-4);
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](1),  1.01177 /*dealii*/, 3e-4);
-        // Hardcoded value for (0,1) node 
+        // Hardcoded value for (0,1) node
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](0), -0.00465 /*dealii*/, 4e-4);
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](1),  1.00666 /*dealii*/, 1e-4);
     }
@@ -201,11 +201,11 @@ public:
         // NOTE: test hardcoded for num_elem = 4
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
         MooneyRivlinMaterialLaw<2> law(0.02);
-        
+
         // need to leave the mesh as unfixed as possible
         std::vector<unsigned> fixed_nodes(2);
-        fixed_nodes[0] = 0; 
-        fixed_nodes[1] = 5; 
+        fixed_nodes[0] = 0;
+        fixed_nodes[1] = 5;
 
         ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicityCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
         QuadraturePointsGroup<2> quad_points(mesh,*(assembler.GetQuadratureRule()));
@@ -214,7 +214,7 @@ public:
         for(unsigned i=0; i<calcium_conc.size(); i++)
         {
             double Y = quad_points.Get(i)(1);
-            // 0.0002 is the initial Ca conc in Lr91, 0.001 is the greatest Ca conc 
+            // 0.0002 is the initial Ca conc in Lr91, 0.001 is the greatest Ca conc
             // value in one of the Lr91 TestIonicModel tests
             calcium_conc[i] = 0.0002 + 0.001*Y;
         }
@@ -232,16 +232,16 @@ public:
         std::vector<double>& lambda = assembler.rGetLambda();
 
         // the lambdas should be less than 1 (ie compression), and also
-        // should be near the same for any particular value of Y, ie the 
+        // should be near the same for any particular value of Y, ie the
         // same along any fibre. Lambda should decrease nonlinearly.
-        // Uncomment trace and view in matlab (plot y against lambda) 
+        // Uncomment trace and view in matlab (plot y against lambda)
         // to observe this - SEE FIGURE ATTACHED TO TICKET #757.
         // The lambda are constant for given Y if Y>0.1.5 (ie not near fixed nodes)
         // and a cubic polynomial can be fitted with matlab
         for(unsigned i=0; i<lambda.size(); i++)
         {
             TS_ASSERT_LESS_THAN(lambda[i], 1.0);
-          
+
             // Get the value of Y for the point
             double Y = quad_points.Get(i)(1);
             // Lambda should be near a value obtained by fitting a
@@ -269,7 +269,7 @@ public:
                 double error = 0.0015;
                 TS_ASSERT_DELTA(lambda[i], lam_fit, error);
             }
-            
+
             //// don't delete:
             //std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << lambda[i] << "\n";
         }

@@ -244,7 +244,7 @@ public:
      *
      * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS
-     * 
+     *
      * @return whether or not stopping conditions have been met
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
@@ -252,10 +252,10 @@ public:
     /**
      * When using CVODE this function is called instead of CalculateStoppingEvent.
      * It allows the point at which rY[1] reaches 1 to be found to greater precision.
-     * 
+     *
      * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS
-     * 
+     *
      * @return How close we are to the root of the stopping condition
      */
     double CalculateRootFunction(double time, const std::vector<double> &rY);

@@ -723,9 +723,9 @@ public:
         WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
-        
-#ifdef CHASTE_CVODE 
-        const double expected_g1_duration = 5.96441; 
+
+#ifdef CHASTE_CVODE
+        const double expected_g1_duration = 5.96441;
 #else
         const double expected_g1_duration = 5.971;
 #endif //CHASTE_CVODE
@@ -924,9 +924,9 @@ public:
             }
         }
     }
-    
+
 //    void TestTysonNovakSteadyState()
-//    {    
+//    {
 //        // Keep dividing until we reach steady-state
 //        SimulationTime* p_simulation_time = SimulationTime::Instance();
 //        unsigned num_steps=100000;

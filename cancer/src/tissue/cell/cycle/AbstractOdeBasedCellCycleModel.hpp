@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * This class contains all the things common to standard cell cycle
  * ODE models for intracellular protein concentrations (along the lines
- * of Tyson & Novak), such as solving the ODEs until a stopping condition 
+ * of Tyson & Novak), such as solving the ODEs until a stopping condition
  * is met.
  */
 class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel
@@ -52,7 +52,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the cell cycle model and member variables.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -113,7 +113,7 @@ public:
      * This method must be implemented by each subclass - solves the ODEs to a given time and
      *
      * @param currentTime
-     * 
+     *
      * @return Whether a stopping event occurred.
      */
     virtual bool SolveOdeToTime(double currentTime)=0;

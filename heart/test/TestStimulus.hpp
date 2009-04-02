@@ -134,7 +134,7 @@ public:
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5*(1+2*DBL_EPSILON)),
             0.0);
     }
-    
+
     void TestRegularStimulusStopping()
     {
         double magnitude_of_stimulus = 1.0;
@@ -162,7 +162,7 @@ public:
             magnitude_of_stimulus);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5),
             magnitude_of_stimulus);
-            
+
         //Made more sloppy
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.0*(1-DBL_EPSILON)),
             0.0);
@@ -198,7 +198,7 @@ public:
 
     //void TestBasicFmod() removed since the exact floating point behaviour
     //is too difficult to reproduce
-    
+
     // SumStimulus is redundant as it is a special case of MultiStimulus, so we have refactored
     // the code by deleting SumStimulus. This test shows how to use MultiStimulus instead
     void TestSumStimulus()
@@ -258,19 +258,19 @@ public:
         }
 
     }
-    
+
     void TestComplicatedStimulus()
     {
         MultiStimulus multi_stim;
-        
+
         RegularStimulus r1(1,10,20,100,200);
         // First stimulus applies pulses for 10ms every 20ms between t=100 and t=200.
         RegularStimulus r2(2,20,40,300,400);
         // Second stimulus applies pulses for 20ms every 40ms between t=300 and t=400.
-        
+
         multi_stim.AddStimulus(&r1);
         multi_stim.AddStimulus(&r2);
-        
+
         // Test on 0.5s so we avoid worrying about <= or < and stuff!
         for (double time=0.5; time<500.0; time=time+1)
         {
@@ -278,7 +278,7 @@ public:
             {   // first stimulus active when mod(t-100,20) < 10
                 if (fmod(time-100,20) < 10)
                 {
-                    TS_ASSERT_DELTA(multi_stim.GetStimulus(time), 1.0, 1e-9);                    
+                    TS_ASSERT_DELTA(multi_stim.GetStimulus(time), 1.0, 1e-9);
                 }
                 else
                 {
@@ -289,7 +289,7 @@ public:
             {   // second stimulus active when mod(t-300,40) < 20
                 if (fmod(time-300,40) < 20)
                 {
-                    TS_ASSERT_DELTA(multi_stim.GetStimulus(time), 2.0, 1e-9);                    
+                    TS_ASSERT_DELTA(multi_stim.GetStimulus(time), 2.0, 1e-9);
                 }
                 else
                 {
@@ -298,11 +298,11 @@ public:
             }
             else
             {   //zero
-                TS_ASSERT_DELTA(multi_stim.GetStimulus(time), 0.0, 1e-9);   
+                TS_ASSERT_DELTA(multi_stim.GetStimulus(time), 0.0, 1e-9);
             }
         }
     }
-    
+
 };
 
 #endif /*TESTSTIMULUS_HPP_*/

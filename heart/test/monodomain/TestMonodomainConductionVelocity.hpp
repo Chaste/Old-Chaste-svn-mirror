@@ -49,7 +49,7 @@ class TestMonodomainConductionVelocity : public CxxTest::TestSuite
 public:
     void tearDown()
     {
-        HeartConfig::Reset();   
+        HeartConfig::Reset();
     }
 
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
@@ -60,7 +60,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoConductionVel");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-                        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 
@@ -81,7 +81,7 @@ public:
 
         // Calculate the conduction velocity
         Hdf5DataReader simulation_data=monodomain_problem.GetDataReader();
-        
+
         PropagationPropertiesCalculator ppc(&simulation_data);
         double velocity=0.0;
 
@@ -113,7 +113,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_20_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoConductionVel");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-                
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
 

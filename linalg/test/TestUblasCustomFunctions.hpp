@@ -204,7 +204,7 @@ public:
         b(0,1) = 3.03;
         b(1,1) = 165;
         TS_ASSERT_DELTA(Trace(b),13.03+165,1e-10);
-        
+
         TS_ASSERT_DELTA(SecondInvariant(b), Determinant(b), 1e-12);
 
         // symmetric 3 by 3 matrix.
@@ -266,7 +266,7 @@ public:
         TS_ASSERT_EQUALS( v3[1], 2);
         TS_ASSERT_EQUALS( v3[2], 3);
     }
-    
+
     void TestEigenVectorValueCalculation() throw(Exception)
     {
         c_matrix<double, 3, 3> A;
@@ -279,17 +279,17 @@ public:
         A(2,0) = 6;
         A(2,1) = 8;
         A(2,2) = 9;
-        
-        double smallest_eigenvalue = -0.0096002162399060342324;
-        
-        c_vector<double, 3> eigenvector;
-        
-        eigenvector = CalculateEigenvectorForSmallestNonzeroEigenvalue(A);
-        
-        c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);              
 
-        double delta = 1e-12; 
-        TS_ASSERT_DELTA( a_times_eigenvector[0], smallest_eigenvalue*eigenvector[0], delta);  
+        double smallest_eigenvalue = -0.0096002162399060342324;
+
+        c_vector<double, 3> eigenvector;
+
+        eigenvector = CalculateEigenvectorForSmallestNonzeroEigenvalue(A);
+
+        c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);
+
+        double delta = 1e-12;
+        TS_ASSERT_DELTA( a_times_eigenvector[0], smallest_eigenvalue*eigenvector[0], delta);
         TS_ASSERT_DELTA( a_times_eigenvector[1], smallest_eigenvalue*eigenvector[1], delta);
         TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);
     }

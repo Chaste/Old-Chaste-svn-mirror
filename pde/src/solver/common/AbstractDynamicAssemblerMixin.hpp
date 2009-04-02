@@ -58,11 +58,11 @@ protected:
     Mat* mpMatrixForMatrixBasedRhsAssembly;
     /** If doing matrix-based assembly for the RHS b, the vector z in Bz=b */
     Vec mVectorForMatrixBasedRhsAssembly;
-    
+
     /**
      *  This method is only called if mUseMatrixBasedRhsAssembly has been set to
      *  true (by a sub-class), in which case the subclass should have set up a matrix
-     *  to do matrix-based RHS assembly, and implemented 
+     *  to do matrix-based RHS assembly, and implemented
      *  ConstructVectorForMatrixBasedRhsAssembly. This method just assembles the RHS
      *  matrix b by setting up z and doing Bz=b.
      */
@@ -70,7 +70,7 @@ protected:
     {
         assert(mpMatrixForMatrixBasedRhsAssembly!=NULL);
 
-        // as bypassing AssembleSystem, need to make sure we call 
+        // as bypassing AssembleSystem, need to make sure we call
         // Prepare and Finalize
         this->PrepareForAssembleSystem(currentSolution, time);
 
@@ -78,19 +78,19 @@ protected:
 
         (*(this->GetLinearSystem()))->ZeroRhsVector();
 
-        // construct z 
+        // construct z
         ConstructVectorForMatrixBasedRhsAssembly(currentSolution);
-        
+
         // b = Bz
-        MatMult(*mpMatrixForMatrixBasedRhsAssembly, mVectorForMatrixBasedRhsAssembly, (*(this->GetLinearSystem()))->rGetRhsVector()); 
+        MatMult(*mpMatrixForMatrixBasedRhsAssembly, mVectorForMatrixBasedRhsAssembly, (*(this->GetLinearSystem()))->rGetRhsVector());
 
         // apply boundary conditions
-        this->ApplyNeummanBoundaryConditions();        
+        this->ApplyNeummanBoundaryConditions();
         (*(this->GetLinearSystem()))->AssembleRhsVector();
-        
+
         this->ApplyDirichletConditions(currentSolution, false);
 
-        // as bypassing AssembleSystem, need to make sure we call 
+        // as bypassing AssembleSystem, need to make sure we call
         // Prepare and Finalise
         this->FinaliseAssembleSystem(currentSolution, time);
         (*(this->GetLinearSystem()))->AssembleRhsVector();
@@ -109,7 +109,7 @@ public:
         mInitialCondition = NULL;
         mMatrixIsAssembled = false;
         mMatrixIsConstant = false;
-        
+
         mUseMatrixBasedRhsAssembly = false;
         mpMatrixForMatrixBasedRhsAssembly = NULL;
     }
@@ -217,7 +217,7 @@ public:
         }
         return current_solution;
     }
-    
+
     /**
      *  This method should be overloaded by any subclass which uses matrix-based
      *  assembly.

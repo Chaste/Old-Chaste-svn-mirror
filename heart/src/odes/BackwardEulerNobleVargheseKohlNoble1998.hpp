@@ -17,12 +17,12 @@
 
 class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCardiacCell<12>
 {
-friend class TestFastSlowBackwardEulerNoble98; // Friend class for the purposes of testing    
-    
+friend class TestFastSlowBackwardEulerNoble98; // Friend class for the purposes of testing
+
 public:
     BackwardEulerNobleVargheseKohlNoble1998(AbstractIvpOdeSolver *pSolver,
                                             AbstractStimulusFunction *pIntracellularStimulus)
-          : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus)                                             
+          : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus)
     {
         MakeVars();
     }
@@ -46,16 +46,16 @@ public:
     {
     }
 
-    void VerifyGatingVariables() 
+    void VerifyGatingVariables()
     {
         // The variables are:
         // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
         // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
         assert(rGetStateVariables()[1]>=0); // xr1
         assert(rGetStateVariables()[1]<=1);
-        
+
         assert(rGetStateVariables()[2]>=0); // xr2
-        assert(rGetStateVariables()[2]<=1); 
+        assert(rGetStateVariables()[2]<=1);
 
         assert(rGetStateVariables()[3]>=0); // xs
         assert(rGetStateVariables()[3]<=1);
@@ -77,13 +77,13 @@ public:
 
         assert(rGetStateVariables()[11]>=0); // r
         assert(rGetStateVariables()[11]<=1);
-        
+
     }
 
-    void VerifyStateVariables() 
+    void VerifyStateVariables()
     {
         VerifyGatingVariables();
-        
+
         // The variables are:
         // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
         // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
@@ -142,7 +142,7 @@ public:
         // Units: millimolar; Initial value: 1.4e-5
         double var_intracellular_calcium_concentration__Ca_ds = rY[17];
         // Units: millimolar; Initial value: 1.88e-5
-        
+
         const double var_membrane__R = 8314.472;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96485.3415;
@@ -273,20 +273,20 @@ public:
         double var_calcium_background_current__V = var_membrane__V;
         double var_calcium_background_current__i_b_Ca = var_calcium_background_current__g_bca * (var_calcium_background_current__V - var_calcium_background_current__E_Ca);
         double var_membrane__i_b_Ca = var_calcium_background_current__i_b_Ca;
-        
-        /** \todo we need to 
+
+        /** \todo we need to
          *  + Check this scaling
          *  + Ask JonC to amend PyCml if necessary
          *  + Check other cell models
-         * 
+         *
          * The return value has to be scaled to match the units required by the mono/bidomain equations.
          * The cell model ionic current is in nano Amps, we require micro Amps/cm^2. The cell density factor
-         * was calculated using the Cm=0.000095microF from the cell model and Cm=1.0microF/cm^2 from the 
+         * was calculated using the Cm=0.000095microF from the cell model and Cm=1.0microF/cm^2 from the
          * mono/bidomain equations.
          */
         double value_in_nA = var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_Ca_L_K_cyt+var_membrane__i_Ca_L_K_ds+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_p_Na+var_membrane__i_Ca_L_Na_cyt+var_membrane__i_Ca_L_Na_ds+var_membrane__i_NaCa_cyt+var_membrane__i_NaCa_ds+var_membrane__i_Ca_L_Ca_cyt+var_membrane__i_Ca_L_Ca_ds+var_membrane__i_b_Ca;
         double value_in_microA = 0.001*value_in_nA;
-        double value_in_microA_per_cm_squared = value_in_microA/0.000095;   
+        double value_in_microA_per_cm_squared = value_in_microA/0.000095;
         return value_in_microA_per_cm_squared;
     }
 
@@ -313,7 +313,7 @@ public:
         // Units: dimensionless; Initial value: 0.9948645
         double var_transient_outward_current_r_gate__r = rY[11];
         // Units: dimensionless; Initial value: 0
-        
+
         double var_L_type_Ca_channel_f2_gate__f2 = rCurrentGuess[0];
         double var_L_type_Ca_channel_f2ds_gate__f2ds = rCurrentGuess[1];
         double var_calcium_release__ActFrac = rCurrentGuess[2];
@@ -326,7 +326,7 @@ public:
         double var_intracellular_calcium_concentration__Ca_up = rCurrentGuess[9];
         double var_intracellular_potassium_concentration__K_i = rCurrentGuess[10];
         double var_intracellular_sodium_concentration__Na_i = rCurrentGuess[11];
-        
+
         const double var_membrane__R = 8314.472;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96485.3415;
@@ -534,7 +534,7 @@ public:
         double d_dt_intracellular_calcium_concentration__Ca_ds = (((-1.0) * var_intracellular_calcium_concentration__i_Ca_L_Ca_ds) / (2.0 * 1.0 * var_intracellular_calcium_concentration__V_ds_ratio * var_intracellular_calcium_concentration__V_i * var_intracellular_calcium_concentration__F)) - (var_intracellular_calcium_concentration__Ca_ds * var_intracellular_calcium_concentration__Kdecay);
         double d_dt_intracellular_calcium_concentration__Ca_up = ((var_intracellular_calcium_concentration__V_i_ratio / var_intracellular_calcium_concentration__V_up_ratio) * var_intracellular_calcium_concentration__i_up) - var_intracellular_calcium_concentration__i_trans;
         double d_dt_intracellular_calcium_concentration__Ca_rel = ((var_intracellular_calcium_concentration__V_up_ratio / var_intracellular_calcium_concentration__V_rel_ratio) * var_intracellular_calcium_concentration__i_trans) - var_intracellular_calcium_concentration__i_rel;
-        
+
         rResidual[0] = rCurrentGuess[0] - rY[8] - mDt*0.001*d_dt_L_type_Ca_channel_f2_gate__f2;
         rResidual[1] = rCurrentGuess[1] - rY[9] - mDt*0.001*d_dt_L_type_Ca_channel_f2ds_gate__f2ds;
         rResidual[2] = rCurrentGuess[2] - rY[12] - mDt*0.001*d_dt_calcium_release__ActFrac;
@@ -572,7 +572,7 @@ public:
         // Units: dimensionless; Initial value: 0.9948645
         double var_transient_outward_current_r_gate__r = rY[11];
         // Units: dimensionless; Initial value: 0
-        
+
         double var_L_type_Ca_channel_f2_gate__f2 = rCurrentGuess[0];
         double var_L_type_Ca_channel_f2ds_gate__f2ds = rCurrentGuess[1];
         double var_calcium_release__ActFrac = rCurrentGuess[2];
@@ -585,7 +585,7 @@ public:
         double var_intracellular_calcium_concentration__Ca_up = rCurrentGuess[9];
         double var_intracellular_potassium_concentration__K_i = rCurrentGuess[10];
         double var_intracellular_sodium_concentration__Na_i = rCurrentGuess[11];
-        
+
         const double var_membrane__R = 8314.472;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96485.3415;
@@ -641,7 +641,7 @@ public:
         const double var_intracellular_calcium_concentration__beta_Trop = 200.0;
         const double var_intracellular_calcium_concentration__V_ds_ratio = 0.1;
         const double var_intracellular_calcium_concentration__Kdecay = 10.0;
-        
+
         rJacobian[0][0] = 1.0 + 0.001*mDt;
         rJacobian[0][1] = 0.0;
         rJacobian[0][2] = 0.0;
@@ -826,7 +826,7 @@ protected:
         // Units: millimolar; Initial value: 1.4e-5
         double var_intracellular_calcium_concentration__Ca_ds = rY[17];
         // Units: millimolar; Initial value: 1.88e-5
-        
+
         const double var_membrane__R = 8314.472;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96485.3415;
@@ -966,7 +966,7 @@ protected:
         //const double var_membrane__stim_start = 0.1;
         double var_membrane__i_Stim = GetStimulus((1.0/0.001)*var_environment__time);
         double d_dt_membrane__V = ((-1.0) / var_membrane__Cm) * (var_membrane__i_Stim + var_membrane__i_K1 + var_membrane__i_to + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_NaK + var_membrane__i_Na + var_membrane__i_b_Na + var_membrane__i_p_Na + var_membrane__i_Ca_L_Na_cyt + var_membrane__i_Ca_L_Na_ds + var_membrane__i_NaCa_cyt + var_membrane__i_NaCa_ds + var_membrane__i_Ca_L_Ca_cyt + var_membrane__i_Ca_L_Ca_ds + var_membrane__i_Ca_L_K_cyt + var_membrane__i_Ca_L_K_ds + var_membrane__i_b_Ca);
-        
+
         rY[0] += mDt * 0.001*d_dt_membrane__V;
     }
 
@@ -977,7 +977,7 @@ protected:
         std::vector<double>& rY = rGetStateVariables();
         double var_membrane__V = rY[0];
         // Units: millivolt; Initial value: -92.849333
-        
+
         double var_transient_outward_current__V = var_membrane__V;
         double var_rapid_delayed_rectifier_potassium_current__V = var_membrane__V;
         double var_slow_delayed_rectifier_potassium_current__V = var_membrane__V;
@@ -1015,7 +1015,7 @@ protected:
         double var_transient_outward_current_s_gate__V = var_transient_outward_current__V;
         double var_transient_outward_current_s_gate__alpha_s = 0.033 * exp((-var_transient_outward_current_s_gate__V) / 17.0);
         double var_transient_outward_current_s_gate__beta_s = 33.0 / (1.0 + exp((-0.125) * (var_transient_outward_current_s_gate__V + 10.0)));
-        
+
         const double _g_0 = var_L_type_Ca_channel_d_gate__speed_d * (var_L_type_Ca_channel_d_gate__alpha_d * 1.0);
         const double _h_0 = var_L_type_Ca_channel_d_gate__speed_d * ((var_L_type_Ca_channel_d_gate__alpha_d * (-1.0)) - (var_L_type_Ca_channel_d_gate__beta_d * 1.0));
         const double _g_1 = var_L_type_Ca_channel_f_gate__speed_f * (var_L_type_Ca_channel_f_gate__alpha_f * 1.0);
@@ -1034,7 +1034,7 @@ protected:
         const double _h_7 = 333.0 * (-1.0);
         const double _g_8 = var_transient_outward_current_s_gate__alpha_s * 1.0;
         const double _h_8 = (var_transient_outward_current_s_gate__alpha_s * (-1.0)) - (var_transient_outward_current_s_gate__beta_s * 1.0);
-        
+
         const double dt = mDt*0.001;
         rY[1] = (rY[1] + _g_4*dt) / (1 - _h_4*dt);
         rY[2] = (rY[2] + _g_5*dt) / (1 - _h_5*dt);
@@ -1045,7 +1045,7 @@ protected:
         rY[7] = (rY[7] + _g_1*dt) / (1 - _h_1*dt);
         rY[10] = (rY[10] + _g_8*dt) / (1 - _h_8*dt);
         rY[11] = (rY[11] + _g_7*dt) / (1 - _h_7*dt);
-        
+
         double _guess[12] = {rY[8],rY[9],rY[12],rY[13],rY[20],rY[21],rY[17],rY[16],rY[19],rY[18],rY[15],rY[14]};
         CardiacNewtonSolver<12> *_solver = CardiacNewtonSolver<12>::Instance();
         _solver->Solve(*this, _guess);
@@ -1071,7 +1071,7 @@ void OdeSystemInformation<BackwardEulerNobleVargheseKohlNoble1998>::Initialise(v
 {
     // Time units: second
     //
-    // Variables are:        
+    // Variables are:
     // {V, xr1, xr2, xs, m, h, d, f, f2, fds2, s, r, ActFrac, ProdFrac}
     // {Na_i, K_i, Ca_i, Ca_ds, Ca_up, Ca_rel, Ca_Calmod, Ca_Trop}
     //
@@ -1107,7 +1107,7 @@ void OdeSystemInformation<BackwardEulerNobleVargheseKohlNoble1998>::Initialise(v
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1);
 
-    this->mVariableNames.push_back("f2"); 
+    this->mVariableNames.push_back("f2");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.9349197);
 

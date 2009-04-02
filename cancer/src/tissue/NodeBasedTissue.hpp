@@ -62,7 +62,7 @@ private:
      *
      * Note that serialization of the nodes is handled by load/save_construct_data,
      * so we don't actually have to do anything here except delegate to the base class.
-     * 
+     *
      * @param archive
      * @param version
      */

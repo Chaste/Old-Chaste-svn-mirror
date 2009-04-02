@@ -66,7 +66,7 @@ public :
     double Get_d2W_dI1I2(double I1, double I2);
 
     double GetA();
-    
+
     double GetB();
 
 public :

@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "QuadraticMesh.hpp"
 
-class TestQuadraticMesh : public CxxTest::TestSuite 
+class TestQuadraticMesh : public CxxTest::TestSuite
 {
 public:
 
@@ -61,7 +61,7 @@ public:
             TS_ASSERT_EQUALS(internal_node_elems,mesh.GetElement(i)->GetNode(2)->rGetContainingElementIndices());
         }
     }
-    
+
     void TestQuadraticMesh2d() throw(Exception)
     {
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
@@ -89,11 +89,11 @@ public:
             }
         }
 
-        // Node 3 (ie fourth) of element 0 
+        // Node 3 (ie fourth) of element 0
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(3), 82u);
-        // Node 4 (ie fifth) of element 0 
+        // Node 4 (ie fifth) of element 0
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(4), 83u);
-        // Node 5 (ie last) of element 0 
+        // Node 5 (ie last) of element 0
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(5), 81u);
 
         // Each boundary element should have three nodes
@@ -109,9 +109,9 @@ public:
 
         // The first edge has nodes 53 and 0, according to the edge file...
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(0), 53u);
-        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(1), 0u); 
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(1), 0u);
         // ...the midnode has to be computed (found) by the QuadraticMesh class
-        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(2), 81u); 
+        TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(2), 81u);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -177,9 +177,9 @@ public:
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(1), 43u);
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(2), 85u);
         // .. the internal nodes have to be computed (found) by the QuadraticMesh.
-        // The nodes 177,43,85 are all in the third element in the ele file, and 
+        // The nodes 177,43,85 are all in the third element in the ele file, and
         // they are nodes 1,3,2 respectively. Therefore, the internals are the local
-        // nodes 9,5,8 respectively (look the the ordering picture), so.. 
+        // nodes 9,5,8 respectively (look the the ordering picture), so..
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(3), 392u);
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(4), 388u);
         TS_ASSERT_EQUALS( (*iter)->GetNodeGlobalIndex(5), 391u);
@@ -269,7 +269,7 @@ public:
         {
             c_vector<double,3> x = mesh.GetNode(i)->rGetLocation();
 
-            // Check the extra nodes aren't (0,0,0). 
+            // Check the extra nodes aren't (0,0,0).
             // This fails with 32bit outdated binary.
             TS_ASSERT_LESS_THAN(1e-12, norm_2(x)); // assert x not equal to 0
         }

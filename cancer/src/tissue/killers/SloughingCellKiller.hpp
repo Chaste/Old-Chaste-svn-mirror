@@ -52,7 +52,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the object and its member variables.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -61,7 +61,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
         //archive & mSloughSides; // done in load_construct_data
-        
+
         // Make sure Cancer Parameters are archived
         CancerParameters* p_params = CancerParameters::Instance();
         archive & *p_params;
@@ -72,7 +72,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param pCrypt pointer to a tissue
      * @param sloughSides whether to slough cells at the side of the crypt
      */

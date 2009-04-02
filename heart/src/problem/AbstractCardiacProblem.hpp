@@ -44,17 +44,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Base class for cardiac problems; contains code generic to both mono- and bidomain.
- * 
+ *
  * See tutorials for usage.
  */
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
 friend class TestBidomainWithBathAssembler;
-    
+
 protected:
-    /** Meshes can be read from file or instantiated and passed directly to this 
-     *  class, this is for the former */ 
+    /** Meshes can be read from file or instantiated and passed directly to this
+     *  class, this is for the former */
     std::string mMeshFilename;
 
     /** If this is set, the nodes for each processor are read */
@@ -64,9 +64,9 @@ protected:
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
     /**
-     *  Whether to use matrix-based assembly of the RHS vector (much more efficient). 
+     *  Whether to use matrix-based assembly of the RHS vector (much more efficient).
      *  True by default
-     */ 
+     */
     bool mUseMatrixBasedRhsAssembly;
     /** Whether this problem class has created the mesh itself, as opposed to being given it */
     bool mAllocatedMemoryForMesh;
@@ -74,7 +74,7 @@ protected:
     bool mWriteInfo;
     /** Whether to write any output at all */
     bool mPrintOutput;
-    /** Whether to convert the output from HDF5 to meshalyzer readable format */ 
+    /** Whether to convert the output from HDF5 to meshalyzer readable format */
     bool mCallChaste2Meshalyzer;
 
     /** If only outputing voltage for selected nodes, which nodes to output at */
@@ -101,9 +101,9 @@ protected:
     /** The mesh. Can either by passed in, or the mesh filename can be set */
     AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
-    /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and 
+    /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and
      *  [V_0 phi_0 .. V_N phi_N] for bidomain */
-    Vec mSolution; 
+    Vec mSolution;
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.
@@ -141,21 +141,21 @@ public:
      */
     void Initialise();
 
-    /** 
+    /**
      *  Set a file from which the nodes for each processor are read
-     */ 
+     */
     void SetNodesPerProcessorFilename(const std::string& filename);
-    
+
     /**
      *  Set the boundary conditions container.
      *  @param *pbcc is a pointer to a boundary conditions container
      */
     void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc);
-    
+
     /**
      *  Performs a series of checks before solving.
-     *  It checks whether the cardiac pde has been defined, 
-     *  whether the simulation time is greater than zero and 
+     *  It checks whether the cardiac pde has been defined,
+     *  whether the simulation time is greater than zero and
      *  whether the output directory is specified (or the output is set not to be produced).
      *  It throws exceptions if any of the above checks fails.
      */
@@ -163,12 +163,12 @@ public:
 
     /**
      * Perhaps this should be a method of AbstractCardiacPde??
-     * This is virtual so BidomainProblem can overwrite V to zero for bath nodes, if 
+     * This is virtual so BidomainProblem can overwrite V to zero for bath nodes, if
      * there are any.
      */
     virtual Vec CreateInitialCondition();
 
-    /** 
+    /**
      *  Set whether to call the Chaste2Meshalyzer script.
      *  This script gets everything ready to visualize the results with meshalyser
      *  and is useful in testing. By default the script is called.
@@ -176,7 +176,7 @@ public:
      */
     void ConvertOutputToMeshalyzerFormat(bool call = true);
 
-    /** This only needs to be called if a mesh filename has not been set */ 
+    /** This only needs to be called if a mesh filename has not been set */
     void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     /**
@@ -204,19 +204,19 @@ public:
     AbstractMesh<SPACE_DIM,SPACE_DIM> & rGetMesh();
 
     AbstractCardiacPde<SPACE_DIM>* GetPde();
-    
+
     /**
-     *  First performs some checks by calling  the PreSolveChecks method. 
+     *  First performs some checks by calling  the PreSolveChecks method.
      *  It creates an assembler to which it passes the boundary conditions specified by the user
-     *  (otherwise it passes the defauls bcc). 
+     *  (otherwise it passes the defauls bcc).
      *   It then calls the Solve method in the assembler class.
      *   It also handles the output, if necessary.
      */
     void Solve();
-    
+
     /**
      * Closes the files where the solution is stored and,
-     * if specified so (as it is by default), converts the output to Meshalyzer format 
+     * if specified so (as it is by default), converts the output to Meshalyzer format
      * by calling the WriteFilesUsingMesh method in the MeshalyzerWriter class.
      */
     void CloseFilesAndPostProcess();
@@ -227,36 +227,36 @@ public:
     virtual void DefineWriterColumns();
 
     virtual void WriteOneStep(double time, Vec voltageVec);
-    
+
     /**
-     * It creates and initialises the hdf writer from the Hdf5DataWriter class. 
+     * It creates and initialises the hdf writer from the Hdf5DataWriter class.
      * It passes the output directory (mOutputDirectory) and file name (mOutputFilenamePrefix) to it.
      * It is called by Solve(), if the output needs to be generated.
      */
     void InitialiseWriter();
-    
+
     /**
      * Specifies which nodes in the mesh to output.
      * @param &nodesToOutput is a reference to a vector with the indexes of the nodes
-     * where the output is desired. 
+     * where the output is desired.
      * If empty, the output will be for all the nodes in the mesh.
      */
     void SetOutputNodes(std::vector<unsigned> &nodesToOutput);
-    
+
     Hdf5DataReader GetDataReader();
-    
-    /** 
-     *  Whether to use matrix-based RHS assembly or not
-     */    
-    void UseMatrixBasedRhsAssembly(bool usematrix=true);
-    
+
     /**
-     *  Called at end of each time step in the main time-loop in 
-     *  Solve(). Empty implementation but can be overloaded by child 
+     *  Whether to use matrix-based RHS assembly or not
+     */
+    void UseMatrixBasedRhsAssembly(bool usematrix=true);
+
+    /**
+     *  Called at end of each time step in the main time-loop in
+     *  Solve(). Empty implementation but can be overloaded by child
      *  classes
      */
     virtual void OnEndOfTimestep(double time)
     {}
-    
+
 };
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

@@ -64,29 +64,29 @@ public:
         delete mpStimulus;
     }
 };
-    
-    
-    
+
+
+
 class TestBenchmarkRealisticLinearAlgebra : public CxxTest::TestSuite
 {
 private:
     void SetParameters()
     {
         // Timesteps and simulation duration
-        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);                
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.0025, 0.005, 0.1);
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
         // Input cardiac mesh
         HeartConfig::Instance()->SetMeshFileName("heart/test/data/halfheart");
-    
+
         // Output directory
         HeartConfig::Instance()->SetOutputDirectory("BenchmarkRealisticLA");
-        
+
         // Solver and preconditioner selection through Chaste parameter system.
         // Not all the possible methods can be selected via HeartConfig. If an error like the following
         // happens, see next comment.
-        //    heart/test/TestRealisticLinearAlgebra.hpp:105: Error: Test failed: 
-        //    Chaste error: heart/src/problem/HeartConfig.cpp:866: Unknown solver type provided        
+        //    heart/test/TestRealisticLinearAlgebra.hpp:105: Error: Test failed:
+        //    Chaste error: heart/src/problem/HeartConfig.cpp:866: Unknown solver type provided
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
 
@@ -95,18 +95,18 @@ private:
 //        PetscOptionsSetValue("-ksp_type", "bicg");
 //        PetscOptionsSetValue("-pc_type", "asm");
 
-        // If extra parameters need to be passed to the solver/preconditioner (e.g. number of levels of 
+        // If extra parameters need to be passed to the solver/preconditioner (e.g. number of levels of
         // fill to use in ILU preconditioner), they can be added to parameters database in the following
         // way
 //        PetscOptionsSetValue("-pc_factor_levels", "3");
-                
+
         // Traces KSP solution (# of iterations, residual, etc)
         PetscOptionsSetValue("-ksp_monitor", "");
-        
+
         // Enables extra logging (# of flops, messages, reductions, etc)
-//        PetscOptionsSetValue("-log_summary", "");        
+//        PetscOptionsSetValue("-log_summary", "");
     }
-    
+
 public:
 
     void TestBenchmarkBidomain() throw (Exception)
@@ -115,10 +115,10 @@ public:
 
         // Output filename for this particular test
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLA");
-        
+
         PointStimulusHeartCellFactory cell_factory;
         BidomainProblem<3> bidomain_problem(&cell_factory);
-    
+
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 

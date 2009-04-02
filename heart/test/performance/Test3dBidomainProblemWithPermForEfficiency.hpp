@@ -50,21 +50,21 @@ public:
 
     void TestBidomain3d() throw (Exception)
     {
-        
+
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));                        
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
         HeartConfig::Instance()->SetSimulationDuration(150.0);  //ms
         //Note that we can only call the old permute nodes funcutionality on the sequential mesh object
         //HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
-                
+
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
-        
+
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
         TetrahedralMesh<3,3> mesh;
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         mesh.ConstructFromMeshReader(mesh_reader);
         bidomain_problem.SetMesh(&mesh);
-        
+
         bidomain_problem.PrintOutput(false);
 
         HeartConfig::Instance()->SetKSPSolver("symmlq");
@@ -72,7 +72,7 @@ public:
         PetscOptionsSetValue("-log_summary", "");
 
         bidomain_problem.Initialise();
-        
+
         //Mesh isn't actually loaded until initialise method is called
         RandomNumberGenerator::Instance();
         bidomain_problem.rGetMesh().PermuteNodes();

@@ -37,18 +37,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  A very simple lightweight benchmarking tool. Call Timer::Reset() to reset the timer
- *  and Timer::Print() to print the time elapsed to stdout. 
- *  
+ *  and Timer::Print() to print the time elapsed to stdout.
+ *
  *  Usage:
- * 
+ *
  *  Timer::Reset();
  *  //do something
  *  Timer::PrintAndReset("First thing");
  *  //do something else
  *  Timer::Print("Other thing");
- * 
+ *
  *  which outputs (for example):
- * 
+ *
  *  First thing time: 10s
  *  Other thing time: 2s
  */
@@ -61,7 +61,7 @@ private:
 
 public:
 
-    /** 
+    /**
      *  Reset the timer.
      */
     static void Reset();
@@ -69,15 +69,15 @@ public:
     /**
      *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
      *  preceded by the message provided.
-     * 
+     *
      *  @param message
-     */ 
+     */
     static void Print(std::string message);
 
     /**
      *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
      *  preceded by the message provided, and also reset the timer.
-     * 
+     *
      *  @param message
      */
     static void PrintAndReset(std::string message);

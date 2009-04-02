@@ -58,11 +58,11 @@ void OdeSystemInformation<Ode3>::Initialise()
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(4.0);
-    
+
     this->mVariableNames.push_back("Variable 2");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(8.0);
-    
+
     this->mInitialised = true;
 }
 

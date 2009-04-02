@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
 
-     
+
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
 {
@@ -144,7 +144,7 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
     ReplicatableVector voltage_replicated(voltage);
     double V=voltage_replicated[mWatchedElectricsNodeIndex];
 
-///\todo: 
+///\todo:
 // NOTE!!! HARDCODED state variable index - assumes Lr91. Hierarchy not set up yet.
     double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->rGetStateVariables()[3];
 
@@ -177,7 +177,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     // events in AbstractCardiacProblem::Solve() (esp. calling EndEvent(EVERYTHING))
     // if we didn't disable it.
     HeartEventHandler::Disable();
-    
+
     // create the monodomain problem. Note the we use this to set up the cells,
     // get an initial condition (voltage) vector, and get an assembler. We won't
     // ever call solve on the MonodomainProblem
@@ -277,7 +277,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
     // initialise monodomain problem
     mpMonodomainProblem->SetMesh(mpElectricsMesh);
-    
+
     HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
 
     mpMonodomainProblem->Initialise();
@@ -438,7 +438,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
         // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
         // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
-        
+
         // set [Ca]
         mpCardiacMechAssembler->SetIntracellularCalciumConcentrations(intracellular_Ca);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::NON_MECH);
@@ -503,14 +503,14 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 //        //Convert simulation data to Meshalyzer format
 //        std::string output_directory =  mOutputDirectory + "/electrics/output";
 //        Hdf5ToMeshalyzerConverter converter(mOutputDirectory+"/electrics", output_directory, "voltage");
-//        
+//
 //        //Write mesh in a suitable form for meshalyzer
 //        if (PetscTools::AmMaster())
 //        {
 //            //Write the mesh
 //            MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
 //            mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
-//            
+//
 //            //Write the parameters out
 //            HeartConfig::Instance()->Write(output_directory, "parameters.xml");
 //        }

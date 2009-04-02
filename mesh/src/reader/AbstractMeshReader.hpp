@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Helper structure that stores the nodes and any attribute value
  * associated with an Element.
  */
-struct ElementData 
+struct ElementData
 {
     std::vector<unsigned> NodeIndices; /**< Vector of Node indices owned by the element. */
     unsigned AttributeValue; /**< Attribute value associated with the element. */
@@ -102,7 +102,7 @@ public:
     virtual unsigned GetNumElementAttributes() const
     {
         // By default returns 0.  If a concrete class does read attributes
-        // it needs to overload this method.          
+        // it needs to overload this method.
         return 0;
     }
 
@@ -110,7 +110,7 @@ public:
     virtual unsigned GetNumFaceAttributes() const
     {
         // By default returns 0.  If a concrete class does read attributes
-        // it needs to overload this method.          
+        // it needs to overload this method.
         return 0;
     }
 
@@ -122,30 +122,30 @@ public:
 
     /** Returns a vector of the coordinates of each node in turn */
     virtual std::vector<double> GetNextNode()=0;
-     
+
     /** Resets pointers to beginning*/
-    virtual void Reset()=0;     
-     
+    virtual void Reset()=0;
+
     /** Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
-    virtual ElementData GetNextElementData()=0; 
-        
+    virtual ElementData GetNextElementData()=0;
+
     /** Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
     virtual ElementData GetNextFaceData()=0;
-    
+
     /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFaceData()) */
     ElementData GetNextEdge()
     {
         return GetNextFaceData();
     }
 
-    /** 
+    /**
      * Get method for mMeshFileBaseName.
      */
     virtual std::string GetMeshFileBaseName()
-    { 
+    {
         return "";
     }
-         
+
 };
 
 

@@ -83,5 +83,5 @@ public :
 };
 
 
-    
+
 #endif /*POLYNOMIALMATERIALLAW3D_HPP_*/

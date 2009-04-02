@@ -219,7 +219,7 @@ public:
     {
         /*
          * There is no *Parallel* ColumnDataReader.  Since everyone might
-         * need to know everything there's no point in only one processor 
+         * need to know everything there's no point in only one processor
          * opening the file
          */
 

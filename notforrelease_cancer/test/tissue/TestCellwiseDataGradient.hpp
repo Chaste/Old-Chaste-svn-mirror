@@ -184,7 +184,7 @@ public:
             if ( !(mesh.GetNode(i)->IsBoundaryNode()) )
             {
                 cell_location_indices.push_back(i);
-            }            
+            }
         }
 
         // Set up cells

@@ -99,12 +99,12 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory());
         TS_ASSERT_EQUALS(p_data->mData.size(), tissue.rGetMesh().GetNumNodes());
-       
+
         // Coverage
         std::vector<double> constant_value;
         constant_value.push_back(1.579);
         p_data->SetConstantDataForTesting(constant_value);
-        
+
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)

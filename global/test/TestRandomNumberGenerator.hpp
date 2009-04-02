@@ -147,7 +147,7 @@ public:
             RandomNumberGenerator::Destroy();
         }
     }
-    
+
     void TestShuffle() throw(Exception)
     {
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
@@ -169,11 +169,11 @@ public:
             }
             TS_ASSERT_EQUALS(found, true);
         }
-            
+
         unsigned num_trials = 100000;
         c_matrix<unsigned,5,5> results = zero_matrix<unsigned>(5,5);
-        
-        for(unsigned trial=0; trial<num_trials; trial++) 
+
+        for(unsigned trial=0; trial<num_trials; trial++)
         {
             p_gen->Shuffle(5,shuffled_results);
             for(unsigned i=0;i<5;i++)
@@ -192,12 +192,12 @@ public:
             for(unsigned j=0; j<5; j++)
             {
                 // prob of i going to position j
-                double prob = (double)results(i,j)/num_trials; 
-                
+                double prob = (double)results(i,j)/num_trials;
+
                 // This test could fail with very low probability (just rerun)
                 // We accept 0.19 to 0.21,
                 // (note, usually in 0.199 to 0.201 with million trials (we use 10^5 trials))
-                TS_ASSERT_DELTA(prob, 0.2, 1e-2); 
+                TS_ASSERT_DELTA(prob, 0.2, 1e-2);
             }
         }
     }

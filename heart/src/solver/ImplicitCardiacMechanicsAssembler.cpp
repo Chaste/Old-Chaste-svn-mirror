@@ -34,11 +34,11 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
                                   std::string outputDirectory,
                                   std::vector<unsigned>& rFixedNodes,
                                   AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-    : NonlinearElasticityAssembler<DIM>(pQuadMesh, 
+    : NonlinearElasticityAssembler<DIM>(pQuadMesh,
                                         pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
                                         zero_vector<double>(DIM),
                                         DOUBLE_UNSET,
-                                        outputDirectory, 
+                                        outputDirectory,
                                         rFixedNodes),
       mCurrentTime(DBL_MAX),
       mNextTime(DBL_MAX),
@@ -52,7 +52,7 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
     mLambdaLastTimeStep.resize(mTotalQuadPoints, 1.0);
     mCellMechSystems.resize(mTotalQuadPoints);
 
-    // note that if pMaterialLaw is NULL a new NashHunter law was sent to the 
+    // note that if pMaterialLaw is NULL a new NashHunter law was sent to the
     // NonlinElas constuctor (see above)
     mAllocatedMaterialLawMemory = (pMaterialLaw==NULL);
 }
@@ -108,9 +108,9 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double currentTime, double ne
     // solve
     NonlinearElasticityAssembler<DIM>::Solve();
 
-    // assemble residual again (to solve the cell models implicitly again 
+    // assemble residual again (to solve the cell models implicitly again
     // using the correct value of the deformation x (in case this wasn't the
-    // last thing that was done 
+    // last thing that was done
     this->AssembleSystem(true,false);
 
     // now update state variables, and set lambda at last timestep. Note
@@ -136,7 +136,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     assert(mCurrentTime != DBL_MAX);
     assert(mNextTime != DBL_MAX);
     assert(mOdeTimestep != DBL_MAX);
-    
+
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_determinant;
     this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
@@ -192,7 +192,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         p_material_law = this->mMaterialLaws[rElement.GetIndex()];
         #undef COVERAGE_IGNORE
     }
-    
+
 //// for a varying fibre-direction
 //    assert(DIM==2);
 //    double   theta = 0.785398163/5 * elementIter->vertex(0)[0]; //0->pi/20
@@ -223,7 +223,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
         QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
         QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
-        
+
         ////////////////////////////////////////////////////
         // (dont get the body force)
         ////////////////////////////////////////////////////
@@ -234,8 +234,8 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
         grad_u = zero_matrix<double>(DIM,DIM);  // must be on new line!!
 
-        for(unsigned node_index=0; 
-            node_index<NUM_NODES_PER_ELEMENT; 
+        for(unsigned node_index=0;
+            node_index<NUM_NODES_PER_ELEMENT;
             node_index++)
         {
             for (unsigned i=0; i<DIM; i++)
@@ -305,12 +305,12 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         try
         {
             system.SolveDoNotUpdate(mCurrentTime,mNextTime,mOdeTimestep);
-            active_tension = system.GetActiveTensionAtNextTime(); 
+            active_tension = system.GetActiveTensionAtNextTime();
         }
         catch (Exception& e)
         {
             #define COVERAGE_IGNORE
-            if(assembleJacobian) 
+            if(assembleJacobian)
             {
                 EXCEPTION("Failed in solving NHS systems when assembling Jacobian");
             }
@@ -428,7 +428,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                     }
                 }
             }
-            
+
             for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
             {
                 rBElem( NUM_NODES_PER_ELEMENT*DIM + vertex_index ) +=   linear_phi(vertex_index)
@@ -446,8 +446,8 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
             {
                 unsigned spatial_dim1 = index1%DIM;
                 unsigned node_index1 = (index1-spatial_dim1)/DIM;
-                
-                
+
+
                 for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
                 {
                     unsigned spatial_dim2 = index2%DIM;
@@ -483,7 +483,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                             }
                         }
                     }
-                    
+
                     /************************************
                      *  The cardiac-specific code PART 2
                      ************************************/
@@ -498,17 +498,17 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                                                 * F(spatial_dim1,0)
                                                 * grad_quad_phi(0,node_index1)
                                                 //* fe_values.shape_grad(i,q_point)[0]
-                                                * wJ;                        
+                                                * wJ;
                    /************************************
                     *  End cardiac-specific code PART 2
                     ************************************/
                 }
-                
-                
+
+
                 for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
                 {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
-                    
+
                     for (unsigned M=0; M<DIM; M++)
                     {
                         for (unsigned N=0; N<DIM; N++)
@@ -519,7 +519,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                                                        * linear_phi(vertex_index)
                                                        * wJ;
                         }
-                    }                 
+                    }
                 }
             }
 
@@ -544,28 +544,28 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
                 /////////////////////////////////////////////////////
                 // Preconditioner matrix
-                // Fill the mass matrix (ie \intgl phi_i phi_j) in the 
-                // pressure-pressure block. Note, the rest of the 
+                // Fill the mass matrix (ie \intgl phi_i phi_j) in the
+                // pressure-pressure block. Note, the rest of the
                 // entries are filled in at the end
                 /////////////////////////////////////////////////////
-                for(unsigned vertex_index2=0; vertex_index2< NUM_VERTICES_PER_ELEMENT; vertex_index2++) 
-                { 
+                for(unsigned vertex_index2=0; vertex_index2< NUM_VERTICES_PER_ELEMENT; vertex_index2++)
+                {
                     unsigned index2 =  NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
                     rAElemPrecond(index1,index2) +=   linear_phi(vertex_index)
-                                                    * linear_phi(vertex_index2) 
-                                                    * wJ; 
-                } 
+                                                    * linear_phi(vertex_index2)
+                                                    * wJ;
+                }
             }
         }
     }
 
 
-    if (assembleJacobian) 
-    { 
+    if (assembleJacobian)
+    {
         // Fill in the other blocks of the preconditioner matrix. (This doesn't
-        // effect the pressure-pressure block of the rAElemPrecond but the 
+        // effect the pressure-pressure block of the rAElemPrecond but the
         // pressure-pressure block of rAElem is zero
-        rAElemPrecond = rAElemPrecond + rAElem; 
+        rAElemPrecond = rAElemPrecond + rAElem;
     }
 }
 

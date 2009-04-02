@@ -57,11 +57,11 @@ void OdeSystemInformation<VanDerPolOde>::Initialise()
     this->mVariableNames.push_back("x");
     this->mVariableUnits.push_back("m");
     this->mInitialConditions.push_back(10.0);
-    
+
     this->mVariableNames.push_back("v");
     this->mVariableUnits.push_back("m/s");
     this->mInitialConditions.push_back(10.0);
-    
+
     this->mInitialised = true;
 }
 

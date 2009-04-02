@@ -108,8 +108,8 @@ public:
         nodes.push_back(new Node<3>(4, false, 0.0,  0.0,  0.0));
 
         MutableMesh<3,3> mesh(nodes);
-        
-        // Note that the Voronois tessellation is not unique for this 
+
+        // Note that the Voronois tessellation is not unique for this
         // mesh since 4 points are co-spherical.  We need to check
         // how the mesher is breaking ties.
         Element<3,3>* p_element = mesh.GetElement(0);
@@ -121,7 +121,7 @@ public:
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 1u);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0u);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2u);
-         
+
         // Create Voronoi Tessellation
         VoronoiTessellation<3> tessellation(mesh);
 

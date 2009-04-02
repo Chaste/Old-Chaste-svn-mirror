@@ -45,21 +45,21 @@ public:
         unsigned num_nodes = 6;
         for (unsigned i=0; i<num_nodes; i++)
         {
-            double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes); 
-            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+            double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes);
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
         }
 
-        // Create element        
+        // Create element
         VertexElement<2,2> vertex_element(0, nodes);
 
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
-             
+
         vertex_element.DeleteNode(3); // Removes (-1,0) node
         vertex_element.DeleteNode(0); // Removes (1,0) node
-        
+
         // Test node is removed
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
-               
+
         // Test other nodes are updated
         TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
@@ -69,8 +69,8 @@ public:
 
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
- 
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);        
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
 
         // Add new node
@@ -89,11 +89,11 @@ public:
 
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
- 
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);        
+
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
 
-        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], 0.0, 1e-9);        
+        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], 0.0, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[1], 0.0, 1e-9);
 
         // Tidy up
@@ -103,8 +103,8 @@ public:
         }
         delete p_new_node;
     }
-    
-    
+
+
     void TestMarkAsDeleted()
     {
         // Create nodes
@@ -136,8 +136,8 @@ public:
             delete nodes[i];
         }
     }
-    
-    
+
+
     void TestUpdateNode()
     {
         // Create nodes
@@ -153,11 +153,11 @@ public:
 
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.0, 1e-12);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.0, 1e-12);
-        
-        // Update location of node 2 
-        Node<2>* p_node = new Node<2>(4, false, 1.2, 1.3);   
+
+        // Update location of node 2
+        Node<2>* p_node = new Node<2>(4, false, 1.2, 1.3);
         vertex_element.UpdateNode(2, p_node);
-        
+
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.2, 1e-12);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[1], 1.3, 1e-12);
 
@@ -169,7 +169,7 @@ public:
         delete p_node;
     }
 
-     
+
 //     void xTestAnticlockwisenessOfNodes() throw(Exception)
 //     {
 //        // Tests to check that the nodes are anticlockwise when we create element
@@ -178,15 +178,15 @@ public:
 //        corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
 //        corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
 //        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
-//    
+//
 //        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
-//        
+//
 //        std::vector<Node<2>*> corner_nodes2;
 //        corner_nodes2.push_back(new Node<2>(0, false, 0.0, 0.0));
-//        corner_nodes2.push_back(new Node<2>(2, false, 1.0, 1.0));   
+//        corner_nodes2.push_back(new Node<2>(2, false, 1.0, 1.0));
 //        corner_nodes2.push_back(new Node<2>(1, false, 1.0, 0.0));
 //        corner_nodes2.push_back(new Node<2>(3, false, 0.0, 1.0));
-//    
+//
 //        VertexElement<2,2> vertex_element2(INDEX_IS_NOT_USED, corner_nodes2);
 //
 //        for (unsigned i=0; i<corner_nodes.size(); ++i)
@@ -211,18 +211,18 @@ public:
         nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
         nodes.push_back(new Node<2>(0, false, 0.0, 1.0));
 
-        // Create element        
+        // Create element
         VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
-        
+
         TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(0),3u);
         TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(1),2u);
         TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(2),1u);
         TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(3),0u);
-        
+
         vertex_element.DeleteNode(3); // Removes (1,1) node
-        
+
         TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(0), UINT_MAX);
-        
+
         // Tidy up
         for (unsigned i=0; i<nodes.size(); i++)
         {

@@ -77,7 +77,7 @@ public:
      * Get the simulation time step, set in earlier calls.
      * Warning: Use of this method may result in round errors
      *  -- generally use GetTime() instead.
-     * 
+     *
      * @return time step for this run of the simulation
      */
     double GetTimeStep() const;
@@ -213,7 +213,7 @@ private:
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
-     * 
+     *
      * @param archive
      * @param version
      */

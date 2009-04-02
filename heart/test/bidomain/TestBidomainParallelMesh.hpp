@@ -51,12 +51,12 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral2d");
 
         // The default stimulus in PlaneStimulusCellFactory is not enough to generate propagation
-        // here, increasing it an order of magnitude 
+        // here, increasing it an order of magnitude
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-6000);
 
         // To avoid an issue with the Event handler only one simulation should be
         // in existance at a time: therefore monodomain simulation is defined in a block
-        double seq_ave_voltage;        
+        double seq_ave_voltage;
         {
             ///////////////////////////////////////////////////////////////////
             // TetrahedralMesh
@@ -73,13 +73,13 @@ public:
             HeartConfig::Instance()->SetCapacitance(1.0);
 
             nondistributed_problem.Solve();
-    
+
             DistributedVector dist_nondistributed_voltage(nondistributed_problem.GetSolution());
             DistributedVector::Stripe nondistributed_voltage(dist_nondistributed_voltage, 0);
-            DistributedVector::Stripe nondistributed_potential(dist_nondistributed_voltage, 1);    
-            
+            DistributedVector::Stripe nondistributed_potential(dist_nondistributed_voltage, 1);
+
             double seq_local_ave_voltage = 0.0;
-                
+
             for (DistributedVector::Iterator index = DistributedVector::Begin();
                  index != DistributedVector::End();
                  ++index)
@@ -88,7 +88,7 @@ public:
                 {
                     TS_ASSERT_LESS_THAN(0, nondistributed_voltage[index]);
                 }
-    
+
                 seq_local_ave_voltage += nondistributed_voltage[index];
             }
 

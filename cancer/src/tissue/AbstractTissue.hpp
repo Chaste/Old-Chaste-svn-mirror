@@ -97,7 +97,7 @@ protected:
     friend class boost::serialization::access;
     /**
      * Serialize the facade.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -164,9 +164,9 @@ public:
 
     /**
      * Find where a given cell is in space.
-     * 
+     *
      * @param pCell pointer to the cell
-     * 
+     *
      * @return the location of the cell
      */
     virtual c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell)=0;
@@ -508,7 +508,7 @@ public:
 
         /**
          * Comparison not-equal-to.
-         * 
+         *
          * @param other iterator with which comparison is made
          */
         inline bool operator!=(const Iterator& other);
@@ -520,7 +520,7 @@ public:
 
         /**
          * Constructor for a new iterator.
-         * 
+         *
          * @param rTissue the tissue
          * @param cellIter iterator over list of cells
          */
@@ -581,10 +581,10 @@ enum cell_colours
 namespace boost
 {
 namespace serialization
-{   
+{
 /**
- * Since this abstract class is templated, we cannot use 
- * the preprocessor macro BOOST_IS_ABSTRACT, and instead 
+ * Since this abstract class is templated, we cannot use
+ * the preprocessor macro BOOST_IS_ABSTRACT, and instead
  * must drop down to the underlying source code.
  */
 template<unsigned DIM>

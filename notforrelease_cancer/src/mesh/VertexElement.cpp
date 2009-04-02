@@ -58,7 +58,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
 {
     // Mark element as deleted
     this->mIsDeleted = true;
-    
+
     // Update nodes in the element so they know they are not contained by it
     for (unsigned i=0; i<this->GetNumNodes(); i++)
     {
@@ -95,7 +95,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::UpdateNode(const unsigned& rIndex, N
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>   
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
 {
     assert(rIndex < this->mNodes.size());
@@ -132,7 +132,7 @@ unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globa
             local_index = i;
         }
     }
-    return local_index;  
+    return local_index;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -54,7 +54,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the cell cycle model.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -69,7 +69,7 @@ protected:
     /**
      * Protected constructor for creating an identical daughter cell
      * (with the same G1 duration).
-     * 
+     *
      * @param g1Duration
      */
     AbstractSimpleCellCycleModel(double g1Duration);

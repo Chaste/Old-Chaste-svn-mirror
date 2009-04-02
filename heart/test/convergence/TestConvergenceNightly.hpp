@@ -125,7 +125,7 @@ public:
     }
 
 public:
-    
+
     void TestStimulatePlanein1D() throw(Exception)
     {
         ConvergeInVarious(PLANE);
@@ -212,7 +212,7 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 2u); ///Just to prove the thing works
     }
-    
+
     void TestSpaceConvergencein1DWithBackwardN98() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
@@ -223,9 +223,9 @@ public:
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
-        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05); 
+        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
     }
-    
+
     void TestOdeConvergencein1DWithBackwardN98() throw(Exception)
     {
         OdeConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
@@ -233,9 +233,9 @@ public:
         //tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);       
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);
     }
-   
+
     void TestOdePdeConvergencein1DWithBackwardN98() throw(Exception)
     {
         OdePdeConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
@@ -243,10 +243,10 @@ public:
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);       
-        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.005, 1e-10);       
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.005, 1e-10);
     }
- 
+
     void TestOdePdeConvergencein1DWithForwardLookupN98() throw(Exception)
     {
         OdePdeConvergenceTester<CML_noble_varghese_kohl_noble_1998_basic_pe_lut,  MonodomainProblem<1>, 1, 1> tester;
@@ -254,8 +254,8 @@ public:
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);       
-        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.0025, 1e-10);       
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.0025, 1e-10);
     }
     void TestOdePdeConvergencein1DWithForwardBasicN98() throw(Exception)
     {
@@ -264,8 +264,8 @@ public:
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);       
-        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.0025, 1e-10);       
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 0.0025, 1e-10);
     }
 };
 

@@ -41,13 +41,13 @@ public:
     void TestIt()
     {
         Timer::Reset();
-        
+
         // Rum simulation which shows **** cures cancer
-        
+
         Timer::PrintAndReset("Cure cancer");
-        
+
         // Rum simulation which shows **** cures heart disease
-        
+
         Timer::Print("Cure heart disease");
     }
 };

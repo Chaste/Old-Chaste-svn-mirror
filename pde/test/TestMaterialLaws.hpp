@@ -137,7 +137,7 @@ public:
         ml_law_3d.Compute2ndPiolaKirchoffStress(C,pressure,T2);
         ml_law_3d.ComputeCauchyStress(F,pressure,sigma);
 
-        c_matrix<double,3,3> FT = prod(F,T); 
+        c_matrix<double,3,3> FT = prod(F,T);
         c_matrix<double,3,3> F_T_tranF_over_detF = (1.0/Determinant(F))*prod(FT,trans(F));//F*T_as_unsym_tensor*transpose(F);
 
         c_matrix<double,3,3> T_transposeF = prod(T,trans(F));//T_as_unsym_tensor*transpose(F);

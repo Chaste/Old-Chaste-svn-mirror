@@ -69,13 +69,13 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
 
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 543u);
-        
+
         TrianglesMeshReader<2,2> mesh_reader2("mesh/test/data/baddata/bad_nodes_disk_522_elements");
 
         // Reads node 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
-        // Reads node 3 from file when expecting number 1                            
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextNode());                            
+        // Reads node 3 from file when expecting number 1
+        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextNode());
     }
 
     /**
@@ -106,7 +106,7 @@ public:
 
         // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
-        // Reads element 2 from file when expecting number 1                            
+        // Reads element 2 from file when expecting number 1
         TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextElementData());
     }
 
@@ -120,7 +120,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
 
         // TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 1526u); // when all faces were read
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100u); // just boundary faces are read        
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100u); // just boundary faces are read
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaceAttributes(), 1u);
 
         for (unsigned i=1; i<mesh_reader.GetNumFaces(); i++)
@@ -136,7 +136,7 @@ public:
         /// \todo: the exception thrown here is thrown in the constructor as well. In that case, it's wrongly
         /// caught considering it an end of file exception and therefore setting an inconsistent number of faces.
     }
-    
+
     /**
      * Check that the faces are read correctly. Checks that the output vector
      * for a given input file is the correct length and that if the input file
@@ -314,7 +314,7 @@ public:
 
     void TestOtherExceptions() throw(Exception)
     {
-        // This should fail because SPACE_DIM doesn't match the dimension in the file   
+        // This should fail because SPACE_DIM doesn't match the dimension in the file
         TS_ASSERT_THROWS_ANYTHING( READER_1D mesh_reader("mesh/test/data/disk_984_elements") );
     }
 
@@ -329,28 +329,28 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
 
-		std::vector<unsigned> next_element = mesh_reader.GetNextElementData().NodeIndices;
+        std::vector<unsigned> next_element = mesh_reader.GetNextElementData().NodeIndices;
 
         TS_ASSERT_EQUALS(next_element.size(), 3u);
 
         TS_ASSERT_EQUALS(next_element[0], 0u);   // left node
         TS_ASSERT_EQUALS(next_element[1], 1u);   // right node
         TS_ASSERT_EQUALS(next_element[2], 11u);  // middle node
-    
+
         for (unsigned i=1; i<10; i++)
         {
-        	next_element = mesh_reader.GetNextElementData().NodeIndices;
-    		TS_ASSERT_EQUALS(next_element.size(), 3u);
+            next_element = mesh_reader.GetNextElementData().NodeIndices;
+            TS_ASSERT_EQUALS(next_element.size(), 3u);
         }
-    }    
-    
+    }
+
     void TestReadingQuadraticMesh2d() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic", 2);
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 17u*17u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 128u);
 
-		std::vector<unsigned> next_element = mesh_reader.GetNextElementData().NodeIndices;
+        std::vector<unsigned> next_element = mesh_reader.GetNextElementData().NodeIndices;
 
         TS_ASSERT_EQUALS(next_element.size(), 6u);
 
@@ -360,30 +360,30 @@ public:
         TS_ASSERT_EQUALS(next_element[3], 82u); // opposite to 53
         TS_ASSERT_EQUALS(next_element[4], 83u); // opposite to 0
         TS_ASSERT_EQUALS(next_element[5], 81u); // opposite to 54
-    
+
         for (unsigned i=1; i<128; i++)
         {
-        	next_element = mesh_reader.GetNextElementData().NodeIndices;
-    		TS_ASSERT_EQUALS(next_element.size(), 6u);
+            next_element = mesh_reader.GetNextElementData().NodeIndices;
+            TS_ASSERT_EQUALS(next_element.size(), 6u);
         }
     }
-    
+
     void TestReadingQuadraticMesh3d() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element_quadratic", 2);
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 10u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1u);
 
-		std::vector<unsigned> next_element = mesh_reader.GetNextElementData().NodeIndices;
-    
+        std::vector<unsigned> next_element = mesh_reader.GetNextElementData().NodeIndices;
+
         TS_ASSERT_EQUALS(next_element.size(), 10u);
-        
+
         for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_EQUALS(next_element[i], i);
         }
     }
-    
+
     void TestReadingElementAttributes() throw(Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
@@ -397,9 +397,9 @@ public:
             std::vector<unsigned> nodes = next_element_info.NodeIndices;
             TS_ASSERT_EQUALS(nodes.size(), 2u);
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5+1);
-        }        
+        }
     }
-    
+
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

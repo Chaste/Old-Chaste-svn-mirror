@@ -61,7 +61,7 @@ private:
      *
      * The remaining member variables are re-initialised before being used
      * by each ReMesh() call so they do not need to be archived.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -85,7 +85,7 @@ public:
 
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.
-     * 
+     *
      * @param numAcross number of VertexElements across
      * @param numUp number of VertexElements up
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
@@ -100,7 +100,7 @@ public:
 
     /**
      * Overridden GetVectorFromAtoB() method.
-     * This method evaluates the (surface) distance between 
+     * This method evaluates the (surface) distance between
      * two points in a 2D cylindrical geometry.
      *
      * @param rLocation1 the x and y co-ordinates of point 1
@@ -123,36 +123,36 @@ public:
 
     /**
      * Overridden GetWidth() method.
-     * 
+     *
      * @param rDimension must be 0 (x) or 1 (y)
-     * 
+     *
      * @return width the CryptWidth or current height
      */
     double GetWidth(const unsigned& rDimension) const;
 
     /**
      * Overridden AddNode() method.
-     * 
+     *
      * @param pNewNode the node to be added to the mesh
      *
      * @return the global index of the new node
      */
     unsigned AddNode(Node<2>* pNewNode);
-    
+
     /**
      * Overridden GetAreaOfElement() method.
-     * 
+     *
      * @param index  the global index of a specified vertex element
-     * 
+     *
      * @return the area of the element
      */
      double GetAreaOfElement(unsigned index);
-     
+
     /**
      * Overridden GetCentroidOfElement() method.
-     * 
+     *
      * @param index  the global index of a specified vertex element
-     * 
+     *
      * @return (centroid_x,centroid_y).
      */
      c_vector<double, 2> GetCentroidOfElement(unsigned index);

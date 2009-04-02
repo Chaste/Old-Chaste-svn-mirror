@@ -41,13 +41,13 @@ protected:
     /**
      * Method computing the perpendicular distance from the cell to the line from (xBottom,0) to (xTop,yTop),
      * and returning if the distance is within the specified width to the section (defaults to 0.5)
-     * 
+     *
      * @param xBottom
      * @param xTop
      * @param yTop
      * @param cellPosition
      * @param widthOfSection
-     * 
+     *
      * @return whether the cell is in the section
      */
     bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5);
@@ -57,13 +57,13 @@ protected:
      * (xTop,yTop), taking into account periodicity, and returning if the distance is within the
      * specified width to the section (defaults to 1.0). Done by considering the two possible lines
      * and checking if cells are within range.
-     * 
+     *
      * @param xBottom
      * @param xTop
      * @param yTop
      * @param cellPosition
      * @param widthOfSection
-     * 
+     *
      * @return whether the cell is in the section
      */
     bool CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=1.0);
@@ -117,16 +117,16 @@ public :
      *
      * If xTop and xBottom are more than half a crypt width apart then a more realistic section
      * will be across the periodic boundary.
-     * 
+     *
      * Note that placing calls to functions with side-effects (eg. changing the random seed)
      * in the default arguments is DANGEROUS.  There is no guarantee that the compiler will
-     * execute these in a sensible order. It appears that Intel goes left-to-right and Gcc goes 
+     * execute these in a sensible order. It appears that Intel goes left-to-right and Gcc goes
      * right-to-left.
-     * 
+     *
      * @param xBottom  (defaults to a random number U[0,crypt_width])
      * @param xTop  (defaults to a random number U[0,crypt_width])
      * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
-     * 
+     *
      * @return an ordered list of pointes to TissueCells from the bottom to the top of the crypt.
      */
     std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(),

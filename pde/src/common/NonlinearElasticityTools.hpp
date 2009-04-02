@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define NONLINEARELASTICITYTOOLS_HPP_
 
 #include "TetrahedralMesh.hpp"
-    
+
 /**
  *  A class of helper methods for problems which use NonlinearElasticityAssembler.
  */
@@ -38,13 +38,13 @@ template<unsigned DIM>
 class NonlinearElasticityTools
 {
 public:
-    /** 
+    /**
      * Collect all the nodes which satisfy x[k] = c, for given k and c, in order
      * to be set as fixed (or displacement boundary condition) nodes. Note that
      * this method does not check if the nodes on the required surface are actually
      * boundary nodes. It does however throw an exception if no nodes on the given
      * surface are found.
-     * 
+     *
      * @param rMesh  the mesh
      * @param component  the component k
      * @param value  the value c

@@ -50,9 +50,9 @@ c_matrix<double,2*(DIM+1),2*(DIM+1)> BidomainWithBathRhsMatrixAssembler<DIM>::Co
     c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1), 2*(DIM+1));
 
     if (pElement->GetRegion() == HeartRegionCode::TISSUE)
-    {          
+    {
         c_matrix<double, DIM+1, DIM+1> basis_outer_prod = outer_prod(rPhi, rPhi);
- 
+
         // even rows, even columns
         matrix_slice<c_matrix<double, 2*DIM+2, 2*DIM+2> >
         slice00(ret, slice (0, 2, DIM+1), slice (0, 2, DIM+1));
@@ -137,24 +137,24 @@ BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathMat
             BidomainPde<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)
-    : BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints), 
+    : BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints),
       BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints),
       BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
-      
-    
+
+
 {
     // construct matrix using the helper class
     mpBidomainWithBathRhsMatrixAssembler = new BidomainWithBathRhsMatrixAssembler<SPACE_DIM>(pMesh);
     this->mpMatrixForMatrixBasedRhsAssembly = mpBidomainWithBathRhsMatrixAssembler->GetMatrix();
-    
-    /// \todo: at this point we'll have a BidomainWithBathRhsMatrixAssembler object and a BidomainRhsMatrixAssembler 
-    /// object in memory. This is a waste of memory since both construct and store a matrix for RHS assembly.          
+
+    /// \todo: at this point we'll have a BidomainWithBathRhsMatrixAssembler object and a BidomainRhsMatrixAssembler
+    /// object in memory. This is a waste of memory since both construct and store a matrix for RHS assembly.
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::~BidomainWithBathMatrixBasedAssembler()
 {
-    delete mpBidomainWithBathRhsMatrixAssembler;    
+    delete mpBidomainWithBathRhsMatrixAssembler;
 }
 
 
@@ -164,16 +164,16 @@ void BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVecto
 {
     // dist stripe for the current Voltage
     DistributedVector distributed_current_solution(currentSolution);
-    DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0); 
-         
+    DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0);
+
     // dist stripe for z
-    DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);     
+    DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);
     DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
     DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
 
     double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
     double Cm  = HeartConfig::Instance()->GetCapacitance();
-    
+
     for (DistributedVector::Iterator index = DistributedVector::Begin();
          index!= DistributedVector::End();
          ++index)
@@ -181,23 +181,23 @@ void BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVecto
         if(this->mpMesh->GetNode(index.Global)->GetRegion() == HeartRegionCode::TISSUE)
         {
             double V = distributed_current_solution_vm[index];
-            double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
-                       - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global]; 
-            
+            double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global]
+                       - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global];
+
             dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
         }
         else
         {
             dist_vec_matrix_based_vm[index] = 0.0;
-        } 
+        }
 
         dist_vec_matrix_based_phie[index] = 0.0;
     }
 
     dist_vec_matrix_based.Restore();
-    
+
     VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
-    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly); 
+    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
 }
 
 

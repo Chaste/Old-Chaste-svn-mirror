@@ -33,8 +33,8 @@ FunctionalBoundaryCondition<SPACE_DIM>::FunctionalBoundaryCondition(double (*fun
     : mFunction(func)
 {
 }
-    
-template<unsigned SPACE_DIM>    
+
+template<unsigned SPACE_DIM>
 double FunctionalBoundaryCondition<SPACE_DIM>::GetValue( const ChastePoint<SPACE_DIM>& x) const
 {
     return mFunction(x);

@@ -50,7 +50,7 @@ public :
 
     /**
      * Constructor.
-     * 
+     *
      * @param linearSolverRelativeTolerance defaults to 1e-6
      */
     SimpleNewtonNonlinearSolver(double linearSolverRelativeTolerance = 1e-6);
@@ -112,14 +112,14 @@ public :
 
     /**
      * Set a tolerance other than the default.
-     * 
+     *
      * @param tolerance
      */
     void SetTolerance(double tolerance);
 
     /**
      * Call to set the solver to write details as it solves.
-     * 
+     *
      * @param writeStats defaults to true
      */
     void SetWriteStats(bool writeStats = true)

@@ -42,7 +42,7 @@ protected:
 
     /**
      * Refresh the Jacobian for this element.
-     * 
+     *
      * @param rJacobian  the Jacobian matrix
      */
     void RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian)
@@ -57,23 +57,23 @@ protected:
             {
                 rJacobian(i,j) = this->GetNodeLocation(j+1,i) - this->GetNodeLocation(0,i);
             }
-        } 
-    } 
+        }
+    }
 
 public:
 
     /**
-     * Constructor which takes in a vector of nodes. 
-     *  
-     * @param index  the index of the element in the mesh 
-     * @param rNodes  the nodes owned by the element 
+     * Constructor which takes in a vector of nodes.
+     *
+     * @param index  the index of the element in the mesh
+     * @param rNodes  the nodes owned by the element
      */
     AbstractTetrahedralElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
      * Default constructor, which doesn't fill in any nodes.
      * The nodes must be added later.
-     * 
+     *
      * @param index  the index of the element in the mesh (defaults to INDEX_IS_NOT_USED)
      */
     AbstractTetrahedralElement(unsigned index=INDEX_IS_NOT_USED)
@@ -111,7 +111,7 @@ public:
 
     /**
      * Compute the Jacobian for this element.
-     * 
+     *
      * @param rJacobian  the Jacobian matrix
      * @param rJacobianDeterminant  the determinant of the Jacobian
      * @param concreteMove \todo this argument is not used in the method - should it be removed? (defaults to true)
@@ -120,7 +120,7 @@ public:
 
     /**
      * Compute the weighted direction for this element.
-     * 
+     *
      * @param rWeightedDirection  the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian
      * @param concreteMove \todo this argument is not used in the method - should it be removed? (defaults to true)
@@ -129,37 +129,37 @@ public:
 
     /**
      * Compute the inverse Jacobian for this element.
-     * 
+     *
      * @param rJacobian  the Jacobian matrix
      * @param rJacobianDeterminant  the determinant of the Jacobian
      * @param rInverseJacobian  the inverse Jacobian matrix
      */
     void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) //const
     {
-        assert(ELEMENT_DIM==SPACE_DIM);        
+        assert(ELEMENT_DIM==SPACE_DIM);
         CalculateJacobian(rJacobian, rJacobianDeterminant);
         //CalculateJacobian should make sure that the determinant is not close to zero (or, in fact, negative)
         assert(rJacobianDeterminant > 0.0);
         rInverseJacobian = Inverse(rJacobian);
     }
-    
+
 
 ///\todo Re-implement
     /** Get the volume of an element (or area in 2d, or length in 1d) */
     double GetVolume(void) //const?
     {
         assert(SPACE_DIM == ELEMENT_DIM);
-        
+
         if (this->mIsDeleted)
         {
             return 0.0;
         }
-        
+
         // Create Jacobian
         ///\todo We don't want to create new data, calculation and throw the answer away
         c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
         double determinant;
-        
+
         CalculateJacobian(jacobian, determinant);
         double scale_factor = 1.0;
 
@@ -213,27 +213,27 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
     c_vector<double, SPACE_DIM> weighted_direction;
     double det;
-    
+
     if (SPACE_DIM == ELEMENT_DIM)
     {
         try
-        {        
+        {
             CalculateJacobian(jacobian, det);
         }
         catch (Exception)
         {
             // if the Jacobian is negative the orientation of the element is probably
             // wrong, so swap the last two nodes around.
-    
+
             this->mNodes[total_nodes-1] = rNodes[total_nodes-2];
             this->mNodes[total_nodes-2] = rNodes[total_nodes-1];
-    
+
             CalculateJacobian(jacobian, det);
         }
     }
     else
     {
-        CalculateWeightedDirection(weighted_direction, det);            
+        CalculateWeightedDirection(weighted_direction, det);
     }
 
     // If determinant < 0 then element nodes are listed clockwise.
@@ -244,7 +244,7 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)
 {
-    
+
     assert(ELEMENT_DIM == SPACE_DIM);
     RefreshJacobian(rJacobian);
 
@@ -269,13 +269,13 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
         assert(ELEMENT_DIM == SPACE_DIM);
         EXCEPTION("WeightedDirection undefined for fully dimensional element");
     }
-    
+
     c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
     RefreshJacobian(jacobian);
-    
+
     //At this point we're only dealing with subspace (ELEMENT_DIM < SPACE_DIM) elem
     //We assume that the rWeightedDirection vector and rJacobianDeterminant (length of vector)
-    //are the values from a previous call.  
+    //are the values from a previous call.
     //rJacobianDeterminant=0.0 signifies that this is the first calculation on this element.
     c_vector<double, SPACE_DIM> weighted_direction;
 //    bool refresh=false;

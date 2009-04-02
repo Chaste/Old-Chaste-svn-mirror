@@ -602,7 +602,7 @@ public:
         TS_ASSERT_DELTA(new_node_forces[58][0], 2*0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
     }
-    
+
     void TestNagaiHondaForceMethods() throw (Exception)
     {
         // Construct a 2D vertex mesh consisting of a single element
@@ -613,7 +613,7 @@ public:
         for (unsigned i=0; i<num_nodes; i++)
         {
             angles[i] = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes);
-            nodes.push_back(new Node<2>(i, false, cos(angles[i]), sin(angles[i])));   
+            nodes.push_back(new Node<2>(i, false, cos(angles[i]), sin(angles[i])));
         }
 
         std::vector<VertexElement<2,2>*> elements;

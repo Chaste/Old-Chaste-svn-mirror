@@ -36,16 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  BidomainRhsMatrixAssembler
- * 
+ *
  *  This class only exists to construct a matrix, the matrix which is used
  *  to assemble the RHS in monodomain problems. Therefore, although it inherits
- *  from the assembler hierachy, it is not an assembler for any particular 
+ *  from the assembler hierachy, it is not an assembler for any particular
  *  PDE problem, it is just used to assemble one matrix. Therefore only
  *  ConstructMatrixTerm is properly implemented.
- * 
+ *
  *  The matrix that is constructed is in fact the mass matrix for a 2-unknown problem.
  *  ie ***IF*** the unknowns were ordered [V1 V2 .. V_N phi_e1 ... phi_eN ], the matrix would
- *  be 
+ *  be
  *  [M 0]
  *  [0 M]
  *  where
@@ -60,7 +60,7 @@ public:
     static const unsigned S_DIM = DIM;
     static const unsigned P_DIM = 2u;
 
-public: 
+public:
     /**
      *  Integrand in matrix definition integral (see class documentation)
      */
@@ -86,7 +86,7 @@ public:
 
     /**
      *  The term arising from boundary conditions to be added to the element
-     *  stiffness vector - except this class is only used fpr constructing a matrix 
+     *  stiffness vector - except this class is only used fpr constructing a matrix
      *  so this is never called.
      */
     virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(
@@ -101,8 +101,8 @@ public:
     BidomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
 
     ~BidomainRhsMatrixAssembler();
-    
-    /** 
+
+    /**
      *  Allow access to the matrix
      */
     Mat* GetMatrix();
@@ -126,7 +126,7 @@ struct AssemblerTraits<BidomainRhsMatrixAssembler<DIM> >
 
 /**
  *  BidomainMatrixBasedAssembler
- * 
+ *
  *  This class makes use of the functionality in its parent, AbstractDynamicAssemblerMixin,
  *  for specifying a constant matrix B and time-dependent vector z such that the finite element
  *  RHS vector b (in Ax=b) satisfies Bz=b, and therefore b can be constructed very quickly each
@@ -134,17 +134,17 @@ struct AssemblerTraits<BidomainRhsMatrixAssembler<DIM> >
  *
  *  For the bidomain problem, B is the mass matrix for 2 unknowns (see BidomainRhsMatrixAssembler)
  *  ***IF*** the unknowns were ordered [V1 V2 .. V_N phi_e1 ... phi_eN ], then z would be
- * 
+ *
  *  z = [z1]
  *      [z2]
  *  where z1 = CA V^{m}/dt - A I_ionic - Istim_intra
  *    and z2 = -Istim_extra,
- * 
+ *
  *  where V is the vector of voltages are the last timestep, and I_ionic and I_stim are
  *  nodewise vectors of ionic currents and stimulus currents (and C is the capacitance and
- *  A surface-area-to-volume ratio). 
+ *  A surface-area-to-volume ratio).
  */
- 
+
 // IMPORTANT NOTE: the inheritance of BidomainMatrixBasedAssembler has to be 'virtual'
 // because BidomainDg0Assembler will be the top class in a 'dreaded diamond':
 //      A
@@ -155,14 +155,14 @@ struct AssemblerTraits<BidomainRhsMatrixAssembler<DIM> >
 //
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance
 // of the member variables in A
- 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainMatrixBasedAssembler
     : public virtual BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
     BidomainRhsMatrixAssembler<SPACE_DIM>* mpBidomainRhsMatrixAssembler;
-    
+
 public:
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
@@ -173,10 +173,10 @@ public:
                                  unsigned numQuadPoints = 2);
 
     ~BidomainMatrixBasedAssembler();
-    
+
 
     /**
-     *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class 
+     *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class
      *  documentation.
      */
     virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);

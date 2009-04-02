@@ -42,7 +42,7 @@ private :
 
     /**
      * The function pointer used to determine the value of the boundary condition at a given point.
-     * 
+     *
      * @param x  a point in space
      */
     double (*mFunction)(const ChastePoint<SPACE_DIM>& x);
@@ -59,11 +59,11 @@ public :
 
     /**
      * Get the value of the boundary condition at a given point.
-     * 
+     *
      * @param x  a point in space
      */
     double GetValue(const ChastePoint<SPACE_DIM>& x) const;
-  
+
 };
 
 #endif //_FUNCTIONALBOUNDARYCONDITION_HPP_

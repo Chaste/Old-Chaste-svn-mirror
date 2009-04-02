@@ -116,10 +116,10 @@ public:
      */
     virtual double GetIntracellularCalciumConcentration();
 
-    /** 
+    /**
      *  Empty method which can be over-ridden in concrete cell class which should
      *  go through the current state vector and go range checking on the values
-     *  (eg check that concentrations are positive and gating variables are between 
+     *  (eg check that concentrations are positive and gating variables are between
      *  zero and one). This method is called in the ComputeExceptVoltage method.
      */
     virtual void VerifyStateVariables()
@@ -127,7 +127,7 @@ public:
 //// This code is for the future, but commented out at the moment due to the memory increas
 //// it will introduce. See #794.
 ////
-//// DOXYGEN DESCRIPTION NEEDS CHANGING ONCE THIS IS BROUGHT IN 
+//// DOXYGEN DESCRIPTION NEEDS CHANGING ONCE THIS IS BROUGHT IN
 ////
 ////
 //        for(std::set<unsigned>::iterator iter = mGatingVariableIndices.begin();
@@ -142,13 +142,13 @@ public:
 //                EXCEPTION(DumpState(error.str()));
 //            }
 //            if(value>1.0)
-//            { 
+//            {
 //                std::stringstream error;
 //                error << "State variable " << *iter << ", a gating variable, has become greater than one";
 //                EXCEPTION(DumpState(error.str()));
 //            }
 //        }
-//        
+//
 //        for(std::set<unsigned>::iterator iter = mConcentrationIndices.begin();
 //            iter != mConcentrationIndices.end();
 //            ++iter)
@@ -160,14 +160,14 @@ public:
 //                EXCEPTION(DumpState(error.str()));
 //            }
 //        }
-    }    
+    }
 
 
 
     ////////////////////////////////////////////////////////////////////////
     //  METHODS NEEDED BY FAST CARDIAC CELLS
     ////////////////////////////////////////////////////////////////////////
-    
+
     /**
      *  Pure method for setting the state of this model. This should
      *  (i) set the state (ii) initialise the cell (iii) SET mNumberOfStateVariables
@@ -180,10 +180,10 @@ public:
 
     /** Pure method, for getting the slow variables. Should only valid in slow mode. */
     virtual void GetSlowValues(std::vector<double>& rSlowValues);
-    
+
     /** Get whether this cell is a fast or slow version */
     virtual bool IsFastOnly();
-    
+
     virtual void AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues);
 
     /**
@@ -191,7 +191,7 @@ public:
      *  (irrespective of whether in fast or slow mode
      */
     virtual unsigned GetNumSlowValues();
-    
+
 };
 
 #endif /*ABSTRACTCARDIACCELL_HPP_*/

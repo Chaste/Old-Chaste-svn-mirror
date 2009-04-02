@@ -67,7 +67,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 1>* MonodomainProblem<DIM>::CreateAssemb
                                                         this->mpBoundaryConditionsContainer,
                                                         2);
         return p_assembler;
-    }            
+    }
 }
 
 template<unsigned DIM>

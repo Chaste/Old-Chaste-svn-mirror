@@ -573,7 +573,7 @@ public:
     // Lookup table indices
     unsigned _table_index_0;
     double _factor_0;
-    
+
     double GetIIonic()
     {
         std::vector<double>& rY = rGetStateVariables();

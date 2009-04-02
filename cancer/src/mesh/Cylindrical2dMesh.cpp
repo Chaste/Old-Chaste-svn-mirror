@@ -245,7 +245,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
             p_boundary_element->RegisterWithNodes();
             mBoundaryElements.push_back(p_boundary_element);
             this->mBoundaryElementWeightedDirections.push_back(zero_vector<double>(2));
-            this->mBoundaryElementJacobianDeterminants.push_back(0.0);            
+            this->mBoundaryElementJacobianDeterminants.push_back(0.0);
         }
         elem_index++;
     }
@@ -301,7 +301,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
 
                 if (mImageToLeftOriginalNodeMap.find(this_node_index)
-                   	!= mImageToLeftOriginalNodeMap.end())
+                       != mImageToLeftOriginalNodeMap.end())
                 {
                     number_of_left_image_nodes++;
                 }
@@ -338,7 +338,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                     std::map<unsigned, unsigned>::iterator it = mImageToLeftOriginalNodeMap.find(this_node_index);
                     if (it != mImageToLeftOriginalNodeMap.end())
                     {
-                    	p_element->ReplaceNode(mNodes[this_node_index], mNodes[it->second]);
+                        p_element->ReplaceNode(mNodes[this_node_index], mNodes[it->second]);
                     }
                 }
             }
@@ -394,13 +394,13 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                     }
                     else
                     {
-	                    it = mImageToRightOriginalNodeMap.find(this_node_index);
-	                    if (it != mImageToRightOriginalNodeMap.end())
-	                    {
-	                        //std::cout << "IMAGE\n" << std::flush;
-	                        p_boundary_element->MarkAsDeleted();
-	                        mDeletedBoundaryElementIndices.push_back(p_boundary_element->GetIndex());
-	                    }
+                        it = mImageToRightOriginalNodeMap.find(this_node_index);
+                        if (it != mImageToRightOriginalNodeMap.end())
+                        {
+                            //std::cout << "IMAGE\n" << std::flush;
+                            p_boundary_element->MarkAsDeleted();
+                            mDeletedBoundaryElementIndices.push_back(p_boundary_element->GetIndex());
+                        }
                     }
                 }
             }
@@ -684,7 +684,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         this->mElements.push_back(p_new_element);
         this->mElementJacobians.push_back(zero_matrix<double>(2,2));
         this->mElementInverseJacobians.push_back(zero_matrix<double>(2,2));
-        this->mElementJacobianDeterminants.push_back(0.0);                    
+        this->mElementJacobianDeterminants.push_back(0.0);
     }
 
     // Reindex to get rid of extra elements indices
@@ -711,12 +711,12 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
 
                 if (mImageToLeftOriginalNodeMap.find(this_node_index)
-                	!= mImageToLeftOriginalNodeMap.end())
+                    != mImageToLeftOriginalNodeMap.end())
                 {
                     number_of_left_image_nodes++;
                 }
                 else if (mImageToRightOriginalNodeMap.find(this_node_index)
-                    	!= mImageToRightOriginalNodeMap.end())
+                        != mImageToRightOriginalNodeMap.end())
                 {
                     number_of_right_image_nodes++;
                 }

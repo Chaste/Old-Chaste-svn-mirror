@@ -47,7 +47,7 @@ private:
 
     /**
      * Construct a one-dimensional linear mesh.
-     * 
+     *
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
@@ -58,7 +58,7 @@ private:
 
     /**
      * Construct a two-dimensional rectangular mesh.
-     * 
+     *
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
@@ -69,7 +69,7 @@ private:
 
     /**
      * Construct a three-dimensional cuboidal mesh.
-     * 
+     *
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
@@ -86,7 +86,7 @@ public:
 
     /**
      * Construct the mesh.
-     * 
+     *
      * @param meshNum  Index for the mesh
      * @param meshWidth  Width of the mesh
      */

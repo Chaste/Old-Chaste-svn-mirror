@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Abstract initial value problem ODE solver class. Sets up variables and functions 
+ * Abstract initial value problem ODE solver class. Sets up variables and functions
  * for a numerical solution technique for an initial value ODE problem.
  */
 class AbstractIvpOdeSolver
@@ -52,19 +52,19 @@ protected :
 public :
 
     /**
-     * Solves a system of ODEs using a specified one-step ODE solver and returns 
+     * Solves a system of ODEs using a specified one-step ODE solver and returns
      * the solution as an OdeSolution object.
      *
      * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
-     * @param rYValues  a standard vector specifying the intial condition of each 
-     *                  solution variable in the system (this can be the initial 
+     * @param rYValues  a standard vector specifying the intial condition of each
+     *                  solution variable in the system (this can be the initial
      *                  conditions vector stored in the ODE system)
      * @param startTime  the time at which the initial conditions are specified
-     * @param endTime  the time to which the system should be solved and the solution 
+     * @param endTime  the time to which the system should be solved and the solution
      *                 returned
      * @param timeStep  the time interval to be used by the solver
      * @param timeSampling  the interval at which to sample the solution to the ODE system
-     * 
+     *
      * @return OdeSolution is an object containing an integer of the number of
      * equations, a stdAbstractOdeSystem::vector of times and a std::vector of std::vectors where
      * each of those vectors contains the solution for one variable of the ODE
@@ -78,17 +78,17 @@ public :
                               double timeSampling)=0;
 
     /**
-     * Second version of Solve. Solves a system of ODEs using a specified one-step 
-     * ODE solver. This method does not return the solution and therefore does not 
-     * take in a sampling time. Instead, the mStateVariables component in the ODE 
+     * Second version of Solve. Solves a system of ODEs using a specified one-step
+     * ODE solver. This method does not return the solution and therefore does not
+     * take in a sampling time. Instead, the mStateVariables component in the ODE
      * system object is updated.
      *
      * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
-     * @param rYValues  a standard vector specifying the intial condition of each 
-     *                  solution variable in the system (this can be the initial 
+     * @param rYValues  a standard vector specifying the intial condition of each
+     *                  solution variable in the system (this can be the initial
      *                  conditions vector stored in the ODE system)
      * @param startTime  the time at which the initial conditions are specified
-     * @param endTime  the time to which the system should be solved and the solution 
+     * @param endTime  the time to which the system should be solved and the solution
      *                 returned
      * @param timeStep  the time interval to be used by the solver
      */
@@ -99,12 +99,12 @@ public :
                        double timeStep)=0;
 
     /**
-     * Solves a system of ODEs using a specified one-step ODE solver and update the 
+     * Solves a system of ODEs using a specified one-step ODE solver and update the
      * state variables.
      *
      * @param pAbstractOdeSystem  pointer to the concrete ODE system to be solved
      * @param startTime  the time at which the initial conditions are specified
-     * @param endTime  the time to which the system should be solved and the solution 
+     * @param endTime  the time to which the system should be solved and the solution
      *                 returned
      * @param timeStep  the time interval to be used by the solver
      */
@@ -121,7 +121,7 @@ public :
 
     /**
      * Get the stopping time for the solver.
-     * 
+     *
      * @return mStoppingTime.
      */
     double GetStoppingTime();

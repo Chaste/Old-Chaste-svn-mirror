@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "NonlinearElasticityTools.hpp"
 
-template<unsigned DIM>        
+template<unsigned DIM>
 std::vector<unsigned> NonlinearElasticityTools<DIM>::GetNodesByComponentValue(TetrahedralMesh<DIM,DIM>& rMesh,
                                                           unsigned component,
                                                           double value)
@@ -41,14 +41,14 @@ std::vector<unsigned> NonlinearElasticityTools<DIM>::GetNodesByComponentValue(Te
             fixed_nodes.push_back(i);
         }
     }
-    
+
     if(fixed_nodes.size()==0)
     {
         std::stringstream error;
         error << "Could not find any nodes on requested surface (note: tolerance = "<<tol<<")";
         EXCEPTION(error.str());
     }
-    
+
     return fixed_nodes;
 }
 

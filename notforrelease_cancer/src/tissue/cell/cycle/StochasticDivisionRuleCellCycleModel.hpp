@@ -77,7 +77,7 @@ private:
 
     /**
      * Private constructor for identical cells.
-     * 
+     *
      * @param g1Duration
      * @param generation
      * @param dividedSymmetrically
@@ -89,19 +89,19 @@ private:
 public:
 
     /**
-     * Constructor - just a default, mBirthTime is now set in 
+     * Constructor - just a default, mBirthTime is now set in
      * the AbstractCellCycleModel class.
-     * 
-     * mG1Duration is set very high, it is set for the individual 
+     *
+     * mG1Duration is set very high, it is set for the individual
      * cells when InitialiseDaughterCell is called.
-     * 
+     *
      * @param dividedSymmetrically
      */
     StochasticDivisionRuleCellCycleModel(bool dividedSymmetrically=false);
 
     /**
      * Overridden ResetForDivision() method.
-     * 
+     *
      * Should only be called by the TissueCell Divide() method.
      */
     void ResetForDivision();
@@ -111,8 +111,8 @@ public:
      */
     void InitialiseDaughterCell();
 
-    /** 
-     * Overridden builder method to create new instances of 
+    /**
+     * Overridden builder method to create new instances of
      * the cell cycle model.
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();

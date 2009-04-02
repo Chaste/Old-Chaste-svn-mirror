@@ -53,8 +53,8 @@ template<unsigned DIM>
 class BidomainProblem : public AbstractCardiacProblem<DIM, 2>
 {
 
-friend class TestBidomainWithBathAssembler;    
-    
+friend class TestBidomainWithBathAssembler;
+
 protected:
     BidomainPde<DIM>* mpBidomainPde;
 
@@ -70,18 +70,18 @@ private:
     Electrodes<DIM>* mpElectrodes;
 
     /**
-     *  Create normal initial condition but overwrite V to zero for bath nodes, if 
+     *  Create normal initial condition but overwrite V to zero for bath nodes, if
      *  there are any.
      */
     Vec CreateInitialCondition();
-    
+
     /**
      * Annotate bath nodes with the correct region code, if a bath is present.
      * Will throw if mHasBath is set but no bath is present in the mesh.
      */
     void AnalyseMeshForBath();
 
-    /** 
+    /**
      *  We need to save the assembler that is being used to switch off the
      *  electrodes (by adding default boundary conditions to the assembler)
      */
@@ -94,13 +94,13 @@ protected:
 
 public:
     /**
-     * Constructor 
+     * Constructor
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      * @hasBath Whether the simulation has a bath (if this is true, all elements with
-     * attribute = 1 will be set to be bath elements (the rest should have 
+     * attribute = 1 will be set to be bath elements (the rest should have
      * attribute = 0)).
-     * 
+     *
      */
     BidomainProblem(AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath=false);
 
@@ -122,7 +122,7 @@ public:
      * condition will not be used.
      */
     void SetNodeForAverageOfPhiZeroed(unsigned node);
-    
+
     /**
      *  Get the pde. Can only be called after Initialise()
      */
@@ -136,18 +136,18 @@ public:
     virtual void DefineWriterColumns();
 
     virtual void WriteOneStep(double time, Vec voltageVec);
-    
+
     void PreSolveChecks();
-    
-    /** 
+
+    /**
      *  Set an electrode class (which provides boundary conditions). Only
      *  valid if there is a bath
      */
     void SetElectrodes(Electrodes<DIM>& rElectrodes);
-    
+
     /**
-     *  Called at end of each time step in the main time-loop in 
-     *  AbstractCardiacProblem::Solve(). Overloaded here to switch off 
+     *  Called at end of each time step in the main time-loop in
+     *  AbstractCardiacProblem::Solve(). Overloaded here to switch off
      *  the electrodes (if there are any).
      */
     void OnEndOfTimestep(double time);

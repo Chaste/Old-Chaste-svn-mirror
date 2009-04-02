@@ -48,10 +48,10 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cylinder_14748_elem");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-                
+
         PapillaryFibreCalculator calculator(mesh);
         std::vector<c_vector<double,3> > fibre_orientations = calculator.CalculateFibreOrientations();
-        
+
         for(unsigned i=0; i<fibre_orientations.size(); i++)
         {
             TS_ASSERT_DELTA(fibre_orientations[i](0), 0.0, 0.02);

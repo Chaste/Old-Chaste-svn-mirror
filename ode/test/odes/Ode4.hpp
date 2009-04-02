@@ -57,7 +57,7 @@ void OdeSystemInformation<Ode4>::Initialise()
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.5);
-    
+
     this->mInitialised = true;
 }
 

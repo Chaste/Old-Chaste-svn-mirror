@@ -79,7 +79,7 @@ public:
         TS_ASSERT_EQUALS(node1.IsDeleted(), false);
         node1.MarkAsDeleted();
         TS_ASSERT_EQUALS(node1.IsDeleted(), true);
-        
+
         TS_ASSERT_EQUALS(node1.GetRegion(), 0u);
         node1.SetRegion(4);
         TS_ASSERT_EQUALS(node1.GetRegion(), 4u);
@@ -92,7 +92,7 @@ public:
     {
         ChastePoint<1> point1(1.0);
 
-        // Create a node with old interface        
+        // Create a node with old interface
         Node<1> node1(0, point1);
 
         // check location with new interface

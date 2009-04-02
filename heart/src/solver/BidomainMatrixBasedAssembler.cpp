@@ -169,36 +169,36 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(
         Vec currentSolution)
 {
-    
+
     // dist stripe for the current Voltage
     DistributedVector distributed_current_solution(currentSolution);
-    DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0); 
-         
+    DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0);
+
     // dist stripe for z
-    DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);     
+    DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);
     DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
     //DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
 
     double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
     double Cm  = HeartConfig::Instance()->GetCapacitance();
-    
+
     for (DistributedVector::Iterator index = DistributedVector::Begin();
          index!= DistributedVector::End();
          ++index)
     {
         double V = distributed_current_solution_vm[index];
-        double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
-                   - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global]; 
+        double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global]
+                   - this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global];
         //double G = 0.0;
-        
+
         dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
-        //dist_vec_matrix_based_phie[index] = G; 
+        //dist_vec_matrix_based_phie[index] = G;
     }
 
     dist_vec_matrix_based.Restore();
-    
+
     VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
-    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly); 
+    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
 }
 
 /////////////////////////////////////////////////////////////////////

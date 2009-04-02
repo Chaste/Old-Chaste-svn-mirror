@@ -166,7 +166,7 @@ protected:
         c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
         c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
         double jacobian_determinant;
-        
+
         mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
 // With the new signature of GetInverseJacobianForElement, inverse and jacobian are returned at the same time
@@ -261,7 +261,7 @@ protected:
                 // desired quantities
                 static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
             }
-            
+
             //HeartEventHandler::BeginEvent(HeartEventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
 
@@ -497,7 +497,7 @@ protected:
         {
             mpLinearSystem->AssembleRhsVector();
         }
-        
+
         if (assembleMatrix)
         {
             mpLinearSystem->AssembleIntermediateLhsMatrix();

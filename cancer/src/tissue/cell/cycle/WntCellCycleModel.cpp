@@ -67,7 +67,7 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
                                      const CellMutationState& rMutationState)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState); // Wnt pathway is reset in a couple of lines
-    
+
     // Set the initial conditions to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
@@ -76,14 +76,14 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
 AbstractCellCycleModel* WntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
-    
+
     /*
-     * We call a cheeky version of the constructor which makes the new cell 
+     * We call a cheeky version of the constructor which makes the new cell
      * cycle model the same as the old one - not a dividing copy at this time,
      * unless the parent cell has just divided.
      */
     return new WntCellCycleModel(mpOdeSystem,
-                                 mpCell->GetMutationState(), 
+                                 mpCell->GetMutationState(),
                                  mBirthTime,
                                  mLastTime,
                                  mFinishedRunningOdes,
@@ -124,7 +124,7 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 {
     // We are in G0 or G1 phase - running cell cycle ODEs
 #ifdef CHASTE_CVODE
-	const double dt = SimulationTime::Instance()->GetTimeStep();
+    const double dt = SimulationTime::Instance()->GetTimeStep();
 #else
     double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
 #endif // CHASTE_CVODE

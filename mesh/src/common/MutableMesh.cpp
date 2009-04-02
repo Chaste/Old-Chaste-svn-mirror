@@ -84,7 +84,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     mDeletedNodeIndices.clear();
     mAddedNodes = false;
 
-    TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear();        
+    TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -125,9 +125,9 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         ChastePoint<SPACE_DIM> point,
         bool concreteMove)
-{    
+{
     this->mNodes[index]->SetPoint(point);
-    
+
     if (concreteMove)
     {
         for (typename Node<SPACE_DIM>::ContainingElementIterator it = this->mNodes[index]->ContainingElementsBegin();
@@ -150,15 +150,15 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
             else
             {
                 c_vector<double,SPACE_DIM> previous_direction = this->mElementWeightedDirections[ (*it) ];
-                
+
                 GetElement(*it)->CalculateWeightedDirection(this->mElementWeightedDirections[ (*it) ],
                                                             this->mElementJacobianDeterminants[ (*it) ]);
-                
+
                 if ( inner_prod(previous_direction, this->mElementWeightedDirections[ (*it) ]) < 0)
                 {
                     EXCEPTION("Moving node caused an subspace element to change direction");
                 }
-                                                                                  
+
             }
         }
         for (typename Node<SPACE_DIM>::ContainingBoundaryElementIterator it = this->mNodes[index]->ContainingBoundaryElementsBegin();
@@ -168,7 +168,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
             try
             {
                 GetBoundaryElement(*it)->CalculateWeightedDirection(this->mBoundaryElementWeightedDirections[ (*it) ],
-                                                                    this->mBoundaryElementJacobianDeterminants[ (*it) ]);                    
+                                                                    this->mBoundaryElementJacobianDeterminants[ (*it) ]);
             }
             catch (Exception e)
             {
@@ -286,17 +286,17 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         try
         {
             if (SPACE_DIM == ELEMENT_DIM)
-            {            
-                this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementJacobians[(*element_iter)], 
-                                                                          this->mElementJacobianDeterminants[(*element_iter)], 
+            {
+                this->GetElement(*element_iter)->CalculateInverseJacobian(this->mElementJacobians[(*element_iter)],
+                                                                          this->mElementJacobianDeterminants[(*element_iter)],
                                                                           this->mElementInverseJacobians[ (*element_iter) ]);
             }
             else
             {
-                this->GetElement(*element_iter)->CalculateWeightedDirection(this->mElementWeightedDirections[(*element_iter)], 
-                                                                            this->mElementJacobianDeterminants[(*element_iter)]);                
+                this->GetElement(*element_iter)->CalculateWeightedDirection(this->mElementWeightedDirections[(*element_iter)],
+                                                                            this->mElementJacobianDeterminants[(*element_iter)]);
             }
-            
+
             if (concreteMove)
             {
                 this->GetElement(*element_iter)->ReplaceNode(this->mNodes[index], this->mNodes[targetIndex]);
@@ -347,7 +347,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         }
         else
         {
-// remove 767            
+// remove 767
 //            this->GetElement(*element_iter)->ZeroJacobianDeterminant();  // to be removed
             this->mElementJacobianDeterminants[ (*element_iter) ] = 0.0;
         }
@@ -373,7 +373,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         }
         else
         {
-// remove 767            
+// remove 767
 //            this->GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();  // to be removed
             this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = 0.0;
 // remove 767
@@ -385,7 +385,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
     if (concreteMove)
     {
         this->mNodes[index]->MarkAsDeleted();
-        mDeletedNodeIndices.push_back(index);        
+        mDeletedNodeIndices.push_back(index);
     }
 }
 
@@ -507,7 +507,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     map.Resize(this->GetNumAllNodes());
 
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> live_elements;
-    
+
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
         assert(i==this->mElements[i]->GetIndex()); // We need this to be true to be able to reindex the jacobian cache
@@ -518,17 +518,17 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         else
         {
             live_elements.push_back(this->mElements[i]);
-            
+
             if (SPACE_DIM == ELEMENT_DIM)
-            {            
-                this->mElementJacobians[live_elements.size()-1] = this->mElementJacobians[this->mElements[i]->GetIndex()];    
+            {
+                this->mElementJacobians[live_elements.size()-1] = this->mElementJacobians[this->mElements[i]->GetIndex()];
                 this->mElementInverseJacobians[live_elements.size()-1] = this->mElementInverseJacobians[this->mElements[i]->GetIndex()];
             }
             else
-            {        
-                this->mElementWeightedDirections[live_elements.size()-1] = this->mElementWeightedDirections[this->mElements[i]->GetIndex()]; 
+            {
+                this->mElementWeightedDirections[live_elements.size()-1] = this->mElementWeightedDirections[this->mElements[i]->GetIndex()];
             }
-            this->mElementJacobianDeterminants[live_elements.size()-1] = this->mElementJacobianDeterminants[this->mElements[i]->GetIndex()];            
+            this->mElementJacobianDeterminants[live_elements.size()-1] = this->mElementJacobianDeterminants[this->mElements[i]->GetIndex()];
         }
     }
 
@@ -538,15 +538,15 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     unsigned num_elements = this->mElements.size();
 
     if (SPACE_DIM == ELEMENT_DIM)
-    {            
-        this->mElementJacobians.resize(num_elements);    
+    {
+        this->mElementJacobians.resize(num_elements);
         this->mElementInverseJacobians.resize(num_elements);
     }
     else
-    {        
-        this->mElementWeightedDirections.resize(num_elements); 
+    {
+        this->mElementWeightedDirections.resize(num_elements);
     }
-    this->mElementJacobianDeterminants.resize(num_elements);    
+    this->mElementJacobianDeterminants.resize(num_elements);
 
     std::vector<Node<SPACE_DIM> *> live_nodes;
     for (unsigned i=0; i<this->mNodes.size(); i++)
@@ -579,7 +579,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         else
         {
             live_boundary_elements.push_back(this->mBoundaryElements[i]);
-            
+
             this->mBoundaryElementWeightedDirections[live_boundary_elements.size()-1] = this->mBoundaryElementWeightedDirections[this->mBoundaryElements[i]->GetIndex()];
             this->mBoundaryElementJacobianDeterminants[live_boundary_elements.size()-1] = this->mBoundaryElementJacobianDeterminants[this->mBoundaryElements[i]->GetIndex()];
         }
@@ -591,8 +591,8 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 
     unsigned num_boundary_elements = this->mBoundaryElements.size();
 
-    this->mBoundaryElementWeightedDirections.resize(num_boundary_elements); 
-    this->mBoundaryElementJacobianDeterminants.resize(num_boundary_elements);    
+    this->mBoundaryElementWeightedDirections.resize(num_boundary_elements);
+    this->mBoundaryElementJacobianDeterminants.resize(num_boundary_elements);
 
 
     for (unsigned i=0; i<this->mNodes.size();i++)
@@ -601,7 +601,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     }
     for (unsigned i=0; i<this->mElements.size();i++)
     {
-        
+
         this->mElements[i]->ResetIndex(i);
     }
     for (unsigned i=0; i<this->mBoundaryElements.size();i++)
@@ -618,32 +618,32 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     assert( SPACE_DIM==2 || SPACE_DIM==3 );
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
-    
-    // Avoid some triangle/tetgen errors: need at least four 
+
+    // Avoid some triangle/tetgen errors: need at least four
     // nodes for tetgen, and at least three for triangle
     if (GetNumNodes() <= SPACE_DIM)
     {
-        EXCEPTION("The number of nodes must exceed the spatial dimension.");   
+        EXCEPTION("The number of nodes must exceed the spatial dimension.");
     }
 
-// I think the following dramatically slows down the simulations, as with a 
+// I think the following dramatically slows down the simulations, as with a
 // decent sized mesh we nearly always do need to remesh somewhere.
 
 //    // If there are no nodes waiting to be deleted,
 //    // and the current mesh is Voronoi, then we don't
 //    // need to call triangle/tetgen
 //    if (mDeletedNodeIndices.size()==0 && !mAddedNodes)
-//    {        
+//    {
 //        if (CheckVoronoi())
 //        {
 //            map.ResetToIdentity();
 //            return;
 //        }
 //    }
-    
+
     // Make sure the map is big enough
     map.Resize(this->GetNumAllNodes());
-    
+
     if (SPACE_DIM==2)  // In 2D, remesh using triangle via library calls
     {
         struct triangulateio triangle_input;
@@ -654,7 +654,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         triangle_input.numberofsegments = 0;
         triangle_input.numberofholes = 0;
         triangle_input.numberofregions = 0;
-    
+
         unsigned new_index = 0;
         for (unsigned i=0; i<this->GetNumAllNodes(); i++)
         {
@@ -670,7 +670,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                 new_index++;
             }
         }
-    
+
         // Make structure for output
         struct triangulateio triangle_output;
         triangle_output.pointlist = NULL;
@@ -680,15 +680,15 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         triangle_output.triangleattributelist = (double *) NULL;
         triangle_output.edgelist = (int *) NULL;
         triangle_output.edgemarkerlist = (int *) NULL;
-    
+
         // Library call
         triangulate((char*)"Qze", &triangle_input, &triangle_output, NULL);
-    
+
         assert(triangle_output.numberofcorners == 3);
-    
+
         // Remove current data
         Clear();
-    
+
         // Construct the nodes
         for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
         {
@@ -708,7 +708,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                   triangle_output.pointlist[node_index * 2+1]));
             }
         }
-    
+
         // Construct the elements
         this->mElements.reserve(triangle_output.numberoftriangles);
         for (unsigned element_index=0; element_index<(unsigned)triangle_output.numberoftriangles; element_index++)
@@ -722,7 +722,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             }
             this->mElements.push_back(new Element<ELEMENT_DIM, SPACE_DIM>(element_index, nodes));
         }
-    
+
         // Construct the edges
         // too big mBoundaryElements.reserve(triangle_output.numberoftriangles);
         unsigned next_boundary_element_index = 0;
@@ -740,9 +740,9 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                 this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
             }
         }
-    
+
         free(triangle_input.pointlist);
-    
+
         free(triangle_output.pointlist);
         free(triangle_output.pointattributelist);
         free(triangle_output.pointmarkerlist);
@@ -750,28 +750,28 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         free(triangle_output.triangleattributelist);
         free(triangle_output.edgelist);
         free(triangle_output.edgemarkerlist);
-        
+
         this->RefreshJacobianCachedData();
     }
     else // in 3D, remesh using tetgen
     {
         std::stringstream pid;
         pid << getpid();
-    
+
         OutputFileHandler handler("");
         std::string full_name = handler.GetOutputDirectoryFullPath("") + "temp_" + pid.str() + ".";
-    
+
         // Only the master process should do IO and call the mesher
         if (handler.IsMaster())
         {
             std::string node_file_name = "temp_" + pid.str() + ".node";
             {
                 out_stream node_file = handler.OpenOutputFile(node_file_name);
-    
+
                 (*node_file) << GetNumNodes() << "\t" << SPACE_DIM << "\t0\t0\n";
-    
+
                 unsigned new_index = 0;
-    
+
                 for (unsigned i=0; i<this->GetNumAllNodes(); i++)
                 {
                     if (this->mNodes[i]->IsDeleted())
@@ -788,7 +788,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                 }
                 node_file->close();
             }
-    
+
             std::string binary_name;
 //            if(sizeof(long)==4)
 //            {
@@ -799,18 +799,18 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 //            {
 //                //64-bit machine
 //                binary_name = "./bin/tetgen_64";
-//                
+//
 //            }
             binary_name="tetgen"; //Assume it's in the path
             std::string command = binary_name + " -Q " + full_name + "node";
-    
+
             // Tetgen's quiet mode isn't as quiet as Triangle's
             command += " > /dev/null";
-            
+
             int return_value = system(command.c_str());
             if (return_value != 0)
             {
-#define COVERAGE_IGNORE                    
+#define COVERAGE_IGNORE
                 EXCEPTION("The tetgen mesher did not succeed in remeshing.  This functionality relies on tetgen.  Do you have tetgen from http://tetgen.berlios.de/ in your path?");
 #undef COVERAGE_IGNORE
             }
@@ -825,23 +825,23 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             full_name = full_name_comm;
         }
     #endif //SPECIAL_SERIAL
-    
+
         // Clear all current data
         Clear();
-    
+
         // Read the new mesh back from file
         TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");
         ConstructFromMeshReader(mesh_reader);
-    
+
         // Make sure the file is not deleted before all the processors have read it
         PetscTools::Barrier();
-    
+
         if (handler.IsMaster())
         {
             std::string remove_command = "rm " + full_name + "*";
             //system(remove_command.c_str());
         }
-    }    
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -893,7 +893,7 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPAC
 
     //Get the circumsphere information
     c_vector <double, ELEMENT_DIM+1> this_circum_centre;
-    
+
     this_circum_centre = pElement->CalculateCircumsphere(this->mElementJacobians[pElement->GetIndex()], this->mElementInverseJacobians[pElement->GetIndex()]);
 
     //Copy the actualy circumcentre into a smaller vector

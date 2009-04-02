@@ -221,14 +221,14 @@ double TysonNovak2001OdeSystem::CalculateRootFunction(double time, const std::ve
 {
     std::vector<double> dy(rY.size());
     EvaluateYDerivatives(time, rY, dy);
-    
+
     // Only call this a stopping condition if the mass of the cell is over 0.6
     // (normally cycles from 0.5-1.0 ish!)
     if (rY[5]<0.6)
     {
         return 1.0;
     }
-    
+
     if (dy[0] >= 0.0)
     {
         return 1.0;
@@ -241,7 +241,7 @@ void OdeSystemInformation<TysonNovak2001OdeSystem>::Initialise()
 {
     /*
      * Initialise state variables.
-     * 
+     *
      * These initial conditions are the approximate steady state
      * solution values while the commented out conditions are taken
      * from the Tyson and Novak 2001 paper.
@@ -250,31 +250,31 @@ void OdeSystemInformation<TysonNovak2001OdeSystem>::Initialise()
     this->mVariableUnits.push_back("nM");
 //    this->mInitialConditions.push_back(0.1);
     this->mInitialConditions.push_back(0.099999999999977);
-    
+
     this->mVariableNames.push_back("Cdh1");
     this->mVariableUnits.push_back("nM");
 //    this->mInitialConditions.push_back(9.8770e-01);
     this->mInitialConditions.push_back(0.989026454281841);
-    
+
     this->mVariableNames.push_back("Cdc20T");
     this->mVariableUnits.push_back("nM");
 //    this->mInitialConditions.push_back(1.5011e+00);
     this->mInitialConditions.push_back(1.547942029285891);
-    
+
     this->mVariableNames.push_back("Cdc20A");
     this->mVariableUnits.push_back("nM");
 //    this->mInitialConditions.push_back(1.2924e+00);
     this->mInitialConditions.push_back(1.421110920135839);
-    
+
     this->mVariableNames.push_back("IEP");
     this->mVariableUnits.push_back("nM");
 //    this->mInitialConditions.push_back(6.5405e-01);
     this->mInitialConditions.push_back(0.672838844290094);
-    
+
     this->mVariableNames.push_back("mass");
     this->mVariableUnits.push_back("");
 //    this->mInitialConditions.push_back(4.7039e-01);
     this->mInitialConditions.push_back(0.970831277863956 / 2);
-    
+
     this->mInitialised = true;
 }

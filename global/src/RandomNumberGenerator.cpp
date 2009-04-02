@@ -88,16 +88,16 @@ void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues
     {
         rValues[i] = i;
     }
-        
+
     for (unsigned end=num; end>0; end--)
     {
         // Pick a random integer from {0,..,end-1}
-        unsigned k = RandomNumberGenerator::Instance()->randMod(end); 
+        unsigned k = RandomNumberGenerator::Instance()->randMod(end);
         unsigned temp = rValues[end-1];
         rValues[end-1] = rValues[k];
         rValues[k] = temp;
     }
-}     
+}
 
 /**
  *  Generate a random number from the normal distribution with mean 0

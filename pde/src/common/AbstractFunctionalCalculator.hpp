@@ -56,9 +56,9 @@ private:
 
     /**
      * Get the integrand. Must be defined by the user.
-     * 
+     *
      * @param rX The point in space
-     * @param rU The unknown as a vector, u(i) = u_i 
+     * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      */
     virtual double GetIntegrand(ChastePoint<SPACE_DIM> &rX,
@@ -67,7 +67,7 @@ private:
 
     /**
      * Compute the contribution to the integral from one element.
-     * 
+     *
      * @param rElement The element
      */
     double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement)
@@ -78,7 +78,7 @@ private:
 
         /// NOTE: This assumes that the Jacobian is constant on an element, ie
         /// no curvilinear bases were used for position
-        /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method. 
+        /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method.
         double jacobian_determinant;
         c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian, inverse_jacobian;
         rElement.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
@@ -145,7 +145,7 @@ public:
     /**
      * Calculate the integral over the given mesh, using the given solution
      * vector on the mesh.
-     * 
+     *
      * @param rMesh  The mesh
      * @param solution  The solution vector
      */

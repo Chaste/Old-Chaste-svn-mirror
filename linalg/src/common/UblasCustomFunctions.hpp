@@ -274,10 +274,10 @@ c_vector<double, 3> Create_c_vector(double x, double y, double z);
  *  real eigenvalue which is smallest in magnitude.
  * Caveat: if there are zero eigenvalues they are ignored.
  * It's the smallest magnitude non-zero real eigenvalue which is used.
- * 
+ *
  * @param 3x3 matrix is question
  * @return 3-vector corresponding to right-eigenvector in question
- */ 
+ */
 c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<double,3,3> &A);
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/

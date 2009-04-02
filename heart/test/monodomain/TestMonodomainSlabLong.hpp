@@ -84,7 +84,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoDg03dSlabLong");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_3dSlabLong");
-                
+
         CornerStimulusCellFactory cell_factory;
 
         MonodomainProblem<3> monodomain_problem( &cell_factory );

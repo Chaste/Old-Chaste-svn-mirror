@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Hdf5DataReader.hpp"
 
-Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool makeAbsolute) 
+Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool makeAbsolute)
     : mDirectory(directory),
       mBaseName(baseName),
       mIsUnlimitedDimensionSet(false),

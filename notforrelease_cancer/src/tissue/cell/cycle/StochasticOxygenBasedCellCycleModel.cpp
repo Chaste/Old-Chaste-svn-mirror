@@ -41,8 +41,8 @@ StochasticOxygenBasedCellCycleModel::StochasticOxygenBasedCellCycleModel(double 
       mDimension(dimension)
 {
 }
-          
-          
+
+
 void StochasticOxygenBasedCellCycleModel::SetG2Duration()
 {
     CancerParameters* p_params = CancerParameters::Instance();
@@ -140,7 +140,7 @@ void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
                 const unsigned DIM = 3;
                 oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
                 break;
-            }    
+            }
             default:
                 NEVER_REACHED;
         }
@@ -195,7 +195,7 @@ void StochasticOxygenBasedCellCycleModel::UpdateHypoxicDuration()
             const unsigned DIM = 3;
             oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
             break;
-        }    
+        }
         default:
             NEVER_REACHED;
     }

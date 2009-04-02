@@ -68,13 +68,13 @@ public:
     }
 
     void TestParallelPrinting() throw (Exception)
-    {      
+    {
         std::cout.flush();
         std::cerr.flush();
         MPI_Barrier(PETSC_COMM_WORLD);
         std::cout.flush();
         std::cerr.flush();
-        
+
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
         if (PetscTools::GetMyRank() != PetscTools::NumProcs()-1)
@@ -88,9 +88,9 @@ public:
         HeartEventHandler::Headings();
 
         HeartEventHandler::Report();
-       
+
     }
- 
+
     void TestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
@@ -105,7 +105,7 @@ public:
         // Report should then throw
         TS_ASSERT_THROWS_ANYTHING(HeartEventHandler::Report());
     }
-    
+
  };
 
 

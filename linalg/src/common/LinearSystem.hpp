@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class LinearSystem
 {
-	friend class TestLinearSystem;
+    friend class TestLinearSystem;
 
 private:
 
@@ -74,12 +74,12 @@ private:
     char mPcType[30];
 
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see boundary conditions container*/
-    
+
 public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param lhsVectorSize
      * @param matType defaults to MATMPIAIJ
      */
@@ -87,27 +87,27 @@ public:
 
     /**
      * Alternative constructor.
-     * 
+     *
      * Create a linear system, where the size is based on the size of a given
      * PETSc vec.
-     * 
+     *
      * The LHS & RHS vectors will be created by duplicating this vector's
      * settings.  This should avoid problems with using VecScatter on
      * bidomain simulation results.
-     * 
+     *
      * @param templateVector
      */
     LinearSystem(Vec templateVector);
 
     /**
      * Alternative constructor.
-     * 
+     *
      * Create a linear system which wraps the provided PETSc objects so we can
      * access them using our API.  Either of the objects may be NULL, but at
      * least one of them must not be.
      *
      * Useful for storing residuals and jacobians when solving nonlinear PDEs.
-     * 
+     *
      * @param residualVector
      * @param jacobianMatrix
      */
@@ -136,21 +136,21 @@ public:
 
     /**
      * Set mMatrixIsConstant.
-     * 
+     *
      * @param matrixIsConstant
      */
     void SetMatrixIsConstant(bool matrixIsConstant);
 
     /**
      * Set the relative tolerance.
-     * 
+     *
      * @param relativeTolerance
      */
     void SetRelativeTolerance(double relativeTolerance);
 
     /**
      * Set the absolute tolerance.
-     * 
+     *
      * @param absoluteTolerance
      */
     void SetAbsoluteTolerance(double absoluteTolerance);
@@ -170,7 +170,7 @@ public:
 
     /**
      * Set all entries in a given row of a matrix to a certain value.
-     * 
+     *
      * @param row
      * @param value
      */
@@ -178,18 +178,18 @@ public:
 
     /**
      * Zero a row of the left-hand side matrix.
-     * 
+     *
      * @param row
      */
     void ZeroMatrixRow(PetscInt row);
 
     /**
      * Zero a column of the left-hand side matrix.
-     * 
-     * Unfortunately there is no equivalent method in Petsc, so this has to be 
+     *
+     * Unfortunately there is no equivalent method in Petsc, so this has to be
      * done carefully to ensure that the sparsity structure of the matrix
      * is not broken. Only owned entries which are non-zero are zeroed.
-     * 
+     *
      * @param col
      */
     void ZeroMatrixColumn(PetscInt col);
@@ -211,14 +211,14 @@ public:
 
     /**
      * Solve the linear system.
-     * 
+     *
      * @param lhsGuess  an optional initial guess for the solution (defaults to NULL)
      */
     Vec Solve(Vec lhsGuess=NULL);
 
     /**
      * Set an element of the right-hand side vector to a given value.
-     * 
+     *
      * @param row
      * @param value
      */
@@ -226,7 +226,7 @@ public:
 
     /**
      * Add a value to an element of the right-hand side vector.
-     * 
+     *
      * @param row
      * @param value
      */
@@ -238,7 +238,7 @@ public:
     unsigned GetSize();
 
     /**
-     * 
+     *
      * @param nullbasis
      * @param numberOfBases
      */
@@ -255,8 +255,8 @@ public:
     Mat& rGetLhsMatrix();
 
     /**
-     * Gets access to the dirichlet boundary conditions vector. 
-     * 
+     * Gets access to the dirichlet boundary conditions vector.
+     *
      * Should only be used by the BoundaryConditionsContainer.
      */
     Vec& rGetDirichletBoundaryConditionsVector();
@@ -264,7 +264,7 @@ public:
     // DEBUGGING CODE:
     /**
      * Get this process's ownership range of the contents of the system.
-     * 
+     *
      * @param lo
      * @param hi
      */
@@ -273,7 +273,7 @@ public:
     /**
      * Return an element of the matrix.
      * May only be called for elements you own.
-     * 
+     *
      * @param row
      * @param col
      */
@@ -282,14 +282,14 @@ public:
     /**
      * Return an element of the RHS vector.
      * May only be called for elements you own.
-     * 
+     *
      * @param row
      */
     double GetRhsVectorElement(PetscInt row);
 
     /**
      * Add multiple values to the matrix of linear system.
-     * 
+     *
      * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
      *  to index of the Petsc matrix of this linear system
      * @param smallMatrix Ublas matrix containing the values to be added
@@ -301,7 +301,7 @@ public:
     {
         PetscInt matrix_row_indices[MATRIX_SIZE];
         PetscInt num_rows_owned=0;
-		PetscInt global_row;
+        PetscInt global_row;
 
         for (unsigned row = 0; row<MATRIX_SIZE; row++)
         {
@@ -311,48 +311,48 @@ public:
                 matrix_row_indices[num_rows_owned++] = global_row;
             }
         }
-        
+
         if ( num_rows_owned == MATRIX_SIZE)
         {
-	        MatSetValues(mLhsMatrix,
-	                     num_rows_owned,
-	                     matrix_row_indices,
-	                     MATRIX_SIZE,
-	                     (PetscInt*) matrixRowAndColIndices,
-	                     smallMatrix.data(),
-	                     ADD_VALUES);
+            MatSetValues(mLhsMatrix,
+                         num_rows_owned,
+                         matrix_row_indices,
+                         MATRIX_SIZE,
+                         (PetscInt*) matrixRowAndColIndices,
+                         smallMatrix.data(),
+                         ADD_VALUES);
         }
         else
         {
-        	// We need continuous data, if some of the rows do not belong to the processor their values
-        	// are not passed to MatSetValues 
-        	double values[MATRIX_SIZE*MATRIX_SIZE];
-        	unsigned num_values_owned = 0;
-			for (unsigned row = 0; row<MATRIX_SIZE; row++)
-			{
-				global_row = matrixRowAndColIndices[row];
-				if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-				{
-					for (unsigned col=0; col<MATRIX_SIZE; col++)
-					{
-						values[num_values_owned++] = smallMatrix(row,col);
-					}
-				}
-			}
-			
-	        MatSetValues(mLhsMatrix,
-	                     num_rows_owned,
-	                     matrix_row_indices,
-	                     MATRIX_SIZE,
-	                     (PetscInt*) matrixRowAndColIndices,
-	                     values,
-	                     ADD_VALUES);			
+            // We need continuous data, if some of the rows do not belong to the processor their values
+            // are not passed to MatSetValues
+            double values[MATRIX_SIZE*MATRIX_SIZE];
+            unsigned num_values_owned = 0;
+            for (unsigned row = 0; row<MATRIX_SIZE; row++)
+            {
+                global_row = matrixRowAndColIndices[row];
+                if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
+                {
+                    for (unsigned col=0; col<MATRIX_SIZE; col++)
+                    {
+                        values[num_values_owned++] = smallMatrix(row,col);
+                    }
+                }
+            }
+
+            MatSetValues(mLhsMatrix,
+                         num_rows_owned,
+                         matrix_row_indices,
+                         MATRIX_SIZE,
+                         (PetscInt*) matrixRowAndColIndices,
+                         values,
+                         ADD_VALUES);
         }
     };
 
     /**
      * Add multiple values to the RHS vector.
-     * 
+     *
      * @param vectorIndices mapping from index of the ublas vector (see param below)
      *  to index of the vector of this linear system
      * @param smallVector Ublas vector containing the values to be added
@@ -364,7 +364,7 @@ public:
     {
         PetscInt indices_owned[VECTOR_SIZE];
         PetscInt num_indices_owned=0;
-		PetscInt global_row;
+        PetscInt global_row;
 
         for (unsigned row = 0; row<VECTOR_SIZE; row++)
         {
@@ -374,36 +374,36 @@ public:
                 indices_owned[num_indices_owned++] = global_row;
             }
         }
-        
+
         if (num_indices_owned == VECTOR_SIZE)
         {
-	        VecSetValues(mRhsVector,
-	                     num_indices_owned,
-	                     indices_owned,
-	                     smallVector.data(),
-	                     ADD_VALUES);
+            VecSetValues(mRhsVector,
+                         num_indices_owned,
+                         indices_owned,
+                         smallVector.data(),
+                         ADD_VALUES);
         }
         else
         {
-        	// We need continuous data, if some of the rows do not belong to the processor their values
-        	// are not passed to MatSetValues 
-        	double values[VECTOR_SIZE];
-        	unsigned num_values_owned = 0;
-        	
-	        for (unsigned row = 0; row<VECTOR_SIZE; row++)
-    	    {
-	            global_row = vectorIndices[row];
-	            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-	            {
-	                values[num_values_owned++] = smallVector(row);
-	            }
-	        }
-	        
-	        VecSetValues(mRhsVector,
-	                     num_indices_owned,
-	                     indices_owned,
-	                     values,
-	                     ADD_VALUES);	        			        	
+            // We need continuous data, if some of the rows do not belong to the processor their values
+            // are not passed to MatSetValues
+            double values[VECTOR_SIZE];
+            unsigned num_values_owned = 0;
+
+            for (unsigned row = 0; row<VECTOR_SIZE; row++)
+            {
+                global_row = vectorIndices[row];
+                if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
+                {
+                    values[num_values_owned++] = smallVector(row);
+                }
+            }
+
+            VecSetValues(mRhsVector,
+                         num_indices_owned,
+                         indices_owned,
+                         values,
+                         ADD_VALUES);
         }
     }
 };

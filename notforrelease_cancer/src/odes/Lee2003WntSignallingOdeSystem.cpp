@@ -32,7 +32,7 @@ Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double wntStimulus)
         : AbstractOdeSystem(8)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>);
-    
+
     /**
      * The state variables are
      *
@@ -171,6 +171,6 @@ void CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>::Initialise()
     this->mVariableNames.push_back("Wnt");
     this->mVariableUnits.push_back("non_dim");
     this->mInitialConditions.push_back(NAN); // will be filled in later
-    
+
     this->mInitialised = true;
 }

@@ -161,18 +161,18 @@ void OdeSystemInformation<HodgkinHuxleySquidAxon1952OriginalOdeSystem>::Initiali
     this->mVariableNames.push_back("V");
     this->mVariableUnits.push_back("mV");
     this->mInitialConditions.push_back(-75.0);
-    
+
     this->mVariableNames.push_back("n");
     this->mVariableUnits.push_back("");
     this->mInitialConditions.push_back(0.325);
-    
+
     this->mVariableNames.push_back("h");
     this->mVariableUnits.push_back("");
     this->mInitialConditions.push_back(0.6);
-    
+
     this->mVariableNames.push_back("m");
     this->mVariableUnits.push_back("");
     this->mInitialConditions.push_back(0.05);
-    
+
     this->mInitialised = true;
 }

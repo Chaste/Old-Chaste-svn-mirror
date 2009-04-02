@@ -58,7 +58,7 @@ public:
         double just = 3.00000000000000008882; // taken from error in cuboid mesh generation
         ChastePoint<3> just_outside(just, just, just);
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(just_outside), true);
-        
+
         // Lower dimensional cases
         ChastePoint<2> two_d_point_in(0.0, 0.0);
         ChastePoint<1> one_d_point_in(0.0);

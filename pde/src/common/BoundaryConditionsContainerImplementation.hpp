@@ -47,7 +47,7 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
         mAnyNonZeroNeumannConditionsForUnknown[index_of_unknown] = false;
         mLastNeumannCondition[index_of_unknown] = mpNeumannMap[index_of_unknown]->begin();
     }
-    
+
     // This zero boundary condition is only used in AddNeumannBoundaryCondition
     mpZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
 }
@@ -55,7 +55,7 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsC
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditionsContainer()
 {
-    
+
     // Keep track of what boundary condition objects we've deleted
     std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
     for (unsigned i=0; i<PROBLEM_DIM; i++)
@@ -63,7 +63,7 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditions
         NeumannMapIterator neumann_iterator = mpNeumannMap[i]->begin();
         while (neumann_iterator != mpNeumannMap[i]->end() )
         {
-            
+
             if (deleted_conditions.count(neumann_iterator->second) == 0)
             {
                 deleted_conditions.insert(neumann_iterator->second);
@@ -78,7 +78,7 @@ BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditions
         delete(mpNeumannMap[i]);
     }
 
-    delete mpZeroBoundaryCondition;   
+    delete mpZeroBoundaryCondition;
 
     this->DeleteDirichletBoundaryConditions(deleted_conditions);
 
@@ -177,33 +177,33 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeum
 }
 /**
  * Modifies a linear system to incorporate Dirichlet boundary conditions
- * 
- * The BCs are imposed in such a way as to ensure that a symmetric linear system remains symmetric. 
- * For each node with a boundary condition applied, both the corresponding row and column are zero'd 
+ *
+ * The BCs are imposed in such a way as to ensure that a symmetric linear system remains symmetric.
+ * For each node with a boundary condition applied, both the corresponding row and column are zero'd
  * and the RHS vector modified to take into account the zero'd column. See #577.
- * 
- * Suppose we have a matrix 
+ *
+ * Suppose we have a matrix
  * [a b c] [x] = [ b1 ]
  * [d e f] [y]   [ b2 ]
  * [g h i] [z]   [ b3 ]
- * and we want to apply the boundary condition x=v without losing symmetry if the matrix is 
+ * and we want to apply the boundary condition x=v without losing symmetry if the matrix is
  * symmetric. We apply the boundary condition
  * [1 0 0] [x] = [ v  ]
  * [d e f] [y]   [ b2 ]
  * [g h i] [z]   [ b3 ]
  * and then zero the column as well, adding a term to the RHS to take account for the
  * zero-matrix components
- * [1 0 0] [x] = [ v  ] - v[ 0 ] 
+ * [1 0 0] [x] = [ v  ] - v[ 0 ]
  * [0 e f] [y]   [ b2 ]    [ d ]
  * [0 h i] [z]   [ b3 ]    [ g ]
- * Note the last term is the first column of the matrix, with one component zeroed, and 
- * multiplied by the boundary condition. This last term is the stored in 
- * rLinearSystem.rGetDirichletBoundaryConditionsVector(), and in general form is the 
+ * Note the last term is the first column of the matrix, with one component zeroed, and
+ * multiplied by the boundary condition. This last term is the stored in
+ * rLinearSystem.rGetDirichletBoundaryConditionsVector(), and in general form is the
  * SUM_{d=1..D} v_d a'_d
  * where v_d is the boundary value of boundary condition d (d an index into the matrix),
  * and a'_d is the dth-column of the matrix but with the d-th component zeroed, and where
  * there are D boundary conditions
- * 
+ *
  */
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
@@ -211,23 +211,23 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
 {
     if (applyToMatrix)
     {
-        //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so 
+        //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so
         //that they can be reapplied at each time step.
         //Make a new vector to store the Dirichlet offsets in
         VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
         VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
-        
+
 
 
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
-    
+
             while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
-    
+
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
                 unsigned col = row;
 
@@ -236,42 +236,42 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
                 Vec matrix_col;
                 VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
                 VecZeroEntries(matrix_col);
-    
-                rLinearSystem.AssembleFinalLinearSystem(); 
+
+                rLinearSystem.AssembleFinalLinearSystem();
                 Mat& r_mat = rLinearSystem.rGetLhsMatrix();
                 MatGetColumnVector(r_mat, matrix_col, col);
-                
+
                 //Zero the correct entry of the column
                 int indices[1] = {col};
                 double zero[1] = {0.0};
-                VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES); 
-    
-                // Set up the RHS Dirichlet boundary conditions vector  
-                // Assuming one boundary at the zeroth node (x_0 = value), this is equal to 
+                VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES);
+
+                // Set up the RHS Dirichlet boundary conditions vector
+                // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
                 //   -value*[0 a_21 a_31 .. a_N1]
-                // and will be added to the RHS.   
-                VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);  
+                // and will be added to the RHS.
+                VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);
 
                 VecDestroy(matrix_col);
-                
+
                 //Zero out the appropriate row and column
                 rLinearSystem.ZeroMatrixRow(row);
                 rLinearSystem.ZeroMatrixColumn(col); // recall row=col
                 rLinearSystem.SetMatrixElement(row, row, 1);
 
                 this->mDirichIterator++;
-                
+
             }
         }
-        
+
     }
-    
+
     //Apply the RHS boundary conditions modification if required.
     if(rLinearSystem.rGetDirichletBoundaryConditionsVector())
     {
         VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
     }
-     
+
     //Apply the actual boundary condition to the RHS, note this must be done after the modification to the
     //RHS vector.
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
@@ -284,12 +284,12 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
             double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
 
             unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
-            
+
             rLinearSystem.SetRhsVectorElement(row, value);
 
             this->mDirichIterator++;
         }
-    }    
+    }
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -322,8 +322,8 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
         residual_distributed.Restore();
     }
 }
-    
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>    
+
+template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToNonlinearJacobian(Mat jacobian)
 {
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
@@ -349,7 +349,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
             this->mDirichIterator++;
         }
     }
-}    
+}
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(AbstractMesh<ELEM_DIM,SPACE_DIM> *pMesh)

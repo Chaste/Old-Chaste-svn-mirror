@@ -43,7 +43,7 @@ class AbstractForce
     friend class boost::serialization::access;
     /**
      * Serialize the object.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -64,9 +64,9 @@ public :
      */
     virtual ~AbstractForce();
 
-    /** 
-     * Calculates the force on each node. 
-     * 
+    /**
+     * Calculates the force on each node.
+     *
      * This method must be overridden in concrete classes.
      *
      * @param rForces reference to vector of forces on nodes
@@ -90,10 +90,10 @@ AbstractForce<DIM>::~AbstractForce()
 namespace boost
 {
 namespace serialization
-{   
+{
 /**
- * Since this abstract class is templated, we cannot use 
- * the preprocessor macro BOOST_IS_ABSTRACT, and instead 
+ * Since this abstract class is templated, we cannot use
+ * the preprocessor macro BOOST_IS_ABSTRACT, and instead
  * must drop down to the underlying source code.
  */
 template<unsigned DIM>

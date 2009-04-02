@@ -45,7 +45,7 @@ public:
     /** Character array holding heart event names. There are eleven heart events. */
     const static char* EventName[11];
 
-    /** Definition of heart event types. */ 
+    /** Definition of heart event types. */
     typedef enum
     {
         READ_MESH=0,

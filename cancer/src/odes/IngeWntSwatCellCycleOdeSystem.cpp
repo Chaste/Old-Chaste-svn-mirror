@@ -39,7 +39,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     mMutationState = rMutationState;
 
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>);
-    
+
     /**
      * State variables are
      *
@@ -486,6 +486,6 @@ void CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>::Initialise()
     this->mVariableNames.push_back("Sw"); // Wnt stimulus
     this->mVariableUnits.push_back("nM");
     this->mInitialConditions.push_back(NAN); // will be filled in later
-    
+
     this->mInitialised = true;
 }

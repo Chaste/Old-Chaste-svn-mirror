@@ -49,7 +49,7 @@ public:
         double timestep=3.7e-05;
 
         ////////////////////////////////////////////////////////
-        // This is how a time stepper is normally used 
+        // This is how a time stepper is normally used
         ////////////////////////////////////////////////////////
         TimeStepper my_stepper(start_time, end_time, timestep);
         while ( !my_stepper.IsTimeAtEnd() )

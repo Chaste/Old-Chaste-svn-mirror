@@ -200,6 +200,6 @@ void OdeSystemInformation<NhsCellularMechanicsOdeSystem>::Initialise(void)
     this->mVariableNames.push_back("Q3");
     this->mVariableUnits.push_back("");
     this->mInitialConditions.push_back(0);
-    
+
     this->mInitialised = true;
 }

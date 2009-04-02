@@ -43,23 +43,23 @@ public:
 
     void TestExtractor() throw(Exception)
     {
-//    	TrianglesMeshReader<3, 3> mesh_reader("/home/chaste/heart_data/heartT_renum_i");
-//		TetrahedralMesh<3,3> mesh;
-//		mesh.ConstructFromMeshReader(mesh_reader);
-//		TS_ASSERT_EQUALS(mesh.GetNumElements(), 24217344u);
-		//TrianglesMeshReader<3, 3> mesh_reader("notforrelease/test/data/mbishop_rabbit_mesh/epi_n_hr.tri");
-		
-		//TrianglesMeshReader<3, 3> mesh_reader("notforrelease/test/data/mbishop_rabbit_mesh/rv_n_hr.tri");
+//        TrianglesMeshReader<3, 3> mesh_reader("/home/chaste/heart_data/heartT_renum_i");
+//        TetrahedralMesh<3,3> mesh;
+//        mesh.ConstructFromMeshReader(mesh_reader);
+//        TS_ASSERT_EQUALS(mesh.GetNumElements(), 24217344u);
+        //TrianglesMeshReader<3, 3> mesh_reader("notforrelease/test/data/mbishop_rabbit_mesh/epi_n_hr.tri");
 
-		std::string epi_face_file = "/home/chaste/heart_data/pap_face_n.tri";
-	    
-	    ifstream nodesfile;
-	    ifstream coordsfile;
-	    ifstream pap_facefile;
-	    nodesfile.open("/home/chaste/heart_data/heartT_renum_i.tetras");
-	    coordsfile.open("/home/chaste/heart_data/heartT_renum_i.pts");
-	    pap_facefile.open("/home/chaste/heart_data/pap_face_n.dat");
-	    
+        //TrianglesMeshReader<3, 3> mesh_reader("notforrelease/test/data/mbishop_rabbit_mesh/rv_n_hr.tri");
+
+        std::string epi_face_file = "/home/chaste/heart_data/pap_face_n.tri";
+
+        ifstream nodesfile;
+        ifstream coordsfile;
+        ifstream pap_facefile;
+        nodesfile.open("/home/chaste/heart_data/heartT_renum_i.tetras");
+        coordsfile.open("/home/chaste/heart_data/heartT_renum_i.pts");
+        pap_facefile.open("/home/chaste/heart_data/pap_face_n.dat");
+
 
 /////////////////////////////////////////////////////////////
   // Defines the numbers of nodes and face nodes
@@ -67,7 +67,7 @@ public:
   int num_nodes = 4310704;
   int num_elements = 24217344;
     int num_pap_face = 42539;
-    
+
 
   // Defines element list
   int **nodes;
@@ -75,7 +75,7 @@ public:
   for(int i=0;i<num_elements;i++)
     nodes[i] = new int[5];
 
- // Defines coordinate list 
+ // Defines coordinate list
   double **coords;
   coords = new double *[num_nodes];
   for(int i=0;i<num_nodes;i++)
@@ -142,8 +142,8 @@ double **gradients;
   double r,r_temp;
   int nearest_face = 0;
 
-		
-		 // Loops over all elements finding radius vector
+
+         // Loops over all elements finding radius vector
   for(int i=0;i<num_elements;i++)
     {
       // Checks to see if we're in a papillary element
@@ -181,16 +181,16 @@ double **gradients;
           y_f = coords[pap_face[nearest_face]][1];
           z_f = coords[pap_face[nearest_face]][2];
 
-          // Defines the radius vector to be r = r1 - r2 
+          // Defines the radius vector to be r = r1 - r2
           gradients[i][0] = x_c - x_f;
           gradients[i][1] = y_c - y_f;
           gradients[i][2] = z_c - z_f;
 
         }
     }
-		
-		
-		 // Writes-out the radius vector file
+
+
+         // Writes-out the radius vector file
   ofstream vectorfile("/home/chaste/heart_data/radius_vector.dat");
   for(int i=0;i<num_elements;i++)
     {
@@ -200,11 +200,11 @@ double **gradients;
   vectorfile.close();
 
   cout << "done! \n";
-		
-	nodesfile.close();
-	    coordsfile.close();
-	    pap_facefile.close();
-	
+
+    nodesfile.close();
+        coordsfile.close();
+        pap_facefile.close();
+
 
     }
 };

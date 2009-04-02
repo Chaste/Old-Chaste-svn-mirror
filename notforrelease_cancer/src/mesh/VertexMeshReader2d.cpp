@@ -36,7 +36,7 @@ VertexMeshReader2d::VertexMeshReader2d(std::string pathBaseName)
       mElementsRead(0),
       mNumElementAttributes(0)
 {
-    mIndexFromZero = false; // initially assume that nodes are not numbered from zero    
+    mIndexFromZero = false; // initially assume that nodes are not numbered from zero
     OpenFiles();
     ReadHeaders();
 }
@@ -65,24 +65,24 @@ void VertexMeshReader2d::Reset()
     CloseFiles();
     OpenFiles();
     ReadHeaders();
-    
+
     mNodesRead = 0;
-    mElementsRead = 0;     
+    mElementsRead = 0;
 }
 
 
 std::vector<double> VertexMeshReader2d::GetNextNode()
 {
     std::vector<double> node_data;
-    
-    std::string buffer;     
+
+    std::string buffer;
     GetNextLineFromStream(mNodesFile, buffer);
 
     std::stringstream buffer_stream(buffer);
 
-    unsigned index;     
+    unsigned index;
     buffer_stream >> index;
-    
+
     unsigned offset = mIndexFromZero ? 0 : 1;
     if (index != mNodesRead + offset)
     {
@@ -91,28 +91,28 @@ std::vector<double> VertexMeshReader2d::GetNextNode()
         EXCEPTION(error.str());
     }
 
-    double node_value;        
+    double node_value;
     for (unsigned i=0; i<3; i++)
     {
         buffer_stream >> node_value;
         node_data.push_back(node_value);
     }
 
-    mNodesRead++;        
+    mNodesRead++;
     return node_data;
 }
 
 
 VertexElementData VertexMeshReader2d::GetNextElementData()
 {
-    VertexElementData element_data;       
-    
-    std::string buffer;     
+    VertexElementData element_data;
+
+    std::string buffer;
     GetNextLineFromStream(mElementsFile, buffer);
 
     std::stringstream buffer_stream(buffer);
 
-    unsigned element_index;     
+    unsigned element_index;
     buffer_stream >> element_index;
 
     unsigned offset = mIndexFromZero ? 0 : 1;
@@ -122,17 +122,17 @@ VertexElementData VertexMeshReader2d::GetNextElementData()
         error << "Data for element " << mElementsRead << " missing";
         EXCEPTION(error.str());
     }
-    
+
     unsigned num_nodes_in_element;
     buffer_stream >> num_nodes_in_element;
-    
+
     unsigned node_index;
     for (unsigned i=0; i<num_nodes_in_element; i++)
     {
         buffer_stream >> node_index;
         element_data.NodeIndices.push_back(node_index - offset);
     }
-     
+
     if (mNumElementAttributes > 0)
     {
         assert(mNumElementAttributes==1);
@@ -159,7 +159,7 @@ void VertexMeshReader2d::OpenFiles()
 
 
 void VertexMeshReader2d::OpenNodeFile()
-{        
+{
     // Nodes definition
     std::string file_name = mFilesBaseName + ".node";
     mNodesFile.open(file_name.c_str());
@@ -187,20 +187,20 @@ void VertexMeshReader2d::OpenElementsFile()
 void VertexMeshReader2d::ReadHeaders()
 {
     std::string buffer;
-    
+
     GetNextLineFromStream(mNodesFile, buffer);
     std::stringstream buffer_stream(buffer);
     buffer_stream >> mNumNodes >> mNumNodeAttributes;
 
-    // Get the next line to see if nodes are indexed from zero or not               
+    // Get the next line to see if nodes are indexed from zero or not
     GetNextLineFromStream(mNodesFile, buffer);
     std::stringstream node_buffer_stream(buffer);
 
     unsigned first_index;
     node_buffer_stream >> first_index;
-    assert(first_index == 0 || first_index == 1);         
+    assert(first_index == 0 || first_index == 1);
     mIndexFromZero = (first_index == 0);
-    
+
     // Close, reopen, skip header
     mNodesFile.close();
     OpenNodeFile();
@@ -209,7 +209,7 @@ void VertexMeshReader2d::ReadHeaders()
     GetNextLineFromStream(mElementsFile, buffer);
     std::stringstream element_buffer_stream(buffer);
 
-    element_buffer_stream >> mNumElements >> mNumElementAttributes;   
+    element_buffer_stream >> mNumElements >> mNumElementAttributes;
 }
 
 
@@ -223,7 +223,7 @@ void VertexMeshReader2d::CloseFiles()
 void VertexMeshReader2d::GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
 {
     bool line_is_blank;
-    
+
     do
     {
         getline(fileStream, rawLine);
@@ -235,8 +235,8 @@ void VertexMeshReader2d::GetNextLineFromStream(std::ifstream& fileStream, std::s
 
         // Get rid of any comment
         rawLine = rawLine.substr(0,rawLine.find('#', 0));
-        
-        line_is_blank = (rawLine.find_first_not_of(" \t", 0) == std::string::npos);  
+
+        line_is_blank = (rawLine.find_first_not_of(" \t", 0) == std::string::npos);
     }
-    while (line_is_blank);      
+    while (line_is_blank);
 }

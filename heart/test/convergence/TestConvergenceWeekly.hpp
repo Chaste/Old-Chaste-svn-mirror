@@ -76,7 +76,7 @@ public:
         //Note the final line fails with ksp_atol=1e-4
     }
 
-    
+
     void Test3DSpace10() throw(Exception)
     {
         HeartConfig::Instance()->SetKSPSolver("symmlq");

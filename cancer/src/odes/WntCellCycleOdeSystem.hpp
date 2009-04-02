@@ -166,10 +166,10 @@ public:
     /**
      * This also contains a calculation of dY[1], copied from EvaluateYDerivatives.
      * Ensure they do not get out of sync!
-     * 
+     *
      * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS
-     * 
+     *
      * @return whether we have reached the stopping event
      */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
@@ -180,7 +180,7 @@ public:
      *
      * @param time at which to calculate whether the stopping event has occurred
      * @param rY value of the solution vector used to evaluate the RHS
-     * 
+     *
      * @return function value - giving CVODE an estimate of how close we are to the root.
      */
     double CalculateRootFunction(double time, const std::vector<double> &rY);

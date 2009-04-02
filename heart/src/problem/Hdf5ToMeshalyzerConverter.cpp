@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 void Hdf5ToMeshalyzerConverter::Write(std::string type)
 {
     assert(type=="V" || type=="Phi_e");
-    
+
     out_stream p_file=out_stream(NULL);
     if (PetscTools::AmMaster())
     {
@@ -59,8 +59,8 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
         // Problem size was not set before.
         DistributedVector::SetProblemSize(num_nodes);
     }
-    
-    
+
+
     Vec data = DistributedVector::CreateVec();
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
@@ -126,7 +126,7 @@ Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
         Write("V");
         Write("Phi_e");
     }
-    
+
     if (PetscTools::AmMaster())
     {
         //Note that we don't want the child processes to create
@@ -140,9 +140,9 @@ Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
         *p_file << "First timestep "<<first_timestep<<"\n";
         double last_timestep=mpReader->GetUnlimitedDimensionValues().back();
         *p_file << "Last timestep "<<last_timestep<<"\n";
-        
+
         p_file->close();
-        
+
     }
 
     MPI_Barrier(PETSC_COMM_WORLD);

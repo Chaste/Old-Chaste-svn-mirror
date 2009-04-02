@@ -75,7 +75,7 @@ private:
 #define COVERAGE_IGNORE
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
-     * 
+     *
      * @param pElement pointer to an element
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of the element, as a proportion of the circumsphere radius.
@@ -92,7 +92,7 @@ public:
 
     /**
      * Constructor which takes in a vector of nodes.
-     * 
+     *
      * @param nodes  a vector of nodes
      */
     MutableMesh(std::vector<Node<SPACE_DIM> *> nodes);
@@ -107,29 +107,29 @@ public:
      */
     void Clear();
 
-    /** 
+    /**
      * Get the number of nodes that are actually in use.
      */
     unsigned GetNumNodes() const;
 
-    /** 
+    /**
      * Get the number of elements that are actually in use.
      */
     unsigned GetNumElements() const;
 
-    /** 
+    /**
      * Get the number of boundary elements that are actually in use.
      */
     unsigned GetNumBoundaryElements() const;
     ///should unsigned GetNumBoundaryNodes() be overloaded too??
-    
+
     void RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex);
-    
+
     /**
      * Add a node to the mesh.
      *
      * NB. After calling this one or more times, you must then call ReMesh
-     * 
+     *
      * @param pNewNode  pointer to the new node
      */
     virtual unsigned AddNode(Node<SPACE_DIM>* pNewNode);
@@ -137,7 +137,7 @@ public:
     /**
      * Move the node with a particular index to a new point in space and
      * verifies that the signed areas of the supporting Elements are positive.
-     * 
+     *
      * @param index is the index of the node to be moved
      * @param point is the new target location of the node
      * @param concreteMove is set to false if we want to skip the signed area tests (defaults to true)
@@ -145,7 +145,7 @@ public:
     virtual void SetNode(unsigned index, ChastePoint<SPACE_DIM> point, bool concreteMove=true);
 
     /**
-     * Move one node to another (i.e. merges the nodes), refreshing/deleting 
+     * Move one node to another (i.e. merges the nodes), refreshing/deleting
      * elements as appropriate.
      *
      * @param index is the index of the node to be moved
@@ -179,9 +179,9 @@ public:
 
     /**
      * Refine an element at a given point.
-     * 
+     *
      * @param pElement  pointer to the element
-     * @param point  a point located in the element 
+     * @param point  a point located in the element
      */
     unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, ChastePoint<SPACE_DIM> point);
 
@@ -199,10 +199,10 @@ public:
      */
     void DeleteBoundaryNodeAt(unsigned index);
 
-#define COVERAGE_IGNORE 
+#define COVERAGE_IGNORE
     /**
      * Re-index a mesh so that it has no deleted elements or nodes.
-     * 
+     *
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
@@ -230,12 +230,12 @@ public:
     /**
      * Checks the entire mesh element by element and checks whether any neighbouring node
      * is inside the circumsphere of this element.
-     * 
+     *
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of an element that it is not a member of, as a proportion of the
      * circumsphere radius.
      */
-    bool CheckVoronoi(double maxPenetration=0.0);    
+    bool CheckVoronoi(double maxPenetration=0.0);
 #undef COVERAGE_IGNORE
 };
 

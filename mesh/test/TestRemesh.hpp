@@ -40,7 +40,7 @@ class TestRemesh : public CxxTest::TestSuite
 public:
 
     /**
-     * Test 3D remesh - very similar test to TestOperationOfTetgenMoveNodes, 
+     * Test 3D remesh - very similar test to TestOperationOfTetgenMoveNodes,
      * but uses mesh.Remesh() instead of calling tetgen from here.
      */
     void TestRemesh3dMoveNodes() throw (Exception)
@@ -163,16 +163,16 @@ public:
             mesh2.ConstructFromMeshReader(mesh_reader2);
             TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
             TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
-    
+
             TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements()+1);
-    
+
             // Test to see whether triangle/tetgen is renumbering the nodes
-    
+
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 const c_vector<double, 3> node_loc1 = mesh.GetNode(i)->rGetLocation();
                 const c_vector<double, 3> node_loc2 = mesh2.GetNode(i)->rGetLocation();
-    
+
                 for (int j=0; j<3; j++)
                 {
                     TS_ASSERT_DELTA(node_loc1[j], node_loc2[j], 1e-6);

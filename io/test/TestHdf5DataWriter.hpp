@@ -60,7 +60,7 @@ private:
         unsigned num_vars = variable_names1.size();
         if (num_vars != variable_names2.size())
         {
-            std::cout << "Number of variables " << variable_names1.size() 
+            std::cout << "Number of variables " << variable_names1.size()
                       << " and " << variable_names2.size() << " don't match\n";
             return false;
         }
@@ -69,13 +69,13 @@ private:
             std::string var_name = variable_names1[var];
             if (var_name != variable_names2[var])
             {
-                std::cout << "Variable names " << var_name << " and " 
+                std::cout << "Variable names " << var_name << " and "
                           << variable_names2[var] << " don't match\n";
                 return false;
             }
             if (reader1.GetUnit(var_name) != reader2.GetUnit(var_name))
             {
-                std::cout << "Units names " << reader1.GetUnit(var_name) 
+                std::cout << "Units names " << reader1.GetUnit(var_name)
                           << " and " << reader2.GetUnit(var_name) << " don't match\n";
                 return false;
             }
@@ -86,7 +86,7 @@ private:
 
         if (times1.size() != times2.size())
         {
-            std::cout << "Time step sizes " << times1.size() 
+            std::cout << "Time step sizes " << times1.size()
                       << " and " << times2.size() << " don't match\n";
             return false;
         }
@@ -95,7 +95,7 @@ private:
         {
             if (times1[timestep]!=times2[timestep])
             {
-                std::cout << "Time steps " << times1[timestep] 
+                std::cout << "Time steps " << times1[timestep]
                           << " and " << times2[timestep] << " don't match\n";
                 return false;
             }
@@ -450,9 +450,9 @@ public:
     void TestHdf5DataWriterNonEvenRowDistribution() throw(Exception)
     {
         int number_nodes = 100;
-        
+
         PetscInt local_number_of_nodes;
-        
+
         if (PetscTools::AmMaster())
         {
             local_number_of_nodes = number_nodes - PetscTools::NumProcs() + 1;
@@ -461,7 +461,7 @@ public:
         {
             local_number_of_nodes = 1;
         }
-                       
+
         DistributedVector::SetProblemSizePerProcessor(number_nodes, local_number_of_nodes);
 
         Hdf5DataWriter writer("hdf5", "hdf5_non_even_row_dist", false);

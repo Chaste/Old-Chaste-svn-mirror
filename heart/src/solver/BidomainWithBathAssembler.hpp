@@ -73,7 +73,7 @@ public:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     *  This alters the linear system so that all rows and columns corresponding to 
+     *  This alters the linear system so that all rows and columns corresponding to
      *  bath nodes voltages are zero, except for the diagonal (set to 1). The
      *  corresponding rhs vector entry is also set to 0, so the equation for the
      *  bath node voltage is 1*V = 0.

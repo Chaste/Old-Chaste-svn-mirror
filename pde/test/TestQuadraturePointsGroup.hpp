@@ -43,9 +43,9 @@ public:
         mesh.ConstructFromMeshReader(reader);
 
         GaussianQuadratureRule<1> quad_rule(2);
-        
+
         QuadraturePointsGroup<1> group(mesh,quad_rule);
-        
+
         assert(quad_rule.GetNumQuadPoints()==2);
         TS_ASSERT_EQUALS(group.GetNumElements(), 10u);
         TS_ASSERT_EQUALS(group.GetNumQuadPointsPerElement(), 2u);
@@ -64,9 +64,9 @@ public:
 
         X = group.Get(8,1);
         TS_ASSERT_DELTA(X(0), 0.8+local_quad_point_1[0]/10, 1e-9);
-        
+
         X = group.Get(17);
-        TS_ASSERT_DELTA(X(0), 0.8+local_quad_point_1[0]/10, 1e-9);        
+        TS_ASSERT_DELTA(X(0), 0.8+local_quad_point_1[0]/10, 1e-9);
     }
 
     void TestGetQuadPointLocations2d() throw(Exception)
@@ -76,13 +76,13 @@ public:
         mesh.ConstructFromMeshReader(reader);
 
         GaussianQuadratureRule<2> quad_rule(2);
-        
+
         QuadraturePointsGroup<2> group(mesh,quad_rule);
-        
+
         assert(quad_rule.GetNumQuadPoints()==4);
         TS_ASSERT_EQUALS(group.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(group.GetNumQuadPointsPerElement(), 4u);
-        
+
         for(unsigned i=0;i<4;i++)
         {
             c_vector<double,2> X = group.Get(0,i);
@@ -94,5 +94,5 @@ public:
     }
 };
 
-        
+
 #endif /*TESTQUADRATUREPOINTSGROUP_HPP_*/

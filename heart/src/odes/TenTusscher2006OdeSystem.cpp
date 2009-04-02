@@ -48,7 +48,7 @@ TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(
     mScaleFactorGks=1.0;
     mScaleFactorIto=1.0;
     mScaleFactorGkr=1.0;
-    
+
     AbstractCardiacCell::Init();
 }
 
@@ -258,7 +258,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
       //Vector for state variables//
       double Y[19];
       double dY[19];
-      
+
     Y[0] =  mStateVariables[0];// L_t Ype_Ca_current_d_gate_d (dimensionless)
     Y[1] =  mStateVariables[1];// L_t Ype_Ca_current_f2_gate_f2 (dimensionless)
     Y[2] =  mStateVariables[2];// L_t Ype_Ca_current_fCass_gate_fCass (dimensionless)
@@ -278,7 +278,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
     Y[16] =  mStateVariables[16];// sodium_d Ynamics_Na_i (millimolar)
     Y[17] =  mStateVariables[17];// transient_outward_current_r_gate_r (dimensionless)
     Y[18] =  mStateVariables[18];// transient_outward_current_s_gate_s (dimensionless)
-   
+
       L_type_Ca_current_i_CaL = L_type_Ca_current_g_CaL*Y[0]*Y[3]*Y[1]*Y[2]*4.0*(Y[11]-15.0)*pow(membrane_F, 2.0)/(membrane_R*membrane_T)*(0.25*Y[6]*exp(2.0*(Y[11]-15.0)*membrane_F/(membrane_R*membrane_T))-calcium_dynamics_Ca_o)/(exp(2.0*(Y[11]-15.0)*membrane_F/(membrane_R*membrane_T))-1.0);
    L_type_Ca_current_d_gate_d_inf = 1.0/(1.0+exp((-8.0-Y[11])/7.5));
    L_type_Ca_current_d_gate_alpha_d = 1.4/(1.0+exp((-35.0-Y[11])/13.0))+0.25;
@@ -363,7 +363,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
    sodium_potassium_pump_current_i_NaK = sodium_potassium_pump_current_P_NaK*potassium_dynamics_K_o/(potassium_dynamics_K_o+sodium_potassium_pump_current_K_mk)*Y[16]/(Y[16]+sodium_potassium_pump_current_K_mNa)/(1.0+0.1245*exp(-0.1*Y[11]*membrane_F/(membrane_R*membrane_T))+0.0353*exp(-Y[11]*membrane_F/(membrane_R*membrane_T)));
    sodium_background_current_i_b_Na = sodium_background_current_g_bna*(Y[11]-reversal_potentials_E_Na);
    potassium_pump_current_i_p_K = potassium_pump_current_g_pK*(Y[11]-reversal_potentials_E_K)/(1.0+exp((25.0-Y[11])/5.98));
-    
+
    dY[11] = -1.0/1.0*(inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+L_type_Ca_current_i_CaL+sodium_potassium_pump_current_i_NaK+fast_sodium_current_i_Na+sodium_background_current_i_b_Na+sodium_calcium_exchanger_current_i_NaCa+calcium_background_current_i_b_Ca+potassium_pump_current_i_p_K+calcium_pump_current_i_p_Ca);
    dY[12] = -(inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+potassium_pump_current_i_p_K/*+i_stim*/-2.0*sodium_potassium_pump_current_i_NaK)/(membrane_V_c*membrane_F)*membrane_Cm;
    rapid_time_dependent_potassium_current_Xr1_gate_xr1_inf = 1.0/(1.0+exp((-26.0-Y[11])/7.0));
@@ -387,23 +387,23 @@ double TenTusscher2006OdeSystem::GetIIonic()
    dY[17] = (transient_outward_current_r_gate_r_inf-Y[17])/transient_outward_current_r_gate_tau_r;
    transient_outward_current_s_gate_s_inf = 1.0/(1.0+exp((Y[11]+20.0)/5.0));
    transient_outward_current_s_gate_tau_s = 85.0*exp(-pow(Y[11]+45.0, 2.0)/320.0)+5.0/(1.0+exp((Y[11]-20.0)/5.0))+3.0;
-   dY[18] = (transient_outward_current_s_gate_s_inf-Y[18])/transient_outward_current_s_gate_tau_s; 
-    
-    
+   dY[18] = (transient_outward_current_s_gate_s_inf-Y[18])/transient_outward_current_s_gate_tau_s;
+
+
     double i_ionic = inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+L_type_Ca_current_i_CaL+sodium_potassium_pump_current_i_NaK+fast_sodium_current_i_Na+sodium_background_current_i_b_Na+sodium_calcium_exchanger_current_i_NaCa+calcium_background_current_i_b_Ca+potassium_pump_current_i_p_K+calcium_pump_current_i_p_Ca; /*this is in nA*/
-    
+
     assert(!isnan(i_ionic));
 
     double i_ionic_in_microA_per_cm2=i_ionic*membrane_Cm;
     return i_ionic_in_microA_per_cm2;
-    
-     /*   i_ionic for this model is in pA/pF. 
+
+     /*   i_ionic for this model is in pA/pF.
      *    Please note that in the mono/bidomain formulation, i_ionic needs to be in microA/cm2.
      *    The cell capacitance is, from the tenTusscher paper (code, actually), Cm = 0.185 microF/cm2.
-     *    i_ion*pow(10,-6) will be in microA/pF. 
+     *    i_ion*pow(10,-6) will be in microA/pF.
      *    Cm*pow(10,6) will be in pF/cm2.
      *    i_ion*pow(10,-6)*Cm*pow(10,6) = i_ion*Cm is in microA/cm2, the correct units
-     */  
+     */
 
 }
 

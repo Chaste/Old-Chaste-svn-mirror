@@ -34,11 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-/* 
+/*
  *  Test whether the basis functions are correctly equal to 1 or 0 at the nodes of the canonical element.
- *  
+ *
  *  NOTE: This is a badly written test, because it assumes evaluationPoints are the nodes in the canonical element, in the correct
- *  order. 
+ *  order.
  */
 template <unsigned ELEM_DIM>
 class BasisFunctionsCheckers
@@ -84,9 +84,9 @@ public:
     void checkQuadraticBasisFunctions(std::vector<ChastePoint<ELEM_DIM>*> evaluationPoints)
     {
         unsigned size = evaluationPoints.size();        // number of evalutation points and basis functions too
-        
+
         assert(size==(ELEM_DIM+1)*(ELEM_DIM+2)/2);
-        
+
         std::vector<double> basis_function_vector; // store results of evalutation
 
         double expected_evaluation;

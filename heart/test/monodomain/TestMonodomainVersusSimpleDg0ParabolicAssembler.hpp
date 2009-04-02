@@ -163,7 +163,7 @@ public:
 
         monodomain_assembler.SetInitialCondition( initial_condition_1 );
         simple_assembler.SetInitialCondition( initial_condition_2 );
-        
+
         Vec current_solution_1 = monodomain_assembler.Solve();
         Vec current_solution_2 = simple_assembler.Solve();
 
@@ -187,13 +187,13 @@ public:
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
     }
- 
+
     void TestMonodomainDg0AssemblerWithFischer2DAgainstSimpleDg0Assembler()
     {
         double t_start = 0;
         double t_final = 1;
-        double pde_timestep = 0.01; 
-        
+        double pde_timestep = 0.01;
+
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;

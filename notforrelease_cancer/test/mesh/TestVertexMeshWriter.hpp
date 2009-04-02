@@ -50,31 +50,31 @@ public:
         basic_nodes.push_back(new Node<2>(4, false, 0.0, 1.0));
         basic_nodes.push_back(new Node<2>(5, false, 2.0, 0.0));
         basic_nodes.push_back(new Node<2>(6, false, 2.0, 3.0));
-        
+
         std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
-        
+
         // Make two triangular elements out of these nodes
         nodes_elem_0.push_back(basic_nodes[0]);
         nodes_elem_0.push_back(basic_nodes[1]);
         nodes_elem_0.push_back(basic_nodes[2]);
         nodes_elem_0.push_back(basic_nodes[3]);
         nodes_elem_0.push_back(basic_nodes[4]);
-        
+
         nodes_elem_1.push_back(basic_nodes[2]);
         nodes_elem_1.push_back(basic_nodes[5]);
         nodes_elem_1.push_back(basic_nodes[6]);
-        
+
         std::vector<VertexElement<2,2>*> basic_vertex_elements;
         basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
         basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-        
+
         // Make a vertex mesh
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
-        
+
         // Create a vertex mesh writer
         VertexMeshWriter<2,2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
         vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
-        
+
         OutputFileHandler handler("TestVertexMeshWriter", false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.cell";
@@ -83,7 +83,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
     }
 };
-    
+
 
 
 #endif /*TESTVERTEXMESHWRITER_HPP_*/

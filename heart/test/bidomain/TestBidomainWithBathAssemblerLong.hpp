@@ -59,26 +59,26 @@ public:
     {
         // paranoia - check this is really a tissue node
         assert(this->mpMesh->GetNode(node)->GetRegion() == HeartRegionCode::TISSUE);
-        
-        // stimulate centre node normally.. 
+
+        // stimulate centre node normally..
         bool is_centre;
-        
+
         if (DIM==1)
         {
             is_centre = (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6);
         }
         else if (DIM==2)
         {
-            is_centre = (    (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6) 
+            is_centre = (    (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6)
                           && (fabs(this->mpMesh->GetNode(node)->GetPoint()[1]-mStimulatedPoint(1)) < 1e-6) );
         }
         else
         {
-            is_centre = (    (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6) 
-                          && (fabs(this->mpMesh->GetNode(node)->GetPoint()[1]-mStimulatedPoint(1)) < 1e-6) 
+            is_centre = (    (fabs(this->mpMesh->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6)
+                          && (fabs(this->mpMesh->GetNode(node)->GetPoint()[1]-mStimulatedPoint(1)) < 1e-6)
                           && (fabs(this->mpMesh->GetNode(node)->GetPoint()[2]-mStimulatedPoint(2)) < 1e-6) );
         }
-        
+
         if (is_centre)
         {
             return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus);
@@ -106,19 +106,19 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_3d");
-                        
+
         c_vector<double,3> centre;
-        centre(0) = 0.05;                        
+        centre(0) = 0.05;
         centre(1) = 0.05;
         centre(2) = 0.05;
         BathCellFactory<3> cell_factory(-2.5e7, centre); // stimulates x=0.05 node
-  
+
         BidomainProblem<3> bidomain_problem( &cell_factory, true );
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(10,10,10);
         mesh.Scale(1.0/100.0, 1.0/100.0, 1.0/100.0);
-        
+
         // Set everything outside a central sphere (radius 0.4) to be bath
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
@@ -137,44 +137,44 @@ public:
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
-        
+
         Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
 
         // test V = 0 for all bath nodes
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             if (mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
         }
-        
+
         // a hardcoded values
         TS_ASSERT_DELTA(sol_repl[2*404], 39.7258, 1e-3);
     }
-    
+
     void Test2dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(40);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dExtraStimGrounded");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d");
-        
-        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms                        
- 
+
+        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms
+
         // need to create a cell factory but don't want any intra stim, so magnitude
-        // of stim is zero.                        
+        // of stim is zero.
         c_vector<double,2> centre;
-        centre(0) = 0.05;                        
+        centre(0) = 0.05;
         centre(1) = 0.05;
-        BathCellFactory<2> cell_factory( 0.0, centre);  
+        BathCellFactory<2> cell_factory( 0.0, centre);
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
 
         TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         // Set everything outside a central circle (radius 0.4) to be bath
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
@@ -193,25 +193,25 @@ public:
 
         Electrodes<2> electrodes(mesh,true,0,0.0,0.1,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
-        
+
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
-        
+
         Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
 
         bool ap_triggered = false;
-        /* 
+        /*
          * We are checking the last time step. This test will only make sure that an upstroke is triggered.
          * We ran longer simulation for 350 ms and a nice AP was observed.
          */
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++) 
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            // test V = 0 for all bath nodes            
+            // test V = 0 for all bath nodes
             if(mesh.GetNode(i)->GetRegion()==1) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
@@ -221,31 +221,31 @@ public:
                 ap_triggered = true;
             }
         }
-        TS_ASSERT(ap_triggered); 
+        TS_ASSERT(ap_triggered);
     }
-    
+
     void Test3dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(6);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath3dExtraStimGrounded");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_3d");
-        
-        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms                        
- 
+
+        HeartConfig::Instance()->SetOdeTimeStep(0.005);  //ms
+
         // need to create a cell factory but don't want any intra stim, so magnitude
-        // of stim is zero.                        
+        // of stim is zero.
         c_vector<double,3> centre;
-        centre(0) = 0.1;                        
+        centre(0) = 0.1;
         centre(1) = 0.1;
         centre(2) = 0.1;
-        BathCellFactory<3> cell_factory( 0.0, centre);  
+        BathCellFactory<3> cell_factory( 0.0, centre);
 
         BidomainProblem<3> bidomain_problem( &cell_factory, true );
 
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_1016_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         // Set everything outside a central sphere (radius 0.4) to be bath
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
@@ -264,22 +264,22 @@ public:
 
         Electrodes<3> electrodes(mesh,true,0,0.0,0.2,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
-        
+
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
-        
+
         Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
 
         bool ap_triggered = false;
-        
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++) 
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            // test V = 0 for all bath nodes            
+            // test V = 0 for all bath nodes
             if (mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
@@ -289,7 +289,7 @@ public:
                 ap_triggered = true;
             }
         }
-        TS_ASSERT(ap_triggered); 
+        TS_ASSERT(ap_triggered);
     }
 };
 

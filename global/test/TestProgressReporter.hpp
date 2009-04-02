@@ -40,7 +40,7 @@ public:
         // this is in a block to make sure the file gets closed (ie destructor called)
         {
             ProgressReporter progress_bar("ProgressReporter", 1.0, 10.0);
-            
+
             progress_bar.PrintInitialising();
             for(unsigned i=0; i<=1000; i++)
             {

@@ -74,8 +74,8 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
     CancerParameters::Instance()->SetCryptLength(mCryptDepth);
     CancerParameters::Instance()->SetCryptWidth(mCryptWidth);
 }
-    
-    
+
+
 HoneycombMeshGenerator::~HoneycombMeshGenerator()
 {
     delete mpMesh;
@@ -104,7 +104,7 @@ Cylindrical2dMesh* HoneycombMeshGenerator::GetCylindricalMesh()
 std::vector<unsigned> HoneycombMeshGenerator::GetCellLocationIndices()
 {
     std::vector<unsigned> location_indices;
-    
+
     for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
     {
         if (mGhostNodeIndices.find(i)==mGhostNodeIndices.end())

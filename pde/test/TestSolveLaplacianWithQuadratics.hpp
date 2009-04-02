@@ -56,7 +56,7 @@ class QuadraticLaplacianAssembler
 private:
     double mCoeffOfU;
     double mConstant;
-    
+
     LinearSystem* mpLinearSystem;
     QuadraticMesh<DIM>* mpQuadMesh;
     BoundaryConditionsContainer<DIM,DIM,1>* mpBoundaryConditions;
@@ -199,7 +199,7 @@ private:
                     p_indices[i] = element.GetNodeGlobalIndex(i);
                 }
 
-                
+
                 if (assembleMatrix)
                 {
                     mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
@@ -248,27 +248,27 @@ public:
     {
         assert(pMesh);
         assert(pBcc);
-        
+
         mpLinearSystem = new LinearSystem(mpQuadMesh->GetNumNodes());
         mpQuadRule = new GaussianQuadratureRule<DIM>(3);
-        
+
         mCoeffOfU = 0.0;
         mConstant = 1.0;
     }
-    
+
     virtual ~QuadraticLaplacianAssembler()
     {
         delete mpLinearSystem;
-        delete mpQuadRule;        
+        delete mpQuadRule;
     }
-    
-    
+
+
     Vec Solve()
     {
         AssembleSystem(true, true);
         return mpLinearSystem->Solve();
     }
-    
+
     void SetPdeConstants(double coeffOfU, double constant)
     {
         mCoeffOfU = coeffOfU;
@@ -288,23 +288,23 @@ public:
         QuadraticMesh<1> quad_mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic");
 
         BoundaryConditionsContainer<1,1,1> bcc;
-        bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
-        
+        bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
+
         QuadraticLaplacianAssembler<1> assembler(&quad_mesh, &bcc);
         assembler.SetPdeConstants(0.0, 1.0);
-        
+
         Vec solution = assembler.Solve();
         ReplicatableVector sol_repl(solution);
-        
+
         for(unsigned i=0; i<quad_mesh.GetNumNodes(); i++)
         {
             double x = quad_mesh.GetNode(i)->rGetLocation()[0];
             double u = sol_repl[i];
             double u_correct = 0.5*x*(1-x);
-            
+
             TS_ASSERT_DELTA(u, u_correct, 1e-10);
         }
-        
+
         VecDestroy(solution);
     }
 
@@ -315,14 +315,14 @@ public:
         QuadraticMesh<2> quad_mesh("mesh/test/data/square_128_elements_quadratic");
 
         BoundaryConditionsContainer<2,2,1> bcc_quads;
-        bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
-        
+        bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
+
         QuadraticLaplacianAssembler<2> assembler_quads(&quad_mesh, &bcc_quads);
         assembler_quads.SetPdeConstants(1.0, 1.0);
-        
+
         Vec solution_quads = assembler_quads.Solve();
         ReplicatableVector sol_quads_repl(solution_quads);
-        
+
         // Solve using linears
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;
@@ -331,14 +331,14 @@ public:
         EllipticPdeWithLinearSource<2> pde(1.0, 1.0);
 
         BoundaryConditionsContainer<2,2,1> bcc_lin;
-        bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);               
+        bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);
 
         SimpleLinearEllipticAssembler<2,2> assembler_lin(&mesh,&pde,&bcc_lin);
 
         Vec solution_lin = assembler_lin.Solve();
         ReplicatableVector sol_lin_repl(solution_lin);
 
-        
+
         // compare results - the following assumes the vertex nodes in the
         // quad mesh are nodes 0-63, i.e. they come before all the internal
         // nodes
@@ -347,14 +347,14 @@ public:
             double u_1 = sol_lin_repl[i];
             double u_2 = sol_quads_repl[i];
 
-            // max value of the solution is about 0.08, choose a tolerance of 
+            // max value of the solution is about 0.08, choose a tolerance of
             // 5% of that (wouldn't expect them to be exactly the same).
             TS_ASSERT_DELTA(u_1, u_2, 0.08*5e-2);
-            
+
             //double x = mesh.GetNode(i)->rGetLocation()[0];
             //double y = mesh.GetNode(i)->rGetLocation()[1];
-            //            
-            //std::cout << x << " " << y << " " << u_1 << " " 
+            //
+            //std::cout << x << " " << y << " " << u_1 << " "
             //          <<  u_2 << " " << fabs(u_1-u_2) << "\n";
         }
 
@@ -369,14 +369,14 @@ public:
         QuadraticMesh<3> quad_mesh("mesh/test/data/cube_1626_elements_quadratic");
 
         BoundaryConditionsContainer<3,3,1> bcc_quads;
-        bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);               
-        
+        bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
+
         QuadraticLaplacianAssembler<3> assembler_quads(&quad_mesh, &bcc_quads);
         assembler_quads.SetPdeConstants(1.0, 1.0);
-        
+
         Vec solution_quads = assembler_quads.Solve();
         ReplicatableVector sol_quads_repl(solution_quads);
-        
+
         // Solve using linears
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
         TetrahedralMesh<3,3> mesh;
@@ -385,13 +385,13 @@ public:
         EllipticPdeWithLinearSource<3> pde(1.0, 1.0);
 
         BoundaryConditionsContainer<3,3,1> bcc_lin;
-        bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);               
+        bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);
 
         SimpleLinearEllipticAssembler<3,3> assembler_lin(&mesh,&pde,&bcc_lin);
 
         Vec solution_lin = assembler_lin.Solve();
         ReplicatableVector sol_lin_repl(solution_lin);
-        
+
         // compare results - the following assumes the vertex nodes in the
         // quad mesh come before all the internal nodes
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -402,12 +402,12 @@ public:
             // max value of the solution is about 0.059, choose a tolerance of
             // 5% of that (wouldn't expect them to be exactly the same).
             TS_ASSERT_DELTA(u_1, u_2, 0.059*5e-2);
-            
+
             //double x = mesh.GetNode(i)->rGetLocation()[0];
             //double y = mesh.GetNode(i)->rGetLocation()[1];
             //double z = mesh.GetNode(i)->rGetLocation()[2];
-            //           
-            //std::cout << x << " " << y << " " << z << " " << u_1 << " " 
+            //
+            //std::cout << x << " " << y << " " << z << " " << u_1 << " "
             //          <<  u_2 << " " << fabs(u_1-u_2) << "\n";
         }
 

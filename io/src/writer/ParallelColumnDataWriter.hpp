@@ -50,7 +50,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param directory  the directory in which to write the data to file
      * @param baseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
@@ -69,7 +69,7 @@ public:
 
     /**
      * Write data for a given variable from a Petsc vector to the dataset.
-     * 
+     *
      * @param variableID the variable
      * @param petscVector the data
      */
@@ -77,7 +77,7 @@ public:
 
     /**
      * Write data for a given variable from a stripe to the dataset.
-     * 
+     *
      * @param variableId the variable
      * @param stripe the data
      */
@@ -85,10 +85,10 @@ public:
 
     /**
      * Input the variable value to the output file or ancillary file
-     * 
+     *
      * @param variableID
      * @param variableValue
-     * @param dimensionPosition  The position in column (defaults to -1). This is required if 
+     * @param dimensionPosition  The position in column (defaults to -1). This is required if
      *      there is a fixed dimension, and will be the position along that dimension
      */
     void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);

@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * A 2D crypt simulation object. For more details, see the paper by 
- * van Leeuwen et al (to appear in Cell Prolif.).  
+ * A 2D crypt simulation object. For more details, see the paper by
+ * van Leeuwen et al (to appear in Cell Prolif.).
  */
 class CryptSimulation2d : public TissueSimulation<2>
 {
@@ -55,7 +55,7 @@ private :
     friend class boost::serialization::access;
     /**
      * Archive the simulation and member variable.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -91,7 +91,7 @@ private :
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
-     * 
+     *
      * Writes out special information about the mesh to the visualizer.
      */
     void WriteVisualizerSetupFile();
@@ -103,29 +103,29 @@ private :
 
     /**
      * Write beta catenin results to file.
-     * 
+     *
      * @param time the current time
      */
     void WriteBetaCatenin(double time);
 
     /**
      * Overridden SetupSolve() method.
-     * 
+     *
      * Write initial beta catenin results to file if required.
      */
     void SetupSolve();
 
     /**
      * Overridden PostSolve() method.
-     * 
+     *
      * Write current beta catenin results to file if required.
      */
     void PostSolve();
 
     /**
      * Overridden AfterSolve() method.
-     * 
-     * Closes beta catenin results file if required, then calls 
+     *
+     * Closes beta catenin results file if required, then calls
      * the base class method.
      */
     void AfterSolve();
@@ -140,7 +140,7 @@ public :
      *  @param deleteTissueAndForceCollection Whether to delete the tissue and force collection on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    CryptSimulation2d(AbstractTissue<2>& rTissue,                      
+    CryptSimulation2d(AbstractTissue<2>& rTissue,
                       std::vector<AbstractForce<2>*> forceCollection,
                       bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
@@ -150,11 +150,11 @@ public :
 
     /**
      * Overridden ApplyTissueBoundaryConditions() method.
-     * 
-     * If an instance of WntConcentration is not set up, then stem cells at the 
-     * bottom of the crypt are pinned. Any cell that has moved below the bottom 
+     *
+     * If an instance of WntConcentration is not set up, then stem cells at the
+     * bottom of the crypt are pinned. Any cell that has moved below the bottom
      * of the crypt is moved back up.
-     * 
+     *
      * @param rOldLocations the node locations at the previous time step
      */
     void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);

@@ -98,13 +98,13 @@ protected:
 
     /** Facade encapsulating cells in the tissue being simulated. */
     AbstractTissue<DIM>& mrTissue;
-    
-    /** Whether to delete the facade in the destructor. */ 
+
+    /** Whether to delete the facade in the destructor. */
     bool mDeleteTissue;
 
     /** Whether delete the collection of force laws in the destructor. */
     bool mAllocatedMemoryForForceCollection;
-    
+
     /** Whether to initialise the cells. */
     bool mInitialiseCells;
 
@@ -165,13 +165,13 @@ protected:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the member variables. 
-     * 
+     * Archive the member variables.
+     *
      * Serialization of singleton objects must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -246,7 +246,7 @@ protected:
 
     /**
      * Moves each node to a new position for this timestep by
-     * calling the tissue UpdateNodeLocations() method then 
+     * calling the tissue UpdateNodeLocations() method then
      * applying any boundary conditions.
      *
      * @param rNodeForces the forces on nodes
@@ -255,7 +255,7 @@ protected:
 
     /**
      * Apply any tissue boundary conditions. Can be overridden in subclasses.
-     * 
+     *
      * @param rOldLocations
      */
     virtual void ApplyTissueBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)
@@ -283,9 +283,9 @@ protected:
      *  the base class method.
      */
     virtual void AfterSolve();
-    
+
     /**
-     *  A child class can overload this if they want the simulation to stop 
+     *  A child class can overload this if they want the simulation to stop
      *  based on certain conditions before the specified end time (for example,
      *  run until a crypt becomes monoclonal).
      */
@@ -307,8 +307,8 @@ public:
                      bool initialiseCells=true);
 
     /**
-     * Destructor. 
-     * 
+     * Destructor.
+     *
      * This frees the tissue and cell killers, if they were created by de-serialization.
      */
     virtual ~TissueSimulation();
@@ -320,7 +320,7 @@ public:
      * @return the co-ordinates of this node.
      */
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
-    
+
     /**
      * Find out how many cells of each mutation state there are
      *
@@ -332,7 +332,7 @@ public:
      * [4] = beta catenin one hit
      */
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
-    
+
     /**
      * Find out how many cells of each type there are
      *
@@ -343,7 +343,7 @@ public:
      * [3] = APOPTOTIC
      */
     c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
-    
+
     /**
      * Find out how many cells in each cell cycle phase there are
      *
@@ -360,17 +360,17 @@ public:
      * @return the timestep of the simulation
      */
     double GetDt();
-    
+
     /**
      * @return the number of births that have occurred in the entire simulation (since t=0)
      */
     unsigned GetNumBirths();
-    
+
     /**
      * @return the number of deaths that have occurred in the entire simulation (since t=0).
      */
     unsigned GetNumDeaths();
-    
+
     /**
      * Get the output directory of the simulation.
      */
@@ -378,21 +378,21 @@ public:
 
     /**
      * Set the timestep of the simulation.
-     * 
+     *
      * @param dt the timestep to use
-     */ 
+     */
     void SetDt(double dt);
-    
+
     /**
      * Set the end time and resets the timestep to be endtime/100.
-     * 
+     *
      * @param endTime the end time to use
      */
     void SetEndTime(double endTime);
-    
+
     /**
      * Set the output directory of the simulation.
-     * 
+     *
      * @param outputDirectory the output directory to use
      */
     void SetOutputDirectory(std::string outputDirectory);
@@ -400,77 +400,77 @@ public:
     /**
      * Set the ratio of the number of actual timesteps to the number of timesteps
      * at which results are written to file. Default value is set to 1 by the constructor.
-     * 
+     *
      * @param samplingTimestepMultiple the ratio to use
      */
     void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
-    
+
     /**
      * Set the simulation to run with no birth.
-     * 
+     *
      * @param noBirth whether to run with no birth
      */
     void SetNoBirth(bool noBirth);
 
     /**
      * Set the simulation to count and store the number of each cell mutation state.
-     * 
+     *
      * @param outputCellMutationStates whether to output cell mutation states
      */
     void SetOutputCellMutationStates(bool outputCellMutationStates);
-    
+
     /**
      * Set the simulation to output the cell ancestors if they are set.
-     * 
+     *
      * @param outputCellAncestors whether to output cell ancestors
      */
     void SetOutputCellAncestors(bool outputCellAncestors);
-    
+
     /**
      * Set the simulation to count and store the number of each cell type.
-     * 
+     *
      * @param outputCellTypes whether to output cell types
      */
     void SetOutputCellTypes(bool outputCellTypes);
-    
+
     /**
      * Set the simulation to output the cell-cycle variables.
-     * 
+     *
      * @param outputCellVariables whether to output cell-cycle variables
      */
     void SetOutputCellVariables(bool outputCellVariables);
-    
+
     /**
      * Set the simulation to output the cell cycle phases.
      *
      * The test for this method is in TestCryptSimulation2d::TestStandardResultForArchivingTestsBelow().
-     * 
+     *
      * @param outputCellCyclePhases whether to output cell-cycle phases
      */
     void SetOutputCellCyclePhases(bool outputCellCyclePhases);
-    
+
     /**
      * Set whether to update the topology of the tissue at each time step.
-     * 
+     *
      * @param updateTissue  whether to update the tissue each time step
      */
     void SetUpdateTissueRule(bool updateTissue);
 
     /**
      * Add a cell killer to be used in this simulation.
-     * 
+     *
      * @param pCellKiller pointer to a cell killer
      */
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
 
     /**
      * Main solve method.
-     * 
-     * This method sets up the simulation time, creates output files, and initialises the 
-     * tissue. It then iterates through a time loop. At each time step, first any cell death 
-     * or birth is implemented, then the tissue topology is updated, then the forces are 
-     * recalculated and the tissue evolved according to whatever force laws are present in 
-     * the simulation, and finally the results for that time step are output to file. At the 
+     *
+     * This method sets up the simulation time, creates output files, and initialises the
+     * tissue. It then iterates through a time loop. At each time step, first any cell death
+     * or birth is implemented, then the tissue topology is updated, then the forces are
+     * recalculated and the tissue evolved according to whatever force laws are present in
+     * the simulation, and finally the results for that time step are output to file. At the
      * end of the time loop, the method closes any output files.
      */
     void Solve();
@@ -489,7 +489,7 @@ public:
      * @return const reference to mForceCollection (used in archiving).
      */
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
-    
+
 };
 
 

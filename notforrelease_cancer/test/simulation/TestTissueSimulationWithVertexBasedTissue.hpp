@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Simple cell killer which at the fisrt timestep kills any cell 
+ * Simple cell killer which at the fisrt timestep kills any cell
  * whose corresponding location index is a given number.
  *
  * For testing purposes.
@@ -138,8 +138,8 @@ public:
         unsigned num_nodes = 20;
         for (unsigned i=0; i<num_nodes; i++)
         {
-            double theta = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes); 
-            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));   
+            double theta = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes);
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
         }
 
         std::vector<VertexElement<2,2>*> elements;
@@ -178,9 +178,9 @@ public:
         // Run simulation
         simulator.Solve();
 
-        // Test relaxes to circle (can be more stringent with more nodes and more time) 
+        // Test relaxes to circle (can be more stringent with more nodes and more time)
         TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 1.0, 1e-2);
-		TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 1e-1);
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 1e-1);
     }
 
 
@@ -201,7 +201,7 @@ public:
             if (elem_index==12)
             {
                 cell_type = STEM;
-                birth_time = -23.5;          
+                birth_time = -23.5;
             }
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -314,7 +314,7 @@ public:
             if (elem_index==5)
             {
                 cell_type = TRANSIT;
-                birth_time = -17.5;          
+                birth_time = -17.5;
             }
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -397,7 +397,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
 
         /// \todo add further tests (see #821 and #862)
-        
+
         // Tidy up
         delete p_simulator;
     }

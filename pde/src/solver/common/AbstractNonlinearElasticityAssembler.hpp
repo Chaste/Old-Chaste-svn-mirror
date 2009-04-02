@@ -39,13 +39,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MechanicsEventHandler.hpp"
 
 //// Note: The following ONLY WORKS IF ***UMFPACK*** IS
-//// INSTALLED (userpc60 only?) - and dealii won't complain 
+//// INSTALLED (userpc60 only?) - and dealii won't complain
 //// if it isn't, just give wrong answers.
-//#define ___USE_DEALII_LINEAR_SYSTEM___ 
+//#define ___USE_DEALII_LINEAR_SYSTEM___
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
   #include "DealiiLinearSystem.hpp"
-#endif  
+#endif
 
 
 //#include "Timer.hpp" // in the dealii folder
@@ -61,10 +61,10 @@ protected:
     /** Relative tolerance for newton solve  */
     static const double NEWTON_REL_TOL = 1e-4;
 
-    /** 
+    /**
      * Number of degrees of freedom (eg equal to DIM*N + M if quadratic-linear
      * bases are used, where there are N total nodes and M vertices).
-     */ 
+     */
     unsigned mNumDofs;
 
     /**
@@ -77,7 +77,7 @@ protected:
      *  The linear system where we store all residual vectors which are calculated
      *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
      *  methods explicitly (in order to easily set num restarts etc). In the future
-     *  it'll be solved using the UMFPACK direct method */ 
+     *  it'll be solved using the UMFPACK direct method */
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
     DealiiLinearSystem* mpLinearSystem;
 #else
@@ -85,19 +85,19 @@ protected:
 #endif
     /**
      *  The linear system which stores the matrix used for preconditioning (given
-     *  the helper functions on LinearSystem it is best to use LinearSystem and 
+     *  the helper functions on LinearSystem it is best to use LinearSystem and
      *  use these for assembling the preconditioner, rather than just use a Mat
-     *  The preconditioner is the petsc LU factorisation of 
-     * 
-     *  Jp = [A B] in displacement-pressure block form,  
+     *  The preconditioner is the petsc LU factorisation of
+     *
+     *  Jp = [A B] in displacement-pressure block form,
      *       [C M]
-     * 
+     *
      *  where the A, B and C are the matrices in the normal jacobian,
      *  ie
-     *  
+     *
      *  J  = [A B]
      *       [C 0]
-     *  
+     *
      *  and M is the MASS MATRIX (ie \intgl phi_i phi_j dV, where phi_i are the
      *  pressure basis functions).
      */
@@ -117,43 +117,43 @@ protected:
 
     /** Whether to write any output */
     bool mWriteOutput;
-    
-    /** 
+
+    /**
      *  The current solution, in the form (in 2d)
      *  [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
      *  where there are N total nodes and M vertices
      */
     std::vector<double> mCurrentSolution;
-    
-    /** 
-     *  Storage space for a 4th order tensor used in assembling the 
+
+    /**
+     *  Storage space for a 4th order tensor used in assembling the
      *  Jacobian (to avoid repeated memory allocation)
      */
     FourthOrderTensor2<DIM> dTdE;
-    
+
     /** Number of newton iterations taken in last solve */
     unsigned mNumNewtonIterations;
-    
-    
+
+
     /** Deformed position: mDeformedPosition[i](j) = x_j for node i */
     std::vector<c_vector<double,DIM> > mDeformedPosition;
 
-    /** 
+    /**
      *  The solution pressures. mPressures[i] = pressure at node i (ie
      *  vertex i).
      */
     std::vector<double> mPressures;
     /**
-     *  The surface tractions (which should really be non-zero) 
+     *  The surface tractions (which should really be non-zero)
      *  for the boundary elements in mBoundaryElements
      */
     std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
-    /** An optionally provided (pointer to a) function, giving body force as a function of undeformed position */ 
+    /** An optionally provided (pointer to a) function, giving body force as a function of undeformed position */
     c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>&);
-    /** An optionally provided (pointer to a) function, giving the surface traction as a function of 
+    /** An optionally provided (pointer to a) function, giving the surface traction as a function of
       * undeformed position
-      */ 
+      */
     c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>&);
     /** Whether the functional version of the body force is being used or not */
     bool mUsingBodyForceFunction;
@@ -168,11 +168,11 @@ protected:
 
     /**
      *  Apply the dirichlet boundary conditions to the linear system
-     */   
+     */
     void ApplyBoundaryConditions(bool applyToMatrix)
     {
         assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
-        
+
         // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values
         // on the boundary nodes. However:
         // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
@@ -211,11 +211,11 @@ protected:
         return norm/mNumDofs;
     }
 
-    /** 
+    /**
      *  Take one newton step, by solving the linear system -Ju=f, (J the jacobian, f
      *  the residual, u the update), and picking s such that a_new = a_old + su (a
      *  the current solution) such |f(a)| is the smallest.
-     * 
+     *
      *  @return The current norm of the residual after the newton step.
      */
     double TakeNewtonStep()
@@ -224,7 +224,7 @@ protected:
 
         /////////////////////////////////////////////////////////////
         // Assemble Jacobian (and preconditioner)
-        ///////////////////////////////////////////////////////////// 
+        /////////////////////////////////////////////////////////////
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ASSEMBLE);
         AssembleSystem(true, true);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::ASSEMBLE);
@@ -232,17 +232,17 @@ protected:
 
 
         /////////////////////////////////////////////////////////////
-        // Solve the linear system using Petsc GMRES and an LU 
+        // Solve the linear system using Petsc GMRES and an LU
         // factorisation of the preconditioner. Note we
         // don't call Solve on the linear_system as we want to
         // set Petsc options..
-        ///////////////////////////////////////////////////////////// 
+        /////////////////////////////////////////////////////////////
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
         // solve using an umfpack (in dealii) direct solve..
         mpLinearSystem->Solve();
-        Vector<double>& update = mpLinearSystem->rGetLhsVector(); 
+        Vector<double>& update = mpLinearSystem->rGetLhsVector();
         //Timer::PrintAndReset("Direct Solve");
 #else
         KSP solver;
@@ -263,11 +263,11 @@ protected:
 
         KSPSetFromOptions(solver);
         KSPSetUp(solver);
-        
+
         PC pc;
         KSPGetPC(solver, &pc);
         PCSetType(pc, PCLU);         // Note: ILU factorisation doesn't have much effect, but LU works well.
-       
+
         KSPSetFromOptions(solver);
         KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
 
@@ -281,14 +281,14 @@ protected:
         // Update the solution
         //  Newton method:       sol = sol - update, where update=Jac^{-1}*residual
         //  Newton with damping: sol = sol - s*update, where s is chosen
-        //   such that |residual(sol)| is minimised. Damping is important to 
+        //   such that |residual(sol)| is minimised. Damping is important to
         //   avoid initial divergence.
         //
         // Normally, finding the best s from say 0.05,0.1,0.2,..,1.0 is cheap,
         // but this is not the case in cardiac electromechanics calculations.
         // Therefore, we initially check s=1 (expected to be the best most of the
         // time, then s=0.9. If the norm of the residual increases, we assume
-        // s=1 is the best. Otherwise, check s=0.8 to see if s=0.9 is a local min. 
+        // s=1 is the best. Otherwise, check s=0.8 to see if s=0.9 is a local min.
         ///////////////////////////////////////////////////////////////////////////
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::UPDATE);
         std::vector<double> old_solution(mNumDofs);
@@ -296,7 +296,7 @@ protected:
         {
             old_solution[i] = mCurrentSolution[i];
         }
-        
+
         std::vector<double> damping_values; // = {1.0, 0.9, .., 0.2, 0.1, 0.05} ie size 11
         for (unsigned i=10; i>=1; i--)
         {
@@ -315,12 +315,12 @@ protected:
             mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
 #endif
         }
- 
+
         // compute residual
         AssembleSystem(true, false);
         double norm_resid = CalculateResidualNorm();
         std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << norm_resid << "\n" << std::flush;
-                    
+
         double next_norm_resid = -DBL_MAX;
         index = 1;
 
@@ -331,7 +331,7 @@ protected:
             {
                 norm_resid = next_norm_resid;
             }
-            
+
             for(unsigned j=0; j<mNumDofs; j++)
             {
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
@@ -367,7 +367,7 @@ protected:
                 mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
 #endif
             }
-        }        
+        }
 
 
 //        double best_norm_resid = DBL_MAX;
@@ -439,13 +439,13 @@ protected:
 
 
     /**
-     *  This function may be overloaded by subclasses. It is called after each Newton 
+     *  This function may be overloaded by subclasses. It is called after each Newton
      *  iteration.
      */
     virtual void PostNewtonStep(unsigned counter, double normResidual)
     {
     }
-    
+
 public:
     AbstractNonlinearElasticityAssembler(unsigned numDofs,
                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
@@ -468,7 +468,7 @@ public:
         assert(density > 0);
         assert(fixedNodes.size()>0);
         mWriteOutput = (mOutputDirectory != "");
-        
+
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
         //// has to be done in parent as needs mesh
         //mpLinearSystem = new DealiiLinearSystem( mesh );
@@ -504,7 +504,7 @@ public:
         assert(density > 0);
         assert(fixedNodes.size()>0);
         mWriteOutput = (mOutputDirectory != "");
-        
+
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
         //// has to be done in parent as needs mesh
         //mpLinearSystem = new DealiiLinearSystem( mesh );
@@ -520,13 +520,13 @@ public:
         delete mpLinearSystem;
         delete mpPreconditionMatrixLinearSystem;
     }
-    
 
-    /** 
+
+    /**
      *  Solve the problem
-     */    
-    void Solve(double tol = -1.0, 
-               unsigned offset=0, 
+     */
+    void Solve(double tol = -1.0,
+               unsigned offset=0,
                unsigned maxNumNewtonIterations=INT_MAX,
                bool quitIfNoConvergence=true)
     {
@@ -534,19 +534,19 @@ public:
         {
             WriteOutput(0+offset);
         }
-    
+
         // compute residual
         AssembleSystem(true, false);
         double norm_resid = this->CalculateResidualNorm();
         std::cout << "\nNorm of residual is " << norm_resid << "\n";
-    
+
         mNumNewtonIterations = 0;
         unsigned counter = 1;
-    
+
         if(tol<0) // ie if wasn't passed in as a parameter
-        {        
+        {
             tol = NEWTON_REL_TOL*norm_resid;
-    
+
             #define COVERAGE_IGNORE // not going to have tests in cts for everything
             if(tol > MAX_NEWTON_ABS_TOL)
             {
@@ -560,26 +560,26 @@ public:
         }
 
         std::cout << "Solving with tolerance " << tol << "\n";
-    
+
         while (norm_resid > tol && counter<=maxNumNewtonIterations)
         {
             std::cout <<  "\n-------------------\n"
                       <<   "Newton iteration " << counter
                       << ":\n-------------------\n";
-    
+
             // take newton step (and get returned residual)
             norm_resid = TakeNewtonStep();
-    
-            std::cout << "Norm of residual is " << norm_resid << "\n";    
+
+            std::cout << "Norm of residual is " << norm_resid << "\n";
             if(mWriteOutput)
             {
                 WriteOutput(counter+offset);
             }
-    
+
             mNumNewtonIterations = counter;
-    
-    		PostNewtonStep(counter,norm_resid);
-    
+
+            PostNewtonStep(counter,norm_resid);
+
             counter++;
             if (counter==20)
             {
@@ -595,11 +595,11 @@ public:
             EXCEPTION("Failed to converge");
             #undef COVERAGE_IGNORE
         }
-    
+
         // we have solved for a deformation so note this
         //mADeformedHasBeenSolved = true;
     }
-    
+
 
 
     /**
@@ -625,12 +625,12 @@ public:
             for(unsigned j=0; j<DIM; j++)
             {
                 *p_file << r_deformed_position[i](j) << " ";
-            } 
+            }
             *p_file << "\n";
         }
         p_file->close();
     }
-    
+
     unsigned GetNumNewtonIterations()
     {
         return mNumNewtonIterations;
@@ -645,7 +645,7 @@ public:
         mUsingBodyForceFunction = true;
         mpBodyForceFunction = pFunction;
     }
-    
+
     void SetWriteOutput(bool writeOutput = true)
     {
         if(writeOutput && (mOutputDirectory==""))

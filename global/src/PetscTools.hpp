@@ -56,50 +56,50 @@ class PetscTools
 private:
     /** Whether PETSc has been initialised. */
     static bool mPetscIsInitialised;
-    
+
     /** The total number of processors. */
     static unsigned mNumProcessors;
-    
+
     /** Which processors we are. */
     static unsigned mRank;
-    
+
 public:
-    
+
     /**
      * As a convention, we consider processor 0 the master process
      */
     static const unsigned MASTER_RANK=0;
-    
+
     /**
      * Reset our cached values: whether PETSc is initialised,
      * how many processors there are, and which one we are.
      */
     static void ResetCache();
-    
+
     /**
      * Just returns whether there is one process or not.
      */
     static bool IsSequential();
-    
+
     /**
      *  Returns total number of processors
      */
     static unsigned NumProcs();
-    
+
     /**
      * Return our rank.
-     * 
+     *
      * If PETSc has not been initialized, returns 0.
      */
     static unsigned GetMyRank();
-    
+
     /**
      * Just returns whether it is the master process or not.
-     * 
+     *
      * If not running in parallel, always returns true.
      */
     static bool AmMaster();
-    
+
     /**
      * If MPI is set up, perform a barrier synchronisation.
      * If not, it's a noop.
@@ -109,7 +109,7 @@ public:
 #ifndef SPECIAL_SERIAL
     /**
      * Create a vector of the specified size. SetFromOptions is called.
-     * 
+     *
      * @param size
      */
     static Vec CreateVec(int size);
@@ -117,7 +117,7 @@ public:
     /**
      * Create a vector of the specified size with all values set to be the given
      * constant. SetFromOptions is called.
-     * 
+     *
      * @param size
      * @param value
      */
@@ -125,7 +125,7 @@ public:
 
     /**
      * Create a Vec from the given data.
-     * 
+     *
      * @param data
      */
     static Vec CreateVec(std::vector<double> data);
@@ -162,12 +162,12 @@ public:
      *  Another helper method to get a single value from a vector
      *  in 1 line than Petsc's usual 4 or 5. DOES NOT check that
      *  the requested component is local, DOES do bound-checking.
-     * 
+     *
      * \todo Think if there is an efficient compromise between this method and
      * the full weight of ReplicatableVector (broadcast single values to all processors).
      *  How do you know who has the value?
-     * 
-     * 
+     *
+     *
      */
 //    static double GetVecValue(Vec vec, unsigned index)
 //    {
@@ -186,7 +186,7 @@ public:
 
     /**
      * Dumps a given Petsc object to disk.
-     * 
+     *
      * @param rMat a matrix
      * @param rOutputFileFullPath where to dump the matrix to disk
      */
@@ -194,7 +194,7 @@ public:
 
     /**
      * Dumps a given Petsc object to disk.
-     * 
+     *
      * @param rVec a vector
      * @param rOutputFileFullPath where to dump the vector to disk
      */
@@ -202,7 +202,7 @@ public:
 
     /**
      * Read a previously dumped Petsc object from disk.
-     *  
+     *
      * @param rMat a matrix
      * @param rOutputFileFullPath where to read the matrix from
      */
@@ -210,7 +210,7 @@ public:
 
     /**
      * Read a previously dumped Petsc object from disk.
-     *  
+     *
      * @param rVec a vector
      * @param rOutputFileFullPath where to read the matrix from
      */

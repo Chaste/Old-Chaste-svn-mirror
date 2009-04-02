@@ -78,7 +78,7 @@ public:
 
     /**
      * Access the MNPQ-component of the tensor.
-     * 
+     *
      * @param M  first index
      * @param N  second index
      * @param P  third index
@@ -212,7 +212,7 @@ void FourthOrderTensor2<DIM>::SetAsProduct(FourthOrderTensor2<DIM>& tensor, cons
         }
     }
 }
-    
+
 template<unsigned DIM>
 double& FourthOrderTensor2<DIM>::operator()(unsigned M, unsigned N, unsigned P, unsigned Q)
 {

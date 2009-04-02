@@ -52,7 +52,7 @@ private:
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);          
+        archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
     }
 
 public:
@@ -69,7 +69,7 @@ public:
 
     /**
      * Overridden AddForceContribution() method.
-     * 
+     *
      * Calculates the force on each node in the vertex-based tissue.
      *
      * @param rForces reference to vector of forces on nodes
@@ -80,7 +80,7 @@ public:
 
 };
 
-                              
+
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(NagaiHondaForce)

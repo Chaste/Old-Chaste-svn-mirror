@@ -314,7 +314,7 @@ BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::BidomainDg0Assembler(
     this->SetMatrixIsConstant();
 
     mRowForAverageOfPhiZeroed = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
-    
+
     mpConfig = HeartConfig::Instance();
 }
 

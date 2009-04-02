@@ -33,8 +33,8 @@ AbstractSimpleCellCycleModel::AbstractSimpleCellCycleModel(double g1Duration)
 {
     mG1Duration = g1Duration;
 }
-    
-    
+
+
 void AbstractSimpleCellCycleModel::Initialise()
 {
     SetG1Duration();

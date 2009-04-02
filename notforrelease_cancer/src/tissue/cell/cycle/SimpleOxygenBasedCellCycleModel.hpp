@@ -80,7 +80,7 @@ private:
 
     /**
      * Private constructor for creating an identical daughter cell.
-     * 
+     *
      * @param g1Duration
      * @param currentHypoxicDuration
      * @param currentHypoxiaOnsetTime
@@ -95,7 +95,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
     SimpleOxygenBasedCellCycleModel(unsigned dimension);
@@ -121,15 +121,15 @@ public:
      */
     double GetCurrentHypoxiaOnsetTime();
 
-    /** 
-     * Overridden builder method to create new instances of 
+    /**
+     * Overridden builder method to create new instances of
      * the cell cycle model.
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Get the spatial dimension.
-     * 
+     *
      * @return mDimension
      */
     unsigned GetDimension();
@@ -162,9 +162,9 @@ inline void load_construct_data(
     Archive & ar, SimpleOxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
     /**
-     * Invoke inplace constructor to initialise an instance of SimpleOxygenBasedCellCycleModel. 
-     * It doesn't actually matter what values we pass to our standard constructor, 
-     * provided they are valid parameter values, since the state loaded later 
+     * Invoke inplace constructor to initialise an instance of SimpleOxygenBasedCellCycleModel.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
      */
 

@@ -65,7 +65,7 @@ public:
         // Units: millimolar; Initial value: 1.4e-5
         double var_intracellular_calcium_concentration__Ca_ds = rY[17];
         // Units: millimolar; Initial value: 1.88e-5
-        
+
         const double var_membrane__R = 8314.472;
         const double var_membrane__T = 310.0;
         const double var_membrane__F = 96485.3415;
@@ -196,20 +196,20 @@ public:
         double var_calcium_background_current__V = var_membrane__V;
         double var_calcium_background_current__i_b_Ca = var_calcium_background_current__g_bca * (var_calcium_background_current__V - var_calcium_background_current__E_Ca);
         double var_membrane__i_b_Ca = var_calcium_background_current__i_b_Ca;
-        
-        /** \todo we need to 
+
+        /** \todo we need to
          *  + Check this scaling
          *  + Ask JonC to amend PyCml if necessary
          *  + Check other cell models
-         * 
+         *
          * The return value has to be scaled to match the units required by the mono/bidomain equations.
          * The cell model ionic current is in nano Amps, we require micro Amps/cm^2. The cell density factor
-         * was calculated using the Cm=0.000095microF from the cell model and Cm=1.0microF/cm^2 from the 
+         * was calculated using the Cm=0.000095microF from the cell model and Cm=1.0microF/cm^2 from the
          * mono/bidomain equations.
          */
         double value_in_nA = var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_Ca_L_K_cyt+var_membrane__i_Ca_L_K_ds+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_p_Na+var_membrane__i_Ca_L_Na_cyt+var_membrane__i_Ca_L_Na_ds+var_membrane__i_NaCa_cyt+var_membrane__i_NaCa_ds+var_membrane__i_Ca_L_Ca_cyt+var_membrane__i_Ca_L_Ca_ds+var_membrane__i_b_Ca;
         double value_in_microA = 0.001*value_in_nA;
-        double value_in_microA_per_cm_squared = value_in_microA/0.000095;   
+        double value_in_microA_per_cm_squared = value_in_microA/0.000095;
         return value_in_microA_per_cm_squared;
     }
 
@@ -265,8 +265,8 @@ public:
         // Units: millimolar; Initial value: 0.0005555
         double var_intracellular_calcium_concentration__Ca_Trop = rY[21];
         // Units: millimolar; Initial value: 0.0003542
-        
-        
+
+
         // Mathematics
         const double var_membrane__R = 8314.472;
         const double var_membrane__T = 310.0;
@@ -545,7 +545,7 @@ public:
         double d_dt_intracellular_calcium_concentration__Ca_ds = (((-1.0) * var_intracellular_calcium_concentration__i_Ca_L_Ca_ds) / (2.0 * 1.0 * var_intracellular_calcium_concentration__V_ds_ratio * var_intracellular_calcium_concentration__V_i * var_intracellular_calcium_concentration__F)) - (var_intracellular_calcium_concentration__Ca_ds * var_intracellular_calcium_concentration__Kdecay);
         double d_dt_intracellular_calcium_concentration__Ca_up = ((var_intracellular_calcium_concentration__V_i_ratio / var_intracellular_calcium_concentration__V_up_ratio) * var_intracellular_calcium_concentration__i_up) - var_intracellular_calcium_concentration__i_trans;
         double d_dt_intracellular_calcium_concentration__Ca_rel = ((var_intracellular_calcium_concentration__V_up_ratio / var_intracellular_calcium_concentration__V_rel_ratio) * var_intracellular_calcium_concentration__i_trans) - var_intracellular_calcium_concentration__i_rel;
-        
+
         rDY[0] = 0.001*d_dt_membrane__V;
         rDY[1] = 0.001*d_dt_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1;
         rDY[2] = 0.001*d_dt_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2;
@@ -577,7 +577,7 @@ template<>
 void OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic>::Initialise(void)
 {
     // Time units: second
-    // 
+    //
     this->mVariableNames.push_back("V");
     this->mVariableUnits.push_back("millivolt");
     this->mInitialConditions.push_back(-92.849333);
@@ -665,7 +665,7 @@ void OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic>::Initialise(
     this->mVariableNames.push_back("Ca_Trop");
     this->mVariableUnits.push_back("millimolar");
     this->mInitialConditions.push_back(0.0003542);
-    
+
     this->mInitialised = true;
 }
 

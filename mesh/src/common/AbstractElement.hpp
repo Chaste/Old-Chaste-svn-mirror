@@ -62,7 +62,7 @@ protected:
     unsigned mRegion;
 
     /**
-     * Whether this element has been deleted, and hence 
+     * Whether this element has been deleted, and hence
      * whether its location in the mesh can be re-used.
      */
     bool mIsDeleted;
@@ -72,33 +72,33 @@ protected:
 
     /** A flag for the use of higher level algorithms. */
     bool mFlag;
-    
+
 public:
 
     /**
-     * Constructor which takes in a vector of nodes. 
-     *  
-     * @param index  the index of the element in the mesh 
-     * @param rNodes  the nodes owned by the element 
+     * Constructor which takes in a vector of nodes.
+     *
+     * @param index  the index of the element in the mesh
+     * @param rNodes  the nodes owned by the element
      */
     AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
         : mNodes(rNodes), mIndex(index)
     {
         // Sanity checking
         assert(ELEMENT_DIM <= SPACE_DIM);
-    
+
         // Initialise flags.
         // This must be done before the Jacobian calculations, or assertions trip.
         mIsDeleted = false;
         mFlag = false;
         mOwnership = true;
-        
+
         mRegion = 0;
     }
 
     /**
      * Default constructor, which doesn't add any nodes: they must be added later.
-     * 
+     *
      * @param index  the index of the element in the mesh (defaults to INDEX_IS_NOT_USED)
      */
     AbstractElement(unsigned index=INDEX_IS_NOT_USED)
@@ -116,9 +116,9 @@ public:
     virtual ~AbstractElement()
     {}
 
-    /** 
+    /**
      * Update node at the given index.
-     * 
+     *
      * @param rIndex is an local index to which node to change
      * @param pNode is a pointer to the replacement node
      */
@@ -126,7 +126,7 @@ public:
 
     /**
      * Replace one of the nodes in this element with another.
-     * 
+     *
      * @param pOldNode  pointer to the current node
      * @param pNewNode  pointer to the replacement node
      */
@@ -158,7 +158,7 @@ public:
     /**
      * Get a single component of the location in space of one of the nodes
      * in this element.
-     * 
+     *
      * @param localIndex  the index of the node to query, in [0,N) where N
      *   is the number of nodes in this element.
      * @param dimension  the spatial dimension to query.
@@ -172,7 +172,7 @@ public:
 
     /**
      * Get the location in space of one of the nodes in this element.
-     * 
+     *
      * @param localIndex  the index of the node to query, in [0,N) where N
      *   is the number of nodes in this element.
      *
@@ -186,53 +186,53 @@ public:
         return mNodes[localIndex]->rGetLocation();
     }
 
-    /**  
-     * Given the local index of a node owned by this element, return the   
-     * global index of the node in the mesh.  
-     *   
-     * @param localIndex the node's local index in this element  
-     * @return the global index  
-     */      
+    /**
+     * Given the local index of a node owned by this element, return the
+     * global index of the node in the mesh.
+     *
+     * @param localIndex the node's local index in this element
+     * @return the global index
+     */
     unsigned GetNodeGlobalIndex(unsigned localIndex) const
     {
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex]->GetIndex();
     }
 
-    /**  
-     * Get the node with a given local index in this element.  
-     *   
-     * @param localIndex  
-     * @return a pointer to the node.  
-     */  
+    /**
+     * Get the node with a given local index in this element.
+     *
+     * @param localIndex
+     * @return a pointer to the node.
+     */
     Node<SPACE_DIM>* GetNode(unsigned localIndex) const
     {
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex];
     }
 
-    /**  
-     * Get the number of nodes owned by this element.  
-     */ 
+    /**
+     * Get the number of nodes owned by this element.
+     */
     unsigned GetNumNodes() const
     {
         return mNodes.size();
     }
 
-    /**  
-     * Add a node to this element.  
-     *   
+    /**
+     * Add a node to this element.
+     *
      * @param node pointer to the new node  \todo should be called pNode
-     */ 
+     */
     void AddNode(Node<SPACE_DIM>* node)
     {
         mNodes.push_back(node);
     }
 
-    /**  
-     * Get whether the element is marked as deleted.  
-     *   
-     * @return mIsDeleted  
+    /**
+     * Get whether the element is marked as deleted.
+     *
+     * @return mIsDeleted
      */
     bool IsDeleted() const
     {
@@ -247,70 +247,70 @@ public:
         return mIndex;
     }
 
-    /** 
-     * Set the index of this element in the mesh. 
-     *  
-     * @param index 
+    /**
+     * Set the index of this element in the mesh.
+     *
+     * @param index
      */
     void SetIndex(unsigned index)
     {
         mIndex = index;
     }
 
-    /** 
-     * Get whether the current process owns this element. 
+    /**
+     * Get whether the current process owns this element.
      */
     bool GetOwnership() const
     {
         return mOwnership;
     }
 
-    /** 
-     * Set whether the current process owns this element. 
-     *  
-     * @param ownership 
+    /**
+     * Set whether the current process owns this element.
+     *
+     * @param ownership
      */
     void SetOwnership(bool ownership)
     {
         mOwnership = ownership;
     }
 
-    /** 
-     * Mark the element as flagged. 
-     */  
+    /**
+     * Mark the element as flagged.
+     */
     void Flag()
     {
         mFlag = true;
     }
 
-    /** 
-     * Mark the element as not flagged. 
-     */  
+    /**
+     * Mark the element as not flagged.
+     */
     void Unflag()
     {
         mFlag = false;
     }
 
-    /** 
-     * Get whether the element is flagged. 
-     */ 
+    /**
+     * Get whether the element is flagged.
+     */
     bool IsFlagged() const
     {
         return mFlag;
     }
 
-    /** 
-     * Set the element's region ID. 
-     *  
-     * @param region 
-     */  
+    /**
+     * Set the element's region ID.
+     *
+     * @param region
+     */
     void SetRegion(unsigned region)
     {
         mRegion = region;
     }
 
-    /** 
-     * Get the element's region ID. 
+    /**
+     * Get the element's region ID.
      */
     unsigned GetRegion()
     {

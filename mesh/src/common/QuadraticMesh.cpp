@@ -38,7 +38,7 @@ template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY)
 {
     assert(DIM==2);
-    
+
     assert(xEnd>0);
     assert(yEnd>0);
     assert(numElemX>0);
@@ -51,7 +51,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     ////////////////////////////////////////
     OutputFileHandler handler("");
     out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
-    
+
     *p_file << (numElemX+1)*(numElemY+1) << " 2 0 1\n";
     unsigned node_index = 0;
     for(unsigned j=0; j<=numElemY; j++)
@@ -60,27 +60,27 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
         {
             double x = xEnd*i/numElemX;
             double y = yEnd*j/numElemY;
-            
+
             bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemX) );
             *p_file << node_index++ << " " << x << " " << y << " " << (on_boundary?1:0) << "\n";
         }
     }
     p_file->close();
-    
+
     ////////////////////////////////////////////////////////////
     // create the quadratic mesh files using triangle and load
     ////////////////////////////////////////////////////////////
-     
+
     RunMesherAndReadMesh("triangle", handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
 }
 
 
 template<unsigned DIM>
-QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd, 
+QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
                                   unsigned numElemX, unsigned numElemY, unsigned numElemZ)
 {
     assert(DIM==3);
-    
+
     assert(xEnd>0);
     assert(yEnd>0);
     assert(zEnd>0);
@@ -95,7 +95,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
     ////////////////////////////////////////
     OutputFileHandler handler("");
     out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
-    
+
     *p_file << (numElemX+1)*(numElemY+1)*(numElemZ+1) << " 3 0 0\n";
     unsigned node_index = 0;
     for(unsigned k=0; k<=numElemZ; k++)
@@ -107,18 +107,18 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
                 double x = xEnd*i/numElemX;
                 double y = yEnd*j/numElemY;
                 double z = zEnd*k/numElemZ; //Not yEnd!
-                
+
                 //bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemY) || (k==0) || (k==numElemZ) );
                 *p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
             }
         }
     }
     p_file->close();
-    
+
     ////////////////////////////////////////////////////////////
     // create the quadratic mesh files using triangle and load
     ////////////////////////////////////////////////////////////
-    
+
 
     RunMesherAndReadMesh("tetgen", handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
 }
@@ -126,61 +126,61 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary, 
-                                              std::string outputDir, 
+void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
+                                              std::string outputDir,
                                               std::string fileStem)
 {
     // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
     std::string args = "-Qeo2";
-    
+
     // In 2D we need an edge file. In 3D we need a face file (which is written automatically in Tetgen)
     if (DIM == 3)
     {
-        args = "-Qo2";   
+        args = "-Qo2";
     }
-        
+
     std::string command =  binary + " " + args + " " + outputDir
                            + "/" + fileStem + ".node";
-    
+
     if (DIM == 3)
     {
         // Tetgen's quiet mode isn't as quiet as Triangle's
         command += " > /dev/null";
     }
-                 
+
     int return_value = system(command.c_str());
- 
+
     if(return_value != 0)
     {
         #define COVERAGE_IGNORE
         EXCEPTION("Remeshing (by calling " + binary + ") failed.  Do you have it in your path?\n"+
         "The quadratic mesh relies on functionality from triangle (http://www.cs.cmu.edu/~quake/triangle.html) and tetgen (http://tetgen.berlios.de/).");
-        #undef COVERAGE_IGNORE 
+        #undef COVERAGE_IGNORE
     }
-    
+
     // move the output files to the chaste directory
-    command =   "mv " + outputDir + "/" 
+    command =   "mv " + outputDir + "/"
               + fileStem + ".1.* .";
-    
+
     // NOTE: we don't check whether the return value here is zero, because if CHASTE_TESTOUTPUT
     // is "." (ie if it hasn't been exported), then the mv will fail (source and destination files
     // are the same), but this isn't a problem.
     return_value = system(command.c_str());
-    
+
     // load
     LoadFromFile( fileStem + ".1");
-    
+
     // delete the temporary files
     command = "rm -f " + outputDir + "/" + fileStem + ".node";
     EXPECT0(system, command);
     EXPECT0(system, "rm -f " + fileStem + ".1.node");
     EXPECT0(system, "rm -f " + fileStem + ".1.ele");
-    
-    if (DIM==2) 
+
+    if (DIM==2)
     {
         EXPECT0(system, "rm -f " + fileStem + ".1.edge");
     }
-    if (DIM==3) 
+    if (DIM==3)
     {
         EXPECT0(system, "rm -f " + fileStem + ".1.face");
     }
@@ -205,8 +205,8 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
             mIsInternalNode[ node_index ] = false;
         }
     }
-    
-    // count the number of vertices, and also check all vertices come before the 
+
+    // count the number of vertices, and also check all vertices come before the
     // rest of the nodes (as this is assumed in other parts of the code)
     mNumVertices = 0;
     bool vertices_mode = true;
@@ -225,8 +225,8 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
             vertices_mode = false;
         }
     }
-        
-    
+
+
     mesh_reader.Reset();
 
     // add the extra nodes (1 extra node in 1D, 3 in 2D, 6 in 3D) to the element
@@ -241,7 +241,7 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
             this->GetNode(nodes[j])->AddElement(this->GetElement(i)->GetIndex());
         }
     }
-    
+
     // Loop over all boundary elements, find the equivalent face from all
     // the elements, and add the extra nodes to the boundary element
     if(DIM>1)
@@ -251,33 +251,33 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
             iter != this->GetBoundaryElementIteratorEnd();
             ++iter)
         {
-            // collect the nodes of this boundary element in a set        
+            // collect the nodes of this boundary element in a set
             std::set<unsigned> boundary_element_node_indices;
             for(unsigned i=0; i<DIM; i++)
             {
                 boundary_element_node_indices.insert( (*iter)->GetNodeGlobalIndex(i) );
             }
-    
+
             bool found_this_boundary_element = false;
 
             // loop over elements
             for(unsigned i=0; i<this->GetNumElements(); i++)
             {
                 Element<DIM,DIM>* p_element = this->GetElement(i);
-                
+
                 // for each element, loop over faces (the opposites to a node)
                 for(unsigned face=0; face<DIM+1; face++)
                 {
                     // collect the node indices for this face
                     std::set<unsigned> node_indices;
                     for(unsigned local_node_index=0; local_node_index<DIM+1; local_node_index++)
-                    {  
+                    {
                         if(local_node_index!=face)
                         {
                             node_indices.insert( p_element->GetNodeGlobalIndex(local_node_index) );
                         }
                     }
-    
+
                     assert(node_indices.size()==DIM);
 
                     // see if this face matches the boundary element,
@@ -285,18 +285,18 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
                     if(node_indices==boundary_element_node_indices)
                     {
                         AddExtraBoundaryNodes(*iter, p_element, face);
-                        
+
                         found_this_boundary_element = true;
                         break;
                     }
                 }
-    
+
                 if(found_this_boundary_element)
                 {
                     break;
                 }
             }
-            
+
             if(!found_this_boundary_element)
             {
                 #define COVERAGE_IGNORE
@@ -318,14 +318,14 @@ void QuadraticMesh<DIM>::AddNodeToBoundaryElement(BoundaryElement<DIM-1,DIM>* pB
     assert(internalNode < (DIM+1)*(DIM+2)/2);
     Node<DIM>* p_internal_node = pElement->GetNode(internalNode);
 
-    // add node to the boundary node list   
+    // add node to the boundary node list
     if(!p_internal_node->IsBoundaryNode())
     {
         p_internal_node->SetAsBoundaryNode();
         this->mBoundaryNodes.push_back(p_internal_node);
     }
 
-    pBoundaryElement->AddNode( p_internal_node );        
+    pBoundaryElement->AddNode( p_internal_node );
 }
 
 
@@ -340,10 +340,10 @@ void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoun
         assert(nodeIndexOppositeToFace<3);
         // the single internal node of the elements face will be numbered 'face+3'
         AddNodeToBoundaryElement(pBoundaryElement, pElement, nodeIndexOppositeToFace+3);
-    }        
+    }
     else
     {
-        assert(DIM==3);        
+        assert(DIM==3);
 
         unsigned b_elem_n0 = pBoundaryElement->GetNodeGlobalIndex(0);
         unsigned b_elem_n1 = pBoundaryElement->GetNodeGlobalIndex(1);
@@ -413,7 +413,7 @@ void QuadraticMesh<DIM>::HelperMethod1(unsigned boundaryElemNode0, unsigned boun
         {
             rReverse = false;
         }
-        else 
+        else
         {
             assert(pElement->GetNodeGlobalIndex(node0)==boundaryElemNode1);
             rReverse = true;
@@ -459,14 +459,14 @@ void QuadraticMesh<DIM>::HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElem
         internalNode2 = internalNode1;
         internalNode1 = temp;
     }
-    
+
     if(reverse)
     {
         unsigned temp = internalNode1;
         internalNode1 = internalNode2;
         internalNode2 = temp;
     }
-    
+
     AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode0);
     AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode1);
     AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode2);

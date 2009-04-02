@@ -49,7 +49,7 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         // run to 125 ms - about where the width is at its minimum (see figures
-        // in "A numerical method for cardiac mechano–electric simulations" (Pras&JonW))        
+        // in "A numerical method for cardiac mechano–electric simulations" (Pras&JonW))
         CardiacElectroMechProbRegularGeom<2> problem(1.0,  /* width */
                                                      5,    /* mech mesh size */
                                                      96,   /* elec elem each dir */
@@ -69,22 +69,22 @@ public:
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
     }
-    
+
     void Test3d() throw(Exception)
     {
         EXIT_IF_PARALLEL;
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-1000*1000);
-     
+
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
         electrics_mesh.ConstructCuboid(10,10,10);
         electrics_mesh.Scale(0.01, 0.01, 0.01);
-               
+
         QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 1, 1, 1);
-        
-        // fix the nodes on x=0        
-        std::vector<unsigned> fixed_nodes 
+
+        // fix the nodes on x=0
+        std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
         CardiacElectroMechanicsProblem<3> problem(&electrics_mesh,
@@ -102,7 +102,7 @@ public:
         // test by checking the length of the tissue against hardcoded value
         std::vector<c_vector<double,3> >& r_deformed_position = problem.rGetDeformedPosition();
         TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0879, 1e-3);
-        
+
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
     }
