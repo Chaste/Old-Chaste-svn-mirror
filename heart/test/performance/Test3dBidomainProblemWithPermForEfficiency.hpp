@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "BidomainFaceStimulusCellFactory.hpp"
+#include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 
 class Test3dBidomainProblemWithPermForEfficiency :  public CxxTest::TestSuite
 {

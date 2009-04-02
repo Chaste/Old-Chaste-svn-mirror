@@ -62,6 +62,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * {{{PetscSetupAndFinalize.hpp}}}.  This class ensures that {{{PetscInitialise()}}}
  * is called with the appropriate arguments before any tests in the suite are run. */
 #include "PetscSetupAndFinalize.hpp"
+/* Class used to to model a FEM mesh and helper class used to read it from file */
+#include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 
 
 /* EMPTYLINE
