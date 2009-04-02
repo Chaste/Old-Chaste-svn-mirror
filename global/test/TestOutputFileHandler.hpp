@@ -80,7 +80,7 @@ public:
 
         handler.GetOutputDirectoryFullPath("whatever");
 
-        rmdir("whatever");
+        rmdir("testoutput/whatever");
 
         setenv("CHASTE_TEST_OUTPUT", "somewhere_without_trailing_forward_slash", 1/*Overwrite*/);
 
