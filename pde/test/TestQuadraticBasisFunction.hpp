@@ -41,10 +41,14 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 public:
     
     void TestQuadraticBasisFunction0d() 
-    {
+    { 
         ChastePoint<0> zero;
         QuadraticBasisFunction<0> basis_func;
         TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
+        
+        c_vector<double, 1> basis_functions;
+        basis_func.ComputeBasisFunctions(zero, basis_functions);
+        TS_ASSERT_DELTA(basis_functions(0), 1.0, 1e-12);
     }
         
     void TestQuadraticBasisFunction1d()
