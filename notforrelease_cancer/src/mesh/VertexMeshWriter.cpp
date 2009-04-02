@@ -32,9 +32,9 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rDirectory,
                                                            const std::string& rBaseName,
                                                            const bool clearOutputDir)
+    : mBaseName(rBaseName)
 {
      mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
-     mBaseName = rBaseName;
 }
 
 

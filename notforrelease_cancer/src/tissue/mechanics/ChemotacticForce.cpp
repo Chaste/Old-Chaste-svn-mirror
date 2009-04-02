@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 ChemotacticForce<DIM>::ChemotacticForce()
-   : AbstractForce<DIM>()
+    : AbstractForce<DIM>()
 {
 }
 

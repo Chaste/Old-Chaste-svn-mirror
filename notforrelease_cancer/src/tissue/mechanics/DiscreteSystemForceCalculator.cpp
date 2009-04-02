@@ -29,10 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 DiscreteSystemForceCalculator::DiscreteSystemForceCalculator(MeshBasedTissue<2>& rTissue,
                                                              std::vector<AbstractTwoBodyInteractionForce<2>*> forceCollection)
-        : mrTissue(rTissue),
-          mEpsilon(0.01)
+    : mrTissue(rTissue),
+      mForceCollection(forceCollection),
+      mEpsilon(0.01)
 {
-    mForceCollection = forceCollection;
 }
 
 std::vector< std::vector<double> > DiscreteSystemForceCalculator::CalculateExtremalNormalForces()

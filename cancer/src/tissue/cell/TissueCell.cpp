@@ -32,7 +32,15 @@ TissueCell::TissueCell(CellType cellType,
                        CellMutationState mutationState,
                        AbstractCellCycleModel* pCellCycleModel,
                        bool archiving)
-    : mpCellCycleModel(pCellCycleModel)
+    : mCanDivide(false),
+      mCellType(cellType),
+      mMutationState(mutationState),
+      mpCellCycleModel(pCellCycleModel),
+      mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
+      mDeathTime(DBL_MAX), // This has to be initialised for archiving
+      mUndergoingApoptosis(false),
+      mIsDead(false),
+      mIsLogged(false)
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
@@ -43,15 +51,6 @@ TissueCell::TissueCell(CellType cellType,
     {
         EXCEPTION("Cell cycle model is null");
     }
-
-    mCellType = cellType;
-    mMutationState = mutationState;
-    mCanDivide = false;
-    mUndergoingApoptosis = false;
-    mIsDead = false;
-    mDeathTime = DBL_MAX; // This has to be initialised for archiving...
-    mIsLogged = false;
-    mAncestor = UNSIGNED_UNSET; // Has to be set by a SetAncestor() call (usually from Tissue)
 
     mpCellCycleModel->SetCell(this);
 }

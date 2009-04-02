@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned SPACE_DIM>
 OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue,
                                                         double concentration)
-        : AbstractCellKiller<SPACE_DIM>(pTissue),
-          mHypoxicConcentration(concentration)
+    : AbstractCellKiller<SPACE_DIM>(pTissue),
+      mHypoxicConcentration(concentration)
 {
 }
 

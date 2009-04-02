@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseOdeSystemInformation.hpp"
 
 Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double wntStimulus)
-        : AbstractOdeSystem(8)
+    : AbstractOdeSystem(8)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Lee2003WntSignallingOdeSystem>);
 

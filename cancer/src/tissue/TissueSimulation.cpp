@@ -42,50 +42,40 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
                                         std::vector<AbstractForce<DIM>*> forceCollection,
                                         bool deleteTissueAndForceCollection,
                                         bool initialiseCells)
-  :  mrTissue(rTissue)
+    : mDt(1.0/120.0), // Timestep of 30 seconds (as per Meineke) 
+      mEndTime(0.0),  // hours - this is set later on
+      mrTissue(rTissue),
+      mDeleteTissue(deleteTissueAndForceCollection),
+      mAllocatedMemoryForForceCollection(deleteTissueAndForceCollection),
+      mInitialiseCells(initialiseCells),
+      mNoBirth(false),
+      mUpdateTissue(false),
+      mOutputCellMutationStates(false),
+      mOutputCellAncestors(false),
+      mOutputCellTypes(false),
+      mOutputCellVariables(false),
+      mOutputCellCyclePhases(false),
+      mOutputDirectory(""),
+      mSimulationOutputDirectory(mOutputDirectory),
+      mNumBirths(0),
+      mNumDeaths(0),
+      mSamplingTimestepMultiple(1),
+      mForceCollection(forceCollection)
 {
     #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
     #undef COVERAGE_IGNORE
-
-    mDeleteTissue = deleteTissueAndForceCollection;
-
-    mInitialiseCells = initialiseCells;
 
     mpParams = CancerParameters::Instance();
 
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
 
-    mDt = 1.0/120.0; // Timestep of 30 seconds (as per Meineke)
-    mEndTime = 0.0; // hours - this is set later on.
-
-    // Defaults
-    mOutputDirectory = "";
-    mSimulationOutputDirectory = mOutputDirectory;
-
     if (mrTissue.HasMesh())
     {
         mUpdateTissue = true;
     }
-    else
-    {
-        mUpdateTissue = false;
-    }
 
-    mOutputCellMutationStates = false;
-    mOutputCellAncestors = false;
-    mOutputCellTypes = false;
-    mOutputCellVariables = false;
-    mOutputCellCyclePhases = false;
-    mNoBirth = false;
-    mNumBirths = 0;
-    mNumDeaths = 0;
-    mSamplingTimestepMultiple = 1;
-
-    mAllocatedMemoryForForceCollection = deleteTissueAndForceCollection;
-
-    mForceCollection = forceCollection;
     if (mInitialiseCells)
     {
         mrTissue.InitialiseCells();

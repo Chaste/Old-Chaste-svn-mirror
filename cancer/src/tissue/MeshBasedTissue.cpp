@@ -45,7 +45,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
       mUseAreaBasedDampingConstant(false)
 {
     // This must always be true
-    assert( this->mCells.size() <= mrMesh.GetNumNodes() );
+    assert(this->mCells.size() <= mrMesh.GetNumNodes());
 
     this->mTissueContainsMesh = true;
 

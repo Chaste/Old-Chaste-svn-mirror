@@ -31,15 +31,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 CryptSimulation1d::CryptSimulation1d(MutableMesh<1,1> &rMesh,
                                      std::vector<TissueCell> cells)
-        : mrMesh(rMesh),
-        mCells(cells)
+    : mDt(1.0/120.0), // time step of 30 seconds (as per the Meineke 2001 model)
+      mEndTime(120.0), // hours
+      mrMesh(rMesh),
+      mIncludeVariableRestLength(false),
+      mMaxCells(UNSIGNED_UNSET),
+      mOutputDirectory(""),
+      mCells(cells)
 {
     CancerParameters::Instance()->SetSpringStiffness(30.0);
-    mDt = 1.0/(120.0); // time step of 30 seconds (as per the Meineke 2001 model)
-    mEndTime = 120.0; // hours
-
-    mIncludeVariableRestLength = false;
-    mOutputDirectory = "";
 
     if (!SimulationTime::Instance()->IsStartTimeSetUp())
     {
@@ -57,14 +57,14 @@ CryptSimulation1d::~CryptSimulation1d()
 void CryptSimulation1d::SetDt(double dt)
 {
     assert(dt>0);
-    mDt=dt;
+    mDt = dt;
 }
 
 
 void CryptSimulation1d::SetEndTime(double endTime)
 {
     assert(endTime>0);
-    mEndTime=endTime;
+    mEndTime = endTime;
 }
 
 
@@ -88,7 +88,7 @@ void CryptSimulation1d::SetMaxCells(unsigned maxCells)
 
 std::vector<TissueCell> CryptSimulation1d::GetCells()
 {
-    assert(mCells.size()>0);
+    assert(mCells.size() > 0);
     return mCells;
 }
 
@@ -97,7 +97,7 @@ void CryptSimulation1d::Solve()
 {
     CancerParameters* p_params = CancerParameters::Instance();
 
-    if (mOutputDirectory=="")
+    if (mOutputDirectory == "")
     {
         EXCEPTION("OutputDirectory not set");
     }
@@ -182,7 +182,7 @@ void CryptSimulation1d::Solve()
         std::vector<double> drdt(mrMesh.GetNumAllNodes());
         if (mIncludeVariableRestLength && !mCells.empty())
         {
-            for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+            for (unsigned elem_index=0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
                 Element<1,1>* element = mrMesh.GetElement(elem_index);
                 if (!element->IsDeleted())
@@ -278,7 +278,7 @@ void CryptSimulation1d::Solve()
         tabulated_writer.PutVariable(time_var_id, SimulationTime::Instance()->GetTime());
         (*p_results_file) << SimulationTime::Instance()->GetTime() << "\t";
 
-        unsigned cell=0; // NB this is not the index in mCells, but the index in the mesh!
+        unsigned cell = 0; // NB this is not the index in mCells, but the index in the mesh!
         for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
         {
             if (!mrMesh.GetNode(index)->IsDeleted())
@@ -331,17 +331,17 @@ unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time
     double left_position = pElement->GetNodeLocation(0,0);
     double element_length = pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0);
 
-    assert(element_length>0);
+    assert(element_length > 0);
     if (mIncludeVariableRestLength)
     {
         double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge();
         double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge();
-        if (fabs(age0)<1e-6)
+        if (fabs(age0) < 1e-6)
         {
             // Place the new node 10% to the right of the left-hand node
             displacement = 0.1*element_length;
         }
-        else if (fabs(age1)<1e-6)
+        else if (fabs(age1) < 1e-6)
         {
             // Place the new node 10% to the left of the right-hand node
             displacement = 0.9*element_length;

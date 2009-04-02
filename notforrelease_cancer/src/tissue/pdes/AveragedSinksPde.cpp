@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 AveragedSinksPde<DIM>::AveragedSinksPde(MeshBasedTissue<DIM>& rTissue, double coefficient)
-        : mrTissue(rTissue),
-          mCoefficient(coefficient)
+    : mrTissue(rTissue),
+      mCoefficient(coefficient)
 {
 }
 

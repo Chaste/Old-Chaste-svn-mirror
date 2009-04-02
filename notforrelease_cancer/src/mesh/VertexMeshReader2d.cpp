@@ -30,13 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 VertexMeshReader2d::VertexMeshReader2d(std::string pathBaseName)
     : mFilesBaseName(pathBaseName),
+      mIndexFromZero(false), // initially assume that nodes are not numbered from zero
       mNumNodes(0),
       mNumElements(0),
       mNodesRead(0),
       mElementsRead(0),
       mNumElementAttributes(0)
 {
-    mIndexFromZero = false; // initially assume that nodes are not numbered from zero
     OpenFiles();
     ReadHeaders();
 }

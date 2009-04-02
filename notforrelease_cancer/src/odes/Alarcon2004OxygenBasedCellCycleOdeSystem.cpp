@@ -30,7 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CellMutationState& rMutationState)
-        : AbstractOdeSystem(6)
+    : AbstractOdeSystem(6),
+      mMutationState(rMutationState)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>);
 
@@ -47,8 +48,6 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     Init(); // set up parameters
 
     assert(rMutationState == HEALTHY || rMutationState == LABELLED);
-
-    mMutationState = rMutationState;
 
     // parameter values taken from the Alarcon et al. (2004) paper
     if (mMutationState == HEALTHY)    // normal cells

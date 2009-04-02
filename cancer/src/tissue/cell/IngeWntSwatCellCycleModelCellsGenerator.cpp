@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 IngeWntSwatCellCycleModelCellsGenerator<DIM>::IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis)
+    : mHypothesis(hypothesis)
 {
-    mHypothesis = hypothesis;
 }
 
 

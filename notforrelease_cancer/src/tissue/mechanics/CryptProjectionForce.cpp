@@ -31,11 +31,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 
 CryptProjectionForce::CryptProjectionForce()
-   : GeneralisedLinearSpringForce<2>()
+    : GeneralisedLinearSpringForce<2>(),
+      mIncludeWntChemotaxis(false)
 {
     mA = CancerParameters::Instance()->GetCryptProjectionParameterA();
     mB = CancerParameters::Instance()->GetCryptProjectionParameterB();
-    mIncludeWntChemotaxis = false;
 }
 
 CryptProjectionForce::~CryptProjectionForce()

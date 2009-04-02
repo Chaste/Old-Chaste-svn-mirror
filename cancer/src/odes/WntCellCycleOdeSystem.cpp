@@ -29,7 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseOdeSystemInformation.hpp"
 
 WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutationState& rMutationState)
-        : AbstractOdeSystem(9)
+    : AbstractOdeSystem(9),
+      mMutationState(rMutationState)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<WntCellCycleOdeSystem>);
 
@@ -52,8 +53,6 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
     double destruction_level = ma5d/(ma4d*WntLevel+ma5d);
     double beta_cat_level_1 = -1.0;
     double beta_cat_level_2 = -1.0;
-
-    mMutationState = rMutationState;
 
     // These three lines set up a Wnt signalling pathway in a steady state
     if (mMutationState == HEALTHY || mMutationState == LABELLED)    // healthy cells

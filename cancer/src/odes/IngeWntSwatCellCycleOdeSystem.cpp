@@ -29,14 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseOdeSystemInformation.hpp"
 
 IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel, const CellMutationState& rMutationState)
-        : AbstractOdeSystem(22)
+    : AbstractOdeSystem(22),
+      mMutationState(rMutationState),
+      mHypothesis(hypothesis)
 {
     if (hypothesis!=1u && hypothesis!=2u)
     {
         EXCEPTION("You must set up this cell cycle ODE system with hypothesis one or two.");
     }
-    mHypothesis = hypothesis;
-    mMutationState = rMutationState;
 
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>);
 
@@ -106,7 +106,6 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
             NEVER_REACHED;
     }
 
-
     // Cell-specific initial conditions
     double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
     SetInitialConditionsComponent(5u, steady_D); // Destruction complex (APC/Axin/GSK3B)
@@ -118,7 +117,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     temp = (mPu*steady_D*steady_Cf)/(mDu*(steady_Cf+mKd));
     SetInitialConditionsComponent(7u, temp); // beta-catenin to be ubiquitinated
 
-    double theta = mDc+ (mPu*steady_D)/(steady_Cf + mKd);
+    double theta = mDc + (mPu*steady_D)/(steady_Cf + mKd);
 
     double steady_Co = ( mSc - p_c_hat - theta*mKc + sqrt(4.0*mSc*theta*mKc + pow((mSc - p_c_hat - theta*mKc),2)) )/(2.0*theta);
     SetInitialConditionsComponent(8u, steady_Co); // Open form beta-catenin

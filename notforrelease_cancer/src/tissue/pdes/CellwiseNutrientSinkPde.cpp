@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 CellwiseNutrientSinkPde<DIM>::CellwiseNutrientSinkPde(MeshBasedTissue<DIM>& rTissue, double coefficient)
-        : mrTissue(rTissue),
-          mCoefficient(coefficient)
+    : mrTissue(rTissue),
+      mCoefficient(coefficient)
 {
 }
 

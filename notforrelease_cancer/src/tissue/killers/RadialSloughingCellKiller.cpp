@@ -29,9 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCentreBasedTissue.hpp"
 
 RadialSloughingCellKiller::RadialSloughingCellKiller(AbstractTissue<2>* pTissue, c_vector<double,2> centre, double radius)
-        : AbstractCellKiller<2>(pTissue),
-          mCentre(centre),
-          mRadius(radius)
+    : AbstractCellKiller<2>(pTissue),
+      mCentre(centre),
+      mRadius(radius)
 {
 }
 

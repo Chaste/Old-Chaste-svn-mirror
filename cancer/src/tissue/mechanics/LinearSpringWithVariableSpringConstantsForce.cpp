@@ -33,21 +33,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSpringConstantsForce()
-   : GeneralisedLinearSpringForce<DIM>()
+    : GeneralisedLinearSpringForce<DIM>(),
+      mUseEdgeBasedSpringConstant(false),
+      mUseMutantSprings(false),
+      mMutantMutantMultiplier(DOUBLE_UNSET),
+      mNormalMutantMultiplier(DOUBLE_UNSET),
+      mUseBCatSprings(false),
+      mUseApoptoticSprings(false)
 {
-    // Edge-based springs
-    mUseEdgeBasedSpringConstant = false;
-
-    // Cell-type dependent springs
-    mUseMutantSprings = false;
-    mMutantMutantMultiplier = DOUBLE_UNSET;
-    mNormalMutantMultiplier = DOUBLE_UNSET;
-
-    // Beta-cat springs
-    mUseBCatSprings = false;
-
-    // Apoptotic springs
-    mUseApoptoticSprings = false;
 }
 
 template<unsigned DIM>

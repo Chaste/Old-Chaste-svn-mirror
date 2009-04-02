@@ -44,15 +44,14 @@ SimulationTime* SimulationTime::Instance()
 
 
 SimulationTime::SimulationTime()
+    : mTimeStepsElapsed(0),
+      mEndTimeAndNumberOfTimeStepsSet(false),
+      mCurrentTime(0.0),
+      mStartTime(0.0),
+      mStartTimeSet(false)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
-
-    mEndTimeAndNumberOfTimeStepsSet = false;
-    mTimeStepsElapsed = 0;
-    mCurrentTime = 0.0;
-    mStartTime = 0.0;
-    mStartTimeSet = false;
 }
 
 
