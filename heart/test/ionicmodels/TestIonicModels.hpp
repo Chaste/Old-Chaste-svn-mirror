@@ -870,7 +870,7 @@ public:
 //        ck_end = clock();
 //        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 //
-//        TS_ASSERT( !isnan( n98_ode_system.GetIIonic() ) );
+//        TS_ASSERT( !std::isnan( n98_ode_system.GetIIonic() ) );
 //
 //        // Solve backward
 //        HeartConfig::Instance()->SetOdeTimeStep(0.1);
@@ -883,7 +883,7 @@ public:
 //        ck_end = clock();
 //        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 //
-//        TS_ASSERT( !isnan( n98_be_ode_system.GetIIonic() ) );
+//        TS_ASSERT( !std::isnan( n98_be_ode_system.GetIIonic() ) );
 //
 //        CompareCellModelResults("N98RegResult", "BeN98RegResult", 0.2);
 //

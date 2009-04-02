@@ -274,8 +274,8 @@ bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vecto
     double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.
     dY1 = dY1*factor;
 
-    assert(!isnan(rY[1]));
-    assert(!isnan(dY1));
+    assert(!std::isnan(rY[1]));
+    assert(!std::isnan(dY1));
     return (rY[1] > 1.0 && dY1 > 0.0);
 }
 

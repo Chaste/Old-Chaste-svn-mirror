@@ -78,7 +78,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     // Calculate the distance between the two nodes
     double distance_between_nodes = norm_2(unit_difference);
     assert(distance_between_nodes > 0);
-    assert(!isnan(distance_between_nodes));
+    assert(!std::isnan(distance_between_nodes));
 
     unit_difference /= distance_between_nodes;
 
@@ -101,8 +101,8 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
 
-    assert(!isnan(ageA));
-    assert(!isnan(ageB));
+    assert(!std::isnan(ageA));
+    assert(!std::isnan(ageB));
 
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
@@ -178,7 +178,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
             c_vector<double, DIM> temp = CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length)*exp(-alpha*(distance_between_nodes-rest_length));
             for (unsigned i=0; i<DIM; i++)
             {
-                assert(!isnan(temp[i]));
+                assert(!std::isnan(temp[i]));
             }
             return temp;
         }
@@ -187,7 +187,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
             c_vector<double, DIM> temp = CancerParameters::Instance()->GetSpringStiffness() * unit_difference * log(1 + distance_between_nodes - rest_length);
             for (unsigned i=0; i<DIM; i++)
             {
-                assert(!isnan(temp[i]));
+                assert(!std::isnan(temp[i]));
             }
             return temp;
         }
@@ -228,7 +228,7 @@ void GeneralisedLinearSpringForce<DIM>::AddForceContribution(std::vector<c_vecto
                 c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
                 for (unsigned j=0; j<DIM; j++)
                 {
-                    assert(!isnan(force[j]));
+                    assert(!std::isnan(force[j]));
                 }
 
                 // Add the force contribution to each node

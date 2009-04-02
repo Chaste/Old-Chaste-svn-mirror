@@ -100,7 +100,7 @@ void MonodomainProblem<DIM>::WriteInfo(double time)
     {
         double v=voltage_replicated[i];
         #define COVERAGE_IGNORE
-        if (isnan(v))
+        if (std::isnan(v))
         {
             EXCEPTION("Not-a-number encountered");
         }

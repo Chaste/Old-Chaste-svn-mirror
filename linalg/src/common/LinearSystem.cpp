@@ -532,8 +532,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 //    for (int global_index=mOwnershipRangeLo; global_index<mOwnershipRangeHi; global_index++)
 //    {
 //        int local_index = global_index - mOwnershipRangeLo;
-//        assert(!isnan(p_rhs[local_index]));
-//        assert(!isnan(p_guess[local_index]));
+//        assert(!std::isnan(p_rhs[local_index]));
+//        assert(!std::isnan(p_guess[local_index]));
 //        if (p_rhs[local_index] != p_rhs[local_index])
 //        {
 //            std::cout << "********* PETSc nan\n";

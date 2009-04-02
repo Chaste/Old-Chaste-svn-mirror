@@ -392,7 +392,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
 
     double i_ionic = inward_rectifier_potassium_current_i_K1+transient_outward_current_i_to+rapid_time_dependent_potassium_current_i_Kr+slow_time_dependent_potassium_current_i_Ks+L_type_Ca_current_i_CaL+sodium_potassium_pump_current_i_NaK+fast_sodium_current_i_Na+sodium_background_current_i_b_Na+sodium_calcium_exchanger_current_i_NaCa+calcium_background_current_i_b_Ca+potassium_pump_current_i_p_K+calcium_pump_current_i_p_Ca; /*this is in nA*/
 
-    assert(!isnan(i_ionic));
+    assert(!std::isnan(i_ionic));
 
     double i_ionic_in_microA_per_cm2=i_ionic*membrane_Cm;
     return i_ionic_in_microA_per_cm2;

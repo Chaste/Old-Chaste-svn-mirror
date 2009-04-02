@@ -339,7 +339,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
         wall_thickness[node_index] = dist_endo / (dist_endo + dist_epi);
 
-        if (isnan(wall_thickness[node_index]))
+        if (std::isnan(wall_thickness[node_index]))
         {
             #define COVERAGE_IGNORE
             /*

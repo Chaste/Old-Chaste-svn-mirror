@@ -233,7 +233,7 @@ void BidomainProblem<DIM>::WriteInfo(double time)
         double phi=voltage_replicated[2*i+1];
 
         #define COVERAGE_IGNORE
-        if (isnan(v) || isnan(phi))
+        if (std::isnan(v) || std::isnan(phi))
         {
             EXCEPTION("Not-a-number encountered");
         }

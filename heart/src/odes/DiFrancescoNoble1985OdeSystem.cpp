@@ -353,7 +353,7 @@ double DiFrancescoNoble1985OdeSystem::GetIIonic()
                          i_na+
                          i_si); /*this is in nA*/
 
-    assert(!isnan(i_ionic));
+    assert(!std::isnan(i_ionic));
 
     double i_ionic_in_microA_per_cm2=i_ionic*pow(10,-3)/0.075;
     return i_ionic_in_microA_per_cm2;

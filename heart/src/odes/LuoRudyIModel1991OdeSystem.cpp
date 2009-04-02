@@ -255,7 +255,7 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
 
     double i_ionic = fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b;
 
-    assert(!isnan(i_ionic));
+    assert(!std::isnan(i_ionic));
     return i_ionic;
 }
 

@@ -113,7 +113,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     // Calculate the distance between the two nodes
     double distance_between_nodes = norm_2(unit_difference);
     assert(distance_between_nodes > 0);
-    assert(!isnan(distance_between_nodes));
+    assert(!std::isnan(distance_between_nodes));
 
     unit_difference /= distance_between_nodes;
 
@@ -137,8 +137,8 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
 
-    assert(!isnan(ageA));
-    assert(!isnan(ageB));
+    assert(!std::isnan(ageA));
+    assert(!std::isnan(ageB));
 
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
