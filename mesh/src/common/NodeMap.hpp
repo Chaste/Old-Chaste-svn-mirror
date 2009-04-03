@@ -51,34 +51,19 @@ public:
      *
      * @param size  the size of the NodeMap
      */
-    NodeMap(unsigned size)
-    {
-        // this used to be reserve, but this acts oddly:
-        // eg: mMap.reserve(2); mMap[0]=1;
-        // runs and mMap[0] returns 1, but mMap.size() returns 0
-        mMap.resize(size);
-    }
+    NodeMap(unsigned size);
 
     /**
      * Resize the NodeMap.
      *
      * @param size  the new size of the NodeMap
      */
-    void Resize(unsigned size)
-    {
-        mMap.resize(size);
-    }
+    void Resize(unsigned size);
 
     /**
      * Reset the NodeMap to the identity map.
      */
-    void ResetToIdentity()
-    {
-        for (unsigned oldIndex=0; oldIndex<mMap.size(); oldIndex++)
-        {
-            mMap[oldIndex] = oldIndex;
-        }
-    }
+    void ResetToIdentity();
 
     /**
      * Associate a given old index with a new index.
@@ -86,10 +71,7 @@ public:
      * @param oldIndex  the old index of a node
      * @param newIndex  the new index of a node
      */
-    void SetNewIndex(unsigned oldIndex, unsigned newIndex)
-    {
-        mMap[oldIndex] = newIndex;
-    }
+    void SetNewIndex(unsigned oldIndex, unsigned newIndex);
 
     /**
      * Mark a given old index as 'deleted' by associating it
@@ -97,59 +79,32 @@ public:
      *
      * @param index  the old index of a node
      */
-    void SetDeleted(unsigned index)
-    {
-        mMap[index] = UINT_MAX;
-    }
+    void SetDeleted(unsigned index);
 
     /**
      * Get whether a given old index is marked as 'deleted'.
      *
      * @param index  the old index of a node
      */
-    bool IsDeleted(unsigned index)
-    {
-        return (mMap[index]==UINT_MAX);
-    }
+    bool IsDeleted(unsigned index);
 
     /**
      * Get the new index associated with a given old index.
      *
      * @param oldIndex  the old index of a node
      */
-    unsigned GetNewIndex(unsigned oldIndex) const
-    {
-        if (mMap[oldIndex] == UINT_MAX)
-        {
-            EXCEPTION("Node has been deleted");
-        }
-        return (unsigned) mMap[oldIndex];
-    }
+    unsigned GetNewIndex(unsigned oldIndex) const;
 
     /**
      * Get whether the NodeMap is the identity map.
      */
-    bool IsIdentityMap()
-    {
-        for(unsigned i=0; i<mMap.size(); i++)
-        {
-            if(mMap[i]!=i)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+    bool IsIdentityMap();
 
     /**
      * Get the size of the NodeMap.
      */
-    unsigned Size()
-    {
-        return mMap.size();
-    }
+    unsigned Size();
 
 };
-
 
 #endif /*NODEMAP_HPP_*/
