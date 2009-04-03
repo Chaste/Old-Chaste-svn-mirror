@@ -71,7 +71,7 @@ private:
 
     unsigned mNumNodeAttributes;    /**< Is the number of attributes stored at each node. */
     unsigned mMaxNodeBdyMarker;     /**< Is the maximum node boundary marker. */
-    unsigned mNumElementNodes;      /** Is the number of nodes per element. */
+    unsigned mNumElementNodes;      /**< Is the number of nodes per element. */
     unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element. */
     unsigned mNumFaceAttributes;    /**< Is the number of attributes stored for each face. */
 

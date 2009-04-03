@@ -32,44 +32,74 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 #include "Face.hpp"
-#include <cxxtest/TestSuite.h>
-
 #include <cmath>
-#include <vector>
 
+
+/**
+ * A VoronoiCell class for use in the VoronoiTessellation class.
+ */
 class VoronoiCell
 {
-public:
-    ///\todo Why are these public?
-    /***
-     * Faces of the cell, which should be distinct.
-     */
-    std::vector< Face<3>* > mFaces;
-
-    /**
-     * How each face is oriented.
-     * From the perspective of the centre of the cell, the vertices of each face should be ordered clockwise.
-     * If and only if this is false, the order of vertices in the corresponding face should be reversed.
-     *
-     * N.B. Most faces belong to two cells, but with opposite orientations. This allows us to reuse the face data
-     * across the two cells.
-     */
-    std::vector<bool> mOrientations;
-    c_vector<double, 3> mCellCentre;
-
 private:
 
+    /**
+     * Return whether two faces are equal.
+     * 
+     * @param face1 the first face
+     * @param orientation1 whether the first face is oriented
+     * @param face2 the second face
+     * @param orientation2 whether the second face is oriented
+     */
     bool EqualFaces(Face<3>& face1, bool orientation1, Face<3>& face2, bool orientation2);
 
 public:
 
     /**
-     * Test whether two cells are equal.
-     *
-     * Two cells are equal if their set of faces are equal (including whether the faces have the same orientations).
+     * Faces of the VoronoiCell, which should be distinct.
+     * 
+     * This member variable is public as it is accessed directly by 
+     * VoronoiTessellation methods.
      */
-    bool operator==(VoronoiCell& otherCell);
+    std::vector< Face<3>* > mFaces;
+
+    /**
+     * How each face is oriented. From the perspective of the centre 
+     * of the VoronoiCell, the vertices of each face should be ordered 
+     * clockwise. If and only if this is false, the order of vertices 
+     * in the corresponding face should be reversed.
+     *
+     * N.B. Most faces belong to two VoronoiCell, but with opposite 
+     * orientations. This allows us to reuse the face data across the 
+     * two cells.
+     * 
+     * This member variable is public as it is accessed directly by 
+     * VoronoiTessellation methods.
+     */
+    std::vector<bool> mOrientations;
+
+    /**
+     * The centre of the VoronoiCell. 
+     * 
+     * This member variable is public as it is accessed directly by 
+     * VoronoiTessellation methods.
+     */
+    c_vector<double, 3> mCellCentre;
+
+    /**
+     * Test whether two VoronoiCells are equal.
+     *
+     * Two VoronoiCells are equal if their set of faces are equal 
+     * (including whether the faces have the same orientations).
+     * 
+     * @param rOtherCell the VoronoiCell to compare to
+     */
+    bool operator==(VoronoiCell& rOtherCell);
+
+    /**
+     * Get the centre of the VoronoiCell.
+     */
     c_vector<double, 3>& rGetVoronoiCellCentre();
+
 };
 
 #endif /*VORONOICELL_HPP_*/
