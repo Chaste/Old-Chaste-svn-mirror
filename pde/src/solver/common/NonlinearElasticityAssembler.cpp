@@ -182,7 +182,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     }
 
 
-    // Apply dirichlet boundary conditions
+    // Apply Dirichlet boundary conditions
     this->ApplyBoundaryConditions(assembleJacobian);
 
 #ifndef ___USE_DEALII_LINEAR_SYSTEM___

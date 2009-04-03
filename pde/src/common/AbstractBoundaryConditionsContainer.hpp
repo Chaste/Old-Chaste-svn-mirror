@@ -54,11 +54,11 @@ protected:
     *mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
 
     typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
-    mDirichIterator; /**< Internal iterator over dirichlet boundary conditions */
+    mDirichIterator; /**< Internal iterator over Dirichlet boundary conditions */
 
 public:
     /**
-     * Constructor allocates memory for the dirichlet boundary conditions lists.
+     * Constructor allocates memory for the Dirichlet boundary conditions lists.
      */
     AbstractBoundaryConditionsContainer();
 
@@ -81,10 +81,10 @@ public:
 
 
     /**
-     * Obtain value of dirichlet boundary condition at specified node
+     * Obtain value of Dirichlet boundary condition at specified node
      *
      * This is unlikely to be needed by the user, the methods ApplyDirichletToLinearProblem or
-     * ApplyDirichletToNonlinearProblem can be called instead to apply all dirichlet boundary conditions
+     * ApplyDirichletToNonlinearProblem can be called instead to apply all Dirichlet boundary conditions
      * at the same time
      */
     double GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode, unsigned indexOfUnknown = 0);

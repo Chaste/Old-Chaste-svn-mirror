@@ -66,39 +66,69 @@ class AbstractLinearEllipticPde
 public:
 
     /**
-     *  The constant in u part of the source term, i.e g(x) in
-     *  Div(D Grad u)  +  f(x)u + g(x) = 0
-     *  @param x The point in space
+     * Compute the constant in u part of the source term, i.e g(x) in
+     * Div(D Grad u)  +  f(x)u + g(x) = 0, at a given point.
+     * 
+     * @param rX The point in space
      */
-    virtual double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
+    virtual double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
-     *  The coefficient of u in the linear part of the source term, i.e f(x) in
-     *  Div(D Grad u)  +  f(x)u + g(x) = 0
-     *  @param x The point in space
+     * Compute the coefficient of u in the linear part of the source term, i.e f(x) in
+     * Div(D Grad u)  +  f(x)u + g(x) = 0, at a given point in space.
+     * 
+     * @param rX The point in space
      */
-    virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& x,
+    virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& rX,
                                                      Element<ELEM_DIM,SPACE_DIM>* pElement)=0;
 
     /**
-     * Compute Diffusion Term.
-     * @param x The point in space at which the Diffusion Term is computed.
+     * Compute the diffusion term at a given point.
+     * 
+     * @param rX The point in space at which the diffusion term is computed.
      * @return A matrix.
      */
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX)=0;
 
-    virtual double ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& node)
-    {
-        return ComputeConstantInUSourceTerm(node.GetPoint());
-    }
+    /**
+     * Compute the constant in u part of the source term, i.e g(x) in
+     * Div(D Grad u)  +  f(x)u + g(x) = 0, at a given node.
+     * 
+     * @param rNode the node
+     */
+    virtual double ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& rNode);
 
-    virtual double ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& node)
-    {
-        return ComputeLinearInUCoeffInSourceTerm(node.GetPoint(), NULL);
-    }
+    /**
+     * Compute the coefficient of u in the linear part of the source term, i.e f(x) in
+     * Div(D Grad u)  +  f(x)u + g(x) = 0, at a given node.
+     * 
+     * @param rNode the node
+     */
+    virtual double ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& rNode);
 
+    /**
+     * Destructor.
+     */
     virtual ~AbstractLinearEllipticPde()
     {}
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template <unsigned ELEM_DIM, unsigned SPACE_DIM>
+double AbstractLinearEllipticPde<ELEM_DIM, SPACE_DIM>::ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& rNode)
+{
+    return ComputeConstantInUSourceTerm(rNode.GetPoint());
+}
+
+template <unsigned ELEM_DIM, unsigned SPACE_DIM>
+double AbstractLinearEllipticPde<ELEM_DIM, SPACE_DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& rNode)
+{
+    return ComputeLinearInUCoeffInSourceTerm(rNode.GetPoint(), NULL);
+}
 
 #endif //_ABSTRACTLINEARELLIPTICPDE_HPP_

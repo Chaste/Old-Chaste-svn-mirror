@@ -46,19 +46,37 @@ class AbstractNonlinearEllipticPde
 {
 public:
 
-    virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
+    /**
+     * Compute linear source term.
+     * 
+     * @param rX the point in space at which the linear source term is computed
+     */
+    virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
 
-    virtual double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& x,
-                                              double u)=0;
+    /**
+     * Compute nonlinear source term.
+     * 
+     * @param rX the point in space at which the nonlinear source term is computed
+     * @param u the value of the dependent variable at the point
+     */
+    virtual double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x,
-            double u)=0;
+    /**
+     * Compute diffusion term.
+     * 
+     * @param rX The point in space at which the diffusion term is computed.
+     * @param pElement The mesh element that x is contained in (optional).
+     * @return A matrix.
+     */
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(const ChastePoint<SPACE_DIM>& x,
-            double u)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
-    virtual double ComputeNonlinearSourceTermPrime(const ChastePoint<SPACE_DIM>& x,
-                                                   double u)=0;
+    virtual double ComputeNonlinearSourceTermPrime(const ChastePoint<SPACE_DIM>& rX, double u)=0;
+
+    /**
+     * Destructor.
+     */
     virtual ~AbstractNonlinearEllipticPde()
     {}
 };

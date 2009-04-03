@@ -39,6 +39,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractDynamicAssemblerMixin : virtual public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
+
     double mTstart;
     double mTend;
     double mDt, mDtInverse;
@@ -66,168 +67,211 @@ protected:
      *  ConstructVectorForMatrixBasedRhsAssembly. This method just assembles the RHS
      *  matrix b by setting up z and doing Bz=b.
      */
-    void DoMatrixBasedRhsAssembly(Vec currentSolution, double time)
-    {
-        assert(mpMatrixForMatrixBasedRhsAssembly!=NULL);
-
-        // as bypassing AssembleSystem, need to make sure we call
-        // Prepare and Finalize
-        this->PrepareForAssembleSystem(currentSolution, time);
-
-        HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);
-
-        (*(this->GetLinearSystem()))->ZeroRhsVector();
-
-        // construct z
-        ConstructVectorForMatrixBasedRhsAssembly(currentSolution);
-
-        // b = Bz
-        MatMult(*mpMatrixForMatrixBasedRhsAssembly, mVectorForMatrixBasedRhsAssembly, (*(this->GetLinearSystem()))->rGetRhsVector());
-
-        // apply boundary conditions
-        this->ApplyNeummanBoundaryConditions();
-        (*(this->GetLinearSystem()))->AssembleRhsVector();
-
-        this->ApplyDirichletConditions(currentSolution, false);
-
-        // as bypassing AssembleSystem, need to make sure we call
-        // Prepare and Finalise
-        this->FinaliseAssembleSystem(currentSolution, time);
-        (*(this->GetLinearSystem()))->AssembleRhsVector();
-
-        HeartEventHandler::EndEvent(HeartEventHandler::ASSEMBLE_RHS);
-    }
+    void DoMatrixBasedRhsAssembly(Vec currentSolution, double time);
 
 public:
     /**
      * Constructor notes we haven't been initialised fully yet.
      * The user needs to call SetTimes and SetInitialCondition.
      */
-    AbstractDynamicAssemblerMixin()
-    {
-        mTimesSet = false;
-        mInitialCondition = NULL;
-        mMatrixIsAssembled = false;
-        mMatrixIsConstant = false;
-
-        mUseMatrixBasedRhsAssembly = false;
-        mpMatrixForMatrixBasedRhsAssembly = NULL;
-    }
+    AbstractDynamicAssemblerMixin();
 
     /**
      * Set the times to solve between, and the time step to use.
+     * 
+     * @param tStart the start time
+     * @param tEnd the end time
+     * @param dt the time step
      */
-    void SetTimes(double Tstart, double Tend, double dt)
-    {
-        mTstart = Tstart;
-        mTend   = Tend;
-        mDt     = dt;
-        mDtInverse = 1/dt;
-
-        if (mTstart >= mTend)
-        {
-            EXCEPTION("Starting time has to less than ending time");
-        }
-        if (mDt <= 0)
-        {
-            EXCEPTION("Time step has to be greater than zero");
-        }
-
-        mTimesSet = true;
-    }
+    void SetTimes(double tStart, double tEnd, double dt);
 
     /**
-     *  Set the initial condition
+     * Set the initial condition.
+     * 
+     * @param initialCondition the initial condition
      */
-    void SetInitialCondition(Vec initialCondition)
-    {
-        assert(initialCondition!=NULL);
-        mInitialCondition = initialCondition;
-    }
+    void SetInitialCondition(Vec initialCondition);
 
     /**
      * Set the boolean mMatrixIsConstant to true to build the matrix only once.
+     * 
+     * @param matrixIsConstant whether the matrix is constant (defaults to true)
      */
-    void SetMatrixIsConstant(bool matrixIsConstant = true)
-    {
-        mMatrixIsConstant = matrixIsConstant;
-        this->SetMatrixIsConst(mMatrixIsConstant);
-    }
+    void SetMatrixIsConstant(bool matrixIsConstant=true);
 
-    void SetMatrixIsNotAssembled()
-    {
-        mMatrixIsAssembled = false;
-    }
+    void SetMatrixIsNotAssembled();
 
     /**
-     *  Solve a dynamic PDE over the time period specified through SetTimes()
-     *  and the initial conditions specified through SetInitialCondition().
+     * Solve a dynamic PDE over the time period specified through SetTimes()
+     * and the initial conditions specified through SetInitialCondition().
      *
-     *  SetTimes() and SetInitialCondition() must be called before Solve(), and
-     *  the mesh and pde must have been set.
+     * SetTimes() and SetInitialCondition() must be called before Solve(), and
+     * the mesh and pde must have been set.
      *
-     *  Currently, it is assumed by this code that the matrix is constant for the lifetime of the assembler.
-     *  In other words, the matrix will *only* be assembled when this method is first called.
-     *  This is probably not safe in general, but all of our tests use a constant matrix at present.
+     * Currently, it is assumed by this code that the matrix is constant for the lifetime of the assembler.
+     * In other words, the matrix will *only* be assembled when this method is first called.
+     * This is probably not safe in general, but all of our tests use a constant matrix at present.
+     * 
+     * @param currentSolutionOrGuess defaults to NULL
+     * @param currentTime defaults to 0.0
      */
-    Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
-    {
-        assert(mTimesSet);
-        assert(mInitialCondition != NULL);
-
-        this->PrepareForSolve();
-        this->InitialiseForSolve(mInitialCondition);
-
-        TimeStepper stepper(mTstart, mTend, mDt);
-
-        Vec current_solution = mInitialCondition;
-        Vec next_solution;
-
-        while ( !stepper.IsTimeAtEnd() )
-        {
-            /// \todo create a stepper class which can guarantee that dt is constant, so we can pull this outside the loop?
-            mDt = stepper.GetNextTimeStep();
-            mDtInverse = 1.0/mDt;
-
-            PdeSimulationTime::SetTime(stepper.GetTime());
-
-            // NOTE: even if mUseMatrixBasedRhsAssembly==true,
-            // the RHS is assembled without using matrix-based assembly
-            // in the first timestep (when the LHS matrix is set up) - no
-            // easy way around this
-            if(!mUseMatrixBasedRhsAssembly || !mMatrixIsAssembled)
-            {
-                next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
-            }
-            else
-            {
-                DoMatrixBasedRhsAssembly(current_solution, stepper.GetTime());
-                next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
-            }
-
-            mMatrixIsAssembled = true;
-            stepper.AdvanceOneTimeStep();
-
-            // Avoid memory leaks
-            if (current_solution != mInitialCondition)
-            {
-                VecDestroy(current_solution);
-            }
-            current_solution = next_solution;
-        }
-        return current_solution;
-    }
+    Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0);
 
     /**
-     *  This method should be overloaded by any subclass which uses matrix-based
-     *  assembly.
+     * This method should be overloaded by any subclass which uses matrix-based
+     * assembly.
+     * 
+     * @param currentSolution the current solution
      */
-    virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("mUseMatrixBasedRhsAssembly=true but ConstructVectorForMatrixBasedRhsAssembly() has not been overloaded");
-        #undef COVERAGE_IGNORE
-    }
+    virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
+
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::DoMatrixBasedRhsAssembly(Vec currentSolution, double time)
+{
+    assert(mpMatrixForMatrixBasedRhsAssembly!=NULL);
+
+    // as bypassing AssembleSystem, need to make sure we call
+    // Prepare and Finalize
+    this->PrepareForAssembleSystem(currentSolution, time);
+
+    HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);
+
+    (*(this->GetLinearSystem()))->ZeroRhsVector();
+
+    // construct z
+    ConstructVectorForMatrixBasedRhsAssembly(currentSolution);
+
+    // b = Bz
+    MatMult(*mpMatrixForMatrixBasedRhsAssembly, mVectorForMatrixBasedRhsAssembly, (*(this->GetLinearSystem()))->rGetRhsVector());
+
+    // apply boundary conditions
+    this->ApplyNeummanBoundaryConditions();
+    (*(this->GetLinearSystem()))->AssembleRhsVector();
+
+    this->ApplyDirichletConditions(currentSolution, false);
+
+    // as bypassing AssembleSystem, need to make sure we call
+    // Prepare and Finalise
+    this->FinaliseAssembleSystem(currentSolution, time);
+    (*(this->GetLinearSystem()))->AssembleRhsVector();
+
+    HeartEventHandler::EndEvent(HeartEventHandler::ASSEMBLE_RHS);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDynamicAssemblerMixin()
+    : mTimesSet(false),
+      mInitialCondition(NULL),
+      mMatrixIsAssembled(false),
+      mMatrixIsConstant(false),
+      mUseMatrixBasedRhsAssembly(false),
+      mpMatrixForMatrixBasedRhsAssembly(NULL)
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetTimes(double tStart, double tEnd, double dt)
+{
+    mTstart = tStart;
+    mTend   = tEnd;
+    mDt     = dt;
+    mDtInverse = 1/dt;
+
+    if (mTstart >= mTend)
+    {
+        EXCEPTION("Starting time has to less than ending time");
+    }
+    if (mDt <= 0)
+    {
+        EXCEPTION("Time step has to be greater than zero");
+    }
+
+    mTimesSet = true;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetInitialCondition(Vec initialCondition)
+{
+    assert(initialCondition!=NULL);
+    mInitialCondition = initialCondition;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetMatrixIsConstant(bool matrixIsConstant)
+{
+    mMatrixIsConstant = matrixIsConstant;
+    this->SetMatrixIsConst(mMatrixIsConstant);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetMatrixIsNotAssembled()
+{
+    mMatrixIsAssembled = false;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Vec currentSolutionOrGuess, double currentTime)
+{
+    assert(mTimesSet);
+    assert(mInitialCondition != NULL);
+
+    this->PrepareForSolve();
+    this->InitialiseForSolve(mInitialCondition);
+
+    TimeStepper stepper(mTstart, mTend, mDt);
+
+    Vec current_solution = mInitialCondition;
+    Vec next_solution;
+
+    while ( !stepper.IsTimeAtEnd() )
+    {
+        /// \todo create a stepper class which can guarantee that dt is constant, so we can pull this outside the loop?
+        mDt = stepper.GetNextTimeStep();
+        mDtInverse = 1.0/mDt;
+
+        PdeSimulationTime::SetTime(stepper.GetTime());
+
+        // NOTE: even if mUseMatrixBasedRhsAssembly==true,
+        // the RHS is assembled without using matrix-based assembly
+        // in the first timestep (when the LHS matrix is set up) - no
+        // easy way around this
+        if(!mUseMatrixBasedRhsAssembly || !mMatrixIsAssembled)
+        {
+            next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
+        }
+        else
+        {
+            DoMatrixBasedRhsAssembly(current_solution, stepper.GetTime());
+            next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
+        }
+
+        mMatrixIsAssembled = true;
+        stepper.AdvanceOneTimeStep();
+
+        // Avoid memory leaks
+        if (current_solution != mInitialCondition)
+        {
+            VecDestroy(current_solution);
+        }
+        current_solution = next_solution;
+    }
+    return current_solution;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
+{
+    #define COVERAGE_IGNORE
+    EXCEPTION("mUseMatrixBasedRhsAssembly=true but ConstructVectorForMatrixBasedRhsAssembly() has not been overloaded");
+    #undef COVERAGE_IGNORE
+}
 
 #endif //_ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_

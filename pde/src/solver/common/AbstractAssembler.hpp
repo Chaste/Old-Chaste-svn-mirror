@@ -83,11 +83,10 @@ protected:
 
     #define COVERAGE_IGNORE
     /** Hack for dynamic mixin */
-    virtual void SetMatrixIsConst(bool matrixIsConstant = true)
+    virtual void SetMatrixIsConst(bool matrixIsConstant=true)
     {
     }
     #undef COVERAGE_IGNORE
-
 
     /**
      *  This method returns the matrix to be added to element stiffness matrix
@@ -104,18 +103,17 @@ protected:
      *   @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      *   @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      *   @param rX The point in space
-     *   @param u The unknown as a vector, u(i) = u_i \todo should this be rU?
+     *   @param rU The unknown as a vector, u(i) = u_i \todo should this be rU?
      *   @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      *   @param pElement Pointer to the element
      */
     virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeMatrixTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,PROBLEM_DIM> &u,
-        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU,
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,PROBLEM_DIM>& rU,
+        c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)=0;
-
 
     /**
      *  This method returns the vector to be added to element stiffness vector
@@ -132,19 +130,17 @@ protected:
      *   @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      *   @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      *   @param rX The point in space
-     *   @param u The unknown as a vector, u(i) = u_i
+     *   @param rU The unknown as a vector, u(i) = u_i
      *   @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      *   @param pElement Pointer to the element
      */
     virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,PROBLEM_DIM> &u,
-        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU,
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,PROBLEM_DIM>& rU,
+        c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)=0;
-
-
 
     /**
      *  This method returns the vector to be added to element stiffness vector
@@ -160,10 +156,9 @@ protected:
      *   @param rX The point in space
      */
     virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-        c_vector<double, ELEMENT_DIM> &rPhi,
-        ChastePoint<SPACE_DIM> &rX)=0;
-
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+        c_vector<double, ELEMENT_DIM>& rPhi,
+        ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
      *  Calculate the contribution of a single element to the linear system.
@@ -185,13 +180,11 @@ protected:
      *
      *  Implemented in AbstractStaticAssembler
      */
-    virtual void AssembleOnElement( Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                                    c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) > &rAElem,
-                                    c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> &rBElem,
-                                    bool assembleVector,
-                                    bool assembleMatrix)=0;
-
-
+    virtual void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement,
+                                   c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) >& rAElem,
+                                   c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)>& rBElem,
+                                   bool assembleVector,
+                                   bool assembleMatrix)=0;
 
     /**
      * Calculate the contribution of a single surface element with Neumann
@@ -202,58 +195,66 @@ protected:
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
      *
-     *  Implemented in AbstractStaticAssembler
+     * Implemented in AbstractStaticAssembler
      */
-    virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-                                          c_vector<double, PROBLEM_DIM*ELEMENT_DIM> &rBSurfElem)=0;
-
-
+    virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+                                          c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem)=0;
 
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
 
-
     /**
-     *  This method is called at the beginning of Solve(). Subclass assemblers can
-     *  use it to check everything has been set up correctly
+     * This method is called at the beginning of Solve(). Subclass assemblers can
+     * use it to check everything has been set up correctly
      */
     virtual void PrepareForSolve()=0;
 
-
     /**
-     *  This method is called at the beginning of AssembleSystem() and should be
-     *  overloaded in the concrete assembler class if there is any work to be done
-     *  before assembling, for example integrating ODEs such as in the Monodomain
-     *  assembler.
+     * This method is called at the beginning of AssembleSystem() and should be
+     * overloaded in the concrete assembler class if there is any work to be done
+     * before assembling, for example integrating ODEs such as in the Monodomain
+     * assembler.
+     * 
+     * @param currentSolutionOrGuess
+     * @param currentTime
      */
     virtual void PrepareForAssembleSystem(Vec currentSolutionOrGuess, double currentTime)
     {}
 
     /**
-     *  This method is called at the end of AssembleSystem() and should be overloaded
-     *  in the concrete assembler class if there is any further work to be done
+     * This method is called at the end of AssembleSystem() and should be overloaded
+     * in the concrete assembler class if there is any further work to be done.
+     * 
+     * @param currentSolutionOrGuess
+     * @param currentTime
      */
     virtual void FinaliseAssembleSystem(Vec currentSolutionOrGuess, double currentTime)
     {}
 
     /**
-     *  Can be overloaded if the user needs to edit the linear system after the boundary
-     *  conditions have been added by before it is solved
+     * Can be overloaded if the user needs to edit the linear system after the boundary
+     * conditions have been added but before it is solved.
+     * 
+     * @param currentSolutionOrGuess
+     * @param currentTime
+     * @param assembleVector
+     * @param assembleMatrix
      */
     virtual void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix)
     {}
 
-
     /**
-     * This method is called by AssembleSystem to apply dirichlet conditions to the system.
+     * This method is called by AssembleSystem to apply Dirichlet conditions to the system.
+     * 
+     * @param currentSolutionOrGuess
+     * @param applyToMatrix
      */
     virtual void ApplyDirichletConditions(Vec currentSolutionOrGuess, bool applyToMatrix)=0;
 
     /**
-     * Whether  grad_u should be calculated
+     * Whether grad_u should be calculated
      */
-    virtual bool ProblemIsNonlinear() =0;
-
+    virtual bool ProblemIsNonlinear()=0;
 
     /**
      * Perform the work of a single solve, but without any initialisation.  Static
@@ -272,6 +273,8 @@ protected:
 
     /**
      * Perform any initialisation needed before a sequence of StaticSolve calls.
+     * 
+     * @param initialGuess an initial guess
      */
     virtual void InitialiseForSolve(Vec initialGuess)=0;
 
@@ -280,7 +283,6 @@ protected:
      */
     virtual LinearSystem** GetLinearSystem()=0;
     virtual ReplicatableVector& rGetCurrentSolutionOrGuess()=0;
-
 
     /**
      *  Apply Neumann boundary conditions to the RHS vector by looping over
@@ -294,51 +296,21 @@ protected:
      *  involves changing BCC to have a map of arrays boundary conditions
      *  rather than an array of maps.
      */
-    void ApplyNeummanBoundaryConditions()
-    {
-        assert(mpBoundaryConditions!=NULL);
-        HeartEventHandler::BeginEvent(HeartEventHandler::NEUMANN_BCS);
-        if (mpBoundaryConditions->AnyNonZeroNeumannConditions())
-        {
-            typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
-                neumann_iterator = mpBoundaryConditions->BeginNeumann();
-            c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
-
-            // Iterate over defined conditions
-            while (neumann_iterator != mpBoundaryConditions->EndNeumann())
-            {
-                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = *(neumann_iterator->first);
-                AssembleOnSurfaceElement(surf_element, b_surf_elem);
-
-                const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM; // problem_dim*num_nodes_on_surface_element
-                unsigned p_indices[STENCIL_SIZE];
-                surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
-                (*(this->GetLinearSystem()))->AddRhsMultipleValues(p_indices, b_surf_elem);
-                ++neumann_iterator;
-            }
-        }
-        HeartEventHandler::EndEvent(HeartEventHandler::NEUMANN_BCS);
-    }
+    void ApplyNeummanBoundaryConditions();
 
 public:
 
     /**
      * Default constructor.
      */
-    AbstractAssembler()
-    {
-        mpBoundaryConditions = NULL;
-    }
-
+    AbstractAssembler();
 
     /**
      * Set the boundary conditions.
+     * 
+     * @param pBoundaryConditions pointer to a BoundaryConditionsContainer
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions)
-    {
-        mpBoundaryConditions = pBoundaryConditions;
-    }
-
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions);
 
     /**
      * Delete any memory allocated by this class.
@@ -346,7 +318,6 @@ public:
     virtual ~AbstractAssembler()
     {
     }
-
 
     // The following have to be public in order for compilation to work, but shouldn't be called
     // by users
@@ -356,18 +327,66 @@ public:
      *  if there are some quantities which need to be computed at each Gauss point.
      *  They are called in AssembleOnElement()
      */
-    virtual void ResetInterpolatedQuantities( void )
+    virtual void ResetInterpolatedQuantities()
     {}
 
     /**
-     *  The concrete subclass can overload this and ResetInterpolatedQuantities()
-     *  if there are some quantities which need to be computed at each Gauss point.
-     *  They are called in AssembleOnElement()
+     * The concrete subclass can overload this and ResetInterpolatedQuantities()
+     * if there are some quantities which need to be computed at each Gauss point.
+     * They are called in AssembleOnElement().
+     * 
+     * @param phi_i \todo Should really be called phiI
+     * @param pNode pointer to a node
      */
-    virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
+    virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
     {}
 
-
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ApplyNeummanBoundaryConditions()
+{
+    assert(mpBoundaryConditions!=NULL);
+    HeartEventHandler::BeginEvent(HeartEventHandler::NEUMANN_BCS);
+    if (mpBoundaryConditions->AnyNonZeroNeumannConditions())
+    {
+        typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
+            neumann_iterator = mpBoundaryConditions->BeginNeumann();
+        c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
+
+        // Iterate over defined conditions
+        while (neumann_iterator != mpBoundaryConditions->EndNeumann())
+        {
+            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = *(neumann_iterator->first);
+            AssembleOnSurfaceElement(surf_element, b_surf_elem);
+
+            const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM; // problem_dim*num_nodes_on_surface_element
+            unsigned p_indices[STENCIL_SIZE];
+            surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
+            (*(this->GetLinearSystem()))->AddRhsMultipleValues(p_indices, b_surf_elem);
+            ++neumann_iterator;
+        }
+    }
+    HeartEventHandler::EndEvent(HeartEventHandler::NEUMANN_BCS);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractAssembler()
+    : mpBoundaryConditions(NULL)
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions)
+{
+    mpBoundaryConditions = pBoundaryConditions;
+}
+
 
 #endif //_ABSTRACTASSEMBLER_HPP_

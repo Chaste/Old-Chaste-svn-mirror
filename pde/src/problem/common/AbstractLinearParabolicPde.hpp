@@ -42,50 +42,80 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * c(x) du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
  *
  */
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 class AbstractLinearParabolicPde
 {
 public:
+
     /**
      * The function c(x) in "c(x) du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)"
+     * 
+     * @param rX the point in space at which the function c is computed
      */
-    virtual double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& x)=0;
-
-
-    /**
-    * Compute Nonlinear Source Term.
-    * @param x The point in space at which the Nonlinear Source Term is computed.
-    */
-    virtual double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& x,
-                                              double u)=0;
-
-    virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
-    {
-        return ComputeNonlinearSourceTerm(node.GetPoint(), u);
-    }
-
+    virtual double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
-     * Compute Linear Source Term.
-     * @param x The point in space at which the Linear Source Term is computed.
+     * Compute nonlinear source term.
+     * 
+     * @param rX the point in space at which the nonlinear source term is computed
+     * @param u the value of the dependent variable at the point
      */
-    virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
+    virtual double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
     /**
-     * Compute Diffusion Term.
-     * @param x The point in space at which the Diffusion Term is computed.
+     * Compute nonlinear source term at a node.
+     * 
+     * @param rNode the node at which the nonlinear source term is computed
+     * @param u the value of the dependent variable at the node
+     */
+    virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u);
+
+    /**
+     * Compute linear source term.
+     * 
+     * @param rX the point in space at which the linear source term is computed
+     */
+    virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
+
+    /**
+     * Compute diffusion term.
+     * 
+     * @param rX The point in space at which the diffusion term is computed.
      * @param pElement The mesh element that x is contained in (optional).
      * @return A matrix.
      */
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x, Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)=0;
 
-    virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
-    {
-        return ComputeLinearSourceTerm(node.GetPoint());
-    }
+    /**
+     * Compute linear source term at a node.
+     * 
+     * @param rNode the node at which the nonlinear source term is computed
+     */
+    virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& rNode);
 
+    /**
+     * Destructor.
+     */
     virtual ~AbstractLinearParabolicPde()
     {}
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned SPACE_DIM>
+double AbstractLinearParabolicPde<SPACE_DIM>::ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& rNode)
+{
+    return ComputeLinearSourceTerm(rNode.GetPoint());
+}
+
+template<unsigned SPACE_DIM>
+double AbstractLinearParabolicPde<SPACE_DIM>::ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u)
+{
+    return ComputeNonlinearSourceTerm(rNode.GetPoint(), u);
+}
 
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_

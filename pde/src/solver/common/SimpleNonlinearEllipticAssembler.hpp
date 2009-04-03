@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMesh.hpp"
 
 
-
 /**
  * Concrete simple class that assembles and solves the nonlinear system
  * for a nonlinear elliptic PDE.
@@ -48,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class SimpleNonlinearEllipticAssembler
-  : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> >
+    : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> >
 {
 public:
     static const unsigned E_DIM = ELEMENT_DIM;
@@ -64,63 +63,84 @@ private:
     // residual & jacobian directly.
     friend class TestSimpleNonlinearEllipticAssembler;
 
-    /** The pde to be solved */
+    /** The PDE to be solved */
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;
 
-
     /**
-     *  This method returns the matrix to be added to element stiffness matrix
-     *  for a given gauss point. The arguments are the bases, bases gradients,
-     *  x and current solution computed at the Gauss point. The returned matrix
-     *  will be multiplied by the gauss weight and jacobian determinent and
-     *  added to the element stiffness matrix (see AssembleOnElement()).
+     * This method returns the matrix to be added to element stiffness matrix
+     * for a given gauss point. The arguments are the bases, bases gradients,
+     * x and current solution computed at the Gauss point. The returned matrix
+     * will be multiplied by the gauss weight and jacobian determinent and
+     * added to the element stiffness matrix (see AssembleOnElement()).
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU,
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double,1,SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     *  This method returns the vector to be added to element stiffness vector
-     *  for a given gauss point. The arguments are the bases,
-     *  x and current solution computed at the Gauss point. The returned vector
-     *  will be multiplied by the gauss weight and jacobian determinent and
-     *  added to the element stiffness matrix (see AssembleOnElement()).
+     * This method returns the vector to be added to element stiffness vector
+     * for a given gauss point. The arguments are the bases,
+     * x and current solution computed at the Gauss point. The returned vector
+     * will be multiplied by the gauss weight and jacobian determinent and
+     * added to the element stiffness matrix (see AssembleOnElement()).
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU,
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double,1,SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     *  This method returns the vector to be added to element stiffness vector
-     *  for a given gauss point in BoundaryElement. The arguments are the bases,
-     *  x and current solution computed at the Gauss point. The returned vector
-     *  will be multiplied by the gauss weight and jacobian determinent and
-     *  added to the element stiffness matrix (see AssembleOnElement()).
+     * This method returns the vector to be added to element stiffness vector
+     * for a given gauss point in BoundaryElement. The arguments are the bases,
+     * x and current solution computed at the Gauss point. The returned vector
+     * will be multiplied by the gauss weight and jacobian determinent and
+     * added to the element stiffness matrix (see AssembleOnElement()).
+     * 
+     * @param rSurfaceElement the element which is being considered.
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rX The point in space
      */
     virtual c_vector<double, 1*ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-        c_vector<double, ELEMENT_DIM> &rPhi,
-        ChastePoint<SPACE_DIM> &rX );
-;
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+        c_vector<double, ELEMENT_DIM>& rPhi,
+        ChastePoint<SPACE_DIM>& rX);
+
 public :
 
     /**
      * Constructor - takes in the mesh, pde and boundary conditions container to be solved. Can
      * also define the number of quad points (in each dimension), the default value of which is 2.
+     * 
+     * @param pMesh pointer to the mesh
+     * @param pPde pointer to the PDE
+     * @param pBoundaryConditions pointer to the boundary conditions
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    SimpleNonlinearEllipticAssembler( AbstractMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
-                                      AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
-                                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
-                                      unsigned numQuadPoints = 2);
+    SimpleNonlinearEllipticAssembler(AbstractMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+                                     AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
+                                     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
+                                     unsigned numQuadPoints = 2);
 };
-
 
 #endif  // _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_

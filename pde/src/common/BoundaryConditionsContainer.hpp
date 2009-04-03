@@ -44,9 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Boundary Conditions Container
  *
- * This class contains a list of nodes on the dirichlet boundary and associated dirichlet
- * boundary conditions, and a list of surface elements on the neumann boundary and associated
- * neumann boundary conditions.
+ * This class contains a list of nodes on the Dirichlet boundary and associated Dirichlet
+ * boundary conditions, and a list of surface elements on the Neumann boundary and associated
+ * Neumann boundary conditions.
  *
  * \todo
  * Various operations are currently very inefficient - there is certainly scope for
@@ -71,13 +71,13 @@ private:
 
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
 
-    /** A zero bc, used for other unknowns in ApplyNeumannBoundaryCondition */
+    /** A zero boundary condition, used for other unknowns in ApplyNeumannBoundaryCondition */
     ConstBoundaryCondition<SPACE_DIM>* mpZeroBoundaryCondition;
 
 public:
 
     /**
-     * Constructor calls base constuctor and allocates memory for the neumann boundary
+     * Constructor calls base constuctor and allocates memory for the Neumann boundary
      * conditions lists.
      */
     BoundaryConditionsContainer();
@@ -89,14 +89,14 @@ public:
     ~BoundaryConditionsContainer();
 
     /**
-     * Add a dirichlet boundary condition specifying two parameters, a pointer to a node,
+     * Add a Dirichlet boundary condition specifying two parameters, a pointer to a node,
      * and a pointer to a boundary condition object associated with that node.
      *
      * The destructor for the BoundaryConditionsContainer will destroy the boundary
      * conditions objects.
      *
      * @param pBoundaryNode Pointer to a node on the boundary.
-     * @param pBoundaryCondition Pointer to the dirichlet boundary condition at that node.
+     * @param pBoundaryCondition Pointer to the Dirichlet boundary condition at that node.
      * @param indexOfUnknown defaults to 0
      * @param checkIfBoundaryNode defaults to true
      */
@@ -107,7 +107,7 @@ public:
 
 
     /**
-     * Add a neumann boundary condition specifying two parameters, a pointer to a
+     * Add a Neumann boundary condition specifying two parameters, a pointer to a
      * surface element, and a pointer to a boundary condition object associated with
      * that element.
      *
@@ -117,11 +117,11 @@ public:
      * Note that the value of a Neumann boundary condition should specify
      * D * grad(u).n, not just grad(u).n.
      *
-     * Take care if using non-zero neumann boundary conditions in 1d. If applied at
+     * Take care if using non-zero Neumann boundary conditions in 1d. If applied at
      * the left hand end you need to multiply the value by -1 to get the right answer.
      *
      * @param pBoundaryElement Pointer to an element on the boundary
-     * @param pBoundaryCondition Pointer to the neumann boundary condition on that element
+     * @param pBoundaryCondition Pointer to the Neumann boundary condition on that element
      * @param indexOfUnknown defaults to 0
      */
     void AddNeumannBoundaryCondition( const BoundaryElement<ELEM_DIM-1, SPACE_DIM> * pBoundaryElement,
@@ -130,7 +130,7 @@ public:
 
 
     /**
-     * This function defines zero dirichlet boundary conditions on every boundary node
+     * This function defines zero Dirichlet boundary conditions on every boundary node
      * of the mesh.
      *
      * @param pMesh Pointer to a mesh object, from which we extract the boundary
@@ -140,7 +140,7 @@ public:
                                            unsigned indexOfUnknown = 0);
 
     /**
-     * This function defines constant dirichlet boundary conditions on every boundary node
+     * This function defines constant Dirichlet boundary conditions on every boundary node
      * of the mesh.
      *
      * @param pMesh Pointer to a mesh object, from which we extract the boundary
@@ -153,7 +153,7 @@ public:
 
 
     /**
-     * This function defines zero neumann boundary conditions on every boundary element
+     * This function defines zero Neumann boundary conditions on every boundary element
      * of the mesh.
      *
      * @param pMesh Pointer to a mesh object, from which we extract the boundary
@@ -165,7 +165,7 @@ public:
 
 
     /**
-     *  Alter the given linear system to satisfy dirichlet boundary conditions
+     *  Alter the given linear system to satisfy Dirichlet boundary conditions
      *
      *  If the number of unknowns is greater than one, it is assumed the solution vector is
      *  of the form (in the case of two unknowns u and v, and N nodes):
@@ -182,7 +182,7 @@ public:
 
     /**
      * Alter the residual vector for a nonlinear system to satisfy
-     * dirichlet boundary conditions.
+     * Dirichlet boundary conditions.
      *
      * If the number of unknowns is greater than one, it is assumed the solution vector is
      * of the form (in the case of two unknowns u and v, and N nodes):
@@ -195,7 +195,7 @@ public:
 
     /**
      * Alter the jacobian matrix vector for a nonlinear system to satisfy
-     * dirichlet boundary conditions.
+     * Dirichlet boundary conditions.
      *
      * If the number of unknowns is greater than one, it is assumed the solution vector is
      * of the form (in the case of two unknowns u and v, and N nodes):
@@ -223,7 +223,7 @@ public:
 
 
     /**
-     * Obtain value of neumann boundary condition at a specified point in a given surface element
+     * Obtain value of Neumann boundary condition at a specified point in a given surface element
      *
      * It is up to the user to ensure that the point x is contained in the surface element.
      *

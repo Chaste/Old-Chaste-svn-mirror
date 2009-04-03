@@ -47,10 +47,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Note linear basis functions and 2 quad points per dimension are currently
  *  hardcoded.
  */
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractFunctionalCalculator
 {
 private:
+
     /** Replicated store of the solution vector. */
     ReplicatableVector mSolutionReplicated;
 
@@ -70,68 +71,7 @@ private:
      *
      * @param rElement The element
      */
-    double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement)
-    {
-        double result_on_element = 0;
-
-        GaussianQuadratureRule<ELEMENT_DIM> quad_rule(2);
-
-        /// NOTE: This assumes that the Jacobian is constant on an element, ie
-        /// no curvilinear bases were used for position
-        /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method.
-        double jacobian_determinant;
-        c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian, inverse_jacobian;
-        rElement.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
-
-        const unsigned num_nodes = rElement.GetNumNodes();
-
-        // loop over Gauss points
-        for (unsigned quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
-        {
-            const ChastePoint<ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
-
-            c_vector<double, ELEMENT_DIM+1> phi;
-            LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(quad_point, phi);
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
-            LinearBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
-
-            // Location of the gauss point in the original element will be stored in x
-            ChastePoint<SPACE_DIM> x(0,0,0);
-            c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
-            c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
-
-            for (unsigned i=0; i<num_nodes; i++)
-            {
-                const c_vector<double, SPACE_DIM>& r_node_loc = rElement.GetNode(i)->rGetLocation();
-
-                // interpolate x
-                x.rGetLocation() += phi(i)*r_node_loc;
-
-                // interpolate u and grad u
-                unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
-                for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
-                {
-                    // NOTE - following assumes that, if say there are two unknowns u and v, they
-                    // are stored in the current solution vector as
-                    // [U1 V1 U2 V2 ... U_n V_n]
-                    unsigned index_into_vec = PROBLEM_DIM*node_global_index + index_of_unknown;
-
-                    double u_at_node = mSolutionReplicated[index_into_vec];
-                    u(index_of_unknown) += phi(i)*u_at_node;
-                    for (unsigned j=0; j<SPACE_DIM; j++)
-                    {
-                        grad_u(index_of_unknown,j) += grad_phi(j,i)*u_at_node;
-                    }
-                }
-            }
-
-            double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
-            result_on_element += GetIntegrand(x, u, grad_u) * wJ;
-        }
-
-        return result_on_element;
-    }
-
+    double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement);
 
 public:
 
@@ -149,39 +89,111 @@ public:
      * @param rMesh  The mesh
      * @param solution  The solution vector
      */
-    double Calculate(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
-                     Vec solution)
+    double Calculate(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, Vec solution);
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::CalculateOnElement(Element<ELEMENT_DIM, SPACE_DIM>& rElement)
+{
+    double result_on_element = 0;
+
+    GaussianQuadratureRule<ELEMENT_DIM> quad_rule(2);
+
+    /// NOTE: This assumes that the Jacobian is constant on an element, ie
+    /// no curvilinear bases were used for position
+    /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method.
+    double jacobian_determinant;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian, inverse_jacobian;
+    rElement.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
+
+    const unsigned num_nodes = rElement.GetNumNodes();
+
+    // Loop over Gauss points
+    for (unsigned quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
     {
-        assert(solution);
-        mSolutionReplicated.ReplicatePetscVector(solution);
-        if (mSolutionReplicated.size() != rMesh.GetNumNodes() * PROBLEM_DIM)
-        {
-            EXCEPTION("The solution size does not match the mesh");
-        }
+        const ChastePoint<ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
 
-        double result = 0;
+        c_vector<double, ELEMENT_DIM+1> phi;
+        LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(quad_point, phi);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
+        LinearBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
 
-        for (typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-               iter = rMesh.GetElementIteratorBegin();
-               iter != rMesh.GetElementIteratorEnd();
-               ++iter)
+        // Location of the gauss point in the original element will be stored in x
+        ChastePoint<SPACE_DIM> x(0,0,0);
+        c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
+        c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
+
+        for (unsigned i=0; i<num_nodes; i++)
         {
-            //// the following if statement is for parallelisation, but doesn't
-            //// work yet as multiple processes can own the same elements, so
-            //// the if is commented out
-            //if ((*iter)->GetOwnership() == true)
+            const c_vector<double, SPACE_DIM>& r_node_loc = rElement.GetNode(i)->rGetLocation();
+
+            // Interpolate x
+            x.rGetLocation() += phi(i)*r_node_loc;
+
+            // Interpolate u and grad u
+            unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
+            for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
             {
-                result += CalculateOnElement(**iter);
+                // NOTE - following assumes that, if say there are two unknowns u and v, they
+                // are stored in the current solution vector as
+                // [U1 V1 U2 V2 ... U_n V_n]
+                unsigned index_into_vec = PROBLEM_DIM*node_global_index + index_of_unknown;
+
+                double u_at_node = mSolutionReplicated[index_into_vec];
+                u(index_of_unknown) += phi(i)*u_at_node;
+                for (unsigned j=0; j<SPACE_DIM; j++)
+                {
+                    grad_u(index_of_unknown,j) += grad_phi(j,i)*u_at_node;
+                }
             }
         }
 
-        //// once parallised (see above comment), do this:
-        //double final_result;
-        //MPI_Allreduce(&result, &final_result, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-        //return final_result;
-
-        return result;
+        double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
+        result_on_element += GetIntegrand(x, u, grad_u) * wJ;
     }
-};
+
+    return result_on_element;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calculate(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, Vec solution)
+{
+    assert(solution);
+    mSolutionReplicated.ReplicatePetscVector(solution);
+    if (mSolutionReplicated.size() != rMesh.GetNumNodes() * PROBLEM_DIM)
+    {
+        EXCEPTION("The solution size does not match the mesh");
+    }
+
+    double result = 0;
+
+    for (typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
+           iter = rMesh.GetElementIteratorBegin();
+           iter != rMesh.GetElementIteratorEnd();
+           ++iter)
+    {
+        //// the following if statement is for parallelisation, but doesn't
+        //// work yet as multiple processes can own the same elements, so
+        //// the if is commented out
+        //if ((*iter)->GetOwnership() == true)
+        {
+            result += CalculateOnElement(**iter);
+        }
+    }
+
+    //// once parallised (see above comment), do this:
+    //double final_result;
+    //MPI_Allreduce(&result, &final_result, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+    //return final_result;
+
+    return result;
+}
 
 #endif /*ABSTRACTFUNCTIONALCALCULATOR_HPP_*/

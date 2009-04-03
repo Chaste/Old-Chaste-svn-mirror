@@ -48,56 +48,21 @@ private:
 protected:
 
     /** Hack for dynamic mixin */
-    void SetMatrixIsConst(bool matrixIsConstant = true)
-    {
-         mMatrixIsConstant = matrixIsConstant;
-    }
+    void SetMatrixIsConst(bool matrixIsConstant=true);
 
     /**
      * Apply Dirichlet boundary conditions to the linear system.
      */
-    void ApplyDirichletConditions(Vec /* unused */, bool applyToMatrix)
-    {
-        this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), applyToMatrix);
-    }
+    void ApplyDirichletConditions(Vec /* unused */, bool applyToMatrix);
 
     /**
      * Create the linear system object if it hasn't been already.
      *
      * Can use an initial solution as PETSc template, or base it on the mesh size.
      */
-    virtual void InitialiseForSolve(Vec initialSolution)
-    {
-        if (this->mpLinearSystem == NULL)
-        {
-            if (initialSolution == NULL)
-            {
-                // Static problem, create linear system
-                // The following ensures all the unknowns for a particular node
-                // are on the same processor
-                DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
-                Vec template_vec = DistributedVector::CreateVec(PROBLEM_DIM);
+    virtual void InitialiseForSolve(Vec initialSolution);
 
-                this->mpLinearSystem = new LinearSystem(template_vec);
-
-                VecDestroy(template_vec);
-            }
-            else
-            {
-                // Use the currrent solution (ie the initial solution)
-                // as the template in the alternative constructor of
-                // LinearSystem. This is to avoid problems with VecScatter.
-                this->mpLinearSystem = new LinearSystem(initialSolution);
-            }
-
-            this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);
-        }
-    }
-
-    bool ProblemIsNonlinear()
-    {
-        return false;
-    }
+    bool ProblemIsNonlinear();
 
     /**
      * Solve a static pde, or a dynamic pde for 1 timestep.
@@ -106,26 +71,16 @@ protected:
      */
     virtual Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
                             double currentTime=0.0,
-                            bool assembleMatrix=true)
-    {
-        this->AssembleSystem(true, assembleMatrix, currentSolutionOrGuess, currentTime);
-        return this->mpLinearSystem->Solve(currentSolutionOrGuess);
-    }
-
+                            bool assembleMatrix=true);
 
 public:
-    AbstractLinearAssembler(unsigned numQuadPoints = 2) :
-            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints),
-            mMatrixIsConstant(true)
-    {
-    }
+
+    AbstractLinearAssembler(unsigned numQuadPoints=2);
 
     /**
      *  Destructor: ensures that the linear solver is thrown away.
      */
-    ~AbstractLinearAssembler()
-    {
-    }
+    ~AbstractLinearAssembler();
 
     /**
      *  Solve the static pde.
@@ -133,20 +88,7 @@ public:
      *  The mesh, pde and boundary conditions container must be set before Solve()
      *  is called.
      */
-    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
-    {
-        /// \todo move the asserts into PrepareForSolve()
-        assert(this->mpMesh!=NULL);
-
-        // have to comment this out because the flagged mesh assembler uses a different
-        // bcc and so this is null.
-        //assert(this->mpBoundaryConditions!=NULL);
-
-        this->PrepareForSolve();
-        this->InitialiseForSolve(currentSolutionOrGuess);
-        return this->StaticSolve(currentSolutionOrGuess, currentTime);
-    }
-
+    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0);
 
     /*
     void DebugWithSolution(Vec sol)
@@ -168,5 +110,94 @@ public:
     }
     */
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::SetMatrixIsConst(bool matrixIsConstant)
+{
+     mMatrixIsConstant = matrixIsConstant;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::ApplyDirichletConditions(Vec /* unused */, bool applyToMatrix)
+{
+    this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), applyToMatrix);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::InitialiseForSolve(Vec initialSolution)
+{
+    if (this->mpLinearSystem == NULL)
+    {
+        if (initialSolution == NULL)
+        {
+            // Static problem, create linear system
+            // The following ensures all the unknowns for a particular node
+            // are on the same processor
+            DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+            Vec template_vec = DistributedVector::CreateVec(PROBLEM_DIM);
+
+            this->mpLinearSystem = new LinearSystem(template_vec);
+
+            VecDestroy(template_vec);
+        }
+        else
+        {
+            // Use the currrent solution (ie the initial solution)
+            // as the template in the alternative constructor of
+            // LinearSystem. This is to avoid problems with VecScatter.
+            this->mpLinearSystem = new LinearSystem(initialSolution);
+        }
+
+        this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);
+    }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+bool AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::ProblemIsNonlinear()
+{
+    return false;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+Vec AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::StaticSolve(Vec currentSolutionOrGuess,
+                        double currentTime,
+                        bool assembleMatrix)
+{
+    this->AssembleSystem(true, assembleMatrix, currentSolutionOrGuess, currentTime);
+    return this->mpLinearSystem->Solve(currentSolutionOrGuess);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::AbstractLinearAssembler(unsigned numQuadPoints)
+    : AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints),
+      mMatrixIsConstant(true)
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::~AbstractLinearAssembler()
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+Vec AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::Solve(Vec currentSolutionOrGuess, double currentTime)
+{
+    /// \todo move the asserts into PrepareForSolve()
+    assert(this->mpMesh!=NULL);
+
+    // have to comment this out because the flagged mesh assembler uses a different
+    // bcc and so this is null.
+    //assert(this->mpBoundaryConditions!=NULL);
+
+    this->PrepareForSolve();
+    this->InitialiseForSolve(currentSolutionOrGuess);
+    return this->StaticSolve(currentSolutionOrGuess, currentTime);
+}
 
 #endif //_ABSTRACTLINEARASSEMBLER_HPP_

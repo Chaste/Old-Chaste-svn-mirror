@@ -54,10 +54,13 @@ template<unsigned DIM>
 class AbstractNonlinearElasticityAssembler
 {
 protected:
+
     /** Maximum absolute tolerance for newton solve  */
     static const double MAX_NEWTON_ABS_TOL = 1e-8;
+
     /** Minimum absolute tolerance for newton solve  */
     static const double MIN_NEWTON_ABS_TOL = 1e-12;
+
     /** Relative tolerance for newton solve  */
     static const double NEWTON_REL_TOL = 1e-4;
 
@@ -73,16 +76,19 @@ protected:
      *  num_elem.
      */
     std::vector<AbstractIncompressibleMaterialLaw<DIM>*> mMaterialLaws;
+
     /**
      *  The linear system where we store all residual vectors which are calculated
      *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
      *  methods explicitly (in order to easily set num restarts etc). In the future
-     *  it'll be solved using the UMFPACK direct method */
+     *  it'll be solved using the UMFPACK direct method.
+     */
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
     DealiiLinearSystem* mpLinearSystem;
 #else
     LinearSystem* mpLinearSystem;
 #endif
+
     /**
      *  The linear system which stores the matrix used for preconditioning (given
      *  the helper functions on LinearSystem it is best to use LinearSystem and
@@ -105,13 +111,16 @@ protected:
 
     /** Body force vector */
     c_vector<double,DIM> mBodyForce;
+
     /** Mass density of the undeformed body (equal to the density of deformed body) */
     double mDensity;
 
     /** Where to write output, relative to CHASTE_TESTOUTPUT */
     std::string mOutputDirectory;
+
     /** All nodes (including non-vertices) which are fixed */
     std::vector<unsigned> mFixedNodes;
+
     /** The displacements of those nodes with displacement boundary conditions */
     std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
 
@@ -134,7 +143,6 @@ protected:
     /** Number of newton iterations taken in last solve */
     unsigned mNumNewtonIterations;
 
-
     /** Deformed position: mDeformedPosition[i](j) = x_j for node i */
     std::vector<c_vector<double,DIM> > mDeformedPosition;
 
@@ -143,73 +151,39 @@ protected:
      *  vertex i).
      */
     std::vector<double> mPressures;
+
     /**
      *  The surface tractions (which should really be non-zero)
-     *  for the boundary elements in mBoundaryElements
+     *  for the boundary elements in mBoundaryElements.
      */
     std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
-    /** An optionally provided (pointer to a) function, giving body force as a function of undeformed position */
+    /** An optionally provided (pointer to a) function, giving body force as a function of undeformed position. */
     c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>&);
-    /** An optionally provided (pointer to a) function, giving the surface traction as a function of
-      * undeformed position
-      */
+
+    /**
+     * An optionally provided (pointer to a) function, giving the surface traction as a function of
+     * undeformed position.
+     */
     c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>&);
+
     /** Whether the functional version of the body force is being used or not */
     bool mUsingBodyForceFunction;
+
     /** Whether the functional version of the surface traction is being used or not */
     bool mUsingTractionBoundaryConditionFunction;
-
-
 
     virtual void FormInitialGuess()=0;
     virtual void AssembleSystem(bool assembleResidual, bool assembleJacobian)=0;
     virtual std::vector<c_vector<double,DIM> >& rGetDeformedPosition()=0;
 
     /**
-     *  Apply the dirichlet boundary conditions to the linear system
+     *  Apply the Dirichlet boundary conditions to the linear system
      */
-    void ApplyBoundaryConditions(bool applyToMatrix)
-    {
-        assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
-
-        // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values
-        // on the boundary nodes. However:
-        // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
-        // u the negative update vector and f is the residual is
-        // u=current_soln-boundary_values on the boundary nodes
-        for(unsigned i=0; i<mFixedNodes.size(); i++)
-        {
-            unsigned node_index = mFixedNodes[i];
-            for(unsigned j=0; j<DIM; j++)
-            {
-                unsigned dof_index = DIM*node_index+j;
-                double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
-                if (applyToMatrix)
-                {
-                    mpLinearSystem->ZeroMatrixRow(dof_index);
-                    mpLinearSystem->SetMatrixElement(dof_index,dof_index,1);
-
-                    // apply same bcs to preconditioner matrix
-                    mpPreconditionMatrixLinearSystem->ZeroMatrixRow(dof_index);
-                    mpPreconditionMatrixLinearSystem->SetMatrixElement(dof_index,dof_index,1);
-                }
-                mpLinearSystem->SetRhsVectorElement(dof_index, value);
-            }
-        }
-    }
+    void ApplyBoundaryConditions(bool applyToMatrix);
 
     /** Calculate |r|_2 / length(r), where r is the current residual vector */
-    double CalculateResidualNorm()
-    {
-        double norm;
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-        norm = mpLinearSystem->GetRhsVectorNorm();
-#else
-        VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
-#endif
-        return norm/mNumDofs;
-    }
+    double CalculateResidualNorm();
 
     /**
      *  Take one newton step, by solving the linear system -Ju=f, (J the jacobian, f
@@ -218,95 +192,251 @@ protected:
      *
      *  @return The current norm of the residual after the newton step.
      */
-    double TakeNewtonStep()
+    double TakeNewtonStep();
+
+    /**
+     *  This function may be overloaded by subclasses. It is called after each Newton
+     *  iteration.
+     */
+    virtual void PostNewtonStep(unsigned counter, double normResidual);
+
+public:
+
+    AbstractNonlinearElasticityAssembler(unsigned numDofs,
+                                         AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                         c_vector<double,DIM> bodyForce,
+                                         double density,
+                                         std::string outputDirectory,
+                                         std::vector<unsigned>& fixedNodes);
+
+    AbstractNonlinearElasticityAssembler(unsigned numDofs,
+                                         std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
+                                         c_vector<double,DIM> bodyForce,
+                                         double density,
+                                         std::string outputDirectory,
+                                         std::vector<unsigned>& fixedNodes);
+
+    /**
+     * Destructor.
+     */
+    virtual ~AbstractNonlinearElasticityAssembler();
+
+    /**
+     *  Solve the problem.
+     */
+    void Solve(double tol=-1.0,
+               unsigned offset=0,
+               unsigned maxNumNewtonIterations=INT_MAX,
+               bool quitIfNoConvergence=true);
+
+    /**
+     *  Write the current solution for the file outputdir/solution_[counter].nodes
+     */
+    void WriteOutput(unsigned counter);
+
+    unsigned GetNumNewtonIterations();
+
+    /**
+     * Set a function which gives body force as a function of X (undeformed position)
+     * Whatever body force was provided in the constructor will now be ignored
+     */
+    void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
+
+    void SetWriteOutput(bool writeOutput=true);
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool applyToMatrix)
+{
+    assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
+
+    // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values
+    // on the boundary nodes. However:
+    // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
+    // u the negative update vector and f is the residual is
+    // u=current_soln-boundary_values on the boundary nodes
+    for(unsigned i=0; i<mFixedNodes.size(); i++)
     {
-        //Timer::Reset();
+        unsigned node_index = mFixedNodes[i];
+        for(unsigned j=0; j<DIM; j++)
+        {
+            unsigned dof_index = DIM*node_index+j;
+            double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
+            if (applyToMatrix)
+            {
+                mpLinearSystem->ZeroMatrixRow(dof_index);
+                mpLinearSystem->SetMatrixElement(dof_index,dof_index,1);
 
-        /////////////////////////////////////////////////////////////
-        // Assemble Jacobian (and preconditioner)
-        /////////////////////////////////////////////////////////////
-        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ASSEMBLE);
-        AssembleSystem(true, true);
-        MechanicsEventHandler::EndEvent(MechanicsEventHandler::ASSEMBLE);
-        //Timer::PrintAndReset("AssembleSystem");
+                // apply same bcs to preconditioner matrix
+                mpPreconditionMatrixLinearSystem->ZeroMatrixRow(dof_index);
+                mpPreconditionMatrixLinearSystem->SetMatrixElement(dof_index,dof_index,1);
+            }
+            mpLinearSystem->SetRhsVectorElement(dof_index, value);
+        }
+    }
+}
+
+template<unsigned DIM>
+double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
+{
+    double norm;
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+    norm = mpLinearSystem->GetRhsVectorNorm();
+#else
+    VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
+#endif
+    return norm/mNumDofs;
+}
 
 
-        /////////////////////////////////////////////////////////////
-        // Solve the linear system using Petsc GMRES and an LU
-        // factorisation of the preconditioner. Note we
-        // don't call Solve on the linear_system as we want to
-        // set Petsc options..
-        /////////////////////////////////////////////////////////////
-        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
+template<unsigned DIM>
+double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
+{
+    //Timer::Reset();
+
+    /////////////////////////////////////////////////////////////
+    // Assemble Jacobian (and preconditioner)
+    /////////////////////////////////////////////////////////////
+    MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ASSEMBLE);
+    AssembleSystem(true, true);
+    MechanicsEventHandler::EndEvent(MechanicsEventHandler::ASSEMBLE);
+    //Timer::PrintAndReset("AssembleSystem");
+
+    /////////////////////////////////////////////////////////////
+    // Solve the linear system using Petsc GMRES and an LU
+    // factorisation of the preconditioner. Note we
+    // don't call Solve on the linear_system as we want to
+    // set Petsc options..
+    /////////////////////////////////////////////////////////////
+    MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
-        // solve using an umfpack (in dealii) direct solve..
-        mpLinearSystem->Solve();
-        Vector<double>& update = mpLinearSystem->rGetLhsVector();
-        //Timer::PrintAndReset("Direct Solve");
+    // solve using an umfpack (in dealii) direct solve..
+    mpLinearSystem->Solve();
+    Vector<double>& update = mpLinearSystem->rGetLhsVector();
+    //Timer::PrintAndReset("Direct Solve");
 #else
-        KSP solver;
-        Vec solution;
-        VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
+    KSP solver;
+    Vec solution;
+    VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
 
-        Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
-        Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
+    Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
+    Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
 
-        KSPCreate(MPI_COMM_SELF,&solver);
+    KSPCreate(MPI_COMM_SELF,&solver);
 
-        KSPSetOperators(solver, r_jac, r_precond_jac, SAME_NONZERO_PATTERN /*in precond between successive sovles*/);
+    KSPSetOperators(solver, r_jac, r_precond_jac, SAME_NONZERO_PATTERN /*in precond between successive sovles*/);
 
-        // set max iterations
-        KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000); //hopefully with the preconditioner this max is way too high
-        KSPSetType(solver,KSPGMRES);
-        KSPGMRESSetRestart(solver,100); // gmres num restarts
+    // set max iterations
+    KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000); //hopefully with the preconditioner this max is way too high
+    KSPSetType(solver,KSPGMRES);
+    KSPGMRESSetRestart(solver,100); // gmres num restarts
 
-        KSPSetFromOptions(solver);
-        KSPSetUp(solver);
+    KSPSetFromOptions(solver);
+    KSPSetUp(solver);
 
-        PC pc;
-        KSPGetPC(solver, &pc);
-        PCSetType(pc, PCLU);         // Note: ILU factorisation doesn't have much effect, but LU works well.
+    PC pc;
+    KSPGetPC(solver, &pc);
+    PCSetType(pc, PCLU);         // Note: ILU factorisation doesn't have much effect, but LU works well.
 
-        KSPSetFromOptions(solver);
-        KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
+    KSPSetFromOptions(solver);
+    KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
 
-        //Timer::PrintAndReset("KSP Solve");
+    //Timer::PrintAndReset("KSP Solve");
 
-        ReplicatableVector update(solution);
+    ReplicatableVector update(solution);
 #endif
-        MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
+    MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
-        ///////////////////////////////////////////////////////////////////////////
-        // Update the solution
-        //  Newton method:       sol = sol - update, where update=Jac^{-1}*residual
-        //  Newton with damping: sol = sol - s*update, where s is chosen
-        //   such that |residual(sol)| is minimised. Damping is important to
-        //   avoid initial divergence.
-        //
-        // Normally, finding the best s from say 0.05,0.1,0.2,..,1.0 is cheap,
-        // but this is not the case in cardiac electromechanics calculations.
-        // Therefore, we initially check s=1 (expected to be the best most of the
-        // time, then s=0.9. If the norm of the residual increases, we assume
-        // s=1 is the best. Otherwise, check s=0.8 to see if s=0.9 is a local min.
-        ///////////////////////////////////////////////////////////////////////////
-        MechanicsEventHandler::BeginEvent(MechanicsEventHandler::UPDATE);
-        std::vector<double> old_solution(mNumDofs);
-        for(unsigned i=0; i<mNumDofs; i++)
+    ///////////////////////////////////////////////////////////////////////////
+    // Update the solution
+    //  Newton method:       sol = sol - update, where update=Jac^{-1}*residual
+    //  Newton with damping: sol = sol - s*update, where s is chosen
+    //   such that |residual(sol)| is minimised. Damping is important to
+    //   avoid initial divergence.
+    //
+    // Normally, finding the best s from say 0.05,0.1,0.2,..,1.0 is cheap,
+    // but this is not the case in cardiac electromechanics calculations.
+    // Therefore, we initially check s=1 (expected to be the best most of the
+    // time, then s=0.9. If the norm of the residual increases, we assume
+    // s=1 is the best. Otherwise, check s=0.8 to see if s=0.9 is a local min.
+    ///////////////////////////////////////////////////////////////////////////
+    MechanicsEventHandler::BeginEvent(MechanicsEventHandler::UPDATE);
+    std::vector<double> old_solution(mNumDofs);
+    for(unsigned i=0; i<mNumDofs; i++)
+    {
+        old_solution[i] = mCurrentSolution[i];
+    }
+
+    std::vector<double> damping_values; // = {1.0, 0.9, .., 0.2, 0.1, 0.05} ie size 11
+    for (unsigned i=10; i>=1; i--)
+    {
+        damping_values.push_back((double)i/10.0);
+    }
+    damping_values.push_back(0.05);
+    assert(damping_values.size()==11);
+
+    double initial_norm_resid = CalculateResidualNorm();
+    unsigned index = 0;
+    for(unsigned j=0; j<mNumDofs; j++)
+    {
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+        mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
+#else
+        mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
+#endif
+    }
+
+    // compute residual
+    AssembleSystem(true, false);
+    double norm_resid = CalculateResidualNorm();
+    std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << norm_resid << "\n" << std::flush;
+
+    double next_norm_resid = -DBL_MAX;
+    index = 1;
+
+    // exit loop when next norm of the residual first increases
+    while(next_norm_resid < norm_resid  && index<damping_values.size())
+    {
+        if(index!=1)
         {
-            old_solution[i] = mCurrentSolution[i];
+            norm_resid = next_norm_resid;
         }
 
-        std::vector<double> damping_values; // = {1.0, 0.9, .., 0.2, 0.1, 0.05} ie size 11
-        for (unsigned i=10; i>=1; i--)
+        for(unsigned j=0; j<mNumDofs; j++)
         {
-            damping_values.push_back((double)i/10.0);
+#ifdef ___USE_DEALII_LINEAR_SYSTEM___
+           mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
+#else
+           mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
+#endif
         }
-        damping_values.push_back(0.05);
-        assert(damping_values.size()==11);
 
-        double initial_norm_resid = CalculateResidualNorm();
-        unsigned index = 0;
+        // compute residual
+        AssembleSystem(true, false);
+        next_norm_resid = CalculateResidualNorm();
+        std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << next_norm_resid << "\n" << std::flush;
+        index++;
+    }
+
+    if (initial_norm_resid < norm_resid)
+    {
+        #define COVERAGE_IGNORE
+        assert(0); // assert here as sometimes the following causes a seg fault - don't know why
+        EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
+        #undef COVERAGE_IGNORE
+    }
+    else
+    {
+        index-=2;
+        std::cout << "\tBest s = " << damping_values[index] << "\n"  << std::flush;
         for(unsigned j=0; j<mNumDofs; j++)
         {
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
@@ -315,60 +445,7 @@ protected:
             mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
 #endif
         }
-
-        // compute residual
-        AssembleSystem(true, false);
-        double norm_resid = CalculateResidualNorm();
-        std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << norm_resid << "\n" << std::flush;
-
-        double next_norm_resid = -DBL_MAX;
-        index = 1;
-
-        // exit loop when next norm of the residual first increases
-        while(next_norm_resid < norm_resid  && index<damping_values.size())
-        {
-            if(index!=1)
-            {
-                norm_resid = next_norm_resid;
-            }
-
-            for(unsigned j=0; j<mNumDofs; j++)
-            {
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
-#else
-                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-#endif
-            }
-
-            // compute residual
-            AssembleSystem(true, false);
-            next_norm_resid = CalculateResidualNorm();
-            std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << next_norm_resid << "\n" << std::flush;
-            index++;
-        }
-
-        if (initial_norm_resid < norm_resid)
-        {
-            #define COVERAGE_IGNORE
-            assert(0); // assert here as sometimes the following causes a seg fault - don't know why
-            EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
-            #undef COVERAGE_IGNORE
-        }
-        else
-        {
-            index-=2;
-            std::cout << "\tBest s = " << damping_values[index] << "\n"  << std::flush;
-            for(unsigned j=0; j<mNumDofs; j++)
-            {
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
-#else
-                mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-#endif
-            }
-        }
-
+    }
 
 //        double best_norm_resid = DBL_MAX;
 //        double best_damping_value = 0.0;
@@ -427,233 +504,228 @@ protected:
 //            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
 //#endif
 //        }
-        MechanicsEventHandler::EndEvent(MechanicsEventHandler::UPDATE);
-
+    MechanicsEventHandler::EndEvent(MechanicsEventHandler::UPDATE);
 
 #ifndef ___USE_DEALII_LINEAR_SYSTEM___
-        VecDestroy(solution);
-        KSPDestroy(solver);
+    VecDestroy(solution);
+    KSPDestroy(solver);
 #endif
-        return norm_resid;
-    }
+    return norm_resid;
+}
 
 
-    /**
-     *  This function may be overloaded by subclasses. It is called after each Newton
-     *  iteration.
-     */
-    virtual void PostNewtonStep(unsigned counter, double normResidual)
-    {
-    }
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::PostNewtonStep(unsigned counter, double normResidual)
+{
+}
 
-public:
-    AbstractNonlinearElasticityAssembler(unsigned numDofs,
+
+template<unsigned DIM>
+AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(unsigned numDofs,
                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                          c_vector<double,DIM> bodyForce,
                                          double density,
                                          std::string outputDirectory,
                                          std::vector<unsigned>& fixedNodes)
-        : mNumDofs(numDofs),
-          mBodyForce(bodyForce),
-          mDensity(density),
-          mOutputDirectory(outputDirectory),
-          mFixedNodes(fixedNodes),
-          mUsingBodyForceFunction(false),
-          mUsingTractionBoundaryConditionFunction(false)
-    {
-        assert(pMaterialLaw != NULL);
-        mMaterialLaws.push_back(pMaterialLaw);
+    : mNumDofs(numDofs),
+      mBodyForce(bodyForce),
+      mDensity(density),
+      mOutputDirectory(outputDirectory),
+      mFixedNodes(fixedNodes),
+      mUsingBodyForceFunction(false),
+      mUsingTractionBoundaryConditionFunction(false)
+{
+    assert(pMaterialLaw != NULL);
+    mMaterialLaws.push_back(pMaterialLaw);
 
-        assert(DIM==2 || DIM==3);
-        assert(density > 0);
-        assert(fixedNodes.size()>0);
-        mWriteOutput = (mOutputDirectory != "");
+    assert(DIM==2 || DIM==3);
+    assert(density > 0);
+    assert(fixedNodes.size()>0);
+    mWriteOutput = (mOutputDirectory != "");
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
-        //// has to be done in parent as needs mesh
-        //mpLinearSystem = new DealiiLinearSystem( mesh );
+    //// has to be done in parent as needs mesh
+    //mpLinearSystem = new DealiiLinearSystem( mesh );
 #else
-        mpLinearSystem = new LinearSystem(mNumDofs);
+    mpLinearSystem = new LinearSystem(mNumDofs);
 #endif
-        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
-    }
+    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
+}
 
 
-    AbstractNonlinearElasticityAssembler(unsigned numDofs,
+template<unsigned DIM>
+AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(unsigned numDofs,
                                          std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
                                          c_vector<double,DIM> bodyForce,
                                          double density,
                                          std::string outputDirectory,
                                          std::vector<unsigned>& fixedNodes)
-        : mNumDofs(numDofs),
-          mBodyForce(bodyForce),
-          mDensity(density),
-          mOutputDirectory(outputDirectory),
-          mFixedNodes(fixedNodes),
-          mUsingBodyForceFunction(false),
-          mUsingTractionBoundaryConditionFunction(false)
+    : mNumDofs(numDofs),
+      mBodyForce(bodyForce),
+      mDensity(density),
+      mOutputDirectory(outputDirectory),
+      mFixedNodes(fixedNodes),
+      mUsingBodyForceFunction(false),
+      mUsingTractionBoundaryConditionFunction(false)
+{
+    mMaterialLaws.resize(rMaterialLaws.size(), NULL);
+    for(unsigned i=0; i<mMaterialLaws.size(); i++)
     {
-        mMaterialLaws.resize(rMaterialLaws.size(), NULL);
-        for(unsigned i=0; i<mMaterialLaws.size(); i++)
-        {
-            assert(rMaterialLaws[i] != NULL);
-            mMaterialLaws[i] = rMaterialLaws[i];
-        }
+        assert(rMaterialLaws[i] != NULL);
+        mMaterialLaws[i] = rMaterialLaws[i];
+    }
 
-        assert(DIM==2 || DIM==3);
-        assert(density > 0);
-        assert(fixedNodes.size()>0);
-        mWriteOutput = (mOutputDirectory != "");
+    assert(DIM==2 || DIM==3);
+    assert(density > 0);
+    assert(fixedNodes.size()>0);
+    mWriteOutput = (mOutputDirectory != "");
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
-        //// has to be done in parent as needs mesh
-        //mpLinearSystem = new DealiiLinearSystem( mesh );
+    //// has to be done in parent as needs mesh
+    //mpLinearSystem = new DealiiLinearSystem( mesh );
 #else
-        mpLinearSystem = new LinearSystem(mNumDofs);
+    mpLinearSystem = new LinearSystem(mNumDofs);
 #endif
-        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
+    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
+}
+
+
+template<unsigned DIM>
+AbstractNonlinearElasticityAssembler<DIM>::~AbstractNonlinearElasticityAssembler()
+{
+    delete mpLinearSystem;
+    delete mpPreconditionMatrixLinearSystem;
+}
+
+
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
+           unsigned offset,
+           unsigned maxNumNewtonIterations,
+           bool quitIfNoConvergence)
+{
+    if (mWriteOutput)
+    {
+        WriteOutput(0+offset);
     }
 
+    // compute residual
+    AssembleSystem(true, false);
+    double norm_resid = this->CalculateResidualNorm();
+    std::cout << "\nNorm of residual is " << norm_resid << "\n";
 
-    virtual ~AbstractNonlinearElasticityAssembler()
+    mNumNewtonIterations = 0;
+    unsigned counter = 1;
+
+    if(tol<0) // ie if wasn't passed in as a parameter
     {
-        delete mpLinearSystem;
-        delete mpPreconditionMatrixLinearSystem;
+        tol = NEWTON_REL_TOL*norm_resid;
+
+        #define COVERAGE_IGNORE // not going to have tests in cts for everything
+        if(tol > MAX_NEWTON_ABS_TOL)
+        {
+            tol = MAX_NEWTON_ABS_TOL;
+        }
+        if(tol < MIN_NEWTON_ABS_TOL)
+        {
+            tol = MIN_NEWTON_ABS_TOL;
+        }
+        #undef COVERAGE_IGNORE
     }
 
+    std::cout << "Solving with tolerance " << tol << "\n";
 
-    /**
-     *  Solve the problem
-     */
-    void Solve(double tol = -1.0,
-               unsigned offset=0,
-               unsigned maxNumNewtonIterations=INT_MAX,
-               bool quitIfNoConvergence=true)
+    while (norm_resid > tol && counter<=maxNumNewtonIterations)
     {
+        std::cout <<  "\n-------------------\n"
+                  <<   "Newton iteration " << counter
+                  << ":\n-------------------\n";
+
+        // take newton step (and get returned residual)
+        norm_resid = TakeNewtonStep();
+
+        std::cout << "Norm of residual is " << norm_resid << "\n";
         if(mWriteOutput)
         {
-            WriteOutput(0+offset);
+            WriteOutput(counter+offset);
         }
 
-        // compute residual
-        AssembleSystem(true, false);
-        double norm_resid = this->CalculateResidualNorm();
-        std::cout << "\nNorm of residual is " << norm_resid << "\n";
+        mNumNewtonIterations = counter;
 
-        mNumNewtonIterations = 0;
-        unsigned counter = 1;
+        PostNewtonStep(counter,norm_resid);
 
-        if(tol<0) // ie if wasn't passed in as a parameter
-        {
-            tol = NEWTON_REL_TOL*norm_resid;
-
-            #define COVERAGE_IGNORE // not going to have tests in cts for everything
-            if(tol > MAX_NEWTON_ABS_TOL)
-            {
-                tol = MAX_NEWTON_ABS_TOL;
-            }
-            if(tol < MIN_NEWTON_ABS_TOL)
-            {
-                tol = MIN_NEWTON_ABS_TOL;
-            }
-            #undef COVERAGE_IGNORE
-        }
-
-        std::cout << "Solving with tolerance " << tol << "\n";
-
-        while (norm_resid > tol && counter<=maxNumNewtonIterations)
-        {
-            std::cout <<  "\n-------------------\n"
-                      <<   "Newton iteration " << counter
-                      << ":\n-------------------\n";
-
-            // take newton step (and get returned residual)
-            norm_resid = TakeNewtonStep();
-
-            std::cout << "Norm of residual is " << norm_resid << "\n";
-            if(mWriteOutput)
-            {
-                WriteOutput(counter+offset);
-            }
-
-            mNumNewtonIterations = counter;
-
-            PostNewtonStep(counter,norm_resid);
-
-            counter++;
-            if (counter==20)
-            {
-                #define COVERAGE_IGNORE
-                EXCEPTION("Not converged after 20 newton iterations, quitting");
-                #undef COVERAGE_IGNORE
-            }
-        }
-
-        if ((norm_resid > tol) && quitIfNoConvergence)
+        counter++;
+        if (counter==20)
         {
             #define COVERAGE_IGNORE
-            EXCEPTION("Failed to converge");
+            EXCEPTION("Not converged after 20 newton iterations, quitting");
             #undef COVERAGE_IGNORE
         }
-
-        // we have solved for a deformation so note this
-        //mADeformedHasBeenSolved = true;
     }
 
-
-
-    /**
-     *  Write the current solution for the file outputdir/solution_[counter].nodes
-     */
-    void WriteOutput(unsigned counter)
+    if ((norm_resid > tol) && quitIfNoConvergence)
     {
-        // only write output if the flag mWriteOutput has been set
-        if (!mWriteOutput)
+        #define COVERAGE_IGNORE
+        EXCEPTION("Failed to converge");
+        #undef COVERAGE_IGNORE
+    }
+
+    // we have solved for a deformation so note this
+    //mADeformedHasBeenSolved = true;
+}
+
+
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::WriteOutput(unsigned counter)
+{
+    // only write output if the flag mWriteOutput has been set
+    if (!mWriteOutput)
+    {
+        return;
+    }
+
+    OutputFileHandler output_file_handler(mOutputDirectory, (counter==0));
+    std::stringstream file_name;
+    file_name << "/solution_" << counter << ".nodes";
+
+    out_stream p_file = output_file_handler.OpenOutputFile(file_name.str());
+
+    std::vector<c_vector<double,DIM> >& r_deformed_position = rGetDeformedPosition();
+    for (unsigned i=0; i<r_deformed_position.size(); i++)
+    {
+        for (unsigned j=0; j<DIM; j++)
         {
-            return;
+            *p_file << r_deformed_position[i](j) << " ";
         }
-
-        OutputFileHandler output_file_handler(mOutputDirectory, (counter==0));
-        std::stringstream file_name;
-        file_name << "/solution_" << counter << ".nodes";
-
-        out_stream p_file = output_file_handler.OpenOutputFile(file_name.str());
-
-        std::vector<c_vector<double,DIM> >& r_deformed_position = rGetDeformedPosition();
-        for(unsigned i=0; i<r_deformed_position.size(); i++)
-        {
-            for(unsigned j=0; j<DIM; j++)
-            {
-                *p_file << r_deformed_position[i](j) << " ";
-            }
-            *p_file << "\n";
-        }
-        p_file->close();
+        *p_file << "\n";
     }
+    p_file->close();
+}
 
-    unsigned GetNumNewtonIterations()
+
+template<unsigned DIM>
+unsigned AbstractNonlinearElasticityAssembler<DIM>::GetNumNewtonIterations()
+{
+    return mNumNewtonIterations;
+}
+
+
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
+{
+    mUsingBodyForceFunction = true;
+    mpBodyForceFunction = pFunction;
+}
+
+
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
+{
+    if(writeOutput && (mOutputDirectory==""))
     {
-        return mNumNewtonIterations;
+        EXCEPTION("Can't write output if no output directory was given in constructor");
     }
-
-    /**
-      * Set a function which gives body force as a function of X (undeformed position)
-      * Whatever body force was provided in the constructor will now be ignored
-      */
-    void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
-    {
-        mUsingBodyForceFunction = true;
-        mpBodyForceFunction = pFunction;
-    }
-
-    void SetWriteOutput(bool writeOutput = true)
-    {
-        if(writeOutput && (mOutputDirectory==""))
-        {
-            EXCEPTION("Can't write output if no output directory was given in constructor");
-        }
-        mWriteOutput = writeOutput;
-    }
-};
+    mWriteOutput = writeOutput;
+}
 
 #endif /*ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_*/
