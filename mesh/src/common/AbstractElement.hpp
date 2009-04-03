@@ -81,33 +81,14 @@ public:
      * @param index  the index of the element in the mesh
      * @param rNodes  the nodes owned by the element
      */
-    AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
-        : mNodes(rNodes), mIndex(index)
-    {
-        // Sanity checking
-        assert(ELEMENT_DIM <= SPACE_DIM);
-
-        // Initialise flags.
-        // This must be done before the Jacobian calculations, or assertions trip.
-        mIsDeleted = false;
-        mFlag = false;
-        mOwnership = true;
-
-        mRegion = 0;
-    }
+    AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
      * Default constructor, which doesn't add any nodes: they must be added later.
      *
      * @param index  the index of the element in the mesh (defaults to INDEX_IS_NOT_USED)
      */
-    AbstractElement(unsigned index=INDEX_IS_NOT_USED)
-        : mIndex(index),
-          mRegion(0),
-          mIsDeleted(false),
-          mOwnership(true),
-          mFlag(false)
-    {}
+    AbstractElement(unsigned index=INDEX_IS_NOT_USED);
 
     /**
      * Virtual destructor, since this class has virtual methods.
@@ -130,19 +111,7 @@ public:
      * @param pOldNode  pointer to the current node
      * @param pNewNode  pointer to the replacement node
      */
-    void ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode)
-    {
-        //assert(pOldNode != pNewNode); /// \todo this will sometimes trip; is it a logic error?
-        for (unsigned i=0; i<this->mNodes.size(); i++)
-        {
-            if (this->mNodes[i]==pOldNode)
-            {
-                UpdateNode(i,pNewNode);
-                return;
-            }
-        }
-        EXCEPTION("You didn't have that node to start with.");
-    }
+    void ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode);
 
     /**
      * Mark the element as having been removed from the mesh.
@@ -163,12 +132,7 @@ public:
      *   is the number of nodes in this element.
      * @param dimension  the spatial dimension to query.
      */
-    double GetNodeLocation(unsigned localIndex, unsigned dimension) const
-    {
-        assert(dimension < SPACE_DIM);
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex]->rGetLocation()[dimension];
-    }
+    double GetNodeLocation(unsigned localIndex, unsigned dimension) const;
 
     /**
      * Get the location in space of one of the nodes in this element.
@@ -180,11 +144,7 @@ public:
      * weird error arose where it compiled, ran and passed on some machines
      * but failed the tests (bad_size errors) on another machine.
      */
-    c_vector<double, SPACE_DIM> GetNodeLocation(unsigned localIndex) const
-    {
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex]->rGetLocation();
-    }
+    c_vector<double, SPACE_DIM> GetNodeLocation(unsigned localIndex) const;
 
     /**
      * Given the local index of a node owned by this element, return the
@@ -193,11 +153,7 @@ public:
      * @param localIndex the node's local index in this element
      * @return the global index
      */
-    unsigned GetNodeGlobalIndex(unsigned localIndex) const
-    {
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex]->GetIndex();
-    }
+    unsigned GetNodeGlobalIndex(unsigned localIndex) const;
 
     /**
      * Get the node with a given local index in this element.
@@ -205,118 +161,224 @@ public:
      * @param localIndex
      * @return a pointer to the node.
      */
-    Node<SPACE_DIM>* GetNode(unsigned localIndex) const
-    {
-        assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex];
-    }
+    Node<SPACE_DIM>* GetNode(unsigned localIndex) const;
 
     /**
      * Get the number of nodes owned by this element.
      */
-    unsigned GetNumNodes() const
-    {
-        return mNodes.size();
-    }
+    unsigned GetNumNodes() const;
 
     /**
      * Add a node to this element.
      *
-     * @param node pointer to the new node  \todo should be called pNode
+     * @param pNode pointer to the new node
      */
-    void AddNode(Node<SPACE_DIM>* node)
-    {
-        mNodes.push_back(node);
-    }
+    void AddNode(Node<SPACE_DIM>* pNode);
 
     /**
      * Get whether the element is marked as deleted.
      *
      * @return mIsDeleted
      */
-    bool IsDeleted() const
-    {
-        return mIsDeleted;
-    }
+    bool IsDeleted() const;
 
     /**
      *  Get the index of this element
      */
-    unsigned GetIndex(void) const
-    {
-        return mIndex;
-    }
+    unsigned GetIndex() const;
 
     /**
      * Set the index of this element in the mesh.
      *
      * @param index
      */
-    void SetIndex(unsigned index)
-    {
-        mIndex = index;
-    }
+    void SetIndex(unsigned index);
 
     /**
      * Get whether the current process owns this element.
      */
-    bool GetOwnership() const
-    {
-        return mOwnership;
-    }
+    bool GetOwnership() const;
 
     /**
      * Set whether the current process owns this element.
      *
      * @param ownership
      */
-    void SetOwnership(bool ownership)
-    {
-        mOwnership = ownership;
-    }
+    void SetOwnership(bool ownership);
 
     /**
      * Mark the element as flagged.
      */
-    void Flag()
-    {
-        mFlag = true;
-    }
+    void Flag();
 
     /**
      * Mark the element as not flagged.
      */
-    void Unflag()
-    {
-        mFlag = false;
-    }
+    void Unflag();
 
     /**
      * Get whether the element is flagged.
      */
-    bool IsFlagged() const
-    {
-        return mFlag;
-    }
+    bool IsFlagged() const;
 
     /**
      * Set the element's region ID.
      *
      * @param region
      */
-    void SetRegion(unsigned region)
-    {
-        mRegion = region;
-    }
+    void SetRegion(unsigned region);
 
     /**
      * Get the element's region ID.
      */
-    unsigned GetRegion()
-    {
-        return mRegion;
-    }
+    unsigned GetRegion();
 
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
+    : mNodes(rNodes),
+      mIndex(index),
+      mRegion(0),
+      mIsDeleted(false),
+      mOwnership(true),
+      mFlag(false)
+{
+    // Sanity checking
+    assert(ELEMENT_DIM <= SPACE_DIM);
+
+    // Flags must be initialised before the Jacobian calculations, or assertions trip
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index)
+    : mIndex(index),
+      mRegion(0),
+      mIsDeleted(false),
+      mOwnership(true),
+      mFlag(false)
+{}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode)
+{
+    //assert(pOldNode != pNewNode); /// \todo this will sometimes trip; is it a logic error?
+    for (unsigned i=0; i<this->mNodes.size(); i++)
+    {
+        if (this->mNodes[i] == pOldNode)
+        {
+            UpdateNode(i, pNewNode);
+            return;
+        }
+    }
+    EXCEPTION("You didn't have that node to start with.");
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocation(unsigned localIndex, unsigned dimension) const
+{
+    assert(dimension < SPACE_DIM);
+    assert((unsigned)localIndex < mNodes.size());
+    return mNodes[localIndex]->rGetLocation()[dimension];
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocation(unsigned localIndex) const
+{
+    assert((unsigned)localIndex < mNodes.size());
+    return mNodes[localIndex]->rGetLocation();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetNodeGlobalIndex(unsigned localIndex) const
+{
+    assert((unsigned)localIndex < mNodes.size());
+    return mNodes[localIndex]->GetIndex();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM>* AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned localIndex) const
+{
+    assert((unsigned)localIndex < mNodes.size());
+    return mNodes[localIndex];
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
+{
+    return mNodes.size();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNode)
+{
+    mNodes.push_back(pNode);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractElement<ELEMENT_DIM, SPACE_DIM>::IsDeleted() const
+{
+    return mIsDeleted;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetIndex() const
+{
+    return mIndex;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::SetIndex(unsigned index)
+{
+    mIndex = index;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetOwnership() const
+{
+    return mOwnership;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::SetOwnership(bool ownership)
+{
+    mOwnership = ownership;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::Flag()
+{
+    mFlag = true;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::Unflag()
+{
+    mFlag = false;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractElement<ELEMENT_DIM, SPACE_DIM>::IsFlagged() const
+{
+    return mFlag;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::SetRegion(unsigned region)
+{
+    mRegion = region;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetRegion()
+{
+    return mRegion;
+}
 
 #endif /*ABSTRACTELEMENT_HPP_*/

@@ -221,10 +221,7 @@ public:
      *
      * @param theta is the angle of rotation in radians
      */
-    void Rotate(double theta)
-    {
-        RotateZ(theta);
-    }
+    void Rotate(double theta);
 
     /**
      * This method allows the mesh properties to be re-calculated after

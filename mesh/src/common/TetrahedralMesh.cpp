@@ -443,6 +443,12 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateZ(const double theta)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(double theta)
+{
+    RotateZ(theta);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
     RandomNumberGenerator *p_rng=RandomNumberGenerator::Instance();

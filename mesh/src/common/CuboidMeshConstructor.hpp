@@ -51,10 +51,7 @@ private:
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
-    void ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width)
-    {
-        rMesh.ConstructLinearMesh(width);
-    }
+    void ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width);
 
     /**
      * Construct a two-dimensional rectangular mesh.
@@ -62,10 +59,7 @@ private:
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
-    void ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width)
-    {
-        rMesh.ConstructRectangularMesh(width, width);
-    }
+    void ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width);
 
     /**
      * Construct a three-dimensional cuboidal mesh.
@@ -73,10 +67,7 @@ private:
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
-    void ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width)
-    {
-        rMesh.ConstructCuboid(width, width, width);
-    }
+    void ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width);
 
 public:
 
@@ -90,46 +81,75 @@ public:
      * @param meshNum  Index for the mesh
      * @param meshWidth  Width of the mesh
      */
-    std::string Construct(unsigned meshNum, double meshWidth)
-    {
-        mMeshWidth=meshWidth;
-        assert(meshNum < 30); //Sanity
-        const std::string mesh_dir = "ConvergenceMesh";
-        OutputFileHandler output_file_handler(mesh_dir);
-
-        // create the mesh
-        unsigned mesh_size = (unsigned) pow(2, meshNum+2); // number of elements in each dimension
-        double scaling = mMeshWidth/(double) mesh_size;
-        TetrahedralMesh<DIM,DIM> mesh;
-        ConstructHyperCube(mesh, mesh_size);
-        mesh.Scale(scaling, scaling, scaling);
-        NumElements = mesh.GetNumElements();
-        NumNodes = mesh.GetNumNodes();
-        std::stringstream file_name_stream;
-        file_name_stream<< "cube_" << DIM << "D_2mm_"<< NumElements <<"_elements";
-        std::string mesh_filename = file_name_stream.str();
-
-        if (output_file_handler.IsMaster())
-        {
-            TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);
-            mesh_writer.WriteFilesUsingMesh(mesh);
-        }
-        PetscTools::Barrier();
-
-        std::string mesh_pathname = output_file_handler.GetOutputDirectoryFullPath()
-                                  + mesh_filename;
-
-        return mesh_pathname;
-    }
+    std::string Construct(unsigned meshNum, double meshWidth);
 
     /**
      * Get the width of the mesh.
      */
-    double GetWidth()
-    {
-        return mMeshWidth;
-    }
+    double GetWidth();
 
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned DIM>
+void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width)
+{
+    rMesh.ConstructLinearMesh(width);
+}
+
+template<unsigned DIM>
+void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width)
+{
+    rMesh.ConstructRectangularMesh(width, width);
+}
+
+template<unsigned DIM>
+void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width)
+{
+    rMesh.ConstructCuboid(width, width, width);
+}
+
+template<unsigned DIM>
+std::string CuboidMeshConstructor<DIM>::Construct(unsigned meshNum, double meshWidth)
+{
+    mMeshWidth = meshWidth;
+    assert(meshNum < 30); //Sanity
+    const std::string mesh_dir = "ConvergenceMesh";
+    OutputFileHandler output_file_handler(mesh_dir);
+
+    // create the mesh
+    unsigned mesh_size = (unsigned) pow(2, meshNum+2); // number of elements in each dimension
+    double scaling = mMeshWidth/(double) mesh_size;
+    TetrahedralMesh<DIM,DIM> mesh;
+    ConstructHyperCube(mesh, mesh_size);
+    mesh.Scale(scaling, scaling, scaling);
+    NumElements = mesh.GetNumElements();
+    NumNodes = mesh.GetNumNodes();
+    std::stringstream file_name_stream;
+    file_name_stream << "cube_" << DIM << "D_2mm_" << NumElements << "_elements";
+    std::string mesh_filename = file_name_stream.str();
+
+    if (output_file_handler.IsMaster())
+    {
+        TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
+    PetscTools::Barrier();
+
+    std::string mesh_pathname = output_file_handler.GetOutputDirectoryFullPath() + mesh_filename;
+
+    return mesh_pathname;
+}
+
+template<unsigned DIM>
+double CuboidMeshConstructor<DIM>::GetWidth()
+{
+    return mMeshWidth;
+}
 
 #endif /*CUBOIDMESHCONSTRUCTOR_HPP_*/

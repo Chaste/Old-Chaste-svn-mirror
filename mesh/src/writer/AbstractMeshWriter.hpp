@@ -63,7 +63,7 @@ protected:
     std::vector< std::vector<unsigned> >::iterator mpBoundaryFaceIterator; /**< Is an iterator for the boundary face data */
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
-    bool mWriteMetaFile;
+    bool mWriteMetaFile; /**< Whether to write a metafile (only used by MeshylazerMeshWriter) */
 
 public:
 
@@ -88,9 +88,32 @@ public:
      */
     std::string GetOutputDirectory();
 
+    /**
+     * Add an entry to mNodeData.
+     * 
+     * @param nextNode coordinates of the node to add
+     */
     void SetNextNode(std::vector<double> nextNode);
+
+    /**
+     * Add an entry to mElementData.
+     * 
+     * @param nextElement array of the nodes in the element to add
+     */
     virtual void SetNextElement(std::vector<unsigned> nextElement);
+
+    /**
+     * Add an entry to mBoundaryFaceData.
+     * 
+     * @param nextFace array of the nodes on the boundary face to add
+     */
     void SetNextBoundaryFace(std::vector<unsigned> nextFace);
+
+    /**
+     * Add an entry to mBoundaryFaceData.
+     * 
+     * @param nextEdge array of the nodes on the boundary face to add
+     */
     void SetNextBoundaryEdge(std::vector<unsigned> nextEdge);
 
     /**
@@ -119,8 +142,26 @@ public:
      */
     unsigned GetNumBoundaryEdges();
 
+    /**
+     * Write a mesh to file.
+     * 
+     * @param rMesh the mesh
+     */
     void WriteFilesUsingMesh(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+
+    /**
+     * Read in a mesh and write it to file.
+     * 
+     * @param rMeshReader the mesh reader
+     */
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
+
+    /**
+     * Read in a mesh and a given permutation of the node indices, and write the permuted mesh to file.
+     * 
+     * @param rMeshReader the mesh reader
+     * @param rNodePermutation the node permutation
+     */
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                    std::vector<unsigned>& rNodePermutation);
 };
@@ -129,6 +170,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractMeshWriter(const std::string &rDirectory,

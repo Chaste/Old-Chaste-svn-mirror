@@ -183,10 +183,8 @@ public:
     /**
      *  Get the number of vertices, ie non-internal (non-quadratic), nodes.
      */
-    unsigned GetNumVertices()
-    {
-        return mNumVertices;
-    }
+    unsigned GetNumVertices();
+
 };
 
 

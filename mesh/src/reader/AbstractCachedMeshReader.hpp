@@ -57,6 +57,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractCachedMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
+
     unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
     unsigned mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
     unsigned mNumElementNodes; /**< Is the number of nodes per element*/
@@ -77,61 +78,96 @@ protected:
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 
-    std::vector<std::string> GetRawDataFromFile(std::string fileName); /**< Reads an input file fileName, removes comments (indicated by a #) and blank lines */
-
+    /**
+     * Reads an input file fileName, removes comments (indicated by a #) and blank
+     * lines and returns a vector of strings. Each string corresponds to one line
+     * of the input file.
+     *
+     * @param fileName  the name of the file to read from, relative to the output directory
+     */
+    std::vector<std::string> GetRawDataFromFile(std::string fileName); 
 
 public:
-    AbstractCachedMeshReader() /**< Constructor */
-    {
-        mNumNodeAttributes = 0;
-        mMaxNodeBdyMarker = 0;
-        mNumElementNodes = 0;
-        mNumElementAttributes = 0;
-        mMaxFaceBdyMarker = 0;
 
-        // We have initialized all numeric variables to zero
-
-        mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
-    }
+    AbstractCachedMeshReader(); /**< Constructor */
 
     virtual ~AbstractCachedMeshReader()
     {} /**< Destructor. */
 
-    unsigned GetNumElements() const
-    {
-        return mElementData.size();
-    } /**< Returns the number of elements in the mesh */
-    unsigned GetNumNodes() const
-    {
-        return mNodeData.size();
-    } /**< Returns the number of nodes in the mesh */
-    unsigned GetNumFaces() const
-    {
-        return mFaceData.size();
-    } /**< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
-    unsigned GetNumEdges() const
-    {
-        return mFaceData.size();
-    }    /**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
+    unsigned GetNumElements() const; /**< Returns the number of elements in the mesh. */
+    unsigned GetNumNodes() const;    /**< Returns the number of nodes in the mesh. */
+    unsigned GetNumFaces() const;    /**< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
+    unsigned GetNumEdges() const;    /**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
 
-    unsigned GetMaxNodeIndex(); /**< Returns the maximum node index */
-    unsigned GetMinNodeIndex(); /**< Returns the minimum node index */
+    /**
+     *  Returns the maximum node index. Used in testing to check that output nodes
+     *  are always indexed from zero even if they are input indexed from one.
+     */
+    unsigned GetMaxNodeIndex();
 
-    std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */
+    /**
+     *  Returns the minimum node index. Used in testing to check that output nodes
+     *  are always indexed from zero even if they are input indexed from one.
+     */
+    unsigned GetMinNodeIndex();
+
+    /**
+     *  Returns a vector of the coordinates of each node in turn, starting with
+     *  node 0 the first time it is called followed by nodes 1, 2, ... , mNumNodes-1.
+     */
+    std::vector<double> GetNextNode();
+
     void Reset(); /**< Resets pointers to beginning*/
-    ElementData GetNextElementData(); /**< Returns a vector of the nodes of each element in turn */
-    ElementData GetNextEdgeData(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
-    ElementData GetNextFaceData(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
+
+    /**
+     *  Returns a vector of the nodes of each element in turn, starting with
+     *  element 0 the first time it is called followed by elements 1, 2, ... ,
+     *  mNumElements-1.
+     */
+    ElementData GetNextElementData();
+
+    /**
+     *  Returns a vector of the nodes of each edge in turn, starting with edge 0 the
+     *  first time it is called followed by edges 1, 2, ... , mNumFaces-1.
+     *
+     *  Is a synonym of GetNextFace(). The two functions can be used interchangeably,
+     *  i.e. they use the same iterator.
+     */
+    ElementData GetNextEdgeData();
+
+    /**
+     *  Returns a vector of the nodes of each face in turn, starting with face 0 the
+     *  first time it is called followed by faces 1, 2, ... , mNumFaces-1.
+     *
+     *  Is a synonum of GetNextEdge(). The two functions can be used interchangeably,
+     *  i.e. they use the same iterator.
+     */
+    ElementData GetNextFaceData();
+
 };
 
 
-/**
- * Reads an input file fileName, removes comments (indicated by a #) and blank
- * lines and returns a vector of strings. Each string corresponds to one line
- * of the input file.
- *
- * @param fileName
- */
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::AbstractCachedMeshReader()
+{
+    /// \todo use C++ initialisers (#155)
+    mNumNodeAttributes = 0;
+    mMaxNodeBdyMarker = 0;
+    mNumElementNodes = 0;
+    mNumElementAttributes = 0;
+    mMaxFaceBdyMarker = 0;
+
+    // We have initialized all numeric variables to zero
+
+    mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
+}
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataFromFile(std::string fileName)
 {
@@ -144,7 +180,7 @@ std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRa
     // exception that should be caught by the user.
     if (!dataFile.is_open())
     {
-        EXCEPTION("Could not open data file "+fileName+" .");
+        EXCEPTION("Could not open data file " + fileName + " .");
     }
 
     // Read each line in turn
@@ -153,16 +189,16 @@ std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRa
 
     while (dataFile)
     {
-        //Remove comments (everything from a hash to the end of the line)
-        //If there is no hash, then hashLocation = string::npos = -1 = 4294967295 = UINT_MAX
-        //(so it works with unsigneds but is a little nasty)
+        // Remove comments (everything from a hash to the end of the line)
+        // If there is no hash, then hashLocation = string::npos = -1 = 4294967295 = UINT_MAX
+        // (so it works with unsigneds but is a little nasty)
         long hash_location=RawLineFromFile.find('#',0);
         if (hash_location >= 0)
         {
             RawLineFromFile=RawLineFromFile.substr(0,hash_location);
         }
-        //Remove blank lines.  This is unnecessary, since the tokenizer will
-        //ignore blank lines anyway.
+        // Remove blank lines.  This is unnecessary, since the tokenizer will
+        // ignore blank lines anyway.
         long not_blank_location=RawLineFromFile.find_first_not_of(" \t",0);
         if (not_blank_location >= 0)
         {
@@ -177,16 +213,10 @@ std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRa
     return(RawDataFromFile);
 }
 
-
-
-/**
- *  Returns the maximum node index. Used in testing to check that output nodes
- *  are always indexed from zero even if they are input indexed from one.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
 {
-    //Initialize an interator for the vector of nodes
+    // Initialize an interator for the vector of nodes
     std::vector<std::vector<unsigned> >::iterator the_iterator;
 
     unsigned max_node_index = 0; // Nice if it were negative
@@ -207,16 +237,10 @@ unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
     return max_node_index;
 }
 
-
-
-/**
- *  Returns the minimum node index. Used in testing to check that output nodes
- *  are always indexed from zero even if they are input indexed from one.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
 {
-    //Initialize an interator for the vector of nodes
+    // Initialize an interator for the vector of nodes
     std::vector<std::vector<unsigned> >::iterator the_iterator;
 
     unsigned min_node_index = UINT_MAX; // A large integer
@@ -237,11 +261,6 @@ unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
     return min_node_index;
 }
 
-
-/**
- *  Returns a vector of the coordinates of each node in turn, starting with
- *  node 0 the first time it is called followed by nodes 1, 2, ... , mNumNodes-1.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
@@ -259,13 +278,6 @@ std::vector<double> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNod
     return next_node;
 }
 
-
-
-/**
- *  Returns a vector of the nodes of each element in turn, starting with
- *  element 0 the first time it is called followed by elements 1, 2, ... ,
- *  mNumElements-1.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 {
@@ -285,7 +297,6 @@ ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData
     return ret;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 {
@@ -294,14 +305,6 @@ void AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
     mpNodeIterator = mNodeData.begin();
 }
 
-
-/**
- *  Returns a vector of the nodes of each face in turn, starting with face 0 the
- *  first time it is called followed by faces 1, 2, ... , mNumFaces-1.
- *
- *  Is a synonum of GetNextEdge(). The two functions can be used interchangeably,
- *  i.e. they use the same iterator.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 {
@@ -321,19 +324,34 @@ ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     return ret;
 }
 
-
-
-/**
- *  Returns a vector of the nodes of each edge in turn, starting with edge 0 the
- *  first time it is called followed by edges 1, 2, ... , mNumFaces-1.
- *
- *  Is a synonym of GetNextFace(). The two functions can be used interchangeably,
- *  i.e. they use the same iterator.
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeData()
 {
     return GetNextFaceData();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
+{
+    return mElementData.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
+{
+    return mNodeData.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
+{
+    return mFaceData.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumEdges() const
+{
+    return mFaceData.size();
 }
 
 

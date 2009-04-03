@@ -33,6 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 
+
+/**
+ * A concrete mesh writer class that writes Triangle output files.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TrianglesMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
@@ -54,7 +58,14 @@ public:
      */
     void WriteFiles();
 
+    /**
+     * Write elements as faces (used in the case ELEMENT_DIM== SPACE_DIM-1)
+     */
     void WriteElementsAsFaces();
+
+    /**
+     * Write faces as edges (used in the case ELEMENT_DIM==2, SPACE_DIM==3)
+     */
     void WriteFacesAsEdges();
 
     /**
@@ -96,8 +107,8 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     *p_node_file << max_bdy_marker << "\n";
     *p_node_file << std::setprecision(20);
 
-    //Write each node's data
-    unsigned default_marker=0;
+    // Write each node's data
+    unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
@@ -114,13 +125,12 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     if (ELEMENT_DIM < SPACE_DIM)
     {
-
         WriteElementsAsFaces();
         WriteFacesAsEdges();
         return;
     }
 
-    // Write Element file
+    // Write element file
     std::string element_file_name = this->mBaseName + ".ele";
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
 

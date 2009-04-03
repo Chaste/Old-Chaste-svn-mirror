@@ -63,21 +63,7 @@ public:
      * @param v2  the point's y-coordinate (defaults to 0)
      * @param v3  the point's z-coordinate (defaults to 0)
      */
-    ChastePoint(double v1=0, double v2=0, double v3=0)
-    {
-        if (DIM>0)
-        {
-            mLocation[0] = v1;
-        }
-        if (DIM>1)
-        {
-            mLocation[1] = v2;
-        }
-        if (DIM>2)
-        {
-            mLocation[2] = v3;
-        }
-    }
+    ChastePoint(double v1=0, double v2=0, double v3=0);
 
     /**
      * Create a Point object.
@@ -86,50 +72,31 @@ public:
      *
      * @param coords  a std::vector storing the point's coordinates
      */
-    ChastePoint(std::vector<double> coords)
-    {
-        for (unsigned i=0; i<DIM; i++)
-        {
-            mLocation(i) = coords.at(i);
-        }
-    }
+    ChastePoint(std::vector<double> coords);
 
     /**
      * Alternative constructor which takes in a c_vector.
      *
      * @param location  a c_vector storing the point's coordinates
      */
-    ChastePoint(c_vector<double, DIM> location)
-    {
-        mLocation = location;
-    }
+    ChastePoint(c_vector<double, DIM> location);
 
     /**
      * Get the location of the Point.
      */
-    c_vector<double, DIM>& rGetLocation(void)
-    {
-        return mLocation;
-    }
+    c_vector<double, DIM>& rGetLocation();
 
     /**
      * Get the location of the Point.
      */
-    const c_vector<double, DIM>& rGetLocation(void) const
-    {
-        return mLocation;
-    }
+    const c_vector<double, DIM>& rGetLocation() const;
 
     /**
      * Access the vector mLocation.
      *
      * @param i the index of the vector to return
      */
-    double operator[] (unsigned i) const
-    {
-        assert(i<DIM);
-        return mLocation(i);
-    }
+    double operator[] (unsigned i) const;
 
     /**
      * Set one of the coordinates of the Point.
@@ -137,12 +104,74 @@ public:
      * @param i the index of the coordinate
      * @param value the value of the coordinate
      */
-    void SetCoordinate(unsigned i, double value)
-    {
-        assert(i<DIM);
-        mLocation(i) = value;
-    }
+    void SetCoordinate(unsigned i, double value);
+
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned DIM>
+ChastePoint<DIM>::ChastePoint(double v1, double v2, double v3)
+{
+    if (DIM>0)
+    {
+        mLocation[0] = v1;
+    }
+    if (DIM>1)
+    {
+        mLocation[1] = v2;
+    }
+    if (DIM>2)
+    {
+        mLocation[2] = v3;
+    }
+}
+
+template<unsigned DIM>
+ChastePoint<DIM>::ChastePoint(std::vector<double> coords)
+{
+    for (unsigned i=0; i<DIM; i++)
+    {
+        mLocation(i) = coords.at(i);
+    }
+}
+
+template<unsigned DIM>
+ChastePoint<DIM>::ChastePoint(c_vector<double, DIM> location)
+{
+    mLocation = location;
+}
+
+template<unsigned DIM>
+c_vector<double, DIM>& ChastePoint<DIM>::rGetLocation()
+{
+    return mLocation;
+}
+
+template<unsigned DIM>
+const c_vector<double, DIM>& ChastePoint<DIM>::rGetLocation() const
+{
+    return mLocation;
+}
+
+template<unsigned DIM>
+double ChastePoint<DIM>::operator[] (unsigned i) const
+{
+    assert(i<DIM);
+    return mLocation(i);
+}
+
+template<unsigned DIM>
+void ChastePoint<DIM>::SetCoordinate(unsigned i, double value)
+{
+    assert(i<DIM);
+    mLocation(i) = value;
+}
+
 
 /**
  * A  zero-dimensional ChastePoint class.

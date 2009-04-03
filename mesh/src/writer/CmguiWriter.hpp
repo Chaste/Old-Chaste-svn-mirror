@@ -94,20 +94,41 @@ static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*
  *  file and a exelem file. Note that the lines and faces are not written in the exelem
  *  file, so to load the data in Cmgui, you must use 'generate_faces_and_lines', i.e.
  *
- *  gfx read node <base_file>
- *  gfx read elem <base_file> generate_faces_and_lines
+ *  gfx read node base_file
+ *  gfx read elem base_file generate_faces_and_lines
  *  gfx cr win
  */
 class CmguiWriter : public AbstractMeshWriter<3,3>
 {
 public:
+
+    /**
+     * Constructor.
+     *
+     * @param rDirectory  the directory in which to write the mesh to file
+     * @param rBaseName  the base name of the files in which to write the mesh data
+     * @param clearOutputDir  whether to clean the directory (defaults to true)
+     */
     CmguiWriter(const std::string &rDirectory,
                 const std::string &rBaseName,
                 const bool &rCleanDirectory=true);
+
+    /**
+     * Write mesh data to files.
+     */
     void WriteFiles();
+
+    /**
+     * Destructor.
+     */
     virtual ~CmguiWriter()
     {}
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
 
 
 CmguiWriter::CmguiWriter(const std::string &rDirectory,

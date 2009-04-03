@@ -274,7 +274,7 @@ public:
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
-    assert(hi>=lo);
+    assert(hi >= lo);
     for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
     {
         Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
@@ -288,13 +288,12 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, uns
                 break;
             }
         }
-
     }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
-: mMeshFileBaseName("")
+    : mMeshFileBaseName("")
 {
 }
 

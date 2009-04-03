@@ -34,6 +34,7 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
     LoadFromFile(fileName);
 }
 
+
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY)
 {
@@ -123,6 +124,12 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
     RunMesherAndReadMesh("tetgen", handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
 }
 
+
+template<unsigned DIM>
+unsigned QuadraticMesh<DIM>::GetNumVertices()
+{
+    return mNumVertices;
+}
 
 
 template<unsigned DIM>
@@ -472,6 +479,12 @@ void QuadraticMesh<DIM>::HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElem
     AddNodeToBoundaryElement(pBoundaryElement, pElement, internalNode2);
 }
 #undef COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
 
 template class QuadraticMesh<1>;
 template class QuadraticMesh<2>;

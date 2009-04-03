@@ -99,26 +99,13 @@ public:
     virtual unsigned GetNumFaces() const =0;
 
     /** Returns the number of element attributes in the mesh */
-    virtual unsigned GetNumElementAttributes() const
-    {
-        // By default returns 0.  If a concrete class does read attributes
-        // it needs to overload this method.
-        return 0;
-    }
+    virtual unsigned GetNumElementAttributes() const;
 
     /** Returns the number of face attributes in the mesh */
-    virtual unsigned GetNumFaceAttributes() const
-    {
-        // By default returns 0.  If a concrete class does read attributes
-        // it needs to overload this method.
-        return 0;
-    }
+    virtual unsigned GetNumFaceAttributes() const;
 
     /** Returns the number of edges in the mesh (synonym of GetNumFaces()) */
-    unsigned GetNumEdges() const
-    {
-        return GetNumFaces();
-    }
+    unsigned GetNumEdges() const;
 
     /** Returns a vector of the coordinates of each node in turn */
     virtual std::vector<double> GetNextNode()=0;
@@ -133,20 +120,53 @@ public:
     virtual ElementData GetNextFaceData()=0;
 
     /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFaceData()) */
-    ElementData GetNextEdge()
-    {
-        return GetNextFaceData();
-    }
+    ElementData GetNextEdge();
 
     /**
      * Get method for mMeshFileBaseName.
      */
-    virtual std::string GetMeshFileBaseName()
-    {
-        return "";
-    }
+    virtual std::string GetMeshFileBaseName();
 
 };
 
+
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() const
+{
+    // By default returns 0.  If a concrete class does read attributes
+    // it needs to overload this method.
+    return 0;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() const
+{
+    // By default returns 0.  If a concrete class does read attributes
+    // it needs to overload this method.
+    return 0;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumEdges() const
+{
+    return GetNumFaces();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
+{
+    return GetNextFaceData();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::string AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
+{
+    return "";
+}
 
 #endif //_ABSTRACTMESHREADER_HPP_
