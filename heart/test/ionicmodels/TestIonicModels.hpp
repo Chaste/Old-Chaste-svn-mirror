@@ -753,16 +753,16 @@ public:
         Mahajan2008OdeSystem endocardial_model(&backward_solver, &stimulus);
         Mahajan2008OdeSystem midmyocardial_model(&backward_solver, &stimulus);
 
-        epicardial_model.SetScaleFactorGks(1.0);
+        epicardial_model.SetScaleFactorGks(1.0); 
         epicardial_model.SetScaleFactorIto(1.0);
-        epicardial_model.SetScaleFactorGkr(1.0);
+        epicardial_model.SetScaleFactorGkr(1.0);   
 
-        midmyocardial_model.SetScaleFactorGks(0.7);
-        midmyocardial_model.SetScaleFactorIto(0.24);
+        midmyocardial_model.SetScaleFactorGks(0.09); 
+        midmyocardial_model.SetScaleFactorIto(1.0);
         midmyocardial_model.SetScaleFactorGkr(1.0);
-
-        endocardial_model.SetScaleFactorGks(0.12);
-        endocardial_model.SetScaleFactorIto(1.0);
+     
+        endocardial_model.SetScaleFactorGks(0.86); 
+        endocardial_model.SetScaleFactorIto(0.2);
         endocardial_model.SetScaleFactorGkr(1.0);
 
         std::vector<double> state_variables_epi = epicardial_model.GetInitialConditions();
@@ -828,9 +828,9 @@ public:
         std::cout<<"\n"<<"Endpcardial APD90 is "<<endo_APD<<"\n";
 
         //check that percentage increase from epi to mid and endo (roughly) matches results
-        // from Idriss et al J Card Electr, 15:795-801. 2004, figure 4C for an adult rabbit
-        TS_ASSERT_DELTA((mid_APD-epi_APD)*100/epi_APD, 11.4, 2);
-        TS_ASSERT_DELTA((endo_APD-epi_APD)*100/epi_APD, 33.7, 2);
+        // from McIntosh et al. Card Res, 45:397-409. 200 (Figure 1 and 2)
+        TS_ASSERT_DELTA((mid_APD-epi_APD)*100/epi_APD, 36.2, 2);
+        TS_ASSERT_DELTA((endo_APD-epi_APD)*100/epi_APD, 8, 2);
 
      }
 
