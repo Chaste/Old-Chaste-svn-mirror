@@ -48,9 +48,11 @@ set to True, then the appropriate paths (see below) should be specified, too.
  * use_vtk - whether to use VTK development libraries
  
  * other_includepaths - list of paths containing other header files
- * other_libpaths     - list of paths containing other libraries, including metis, xsd, and boost
- * other_libraries    - list of other libraries to link against.  This *must* include
-                        lapack, blas, and boost_serialization, as their names vary across systems.
+ * other_libpaths     - list of paths containing other libraries, including
+                        metis, xsd, and boost
+ * other_libraries    - list of other libraries to link against
+ * blas_lapack        - the names of the blas and lapack libraries on this system
+                        (a 2 element list)
 
  * ccflags - any extra compiler flags needed, as a string.
 

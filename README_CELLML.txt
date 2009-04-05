@@ -28,8 +28,10 @@ installed to reduce opportunities for confusion (e.g. do
   yum remove python-4Suite-XML python-amara
 on Fedora).
 
-Amara requires the expat library to parse XML:
-  sudo aptitude install expat libexpat1-dev
+Amara and RNV require the expat library to parse XML:
+  sudo aptitude install libexpat1-dev
+You will also need the Python header files:
+  sudo aptitude install python-dev
 
   sudo su -
   wget http://peak.telecommunity.com/dist/ez_setup.py

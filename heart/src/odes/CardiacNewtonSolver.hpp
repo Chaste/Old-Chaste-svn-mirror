@@ -120,7 +120,7 @@ public:
 ////        rCell.ComputeResidual(rCurrentGuess, mResidual);
 ////        for (unsigned i=0; i<SIZE; i++)
 ////        {
-////            assert(!isnan(mResidual[i]));
+////            assert(!std::isnan(mResidual[i]));
 ////        }
 ////
 ////        double norm = ComputeNorm(mResidual);
@@ -150,7 +150,7 @@ public:
 ////                double test_vec[SIZE];
 ////                for (unsigned i=0; i<SIZE; i++)
 ////                {
-////                    assert(!isnan( mUpdate[i] ));
+////                    assert(!std::isnan( mUpdate[i] ));
 ////                    test_vec[i] = rCurrentGuess[i] - damping_values[j]*mUpdate[i];
 ////                }
 ////                double test_resid[SIZE];
