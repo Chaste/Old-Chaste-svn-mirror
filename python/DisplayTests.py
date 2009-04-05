@@ -62,13 +62,21 @@ def index(req):
   </p>
   <ul>""")
   tests_types = os.listdir(_tests_dir)
+  tests_types = filter(lambda s: s[0] != '.', tests_types)
   tests_types.sort()
-  for tests_type in tests_types:
-    if tests_type[0] != '.':
+  main_types = filter(lambda s: '-' not in s, tests_types)
+  branch_types = filter(lambda s: '-' in s, tests_types)
+  for tests_type in main_types:
       output.append('\n    <li><a href="%s/recent?type=%s">Recent %s builds.</a></li>' %
                     (_our_url, tests_type, tests_type))
   output.append("""</ul>
-
+  <p>Branch builds:</p>
+  <ul>""")
+  for tests_type in branch_types:
+      output.append('\n    <li><a href="%s/recent?type=%s">Recent %s builds.</a></li>' %
+                    (_our_url, tests_type, tests_type))
+  output.append("""</ul>
+  
   <a href="%s/profileHistory">Run time variation of profiled tests.</a>
   
   <h2>Latest continuous build</h2>
