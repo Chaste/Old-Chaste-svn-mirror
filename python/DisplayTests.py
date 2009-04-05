@@ -826,7 +826,7 @@ def _overallStatus(statuses, build):
       result = "No test results found"
       colour = "red"
     else:
-      result = "All tests (that ran) passed"
+      result = "All %d tests run passed" % total
       colour = "green"
   return result, colour
 
