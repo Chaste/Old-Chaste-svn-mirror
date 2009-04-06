@@ -44,35 +44,138 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     assert(yEnd>0);
     assert(numElemX>0);
     assert(numElemY>0);
+ 
+    unsigned num_nodes=(numElemX+1)*(numElemY+1);
+    struct triangulateio triangle_input;
+    triangle_input.pointlist = (double *) malloc( num_nodes * 2 * sizeof(double));
+    triangle_input.numberofpoints = num_nodes;
+    triangle_input.numberofpointattributes = 0;
+    triangle_input.pointmarkerlist = NULL;
+    triangle_input.numberofsegments = 0;
+    triangle_input.numberofholes = 0;
+    triangle_input.numberofregions = 0;
 
-    std::string tempfile_name_stem = "temp_quadmesh";
-
-    ////////////////////////////////////////
-    // write the node file (vertices only)
-    ////////////////////////////////////////
-    OutputFileHandler handler("");
-    out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
-
-    *p_file << (numElemX+1)*(numElemY+1) << " 2 0 1\n";
-    unsigned node_index = 0;
+    unsigned new_index = 0;
     for(unsigned j=0; j<=numElemY; j++)
     {
+        double y = yEnd*j/numElemY;
         for(unsigned i=0; i<=numElemX; i++)
         {
             double x = xEnd*i/numElemX;
-            double y = yEnd*j/numElemY;
 
-            bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemX) );
-            *p_file << node_index++ << " " << x << " " << y << " " << (on_boundary?1:0) << "\n";
+            triangle_input.pointlist[2*new_index] = x;
+            triangle_input.pointlist[2*new_index + 1] = y;
+            new_index++;
         }
     }
-    p_file->close();
 
-    ////////////////////////////////////////////////////////////
-    // create the quadratic mesh files using triangle and load
-    ////////////////////////////////////////////////////////////
+    // Make structure for output
+    struct triangulateio triangle_output;
+    triangle_output.pointlist = NULL;
+    triangle_output.pointattributelist = (double *) NULL;
+    triangle_output.pointmarkerlist = (int *) NULL;
+    triangle_output.trianglelist = (int *) NULL;
+    triangle_output.triangleattributelist = (double *) NULL;
+    triangle_output.edgelist = (int *) NULL;
+    triangle_output.edgemarkerlist = (int *) NULL;
 
-    RunMesherAndReadMesh("triangle", handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
+    // Library call
+    triangulate((char*)"Qzeo2", &triangle_input, &triangle_output, NULL);
+
+    assert(triangle_output.numberofcorners == 6);//Nodes per triangle
+
+    // Construct the nodes
+    for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
+    {
+        if (triangle_output.pointmarkerlist[node_index] == 1)
+        {
+            // Boundary node
+            Node<DIM> *p_node = new Node<DIM>(node_index, true,
+              triangle_output.pointlist[node_index * 2],
+              triangle_output.pointlist[node_index * 2+1]);
+            this->mNodes.push_back(p_node);
+            this->mBoundaryNodes.push_back(p_node);
+        }
+        else
+        {
+            this->mNodes.push_back(new Node<DIM>(node_index, false,
+              triangle_output.pointlist[node_index * 2],
+              triangle_output.pointlist[node_index * 2+1]));
+        }
+    }
+
+    mIsInternalNode.resize(this->GetNumNodes(), true);
+    
+    // Construct the elements
+    this->mElements.reserve(triangle_output.numberoftriangles);
+    for (unsigned element_index=0; element_index<(unsigned)triangle_output.numberoftriangles; element_index++)
+    {
+        std::vector<Node<DIM>*> nodes;
+        //First 3 are the vertices
+        for (unsigned j=0; j<3; j++)
+        {
+            unsigned global_node_index = triangle_output.trianglelist[element_index*6 + j];
+            assert(global_node_index < this->mNodes.size());
+            nodes.push_back(this->mNodes[global_node_index]);
+            mIsInternalNode[global_node_index]=false;
+        }
+        //Construct with just the vertices
+        this->mElements.push_back(new Element<DIM, DIM>(element_index, nodes));
+        //Add the internals
+        for (unsigned j=3; j<6; j++)
+        {
+            unsigned global_node_index = triangle_output.trianglelist[element_index*6 + j];
+            assert(global_node_index < this->mNodes.size());
+            this->mElements[element_index]->AddNode( this->mNodes[global_node_index] );
+            this->mNodes[j]->AddElement(element_index);
+        }
+    }
+    bool vertices_mode=true;
+    mNumVertices=0u;
+    for(unsigned i=0; i<this->GetNumNodes(); i++)
+    {
+        if(mIsInternalNode[i]==false)
+        {
+            mNumVertices++;
+        }
+        if((vertices_mode == false)  && (mIsInternalNode[i]==false ) )
+        {
+            EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
+        }
+        if( (vertices_mode == true)  && (mIsInternalNode[i]==true) )
+        {
+            vertices_mode = false;
+        }
+    }
+    unsigned next_boundary_element_index = 0;
+    for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)triangle_output.numberofedges; boundary_element_index++)
+    {
+        if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
+        {
+            std::vector<Node<DIM>*> nodes;
+            for (unsigned j=0; j<2; j++)
+            {
+                unsigned global_node_index=triangle_output.edgelist[boundary_element_index*2 + j];
+                assert(global_node_index < this->mNodes.size());
+                nodes.push_back(this->mNodes[global_node_index]);
+            }
+            this->mBoundaryElements.push_back(new BoundaryElement<DIM-1, DIM>(next_boundary_element_index++, nodes));
+        }
+    }
+    
+    this->RefreshJacobianCachedData();
+    
+    AddNodesToBoundaryElements();
+    
+    free(triangle_input.pointlist);
+
+    free(triangle_output.pointlist);
+    free(triangle_output.pointattributelist);
+    free(triangle_output.pointmarkerlist);
+    free(triangle_output.trianglelist);
+    free(triangle_output.triangleattributelist);
+    free(triangle_output.edgelist);
+    free(triangle_output.edgemarkerlist);
 }
 
 
@@ -137,7 +240,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
                                               std::string outputDir,
                                               std::string fileStem)
 {
-    // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
+     // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
     std::string args = "-Qeo2";
 
     // In 2D we need an edge file. In 3D we need a face file (which is written automatically in Tetgen)
@@ -249,6 +352,12 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
         }
     }
 
+    AddNodesToBoundaryElements();
+}
+ 
+template<unsigned DIM>
+void QuadraticMesh<DIM>::AddNodesToBoundaryElements()
+ {
     // Loop over all boundary elements, find the equivalent face from all
     // the elements, and add the extra nodes to the boundary element
     if(DIM>1)

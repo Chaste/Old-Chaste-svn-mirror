@@ -626,20 +626,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         EXCEPTION("The number of nodes must exceed the spatial dimension.");
     }
 
-// I think the following dramatically slows down the simulations, as with a
-// decent sized mesh we nearly always do need to remesh somewhere.
-
-//    // If there are no nodes waiting to be deleted,
-//    // and the current mesh is Voronoi, then we don't
-//    // need to call triangle/tetgen
-//    if (mDeletedNodeIndices.size()==0 && !mAddedNodes)
-//    {
-//        if (CheckVoronoi())
-//        {
-//            map.ResetToIdentity();
-//            return;
-//        }
-//    }
 
     // Make sure the map is big enough
     map.Resize(this->GetNumAllNodes());

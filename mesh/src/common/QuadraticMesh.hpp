@@ -57,6 +57,13 @@ private:
      * @param fileName  the name of the file to load the mesh from
      */
     void LoadFromFile(const std::string& fileName);
+    
+    /**
+     * Top level method for making 2D edges have 3 nodes not 2
+     * and making 3D faces have 6 nodes not 3.
+     */
+    void AddNodesToBoundaryElements();
+
 
     /**
      * This method adds the given node (defined by an element and a node index)

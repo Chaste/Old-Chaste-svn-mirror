@@ -202,16 +202,24 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 4u);
 
-        // Each element should have 6 nodes
+        // Each element should have 6 nodes and a valid Jacobian
+        double det;
+        c_matrix<double, 2, 2> jacob;
+        c_matrix<double, 2, 2> inv;
+        
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 6u);
+            mesh.GetInverseJacobianForElement(i, jacob, det, inv);
+            TS_ASSERT_EQUALS(det, 1.0);
         }
+        
 
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[0], 1.0, 1e-6);
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
 
         // Test boundary elements
+        unsigned num_boundary_elements=0;
         for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
              iter != mesh.GetBoundaryElementIteratorEnd();
              ++iter)
@@ -235,7 +243,11 @@ public:
                                && (fabs((*iter)->GetNode(2)->rGetLocation()[1] - 1.0)<1e-6);
 
             TS_ASSERT_EQUALS(true, all_x_zero || all_x_one || all_y_zero || all_y_one);
+            num_boundary_elements++;
         }
+        TS_ASSERT_EQUALS(num_boundary_elements, 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
+        
     }
 
     void TestAutomaticallyGenerated2dMesh2() throw(Exception)
@@ -251,9 +263,14 @@ public:
         {
             TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 6u);
         }
+        for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetBoundaryElement(i)->GetNumNodes(), 3u);
+        }
 
         TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[0], 3.14159, 1e-4);
         TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[1], 2.71828183, 1e-5);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 40u);
     }
 
     void TestAutomaticallyGenerated3dMeshSimple() throw(Exception)
