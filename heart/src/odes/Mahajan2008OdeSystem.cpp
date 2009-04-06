@@ -196,7 +196,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
         double var_cell__xina = var_INa__xina;
 
 	double i_ionic = var_cell__xik1+var_cell__xito+var_cell__xiNaK+var_cell__xiNaCa+var_cell__xica+var_cell__xina+var_cell__xikr+var_cell__xiks;
-	assert(!isnan(i_ionic));
+	assert(!std::isnan(i_ionic));
 	return i_ionic;
     }
 
