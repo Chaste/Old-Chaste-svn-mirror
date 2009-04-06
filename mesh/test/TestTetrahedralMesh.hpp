@@ -595,6 +595,31 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
+    void TestConstructCuboidStagger()
+    {
+        TetrahedralMesh<3,3> mesh;
+        unsigned width = 7;
+        unsigned height = 4;
+        unsigned depth = 5;
+
+        unsigned num_boundary_nodes =   2*( (width+1)*(height+1) + (width+1)*(depth+1) + (depth+1)*(height+1) )
+                                      - 4*(width-1 + height-1 + depth-1)
+                                      - 16;
+
+        mesh.ConstructCuboid(width, height, depth, true);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)*(depth+1)));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), num_boundary_nodes);
+
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), width*height*depth, 1e-7);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 2.0*(width*height+height*depth+depth*width), 1e-7);
+        //Each unit square on the surface is split into 2
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width) );
+        //Assuming that each cube is split into 6 tetrahedra
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*width*height*depth );
+        //\todo Does stagger make a different in 3D?
+    }
+ 
+
     void TestPermute()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");

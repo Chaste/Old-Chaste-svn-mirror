@@ -137,10 +137,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
         if(mIsInternalNode[i]==false)
         {
             mNumVertices++;
-        }
-        if((vertices_mode == false)  && (mIsInternalNode[i]==false ) )
-        {
-            EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
+            assert(vertices_mode);//If this trips, then the nodes were not in the expected order -- investigate the library call to triangle
         }
         if( (vertices_mode == true)  && (mIsInternalNode[i]==true) )
         {
@@ -240,23 +237,13 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
                                               std::string outputDir,
                                               std::string fileStem)
 {
-     // Q = quiet, e = make edge data, o2 = order of elements is 2, ie quadratics
-    std::string args = "-Qeo2";
-
-    // In 2D we need an edge file. In 3D we need a face file (which is written automatically in Tetgen)
-    if (DIM == 3)
-    {
-        args = "-Qo2";
-    }
+    
+    assert(DIM == 3);
+    std::string args = "-Qo2";
+    
 
     std::string command =  binary + " " + args + " " + outputDir
-                           + "/" + fileStem + ".node";
-
-    if (DIM == 3)
-    {
-        // Tetgen's quiet mode isn't as quiet as Triangle's
-        command += " > /dev/null";
-    }
+                           + "/" + fileStem + ".node" + " > /dev/null";
 
     int return_value = system(command.c_str());
 
@@ -264,7 +251,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     {
         #define COVERAGE_IGNORE
         EXCEPTION("Remeshing (by calling " + binary + ") failed.  Do you have it in your path?\n"+
-        "The quadratic mesh relies on functionality from triangle (http://www.cs.cmu.edu/~quake/triangle.html) and tetgen (http://tetgen.berlios.de/).");
+        "The quadratic mesh relies on functionality from tetgen (http://tetgen.berlios.de/).");
         #undef COVERAGE_IGNORE
     }
 
@@ -285,15 +272,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     EXPECT0(system, command);
     EXPECT0(system, "rm -f " + fileStem + ".1.node");
     EXPECT0(system, "rm -f " + fileStem + ".1.ele");
-
-    if (DIM==2)
-    {
-        EXPECT0(system, "rm -f " + fileStem + ".1.edge");
-    }
-    if (DIM==3)
-    {
-        EXPECT0(system, "rm -f " + fileStem + ".1.face");
-    }
+    EXPECT0(system, "rm -f " + fileStem + ".1.face");
 }
 
 
@@ -328,6 +307,7 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
         }
         if((vertices_mode == false)  && (mIsInternalNode[i]==false ) )
         {
+            //Covered in the 1D case by special mesh file data
             EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
         }
         if( (vertices_mode == true)  && (mIsInternalNode[i]==true) )

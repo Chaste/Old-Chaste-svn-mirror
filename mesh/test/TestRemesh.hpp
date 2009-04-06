@@ -207,7 +207,21 @@ public:
         mesh.ReMesh(map);
 
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes()+1);//one node removed during remesh
-
+        for (unsigned i=0; i<431;i++)
+        {
+            //These are unchanged
+            TS_ASSERT_EQUALS(map.GetNewIndex(i), i);
+        }
+        //This one has gone
+        TS_ASSERT(map.IsDeleted(432));
+        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(432));
+        for (unsigned i=433; i<map.Size();i++)
+        {
+            //These have shuffled down
+            TS_ASSERT_EQUALS(map.GetNewIndex(i), i-1);
+        }
+        
+        
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());

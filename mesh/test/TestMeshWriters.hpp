@@ -357,13 +357,16 @@ public:
 
         std::vector<unsigned> permutation;
 
+        //Cover the zero permutation case
+        TrianglesMeshWriter<1,1> mesh_writer_straight("", "MeshReaderNotPermuted");
+        mesh_writer_straight.WriteFilesUsingMeshReader(mesh_reader, permutation);
+        
+        std::string filename = "MeshReaderPermuted";
+
         for (unsigned index=0; index<num_nodes; index++)
         {
             permutation.push_back(num_nodes - index - 1);
         }
-
-        std::string filename = "MeshReaderPermuted";
-
         TrianglesMeshWriter<1,1> mesh_writer("", filename);
         mesh_writer.WriteFilesUsingMeshReader(mesh_reader, permutation);
 
