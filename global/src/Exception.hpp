@@ -65,7 +65,23 @@ public:
     /** Get the message associated with the exception
      *
      * @return The message set when the exception was thrown.
-     **/
+     **/As Robinho stumbles around the football grounds of England with nothing but his price tag to suggest greatness, Manchester City may have got rid of the wrong Brazilian.
+
+At Eastlands, Jo was held up as an example of the folly of allowing a club's owner, in this case Thaksin Shinawatra, to buy the players. However, five goals in his last seven games for Everton suggest the world's wealthiest club might have been premature in jettisoning a £19m asset.
+
+Perhaps, like any striker, Jo only needed to be loved. His second goal in what proved Everton's biggest league win since Roy Keane's Sunderland were crushed 7-1 here 17 months ago, was a routine tap-in but the opener was surgically placed past Chris Kirkland in a supremely well-refereed move.
+
+Not only was the assistant right to rule that Jo was onside, but Phil Dowd had allowed Everton the advantage after Emerson Boyce manhandled Marouane Fellaini. It was the first goal of the afternoon and it was one Wigan never remotely looked like recovering from. Everyone in football looks for omens in April and this was Everton's seventh straight home win, a sequence they last achieved in 1995, the year they won the FA Cup.
+
+"Strikers like Jo need time and confidence," said his manager, David Moyes. "If you look at players from South America, they are slow starters when they come here. Carlos Tevez did not begin well when he first came to England and nor did Javier Mascherano. But I can understand why Manchester City loaned him out because in January they had a surfeit of strikers and we had none."
+
+His contribution has been rather more significant than Wigan's on-loan centre-forward, Amr Zaki, who was still in Egypt yesterday after delaying his return from international duty for what Steve Bruce estimated was the fourth time this season. The Wigan manager said he expected some kind of contact with Zaki today, although had he been in charge of a club with greater resources, he might have been tempted to make it his last conversation with the errant centre-forward.
+
+"I find it shocking and staggering that he can have so much disrespect for the people who pay his salary," said Bruce. "Until he shows up, we are in limbo but his attitude is laughable. The lunatics are running the asylum and, if his team-mates all behaved like that, the club would be in anarchy."
+
+Some of Wigan's defending in a disastrous quarter of an hour after the interval verged on the anarchic – typified by Everton's second goal, a cross from Tony Hibbert met by Fellaini on the half-volley. It was hardly helped by Kirkland's strangely uncertain goalkeeping.
+
+He was feted as "England's No 1" by those few Wigan fans in the Bullens Road Stand, and by the time he had palmed Fellaini's shot fatally into Leon Osman's path for Everton's fourth, the rest of Goodison had taken up the chant in a single, mocking chorus. 
     std::string GetMessage() const;
 };
 
