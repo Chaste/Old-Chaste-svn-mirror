@@ -37,6 +37,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
                        double magnitude,
                        double duration)
 {
+    assert(DistributedVector::GetProblemSize() != 0);
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);
