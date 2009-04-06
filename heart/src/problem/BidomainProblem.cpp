@@ -37,11 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
 
-// Needed for g++ 3.4.4 on cygwin, at least
-#if __GNUC__ == 3
-#include <ieeefp.h>
-#endif
-
 template <unsigned DIM>
 void BidomainProblem<DIM>::AnalyseMeshForBath()
 {

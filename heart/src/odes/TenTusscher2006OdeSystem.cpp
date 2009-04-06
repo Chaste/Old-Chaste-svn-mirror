@@ -31,11 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include "Exception.hpp"
 
-// Needed for g++ 3.4.4 on cygwin, at least
-#if __GNUC__ == 3
-#include <ieeefp.h>
-#endif
-
 /*Constructor*/
 TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(
         AbstractIvpOdeSolver *pSolver,
