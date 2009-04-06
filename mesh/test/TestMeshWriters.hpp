@@ -359,8 +359,10 @@ public:
 
         //Cover the zero permutation case
         TrianglesMeshWriter<1,1> mesh_writer_straight("", "MeshReaderNotPermuted");
+        TS_ASSERT_EQUALS(permutation.size(), 0U);
         mesh_writer_straight.WriteFilesUsingMeshReader(mesh_reader, permutation);
-        
+        mesh_reader.Reset();
+       
         std::string filename = "MeshReaderPermuted";
 
         for (unsigned index=0; index<num_nodes; index++)
@@ -369,7 +371,7 @@ public:
         }
         TrianglesMeshWriter<1,1> mesh_writer("", filename);
         mesh_writer.WriteFilesUsingMeshReader(mesh_reader, permutation);
-
+ 
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<1,1> permuted_mesh_reader(output_dir + filename);
 

@@ -342,7 +342,6 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     }
     else
     {
-        assert(0);
         mNodeData.resize(rMeshReader.GetNumNodes());
         for (unsigned i=0; i<rMeshReader.GetNumNodes();i++)
         {
