@@ -35,8 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VoronoiCell.hpp"
 #include "VoronoiTessellation.hpp"
 #include "MutableMesh.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "CancerParameters.hpp"
 #include "Exception.hpp"
 #include "TrianglesMeshWriter.hpp"
 
@@ -322,6 +320,9 @@ public:
 
         TS_ASSERT_DELTA(tessellation.GetFace(0)->GetArea(), pow(3, 0.5)/4.0+0.5, 1e-6);
         TS_ASSERT_DELTA(tessellation.GetFace(0)->GetPerimeter(), 2.0 + pow(3, 0.5), 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetFaceArea(0),  pow(3, 0.5)/4.0+0.5, 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(0), 2.0 + pow(3, 0.5), 1e-6);
+   
     }
 
     void TestOrderVerticesAntiClockwise()
