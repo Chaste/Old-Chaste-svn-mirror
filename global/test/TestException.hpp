@@ -55,6 +55,7 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(EXCEPTION("Hello. I'm an exception"));
         TS_ASSERT_THROWS_ANYTHING(NEVER_REACHED);
+        TS_FAIL();
     }
 };
 
