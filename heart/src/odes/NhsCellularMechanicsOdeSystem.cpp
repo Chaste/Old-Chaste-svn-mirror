@@ -29,6 +29,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 #include <cmath>
 
+
+
+//
+// Model-scope constant parameters
+//
+const double NhsCellularMechanicsOdeSystem::mKon = 100;
+const double NhsCellularMechanicsOdeSystem::mKrefoff = 0.2;
+const double NhsCellularMechanicsOdeSystem::mGamma = 2;
+const double NhsCellularMechanicsOdeSystem::mCalciumTroponinMax = 0.07;
+const double NhsCellularMechanicsOdeSystem::mAlphaR1 = 0.002;
+const double NhsCellularMechanicsOdeSystem::mAlphaR2 = 0.00175;
+const double NhsCellularMechanicsOdeSystem::mKZ = 0.15;
+const double NhsCellularMechanicsOdeSystem::mNr = 3;
+const double NhsCellularMechanicsOdeSystem::mBeta1 = -4;
+const double NhsCellularMechanicsOdeSystem::mAlpha0 = 0.008;
+const double NhsCellularMechanicsOdeSystem::mN = 3;
+const double NhsCellularMechanicsOdeSystem::mZp = 0.85;
+const double NhsCellularMechanicsOdeSystem::mCalcium50ref = 0.00105;
+const double NhsCellularMechanicsOdeSystem::mTref = 56.2;
+const double NhsCellularMechanicsOdeSystem::mBeta0 = 4.9;
+const double NhsCellularMechanicsOdeSystem::mA = 0.35;
+const double NhsCellularMechanicsOdeSystem::mA1 = -29;
+const double NhsCellularMechanicsOdeSystem::mA2 = 138;
+const double NhsCellularMechanicsOdeSystem::mA3 = 129;
+const double NhsCellularMechanicsOdeSystem::mAlpha1 = 0.03;
+const double NhsCellularMechanicsOdeSystem::mAlpha2 = 0.130;
+const double NhsCellularMechanicsOdeSystem::mAlpha3 = 0.625;
+
+
 /*
  * ============================== PRIVATE FUNCTIONS =====================================
  */

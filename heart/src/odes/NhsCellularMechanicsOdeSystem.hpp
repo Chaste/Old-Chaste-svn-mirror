@@ -69,70 +69,70 @@ protected :
     // Parameters
 
     /** FILL IN. (mMols)^-1 (ms)^-1 */
-    static const double mKon = 100;
+    static const double mKon;
 
     /** FILL IN. (ms)^-1 */
-    static const double mKrefoff = 0.2;
+    static const double mKrefoff;
 
     /** FILL IN. Dimensionless */
-    static const double mGamma = 2;
+    static const double mGamma;
 
     /** FILL IN. mMols */
-    static const double mCalciumTroponinMax = 0.07;
+    static const double mCalciumTroponinMax;
 
     /** FILL IN. (ms)^-1 */
-    static const double mAlphaR1 = 0.002;
+    static const double mAlphaR1;
 
     /** FILL IN. (ms)^-1 */
-    static const double mAlphaR2 = 0.00175;
+    static const double mAlphaR2;
 
     /** FILL IN. Dimensionless */
-    static const double mKZ = 0.15;
+    static const double mKZ;
 
     /** FILL IN. Dimensionless */
-    static const double mNr = 3;
+    static const double mNr;
 
     /** FILL IN. Dimensionless */
-    static const double mBeta1 = -4;
+    static const double mBeta1;
 
     /** FILL IN. (ms)^-1 */
-    static const double mAlpha0 = 0.008;
+    static const double mAlpha0;
 
     /** FILL IN. Dimensionless */
-    static const double mN = 3;
+    static const double mN;
 
     /** FILL IN. Dimensionless */
-    static const double mZp = 0.85;
+    static const double mZp;
 
     /** FILL IN. mMols */
-    static const double mCalcium50ref = 0.00105;
+    static const double mCalcium50ref;
 
     /** FILL IN. kPa */
-    static const double mTref = 56.2;
+    static const double mTref;
 
     /** FILL IN. Dimensionless */
-    static const double mBeta0 = 4.9;
+    static const double mBeta0;
 
     /** FILL IN. Dimensionless */
-    static const double mA = 0.35;
+    static const double mA;
 
     /** FILL IN. Dimensionless */
-    static const double mA1 = -29;
+    static const double mA1;
 
     /** FILL IN. Dimensionless */
-    static const double mA2 = 138;
+    static const double mA2;
 
     /** FILL IN. Dimensionless */
-    static const double mA3 = 129;
+    static const double mA3;
 
     /** FILL IN. (ms)^-1 */
-    static const double mAlpha1 = 0.03;
+    static const double mAlpha1;
 
     /** FILL IN. (ms)^-1 */
-    static const double mAlpha2 = 0.130;
+    static const double mAlpha2;
 
     /** FILL IN. (ms)^-1 */
-    static const double mAlpha3 = 0.625;
+    static const double mAlpha3;
 
     /**
      *  Compute the calcium_trop50 concentration. This is a function of constants and

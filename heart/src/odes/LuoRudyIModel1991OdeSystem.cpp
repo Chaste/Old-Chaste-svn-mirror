@@ -31,6 +31,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include <iostream>
 #include "Exception.hpp"
 
+
+//
+// Model-scope constant parameters
+//
+const double LuoRudyIModel1991OdeSystem::membrane_C = 1.0;
+const double LuoRudyIModel1991OdeSystem::membrane_F = 96484.6;
+const double LuoRudyIModel1991OdeSystem::membrane_R = 8314;
+const double LuoRudyIModel1991OdeSystem::membrane_T = 310.0;
+const double LuoRudyIModel1991OdeSystem::background_current_E_b = -59.87;
+const double LuoRudyIModel1991OdeSystem::background_current_g_b = 0.03921;
+const double LuoRudyIModel1991OdeSystem::fast_sodium_current_g_Na = 23.0;
+const double LuoRudyIModel1991OdeSystem::ionic_concentrations_Ki = 145.0;
+const double LuoRudyIModel1991OdeSystem::ionic_concentrations_Ko = 5.4;
+const double LuoRudyIModel1991OdeSystem::ionic_concentrations_Nai = 18.0;
+const double LuoRudyIModel1991OdeSystem::ionic_concentrations_Nao = 140.0;
+const double LuoRudyIModel1991OdeSystem::plateau_potassium_current_g_Kp = 0.0183;
+const double LuoRudyIModel1991OdeSystem::time_dependent_potassium_current_PR_NaK = 0.01833;
+
+
+
 /**
  * Constructor
  */

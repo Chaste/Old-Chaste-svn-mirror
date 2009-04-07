@@ -38,12 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
 {
 private:
-    /** 
-     *  Constants for the FitzHugh-Nagumo model
-     */
-    static const double mAlpha = -0.08; 
-    static const double mGamma = 3.00;
-    static const double mEpsilon = 0.005;    
+    static const double mAlpha; /**< Constant parameter alpha */
+    static const double mGamma; /**< Constant parameter gamma */
+    static const double mEpsilon; /**< Constant parameter epsilon */
 
 public:
     // Constructor

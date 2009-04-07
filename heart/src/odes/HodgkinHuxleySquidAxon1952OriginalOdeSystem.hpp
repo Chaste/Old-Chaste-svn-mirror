@@ -34,23 +34,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 /**
- * This class sets up the HodgkinHuxleySquidAxon1952OriginalOdeSystem system of equations.
+ * The Hodgkin--Huxley squid giant axon model from 1952.
  */
 class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractCardiacCell
 {
 private:
-    /* Paramters */
+    /* Parameters */
 
     /** mS/cm2 */
-    static const double leakage_current_g_L = 0.3;
+    static const double leakage_current_g_L;
     /** uF/cm2 */
-    static const double membrane_Cm = 1.0;
+    static const double membrane_Cm;
     /** mV */
-    static const double membrane_E_R = -75.0;
+    static const double membrane_E_R;
     /** mS/cm2 */
-    static const double potassium_channel_g_K = 36.0;
+    static const double potassium_channel_g_K;
     /** mS/cm2 */
-    static const double sodium_channel_g_Na = 120.0;
+    static const double sodium_channel_g_Na;
 
 public:
     // Constructor

@@ -56,13 +56,13 @@ class AbstractNonlinearElasticityAssembler
 protected:
 
     /** Maximum absolute tolerance for newton solve  */
-    static const double MAX_NEWTON_ABS_TOL = 1e-8;
+    static const double MAX_NEWTON_ABS_TOL;
 
     /** Minimum absolute tolerance for newton solve  */
-    static const double MIN_NEWTON_ABS_TOL = 1e-12;
+    static const double MIN_NEWTON_ABS_TOL;
 
     /** Relative tolerance for newton solve  */
-    static const double NEWTON_REL_TOL = 1e-4;
+    static const double NEWTON_REL_TOL;
 
     /**
      * Number of degrees of freedom (eg equal to DIM*N + M if quadratic-linear
@@ -727,5 +727,18 @@ void AbstractNonlinearElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
     }
     mWriteOutput = writeOutput;
 }
+
+//
+// Constant setting definitions
+//
+template<unsigned DIM>
+const double AbstractNonlinearElasticityAssembler<DIM>::MAX_NEWTON_ABS_TOL = 1e-8;
+
+template<unsigned DIM>
+const double AbstractNonlinearElasticityAssembler<DIM>::MIN_NEWTON_ABS_TOL = 1e-12;
+
+template<unsigned DIM>
+const double AbstractNonlinearElasticityAssembler<DIM>::NEWTON_REL_TOL = 1e-4;
+
 
 #endif /*ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_*/

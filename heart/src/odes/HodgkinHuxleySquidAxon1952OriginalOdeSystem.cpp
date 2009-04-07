@@ -31,6 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 
+//
+// Model-scope constant parameters
+//
+const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::leakage_current_g_L = 0.3;
+const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::membrane_Cm = 1.0;
+const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::membrane_E_R = -75.0;
+const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::potassium_channel_g_K = 36.0;
+const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::sodium_channel_g_Na = 120.0;
+
+
+
 /**
  * Constructor
  */

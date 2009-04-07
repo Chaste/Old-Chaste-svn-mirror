@@ -35,6 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 
 
+/**
+ * \todo this class needs documenting!!!!!
+ */
 template<unsigned SPACE_DIM>
 class StreeterFibreGenerator
 {
@@ -61,8 +64,8 @@ private:
     };
 
     // Area of the septum considered to belong to the each ventricle (relative to 1)
-    static const double LEFT_SEPTUM_SIZE = 2.0/3.0;
-    static const double RIGHT_SEPTUM_SIZE = 1.0/3.0;
+    static const double LEFT_SEPTUM_SIZE;
+    static const double RIGHT_SEPTUM_SIZE;
 
 
     inline RegionType_ GetHeartRegion (unsigned nodeIndex) const;

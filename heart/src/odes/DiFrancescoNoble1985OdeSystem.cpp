@@ -32,6 +32,53 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include <iostream>
 #include "Exception.hpp"
 
+//
+// Model-scope constant parameters
+//
+const double DiFrancescoNoble1985OdeSystem::membrane_C = 75.0;
+const double DiFrancescoNoble1985OdeSystem::radius = 0.05;
+const double DiFrancescoNoble1985OdeSystem::length = 2;
+const double DiFrancescoNoble1985OdeSystem::V_e_ratio = 0.1;
+const double DiFrancescoNoble1985OdeSystem::R = 8314.472;
+const double DiFrancescoNoble1985OdeSystem::T = 310;
+const double DiFrancescoNoble1985OdeSystem::F = 96485.3415;
+// conductances and the likes
+const double DiFrancescoNoble1985OdeSystem::g_fna = 3;
+const double DiFrancescoNoble1985OdeSystem::g_fk = 3;
+const double DiFrancescoNoble1985OdeSystem::g_na_b = 0.18;
+const double DiFrancescoNoble1985OdeSystem::g_ca_b = 0.02;
+const double DiFrancescoNoble1985OdeSystem::g_na = 750.0;
+const double DiFrancescoNoble1985OdeSystem::g_k1 = 920;
+const double DiFrancescoNoble1985OdeSystem::g_to = 0.28;
+const double DiFrancescoNoble1985OdeSystem::I_P = 125;
+const double DiFrancescoNoble1985OdeSystem::i_kmax = 180;
+const double DiFrancescoNoble1985OdeSystem::k_naca = 0.02;
+const double DiFrancescoNoble1985OdeSystem::P_si = 15.0;
+// concentrations
+const double DiFrancescoNoble1985OdeSystem::Nao = 140;
+const double DiFrancescoNoble1985OdeSystem::Cao = 2;
+const double DiFrancescoNoble1985OdeSystem::Kb = 4;
+const double DiFrancescoNoble1985OdeSystem::Kmf = 45;
+const double DiFrancescoNoble1985OdeSystem::Km1 = 210;
+const double DiFrancescoNoble1985OdeSystem::Kmto = 10;
+const double DiFrancescoNoble1985OdeSystem::KmK = 1;
+const double DiFrancescoNoble1985OdeSystem::KmNa = 40;
+const double DiFrancescoNoble1985OdeSystem::Kmf2 = 0.001;
+const double DiFrancescoNoble1985OdeSystem::KmCa = 0.001;
+const double DiFrancescoNoble1985OdeSystem::Km_Ca = 0.0005;
+// others
+const double DiFrancescoNoble1985OdeSystem::n_naca = 3;
+const double DiFrancescoNoble1985OdeSystem::gamma = 0.5;
+const double DiFrancescoNoble1985OdeSystem::d_naca = 0.001;
+const double DiFrancescoNoble1985OdeSystem::rCa = 2.0;
+const double DiFrancescoNoble1985OdeSystem::tau_up = 0.025;
+const double DiFrancescoNoble1985OdeSystem::tau_rep = 2;
+const double DiFrancescoNoble1985OdeSystem::tau_rel = 0.05;
+const double DiFrancescoNoble1985OdeSystem::Ca_up_max = 5;
+const double DiFrancescoNoble1985OdeSystem::pf = 0.0007;
+const double DiFrancescoNoble1985OdeSystem::Vecs = 0.05;
+
+
 /*Constructor*/
 DiFrancescoNoble1985OdeSystem::DiFrancescoNoble1985OdeSystem(AbstractIvpOdeSolver *pSolver,
                                            AbstractStimulusFunction *pIntracellularStimulus)

@@ -29,6 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 #include <cmath>
 
+//
+// Model-scope constant parameters
+//
+const double FitzHughNagumo1961OdeSystem::mAlpha = -0.08; 
+const double FitzHughNagumo1961OdeSystem::mGamma = 3.00;
+const double FitzHughNagumo1961OdeSystem::mEpsilon = 0.005;
+
+
 /**
  * Constructor
  */

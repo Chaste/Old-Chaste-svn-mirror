@@ -41,49 +41,49 @@ class DiFrancescoNoble1985OdeSystem : public AbstractCardiacCell
 private:
 
     /* Constants for the DifrancescoNoble1985 model */
-    static const double membrane_C = 75;//nanoF. It must be so because dV/dt is in mV/ms and currents are in nA.
-    static const double radius = 0.05;//mm
-    static const double length = 2;//mmm
-    static const double V_e_ratio=0.1;//dimensionless
-    static const double R=8314.472; //J/(kmol*Kelvin)
-    static const double T=310; //Kelvin
-    static const double F=96485.3415; //C/mol
+    static const double membrane_C; /**< nanoF. It must be so because dV/dt is in mV/ms and currents are in nA. */
+    static const double radius; /**< mm */
+    static const double length; /**< mmm */
+    static const double V_e_ratio; /**< dimensionless */
+    static const double R; /**< J/(kmol*Kelvin) */
+    static const double T; /**< Kelvin */
+    static const double F; /**< C/mol */
 
-    //conductances and the likes
-    static const double g_fna = 3; //microS
-    static const double g_fk = 3; //microS
-    static const double g_na_b = 0.18; //microS
-    static const double g_ca_b = 0.02; //microS
-    static const double g_na = 750.0; //microS
-    static const double g_k1 = 920; //microS
-    static double const g_to = 0.28; //microS/mM
-    static const double I_P = 125; //nA
-    static const double i_kmax = 180;//nA
-    static const double k_naca=0.02; //nA
-    static const double P_si=15.0;//nA/mM
+    // conductances and the like
+    static const double g_fna; /**< microS */
+    static const double g_fk; /**< microS */
+    static const double g_na_b; /**< microS */
+    static const double g_ca_b; /**< microS */
+    static const double g_na; /**< microS */
+    static const double g_k1; /**< microS */
+    static const double g_to; /**< microS/mM */
+    static const double I_P; /**< nA */
+    static const double i_kmax; /**< nA */
+    static const double k_naca; /**< nA */
+    static const double P_si; /**< nA/mM */
     //concentrations
-    static const double Nao = 140; //mM
-    static const double Cao = 2; //mM
-    static const double Kb = 4;//mM
-    static const double Kmf= 45; //mM
-    static const double Km1= 210; //mM
-    static const double Kmto= 10; //mM
-    static const double KmK= 1; //mM
-    static const double KmNa=40; //mM
-    static const double Kmf2=0.001; //mM
-    static const double KmCa=0.001;//mM
-    static const double Km_Ca=0.0005;//mM
+    static const double Nao; /**< mM */
+    static const double Cao; /**< mM */
+    static const double Kb; /**< mM */
+    static const double Kmf; /**< mM */
+    static const double Km1; /**< mM */
+    static const double Kmto; /**< mM */
+    static const double KmK; /**< mM */
+    static const double KmNa; /**< mM */
+    static const double Kmf2; /**< mM */
+    static const double KmCa; /**< mM */
+    static const double Km_Ca; /**< mM */
     //others
-    static const double n_naca=3; //dimensionless
-    static const double gamma=0.5; //dimensionless
-    static const double d_naca=0.001; //dimensionless
-    static const double rCa=2.0;//dimensionless
-    static const double tau_up=0.025;//seconds. Must be seconds to cancel with numerator of F and give nA for i_up
-    static const double tau_rep=2; //seconds. Must be seconds to cancel with numerator of F and give nA for i_rep
-    static const double tau_rel=0.05; //seconds. Must be seconds to cancel with numerator of F and give nA for i_rel
-    static const double Ca_up_max=5;//mM
-    static const double pf=0.0007;//per millisecond
-    static const double Vecs=0.05;//dimensionless
+    static const double n_naca; /**< dimensionless */
+    static const double gamma; /**< dimensionless */
+    static const double d_naca; /**< dimensionless */
+    static const double rCa; /**< dimensionless */
+    static const double tau_up; /**< seconds. Must be seconds to cancel with numerator of F and give nA for i_up */
+    static const double tau_rep; /**< seconds. Must be seconds to cancel with numerator of F and give nA for i_rep */
+    static const double tau_rel; /**< seconds. Must be seconds to cancel with numerator of F and give nA for i_rel */
+    static const double Ca_up_max; /**< mM */
+    static const double pf; /**< per millisecond */
+    static const double Vecs; /**< dimensionless */
     //other parameters function of the above constants
     double Vi, Vup, Vrel, Ve;
     double Vcell;

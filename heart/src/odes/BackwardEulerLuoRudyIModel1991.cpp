@@ -35,6 +35,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include <iostream>
 
 
+//
+// Constant model-scope parameters
+//
+const double BackwardEulerLuoRudyIModel1991::membrane_C = 1.0;
+const double BackwardEulerLuoRudyIModel1991::membrane_F = 96484.6;
+const double BackwardEulerLuoRudyIModel1991::membrane_R = 8314;
+const double BackwardEulerLuoRudyIModel1991::membrane_T = 310.0;    
+const double BackwardEulerLuoRudyIModel1991::background_current_E_b = -59.87;
+const double BackwardEulerLuoRudyIModel1991::background_current_g_b = 0.03921;    
+const double BackwardEulerLuoRudyIModel1991::fast_sodium_current_g_Na = 23.0;
+const double BackwardEulerLuoRudyIModel1991::ionic_concentrations_Ki = 145.0;
+const double BackwardEulerLuoRudyIModel1991::ionic_concentrations_Ko = 5.4;
+const double BackwardEulerLuoRudyIModel1991::ionic_concentrations_Nai = 18.0;
+const double BackwardEulerLuoRudyIModel1991::ionic_concentrations_Nao = 140.0;
+const double BackwardEulerLuoRudyIModel1991::plateau_potassium_current_g_Kp = 0.0183;
+const double BackwardEulerLuoRudyIModel1991::time_dependent_potassium_current_PR_NaK = 0.01833;
+
 /**
  * Constructor
  */

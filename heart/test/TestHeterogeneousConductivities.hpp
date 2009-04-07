@@ -47,35 +47,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 using std::ofstream;
 
-
-
 /* test class*/
 class TestHeterogeneousConductivities : public CxxTest::TestSuite
 {
-
-    static const double width=0.1;
-    static const double height=0.1;
-    static const double depth=0.1;
-
-
 public:
     void TestSimpleSimulation() throw(Exception)
     {
         /*Simulation parameters*/
         HeartConfig::Instance()->SetSimulationDuration(0.7); //ms (falls over after this)
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);
-       // HeartConfig::Instance()->SetOdeTimeStep(0.01);
+        //HeartConfig::Instance()->SetOdeTimeStep(0.01);
 
+        const double width = 0.1;
+        const double height = 0.1;
+        const double depth = 0.1;
 
-        unsigned num_elem_x = 8;
-        unsigned num_elem_y=8;
-        unsigned num_elem_z=8;
+        const unsigned num_elem_x = 8;
+        const unsigned num_elem_y = 8;
+        const unsigned num_elem_z = 8;
 
         /* Read the mesh*/
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z,  false);
         mesh.Scale(width/num_elem_x, height/num_elem_y, depth/num_elem_z);
-
 
         /*Create a cell factory of the type we defined above. */
         GeneralPlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(num_elem_x, width);
@@ -103,9 +97,9 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.2, 1.2, 1.2));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1.2, 1.2, 1.2));
 
-       /* set  parameters*/
-       // HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-       // HeartConfig::Instance()->SetCapacitance(1.0);
+        /* set  parameters*/
+        // HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        // HeartConfig::Instance()->SetCapacitance(1.0);
 
          /* Output Directory and prefix (for the hdf5 file), relative to CHASTE_TEST_OUTPUT*/
         HeartConfig::Instance()->SetOutputDirectory("slab_results_het_halfcond");

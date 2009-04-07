@@ -31,6 +31,62 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include "Exception.hpp"
 
+
+//
+// Model-scope constant parameters
+//
+const double TenTusscher2006OdeSystem::L_type_Ca_current_g_CaL = 0.0000398;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::calcium_background_current_g_bca = 0.000592;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::calcium_dynamics_Buf_c = 0.2;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_Buf_sr = 10.0;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_Buf_ss = 0.4;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_Ca_o = 2.0;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_EC = 1.5;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_K_buf_c = 0.001;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_K_buf_sr = 0.3;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_K_buf_ss = 0.00025;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_K_up = 0.00025;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_dynamics_V_leak = 0.00036;   // millimolar_per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_V_rel = 0.102;   // millimolar_per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_V_sr = 0.001094;   // micrometre3
+const double TenTusscher2006OdeSystem::calcium_dynamics_V_ss = 0.00005468;   // micrometre3
+const double TenTusscher2006OdeSystem::calcium_dynamics_V_xfer = 0.0038;   // millimolar_per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_Vmax_up = 0.006375;   // millimolar_per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_k1_prime = 0.15;   // per_millimolar2_per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_k2_prime = 0.045;   // per_millimolar_per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_k3 = 0.06;   // per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_k4 = 0.005;   // per_millisecond
+const double TenTusscher2006OdeSystem::calcium_dynamics_max_sr = 2.5;   // dimensionless
+const double TenTusscher2006OdeSystem::calcium_dynamics_min_sr = 1.0;   // dimensionless
+const double TenTusscher2006OdeSystem::calcium_pump_current_K_pCa = 0.0005;   // millimolar
+const double TenTusscher2006OdeSystem::calcium_pump_current_g_pCa = 0.1238;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::fast_sodium_current_g_Na = 14.838;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::inward_rectifier_potassium_current_g_K1 = 5.405;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::membrane_Cm = 0.185;   // microF_per_cm2
+const double TenTusscher2006OdeSystem::membrane_F = 96485.3415;   // coulomb_per_millimole
+const double TenTusscher2006OdeSystem::membrane_R = 8314.472;   // joule_per_mole_kelvin
+const double TenTusscher2006OdeSystem::membrane_T = 310.0;   // kelvin
+const double TenTusscher2006OdeSystem::membrane_V_c = 0.016404;   // micrometre3
+const double TenTusscher2006OdeSystem::potassium_dynamics_K_o = 5.4;   // millimolar
+const double TenTusscher2006OdeSystem::potassium_pump_current_g_pK = 0.0146;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::rapid_time_dependent_potassium_current_g_Kr = 0.153;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::reversal_potentials_P_kna = 0.03;   // nanoA_per_millimolar
+const double TenTusscher2006OdeSystem::slow_time_dependent_potassium_current_g_Ks = 0.392;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::sodium_background_current_g_bna = 0.00029;   // nanoS_per_picoF
+const double TenTusscher2006OdeSystem::sodium_calcium_exchanger_current_K_NaCa = 1000.0;   // picoA_per_picoF
+const double TenTusscher2006OdeSystem::sodium_calcium_exchanger_current_K_sat = 0.1;   // dimensionless
+const double TenTusscher2006OdeSystem::sodium_calcium_exchanger_current_Km_Ca = 1.38;   // millimolar
+const double TenTusscher2006OdeSystem::sodium_calcium_exchanger_current_Km_Nai = 87.5;   // millimolar
+const double TenTusscher2006OdeSystem::sodium_calcium_exchanger_current_alpha = 2.5;   // dimensionless
+const double TenTusscher2006OdeSystem::sodium_calcium_exchanger_current_gamma = 0.35;   // dimensionless
+const double TenTusscher2006OdeSystem::sodium_dynamics_Na_o = 140.0;   // millimolar
+const double TenTusscher2006OdeSystem::sodium_potassium_pump_current_K_mNa = 40.0;   // millimolar
+const double TenTusscher2006OdeSystem::sodium_potassium_pump_current_K_mk = 1.0;   // millimolar
+const double TenTusscher2006OdeSystem::sodium_potassium_pump_current_P_NaK = 2.724;   // picoA_per_picoF
+const double TenTusscher2006OdeSystem::transient_outward_current_g_to = 0.294;   // nanoS_per_picoF
+
+
+
 /*Constructor*/
 TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(
         AbstractIvpOdeSolver *pSolver,

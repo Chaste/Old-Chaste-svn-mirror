@@ -35,6 +35,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 
+// Area of the septum considered to belong to the each ventricle (relative to 1)
+template<unsigned SPACE_DIM>
+const double StreeterFibreGenerator<SPACE_DIM>::LEFT_SEPTUM_SIZE = 2.0/3.0;
+
+template<unsigned SPACE_DIM>
+const double StreeterFibreGenerator<SPACE_DIM>::RIGHT_SEPTUM_SIZE = 1.0/3.0;
+
+
 template<unsigned SPACE_DIM>
 typename StreeterFibreGenerator<SPACE_DIM>::RegionType_
     StreeterFibreGenerator<SPACE_DIM>::GetHeartRegion(unsigned nodeIndex) const
