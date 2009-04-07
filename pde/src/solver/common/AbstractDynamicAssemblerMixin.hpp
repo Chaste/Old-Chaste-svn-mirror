@@ -182,18 +182,20 @@ void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetTime
 {
     mTstart = tStart;
     mTend   = tEnd;
-    mDt     = dt;
-    mDtInverse = 1/dt;
 
     if (mTstart >= mTend)
     {
         EXCEPTION("Starting time has to less than ending time");
     }
+
+    mDt     = dt;
+
     if (mDt <= 0)
     {
         EXCEPTION("Time step has to be greater than zero");
     }
 
+    mDtInverse = 1/dt;
     mTimesSet = true;
 }
 

@@ -53,13 +53,16 @@ class TestGenericEventHandler : public CxxTest::TestSuite
 public:
 
     void TestEvents() throw(Exception)
-    {
+    {  
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
+        //The first BeginEvent implicitly calls:
+        //AnEventHandler::BeginEvent(AnEventHandler::TEST3);
+        
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         for (unsigned i=0; i<1000000; i++);
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
 
-        AnEventHandler::BeginEvent(AnEventHandler::TEST3);
+       
         for (unsigned i=0; i<1000000; i++);
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
 

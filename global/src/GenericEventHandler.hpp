@@ -123,6 +123,15 @@ public:
             return;
         }
         CheckVectorSizes();
+        //Check that we are recording the total
+        if (event<NUM_EVENTS-1)
+        {
+            if (!mHasBegun[NUM_EVENTS-1])
+            {
+                //Silently open the "total" event
+                BeginEvent(NUM_EVENTS-1);
+            }
+        }
         if (mHasBegun[event])
         {
             std::string msg;
