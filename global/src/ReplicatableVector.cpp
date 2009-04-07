@@ -60,26 +60,25 @@ void ReplicatableVector::RemovePetscContext()
 // Constructors & destructors
 
 ReplicatableVector::ReplicatableVector()
+    : mToAll(NULL),
+      mReplicated(NULL),
+      mDistributed(NULL)
 {
-    mToAll = NULL;
-    mReplicated = NULL;
-    mDistributed = NULL;
 }
 
 ReplicatableVector::ReplicatableVector(Vec vec)
+    : mToAll(NULL),
+      mReplicated(NULL),
+      mDistributed(NULL)
 {
-    mToAll = NULL;
-    mReplicated = NULL;
-    mDistributed = NULL;
-
     ReplicatePetscVector(vec);
 }
 
 ReplicatableVector::ReplicatableVector(unsigned size)
+    : mToAll(NULL),
+      mReplicated(NULL),
+      mDistributed(NULL)
 {
-    mToAll = NULL;
-    mReplicated = NULL;
-    mDistributed = NULL;
     resize(size);
 }
 

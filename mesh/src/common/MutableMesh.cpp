@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()
+    : mAddedNodes(false)
 {
-    mAddedNodes = false;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -66,7 +66,7 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
     }
     else
     {
-        unsigned index=mDeletedNodeIndices.back();
+        unsigned index = mDeletedNodeIndices.back();
         pNewNode->SetIndex(index);
         mDeletedNodeIndices.pop_back();
         delete this->mNodes[index];
@@ -92,7 +92,6 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 {
     return this->mBoundaryElements.size() - mDeletedBoundaryElementIndices.size();
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const

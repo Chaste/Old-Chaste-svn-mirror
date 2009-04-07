@@ -30,15 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 ProgressReporter::ProgressReporter(std::string outputDirectory, double startTime, double endTime)
     : mStartTime(startTime),
-      mEndTime(endTime)
+      mEndTime(endTime),
+      mLastPercentage(UINT_MAX)
 {
     assert(startTime < endTime);
 
     // note we make sure we don't delete anything in the output directory
     OutputFileHandler handler(outputDirectory, false);
     mpFile = handler.OpenOutputFile("progress_status.txt");
-
-    mLastPercentage = UINT_MAX;
 }
 
 ProgressReporter::~ProgressReporter()

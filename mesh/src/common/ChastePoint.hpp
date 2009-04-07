@@ -142,8 +142,8 @@ ChastePoint<DIM>::ChastePoint(std::vector<double> coords)
 
 template<unsigned DIM>
 ChastePoint<DIM>::ChastePoint(c_vector<double, DIM> location)
+    : mLocation(location)
 {
-    mLocation = location;
 }
 
 template<unsigned DIM>

@@ -31,15 +31,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory)
-    : ColumnDataWriter::ColumnDataWriter(directory, baseName, cleanDirectory)
+    : ColumnDataWriter::ColumnDataWriter(directory, baseName, cleanDirectory),
+      mConcentrated(NULL)
 {
-    mConcentrated = NULL;
-
     int num_procs, my_rank;
     MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
     if (num_procs==1)
     {
-        mIsParallel=false;
+        mIsParallel = false;
     }
     else
     {

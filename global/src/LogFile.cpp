@@ -34,11 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 LogFile* LogFile::mpInstance = NULL;
 
 LogFile::LogFile()
+    : mFileSet(false),
+      mInitTime(time(NULL)),
+      mLevel(0),
+      mPrecision(6)
 {
-    mFileSet = false;
-    mLevel = 0;
-    mInitTime = time(NULL);
-    mPrecision = 6;
 }
 
 

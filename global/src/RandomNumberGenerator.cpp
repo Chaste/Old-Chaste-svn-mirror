@@ -33,9 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 RandomNumberGenerator* RandomNumberGenerator::mpInstance = NULL;
 
 RandomNumberGenerator::RandomNumberGenerator()
+    : mSeed(0),
+      mTimesCalled(0)
 {
-    mSeed = 0;
-    mTimesCalled = 0;
     srandom(0);
 }
 

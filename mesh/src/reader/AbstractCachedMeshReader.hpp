@@ -154,17 +154,14 @@ public:
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::AbstractCachedMeshReader()
+    : mNumNodeAttributes(0),
+      mMaxNodeBdyMarker(0),
+      mNumElementNodes(0),
+      mNumElementAttributes(0),
+      mMaxFaceBdyMarker(0),
+      mIndexFromZero(false) // Initially assume that nodes are not numbered from zero
 {
-    /// \todo use C++ initialisers (#155)
-    mNumNodeAttributes = 0;
-    mMaxNodeBdyMarker = 0;
-    mNumElementNodes = 0;
-    mNumElementAttributes = 0;
-    mMaxFaceBdyMarker = 0;
-
     // We have initialized all numeric variables to zero
-
-    mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
 }
 
 
