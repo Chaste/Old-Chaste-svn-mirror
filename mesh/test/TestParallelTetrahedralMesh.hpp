@@ -599,7 +599,10 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer("", filename);
         mesh_writer.WriteFilesUsingMeshReader(mesh_reader, mesh.rGetNodePermutation());
 
-        std::string output_dir = mesh_writer.GetOutputDirectory();
+        //Make sure everyone finishes writing
+        PetscTools::Barrier();
+        
+        std::string output_dir = mesh_writer.GetOutputDirectory();        
         TrianglesMeshReader<3,3> permuted_mesh_reader(output_dir+filename);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
