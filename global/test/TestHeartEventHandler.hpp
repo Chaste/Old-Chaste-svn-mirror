@@ -27,6 +27,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+
+
+
 #ifndef TESTHEARTEVENTHANDLER_HPP_
 #define TESTHEARTEVENTHANDLER_HPP_
 
@@ -62,9 +65,6 @@ public:
         HeartEventHandler::Headings();
 
         HeartEventHandler::Report();
-
-        HeartEventHandler::Report();
-
     }
 
     void TestParallelPrinting() throw (Exception)
@@ -79,7 +79,12 @@ public:
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
         if (PetscTools::GetMyRank() != PetscTools::NumProcs()-1)
         {
-            for (unsigned i=0; i<20000000; i++);
+            for (unsigned i=0; i<80000000; i++);
+        }
+        else
+        {
+            //Master process has smaller amount of work
+            for (unsigned i=0; i<10000000; i++);
         }
         HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 

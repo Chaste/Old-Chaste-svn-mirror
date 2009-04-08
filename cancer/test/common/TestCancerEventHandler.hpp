@@ -103,8 +103,6 @@ public:
         CancerEventHandler::Headings();
 
         CancerEventHandler::Report();
-
-        CancerEventHandler::Report();
     }
 };
 

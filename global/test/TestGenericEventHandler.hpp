@@ -72,8 +72,8 @@ public:
 
         AnEventHandler::Report();
 
-        AnEventHandler::Report();
-
+        //No longer allowed to report twice
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::Report());
     }
 
     void TestEventExceptions() throw(Exception)

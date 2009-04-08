@@ -56,7 +56,7 @@ private:
     static std::vector<bool> mHasBegun; /**< Whether each event is in progress */
     static bool mEnabled; /**< Whether the event handler is recording event times */
     static bool mInitialised; /**< For internal use */
-
+    static bool mInUse; /**< Determines if any of the event have begun */
     /** Helper function - get the current CPU clock tick count */
     inline static double GetCpuTime()
     {
@@ -108,6 +108,7 @@ public:
             mHasBegun[event] = false;
         }
         Enable();
+        mInUse=false;
     }
 
     /**
@@ -117,11 +118,12 @@ public:
      */
     static void BeginEvent(unsigned event) throw (Exception)
     {
-        assert(event<NUM_EVENTS);
         if (!mEnabled)
         {
             return;
         }
+        mInUse=true;
+        assert(event<NUM_EVENTS);
         CheckVectorSizes();
         //Check that we are recording the total
         if (event<NUM_EVENTS-1)
@@ -216,7 +218,19 @@ public:
         {
             EXCEPTION("Asked to report on a disabled event handler.  Check for contributory errors above.");
         }
-
+        if (!mInUse)
+        {
+            EXCEPTION("Asked to report on an event handler which is set to zero.");
+        }
+        //Check that all events are finished
+        for (unsigned event=0; event<NUM_EVENTS; event++)
+        {
+            if (mHasBegun[event])
+            {
+                //Silently close event
+                EndEvent(event);
+            }
+        }
         const unsigned top_event = NUM_EVENTS-1;
         double total = ConvertTicksToSeconds(mCpuTime[top_event]);
         for (unsigned turn=0; turn<PetscTools::NumProcs(); turn++)
@@ -342,5 +356,8 @@ bool GenericEventHandler<NUM_EVENTS, CONCRETE>::mEnabled = true;
 
 template<unsigned NUM_EVENTS, class CONCRETE>
 bool GenericEventHandler<NUM_EVENTS, CONCRETE>::mInitialised = false;
+
+template<unsigned NUM_EVENTS, class CONCRETE>
+bool GenericEventHandler<NUM_EVENTS, CONCRETE>::mInUse = false;
 
 #endif /*GENERICEVENTHANDLER_HPP_*/
