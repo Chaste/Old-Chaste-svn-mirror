@@ -511,7 +511,7 @@ public:
          *
          * @param other iterator with which comparison is made
          */
-        inline bool operator!=(const Iterator& other);
+        inline bool operator!=(const AbstractTissue<DIM>::Iterator& other);
 
         /**
          * Prefix increment operator.
