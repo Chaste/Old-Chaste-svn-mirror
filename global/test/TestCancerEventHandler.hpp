@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 #include "CancerEventHandler.hpp"
-
+#define MPISLEEP(secs) {double _start=MPI_Wtime(); while (MPI_Wtime()-_start < (secs));}
 /**
  * This class consists of a single test for the CancerEventHandler
  * class.
@@ -44,58 +44,35 @@ public:
         CancerEventHandler::BeginEvent(CancerEventHandler::EVERYTHING);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::SETUP);
-        for (unsigned i=0; i<1000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.01);
+        
         CancerEventHandler::EndEvent(CancerEventHandler::SETUP);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
-        for (unsigned i=0; i<10000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.02);
         CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
-        for (unsigned i=0; i<20000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.03);
         CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
         CancerEventHandler::BeginEvent(CancerEventHandler::UPDATE);
-        for (unsigned i=0; i<30000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.04);
         CancerEventHandler::EndEvent(CancerEventHandler::UPDATE);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        for (unsigned i=0; i<10000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.05);
         CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::FORCE);
-        for (unsigned i=0; i<10000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.06);
         CancerEventHandler::EndEvent(CancerEventHandler::FORCE);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::POSITION);
-        for (unsigned i=0; i<10000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.07);
         CancerEventHandler::EndEvent(CancerEventHandler::POSITION);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
-        for (unsigned i=0; i<10000000; i++)
-        {
-            // do nothing
-        }
+        MPISLEEP(0.08);
         CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
 
         CancerEventHandler::EndEvent(CancerEventHandler::EVERYTHING);

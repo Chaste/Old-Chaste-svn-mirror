@@ -1,4 +1,5 @@
 TestArchiving.hpp
+TestCancerEventHandler.hpp
 TestCwd.hpp
 TestDebug.hpp
 TestDistributedVector.hpp

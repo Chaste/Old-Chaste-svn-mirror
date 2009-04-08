@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTGENERICEVENTHANDLER_HPP_
 
 #include "GenericEventHandler.hpp"
+#define MPISLEEP(secs) {double _start=MPI_Wtime(); while (MPI_Wtime()-_start < (secs));}
 
 class AnEventHandler : public GenericEventHandler<3, AnEventHandler>
 {
@@ -59,11 +60,11 @@ public:
         //AnEventHandler::BeginEvent(AnEventHandler::TEST3);
         
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
-        for (unsigned i=0; i<1000000; i++);
+        MPISLEEP(0.01);
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
 
        
-        for (unsigned i=0; i<1000000; i++);
+        MPISLEEP(0.01);
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
 
         AnEventHandler::EndEvent(AnEventHandler::TEST1);
@@ -129,6 +130,13 @@ public:
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
         AnEventHandler::EndEvent(AnEventHandler::TEST1);
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
+        
+        AnEventHandler::BeginEvent(AnEventHandler::TEST2);
+        MPISLEEP(0.01);//Seconds
+        AnEventHandler::EndEvent(AnEventHandler::TEST2);
+        //Test in milliseconds
+        TS_ASSERT_DELTA(10.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 1.0);
+                   
     }
 };
 

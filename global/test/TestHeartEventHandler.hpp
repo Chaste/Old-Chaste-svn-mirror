@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
+#define MPISLEEP(secs) {double _start=MPI_Wtime(); while (MPI_Wtime()-_start < (secs));}
+
 
 class TestHeartEventHandler : public CxxTest::TestSuite
 {
@@ -45,18 +47,18 @@ public:
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
-        for (unsigned i=0; i<1000000; i++);
+        MPISLEEP(0.01);
         HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
 
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
-        for (unsigned i=0; i<10000000; i++);
+        MPISLEEP(0.01);
         HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
         HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
-        for (unsigned i=0; i<20000000; i++);
+        MPISLEEP(0.01);
 
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
-        for (unsigned i=0; i<30000000; i++);
+        MPISLEEP(0.01);
         HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
         HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
@@ -79,12 +81,12 @@ public:
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
         if (PetscTools::GetMyRank() != PetscTools::NumProcs()-1)
         {
-            for (unsigned i=0; i<80000000; i++);
+            MPISLEEP(0.05);
         }
         else
         {
             //Master process has smaller amount of work
-            for (unsigned i=0; i<10000000; i++);
+            MPISLEEP(0.01);
         }
         HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 

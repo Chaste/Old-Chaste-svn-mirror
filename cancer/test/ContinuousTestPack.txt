@@ -3,7 +3,6 @@ cell/TestOdeBasedCellCycleModels.hpp
 cell/TestSimpleCellCycleModels.hpp
 cell/TestTissueCell.hpp
 cell/TestWntConcentration.hpp
-common/TestCancerEventHandler.hpp
 common/TestCancerParameters.hpp
 common/TestSimulationTime.hpp
 mesh/TestCylindrical2dMesh.hpp
