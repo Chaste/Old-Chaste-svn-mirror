@@ -91,6 +91,42 @@ public:
         TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_INDEFINITE_PC) );
         TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(-735827) );
     }
+    
+    void TestDivideOneByZero() throw(Exception)
+    {
+        double one=1.0;
+        double zero=0.0;
+        double ans;
+#ifdef TEST_FOR_FPE
+//If we are testing for divide-by-zero, then this will throw an exception
+        TS_FAIL("Todo: the next line would abort if uncommented");
+        //TS_ASSERT_THROWS_ANYTHING(ans = one / zero);
+        ans=zero*one;//otherwise compiler would complain
+#else
+//If we aren't testing for it, then there will be no exception
+        TS_ASSERT_THROWS_NOTHING(ans = one / zero);
+#endif
+        double negative_infinity=std::numeric_limits<double>::infinity();
+        TS_ASSERT_EQUALS(ans, negative_infinity);
+
+    }
+    
+    void TestDivideZeroByZero() throw(Exception)
+    {
+        double zero=0.0;
+        double ans;
+#ifdef TEST_FOR_FPE
+//If we are testing for divide-by-zero, then this will throw an exception
+        TS_FAIL("Todo: the next line would abort if uncommented");
+        //TS_ASSERT_THROWS_ANYTHING(ans = -zero / zero);
+        ans=zero;//otherwise compiler would complain
+#else
+//If we aren't testing for it, then there will be no exception
+        TS_ASSERT_THROWS_NOTHING(ans = zero / zero);
+#endif
+        
+        TS_ASSERT(std::isnan(ans));
+    }
 };
 
 

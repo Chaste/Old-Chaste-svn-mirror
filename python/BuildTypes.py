@@ -903,6 +903,9 @@ def GetBuildType(buildType):
         elif extra == 'ndebug':
             obj._cc_flags.append('-DNDEBUG')
             obj.build_dir += '_ndebug'
+        elif extra == 'fpe':
+            obj._cc_flags.append('-DTEST_FOR_FPE')
+            obj.build_dir += '_fpe'
         elif extra == 'dealii':
             obj.UseDealii(True)
         elif extra == 'debug':

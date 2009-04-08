@@ -38,16 +38,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * on finalisation.
  */
 
+#ifdef TEST_FOR_FPE
+#include <fenv.h>
+#include <signal.h>
+#endif
 #include <cxxtest/GlobalFixture.h>
 #include <petsc.h>
 #include <cstdlib>
 #include <unistd.h>
 #include <iostream>
-
 #include "Exception.hpp"
 #include "PetscException.hpp"
 #include "PetscArguments.hpp"
 #include "Version.hpp"
+
+#ifdef TEST_FOR_FPE
+void FpeSignalToException(int sig_num, siginfo_t* info, void* context )
+{
+       //ucontext_t *ucontext=(ucontext_t*) context;
+       //\todo #490 SIGFPE is still fatal - exception won't be the end of it.
+       EXCEPTION("SIGFPE: floating point exception.");
+}
+#endif
 
 class PetscSetup : public CxxTest::GlobalFixture
 {
@@ -68,7 +80,17 @@ public:
         std::cout << "Root: " << GetChasteRoot() << std::endl;
         EXPECT0(chdir, GetChasteRoot());
         std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
-
+       
+ #ifdef TEST_FOR_FPE
+        //Give all PETSc enabled tests the ability to trap for divide-by-zero
+        feenableexcept(FE_DIVBYZERO | FE_INVALID );
+        //Catch all SIGFPE signals and convert them to exceptions (before PETSc gets to them).
+        struct sigaction sa;
+        sa.sa_sigaction = FpeSignalToException;
+        sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
+        sa.sa_restorer = 0;
+        sigaction(SIGFPE, &sa, NULL);
+ #endif       
         return true;
     }
     /** Clean up PETSc after running all tests. */
