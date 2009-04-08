@@ -70,8 +70,8 @@ def index(req):
       output.append('\n    <li><a href="%s/recent?type=%s">Recent %s builds.</a></li>' %
                     (_our_url, tests_type, tests_type))
   output.append("""</ul>
-  <p>Branch builds:</p>
-  <ul>""")
+  <p><a onclick="toggle_visibility('branch-list');">Branch builds:</a></p>
+  <ul id='branch-list' style='display:none;'>""")
   for tests_type in branch_types:
       output.append('\n    <li><a href="%s/recent?type=%s">Recent %s builds.</a></li>' %
                     (_our_url, tests_type, tests_type))
@@ -996,7 +996,19 @@ def _header(title=""):
     <title>Chaste Tests%s</title>
     <link rel="stylesheet" href="/style.css" type="text/css">
   </head>
-  <body>""" % title
+  <body>
+  <script type="text/javascript">
+<!--
+    function toggle_visibility(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+//-->
+</script>
+""" % title
   return header
 
 def _footer():
