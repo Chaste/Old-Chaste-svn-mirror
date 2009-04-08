@@ -118,6 +118,34 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,3> &m)
              (m(1,0)*m(2,1) - m(1,1)*m(2,0));
 };
 
+/**
+ * Calculate the generalized determinant of a 2x1 matrix.
+ * 
+ * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ */
+template<class T>
+T Determinant(const boost::numeric::ublas::c_matrix<T,2,1> &m)
+{
+    using namespace boost::numeric::ublas;
+
+    return   std::sqrt(m(0,0) * m(0,0) + m(1,0) * m(1,0));
+             
+};
+
+/**
+ * Calculate the generalized determinant of a 3x1 matrix.
+ * 
+ * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ */
+template<class T>
+T Determinant(const boost::numeric::ublas::c_matrix<T,3,1> &m)
+{
+    using namespace boost::numeric::ublas;
+
+    return   std::sqrt(m(0,0)*m(0,0) + m(1,0)*m(1,0) + m(2,0)*m(2,0));
+             
+};
+
 
 /**
  * Return the determinant of a submatrix after removing a particular row and column
@@ -188,6 +216,45 @@ boost::numeric::ublas::c_matrix<T, 3, 3> Inverse(const boost::numeric::ublas::c_
     inverse(0,2)  =  (m(0,1)*m(1,2)-m(0,2)*m(1,1))/det;
     inverse(1,2)  = - (m(0,0)*m(1,2)-m(0,2)*m(1,0))/det;
     inverse(2,2)  =  (m(0,0)*m(1,1)-m(0,1)*m(1,0))/det;
+    return inverse;
+};
+
+/**
+ * Calculates the pseudo-inverse of a 2x1 matrix.
+ * 
+ * The pseudo inverse is given by pinv(T) = (T'T)^(-1)*T'
+ */
+template<class T>
+boost::numeric::ublas::c_matrix<T, 1, 2> Inverse(const boost::numeric::ublas::c_matrix<T, 2, 1> &m)
+{
+    using namespace boost::numeric::ublas;
+
+    c_matrix<T, 1, 2> inverse;
+    T det = Determinant(m);
+
+    inverse(0,0)  =  m(0,0)/det/det;
+    inverse(0,1)  =  m(1,0)/det/det;
+    
+    return inverse;
+};
+
+/**
+ * Calculates the pseudo-inverse of a 3x1 matrix.
+ * 
+ * The pseudo inverse is given by pinv(T) = (T'T)^(-1)*T'
+ */
+template<class T>
+boost::numeric::ublas::c_matrix<T, 1, 3> Inverse(const boost::numeric::ublas::c_matrix<T, 3, 1> &m)
+{
+    using namespace boost::numeric::ublas;
+
+    c_matrix<T, 1, 3> inverse;
+    T det = Determinant(m);
+
+    inverse(0,0)  =  m(0,0)/det/det;
+    inverse(0,1)  =  m(1,0)/det/det;
+    inverse(0,2)  =  m(2,0)/det/det;
+    
     return inverse;
 };
 

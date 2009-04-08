@@ -70,6 +70,19 @@ public:
         B(1,1) = 6;
         double TwoTwoDeterminant = Determinant(B);
         TS_ASSERT_DELTA( TwoTwoDeterminant, -10.6, 0.0000000001);
+        
+        c_matrix<double, 2, 1> D;
+        D(0, 0) = 3.0;
+        D(1, 0) = 4.0;
+        double TwoOneDeterminant = Determinant(D);
+        TS_ASSERT_DELTA(TwoOneDeterminant, 5.0, 0.000000001);
+        
+        c_matrix<double, 3, 1> E;
+        E(0,0) = 4.0;
+        E(1,0) = 4.0;
+        E(2,0) = 2.0;
+        double ThreeOneDeterminant = Determinant(E);
+        TS_ASSERT_DELTA(ThreeOneDeterminant, 6.0, 0.000000001);
     }
 
     void TestSubDeterminant()
@@ -189,6 +202,24 @@ public:
                 TS_ASSERT_DELTA( invB(i,j), invBMatlab(i,j), 0.0001);
             }
         }
+        
+        c_matrix<double, 2, 1> D;
+        D(0,0) = 2;
+        D(1,0) = 1;
+        c_matrix<double, 1, 2> invD;
+        invD = Inverse(D);
+        TS_ASSERT_DELTA(invD(0, 0), 0.4, 0.00000001);
+        TS_ASSERT_DELTA(invD(0, 1), 0.2, 0.00000001);
+        
+        c_matrix<double, 3, 1> E;
+        E(0,0) = 3;
+        E(1,0) = 4;
+        E(2,0) = 5;
+        c_matrix<double, 1, 3> invE;
+        invE = Inverse(E);
+        TS_ASSERT_DELTA(invE(0, 0), 0.06, 0.00000001);
+        TS_ASSERT_DELTA(invE(0, 1), 0.08, 0.00000001);
+        TS_ASSERT_DELTA(invE(0, 2), 0.1, 0.00000001);
     }
 
 
