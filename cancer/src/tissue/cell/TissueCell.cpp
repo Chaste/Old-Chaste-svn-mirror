@@ -190,8 +190,9 @@ void TissueCell::StartApoptosis()
     }
     mUndergoingApoptosis = true;
 
-    mDeathTime = SimulationTime::Instance()->GetTime()
-                 + CancerParameters::Instance()->GetApoptosisTime();
+    mDeathTime = SimulationTime::Instance()->GetTime() + CancerParameters::Instance()->GetApoptosisTime();
+
+    mCellType = APOPTOTIC;
 }
 
 

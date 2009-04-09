@@ -336,13 +336,26 @@ void VertexBasedTissue<DIM>::Validate()
 template<unsigned DIM>
 double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
 {
+    // Get target area A of a healthy cell in S, G2 or M phase
     double cell_target_area = CancerParameters::Instance()->GetMatureCellTargetArea();
-    double cell_age = rCell.GetAge();
-    double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
 
-    if ( (rCell.GetCellType()!=DIFFERENTIATED) && (cell_age<g1_duration) )
+    if (rCell.GetCellType()==APOPTOTIC)
     {
-        cell_target_area *= 0.5*(1 + cell_age/g1_duration);
+        // The target area of an apoptotic cell decreases linearly to zero 
+        /// \todo issue with a cell in G1 phase becoming apoptotic (see #853)
+        cell_target_area *= rCell.TimeUntilDeath()/CancerParameters::Instance()->GetApoptosisTime();
+    }
+    else if (rCell.GetCellType()!=DIFFERENTIATED)
+    {
+        // In the case of a proliferating cell, the target area increases 
+        // linearly from A/2 to A over the course of the G1 phase 
+        double cell_age = rCell.GetAge();
+        double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
+
+        if (cell_age < g1_duration)
+        {
+            cell_target_area *= 0.5*(1 + cell_age/g1_duration);
+        }
     }
 
     return cell_target_area;

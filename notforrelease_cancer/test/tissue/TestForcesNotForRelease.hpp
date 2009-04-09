@@ -623,21 +623,15 @@ public:
         double edge_division_threshold = 2.0;
         VertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
 
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of 0
+        // Set up the cell
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-        {
-            CellType cell_type = DIFFERENTIATED;
-            double birth_time = -1.0;
-
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
+        TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        cell.SetBirthTime(-1.0);
+        cells.push_back(cell);
 
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
+        tissue.InitialiseCells();
 
         // Create a force system
         NagaiHondaForce<2> force;
@@ -661,6 +655,61 @@ public:
             TS_ASSERT_DELTA(norm_2(node_forces[i]), force_magnitude, 1e-4);
             TS_ASSERT_DELTA(node_forces[i][0], -force_magnitude*cos(angles[i]), 1e-4);
             TS_ASSERT_DELTA(node_forces[i][1], -force_magnitude*sin(angles[i]), 1e-4);
+        }
+
+        double normal_target_area = tissue.GetTargetAreaOfCell(tissue.rGetCellUsingLocationIndex(0));
+
+        // Set up simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.25, 2);
+
+        // Set the cell to be necrotic
+        tissue.rGetCellUsingLocationIndex(0).StartApoptosis();//SetCellType(APOPTOTIC);
+
+        double initial_apoptotic_target_area = tissue.GetTargetAreaOfCell(tissue.rGetCellUsingLocationIndex(0));
+
+        TS_ASSERT_DELTA(normal_target_area, initial_apoptotic_target_area, 1e-6);
+
+        // Reset force vector
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            node_forces[i] = zero_vector<double>(2);
+        }
+
+        force.AddForceContribution(node_forces, tissue);
+
+        // The force on each node should not yet be affected by setting the cell to be apoptotic
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            TS_ASSERT_DELTA(norm_2(node_forces[i]), force_magnitude, 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][0], -force_magnitude*cos(angles[i]), 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][1], -force_magnitude*sin(angles[i]), 1e-4);
+        }
+
+        // Increment time
+        p_simulation_time->IncrementTimeOneStep();
+
+        double later_apoptotic_target_area = tissue.GetTargetAreaOfCell(tissue.rGetCellUsingLocationIndex(0));
+
+        TS_ASSERT_LESS_THAN(later_apoptotic_target_area, initial_apoptotic_target_area);
+
+        TS_ASSERT_DELTA(tissue.rGetCellUsingLocationIndex(0).TimeUntilDeath(), 0.125, 1e-6);
+
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            node_forces[i] = zero_vector<double>(2);
+        }
+
+        force.AddForceContribution(node_forces, tissue);
+
+        // Now the forces should be affected
+        double apoptotic_force_magnitude = norm_2(node_forces[0]);
+        TS_ASSERT_LESS_THAN(force_magnitude, apoptotic_force_magnitude);
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            TS_ASSERT_DELTA(norm_2(node_forces[i]), apoptotic_force_magnitude, 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][0], -apoptotic_force_magnitude*cos(angles[i]), 1e-4);
+            TS_ASSERT_DELTA(node_forces[i][1], -apoptotic_force_magnitude*sin(angles[i]), 1e-4);
         }
     }
 
