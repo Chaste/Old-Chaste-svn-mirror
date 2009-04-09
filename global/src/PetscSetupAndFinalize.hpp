@@ -53,11 +53,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 
 #ifdef TEST_FOR_FPE
-void FpeSignalToException(int sig_num, siginfo_t* info, void* context )
+void FpeSignalToAbort(int sig_num, siginfo_t* info, void* context )
 {
-       //ucontext_t *ucontext=(ucontext_t*) context;
-       //\todo #490 SIGFPE is still fatal - exception won't be the end of it.
-       EXCEPTION("SIGFPE: floating point exception.");
+       if ( info->si_code == FPE_FLTDIV) 
+       {
+           std::cerr<<"SIGFPE: floating point exception was divide by zero.\n";
+       }
+       else if ( info->si_code == FPE_FLTINV) 
+       {
+           std::cerr<<"SIGFPE: floating point exception was an invalid operation (like 0.0/0.0).\n";
+       }
+       else
+       {
+           std::cerr<<"SIGFPE: unexpected error code.\n";
+       }
 }
 #endif
 
@@ -86,7 +95,7 @@ public:
         feenableexcept(FE_DIVBYZERO | FE_INVALID );
         //Catch all SIGFPE signals and convert them to exceptions (before PETSc gets to them).
         struct sigaction sa;
-        sa.sa_sigaction = FpeSignalToException;
+        sa.sa_sigaction = FpeSignalToAbort;
         sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
         sa.sa_restorer = 0;
         sigaction(SIGFPE, &sa, NULL);

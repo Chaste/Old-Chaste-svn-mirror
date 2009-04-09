@@ -99,7 +99,6 @@ public:
         double ans;
 #ifdef TEST_FOR_FPE
 //If we are testing for divide-by-zero, then this will throw an exception
-        TS_TRACE("Todo: the next line would abort if uncommented");
         //TS_ASSERT_THROWS_ANYTHING(ans = one / zero);
         ans=zero*one;//otherwise compiler would complain
 #else
@@ -116,8 +115,7 @@ public:
         double ans;
 #ifdef TEST_FOR_FPE
 //If we are testing for divide-by-zero, then this will throw an exception
-        TS_TRACE("Todo: the next line would abort if uncommented");
-        //TS_ASSERT_THROWS_ANYTHING(ans = -zero / zero);
+        //TS_ASSERT_THROWS_ANYTHING(ans = zero / zero);
         ans=zero;//otherwise compiler would complain
 #else
 //If we aren't testing for it, then there will be no exception
