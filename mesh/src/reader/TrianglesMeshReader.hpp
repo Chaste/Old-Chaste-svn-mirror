@@ -433,13 +433,17 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenElementsFile()
         {
             file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
         }
+        else if (SPACE_DIM == 3 && ELEMENT_DIM == 1)
+        {
+            file_name = mFilesBaseName + EDGES_FILE_EXTENSION;   
+        }
         else if (SPACE_DIM == 3 && ELEMENT_DIM == 2)
         {
             file_name = mFilesBaseName + FACES_FILE_EXTENSION;
         }
         else
         {
-            EXCEPTION("Can't have a zero-dimensional mesh in a one-dimensional space or a one-dimensional mesh in a three-dimensional space");
+            EXCEPTION("Can't have a zero-dimensional mesh in a one-dimensional space");
         }
     }
 
@@ -452,7 +456,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenElementsFile()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFacesFile()
-{
+{  
     // Faces/edges definition
     std::string file_name;
     if (SPACE_DIM == 3)

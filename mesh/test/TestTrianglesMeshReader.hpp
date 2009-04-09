@@ -297,6 +297,13 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 51u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 50u);
     }
+    
+    void Test1DMeshIn3DSpace() throw(Exception)
+    {
+        TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/trivial_1d_in_3d_mesh");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 11u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
+    }
 
     void Test2DMeshIn3DSpace() throw(Exception)
     {
