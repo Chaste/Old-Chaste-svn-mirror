@@ -428,7 +428,7 @@ public:
          *
          * @param other SpringIterator with which comparison is made
          */
-        bool operator!=(const SpringIterator& other);
+        bool operator!=(const MeshBasedTissue<DIM>::SpringIterator& other);
 
         /**
          * Prefix increment operator.
@@ -441,7 +441,7 @@ public:
          * @param rTissue the tissue
          * @param edgeIter iterator over edges in the mesh
          */
-        SpringIterator(MeshBasedTissue& rTissue, typename MutableMesh<DIM,DIM>::EdgeIterator edgeIter);
+        SpringIterator(MeshBasedTissue<DIM>& rTissue, typename MutableMesh<DIM,DIM>::EdgeIterator edgeIter);
 
     private:
 
@@ -449,7 +449,7 @@ public:
         std::set<std::set<unsigned> > mSpringsVisited;
 
         /** The tissue member. */
-        MeshBasedTissue& mrTissue;
+        MeshBasedTissue<DIM>& mrTissue;
 
         /** The edge iterator member. */
         typename MutableMesh<DIM, DIM>::EdgeIterator mEdgeIter;

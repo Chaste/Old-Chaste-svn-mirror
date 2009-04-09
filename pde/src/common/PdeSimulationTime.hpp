@@ -27,12 +27,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef PDESIMULATIONTIME_HPP_
 #define PDESIMULATIONTIME_HPP_
+
+/**
+ * A small convenience class providing a consistent global time to the
+ * PDE solver classes.
+ *
+ * This isn't technically a singleton, as it's implemented with static
+ * data and methods.
+ */
 class PdeSimulationTime
 {
 public:
+    /** Set the current time
+     *
+     * @param time  the current time
+     */
     static void SetTime(double time);
+    /** Get the current time */
     static double GetTime();
 private:
+    /** The current time */
     static double mTime;
 };
 

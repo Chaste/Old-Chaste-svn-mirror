@@ -32,14 +32,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticBasisFunction.hpp"
 
 
-/** Specialization for 0d */
+/** Specialization for 0d.
+ *
+ * @param rPoint The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The value of the basis function.
+ */
 double QuadraticBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0> &rPoint, unsigned basisIndex)
 {
     assert(basisIndex == 0);
     return 1.0;
 }
 
-/** Specialization for 0d */
+/** Specialization for 0d.
+ *
+ * @param rPoint The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @param rReturnValue Filled in with the values of the basis functions.
+ */
 void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint,
                                                       c_vector<double, 1>& rReturnValue)
 {

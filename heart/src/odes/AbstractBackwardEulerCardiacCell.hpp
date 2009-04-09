@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 
 #include "AbstractCardiacCell.hpp"
-//#include "CardiacNewtonSolver.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -41,14 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Euler approach.
  *
  * The basic approach to solving such models is:
- *  * Update the transmembrane potential, either from solving an external PDE,
- *    or using a forward Euler step.
- *  * Update any gating variables (or similar) using a backward euler step.
- *    Suitable ODEs can be written in the form  du/dt = g(V) + h(V)*u.  The update
- *    expression is then  u_n = ( u_{n-1} + g(V_n)*dt ) / ( 1 - h(V_n)*dt ).
- *  * Update the remaining state variables using Newton's method to solve the
- *    nonlinear system  U_n - U_{n-1} = dt*F(U_n, V_n).
- *    The template parameter to the class specifies the size of this nonlinear system.
+ *  \li Update the transmembrane potential, either from solving an external PDE,
+ *      or using a forward Euler step.
+ *  \li Update any gating variables (or similar) using a backward euler step.
+ *      Suitable ODEs can be written in the form  \f$du/dt = g(V) + h(V)*u\f$.  The update
+ *      expression is then \f$u_n = ( u_{n-1} + g(V_n)*dt ) / ( 1 - h(V_n)*dt )\f$.
+ *  \li Update the remaining state variables using Newton's method to solve the
+ *      nonlinear system \f$U_n - U_{n-1} = dt*F(U_n, V_n)\f$.
+ *      The template parameter to the class specifies the size of this nonlinear system.
  */
 template<unsigned SIZE>
 class AbstractBackwardEulerCardiacCell : public AbstractCardiacCell
@@ -61,28 +60,27 @@ public:
      * @param numberOfStateVariables  the size of the ODE system
      * @param voltageIndex  the index of the variable representing the transmembrane
      *     potential within the state variable vector
-     * @param dt  the timestep to use in solving the ODEs
      * @param intracellularStimulus  the intracellular stimulus function
-     * @param extracellularStimulus  the extracellular stimulus function
      *
      * Some notes for future reference:
-     *  * We may want to remove the timestep from this class, and instead pass it to
-     *    the Compute* methods, especially if variable timestepping is to be used.
-     *  * It's a pity that inheriting from AbstractCardiacCell forces us to store a
-     *    null pointer (for the unused ODE solver) in every instance.  We may want
-     *    to revisit this design decision at a later date.
+     *  \li We may want to remove the timestep from this class, and instead pass it to
+     *      the Compute* methods, especially if variable timestepping is to be used.
+     *  \li It's a pity that inheriting from AbstractCardiacCell forces us to store a
+     *      null pointer (for the unused ODE solver) in every instance.  We may want
+     *      to revisit this design decision at a later date.
      */
     AbstractBackwardEulerCardiacCell(
         unsigned numberOfStateVariables,
         unsigned voltageIndex,
         AbstractStimulusFunction* intracellularStimulus);
 
+    /** Virtual destructor */
     virtual ~AbstractBackwardEulerCardiacCell();
 
     /**
      * Compute the residual of the nonlinear system portion of the cell model.
      *
-     * @param rCurrentGuess  the current guess for U_n
+     * @param rCurrentGuess  the current guess for \f$U_n\f$
      * @param rResidual  to be filled in with the residual vector
      */
     virtual void ComputeResidual(const double rCurrentGuess[SIZE], double rResidual[SIZE])=0;
@@ -90,27 +88,32 @@ public:
     /**
      * Compute the Jacobian matrix for the nonlinear system portion of the cell model.
      *
-     * @param rCurrentGuess  the current guess for U_n
+     * @param rCurrentGuess  the current guess for \f$U_n\f$
      * @param rJacobian  to be filled in with the Jacobian matrix
      */
     virtual void ComputeJacobian(const double rCurrentGuess[SIZE], double rJacobian[SIZE][SIZE])=0;
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep mDt.  Uses a forward Euler step to update the transmembrane
+     * with timestep #mDt.  Uses a forward Euler step to update the transmembrane
      * potential at each timestep.
      *
      * The length of the time interval must be a multiple of the timestep.
      *
-     * @return  the values of each state variable, at mDt intervals.
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     * @return  the values of each state variable, at #mDt intervals.
      */
     virtual OdeSolution Compute(double tStart, double tEnd);
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep mDt.  The transmembrane potential is kept fixed throughout.
+     * with timestep #mDt.  The transmembrane potential is kept fixed throughout.
      *
      * The length of the time interval must be a multiple of the timestep.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
      */
     virtual void ComputeExceptVoltage(double tStart, double tEnd);
 
@@ -118,6 +121,10 @@ private:
 #define COVERAGE_IGNORE
     /**
      * This function should never be called - the cell class incorporates its own solver.
+     *
+     * @param time
+     * @param rY
+     * @param rDY
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
     {
@@ -130,17 +137,28 @@ protected:
      * Compute the values of all state variables except the voltage, for one
      * timestep from tStart.
      *
-     * This method must be provided by subclasses.
+     * \note This method must be provided by subclasses.
+     *
+     * @param tStart  start of this timestep
      */
     virtual void ComputeOneStepExceptVoltage(double tStart)=0;
 
     /**
      * Perform a forward Euler step to update the transmembrane potential.
      *
-     * This method must be provided by subclasses.
+     * \note This method must be provided by subclasses.
+     *
+     * @param time  start of this timestep
      */
     virtual void UpdateTransmembranePotential(double time)=0;
 };
+
+
+/*
+ * NOTE: Explicit instantiation is not used for this class, because the SIZE
+ * template parameter could take arbitrary values.
+ */
+
 
 template <unsigned SIZE>
 AbstractBackwardEulerCardiacCell<SIZE>::AbstractBackwardEulerCardiacCell(

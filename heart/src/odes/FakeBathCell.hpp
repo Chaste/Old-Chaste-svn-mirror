@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * This class represents a fake cell for use within the bath of a bidomain simulation.
  *
- * Note that only a portion of the normal functionality of a cardiac cell is
+ * \note Note that only a portion of the normal functionality of a cardiac cell is
  * actually redefined in this class.  If further calls to cardiac cells are later
  * added to the simulation process, additional overrides may need to be added here.
  */
@@ -45,6 +45,9 @@ class FakeBathCell : public AbstractCardiacCell
 public:
     /**
      * Constructor uses the same signature as normal cells, for convenience.
+     * 
+     * @param pSolver  unused
+     * @param pIntracellularStimulus  unused
      */
     FakeBathCell(AbstractIvpOdeSolver *pSolver,
                  AbstractStimulusFunction *pIntracellularStimulus);
@@ -57,6 +60,10 @@ public:
     /**
      * This method is pure in a base class, so we need it, but we never use it.
      * It has an empty body.
+     *
+     * @param time  unused
+     * @param rY  unused
+     * @param rDY  unused
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
 
@@ -67,6 +74,9 @@ public:
 
     /**
      * There isn't really a cell here, so we override this method to do nothing.
+     *
+     * @param tStart  unused
+     * @param tEnd  unused
      */
     void ComputeExceptVoltage(double tStart, double tEnd);
 };

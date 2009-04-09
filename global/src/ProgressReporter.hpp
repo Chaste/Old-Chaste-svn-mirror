@@ -39,8 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  done, for integer n.
  *
  *  You can watch the progress of your simulation by doing one of
- *  a) watch tail <dir>/progress_status.txt
- *  b) tail -f <dir>/progress_status.txt
+ *  a) watch tail \<outputDirectory>/progress_status.txt
+ *  b) tail -f \<outputDirectory>/progress_status.txt
  */
 class ProgressReporter
 {

@@ -46,44 +46,67 @@ typedef enum _CellModelState
 
 /**
  * This is the base class for cardiac cell models.
+ *
+ * \todo more general documentation here.
  */
 class AbstractCardiacCell : public AbstractOdeSystem
 {
 
 protected:
-    unsigned mVoltageIndex;  /**< The index of the voltage within our state variable vector */
-    AbstractIvpOdeSolver *mpOdeSolver;   /**< Pointer to the solver used to simulate currents for this cell. */
+    /** The index of the voltage within our state variable vector. */
+    unsigned mVoltageIndex;
+    /** Pointer to the solver used to simulate this cell. */
+    AbstractIvpOdeSolver *mpOdeSolver;
+    /** The timestep to use when simulating this cell.  Set from the HeartConfig object. */
     double mDt;
+    /** The intracellular stimulus current. */
     AbstractStimulusFunction* mpIntracellularStimulus;
 
-    // flag set to true if ComputeExceptVoltage is called
+    /**
+     * Flag set to true if ComputeExceptVoltage is called, to indicate
+     * to subclass EvaluateYDerivatives methods that V should be
+     * considered fixed, and hence dV/dt set to zero.
+     */
     bool mSetVoltageDerivativeToZero;
 
 public:
-
+    /** Create a new cardiac cell.
+     *
+     * @param pOdeSolver  the ODE solver to use when simulating this cell
+     * @param numberOfStateVariables  the size of the ODE system modelling this cell
+     * @param voltageIndex  the index of the transmembrane potential within the vector of state variables
+     * @param intracellularStimulus  the intracellular stimulus current
+     */
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                         unsigned numberOfStateVariables,
                         unsigned voltageIndex,
                         AbstractStimulusFunction* intracellularStimulus);
 
+    /** Virtual destructor */
     virtual ~AbstractCardiacCell();
 
     /**
      * Initialise the cell:
-     *   set our state variables to the initial conditions,
-     *   set model parameters to their default values.
+     *  \li set our state variables to the initial conditions,
+     *  \li set model parameters to their default values.
      */
     virtual void Init();
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep dt.
+     * with timestep #mDt.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
      */
     virtual OdeSolution Compute(double tStart, double tEnd);
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep dt, but does not update the voltage.
+     * with timestep #mDt, but does not update the voltage.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
      */
     virtual void ComputeExceptVoltage(double tStart, double tEnd);
 
@@ -93,18 +116,43 @@ public:
      */
     virtual double GetIIonic() = 0;
 
+    /** Set the transmembrane potential
+     * @param voltage  new value
+     */
     void SetVoltage(double voltage);
 
+    /**
+     * Get the current value of the transmembrane potential, as given
+     * in our state variable vector.
+     */
     double GetVoltage();
 
+    /** Get the index of the transmembrane potential within our state variable vector. */
     unsigned GetVoltageIndex();
 
+    /** 
+     * Set the intracellular stimulus.
+     * Shorthand for SetIntracellularStimulusFunction.
+     * @param stimulus  new stimulus function
+     */
     void SetStimulusFunction(AbstractStimulusFunction *stimulus);
 
+    /**
+     * Get the value of the intracellular stimulus.
+     * Shorthand for GetIntracellularStimulus.
+     * @param time  the time at which to evaluate the stimulus
+     */
     double GetStimulus(double time);
 
+    /** Set the intracellular stimulus.
+     * @param stimulus  new stimulus function
+     */
     void SetIntracellularStimulusFunction(AbstractStimulusFunction *stimulus);
 
+    /**
+     * Get the value of the intracellular stimulus.
+     * @param time  the time at which to evaluate the stimulus
+     */
     double GetIntracellularStimulus(double time);
 
     /**
@@ -169,26 +217,56 @@ public:
     ////////////////////////////////////////////////////////////////////////
 
     /**
-     *  Pure method for setting the state of this model. This should
-     *  (i) set the state (ii) initialise the cell (iii) SET mNumberOfStateVariables
-     *  CORRECTLY (as this would not have been known in the constructor
+     * This should be implemented by fast/slow cardiac cell subclasses, and
+     *  \li set the state
+     *  \li initialise the cell
+     *  \li \b SET \mNumberOfStateVariables \b CORRECTLY
+     *      (as this would not have been known in the constructor.
+     *
+     * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
+     *
+     * @param state  whether this cell is in fast or slow mode.
      */
     virtual void SetState(CellModelState state);
 
-    /** Pure method, for setting the slow variables. Should only be valid in fast mode) */
+    /**
+     * Set the slow variables. Should only be valid in fast mode.
+     *
+     * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
+     *
+     * @param rSlowValues  values for the slow variables
+     */
     virtual void SetSlowValues(const std::vector<double> &rSlowValues);
 
-    /** Pure method, for getting the slow variables. Should only valid in slow mode. */
+    /**
+     * Get the current values of the slow variables. Should only be valid in slow mode.
+     *
+     * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
+     *
+     * @param rSlowValues  will be filled in with the values of the slow variables on return.
+     */
     virtual void GetSlowValues(std::vector<double>& rSlowValues);
 
-    /** Get whether this cell is a fast or slow version */
+    /** Get whether this cell is a fast or slow version.
+     *
+     * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
+     */
     virtual bool IsFastOnly();
 
+    /**
+     * \todo what do I do?
+     *
+     * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
+     *
+     * @param rSlowValues  DOCUMENT ME!
+     */
     virtual void AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues);
 
     /**
-     *  Pure method for getting the number of slow variables for the cell model
-     *  (irrespective of whether in fast or slow mode
+     * Get the number of slow variables for the cell model
+     * (irrespective of whether in fast or slow mode).
+     *
+     * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
      */
     virtual unsigned GetNumSlowValues();
 

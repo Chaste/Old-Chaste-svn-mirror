@@ -31,6 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChastePoint.hpp"
 
 
+/**
+ * Linear basis functions for the finite element method,
+ * computed on a canonical element.
+ */
 template <unsigned ELEM_DIM>
 class LinearBasisFunction
 {

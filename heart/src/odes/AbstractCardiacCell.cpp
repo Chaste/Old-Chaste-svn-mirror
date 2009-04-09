@@ -51,31 +51,18 @@ AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
 AbstractCardiacCell::~AbstractCardiacCell()
 {}
 
-/**
- * Initialise the cell:
- *   set our state variables to the initial conditions (done here),
- *   set model parameters to their default values (done by subclasses).
- */
 void AbstractCardiacCell::Init()
 {
     SetStateVariables(GetInitialConditions());
 }
 
 
-/**
- * Simulates this cell's behaviour between the time interval [tStart, tEnd],
- * with timestep mDt.
- */
 OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd)
 {
     return mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, mDt);
 }
 
 
-/**
- * Simulates this cell's behaviour between the time interval [tStart, tEnd],
- * with timestep mDt, but does not update the voltage.
- */
 void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 {
     double saved_voltage = GetVoltage();

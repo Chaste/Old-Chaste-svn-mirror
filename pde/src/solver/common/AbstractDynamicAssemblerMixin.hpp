@@ -35,16 +35,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TimeStepper.hpp"
 #include "PdeSimulationTime.hpp"
 
+/**
+ * A 'mixin' class to provide assembly of time-dependent problems.
+ *
+ * This is designed to be used through multiple inheritance with a
+ * suitable static problem assembler.  The derived class can then use
+ * the Solve method defined here to solve over a time interval.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractDynamicAssemblerMixin : virtual public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
-
+    /** Simulation start time. */
     double mTstart;
+    /** Simulation end time. */
     double mTend;
-    double mDt, mDtInverse;
+    /** The simulation time step. */
+    double mDt;
+    /** The inverse of the current time step. */
+    double mDtInverse;
+    /** Whether SetTimes has been called with suitable parameters. */
     bool   mTimesSet;
 
+    /** The initial condition vector. */
     Vec    mInitialCondition;
 
     /** Whether the matrix has been assembled for the current time step. */

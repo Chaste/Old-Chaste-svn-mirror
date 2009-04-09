@@ -183,13 +183,18 @@ public:
 
 
 protected:
+    /** Singleton pattern - protected default constructor. */
     CardiacNewtonSolver()
     {}
+    /** Singleton pattern - protected copy constructor.  Not implemented. */
     CardiacNewtonSolver(const CardiacNewtonSolver<SIZE>&);
+    /** Singleton pattern - protected assignment operator.  Not implemented. */
     CardiacNewtonSolver<SIZE>& operator= (const CardiacNewtonSolver<SIZE>&);
 
     /**
      * Compute a norm of a vector.
+     *
+     * @param vector  the vector to norm.
      */
     double ComputeNorm(double vector[SIZE])
     {

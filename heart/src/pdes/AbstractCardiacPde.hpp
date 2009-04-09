@@ -40,10 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "HeartConfig.hpp"
 
-/**
- *  Pde containing common functionality to mono and bidomain pdes.
- */
-
 
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
@@ -58,21 +54,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance
 // of the member variables in A
 
+/**
+ * Class containing common functionality to monodomain and bidomain PDEs.
+ *
+ * \todo more details...
+ */
 template <unsigned SPACE_DIM>
 class AbstractCardiacPde
 {
 protected:
 
+    /** Intracellular conductivity tensors. */
     AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
 
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
 
     /**
-     *  Caches containing all the ionic and stimulus currents for each node,
-     *  replicated over all processes
+     *  Cache containing all the ionic currents for each node,
+     *  replicated over all processes.
      */
     ReplicatableVector mIionicCacheReplicated;
+    /**
+     *  Cache containing all the stimulus currents for each node,
+     *  replicated over all processes.
+     */
     ReplicatableVector mIntracellularStimulusCacheReplicated;
 
     /**
@@ -83,6 +89,7 @@ protected:
      */
     const unsigned mStride;
 
+    /** Local pointer to the HeartConfig singleton instance, for convenience. */
     HeartConfig* mpConfig;
 
     /**
@@ -107,13 +114,15 @@ public:
      * This constructor is called from the Initialise() method of the CardiacProblem class.
      * It creates all the cell objects, and sets up the conductivities.
      *
-     * \todo tidy up using extract method refactoring?
+     * \todo tidy up using extract method refactoring
      *
      * @param pCellFactory  factory to use to create cells.
-     * @param stride  determines how to access V_m in the solution vector (1 for monodomain, 2 for bidomain).
+     * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1);
+    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory,
+                       const unsigned stride=1);
 
+    /** Virtual destructor */
     virtual ~AbstractCardiacPde();
 
     /**
@@ -123,11 +132,18 @@ public:
      */
     void SetCacheReplication(bool doCacheReplication);
 
+    /** Get the intracellular conductivity tensor for the given element
+     * @param elementIndex  index of the element of interest
+     */
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex);
 
     /**
-     *  Get a pointer to a cell, indexed by the global node index. Should only called by the process
-     *  owning the cell though.
+     * Get a pointer to a cell, indexed by the global node index.
+     *
+     * \note Should only called by the process owning the cell -
+     * triggers an assertion otherwise.
+     *
+     * @param globalIndex  global node index for which to retrieve a cell
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex );
 
@@ -138,18 +154,29 @@ public:
      *  Integrate the cell ODEs and update ionic current etc for each of the
      *  cells, between the two times provided.
      *
-     *  NOTE: this used to be PrepareForAssembleSystem, but that method is now
-     *  a virtual method in the assemblers not the pdes.
+     *  \note This used to be called PrepareForAssembleSystem, but
+     *  that method is now a virtual method in the assemblers not the
+     *  pdes.
+     *
+     * @param currentSolution  the current voltage solution vector
+     * @param currentTime  the current simulation time
+     * @param nextTime  when to simulate the cells until
      */
     virtual void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime);
 
+    /** Get the entire ionic current cache */
     ReplicatableVector& rGetIionicCacheReplicated();
 
+    /** Get the entire stimulus current cache */
     ReplicatableVector& rGetIntracellularStimulusCacheReplicated();
 
 
     /**
-     *  Update the Iionic and intracellular stimulus caches.
+     * Update the Iionic and intracellular stimulus caches.
+     *
+     * @param globalIndex  global index of the entry to update
+     * @param localIndex  local index of the entry to update
+     * @param nextTime  the next PDE time point, at which to evaluate the stimulus current
      */
     void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime);
 

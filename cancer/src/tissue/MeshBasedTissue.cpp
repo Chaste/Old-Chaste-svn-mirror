@@ -647,8 +647,9 @@ typename MeshBasedTissue<DIM>::SpringIterator& MeshBasedTissue<DIM>::SpringItera
 }
 
 template<unsigned DIM>
-MeshBasedTissue<DIM>::SpringIterator::SpringIterator(MeshBasedTissue& rTissue,
-                                           typename MutableMesh<DIM,DIM>::EdgeIterator edgeIter)
+MeshBasedTissue<DIM>::SpringIterator::SpringIterator(
+            MeshBasedTissue<DIM>& rTissue,
+            typename MutableMesh<DIM,DIM>::EdgeIterator edgeIter)
     : mrTissue(rTissue),
       mEdgeIter(edgeIter)
 {
