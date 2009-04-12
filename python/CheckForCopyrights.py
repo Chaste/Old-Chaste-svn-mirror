@@ -123,7 +123,7 @@ cpp_current_notice='/*\n\n'+current_notice+'\n*/'
 cpp_depricated_notice='/*\n\n'+depricated_notice+'\n*/'
 
 
-pycml_notice="// Processed by pycml - CellML Tools in Python"
+pycml_notice=" * Processed by pycml - CellML Tools in Python"
 xsd_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
 triangle_notice="""/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
 /*  Jonathan Richard Shewchuk                                                */"""
