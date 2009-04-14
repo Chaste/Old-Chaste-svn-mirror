@@ -87,8 +87,8 @@ public:
 
     /**
      * Initialise the cell:
-     *  \li set our state variables to the initial conditions,
-     *  \li set model parameters to their default values.
+     *  - set our state variables to the initial conditions,
+     *  - set model parameters to their default values.
      */
     virtual void Init();
 
@@ -220,7 +220,7 @@ public:
      * This should be implemented by fast/slow cardiac cell subclasses, and
      *  \li set the state
      *  \li initialise the cell
-     *  \li \b SET \mNumberOfStateVariables \b CORRECTLY
+     *  \li \b SET #mNumberOfStateVariables \b CORRECTLY
      *      (as this would not have been known in the constructor.
      *
      * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
