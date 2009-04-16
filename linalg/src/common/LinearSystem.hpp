@@ -59,19 +59,23 @@ private:
     PetscInt mOwnershipRangeLo; /**< For parallel code.  Stores lowest index of vectors and lowest row of matrix stored locally. */
     PetscInt mOwnershipRangeHi; /**< Stores <b>one more than</b> the highest index stored locally. */
 
-    MatNullSpace mMatNullSpace;
+    MatNullSpace mMatNullSpace; /**< PETSc null matrix. */
 
-    /** Whether we need to destroy the Petsc matrix and vector in our destructor */
+    /** Whether we need to destroy the PETSc matrix and vector in our destructor */
     bool mDestroyMatAndVec;
 
     KSP mKspSolver;   /**< The PETSc linear solver object */
     bool mKspIsSetup; /**< Used by Solve method to track whether KSP has been used. */
     double mNonZerosUsed;  /**< Yes, it really is stored as a double. */
     bool mMatrixIsConstant; /**< Whether the matrix is unchanged each time Solve() is called */
-    double mTolerance;
+    double mTolerance; /**< absolute or relative tolerance of the KSP solver */
+    /**
+     * Sets either absolute or relative tolerance of the KSP solver.
+     * Default is to false
+     */
     bool mUseAbsoluteTolerance;
-    char mKspType[30];
-    char mPcType[30];
+    char mKspType[30];/**< KSP solver type (see PETSc KSPSetType() ) */
+    char mPcType[30];/**< Preconditioner type (see PETSc PCSetType() ) */
 
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see AbstractBoundaryConditionsContainer */
 
@@ -120,13 +124,44 @@ public:
 
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
+    /**
+     * Change one of the entires of the matrix to the specified value.
+     * @param row
+     * @param col
+     * @param value
+     */
     void SetMatrixElement(PetscInt row, PetscInt col, double value);
+    /**
+     * Add the specified value to an entry of the matrix.
+     * @param row
+     * @param col
+     * @param value
+     */
     void AddToMatrixElement(PetscInt row, PetscInt col, double value);
 
-    void AssembleFinalLinearSystem();         // Call before solve
-    void AssembleIntermediateLinearSystem();  // Should be called before AddToMatrixElement
+    /**
+     * Call this before Solve().
+     *
+     * This calls AssembleFinalLhsMatrix() and AssembleRhsVector().
+     */
+    void AssembleFinalLinearSystem();
+    /**
+     * Should be called before AddToMatrixElement.
+     *
+     * This calls AssembleIntermediateLhsMatrix() and AssembleRhsVector().
+     */
+    void AssembleIntermediateLinearSystem();
+    /**
+     * Sets up the PETSc matrix left-hand-side mLhsMatrix
+     */
     void AssembleFinalLhsMatrix();
+    /**
+     * Sets up the PETSc matrix left-hand-side mLhsMatrix
+     */
     void AssembleIntermediateLhsMatrix();
+    /**
+     * Sets up the PETSc vector right-hand-side mRhsVector
+     */
     void AssembleRhsVector();
 
     /**
@@ -155,7 +190,16 @@ public:
      */
     void SetAbsoluteTolerance(double absoluteTolerance);
 
+    /**
+     * Set the KSP solver type (see PETSc KSPSetType() for valid arguments)
+     * @param kspType
+     */
     void SetKspType(const char*);
+
+    /**
+     * Set the preconditioner type  (see PETSc PCSetType() for valid arguments)
+     * @param pcType
+     */
     void SetPcType(const char*);
 
     /**
