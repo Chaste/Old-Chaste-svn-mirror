@@ -111,6 +111,17 @@ protected:
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA,
                        Node<SPACE_DIM>* pNodeB,
                        std::set<unsigned> elementsContainingNodes);
+                       
+                       
+    /**
+     * Helper method for ReMesh to perform the T2 Swap
+     *
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     *
+     * @param pElement is the element to remove
+     */
+    void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);                       
+                       
 
     /**
      * Method to divide an element given 2 nodes in which to divide the element with

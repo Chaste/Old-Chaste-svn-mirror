@@ -1331,6 +1331,95 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
     }
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
+{
+   // Make sure that we are in the correct dimension - this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(ELEMENT_DIM == SPACE_DIM);
+    #undef COVERAGE_IGNORE
+    
+    /* For removing a small triangle
+     * 
+     *  \
+     *   \
+     *   |\
+     *   | \
+     *   |  \_ _ _ _ _ 
+     *   |  /
+     *   | /
+     *   |/
+     *   /
+     *  /
+     * 
+     * To 
+
+     *  \
+     *   \
+     *    \
+     *     \
+     *      \_ _ _ _ _ 
+     *      /
+     *     /
+     *    /
+     *   /
+     *  /
+     * 
+     */
+     
+     // Assert that the triangle element has only three nodes (!)
+     
+     assert(pElement->GetNumNodes() == 3u);     
+               
+     c_vector<double, SPACE_DIM> new_node_location = pElement->GetNode(0)->rGetLocation();    
+     new_node_location = GetCentroidOfElement(pElement->GetIndex());
+     
+     c_vector<double, 3> neighbouring_elem_nums;
+     
+     for (unsigned i=0; i<3; i++)
+     {
+         std::set<unsigned> elements_of_node_a = pElement->GetNode((i+1)%3)->rGetContainingElementIndices();
+         std::set<unsigned> elements_of_node_b = pElement->GetNode((i+2)%3)->rGetContainingElementIndices();
+         
+         std::set<unsigned> common_elements;
+         std::set_intersection(elements_of_node_a.begin(), elements_of_node_a.end(),
+                                elements_of_node_b.begin(), elements_of_node_b.end(),
+                                std::inserter(common_elements, common_elements.begin()));
+    
+         assert(common_elements.size() == 2u);
+         common_elements.erase(pElement->GetIndex());     
+         assert(common_elements.size() == 1u);
+         
+         neighbouring_elem_nums(i) = *(common_elements.begin());
+     }    
+     
+     // Neighbour 0 - replace node 1 with node 0, delete node 2
+     VertexElement<ELEMENT_DIM,SPACE_DIM> neighbouring_element_0 = *(this->GetElement(neighbouring_elem_nums(0)));        
+     
+     neighbouring_element_0.ReplaceNode(pElement->GetNode(1), pElement->GetNode(0));
+     neighbouring_element_0.DeleteNode(neighbouring_element_0.GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
+     
+     // Neighbour 1 - delete node 2
+     VertexElement<ELEMENT_DIM,SPACE_DIM> neighbouring_element_1 = *(this->GetElement(neighbouring_elem_nums(1)));        
+     
+     neighbouring_element_1.DeleteNode(neighbouring_element_1.GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
+     
+     // Neighbour 2 - delete node 1
+     VertexElement<ELEMENT_DIM,SPACE_DIM> neighbouring_element_2 = *(this->GetElement(neighbouring_elem_nums(2)));        
+     
+     neighbouring_element_2.DeleteNode(neighbouring_element_2.GetNodeLocalIndex(pElement->GetNodeGlobalIndex(1)));
+     
+     // Also have to mark pElement, pElement->GetNode(1), pElement->GetNode(2) as deleted.
+     mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(1));
+     mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(2));
+     pElement->GetNode(1)->MarkAsDeleted();
+     pElement->GetNode(2)->MarkAsDeleted();
+     
+     mDeletedElementIndices.push_back(pElement->GetIndex());
+     pElement->MarkAsDeleted();
+} 
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
