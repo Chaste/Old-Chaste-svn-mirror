@@ -91,8 +91,6 @@ public:
 
     void TestOutputStatistics() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;

@@ -46,6 +46,8 @@ protected:
      */
     void setUp()
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
         CancerParameters::Instance()->Reset();
