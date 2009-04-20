@@ -47,16 +47,16 @@ class NodeBasedTissue : public AbstractCellCentreBasedTissue<DIM>
     friend class TestNodeBasedTissue;
 private:
 
-    /** List of nodes */
+    /** List of nodes. */
     std::vector<Node<DIM>* > mNodes;
 
-    /** Indices of nodes that have been deleted, to be reused when adding new nodes */
+    /** Indices of nodes that have been deleted, to be reused when adding new nodes. */
     std::vector<unsigned> mDeletedNodeIndices;
 
     /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
     
-    /** A vector of boxes to store rough node positions */
+    /** A vector of boxes to store rough node positions. */
     std::vector< NodeBox<DIM> > mBoxes;
 
     /** Needed for serialization. */

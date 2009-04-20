@@ -25,9 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "VertexBasedTissue.hpp"
 #include "VertexMeshWriter.hpp"
-#include "Debug.hpp"
+
 
 template<unsigned DIM>
 VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
@@ -340,10 +341,10 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     double cell_age = rCell.GetAge();
     double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
         
-    // If differentiated then g1duration is infinite
-    if (g1_duration == DBL_MAX) /// dont use magic number, comapre to DBL_MAX
+    // If differentiated then g1_duration is infinite
+    if (g1_duration == DBL_MAX) // dont use magic number, compare to DBL_MAX
     {
-        // this is just for fixed need to work out how to find the g1
+        // This is just for fixed cell cycle models, need to work out how to find the g1 duration
         g1_duration = CancerParameters::Instance()->GetTransitCellG1Duration();
     }    
 

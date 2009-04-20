@@ -721,7 +721,6 @@ public:
     
     void TestNeighbourLists() throw (Exception)
     {
-        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;
@@ -773,7 +772,6 @@ public:
         test_box.RemoveNode(&test_node);
         std::set< Node<2>* > nodes_contained_after = test_box.rGetNodesContained();
         TS_ASSERT(nodes_contained_after.empty());
-    
     }
     
     void TestBoxGeneration() throw (Exception)
