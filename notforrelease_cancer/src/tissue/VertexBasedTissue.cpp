@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "VertexBasedTissue.hpp"
 #include "VertexMeshWriter.hpp"
+#include "Debug.hpp"
 
 template<unsigned DIM>
 VertexBasedTissue<DIM>::VertexBasedTissue(VertexMesh<DIM, DIM>& rMesh,
@@ -336,19 +337,33 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     // Get target area A of a healthy cell in S, G2 or M phase
     double cell_target_area = CancerParameters::Instance()->GetMatureCellTargetArea();
 
+    double cell_age = rCell.GetAge();
+    double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
+        
+    // If differentiated then g1duration is infinite
+    if (g1_duration == DBL_MAX) /// dont use magic number, comapre to DBL_MAX
+    {
+        // this is just for fixed need to work out how to find the g1
+        g1_duration = CancerParameters::Instance()->GetTransitCellG1Duration();
+    }    
+
     if (rCell.GetCellType()==APOPTOTIC)
     {
+        // Age of cell when apoptosis begins
+        double cell_age_at_death = cell_age - CancerParameters::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath(); 
+        
+        if (cell_age_at_death < g1_duration)
+        {
+            cell_target_area *= 0.5*(1 + cell_age_at_death/g1_duration);
+        }
+
         // The target area of an apoptotic cell decreases linearly to zero 
-        /// \todo issue with a cell in G1 phase becoming apoptotic (see #853)
         cell_target_area *= rCell.TimeUntilDeath()/CancerParameters::Instance()->GetApoptosisTime();
     }
-    else if (rCell.GetCellType()!=DIFFERENTIATED)
+    else 
     {
         // In the case of a proliferating cell, the target area increases 
         // linearly from A/2 to A over the course of the G1 phase 
-        double cell_age = rCell.GetAge();
-        double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
-
         if (cell_age < g1_duration)
         {
             cell_target_area *= 0.5*(1 + cell_age/g1_duration);
