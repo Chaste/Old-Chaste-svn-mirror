@@ -134,71 +134,12 @@ const std::vector<Node<DIM>* >& NodeBasedTissue<DIM>::rGetNodes() const
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize)
 {
-    unsigned box_number = 0;
-    unsigned number_boxes_x, number_boxes_y;
+    mpNodeBoxCollection = new NodeBoxCollection<DIM>(cutOffLength, domainSize);
 
-    switch (DIM)
-    {
-        case 1:
-        {
-            double box_min_x = domainSize(0);
-            while (box_min_x < domainSize(1))
-            {
-                c_vector<double, 2*DIM> box_coords;
-                box_coords(0) = box_min_x;
-                box_coords(1) = box_min_x + cutOffLength;
-                NodeBox<DIM> new_box(box_coords);
-                mBoxes.push_back(new_box);
-                box_number++;
-                number_boxes_x++;
-                box_min_x += cutOffLength;
-            }
-            break;
-        }
-        case 2:
-        {
-            double box_min_x = domainSize(0);
-            while (box_min_x < domainSize(1))
-            {
-                double box_min_y = domainSize(2);
-                number_boxes_y = 0;
-                while (box_min_y < domainSize(3))
-                {
-                    c_vector<double, 2*DIM> box_coords;
-                    box_coords(0) = box_min_x;
-                    box_coords(1) = box_min_x + cutOffLength;
-                    box_coords(2) = box_min_y;
-                    box_coords(3) = box_min_y + cutOffLength;
-                    NodeBox<DIM> new_box(box_coords);
-                    mBoxes.push_back(new_box);
-                    box_number++;
-                    number_boxes_y++;
-                    box_min_y += cutOffLength;
-                }
-                number_boxes_x++;
-                box_min_x += cutOffLength;
-            }
-            break;
-        }
-        case 3:
-        {
-            EXCEPTION("SplitUpIntoBoxes() is not implemented in 3D");
-        }
-        default:
-            NEVER_REACHED;
-    }
-    
     for (unsigned i=0; i<mNodes.size(); i++)
     {
-        double x = mNodes[i]->rGetLocation()[0];
-        double y = mNodes[i]->rGetLocation()[1];
-        
-        unsigned box_x_index = (unsigned) floor((x-domainSize(0))/cutOffLength);
-        unsigned box_y_index = (unsigned) floor((y-domainSize(2))/cutOffLength);
-        
-        unsigned box_index = number_boxes_y*box_x_index + box_y_index;
-        
-        mBoxes[box_index].AddNode(mNodes[i]);
+        unsigned box_index = mpNodeBoxCollection->CalculateContainingBox(mNodes[i]);
+        mpNodeBoxCollection->rGetBox(box_index).AddNode(mNodes[i]);
     }       
 }
 

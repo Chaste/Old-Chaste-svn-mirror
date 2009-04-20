@@ -774,7 +774,7 @@ public:
         TS_ASSERT(nodes_contained_after.empty());
     }
     
-    void TestBoxGeneration() throw (Exception)
+    void TestBoxGeneration2d() throw (Exception)
     {
         
         // Create a simple mesh
@@ -796,15 +796,15 @@ public:
         domain_size(1) = 1.15;
         domain_size(2) = -0.1;
         domain_size(3) = 1.15;
-        
+            
         node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
         
-        TS_ASSERT_EQUALS(node_based_tissue.mBoxes.size(),49u);
+        TS_ASSERT_EQUALS(node_based_tissue.mpNodeBoxCollection->GetNumBoxes(),49u);
         
-        for(unsigned i=0;i<node_based_tissue.mBoxes.size();i++)
+        for(unsigned i=0;i<node_based_tissue.mpNodeBoxCollection->GetNumBoxes();i++)
         {
-            std::set< Node<2>* > nodes_in_box = node_based_tissue.mBoxes[i].rGetNodesContained();
-            c_vector<double, 2*2> box_min_max_values = node_based_tissue.mBoxes[i].rGetMinAndMaxValues();
+            std::set< Node<2>* > nodes_in_box = node_based_tissue.mpNodeBoxCollection->rGetBox(i).rGetNodesContained();
+            c_vector<double, 2*2> box_min_max_values = node_based_tissue.mpNodeBoxCollection->rGetBox(i).rGetMinAndMaxValues();
             
             for(std::set< Node<2>* >::iterator it_nodes_in_box = nodes_in_box.begin();
                 it_nodes_in_box != nodes_in_box.end();
@@ -822,9 +822,49 @@ public:
                 TS_ASSERT_LESS_THAN(y_position,box_min_max_values(3)+epsilon);
             }
         }
+        
+        // have checked that all the local boxes are calculated correctly on a 5 by 6 grid - here we
+        // hardcode a few checks on the 7 by 7 grid. 
+        std::set<unsigned> local_boxes_to_box_0 = node_based_tissue.mpNodeBoxCollection->GetLocalBoxes(0);
+        std::set<unsigned> correct_answer_0;
+        correct_answer_0.insert(0);
+        correct_answer_0.insert(1);
+        correct_answer_0.insert(7);
+        correct_answer_0.insert(8);
+        TS_ASSERT_EQUALS(local_boxes_to_box_0, correct_answer_0);
 
+        std::set<unsigned> local_boxes_to_box_4 = node_based_tissue.mpNodeBoxCollection->GetLocalBoxes(4);
+        std::set<unsigned> correct_answer_4;
+        correct_answer_4.insert(3);
+        correct_answer_4.insert(4);
+        correct_answer_4.insert(5);
+        correct_answer_4.insert(10);
+        correct_answer_4.insert(11);
+        correct_answer_4.insert(12);
+        TS_ASSERT_EQUALS(local_boxes_to_box_4, correct_answer_4);
+
+        std::set<unsigned> local_boxes_to_box_10 = node_based_tissue.mpNodeBoxCollection->GetLocalBoxes(10);
+        std::set<unsigned> correct_answer_10; 
+        correct_answer_10.insert(2);
+        correct_answer_10.insert(3);
+        correct_answer_10.insert(4);
+        correct_answer_10.insert(9);
+        correct_answer_10.insert(10);
+        correct_answer_10.insert(11);
+        correct_answer_10.insert(16);
+        correct_answer_10.insert(17);
+        correct_answer_10.insert(18);
+        TS_ASSERT_EQUALS(local_boxes_to_box_10, correct_answer_10);
+
+
+        std::set<unsigned> local_boxes_to_box_48 = node_based_tissue.mpNodeBoxCollection->GetLocalBoxes(48);
+        std::set<unsigned> correct_answer_48;
+        correct_answer_48.insert(40);
+        correct_answer_48.insert(41);
+        correct_answer_48.insert(47);
+        correct_answer_48.insert(48);
+        TS_ASSERT_EQUALS(local_boxes_to_box_48, correct_answer_48);
     }
-         
 };
 
 #endif /*TESTNODEBASEDTISSUE_HPP_*/

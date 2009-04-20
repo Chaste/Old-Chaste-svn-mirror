@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellCentreBasedTissue.hpp"
 #include "AbstractMesh.hpp" // for constructor which takes in a mesh
-#include "NodeBox.hpp"
+#include "NodeBoxCollection.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -56,8 +56,7 @@ private:
     /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
     
-    /** A vector of boxes to store rough node positions. */
-    std::vector< NodeBox<DIM> > mBoxes;
+    NodeBoxCollection<DIM>* mpNodeBoxCollection;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
