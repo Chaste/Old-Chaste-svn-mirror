@@ -28,9 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MockEulerIvpOdeSolver.hpp"
 
-MockEulerIvpOdeSolver::MockEulerIvpOdeSolver() : EulerIvpOdeSolver()
+MockEulerIvpOdeSolver::MockEulerIvpOdeSolver()
+    : EulerIvpOdeSolver(),
+      mCallCount(0)
 {
-    mCallCount=0;
 }
 
 unsigned MockEulerIvpOdeSolver::GetCallCount()

@@ -540,7 +540,7 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
 
     assert(DIM==2 || DIM==3);
     assert(density > 0);
-    assert(fixedNodes.size()>0);
+    assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___
@@ -569,7 +569,7 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
       mUsingTractionBoundaryConditionFunction(false)
 {
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
-    for(unsigned i=0; i<mMaterialLaws.size(); i++)
+    for (unsigned i=0; i<mMaterialLaws.size(); i++)
     {
         assert(rMaterialLaws[i] != NULL);
         mMaterialLaws[i] = rMaterialLaws[i];
@@ -577,7 +577,7 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
 
     assert(DIM==2 || DIM==3);
     assert(density > 0);
-    assert(fixedNodes.size()>0);
+    assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
 
 #ifdef ___USE_DEALII_LINEAR_SYSTEM___

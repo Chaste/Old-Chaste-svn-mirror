@@ -30,15 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 ExponentialMaterialLaw<DIM>::ExponentialMaterialLaw(double a, double b)
+    : mA(a),
+      mB(b)
 {
     assert(DIM==2 || DIM ==3);
-    if (a<0.0)
+    if (a < 0.0)
     {
         EXCEPTION("a must be positive");
     }
-
-    mA = a;
-    mB = b;
 }
 
 template<unsigned DIM>

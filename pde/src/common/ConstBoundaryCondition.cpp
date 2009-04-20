@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned SPACE_DIM>
 ConstBoundaryCondition<SPACE_DIM>::ConstBoundaryCondition(const double value)
+    : mValue(value)
 {
-    mValue = value;
 }
 
 template<unsigned SPACE_DIM>

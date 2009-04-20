@@ -40,7 +40,6 @@ void BackwardEulerIvpOdeSolver::ComputeResidual(AbstractOdeSystem* pAbstractOdeS
     pAbstractOdeSystem->EvaluateYDerivatives(time, rCurrentGuess, dy);
     for (unsigned i=0; i<mSizeOfOdeSystem; i++)
     {
-
         mResidual[i] = rCurrentGuess[i] - timeStep * dy[i] - rCurrentYValues[i];
     }
 }

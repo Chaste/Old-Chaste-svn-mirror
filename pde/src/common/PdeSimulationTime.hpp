@@ -38,7 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PdeSimulationTime
 {
 public:
-    /** Set the current time
+    /**
+     * Set the current time
      *
      * @param time  the current time
      */

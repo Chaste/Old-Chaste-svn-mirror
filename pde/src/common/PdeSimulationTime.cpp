@@ -31,7 +31,7 @@ double PdeSimulationTime::mTime;
 
 void PdeSimulationTime::SetTime(double time)
 {
-    mTime=time;
+    mTime = time;
 }
 
 double PdeSimulationTime::GetTime()

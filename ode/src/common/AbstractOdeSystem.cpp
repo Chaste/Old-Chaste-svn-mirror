@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystem.hpp"
 
 AbstractOdeSystem::AbstractOdeSystem(unsigned numberOfStateVariables)
+    : mNumberOfStateVariables(numberOfStateVariables),
+      mUseAnalyticJacobian(false)
 {
-    mNumberOfStateVariables = numberOfStateVariables;
-    mUseAnalyticJacobian = false;
 }
 
 AbstractOdeSystem::~AbstractOdeSystem()

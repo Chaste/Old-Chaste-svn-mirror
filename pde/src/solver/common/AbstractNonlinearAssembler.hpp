@@ -419,14 +419,12 @@ Vec AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::S
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::AbstractNonlinearAssembler(unsigned numQuadPoints)
-    : BaseClassType(numQuadPoints)
+    : BaseClassType(numQuadPoints),
+      mInitialGuess(NULL),
+      mWeAllocatedSolverMemory(true),
+      mUseAnalyticalJacobian(false)
 {
     mpSolver = new SimplePetscNonlinearSolver;
-    mWeAllocatedSolverMemory = true;
-
-    mUseAnalyticalJacobian = false;
-
-    mInitialGuess = NULL;
 }
 
 

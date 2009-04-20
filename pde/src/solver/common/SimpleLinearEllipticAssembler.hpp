@@ -155,9 +155,9 @@ public:
     SimpleLinearEllipticAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                                  unsigned numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            BaseClassType(numQuadPoints)
+                                  unsigned numQuadPoints = 2)
+        : AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
+          BaseClassType(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later

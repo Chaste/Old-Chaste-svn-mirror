@@ -88,6 +88,8 @@ double MooneyRivlinMaterialLaw<DIM>::GetC2()
 
 template<unsigned DIM>
 MooneyRivlinMaterialLaw<DIM>::MooneyRivlinMaterialLaw(double c1, double c2)
+    : mC1(c1),
+      mC2(c2)
 {
     assert(DIM==2 || DIM ==3);
 
@@ -101,9 +103,6 @@ MooneyRivlinMaterialLaw<DIM>::MooneyRivlinMaterialLaw(double c1, double c2)
     {
         EXCEPTION("c1 must be positive in mooney-rivlin"); // is this correct?
     }
-
-    mC1 = c1;
-    mC2 = c2;
 }
 
 template<unsigned DIM>
