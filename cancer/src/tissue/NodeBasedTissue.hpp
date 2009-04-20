@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellCentreBasedTissue.hpp"
 #include "AbstractMesh.hpp" // for constructor which takes in a mesh
+#include "NodeBox.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -54,6 +55,9 @@ private:
 
     /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
+    
+    /** A vector of boxes to store rough node positions */
+    std::vector< NodeBox<DIM> > mBoxes;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -199,7 +203,15 @@ public:
      * @return vector of Nodes
      */
     const std::vector<Node<DIM>* >& rGetNodes() const;
-
+    
+    /**
+     * Method for Initially Splitting up tissue into neighbouring boxes, to decrease runtime.
+     *
+     * @params cutOffLength length of spring cut off between nodes
+     * @params domainSize c_vector of size 2*dimension reads minX, maxX, minY, maxY, etc
+     */
+    void SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize);
+    
 };
 
 
