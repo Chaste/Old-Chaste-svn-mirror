@@ -53,17 +53,30 @@ private :
     unsigned mNumQuadPointsPerElement;
 
 public :
+
     /**
-     *  Constructor takes in a mesh and a rule and computes and stores all
-     *  the quad points in physical space
+     * Constructor takes in a mesh and a rule and computes and stores all
+     * the quad points in physical space.
+     * 
+     * @param rMesh
+     * @param rQuadRule
      */
     QuadraturePointsGroup(TetrahedralMesh<DIM,DIM>& rMesh,
                           GaussianQuadratureRule<DIM>& rQuadRule);
 
-    /** Access the stored quad point by element index and quad index in the element */
+    /**
+     * Access the stored quadrature point by element index and quad index in the element.
+     * 
+     * @param elementIndex
+     * @param quadIndex
+     */
     c_vector<double,DIM>& Get(unsigned elementIndex, unsigned quadIndex);
 
-    /** Get the i-th stored quad point */
+    /**
+     * Get the i-th stored quadrature point.
+     * 
+     * @param i 
+     */
     c_vector<double,DIM>& Get(unsigned i);
 
     /** Number of elements in the mesh that was given in the constructor */

@@ -50,12 +50,12 @@ class SimpleNonlinearEllipticAssembler
     : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> >
 {
 public:
-    static const unsigned E_DIM = ELEMENT_DIM;
-    static const unsigned S_DIM = SPACE_DIM;
-    static const unsigned P_DIM = 1u;
+    static const unsigned E_DIM = ELEMENT_DIM; /**< The element dimension (to save typing). */
+    static const unsigned S_DIM = SPACE_DIM; /**< The space dimension (to save typing). */
+    static const unsigned P_DIM = 1u; /**< The problem dimension (to save typing). */
 
-    typedef SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> SelfType;
-    typedef AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SelfType> BaseClassType;
+    typedef SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> SelfType; /**< This type (to save typing). */
+    typedef AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SelfType> BaseClassType; /**< Base class type (to save typing). */
 
 private:
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SelfType>;
@@ -63,8 +63,8 @@ private:
     // residual & jacobian directly.
     friend class TestSimpleNonlinearEllipticAssembler;
 
-    /** The PDE to be solved */
-    AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;
+    /** The PDE to be solved. */
+    AbstractNonlinearEllipticPde<SPACE_DIM>* mpNonlinearEllipticPde;
 
     /**
      * This method returns the matrix to be added to element stiffness matrix

@@ -58,17 +58,24 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 public:
-    /** Type of a read-only iterator over Neumann conditions. */
-    typedef typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
+
+    /** Type of a read-only iterator over Neumann boundary conditions. */
+    typedef typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM>*, const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         NeumannMapIterator;
 
 private:
 
-    std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >
-        *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions */
+    std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >
+        *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions. */
 
+    /**
+     * Neumann boundary condition iterator.
+     */
     NeumannMapIterator mLastNeumannCondition[PROBLEM_DIM];
 
+    /**
+     * Array storing whether there are any Neumann boundary conditions for each unknown.
+     */
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
 
     /** A zero boundary condition, used for other unknowns in ApplyNeumannBoundaryCondition */
@@ -100,11 +107,10 @@ public:
      * @param indexOfUnknown defaults to 0
      * @param checkIfBoundaryNode defaults to true
      */
-    void AddDirichletBoundaryCondition( const Node<SPACE_DIM> *  pBoundaryNode,
-                                        const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition,
-                                        unsigned indexOfUnknown=0,
-                                        bool checkIfBoundaryNode = true);
-
+    void AddDirichletBoundaryCondition(const Node<SPACE_DIM>* pBoundaryNode,
+                                       const AbstractBoundaryCondition<SPACE_DIM>* pBoundaryCondition,
+                                       unsigned indexOfUnknown = 0,
+                                       bool checkIfBoundaryNode = true);
 
     /**
      * Add a Neumann boundary condition specifying two parameters, a pointer to a
@@ -124,10 +130,9 @@ public:
      * @param pBoundaryCondition Pointer to the Neumann boundary condition on that element
      * @param indexOfUnknown defaults to 0
      */
-    void AddNeumannBoundaryCondition( const BoundaryElement<ELEM_DIM-1, SPACE_DIM> * pBoundaryElement,
-                                      const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition,
-                                      unsigned indexOfUnknown = 0);
-
+    void AddNeumannBoundaryCondition(const BoundaryElement<ELEM_DIM-1, SPACE_DIM>* pBoundaryElement,
+                                     const AbstractBoundaryCondition<SPACE_DIM>* pBoundaryCondition,
+                                     unsigned indexOfUnknown = 0);
 
     /**
      * This function defines zero Dirichlet boundary conditions on every boundary node
@@ -151,7 +156,6 @@ public:
                                                double value,
                                                unsigned indexOfUnknown = 0);
 
-
     /**
      * This function defines zero Neumann boundary conditions on every boundary element
      * of the mesh.
@@ -162,10 +166,8 @@ public:
     void DefineZeroNeumannOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                          unsigned indexOfUnknown = 0);
 
-
-
     /**
-     *  Alter the given linear system to satisfy Dirichlet boundary conditions
+     *  Alter the given linear system to satisfy Dirichlet boundary conditions.
      *
      *  If the number of unknowns is greater than one, it is assumed the solution vector is
      *  of the form (in the case of two unknowns u and v, and N nodes):
@@ -178,7 +180,7 @@ public:
      *  be used when the matrix does not change between time steps.
      */
     void ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
-                                       bool applyToMatrix = true );
+                                       bool applyToMatrix = true);
 
     /**
      * Alter the residual vector for a nonlinear system to satisfy
@@ -194,7 +196,7 @@ public:
     void ApplyDirichletToNonlinearResidual(const Vec currentSolution, Vec residual);
 
     /**
-     * Alter the jacobian matrix vector for a nonlinear system to satisfy
+     * Alter the Jacobian matrix vector for a nonlinear system to satisfy
      * Dirichlet boundary conditions.
      *
      * If the number of unknowns is greater than one, it is assumed the solution vector is
@@ -204,7 +206,6 @@ public:
      * @param jacobian
      */
     void ApplyDirichletToNonlinearJacobian(Mat jacobian);
-
 
     /**
      * Check that we have boundary conditions defined everywhere on mesh boundary.
@@ -219,8 +220,7 @@ public:
      * @param pMesh Pointer to the mesh to check for validity.
      * @return true iff all boundaries have boundary conditions defined.
      */
-    bool Validate(AbstractMesh<ELEM_DIM,SPACE_DIM> *pMesh);
-
+    bool Validate(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Obtain value of Neumann boundary condition at a specified point in a given surface element
@@ -228,11 +228,11 @@ public:
      * It is up to the user to ensure that the point x is contained in the surface element.
      *
      * @param pSurfaceElement
-     * @param x \todo should this be rX?
+     * @param rX
      * @param indexOfUnknown defaults to 0
      */
     double GetNeumannBCValue(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
-                             const ChastePoint<SPACE_DIM>& x,
+                             const ChastePoint<SPACE_DIM>& rX,
                              unsigned indexOfUnknown = 0);
 
     /**
@@ -248,11 +248,19 @@ public:
     bool HasNeumannBoundaryCondition(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
                                      unsigned indexOfUnknown = 0);
 
-
+    /**
+     * @return whether there are any non-zero Neuman boundary conditions
+     */
     bool AnyNonZeroNeumannConditions();
 
+    /**
+     * @return iterator pointing to the first Neumann boundary condition
+     */
     NeumannMapIterator BeginNeumann();
 
+    /**
+     * @return iterator pointing to one past the last Neumann boundary condition
+     */
     NeumannMapIterator EndNeumann();
 };
 

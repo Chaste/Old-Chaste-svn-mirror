@@ -382,7 +382,7 @@ bool BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(Abstr
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::GetNeumannBCValue(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
-                             const ChastePoint<SPACE_DIM>& x,
+                             const ChastePoint<SPACE_DIM>& rX,
                              unsigned indexOfUnknown)
 {
     assert(indexOfUnknown < PROBLEM_DIM);
@@ -400,7 +400,7 @@ double BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::GetNeumannBC
     }
     else
     {
-        return mLastNeumannCondition[indexOfUnknown]->second->GetValue(x);
+        return mLastNeumannCondition[indexOfUnknown]->second->GetValue(rX);
     }
 }
 

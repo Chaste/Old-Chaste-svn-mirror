@@ -78,6 +78,7 @@ public:
      * Div(D Grad u)  +  f(x)u + g(x) = 0, at a given point in space.
      * 
      * @param rX The point in space
+     * @param pElement
      */
     virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& rX,
                                                      Element<ELEM_DIM,SPACE_DIM>* pElement)=0;

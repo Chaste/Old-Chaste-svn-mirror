@@ -357,17 +357,17 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Cha
  * This method will transform the results, for use within gaussian quadrature
  * for example.
  *
- * @param point The point at which to compute the basis functions. The results
+ * @param rPoint The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
- * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
+ * @param rInverseJacobian The inverse of the Jacobian matrix mapping the real
  *     element into the canonical element.
- * @return The derivatives of the basis functions, in local index order. Each
+ * @param rReturnValue The derivatives of the basis functions, in local index order. Each
  *     entry is a vector (VectorDouble instance) giving the derivative along
  *     each axis.
  */
 template <unsigned ELEM_DIM>
-void QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
-                                                                                  const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
+void QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
+                                                                                  const c_matrix<double, ELEM_DIM, ELEM_DIM>& rInverseJacobian,
                                                                                   c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -384,4 +384,3 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivative
 template class QuadraticBasisFunction<1>;
 template class QuadraticBasisFunction<2>;
 template class QuadraticBasisFunction<3>;
-
