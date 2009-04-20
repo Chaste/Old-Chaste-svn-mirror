@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMesh.hpp"
 #include "VertexMeshReader2d.hpp"
 #include "VertexElement.hpp"
-#include "NodeMap.hpp"
+#include "VertexElementMap.hpp"
 
 /**
  * A vertex-based mesh class, for use in vertex-based tissue simulations.
@@ -530,15 +530,15 @@ public:
     /**
      * Re-mesh the mesh.
      *
-     * @param elementMap a NodeMap which associates the indices of VertexElements in the old mesh
+     * @param elementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
      *                   with indices of VertexElements in the new mesh.  This should be created
      *                   with the correct size, GetNumElements()
      */
-    void ReMesh(NodeMap& elementMap);
+    void ReMesh(VertexElementMap& elementMap);
 
     /**
-     * Alternative version of remesh which takes no parameters does not require a NodeMap.
-     * Note: inherited classes should overload ReMesh(NodeMap&).
+     * Alternative version of remesh which takes no parameters does not require a VertexElementMap.
+     * Note: inherited classes should overload ReMesh(VertexElementMap&).
      */
     void ReMesh();
 

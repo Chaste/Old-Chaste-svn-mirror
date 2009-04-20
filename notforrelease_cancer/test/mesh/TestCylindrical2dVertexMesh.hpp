@@ -176,7 +176,7 @@ public:
 
         // Remesh to update correspondences
         mesh.SetEdgeDivisionThreshold(1000); // set high threshold to avoid more nodes appearing in the remesh
-        NodeMap map(mesh.GetNumElements());
+        VertexElementMap map(mesh.GetNumElements());
         mesh.ReMesh(map);
 
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumElements());
@@ -343,7 +343,7 @@ public:
         Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
 
         // Remesh
-        NodeMap map(mesh.GetNumElements());
+        VertexElementMap map(mesh.GetNumElements());
         mesh.ReMesh(map);
 
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumElements());
@@ -368,7 +368,7 @@ public:
         mesh.DeleteElementPriorToReMesh(8);
 
         // Remesh
-        NodeMap map(mesh.GetNumElements());
+        VertexElementMap map(mesh.GetNumElements());
         mesh.ReMesh(map);
 
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);

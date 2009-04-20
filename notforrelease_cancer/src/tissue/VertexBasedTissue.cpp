@@ -275,10 +275,7 @@ bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell& rCell)
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::Update()
 {
-    /// \todo Thought about creating an ElementMap class, but it looks like
-    //        we can just hijack NodeMap for our purposes... in fact, what *is*
-    //        specific to Nodes in NodeMap?? (see #827)
-    NodeMap element_map(mrMesh.GetNumAllElements());
+    VertexElementMap element_map(mrMesh.GetNumAllElements());
 
     mrMesh.ReMesh(element_map);
 

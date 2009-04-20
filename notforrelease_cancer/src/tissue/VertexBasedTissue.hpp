@@ -378,7 +378,7 @@ inline void load_construct_data(
     p_mesh->ConstructFromMeshReader(mesh_reader);
 
     // Remesh
-    NodeMap map(p_mesh->GetNumElements());
+    VertexElementMap map(p_mesh->GetNumElements());
     p_mesh->ReMesh(map);
 
     // Invoke inplace constructor to initialise instance

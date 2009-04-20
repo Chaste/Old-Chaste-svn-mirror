@@ -465,7 +465,7 @@ public:
 
         // Remesh to update correspondences
         mesh.SetEdgeDivisionThreshold(1000); // set high threshold to avoid more nodes appearing in the remesh
-        NodeMap map(mesh.GetNumElements());
+        VertexElementMap map(mesh.GetNumElements());
         mesh.ReMesh(map);
 
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumElements());
