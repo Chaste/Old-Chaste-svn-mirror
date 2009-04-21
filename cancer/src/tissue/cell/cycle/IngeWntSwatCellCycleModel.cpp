@@ -29,6 +29,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 
 
+IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& other)
+    : AbstractWntOdeBasedCellCycleModel(other),
+      mHypothesis(other.mHypothesis)
+{
+    if (other.mpOdeSystem != NULL)
+    {
+        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(*static_cast<IngeWntSwatCellCycleOdeSystem*>(other.mpOdeSystem));
+    }
+}
+
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                                      AbstractOdeSystem* pParentOdeSystem,
                                                      const CellMutationState& rMutationState,
@@ -95,6 +105,12 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel(
                                          mFinishedRunningOdes,
                                          mReadyToDivide,
                                          mDivideTime);
+}
+
+
+AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateCellCycleModel()
+{
+    return new IngeWntSwatCellCycleModel(*this);
 }
 
 

@@ -85,6 +85,10 @@ private:
         archive & mG1Duration;
         archive & mReadyToDivide;
     }
+    /**
+     * Assignment operator has no definition and can't be called.  (This is to prevent running the default assignment operator.)
+     */
+    AbstractCellCycleModel & operator = (const AbstractCellCycleModel & other);
 
 protected:
 
@@ -110,6 +114,9 @@ protected:
      * Whether the cell is currently ready to undergo division.
      */
     bool mReadyToDivide;
+
+
+
 
 public:
 
@@ -224,15 +231,24 @@ public:
      *
      * This method is called by the copy constructor and operator= of
      * TissueCell to create a copy of the cell cycle model when
-     * copying a cell.  It thus just needs to create any instance of
-     * the right class, as operator= on the cell cycle model is then
-     * called to ensure the model is copied properly.
-     *
-     * A default implementation is given here which uses
-     * CreateDaughterCellCycleModel(), in order to reduce coding effort
-     * for the refactor.
+     * copying a cell.  It thus needs to create an instance of the right
+     * class which is an exact copy of this instance.
+     * 
+     * It is suggested to implement this method using the copy constructor,
+     * for example:
+     *      return new TysonNovakCellCycleModel(*this);
+     * If any special copying behaviour is required, a suitable copy
+     * constructor can then be written (which you should have done anyway,
+     * of course).
+     * 
+     * @note  This class does not define a copy constructor, despite the
+     *    fact that it contains a pointer to a TissueCell.  This is OK
+     *    because the TissueCell is not deleted by our destructor, and
+     *    in all cases where the copy constructor is used either the
+     *    original object is immediately destroyed, or the copy is assigned
+     *    to a new cell.
      */
-    virtual AbstractCellCycleModel* CreateCellCycleModel();
+    virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
 
     /**
      * Builder method to create new instances of the cell cycle model.

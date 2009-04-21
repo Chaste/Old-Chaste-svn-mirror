@@ -57,6 +57,8 @@ class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
 
+    friend class TestOdeBasedCellCycleModels;
+
 #ifdef CHASTE_CVODE
     /** A solver object for the ODE system - in this case a CVODE solver */
     static CvodeAdaptor msSolver;
@@ -70,9 +72,11 @@ private:
      *
     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
     * @param divideTime the SimulationTime when the cell divided (birth time of parent cell)
+    * @param lastTime the SimulationTime when the odes were last evaluated
+    * 
     */
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
-                             double divideTime);
+                             double divideTime, double lastTime);
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -94,6 +98,15 @@ public:
      * Default constructor.
      */
     TysonNovakCellCycleModel();
+    
+    /**
+     * Copy constructor.
+     * 
+     * Also creates a copy of our ODE system.
+     * 
+     * @param other  the instance being copied.
+     */
+    TysonNovakCellCycleModel(const TysonNovakCellCycleModel& other);
 
     /**
      * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision()
@@ -111,6 +124,12 @@ public:
      * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
+
+    /**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
      * Solve the ODEs up to the current time and return whether a stopping event occurred.

@@ -69,13 +69,10 @@ void TissueCell::CommonCopy(const TissueCell &otherCell)
     mDeathTime = otherCell.mDeathTime;
     mIsLogged = otherCell.mIsLogged;
     mAncestor = otherCell.mAncestor;
-
+   
     // Copy cell cycle model
-    // First create a new object
+    // Create a new object of the correct child type and copy its state
     mpCellCycleModel = otherCell.mpCellCycleModel->CreateCellCycleModel();
-    // Then copy its state.
-    // BEWARE: This will only copy base class state!!!
-    *mpCellCycleModel = *(otherCell.mpCellCycleModel);
     // and inform it of the new cell object
     mpCellCycleModel->SetCell(this);
 }

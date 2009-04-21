@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 
 
+
 #ifdef CHASTE_CVODE
 CvodeAdaptor TysonNovakCellCycleModel::msSolver;
 #else
@@ -46,10 +47,19 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 #endif //CHASTE_CVODE
 }
 
+TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleModel& other)
+    : AbstractOdeBasedCellCycleModel(other)
+{
+    if (other.mpOdeSystem != NULL)
+    {
+        mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(other.mpOdeSystem));
+    }
+}
+
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
-                                                   double divideTime)
- : AbstractOdeBasedCellCycleModel(divideTime)
+                                                   double divideTime, double lastTime)
+    : AbstractOdeBasedCellCycleModel(divideTime)
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
 #ifdef CHASTE_CVODE
@@ -97,14 +107,19 @@ void TysonNovakCellCycleModel::InitialiseDaughterCell()
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime);
+    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime, mLastTime);
+}
+
+AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
+{
+    return new TysonNovakCellCycleModel(*this);
 }
 
 
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
 {
     double dt = 0.1/60.0;
-
+    
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem,mLastTime,currentTime,dt);
 
     return msSolver.StoppingEventOccurred();

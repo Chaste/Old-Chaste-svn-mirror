@@ -118,6 +118,12 @@ public:
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
+
+    /**
      * @return mDividedSymmetrically
      */
     bool DividedSymmetrically();

@@ -48,6 +48,11 @@ AbstractCellCycleModel* SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
     return new SimpleWntCellCycleModel(mG1Duration, mUseCellTypeDependentG1Duration);
 }
 
+AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
+{
+    return new SimpleWntCellCycleModel(*this);
+}
+
 
 void SimpleWntCellCycleModel::SetG1Duration()
 {

@@ -91,6 +91,12 @@ public:
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
+    /**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
+
 };
 
 // Declare identifier for the serializer

@@ -90,6 +90,15 @@ public:
      * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
     Alarcon2004OxygenBasedCellCycleModel(unsigned dimension);
+    
+    /**
+     * Copy constructor.
+     * 
+     * Also copies our ODE system.
+     * 
+     * @param other  the instance being copied.
+     */
+    Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& other);
 
     /**
      * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
@@ -142,6 +151,12 @@ public:
      * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
+
+    /**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
      * Initialise the cell cycle model at the start of a simulation.

@@ -39,6 +39,17 @@ AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime)
 }
 
 
+AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& other)
+    : AbstractCellCycleModel(other),
+      mpOdeSystem(NULL), // Must be done by subclasses
+      mLastTime(other.mLastTime),
+      mDivideTime(other.mDivideTime),
+      mFinishedRunningOdes(other.mFinishedRunningOdes),
+      mG2PhaseStartTime(other.mG2PhaseStartTime)
+{
+}
+
+
 AbstractOdeBasedCellCycleModel::~AbstractOdeBasedCellCycleModel()
 {
     if (mpOdeSystem!=NULL)

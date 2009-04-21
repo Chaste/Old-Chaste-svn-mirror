@@ -97,6 +97,18 @@ public:
     AbstractOdeBasedCellCycleModel(double lastTime = SimulationTime::Instance()->GetTime());
 
     /**
+     * Copy constructor.
+     * 
+     * This is needed because we store and manage a pointer to an ODE system.
+     * Note that this class doesn't actually copy the ODE system, because each
+     * subclass will use a different type.  Hence subclasses *must* copy their
+     * own ODE system in their copy constructor.
+     * 
+     * @param other  the cell cycle model being copied.
+     */
+    AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& other);
+
+    /**
      * This destructor deletes the mpOdeSystem.
      */
     virtual ~AbstractOdeBasedCellCycleModel();

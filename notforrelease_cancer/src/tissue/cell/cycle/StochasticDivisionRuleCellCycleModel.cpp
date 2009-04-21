@@ -137,6 +137,11 @@ AbstractCellCycleModel* StochasticDivisionRuleCellCycleModel::CreateDaughterCell
     return new StochasticDivisionRuleCellCycleModel(mG1Duration, mGeneration, mDividedSymmetrically);
 }
 
+AbstractCellCycleModel* StochasticDivisionRuleCellCycleModel::CreateCellCycleModel()
+{
+    return new StochasticDivisionRuleCellCycleModel(*this);
+}
+
 
 bool StochasticDivisionRuleCellCycleModel::DividedSymmetrically()
 {

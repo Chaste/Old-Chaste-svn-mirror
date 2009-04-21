@@ -30,7 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
 
-
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel &other)
+    : AbstractOdeBasedCellCycleModel(other),
+      mDimension(other.mDimension)
+{
+    if (other.mpOdeSystem != NULL)
+    {
+        mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(other.mpOdeSystem));
+    }
+}
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(unsigned dimension)
     : AbstractOdeBasedCellCycleModel(),
       mDimension(dimension)
@@ -100,6 +108,10 @@ void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
     }
 }
 
+AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleModel()
+{
+    return new Alarcon2004OxygenBasedCellCycleModel(*this);
+}
 
 AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
 {

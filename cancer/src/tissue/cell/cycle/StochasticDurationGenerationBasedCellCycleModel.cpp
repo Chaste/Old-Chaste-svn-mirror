@@ -40,6 +40,12 @@ AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateD
 }
 
 
+AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateCellCycleModel()
+{
+    return new StochasticDurationGenerationBasedCellCycleModel(*this);
+}
+
+
 void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);

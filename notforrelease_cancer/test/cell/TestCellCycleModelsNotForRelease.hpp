@@ -206,7 +206,7 @@ public:
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);
 
         // Check that cell division correctly resets the cell cycle phase
-        SimpleOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
+        SimpleOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateDaughterCellCycleModel());
 
         TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);

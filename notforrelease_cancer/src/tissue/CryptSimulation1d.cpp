@@ -151,7 +151,7 @@ void CryptSimulation1d::Solve()
                 {
                     if (mCells[i].ReadyToDivide())
                     {
-                        std::cout << "Cell[" << i << "] at age" << mCells[i].GetAge() << " is ready to divide\n" << std::flush;
+                        //std::cout << "Cell[" << i << "] at age" << mCells[i].GetAge() << " is ready to divide\n" << std::flush;
                         // Create new cell
                         TissueCell new_cell = mCells[i].Divide();
 

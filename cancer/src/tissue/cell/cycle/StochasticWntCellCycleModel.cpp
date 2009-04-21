@@ -100,6 +100,11 @@ double StochasticWntCellCycleModel::GetG2Duration()
 }
 
 
+AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()
+{
+    return new StochasticWntCellCycleModel(*this);
+}
+
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);

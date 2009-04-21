@@ -89,6 +89,15 @@ public:
      */
     WntCellCycleModel()
     {}
+    
+    /**
+     * Copy constructor.
+     * 
+     * Also copies our ODE system.
+     * 
+     * @param other  the instance being copied.
+     */
+    WntCellCycleModel(const WntCellCycleModel& other);
 
     /**
      * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
@@ -129,6 +138,12 @@ public:
      * @return pointer to the daughter cell cycle model
      */
     AbstractCellCycleModel* CreateDaughterCellCycleModel();
+
+    /**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
      * Initialise the cell cycle model at the start of a simulation.

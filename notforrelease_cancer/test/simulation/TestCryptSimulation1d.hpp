@@ -428,7 +428,7 @@ public:
          * in this time frame...
          */
         /// \todo #316
-        // TS_ASSERT_EQUALS(cells.size(), num_cells + 23u);
+        TS_ASSERT_EQUALS(cells.size(), num_cells + 23u);
 
         p_params->SetStemCellG1Duration(temp_stem - 10.0);
         p_params->SetTransitCellG1Duration(temp_transit - 10.0);

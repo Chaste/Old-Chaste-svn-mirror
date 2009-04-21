@@ -120,6 +120,10 @@ AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateDaughterCellCycle
     return new SimpleOxygenBasedCellCycleModel(mG1Duration, mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime, mDimension);
 }
 
+AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
+{
+    return new SimpleOxygenBasedCellCycleModel(*this);
+}
 
 void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {

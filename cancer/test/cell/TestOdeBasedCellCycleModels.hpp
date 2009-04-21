@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
+#include "Debug.hpp"
+
 /**
  * This class contains tests for methods on classes
  * inheriting from AbstractOdeBasedCellCycleModel.
@@ -1082,7 +1084,39 @@ public:
         // Tidy up
         WntConcentration::Destroy();
     }
-
+    
+    void TestCopyingCells() throw(Exception)
+    {
+        TysonNovakCellCycleModel *p_original_cell_cycle= new TysonNovakCellCycleModel;
+        TissueCell cell(STEM, HEALTHY, p_original_cell_cycle);
+        
+        // These changed from default
+        p_original_cell_cycle->mLastTime = 42.01;
+        p_original_cell_cycle->mDivideTime = -42.01;
+        p_original_cell_cycle->mFinishedRunningOdes = true;
+        p_original_cell_cycle->mG2PhaseStartTime = 124;
+        p_original_cell_cycle->mBirthTime = 765;
+        p_original_cell_cycle->mCurrentCellCyclePhase = S_PHASE;
+        p_original_cell_cycle->mG1Duration = 987;
+        p_original_cell_cycle->mReadyToDivide = true;
+        
+        TissueCell cell2 = cell;
+        TysonNovakCellCycleModel *p_new_cell_cycle = static_cast<TysonNovakCellCycleModel* > (cell2.GetCellCycleModel());
+        TS_ASSERT_EQUALS(&cell2, p_new_cell_cycle->GetCell() );
+        TS_ASSERT_DIFFERS(&cell, &cell2);
+        TS_ASSERT_DIFFERS(p_original_cell_cycle, p_new_cell_cycle);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mLastTime, p_new_cell_cycle->mLastTime);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mDivideTime, p_new_cell_cycle->mDivideTime);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mFinishedRunningOdes, p_new_cell_cycle->mFinishedRunningOdes);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mG2PhaseStartTime, p_new_cell_cycle->mG2PhaseStartTime);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mBirthTime, p_new_cell_cycle->mBirthTime);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mCurrentCellCyclePhase, p_new_cell_cycle->mCurrentCellCyclePhase);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mG1Duration, p_new_cell_cycle->mG1Duration);
+        TS_ASSERT_EQUALS(p_original_cell_cycle->mReadyToDivide, p_new_cell_cycle->mReadyToDivide);
+        
+    }
+    
 };
+
 
 #endif /*TESTODEBASEDCELLCYCLEMODELS_HPP_*/
