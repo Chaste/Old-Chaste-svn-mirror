@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexBasedTissue.hpp"
 #include "VertexMeshWriter.hpp"
+#include "Debug.hpp"
 
 
 template<unsigned DIM>
@@ -373,6 +374,21 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
 
     return cell_target_area;
 }
+
+template<unsigned DIM>
+void VertexBasedTissue<DIM>::PerformT2SwapIfNeccessary(TissueCell& rCell)
+{
+    if(rCell.GetCellType() == APOPTOTIC)
+    {
+        if(this->GetElementCorrespondingToCell(&rCell)->GetNumNodes() == 3u)
+        {
+            if(mrMesh.GetAreaOfElement(this->GetElementCorrespondingToCell(&rCell)->GetIndex()) < mrMesh.GetT2Threshold())
+            {
+                mrMesh.PerformT2Swap(this->GetElementCorrespondingToCell(&rCell));
+            }
+        }
+    }
+}   
 
 
 template<unsigned DIM>

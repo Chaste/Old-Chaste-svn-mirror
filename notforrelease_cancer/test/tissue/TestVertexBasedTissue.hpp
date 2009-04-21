@@ -913,6 +913,100 @@ public:
 
 
     }
+    
+     void TestTissueT2Swap() throw(Exception)
+    {
+    // Make 6 nodes to assign to four elements
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 0.5, 0.5));
+        nodes.push_back(new Node<2>(3, false, 0.1, 0.05));
+        nodes.push_back(new Node<2>(4, false, 0.9, 0.05));
+        nodes.push_back(new Node<2>(5, false, 0.5, 0.475));
+
+        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
+
+        // Make one triangular and three trapezium elements out of these nodes
+        
+        // Triangle element
+        nodes_elem_0.push_back(nodes[3]);
+        nodes_elem_0.push_back(nodes[4]);
+        nodes_elem_0.push_back(nodes[5]);
+
+        // Trapezium
+        nodes_elem_1.push_back(nodes[1]);
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[5]);
+        nodes_elem_1.push_back(nodes[4]);
+
+        // Trapezium
+        nodes_elem_2.push_back(nodes[2]);
+        nodes_elem_2.push_back(nodes[0]);
+        nodes_elem_2.push_back(nodes[3]);
+        nodes_elem_2.push_back(nodes[5]);
+
+        // Trapezium
+        nodes_elem_3.push_back(nodes[0]);
+        nodes_elem_3.push_back(nodes[1]);
+        nodes_elem_3.push_back(nodes[4]);
+        nodes_elem_3.push_back(nodes[3]);
+
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+        vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        
+        // Set up cells
+        std::vector<TissueCell> cells = SetUpCells(vertex_mesh);
+        
+        // Create tissue
+        VertexBasedTissue<2> tissue(vertex_mesh, cells);
+    
+        // No T2 swaps should happen
+        for(unsigned i=0;i<4;i++)
+        {
+            tissue.PerformT2SwapIfNeccessary(tissue.rGetCellUsingLocationIndex(i));
+        }
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        
+        for(unsigned i=0;i<4;i++)
+        {
+            tissue.rGetCellUsingLocationIndex(i).SetCellType(APOPTOTIC);
+            tissue.PerformT2SwapIfNeccessary(tissue.rGetCellUsingLocationIndex(i));
+        }
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+          
+        c_vector<double, 2>& new_location_0 = vertex_elements[0]->GetNode(0)->rGetModifiableLocation();
+        new_location_0(0) = 0.499;
+        new_location_0(1) = 0.249;
+        
+        c_vector<double, 2>& new_location_1 = vertex_elements[0]->GetNode(1)->rGetModifiableLocation();
+        new_location_1(0) = 0.501;
+        new_location_1(1) = 0.249;
+        
+        c_vector<double, 2>& new_location_2 = vertex_elements[0]->GetNode(2)->rGetModifiableLocation();
+        new_location_2(0) = 0.5;
+        new_location_2(1) = 0.251;
+        // T2 swaps should now happen
+        for(unsigned i=0;i<4;i++)
+        {
+            tissue.PerformT2SwapIfNeccessary(tissue.rGetCellUsingLocationIndex(i));
+        }
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
+    }
 };
 
 

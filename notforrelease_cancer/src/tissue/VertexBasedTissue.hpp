@@ -280,6 +280,14 @@ public:
      * @return the cell's target area
      */
     double GetTargetAreaOfCell(const TissueCell& rCell);
+    
+    /**
+     * Perform a T2 swap on an apoptotic cell. Checks that it is both a triangle
+     * and small enough first.
+     * 
+     * @param rCell the cell
+     */
+    void PerformT2SwapIfNeccessary(TissueCell& rCell);
 
     /**
      * Overridden WriteMeshToFile() method. For use by
@@ -337,6 +345,8 @@ public:
                              bool outputCellVariables,
                              bool outputCellCyclePhases,
                              bool outputCellAncestors);
+                             
+                             
 
 };
 

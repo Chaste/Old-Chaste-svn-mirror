@@ -61,6 +61,9 @@ protected:
 
     /** The maximum distance apart that neighbouring nodes in the mesh can be without the edge being divided. */
     double mEdgeDivisionThreshold;
+    
+    /** The area threshold at which T2 swaps occur in an apoptotic, triangular cell/element */
+    double mT2Threshold;
 
     /** Indices of nodes that have been deleted. These indices can be reused when adding new elements/nodes. */
     std::vector<unsigned> mDeletedNodeIndices;
@@ -111,17 +114,7 @@ protected:
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA,
                        Node<SPACE_DIM>* pNodeB,
                        std::set<unsigned> elementsContainingNodes);
-                       
-                       
-    /**
-     * Helper method for ReMesh to perform the T2 Swap
-     *
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     *
-     * @param pElement is the element to remove
-     */
-    void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);                       
-                       
+                                          
 
     /**
      * Method to divide an element given 2 nodes in which to divide the element with
@@ -206,7 +199,9 @@ public:
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements,
                double cellRearrangementThreshold=0.01,
-               double edgeDivisionThreshold=1.5);
+               double edgeDivisionThreshold=1.5,
+               double t2Threshold=0.01
+               );
 
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.
@@ -216,7 +211,7 @@ public:
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
      * @param edgeDivisionThreshold the maximum threshold distance for edge division
      */
-    VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold);
+    VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold, double t2Threshold = 0.01);
 
     /**
      * Constructor for use by serializer.
@@ -224,7 +219,7 @@ public:
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
      * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
      */
-    VertexMesh(double cellRearrangementThreshold=0.01, double edgeDivisionThreshold=1.5);
+    VertexMesh(double cellRearrangementThreshold=0.01, double edgeDivisionThreshold=1.5, double t2Threshold=0.01);
 
     /**
      * Destructor.
@@ -244,6 +239,13 @@ public:
      * @param edgeDivisionThreshold
      */
     void SetEdgeDivisionThreshold(double edgeDivisionThreshold);
+    
+    /**
+     * Set method for mT2Threshold.
+     * 
+     * @param t2Threshold
+     */
+    void SetT2Threshold(double t2Threshold);
 
     /**
      *  Move the node with a particular index to a new point in space.
@@ -262,6 +264,11 @@ public:
      * @return mEdgeDivisionThreshold
      */
     double GetEdgeDivisionThreshold() const;
+    
+    /**
+     * @return mT2Threshold
+     */
+    double GetT2Threshold() const;
 
     /**
      * Calculates the `width' of any dimension of the mesh.
@@ -500,6 +507,15 @@ public:
      * @return the global index of the new node in the mesh.
      */
     unsigned AddNode(Node<SPACE_DIM>* pNewNode);
+       
+    /**
+     * Helper method for ReMesh to perform the T2 Swap
+     *
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     *
+     * @param pElement is the element to remove
+     */
+    void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);          
 
     /**
      * Mark an element as deleted. Note that it DOES NOT deal with the associated

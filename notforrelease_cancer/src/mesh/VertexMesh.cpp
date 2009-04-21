@@ -34,13 +34,16 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
                                                double cellRearrangementThreshold,
-                                               double edgeDivisionThreshold)
+                                               double edgeDivisionThreshold,
+                                               double t2Threshold)
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mEdgeDivisionThreshold(edgeDivisionThreshold),
+      mT2Threshold(t2Threshold),
       mAddedNodes(true)
 {
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
+    assert(t2Threshold > 0.0);
 
     Clear();
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
@@ -60,13 +63,15 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double cellRearrangementThreshold, double edgeDivisionThreshold)
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double cellRearrangementThreshold, double edgeDivisionThreshold, double t2Threshold)
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mEdgeDivisionThreshold(edgeDivisionThreshold),
+      mT2Threshold(t2Threshold),
       mAddedNodes(false)
 {
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
+    assert(t2Threshold > 0.0);
     Clear();
 }
 
@@ -75,13 +80,16 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                                                unsigned numUp,
                                                double cellRearrangementThreshold,
-                                               double edgeDivisionThreshold)
+                                               double edgeDivisionThreshold,
+                                               double t2Threshold)
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mEdgeDivisionThreshold(edgeDivisionThreshold),
+      mT2Threshold(t2Threshold),
       mAddedNodes(true)
 {
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
+    assert(t2Threshold > 0.0);
 
     if (SPACE_DIM==2)
     {
@@ -238,6 +246,11 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeDivisionThreshold() const
     return mEdgeDivisionThreshold;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetT2Threshold() const
+{
+    return mT2Threshold;
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementThreshold(double cellRearrangementThreshold)
@@ -253,6 +266,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetEdgeDivisionThreshold(double edgeDiv
     mEdgeDivisionThreshold = edgeDivisionThreshold;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetT2Threshold(double t2Threshold)
+{
+    mT2Threshold = t2Threshold;
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
@@ -1377,7 +1395,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
      
      assert(pElement->GetNumNodes() == 3u);     
                
-     c_vector<double, SPACE_DIM> new_node_location = pElement->GetNode(0)->rGetLocation();    
+     c_vector<double, SPACE_DIM>& new_node_location = pElement->GetNode(0)->rGetModifiableLocation();    
      new_node_location = GetCentroidOfElement(pElement->GetIndex());
      
      c_vector<double, 3> neighbouring_elem_nums;
