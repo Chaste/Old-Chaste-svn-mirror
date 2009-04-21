@@ -242,6 +242,10 @@ public:
 
     void TestVertexMonolayerWithCellDeath() throw (Exception)
     {
+        // we don't want apoptosing cells to be labelled as dead after a certain time in
+        // vertex simulations, so set the apoptosis time to something large
+        CancerParameters::Instance()->SetApoptosisTime(1e200);
+        
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
 
@@ -253,6 +257,12 @@ public:
             double birth_time = 0.0 - elem_index;
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
+
+            if(elem_index==18)
+            {
+                cell.StartApoptosis();
+            }
+
             cells.push_back(cell);
         }
 
@@ -299,7 +309,7 @@ public:
 
     void TestVertexCryptWithCellBirth() throw (Exception)
     {
-        // Create a simple  Cylindrical2d VertexMesh
+        // Create a simple Cylindrical2d VertexMesh
         Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell

@@ -228,6 +228,8 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
 template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
 {
+    //std::cout << "time, apop = " << SimulationTime::Instance()->GetTime() << " " << this->rGetCellUsingLocationIndex(18).HasApoptosisBegun() << "\n";
+        
     unsigned num_removed = 0;
 
     for (std::list<TissueCell>::iterator it = this->mCells.begin();

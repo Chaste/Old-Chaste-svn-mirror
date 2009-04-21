@@ -1061,11 +1061,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
              
         // Attempt to perform a T2 swap on the middle triangle element
-        vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0));
-        
-        // T2 swap should not have occurred so number of elements should be the same 
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        
+        TS_ASSERT_THROWS_ANYTHING( vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0)) );        
     }
     
      void TestPerformT2SwapIfNecessary() throw(Exception)
