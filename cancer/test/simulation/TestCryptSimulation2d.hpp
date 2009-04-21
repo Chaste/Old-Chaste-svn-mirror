@@ -811,7 +811,7 @@ public:
      * to be 'mature' cells which won't shrink together.
      * Limited this by using only four cells of minimum age.
      */
-    void TestWntCellsCannotMoveAcrossYEqualsZeroAndVoronoiWriter() throw (Exception)
+    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 2;
@@ -834,8 +834,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover the write Voronoi data method
-        crypt.SetWriteVoronoiData(true, false);
-
+        crypt.SetWriteVoronoiData(true); 
+        
         AbstractTissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
@@ -905,9 +905,54 @@ public:
         NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
         TS_ASSERT(comp.CompareFiles(2e-6));
 
+        // Tidy up
+        WntConcentration::Destroy();
+    }
+
+
+void TestVoronoiWriter() throw (Exception)
+    {             
+        // Create mesh
+        unsigned cells_across = 6;
+        unsigned cells_up = 8;
+        double crypt_width = 5.0;
+        unsigned thickness_of_ghost_layer = 0;
+
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Get location indices corresponding to real cells
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
+
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i].SetBirthTime(-11.5);
+        }
+
+        // Create tissue
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+
+        // Create force law
+        GeneralisedLinearSpringForce<2> linear_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt2DCylindricalCellsLogged");
+        simulator.SetEndTime(0.6);
+
+        // Create cell killer and pass in to crypt simulation
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+       
         //Cover writing logged cell
-        crypt.SetWriteVoronoiData(true, true);
-        simulator.SetEndTime(0.01 + 1./120.);
+        crypt.SetWriteLoggedCellData(true);
 
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
@@ -917,6 +962,9 @@ public:
         // Tidy up
         WntConcentration::Destroy();
     }
+
+
+
 
     // This is a strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though... [comment no longer valid?]

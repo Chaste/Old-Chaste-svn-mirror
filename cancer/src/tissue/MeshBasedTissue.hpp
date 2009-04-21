@@ -91,6 +91,9 @@ protected:
     /** Results file for Voronoi data. */
     out_stream mpVoronoiFile;
 
+    /** Results file for logged cell data. */
+    out_stream mpLoggedCellFile;
+
     /** Results file for tissue area data. */
     out_stream mpTissueAreasFile;
 
@@ -201,12 +204,17 @@ public:
     /** @return mUseAreaBasedDampingConstant. */
     bool UseAreaBasedDampingConstant();
 
-    /** Get method for mWriteVoronoiData and mFollowLoggedCell.
+    /** Set method for mWriteVoronoiData and mFollowLoggedCell.
      *
-     * @param writeVoronoiData  whether to output cell area and perimeter information
-     * @param followLoggedCell  whether to follow only the logged cell if writing Voronoi data
+     * @param writeVoronoiData whether to output cell area and perimeter information
      */
-    void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
+    void SetWriteVoronoiData(bool writeVoronoiData);
+    
+    /** Set method for mFollowLoggedCell.
+     *
+     * @param followLoggedCell  whether to follow the logged cell 
+     */
+    void SetWriteLoggedCellData(bool followLoggedCell);
 
     /**
      * Overridden AddNode() method.
@@ -377,7 +385,12 @@ public:
     /**
      * Write current results to mpVoronoiFile.
      */
-    void WriteVoronoiResultsToFile();
+    void WriteVoronoiResultsToFile();    
+
+    /**
+     * Write logged cell data to mpLoggedCellFile.
+     */
+    void WriteLoggedCellDataToFile();
 
     /**
      * Write current results to mpTissueAreasFile.
