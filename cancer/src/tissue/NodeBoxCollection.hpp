@@ -44,6 +44,8 @@ private:
     c_vector<double, 2*DIM> mMinAndMaxValues;
     /** Nodes contained in this box */
     std::set< Node<DIM>* > mNodesContained;
+    
+    
         
 public:
     /** Constructor just takes in the extremal values of the box */
@@ -80,9 +82,12 @@ private:
     /** Number of boxes in each direction */
     c_vector<unsigned,DIM> mNumBoxesEachDirection;
     
-    ////////////////////////
-    // helper methods
-    ////////////////////////
+    /** The boxes local (itself and nearest neighbour) to a given box */
+    std::vector< std::set<unsigned> > mLocalBoxes;
+    
+    ////////////////////////////////
+    // helper methods - 2d specific
+    ////////////////////////////////
     /** Whether a box is on the bottom row of all the boxes */
     bool IsBottomRow(unsigned boxIndex)
     {
@@ -123,8 +128,12 @@ public:
     /** Get the number of boxes */
     unsigned GetNumBoxes();
     
-    /** Returns a set of all the local boxes, ie itself and its nearest-neighbours */
+    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes */
+    void CalculateLocalBoxes();
+
+    /** Get the set of all the local boxes, ie itself and its nearest-neighbours */
     std::set<unsigned> GetLocalBoxes(unsigned boxIndex);
+
 };
     
 

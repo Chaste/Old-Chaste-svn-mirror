@@ -124,20 +124,8 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
             break;
         }
     }
-//    
-//    for(unsigned i=0; i<mBoxes.size(); i++)
-//    {
-//        std::cout << i << ":  ";
-//        
-//        std::set<unsigned> local_boxes = GetLocalBoxes(i);
-//        for(std::set<unsigned>::iterator iter = local_boxes.begin();
-//            iter!= local_boxes.end();
-//            iter++)
-//        {
-//            std::cout << *iter << " ";
-//        }
-//        std::cout << "\n";
-//    }
+    
+    CalculateLocalBoxes();
 }
 
 template<unsigned DIM>
@@ -168,59 +156,74 @@ unsigned NodeBoxCollection<DIM>::GetNumBoxes()
     return mBoxes.size();
 }
 
-///\todo: maybe store these rather than calculate them repeatedly
+template<unsigned DIM>
+void NodeBoxCollection<DIM>::CalculateLocalBoxes()
+{
+    mLocalBoxes.clear();
+    for(unsigned box_index=0; box_index<mBoxes.size(); box_index++)
+    {
+        std::set<unsigned> local_boxes;
+        local_boxes.insert(box_index);
+    
+        assert(DIM==2);
+    
+        if(!IsBottomRow(box_index))
+        {
+            local_boxes.insert(box_index-1);
+        }
+        
+        if(!IsTopRow(box_index))
+        {
+            local_boxes.insert(box_index+1);
+        }
+    
+        if(!IsLeftColumn(box_index))
+        {
+            local_boxes.insert(box_index-mNumBoxesEachDirection(1));
+        }
+    
+        if(!IsRightColumn(box_index))
+        {
+            local_boxes.insert(box_index+mNumBoxesEachDirection(1));
+        }
+        
+        if( (!IsBottomRow(box_index)) && (!IsLeftColumn(box_index)) )
+        {
+            local_boxes.insert(box_index-mNumBoxesEachDirection(1)-1);
+        }
+    
+        if( (!IsBottomRow(box_index)) && (!IsRightColumn(box_index)) )
+        {
+            local_boxes.insert(box_index+mNumBoxesEachDirection(1)-1);
+        }
+        
+        if( (!IsTopRow(box_index)) && (!IsRightColumn(box_index)) )
+        {
+            local_boxes.insert(box_index+mNumBoxesEachDirection(1)+1);
+        }
+    
+        if( (!IsTopRow(box_index)) && (!IsLeftColumn(box_index)) )
+        {
+            local_boxes.insert(box_index-mNumBoxesEachDirection(1)+1);
+        }
+
+        mLocalBoxes.push_back( local_boxes );
+
+//        for(std::set<unsigned>::iterator iter = mLocalBoxes[box_index].begin();
+//            iter!= mLocalBoxes[box_index].end();
+//            iter++)
+//        {
+//            std::cout << *iter << " ";
+//        }
+//        std::cout << "\n";
+    }
+}
+
 template<unsigned DIM>
 std::set<unsigned> NodeBoxCollection<DIM>::GetLocalBoxes(unsigned boxIndex)
 {
-    assert(boxIndex < mBoxes.size());
-    
-    std::set<unsigned> local_boxes;
-    local_boxes.insert(boxIndex);
-
-    assert(DIM==2);
-    local_boxes.insert(boxIndex);
-
-    if(!IsBottomRow(boxIndex))
-    {
-        local_boxes.insert(boxIndex-1);
-    }
-    
-    if(!IsTopRow(boxIndex))
-    {
-        local_boxes.insert(boxIndex+1);
-    }
-
-    if(!IsLeftColumn(boxIndex))
-    {
-        local_boxes.insert(boxIndex-mNumBoxesEachDirection(1));
-    }
-
-    if(!IsRightColumn(boxIndex))
-    {
-        local_boxes.insert(boxIndex+mNumBoxesEachDirection(1));
-    }
-    
-    if( (!IsBottomRow(boxIndex)) && (!IsLeftColumn(boxIndex)) )
-    {
-        local_boxes.insert(boxIndex-mNumBoxesEachDirection(1)-1);
-    }
-
-    if( (!IsBottomRow(boxIndex)) && (!IsRightColumn(boxIndex)) )
-    {
-        local_boxes.insert(boxIndex+mNumBoxesEachDirection(1)-1);
-    }
-    
-    if( (!IsTopRow(boxIndex)) && (!IsRightColumn(boxIndex)) )
-    {
-        local_boxes.insert(boxIndex+mNumBoxesEachDirection(1)+1);
-    }
-
-    if( (!IsTopRow(boxIndex)) && (!IsLeftColumn(boxIndex)) )
-    {
-        local_boxes.insert(boxIndex-mNumBoxesEachDirection(1)+1);
-    }
-    
-    return local_boxes;
+    assert(boxIndex < mLocalBoxes.size());
+    return mLocalBoxes[boxIndex];
 }
 
 

@@ -211,6 +211,11 @@ public:
      */
     void SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize);
     
+    /**
+     * @return pointer to a node box collection.
+     */
+    NodeBoxCollection<DIM>* GetNodeBoxCollection();
+    
 };
 
 

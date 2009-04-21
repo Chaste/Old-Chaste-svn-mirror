@@ -39,6 +39,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
     Clear();
     mAddedNodes = true;
     Validate();
+    
 }
 
 
@@ -90,6 +91,7 @@ NodeBasedTissue<DIM>::~NodeBasedTissue()
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::Clear()
 {
+    mpNodeBoxCollection = NULL;
     mDeletedNodeIndices.clear();
     mAddedNodes = false;
 }
@@ -257,6 +259,11 @@ unsigned NodeBasedTissue<DIM>::GetNumNodes()
     return mNodes.size() - mDeletedNodeIndices.size();
 }
 
+template<unsigned DIM>
+NodeBoxCollection<DIM>* NodeBasedTissue<DIM>::GetNodeBoxCollection()
+{
+    return mpNodeBoxCollection;   
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
