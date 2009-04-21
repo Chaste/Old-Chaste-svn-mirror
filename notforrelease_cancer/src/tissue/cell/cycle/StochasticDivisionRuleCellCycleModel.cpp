@@ -133,8 +133,7 @@ void StochasticDivisionRuleCellCycleModel::InitialiseDaughterCell()
 
 AbstractCellCycleModel* StochasticDivisionRuleCellCycleModel::CreateDaughterCellCycleModel()
 {
-    // Use a private constructor that doesn't reset mG1Duration
-    return new StochasticDivisionRuleCellCycleModel(mG1Duration, mGeneration, mDividedSymmetrically);
+    return new StochasticDivisionRuleCellCycleModel(*this);
 }
 
 AbstractCellCycleModel* StochasticDivisionRuleCellCycleModel::CreateCellCycleModel()

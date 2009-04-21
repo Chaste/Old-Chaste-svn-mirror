@@ -206,13 +206,11 @@ public:
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);
 
         // Check that cell division correctly resets the cell cycle phase
-        SimpleOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateDaughterCellCycleModel());
-
-        TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
+        TS_ASSERT_EQUALS(hepa_one_cell.ReadyToDivide(), true);
+        TissueCell hepa_one_cell2 = hepa_one_cell.Divide();
+        SimpleOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*>(hepa_one_cell2.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
-
-        TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetForDivision());
 
         // Set up SimulationTime
         SimulationTime::Destroy();

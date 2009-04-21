@@ -165,7 +165,7 @@ void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 
 AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new StochasticOxygenBasedCellCycleModel(mG1Duration, mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime, mG2Duration, mDimension);
+    return new StochasticOxygenBasedCellCycleModel(*this);
 }
 
 AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleModel()

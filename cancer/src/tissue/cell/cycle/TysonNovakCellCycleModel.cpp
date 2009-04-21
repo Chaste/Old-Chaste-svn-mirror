@@ -107,7 +107,7 @@ void TysonNovakCellCycleModel::InitialiseDaughterCell()
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime, mLastTime);
+    return new TysonNovakCellCycleModel(*this);
 }
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()

@@ -36,7 +36,7 @@ StochasticDurationGenerationBasedCellCycleModel::StochasticDurationGenerationBas
 
 AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new StochasticDurationGenerationBasedCellCycleModel(mG1Duration, mGeneration);  // use a private constructor that doesn't reset mG1Duration.
+    return new StochasticDurationGenerationBasedCellCycleModel(*this);
 }
 
 

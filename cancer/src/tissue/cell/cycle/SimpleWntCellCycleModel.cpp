@@ -44,8 +44,7 @@ SimpleWntCellCycleModel::SimpleWntCellCycleModel(bool useCellTypeDependentG1Dura
 
 AbstractCellCycleModel* SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
-    // Use a private constructor that doesn't reset mG1Duration
-    return new SimpleWntCellCycleModel(mG1Duration, mUseCellTypeDependentG1Duration);
+    return new SimpleWntCellCycleModel(*this);
 }
 
 AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
