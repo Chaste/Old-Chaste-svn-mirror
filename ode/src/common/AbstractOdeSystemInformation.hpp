@@ -59,6 +59,12 @@ protected:
     /** State variable units */
     std::vector<std::string> mVariableUnits;
 
+    /** Parameter names */
+    std::vector<std::string> mParameterNames;
+
+    /** Parameter units */
+    std::vector<std::string> mParameterUnits;
+
     /** Suggested initial conditions */
     std::vector<double> mInitialConditions;
 
@@ -107,12 +113,12 @@ public:
     /**
      * Get the variable names vector.
      */
-    std::vector<std::string>& rGetVariableNames();
+    const std::vector<std::string>& rGetVariableNames() const;
 
     /**
      * Get the variable units vector.
      */
-    std::vector<std::string>& rGetVariableUnits();
+    const std::vector<std::string>& rGetVariableUnits() const;
 
     /**
      * This method is used to establish a state varible's position within
@@ -133,6 +139,16 @@ public:
      * @return the units of the state variable.
      */
     std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
+    
+    /**
+     * Get the vector of parameter names.
+     */
+    const std::vector<std::string>& rGetParameterNames() const;
+
+    /**
+     * Get the vector of parameter units.
+     */
+    const std::vector<std::string>& rGetParameterUnits() const;
 };
 
 

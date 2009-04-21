@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSecondOrder.hpp"
 #include "OdeSecondOrderWithEvents.hpp"
 #include "OdeThirdOrder.hpp"
+#include "ParameterisedOde.hpp"
 
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -221,6 +222,24 @@ public:
         Ode1 ode_system;
         rk4_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
+    }
+    
+    void TestWithParameters()
+    {
+        ParameterisedOde ode; // dy/dt = a, y(0) = 0.
+        EulerIvpOdeSolver euler_solver;
+
+        TS_ASSERT_EQUALS(ode.GetParameter(0), 0);
+        
+        // Test with a = 0 => y = 0.
+        euler_solver.SolveAndUpdateStateVariable(&ode, 0, 1, 0.01);
+        TS_ASSERT_DELTA(ode.rGetStateVariables()[0], 0.0, 1e-6);
+        
+        // Test with a = 5 => y = 5t.
+        ode.SetStateVariables(ode.GetInitialConditions());
+        ode.SetParameter(0, 5.0);
+        euler_solver.SolveAndUpdateStateVariable(&ode, 0, 1, 0.01);
+        TS_ASSERT_DELTA(ode.rGetStateVariables()[0], 5.0, 1e-2);
     }
 
     void TestLastTimeStep()

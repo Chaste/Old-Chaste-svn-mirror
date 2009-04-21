@@ -52,7 +52,7 @@ std::string AbstractOdeSystem::DumpState(const std::string& message,
     {
         Y = rGetStateVariables();
     }
-    std::vector<std::string>& r_var_names = rGetVariableNames();
+    const std::vector<std::string>& r_var_names = rGetVariableNames();
     assert(Y.size() == r_var_names.size());
     for (unsigned i=0; i<r_var_names.size(); i++)
     {
@@ -65,6 +65,35 @@ unsigned AbstractOdeSystem::GetNumberOfStateVariables() const
 {
     return mNumberOfStateVariables;
 }
+
+
+unsigned AbstractOdeSystem::GetNumberOfParameters() const
+{
+    return mParameters.size();
+}
+
+double AbstractOdeSystem::GetParameter(unsigned index) const
+{
+    return mParameters[index];
+}
+
+void AbstractOdeSystem::SetParameter(unsigned index, double value)
+{
+    mParameters[index] = value;
+}
+
+const std::vector<std::string>& AbstractOdeSystem::rGetParameterNames() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->rGetParameterNames();
+}
+
+const std::vector<std::string>& AbstractOdeSystem::rGetParameterUnits() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->rGetParameterUnits();
+}
+
 
 void AbstractOdeSystem::SetInitialConditions(const std::vector<double>& rInitialConditions)
 {
@@ -106,16 +135,22 @@ std::vector<double>& AbstractOdeSystem::rGetStateVariables()
     return mStateVariables;
 }
 
-std::vector<std::string>& AbstractOdeSystem::rGetVariableNames()
+const std::vector<std::string>& AbstractOdeSystem::rGetVariableNames() const
 {
     assert(mpSystemInfo);
     return mpSystemInfo->rGetVariableNames();
 }
 
-std::vector<std::string>& AbstractOdeSystem::rGetVariableUnits()
+const std::vector<std::string>& AbstractOdeSystem::rGetVariableUnits() const
 {
     assert(mpSystemInfo);
     return mpSystemInfo->rGetVariableUnits();
+}
+
+boost::shared_ptr<const AbstractOdeSystemInformation> AbstractOdeSystem::GetSystemInformation() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo;
 }
 
 double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)

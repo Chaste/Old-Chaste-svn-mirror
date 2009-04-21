@@ -59,13 +59,13 @@ std::vector<double> AbstractOdeSystemInformation::GetInitialConditions() const
     return mInitialConditions;
 }
 
-std::vector<std::string>& AbstractOdeSystemInformation::rGetVariableNames()
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetVariableNames() const
 {
     assert(mInitialised);
     return mVariableNames;
 }
 
-std::vector<std::string>& AbstractOdeSystemInformation::rGetVariableUnits()
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetVariableUnits() const
 {
     assert(mInitialised);
     return mVariableUnits;
@@ -88,4 +88,17 @@ std::string AbstractOdeSystemInformation::GetStateVariableUnitsByNumber(unsigned
 {
     assert(mInitialised);
     return mVariableUnits.at(varNumber);
+}
+
+
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetParameterNames() const
+{
+    assert(mInitialised);
+    return mParameterNames;
+}
+
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetParameterUnits() const
+{
+    assert(mInitialised);
+    return mParameterUnits;
 }

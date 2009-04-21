@@ -39,7 +39,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Abstract OdeSystem class.
+ * 
  * Sets up variables and functions for a general ODE system.
+ * 
+ * ODE systems are specified primarily by the EvaluateYDerivatives method,
+ * which calculates the right-hand side of the system.
+ * 
+ * Instances can store their state internally in the #mStateVariables vector
+ * (see GetNumberOfStateVariables, SetStateVariables and rGetStateVariables),
+ * although this is not essential - the vector may be empty, although in this
+ * case AbstractIvpOdeSolver::SolveAndUpdateStateVariable may not be used to
+ * solve the system.
+ * 
+ * ODE systems may also have a vector of parameters, which can be accessed
+ * through the GetParameter and SetParameter methods.
+ * 
+ * Information about what the parameters and state variables represent is
+ * provided by a subclass of AbstractOdeSystemInformation.  Various wrapper
+ * methods (e.g. rGetVariableNames) are provided in this class to access
+ * this information.
+ * 
+ * There are two more advanced facilities available for subclass authors.
+ * An analytic form for the Jacobian matrix of the system may be provided,
+ * in which case you must subclass AbstractOdeSystemWithAnalyticJacobian.
+ * The GetUseAnalyticJacobian method will test whether this is the case.
+ * 
+ * Also, subclasses may define a condition at which ODE solvers should stop
+ * prematurely.  For the Chaste solvers this is done by overriding
+ * CalculateStoppingEvent; if the more advanced CVODE solvers are being used
+ * then implement CalculateRootFunction instead to detect the stopping time
+ * more accurately.
  */
 class AbstractOdeSystem
 {
@@ -52,6 +81,9 @@ protected:
 
     /** Vector containing the current values of the state variables. */
     std::vector<double> mStateVariables;
+
+    /** Vector containing parameters. */
+    std::vector<double> mParameters;
 
     /**
      * Information about the concrete ODE system class.
@@ -95,6 +127,38 @@ public:
      */
     unsigned GetNumberOfStateVariables() const;
 
+    
+    /**
+     * Get the number of parameters.
+     */
+    unsigned GetNumberOfParameters() const;
+    
+    /**
+     * Get the value of a given parameter.
+     * 
+     * @param index the index of the parameter
+     */
+    double GetParameter(unsigned index) const;
+
+    /**
+     * Set the value of a given parameter.
+     * 
+     * @param index the index of the parameter
+     * @param value the value
+     */
+    void SetParameter(unsigned index, double value);
+
+    /**
+     * Get the names of the parameters in the ODE system.
+     */
+    const std::vector<std::string>& rGetParameterNames() const;
+
+    /**
+     * Get the units of the parameters in the ODE system.
+     */
+    const std::vector<std::string>& rGetParameterUnits() const;
+
+    
     /**
      * Set the initial conditions for the ODE system.
      *
@@ -130,12 +194,12 @@ public:
     /**
      * Get the names of the state variables in the ODE system.
      */
-    std::vector<std::string>& rGetVariableNames();
+    const std::vector<std::string>& rGetVariableNames() const;
 
     /**
      * Get the units of the state variables in the ODE system.
      */
-    std::vector<std::string>& rGetVariableUnits();
+    const std::vector<std::string>& rGetVariableUnits() const;
 
     /**
      *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
@@ -201,6 +265,11 @@ public:
      */
     std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
 
+    /**
+     * Get the object which provides information about this ODE system.
+     */
+    boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
+    
 protected:
 
     /**

@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Ode3.hpp"
 #include "TwoDimOdeSystem.hpp"
 #include "VanDerPolOde.hpp"
+#include "ParameterisedOde.hpp"
 
 // Tolerance for tests
 const double tol = 0.01;
@@ -86,6 +87,20 @@ public:
         TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditions(v));
         TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditionsComponent(2, -3.0));
         TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariables(v));
+    }
+    
+    void TestParameters()
+    {
+        ParameterisedOde ode;
+        
+        TS_ASSERT_EQUALS(ode.GetParameter(0), 0);
+        TS_ASSERT_EQUALS(ode.GetNumberOfParameters(), 1u);
+        
+        ode.SetParameter(0, 1);
+        TS_ASSERT_EQUALS(ode.GetParameter(0), 1);
+        
+        TS_ASSERT_EQUALS(ode.rGetParameterNames()[0], "a");
+        TS_ASSERT_EQUALS(ode.rGetParameterUnits()[0], "dimensionless");
     }
 
     void TestSetGetFunctionsInAbstractOdeSystem()
