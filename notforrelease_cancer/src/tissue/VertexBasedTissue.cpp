@@ -376,22 +376,6 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
 }
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::PerformT2SwapIfNeccessary(TissueCell& rCell)
-{
-    if(rCell.GetCellType() == APOPTOTIC)
-    {
-        if(this->GetElementCorrespondingToCell(&rCell)->GetNumNodes() == 3u)
-        {
-            if(mrMesh.GetAreaOfElement(this->GetElementCorrespondingToCell(&rCell)->GetIndex()) < mrMesh.GetT2Threshold())
-            {
-                mrMesh.PerformT2Swap(this->GetElementCorrespondingToCell(&rCell));
-            }
-        }
-    }
-}   
-
-
-template<unsigned DIM>
 void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                                  bool outputCellTypes,
                                                  bool outputCellVariables,

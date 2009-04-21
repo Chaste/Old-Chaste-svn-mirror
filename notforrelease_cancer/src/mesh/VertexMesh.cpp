@@ -942,6 +942,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                 }
             }
         }
+        
+        
+        // Loop over elements, performing T2 swaps where necesary
+        for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
+        {
+            PerformT2SwapIfNecessary(mElements[elem_index]);
+        }
 
         // ... end of element rearrangement code
 
@@ -1417,31 +1424,54 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
          neighbouring_elem_nums(i) = *(common_elements.begin());
      }    
      
-     // Neighbour 0 - replace node 1 with node 0, delete node 2
-     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_0 = this->GetElement(neighbouring_elem_nums(0));        
+     // Extract the neighbouring elements
+     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_0 = this->GetElement(neighbouring_elem_nums(0));
+     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_1 = this->GetElement(neighbouring_elem_nums(1));    
+     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_2 = this->GetElement(neighbouring_elem_nums(2));
      
-     p_neighbouring_element_0->ReplaceNode(pElement->GetNode(1), pElement->GetNode(0));
-     p_neighbouring_element_0->DeleteNode(p_neighbouring_element_0->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
-     
-     // Neighbour 1 - delete node 2
-     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_1 = this->GetElement(neighbouring_elem_nums(1));        
-     
-     p_neighbouring_element_1->DeleteNode(p_neighbouring_element_1->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
-     
-     // Neighbour 2 - delete node 1
-     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_2 = this->GetElement(neighbouring_elem_nums(2));        
-     
-     p_neighbouring_element_2->DeleteNode(p_neighbouring_element_2->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(1)));
-     
-     // Also have to mark pElement, pElement->GetNode(1), pElement->GetNode(2) as deleted.
-     mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(1));
-     mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(2));
-     pElement->GetNode(1)->MarkAsDeleted();
-     pElement->GetNode(2)->MarkAsDeleted();
-     
-     mDeletedElementIndices.push_back(pElement->GetIndex());
-     pElement->MarkAsDeleted();
+     // Need to check that none of the neighbouring elements are triangles
+     if(p_neighbouring_element_0->GetNumNodes() > 3u)
+     {
+        if(p_neighbouring_element_1->GetNumNodes() > 3u)
+        {
+           if(p_neighbouring_element_2->GetNumNodes() > 3u)
+           {    
+          
+                // Neighbour 0 - replace node 1 with node 0, delete node 2
+                p_neighbouring_element_0->ReplaceNode(pElement->GetNode(1), pElement->GetNode(0));
+                p_neighbouring_element_0->DeleteNode(p_neighbouring_element_0->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
+ 
+                // Neighbour 1 - delete node 2
+                p_neighbouring_element_1->DeleteNode(p_neighbouring_element_1->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
+ 
+                // Neighbour 2 - delete node 1
+                p_neighbouring_element_2->DeleteNode(p_neighbouring_element_2->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(1)));
+ 
+                // Also have to mark pElement, pElement->GetNode(1), pElement->GetNode(2) as deleted.
+                mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(1));
+                mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(2));
+                pElement->GetNode(1)->MarkAsDeleted();
+                pElement->GetNode(2)->MarkAsDeleted();
+ 
+                mDeletedElementIndices.push_back(pElement->GetIndex());
+                pElement->MarkAsDeleted();
+           }
+        }
+     }
 } 
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2SwapIfNecessary(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
+{
+    if(pElement->GetNumNodes() == 3u)
+    {
+        if(GetAreaOfElement(pElement->GetIndex()) < GetT2Threshold())
+        {
+            PerformT2Swap(pElement);
+        }
+    }
+}   
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
