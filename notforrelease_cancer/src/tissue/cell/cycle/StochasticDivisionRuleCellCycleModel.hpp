@@ -75,17 +75,6 @@ private:
      */
     void SetG1Duration();
 
-    /**
-     * Private constructor for identical cells.
-     *
-     * @param g1Duration
-     * @param generation
-     * @param dividedSymmetrically
-     */
-    StochasticDivisionRuleCellCycleModel(double g1Duration,
-                                         unsigned generation,
-                                         bool dividedSymmetrically);
-
 public:
 
     /**
@@ -110,12 +99,6 @@ public:
      * Overridden InitialiseDaughterCell() method.
      */
     void InitialiseDaughterCell();
-
-    /**
-     * Overridden builder method to create new instances of
-     * the cell cycle model.
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Overridden builder method to create new copies of

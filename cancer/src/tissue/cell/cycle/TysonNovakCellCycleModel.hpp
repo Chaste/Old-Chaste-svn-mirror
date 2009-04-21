@@ -115,17 +115,6 @@ public:
     void ResetForDivision();
 
     /**
-     * Returns a new TysonNovakCellCycleModel, created with the correct
-     * initial conditions.
-     *
-     * This method should be called just after the parent cell cycle model
-     * has been reset.
-     *
-     * @return pointer to the daughter cell cycle model
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
-
-    /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */

@@ -67,14 +67,6 @@ private:
 protected:
 
     /**
-     * Protected constructor for creating an identical daughter cell
-     * (with the same G1 duration).
-     *
-     * @param g1Duration
-     */
-    AbstractSimpleCellCycleModel(double g1Duration);
-
-    /**
      * Subclasses can override this function if they wish,
      * this just allocates the cancer parameter default values for each
      * of the different cell types' G1 durations.

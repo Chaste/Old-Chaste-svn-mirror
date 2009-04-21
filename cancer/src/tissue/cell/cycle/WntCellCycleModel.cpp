@@ -37,40 +37,6 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& other)
 }
 
 
-WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
-                                     const CellMutationState& rMutationState,
-                                     double birthTime,
-                                     double lastTime,
-                                     bool inSG2MPhase,
-                                     bool readyToDivide,
-                                     double divideTime)
-   : AbstractWntOdeBasedCellCycleModel(lastTime)
-{
-    if (pParentOdeSystem != NULL)
-    {
-        std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
-        mpOdeSystem = new WntCellCycleOdeSystem(parent_protein_concs[8], rMutationState);// Wnt pathway is reset in a couple of lines.
-
-        // Set the initial conditions to be the same as the parent cell
-        mpOdeSystem->rGetStateVariables() = parent_protein_concs;
-    }
-    else
-    {
-        mpOdeSystem = NULL;
-    }
-
-    if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
-        #undef COVERAGE_IGNORE
-    }
-    mBirthTime = birthTime;
-    mFinishedRunningOdes = inSG2MPhase;
-    mReadyToDivide = readyToDivide;
-    mDivideTime = divideTime;
-}
-
 
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState)
@@ -83,11 +49,6 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
 
 
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
-{
-    return new WntCellCycleModel(*this);
-}
-
-AbstractCellCycleModel* WntCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new WntCellCycleModel(*this);
 }

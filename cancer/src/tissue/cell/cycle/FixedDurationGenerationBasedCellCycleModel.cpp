@@ -33,16 +33,6 @@ FixedDurationGenerationBasedCellCycleModel::FixedDurationGenerationBasedCellCycl
 }
 
 
-FixedDurationGenerationBasedCellCycleModel::FixedDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation)
-    : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation)
-{
-}
-
-
-AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new FixedDurationGenerationBasedCellCycleModel(*this);
-}
 
 AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModel::CreateCellCycleModel()
 {

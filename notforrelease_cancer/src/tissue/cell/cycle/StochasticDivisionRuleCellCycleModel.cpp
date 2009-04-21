@@ -28,15 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticDivisionRuleCellCycleModel.hpp"
 
 
-StochasticDivisionRuleCellCycleModel::StochasticDivisionRuleCellCycleModel(double g1Duration,
-                                                                           unsigned generation,
-                                                                           bool dividedSymmetrically)
-    : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation),
-      mDividedSymmetrically(dividedSymmetrically)
-{
-}
-
-
 StochasticDivisionRuleCellCycleModel::StochasticDivisionRuleCellCycleModel(bool dividedSymmetrically)
     : mDividedSymmetrically(dividedSymmetrically)
 {
@@ -130,11 +121,6 @@ void StochasticDivisionRuleCellCycleModel::InitialiseDaughterCell()
     }
 }
 
-
-AbstractCellCycleModel* StochasticDivisionRuleCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new StochasticDivisionRuleCellCycleModel(*this);
-}
 
 AbstractCellCycleModel* StochasticDivisionRuleCellCycleModel::CreateCellCycleModel()
 {

@@ -146,8 +146,8 @@ public:
      * Initialise the cell cycle model at the start of a simulation.
      *
      * This method will be called precisely once per cell set up in the initial
-     * tissue. It is not called on cell division; use ResetModel(),
-     * CreateDaughterCellCycleModel() and InitialiseDaughterCell() for that.
+     * tissue. It is not called on cell division; use ResetForDivision(),
+     * CreateCellCycleModel() and InitialiseDaughterCell() for that.
      *
      * By the time this is called, a Tissue will have been set up, so the model
      * can know where its cell is located in space.  If relevant to the simulation,
@@ -164,8 +164,8 @@ public:
      * cell cycle which requires access to the cell.
      *
      * Note that much initialisation can be performed using the
-     * combination of ResetModel() (called on the parent prior to
-     * division) and CreateDaughterCellCycleModel() (called on the reset
+     * combination of ResetForDivision() (called on the parent prior to
+     * division) and CreateCellCycleModel() (called on the reset
      * parent to create the new cell cycle model object).
      */
     virtual void InitialiseDaughterCell()
@@ -219,7 +219,7 @@ public:
      *
      * Actually, this method is called from TissueCell::Divide() to
      * reset the cell cycle just before the daughter cell is created.
-     * CreateDaughterCellCycleModel() can then clone our state to generate a
+     * CreateCellCycleModel() can then clone our state to generate a
      * cell cycle model instance for the daughter cell.
      */
     virtual void ResetForDivision();
@@ -234,6 +234,13 @@ public:
      * copying a cell.  It thus needs to create an instance of the right
      * class which is an exact copy of this instance.
      * 
+     * This method is also called by TissueCell::Divide() to create a cell
+     * cycle model for the daughter cell.  Note that the parent cell
+     * cycle model will have had ResetForDivision() called just before
+     * CreateCellCycleModel() is called, so performing an exact copy of the
+     * parent is suitable behaviour.  Any daughter-cell-specific initialisation
+     * can be done in InitialiseDaughterCell().
+     * 
      * It is suggested to implement this method using the copy constructor,
      * for example:
      *      return new TysonNovakCellCycleModel(*this);
@@ -241,7 +248,7 @@ public:
      * constructor can then be written (which you should have done anyway,
      * of course).
      * 
-     * @note  This class does not define a copy constructor, despite the
+     * @note  This base class does not define a copy constructor, despite the
      *    fact that it contains a pointer to a TissueCell.  This is OK
      *    because the TissueCell is not deleted by our destructor, and
      *    in all cases where the copy constructor is used either the
@@ -249,20 +256,6 @@ public:
      *    to a new cell.
      */
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
-
-    /**
-     * Builder method to create new instances of the cell cycle model.
-     * Each concrete subclass must implement this method to create an
-     * instance of that subclass.
-     *
-     * This method is called by TissueCell::Divide() to create a cell
-     * cycle model for the daughter cell. It thus must thus produce a
-     * cell cycle model in a suitable state for a newly-born cell
-     * spawned from the 'current' cell. Note that the parent cell
-     * cycle model will have had ResetModel() called just before
-     * CreateDaughterCellCycleModel() is called.
-     */
-    virtual AbstractCellCycleModel* CreateDaughterCellCycleModel()=0;
 
     /**
      * @return the current cell cycle phase

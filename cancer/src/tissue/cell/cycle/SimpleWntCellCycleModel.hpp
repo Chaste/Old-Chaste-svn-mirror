@@ -78,14 +78,6 @@ protected:
      */
     void SetG1Duration();
 
-    /**
-     * Private constructor for identical cells.
-     *
-     * @param g1Duration  The duration of the G1 phase
-     * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
-     */
-    SimpleWntCellCycleModel(double g1Duration, bool useCellTypeDependentG1Duration=false);
-
 public:
 
     /**
@@ -111,12 +103,6 @@ public:
      */
     void InitialiseDaughterCell();
 
-    /**
-     * Overridden builder method to create new instances of
-     * the cell cycle model.
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
-    
     /**
      * Overridden builder method to create new copies of
      * this cell cycle model.

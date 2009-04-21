@@ -104,12 +104,6 @@ void TysonNovakCellCycleModel::InitialiseDaughterCell()
     }
 }
 
-
-AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new TysonNovakCellCycleModel(*this);
-}
-
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
     return new TysonNovakCellCycleModel(*this);

@@ -46,42 +46,6 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(unsig
 }
 
 
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
-                                                                           const CellMutationState& rMutationState,
-                                                                           double birthTime,
-                                                                           double lastTime,
-                                                                           bool inSG2MPhase,
-                                                                           bool readyToDivide,
-                                                                           double divideTime,
-                                                                           unsigned dimension)
-    : AbstractOdeBasedCellCycleModel(lastTime) // these values are overwritten below
-{
-    if (pParentOdeSystem !=NULL)
-    {
-        std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
-        mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(parent_protein_concs[5], rMutationState);
-
-        // Set the model to be the same as the parent cell.
-        mpOdeSystem->rGetStateVariables() = parent_protein_concs;
-    }
-    else
-    {
-        mpOdeSystem = NULL;
-    }
-
-    if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("Alarcon2004OxygenBasedCellCycleModel is being created but SimulationTime has not been set up");
-        #undef COVERAGE_IGNORE
-    }
-
-    mBirthTime = birthTime;
-    mReadyToDivide = readyToDivide;
-    mDivideTime = divideTime;
-    mFinishedRunningOdes = inSG2MPhase;
-    mDimension = dimension;
-}
 
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
@@ -112,12 +76,6 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleMod
 {
     return new Alarcon2004OxygenBasedCellCycleModel(*this);
 }
-
-AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new Alarcon2004OxygenBasedCellCycleModel(*this);
-}
-
 
 void Alarcon2004OxygenBasedCellCycleModel::Initialise()
 {

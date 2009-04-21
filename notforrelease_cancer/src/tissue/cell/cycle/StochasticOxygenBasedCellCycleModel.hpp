@@ -96,20 +96,6 @@ private:
      */
     void SetG2Duration();
 
-    /**
-     * Private constructor for creating an identical daughter cell.
-     * @param g1Duration
-     * @param currentHypoxicDuration
-     * @param currentHypoxiaOnsetTime
-     * @param g2Duration
-     * @param dimension the spatial dimension (needed by the templated class CellwiseData)
-     */
-    StochasticOxygenBasedCellCycleModel(double g1Duration,
-                                        double currentHypoxicDuration,
-                                        double currentHypoxiaOnsetTime,
-                                        double g2Duration,
-                                        unsigned dimension);
-
 public:
 
     /**
@@ -159,12 +145,6 @@ public:
      * Get method for mCurrentHypoxiaOnsetTime.
      */
     double GetCurrentHypoxiaOnsetTime();
-
-    /**
-     * Overridden builder method to create new instances of
-     * the cell cycle model.
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Overridden builder method to create new copies of

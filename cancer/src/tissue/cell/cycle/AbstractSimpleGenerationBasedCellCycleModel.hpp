@@ -70,15 +70,6 @@ protected:
     /** The generation of this cell (STEM cells have a generation of 0) */
     unsigned mGeneration;
 
-    /**
-     * Protected constructor for creating an identical daughter cell
-     * (with the same G1 duration).
-     *
-     * @param g1Duration the parent cell's G1 duration
-     * @param generation the cell's generation
-     * */
-    AbstractSimpleGenerationBasedCellCycleModel(double g1Duration, unsigned generation);
-
 public:
 
     /**

@@ -68,13 +68,6 @@ private:
      */
     void SetG1Duration();
 
-    /**
-     * Private constructor for identical cells.
-     *
-     * @param g1Duration
-     * @param generation
-     */
-    StochasticDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation);
 
 public:
 
@@ -84,12 +77,6 @@ public:
      */
     StochasticDurationGenerationBasedCellCycleModel()
     {}
-
-    /**
-     * Overridden builder method to create new instances of
-     * the cell cycle model.
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Overridden builder method to create new copies of

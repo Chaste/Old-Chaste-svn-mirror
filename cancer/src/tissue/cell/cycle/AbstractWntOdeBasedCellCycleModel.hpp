@@ -79,20 +79,6 @@ protected:
     static RungeKutta4IvpOdeSolver msSolver;
 #endif //CHASTE_CVODE
 
-    /**
-     * Constructor.
-     *
-     * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
-     */
-    AbstractWntOdeBasedCellCycleModel(double lastTime)
-        : AbstractOdeBasedCellCycleModel(lastTime)
-    {
-#ifdef CHASTE_CVODE
-        msSolver.CheckForStoppingEvents();
-        msSolver.SetMaxSteps(10000);
-        //msSolver.SetTolerances(1e-6, 1e-8);
-#endif //CHASTE_CVODE
-    }
 
     /**
      * @return time when the ODEs reached their stopping condition.

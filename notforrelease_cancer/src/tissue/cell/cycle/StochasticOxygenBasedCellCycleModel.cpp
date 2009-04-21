@@ -27,22 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "StochasticOxygenBasedCellCycleModel.hpp"
 
-
-StochasticOxygenBasedCellCycleModel::StochasticOxygenBasedCellCycleModel(double g1Duration,
-                                                                         double currentHypoxicDuration,
-                                                                         double currentHypoxiaOnsetTime,
-                                                                         double g2Duration,
-                                                                         unsigned dimension)
-    : AbstractSimpleCellCycleModel(g1Duration),
-      mG2Duration(g2Duration),
-      mTimeSpentInG1Phase(0.0),
-      mCurrentHypoxicDuration(currentHypoxicDuration),
-      mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime),
-      mDimension(dimension)
-{
-}
-
-
 void StochasticOxygenBasedCellCycleModel::SetG2Duration()
 {
     CancerParameters* p_params = CancerParameters::Instance();
@@ -160,12 +144,6 @@ void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
             }
         }
     }
-}
-
-
-AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new StochasticOxygenBasedCellCycleModel(*this);
 }
 
 AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleModel()

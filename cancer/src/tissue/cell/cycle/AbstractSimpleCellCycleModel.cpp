@@ -28,13 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleCellCycleModel.hpp"
 
 
-AbstractSimpleCellCycleModel::AbstractSimpleCellCycleModel(double g1Duration)
-    : AbstractCellCycleModel()
-{
-    mG1Duration = g1Duration;
-}
-
-
 void AbstractSimpleCellCycleModel::Initialise()
 {
     SetG1Duration();

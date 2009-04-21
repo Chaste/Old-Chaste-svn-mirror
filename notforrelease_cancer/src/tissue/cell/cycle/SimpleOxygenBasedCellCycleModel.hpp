@@ -78,19 +78,6 @@ private:
      */
     unsigned mDimension;
 
-    /**
-     * Private constructor for creating an identical daughter cell.
-     *
-     * @param g1Duration
-     * @param currentHypoxicDuration
-     * @param currentHypoxiaOnsetTime
-     * @param dimension the spatial dimension (needed by the templated class CellwiseData)
-     */
-    SimpleOxygenBasedCellCycleModel(double g1Duration,
-                                    double currentHypoxicDuration,
-                                    double currentHypoxiaOnsetTime,
-                                    unsigned dimension);
-
 public:
 
     /**
@@ -120,12 +107,6 @@ public:
      * @return mCurrentHypoxiaOnsetTime
      */
     double GetCurrentHypoxiaOnsetTime();
-
-    /**
-     * Overridden builder method to create new instances of
-     * the cell cycle model.
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Overridden builder method to create new copies of

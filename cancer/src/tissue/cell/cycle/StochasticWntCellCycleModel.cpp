@@ -34,19 +34,6 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel()
 }
 
 
-StochasticWntCellCycleModel::StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
-                                                         CellMutationState mutationState,
-                                                         double birthTime,
-                                                         double lastTime,
-                                                         bool inSG2MPhase,
-                                                         bool readyToDivide,
-                                                         double divideTime,
-                                                         double g2Duration)
-    : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, inSG2MPhase, readyToDivide, divideTime),
-      mG2Duration(g2Duration)
-{
-}
-
 StochasticWntCellCycleModel::StochasticWntCellCycleModel(std::vector<double> parentProteinConcentrations,
                                                          CellMutationState mutationState)
     : WntCellCycleModel(parentProteinConcentrations, mutationState)
@@ -101,11 +88,6 @@ double StochasticWntCellCycleModel::GetG2Duration()
 
 
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()
-{
-    return new StochasticWntCellCycleModel(*this);
-}
-
-AbstractCellCycleModel* StochasticWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new StochasticWntCellCycleModel(*this);
 }

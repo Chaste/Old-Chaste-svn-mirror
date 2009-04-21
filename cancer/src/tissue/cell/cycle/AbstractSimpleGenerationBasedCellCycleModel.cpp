@@ -34,14 +34,6 @@ AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCy
 {
 }
 
-AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCycleModel(double g1Duration,
-                                                                         unsigned generation)
-    : AbstractSimpleCellCycleModel(g1Duration),
-      mGeneration(generation)
-{
-}
-
-
 void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
 {
     mGeneration++;

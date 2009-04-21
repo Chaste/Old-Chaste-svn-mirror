@@ -27,19 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 
-
-StochasticDurationGenerationBasedCellCycleModel::StochasticDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation)
-    : AbstractSimpleGenerationBasedCellCycleModel(g1Duration, generation)
-{
-}
-
-
-AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new StochasticDurationGenerationBasedCellCycleModel(*this);
-}
-
-
 AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateCellCycleModel()
 {
     return new StochasticDurationGenerationBasedCellCycleModel(*this);

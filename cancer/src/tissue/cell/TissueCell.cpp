@@ -260,7 +260,7 @@ TissueCell TissueCell::Divide()
 
     // Create daughter cell
     TissueCell new_cell = TissueCell(mCellType, mMutationState,
-                                     mpCellCycleModel->CreateDaughterCellCycleModel());
+                                     mpCellCycleModel->CreateCellCycleModel());
 
     // Initialise properties of daughter cell
     new_cell.GetCellCycleModel()->InitialiseDaughterCell();

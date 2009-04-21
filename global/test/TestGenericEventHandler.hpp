@@ -134,8 +134,9 @@ public:
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         MPISLEEP(0.01);//Seconds
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
-        //Test in milliseconds
-        TS_ASSERT_DELTA(10.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 1.0);
+        //Test in milliseconds (at least 10 and not too much)
+        TS_ASSERT_LESS_THAN_EQUALS(10.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST2));
+        TS_ASSERT_LESS_THAN_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 25.0);
                    
     }
 };

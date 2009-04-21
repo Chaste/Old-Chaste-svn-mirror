@@ -55,14 +55,6 @@ private:
         archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
     }
 
-    /**
-     * Private constructor for creating identical cells.
-     *
-     * @param g1Duration
-     * @param generation
-     */
-    FixedDurationGenerationBasedCellCycleModel(double g1Duration, unsigned generation);
-
 public:
 
     /**
@@ -71,12 +63,6 @@ public:
      * AbstractSimpleCellCycleModel().
      */
     FixedDurationGenerationBasedCellCycleModel();
-
-    /**
-     * Overridden builder method to create new instances of
-     * the cell cycle model.
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Overridden builder method to create new copies of

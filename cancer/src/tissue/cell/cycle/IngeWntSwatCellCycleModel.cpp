@@ -40,43 +40,6 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleM
 }
 
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
-                                                     AbstractOdeSystem* pParentOdeSystem,
-                                                     const CellMutationState& rMutationState,
-                                                     double birthTime,
-                                                     double lastTime,
-                                                     bool inSG2MPhase,
-                                                     bool readyToDivide,
-                                                     double divideTime)
-   : AbstractWntOdeBasedCellCycleModel(lastTime)
-{
-    if (pParentOdeSystem !=NULL)
-    {
-        std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
-        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, parent_protein_concs[8], rMutationState);// Wnt pathway is reset in a couple of lines
-
-        // Set the model to be the same as the parent cell
-        mpOdeSystem->rGetStateVariables() = parent_protein_concs;
-    }
-    else
-    {
-        mpOdeSystem = NULL;
-    }
-
-    if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("IngeWntSwatCellCycleModel is being created but SimulationTime has not been set up");
-        #undef COVERAGE_IGNORE
-    }
-    mBirthTime = birthTime;
-    mFinishedRunningOdes = inSG2MPhase;
-    mReadyToDivide = readyToDivide;
-    mDivideTime = divideTime;
-    mHypothesis = rHypothesis;
-}
-
-
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                                      const std::vector<double>& rParentProteinConcentrations,
                                                      const CellMutationState& rMutationState)
 {
@@ -85,12 +48,6 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
 
     // Set the model to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
-}
-
-
-AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new IngeWntSwatCellCycleModel(*this);
 }
 
 

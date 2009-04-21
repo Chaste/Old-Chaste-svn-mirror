@@ -27,20 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 
-
-SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(double g1Duration,
-                                                                 double currentHypoxicDuration,
-                                                                 double currentHypoxiaOnsetTime,
-                                                                 unsigned dimension)
-    : AbstractSimpleCellCycleModel(g1Duration),
-      mTimeSpentInG1Phase(0.0),
-      mCurrentHypoxicDuration(currentHypoxicDuration),
-      mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime),
-      mDimension(dimension)
-{
-}
-
-
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(unsigned dimension)
     : mTimeSpentInG1Phase(0.0),
       mCurrentHypoxicDuration(0.0),
@@ -114,11 +100,6 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
     }
 }
 
-
-AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new SimpleOxygenBasedCellCycleModel(*this);
-}
 
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 {

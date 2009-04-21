@@ -100,27 +100,7 @@ public:
      */
     Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& other);
 
-    /**
-     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
-     * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
-     *
-     * @param pParentOdeSystem  to copy the state of
-     * @param rMutationState the mutation state of the cell (used by ODEs)
-     * @param birthTime the simulation time when the cell divided (birth time of parent cell)
-     * @param lastTime last time the cell cycle model was evaluated
-     * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
-     * @param readyToDivide whether the cell is ready to divide
-     * @param divideTime if in the future this is the time at which the cell is going to divide
-     * @param dimension the spatial dimension (needed by the templated class CellwiseData)
-     */
-    Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
-                                         const CellMutationState& rMutationState,
-                                         double birthTime,
-                                         double lastTime,
-                                         bool inSG2MPhase,
-                                         bool readyToDivide,
-                                         double divideTime,
-                                         unsigned dimension);
+
 
     /**
      * A private constructor for archiving.
@@ -140,17 +120,6 @@ public:
      * Should only be called by the TissueCell Divide() method.
      */
     virtual void ResetForDivision();
-
-    /**
-     * Returns a new Alarcon2004OxygenBasedCellCycleModel, created with
-     * the correct initial conditions.
-     *
-     * This method should be called just after the parent cell cycle model
-     * has been reset.
-     *
-     * @return pointer to the daughter cell cycle model
-     */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel();
 
     /**
      * Overridden builder method to create new copies of

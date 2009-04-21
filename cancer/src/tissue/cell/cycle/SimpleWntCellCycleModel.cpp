@@ -28,24 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 
 
-SimpleWntCellCycleModel::SimpleWntCellCycleModel(double g1Duration,
-                                                 bool useCellTypeDependentG1Duration)
-    : AbstractSimpleCellCycleModel(g1Duration),
-      mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
-{
-}
-
-
 SimpleWntCellCycleModel::SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration)
     : mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
 {
 }
 
-
-AbstractCellCycleModel* SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
-{
-    return new SimpleWntCellCycleModel(*this);
-}
 
 AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
 {
