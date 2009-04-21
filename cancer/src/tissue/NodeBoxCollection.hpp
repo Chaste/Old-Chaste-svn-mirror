@@ -133,7 +133,17 @@ public:
 
     /** Get the set of all the local boxes, ie itself and its nearest-neighbours */
     std::set<unsigned> GetLocalBoxes(unsigned boxIndex);
-
+    
+    /** 
+     *  Compute all the pairs of (potentially) connected nodes, ie nodes which are in a local box
+     *  to the box containing the first node. **Note that the user still has to check that the node
+     *  pairs are less than the cut-off distance apart.** The pairs are checked so that index1 < index2,
+     *  so each connected pair of nodes is only in the set once.   
+     * 
+     *  @rNodes All the nodes to be consider
+     *  @rNodePairs The return value, a set of pairs of nodes
+     */
+    void CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<unsigned, unsigned> >& rNodePairs);
 };
     
 

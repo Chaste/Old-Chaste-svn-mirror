@@ -108,14 +108,7 @@ public :
     c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,
                                                      unsigned nodeBGlobalIndex,
                                                      AbstractTissue<DIM>& rTissue);
-    /**
-     * Overridden AddForceContribution() method.
-     *
-     * @param rForces reference to vector of forces on nodes
-     * @param rTissue reference to the tissue
-     */
-    void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                              AbstractTissue<DIM>& rTissue);
+
 
 };
 

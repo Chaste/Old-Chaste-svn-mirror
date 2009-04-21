@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "GeneralisedLinearSpringForce.hpp"
-#include "MeshBasedTissue.hpp"
+
 
 template<unsigned DIM>
 GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
@@ -190,51 +190,6 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
                 assert(!std::isnan(temp[i]));
             }
             return temp;
-        }
-    }
-}
-
-template<unsigned DIM>
-void GeneralisedLinearSpringForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                                             AbstractTissue<DIM>& rTissue)
-{
-    if (rTissue.HasMesh())
-    {
-        // Iterate over all springs and add force contributions
-        for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
-            spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
-            ++spring_iterator)
-        {
-            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-
-            // Calculate the force between nodes
-            c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
-
-            // Add the force contribution to each node
-            rForces[nodeB_global_index] -= force;
-            rForces[nodeA_global_index] += force;
-        }
-    }
-    else
-    {
-        // Iterate over nodes
-        for (unsigned node_a_index=0; node_a_index<rTissue.GetNumNodes(); node_a_index++)
-        {
-            // Iterate over nodes
-            for (unsigned node_b_index=node_a_index+1; node_b_index<rTissue.GetNumNodes(); node_b_index++)
-            {
-                // Calculate the force between nodes
-                c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
-                for (unsigned j=0; j<DIM; j++)
-                {
-                    assert(!std::isnan(force[j]));
-                }
-
-                // Add the force contribution to each node
-                rForces[node_a_index] += force;
-                rForces[node_b_index] -= force;
-            }
         }
     }
 }

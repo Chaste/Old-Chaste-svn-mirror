@@ -215,7 +215,6 @@ public:
      * @return pointer to a node box collection.
      */
     NodeBoxCollection<DIM>* GetNodeBoxCollection();
-    
 };
 
 

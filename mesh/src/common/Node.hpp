@@ -117,8 +117,8 @@ public:
      * @param index  the index of the node in the mesh
      * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
      * @param v1 the x-coordinate of the node in the mesh (defaults to 0)
-     * @param v2 the x-coordinate of the node in the mesh (defaults to 0)
-     * @param v3 the x-coordinate of the node in the mesh (defaults to 0)
+     * @param v2 the y-coordinate of the node in the mesh (defaults to 0)
+     * @param v3 the z-coordinate of the node in the mesh (defaults to 0)
      */
     Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0);
 

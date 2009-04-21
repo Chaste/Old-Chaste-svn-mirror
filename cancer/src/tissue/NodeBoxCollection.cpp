@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "NodeBoxCollection.hpp"
-
+#include "Debug.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // NodeBox methods
@@ -80,6 +80,7 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
     {
         case 1:
         {
+            mNumBoxesEachDirection(0) = 0;
             double box_min_x = domainSize(0);
             while (box_min_x <  domainSize(1))
             {
@@ -98,6 +99,7 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
         }
         case 2:
         {
+            mNumBoxesEachDirection(0) = 0;
             double box_min_x = domainSize(0);
             while (box_min_x <  domainSize(1))
             {
@@ -140,7 +142,7 @@ unsigned NodeBoxCollection<DIM>::CalculateContainingBox(Node<DIM>* pNode)
     unsigned box_x_index = (unsigned) floor((x-mDomainSize(0))/mCutOffLength);
     unsigned box_y_index = (unsigned) floor((y-mDomainSize(2))/mCutOffLength);
         
-    return mNumBoxesEachDirection(1)*box_x_index + box_y_index;    
+    return mNumBoxesEachDirection(1)*box_x_index + box_y_index;
 }
 
 template<unsigned DIM>
@@ -226,7 +228,42 @@ std::set<unsigned> NodeBoxCollection<DIM>::GetLocalBoxes(unsigned boxIndex)
     return mLocalBoxes[boxIndex];
 }
 
-
+///\todo -> std::pair<Node<DIM>*,Node<DIM>*> 
+template<unsigned DIM>
+void NodeBoxCollection<DIM>::CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<unsigned, unsigned> >& rNodePairs)
+{
+    rNodePairs.clear();
+    for(unsigned node_index=0; node_index<rNodes.size(); node_index++)
+    {
+        // get the box containing this node
+        unsigned box_index = CalculateContainingBox(rNodes[node_index]);
+        
+        // get the local boxes to this node
+        std::set<unsigned> local_boxes_indices = GetLocalBoxes(box_index);
+        
+        // loop over all the local boxes
+        for(std::set<unsigned>::iterator iter = local_boxes_indices.begin();
+            iter != local_boxes_indices.end();
+            iter++)
+        {
+            NodeBox<DIM>& r_box = mBoxes[*iter];
+            std::set< Node<DIM>* >& r_contained_nodes = r_box.rGetNodesContained();
+            
+            // get all the nodes in the local boxes in the original node
+            for(typename std::set<Node<DIM>*>::iterator node_iter = r_contained_nodes.begin();
+                node_iter != r_contained_nodes.end();
+                ++node_iter)
+            {
+                unsigned index2 = (*node_iter)->GetIndex();
+                // if node_index1 < node_index2 add the pair to the set.
+                if(node_index < index2)
+                {
+                    rNodePairs.insert(std::pair<unsigned,unsigned>(node_index,index2));
+                }
+            }
+        }
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

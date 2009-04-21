@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
+#include "Debug.hpp"
 
 class TestNodeBoxCollection : public AbstractCancerTestSuite
 {
@@ -173,6 +174,70 @@ public:
         correct_answer_48.insert(47);
         correct_answer_48.insert(48);
         TS_ASSERT_EQUALS(local_boxes_to_box_48, correct_answer_48);
+    }
+    
+    void TestPairsReturned() throw (Exception)
+    {
+        std::vector< ChastePoint<2>* > points(10);
+        points[0] = new ChastePoint<2>(0.2, 3.7);
+        points[1] = new ChastePoint<2>(0.5, 3.2);
+        points[2] = new ChastePoint<2>(1.1, 1.99);
+        points[3] = new ChastePoint<2>(1.3, 0.8);
+        points[4] = new ChastePoint<2>(1.3, 0.3);
+        points[5] = new ChastePoint<2>(2.2, 0.6);
+        points[6] = new ChastePoint<2>(3.5, 0.2);
+        points[7] = new ChastePoint<2>(2.6, 1.4);
+        points[8] = new ChastePoint<2>(2.4, 1.5);
+        points[9] = new ChastePoint<2>(3.3, 3.6);
+        
+        std::vector<Node<2>* > nodes;
+        for (unsigned i=0; i<points.size(); i++)
+        {
+            nodes.push_back(new Node<2>(i, *(points[i]), false));
+        }
+
+        NodeBasedTissue<2> node_based_tissue(nodes);
+        
+        double cut_off_length = 1.0;
+        
+        c_vector<double, 2*2> domain_size;
+        domain_size(0) = 0.0;
+        domain_size(1) = 4.0;
+        domain_size(2) = 0.0;
+        domain_size(3) = 4.0;
+        
+        node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
+        
+        std::set< std::pair<unsigned, unsigned > > pairs_returned;
+        node_based_tissue.GetNodeBoxCollection()->CalculateNodePairs(nodes,pairs_returned);
+        
+        std::set< std::pair<unsigned, unsigned > > pairs_should_be;
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(0,1));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,3));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,4));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,5));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,7));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,8));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,4));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,5));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,7));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,8));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(4,5));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(4,7));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(4,8));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(5,6));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(5,7));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(5,8));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(6,7));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(6,8));
+        pairs_should_be.insert(std::pair<unsigned,unsigned>(7,8));
+        
+        TS_ASSERT_EQUALS(pairs_should_be,pairs_returned );
+        
+        for (unsigned i=0; i<points.size(); i++)
+        {   // Tissue deletes the nodes
+            delete points[i];
+        }
     }
 };
 
