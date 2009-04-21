@@ -244,7 +244,7 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
-        crypt.SetWriteVoronoiData(true,true);
+        crypt.SetWriteVoronoiData(true);
 
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
