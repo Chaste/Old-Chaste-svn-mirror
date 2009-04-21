@@ -998,10 +998,21 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
         
         TS_ASSERT_EQUALS(vertex_mesh.GetNumAllElements(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumAllNodes(), 6u);
         // probably need functionality below,
         //TS_ASSERT_EQUALS(vertex_mesh.GetNumAllNodes(), 6u);
         // ************ Need to do more tests on here to check nodes of elements are correct
         // ** Also need to update jacobians etc. 
+
+        for (unsigned j=1; j<4; j++)
+        {
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNumNodes(), 3u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNode(0)->GetIndex(), j%3);
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNode(1)->GetIndex(), (j+1)%3);
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNode(2)->GetIndex(), 3u);
+        }
+        
+        
     }
     
     void TestReMesh() throw(Exception)

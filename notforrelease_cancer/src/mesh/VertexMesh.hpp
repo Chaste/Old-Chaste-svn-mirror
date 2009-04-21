@@ -285,7 +285,12 @@ public:
      * @return the number of Nodes in the mesh.
      */
     unsigned GetNumNodes() const;
-
+    
+    /**
+     * @return the number of Nodes in the mesh, including Deleted ones.
+     */
+    unsigned GetNumAllNodes() const;
+    
     /**
      * @return the number of VertexElements in the mesh.
      */
