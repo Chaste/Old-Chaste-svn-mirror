@@ -658,6 +658,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         crypt_width = Double.valueOf(st_setup.nextToken()).doubleValue();
                         half_width = crypt_width/2.0;
                         System.out.println("Mesh Width = " + crypt_width);
+                        if (crypt_width < 1.0)
+                        {
+                        	System.out.println("Mesh Width less than 1 so can't be periodic - setting mesh to be noncylindrical");	
+                            drawCylinderOverride = false;
+                        }
                         drawCylinder = true && drawCylinderOverride;    // this is made true only if mesh width exists
                     }
                     if (parameter.equals("Nutrient"))  
